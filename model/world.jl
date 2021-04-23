@@ -5,7 +5,7 @@ module Model
     include("entities.jl")
 
     # Температура воздуха, начиная с 1 января
-    temp = [-5.8, -5.9, -5.9, -5.9,
+    temperature = [-5.8, -5.9, -5.9, -5.9,
         -6.0, -6.0, -6.1, -6.1, -6.2, -6.2, -6.2, -6.3,
         -6.3, -6.4, -6.5, -6.5, -6.6, -6.6, -6.7, -6.7,
         -6.8, -6.8, -6.9, -6.9, -7.0, -7.0, -7.0, -7.1, -7.1,
@@ -65,27 +65,22 @@ module Model
     year_day = 211
     # Номер недели
     week_num = 0
-    # Шаг модели
-    step = 0
+    # # Шаг модели
+    # step = 0
 
-    # agents::Vector{10000000}
+    university = Collective(2.1, 3.0, fill(Group[], 6))
+    workplace = Collective(3.0, 3.0, fill(Group[], 1))
 
-    # current_kindergarten = Collective(1, 1)
-    # current_school = Collective(1, 1)
-    # current_university = Collective(1, 1)
-    # current_workplace = Collective(1, 1)
-
-    # Набор id инфицированных агентов
-    infected_agents = Set()
+    # Набор инфицированных агентов
+    infected_agents = Agent[]
 
     district_df = CSV.read(
         joinpath(@__DIR__, "..", "tables", "districts.csv"), DataFrame, tasks=1)
     district_household_df = CSV.read(
         joinpath(@__DIR__, "..", "tables", "districts_households.csv"), DataFrame, tasks=1)
 
-
     function create_agent(
-        household::Collective,
+        household::Group,
         index::Int,
         district_household_index::Int,
         is_male::Union{Bool, Nothing} = nothing,
@@ -263,7 +258,7 @@ module Model
         end
     end
 
-    function create_spouse(household::Collective, partner_age::Int)
+    function create_spouse(household::Group, partner_age::Int)
         rand_num = rand(1:100)
         difference = 0
         if rand_num <= 3
@@ -307,7 +302,7 @@ module Model
     end
 
     function create_parents_with_children(
-        household::Collective,
+        household::Group,
         district_household_index::Int,
         num_of_children::Int,
         num_of_other_people::Int,
@@ -398,7 +393,7 @@ module Model
     end
 
     function create_parent_with_children(
-        household::Collective,
+        household::Group,
         district_household_index::Int,
         num_of_children::Int,
         num_of_other_people::Int,
@@ -493,7 +488,7 @@ module Model
     end
 
     function create_others(
-        household::Collective,
+        household::Group,
         district_household_index::Int,
         num_of_children::Int,
         num_of_other_people::Int,
@@ -581,95 +576,156 @@ module Model
         end
     end
 
-    function add_agents_to_kindergarten(agents::Vector{Agent}, kindergarten_group::Collective)
-        # Should lock threads
-        for agent in agents
-            if agent.social_status == 1
-                push!(kindergarten_group.agents, agent)
-
-
-
-        #         // Выбор группы по возрасту
-        # val groupNum = when (agent.age) {
-        #     0 -> 0
-        #     1 -> 1
-        #     2 -> if ((0..1).random() == 0) 1 else 2
-        #     3 -> if ((0..1).random() == 0) 2 else 3
-        #     4 -> if ((0..1).random() == 0) 3 else 4
-        #     5 -> if ((0..1).random() == 0) 4 else 5
-        #     6 -> 5
-        #     else -> error("Wrong age")
-        # }
-        # // Добавление группы, если отсутствует
-        # if (groupsByAge[groupNum].size == 0) {
-        #     groupsByAge[groupNum].add(Group())
-        # }
-        # // Группа заполнена
-        # if (groupsByAge[groupNum][groupsByAge[groupNum].size - 1].agents.size == currentGroupSize[groupNum]) {
-        #     groupsByAge[groupNum].add(Group())
-        #     currentGroupSize[groupNum] = findNumberOfPeople(groupNum)
-        # }
-        # // Добавление агента в последнюю добавленную группу
-        # groupsByAge[groupNum][groupsByAge[groupNum].size - 1].addAgent(agent)
-
-
-
-            end
+    function add_agent_to_group(
+        agent::Agent,
+        collective::Collective,
+        group_num::Int,
+        collective_group_size::Int
+    )
+        if size(collective.groups[group_num], 1) == 0
+            group = Group()
+            push!(collective.groups[group_num], group)
+            group.collective = collective
         end
-        # agents.forEach { agent ->
-        #     when (agent.activityStatus) {
-        #         1 -> kindergarten.addAgent(agent)
-        #         2 -> school.addAgent(agent)
-        #         3 -> university.addAgent(agent)
-        #         4 -> workplace.addAgent(agent)
-        #     }
-        #     // Добавление в домохозяйство
-        #     household.addAgent(agent)
-        # }
-        # // Добавление нового домохозяйства в массив домохозяйств
-        # households.add(household)
+        length = size(collective.groups[group_num], 1)
+        last_group = collective.groups[group_num][length]
+        if size(last_group.agents, 1) == collective_group_size
+            last_group = Group()
+            push!(collective.groups[group_num], last_group)
+            last_group.collective = collective
+        end
+        push!(last_group.agents, agent)
+        agent.group = last_group
     end
 
-    function add_agents_to_collectives(agents::Vector{Agent})
-        # Should lock threads
+    function add_agent_to_kindergarten(
+        agent::Agent,
+        kindergarten::Collective
+    )
+        kindergarten_group_size = 15
+        group_num = 1
+        if agent.age == 1
+            group_num = 2
+        elseif agent.age == 2
+            group_num = rand(2:3)
+        elseif agent.age == 3
+            group_num = rand(3:4)
+        elseif agent.age == 4
+            group_num = rand(4:5)
+        elseif agent.age == 5
+            group_num = rand(5:6)
+        elseif agent.age == 6
+            group_num = 6
+        end
+        add_agent_to_group(agent, kindergarten, group_num, kindergarten_group_size)
+    end
+
+    function add_agent_to_school(
+        agent::Agent,
+        school::Collective
+    )
+        school_group_size = 25
+        group_num = 1
+        if agent.age == 8
+            group_num = 2
+        elseif agent.age == 9
+            group_num = rand(2:3)
+        elseif agent.age == 10
+            group_num = rand(3:4)
+        elseif agent.age == 11
+            group_num = rand(4:5)
+        elseif agent.age == 12
+            group_num = rand(5:6)
+        elseif agent.age == 13
+            group_num = rand(6:7)
+        elseif agent.age == 14
+            group_num = rand(7:8)
+        elseif agent.age == 15
+            group_num = rand(8:9)
+        elseif agent.age == 16
+            group_num = rand(9:10)
+        elseif agent.age == 17
+            group_num = rand(10:11)
+        elseif agent.age == 18
+            group_num = 11
+        end
+        add_agent_to_group(agent, school, group_num, school_group_size)
+    end
+
+    function add_agent_to_university(
+        agent::Agent,
+        university::Collective
+    )
+        university_group_size = 12
+        group_num = 1
+        if agent.age == 19
+            group_num = rand(1:2)
+        elseif agent.age == 20
+            group_num = rand(2:3)
+        elseif agent.age == 21
+            group_num = rand(3:4)
+        elseif agent.age == 22
+            group_num = rand(4:5)
+        elseif agent.age == 23
+            group_num = rand(5:6)
+        elseif agent.age == 24
+            group_num = 6
+        end
+        add_agent_to_group(agent, university, group_num, university_group_size)
+    end
+
+    function add_agent_to_workplace(
+        agent::Agent,
+        workplace::Collective
+    )
+        workplace_group_size = 8
+        add_agent_to_group(agent, workplace, 1, workplace_group_size)
+    end
+
+    function add_agents_to_collectives(
+        agents::Vector{Agent},
+        kindergarten::Collective,
+        school::Collective
+    )
         for agent in agents
             if agent.virus !== nothing
                 l = ReentrantLock()
                 lock(l)
                 try
-                    push!(infected_agents, 1)
+                    push!(infected_agents, agent)
                 finally
                     unlock(l)
                 end
             end
             if agent.social_status == 1
-                
+                add_agent_to_kindergarten(agent, kindergarten)
             elseif agent.social_status == 2
-
+                add_agent_to_school(agent, school)
             elseif agent.social_status == 3
-
+                l = ReentrantLock()
+                lock(l)
+                try
+                    add_agent_to_university(agent, university)
+                finally
+                    unlock(l)
+                end
             elseif agent.social_status == 4
-
+                l = ReentrantLock()
+                lock(l)
+                try
+                    add_agent_to_workplace(agent, workplace)
+                finally
+                    unlock(l)
+                end
             end
         end
-        # agents.forEach { agent ->
-        #     when (agent.activityStatus) {
-        #         1 -> kindergarten.addAgent(agent)
-        #         2 -> school.addAgent(agent)
-        #         3 -> university.addAgent(agent)
-        #         4 -> workplace.addAgent(agent)
-        #     }
-        #     // Добавление в домохозяйство
-        #     household.addAgent(agent)
-        # }
-        # // Добавление нового домохозяйства в массив домохозяйств
-        # households.add(household)
     end
 
     function create_population()
-        progress_counter = Threads.Atomic{Int}(0)
+        # progress_counter = Threads.Atomic{Int}(0)
         Threads.@threads for index = 1:107
-            current_kindergarten_group = Collective(5.88, 2.52)
+            kindergarten = Collective(5.88, 2.52, fill(Group[], 6))
+            school = Collective(4.783, 2.67, fill(Group[], 11))
             # println(index)
             index_for_1_people::Int = (index - 1) * 5 + 1
             index_for_2_people::Int = index_for_1_people + 1
@@ -677,402 +733,464 @@ module Model
             index_for_4_people::Int = index_for_3_people + 1
             index_for_5_people::Int = index_for_4_people + 1
             for i in 1:district_df[index, "1P"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = Agent[create_agent(household, index, index_for_1_people)]
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP2P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_2_people, 0, 0, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP3P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_3_people, 0, 1, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP3P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_3_people, 1, 0, index)
                 household.agents = agents
-                add_agents_to_kindergarten(agents, current_kindergarten_group)
-                
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP4P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_4_people, 0, 2, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP4P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_4_people, 1, 1, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP4P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_4_people, 2, 0, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP5P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_5_people, 0, 3, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP5P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_5_people, 1, 2, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP5P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_5_people, 2, 1, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP5P3C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_5_people, 3, 0, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP6P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_5_people, 0, 4, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP6P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_5_people, 1, 3, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP6P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_5_people, 2, 2, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "PWOP6P3C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parents_with_children(household, index_for_5_people, 3, 1, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "2PWOP4P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 pair1 = create_parents_with_children(household, index_for_4_people, 0, 0, index)
                 pair2 = create_parents_with_children(household, index_for_4_people, 0, 0, index)
                 agents = vcat(pair1, pair2)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "2PWOP5P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 pair1 = create_parents_with_children(household, index_for_5_people, 0, 1, index)
                 pair2 = create_parents_with_children(household, index_for_5_people, 0, 0, index)
                 agents = vcat(pair1, pair2)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "2PWOP5P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 pair1 = create_parents_with_children(household, index_for_5_people, 1, 0, index)
                 pair2 = create_parents_with_children(household, index_for_5_people, 0, 0, index)
                 agents = vcat(pair1, pair2)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "2PWOP6P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 pair1 = create_parents_with_children(household, index_for_5_people, 0, 1, index)
                 pair2 = create_parents_with_children(household, index_for_5_people, 0, 1, index)
                 agents = vcat(pair1, pair2)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "2PWOP6P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 pair1 = create_parents_with_children(household, index_for_5_people, 1, 0, index)
                 pair2 = create_parents_with_children(household, index_for_5_people, 0, 1, index)
                 agents = vcat(pair1, pair2)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "2PWOP6P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 pair1 = create_parents_with_children(household, index_for_5_people, 1, 0, index)
                 pair2 = create_parents_with_children(household, index_for_5_people, 1, 0, index)
                 agents = vcat(pair1, pair2)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SMWC2P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_2_people, 0, 1, index, false)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SMWC2P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_2_people, 1, 0, index, false)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SMWC3P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_3_people, 0, 2, index, false)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SMWC3P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_3_people, 1, 1, index, false)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SMWC3P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_3_people, 2, 0, index, false)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SMWC3P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_3_people, 2, 0, index, false)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SMWC4P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_4_people, 0, 3, index, false)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SMWC4P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_4_people, 1, 2, index, false)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SMWC4P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_4_people, 2, 1, index, false)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SMWC4P3C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_4_people, 3, 0, index, false)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SFWC2P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_2_people, 0, 1, index, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SFWC2P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_2_people, 1, 0, index, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SFWC3P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_3_people, 0, 2, index, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SFWC3P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_3_people, 1, 1, index, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SFWC3P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_3_people, 2, 0, index, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SPWCWP3P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_3_people, 0, 2, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SPWCWP3P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_3_people, 1, 1, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SPWCWP4P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_4_people, 0, 3, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SPWCWP4P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_4_people, 1, 2, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SPWCWP4P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_4_people, 2, 1, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
 
             for i in 1:district_df[index, "SPWCWPWOP3P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_3_people, 0, 2, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SPWCWPWOP3P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_3_people, 1, 1, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SPWCWPWOP4P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_4_people, 0, 3, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SPWCWPWOP4P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_4_people, 1, 2, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SPWCWPWOP4P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_4_people, 2, 1, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SPWCWPWOP5P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_5_people, 0, 4, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SPWCWPWOP5P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_5_people, 1, 3, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "SPWCWPWOP5P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_parent_with_children(household, index_for_5_people, 2, 2, index, nothing, true)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
 
             for i in 1:district_df[index, "O2P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_others(household, index_for_2_people, 0, 2, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "O2P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_others(household, index_for_2_people, 1, 1, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "O3P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_others(household, index_for_3_people, 0, 3, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "O3P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_others(household, index_for_3_people, 1, 2, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "O3P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_others(household, index_for_3_people, 2, 1, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "O4P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_others(household, index_for_4_people, 0, 4, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "O4P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_others(household, index_for_4_people, 1, 3, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "O4P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_others(household, index_for_4_people, 2, 2, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "O5P0C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_others(household, index_for_5_people, 0, 5, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "O5P1C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_others(household, index_for_5_people, 1, 4, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             for i in 1:district_df[index, "O5P2C"]
-                household = Collective(12.4, 5.13)
+                household = Group()
                 agents = create_others(household, index_for_5_people, 2, 3, index)
                 household.agents = agents
-                add_agents_to_collectives(agents)
+                add_agents_to_collectives(agents, kindergarten, school)
             end
             break
         end
     end
 
+    println("Initialization")
     @time create_population()
-    println(length(infected_agents))
+
+    function get_contact_duration(mean::Float64, sd::Float64)
+        return rand(truncated(Normal(mean, sd), 0.0, Inf))
+    end
+
+    # Параметры
+    duration_parameter = 1.0
+    temperature_parameters = Dict(
+        "FluA" => 1.0,
+        "FluB" => 1.0,
+        "RV" => 1.0,
+        "RSV" => 1.0,
+        "AdV" => 1.0,
+        "PIV" => 1.0,
+        "CoV" => 1.0)
+    susceptibility_parameters = Dict(
+        "FluA" => 1.0,
+        "FluB" => 1.0,
+        "RV" => 1.0,
+        "RSV" => 1.0,
+        "AdV" => 1.0,
+        "PIV" => 1.0,
+        "CoV" => 1.0)
+
+    function make_contact(
+        infected_agent::Agent,
+        agent::Agent,
+        contact_duration::Float64,
+        newly_infected_agents::Vector{Agent}
+    )
+        # Проверка восприимчивости агента к вирусу
+        if agent.virus !== nothing || agent.days_immune > 0 || agent.immunity[infected_agent.virus.name]
+            return
+        end
+        # Влияние продолжительности контакта на вероятность инфицирования
+        duration_influence = 1 / (1 + exp(
+            - + duration_parameter))
+                
+        # Влияние температуры воздуха на вероятность инфицирования
+        temperature_normalized = (temperature[year_day] - min_temp) / max_min_temp
+        temperature_influence = temperature_parameters[infected_agent.virus.name] * temperature_normalized + 1.0
+
+        # Влияние восприимчивости агента на вероятность инфицирования
+        susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus.name] * agent.ig_level))
+
+        # Влияние силы инфекции на вероятность инфицирования
+        infectivity_influence = infected_agent.viral_load / 12.0
+
+        # Вероятность инфицирования
+        infection_probability = infectivity_influence * susceptibility_influence *
+            temperature_influence * duration_influence
+
+        if rand(Float64) < infection_probability
+            agent.virus = infected_agent.virus
+            push!(newly_infected_agents, agent)
+        end
+    end
+
+    function run_simulation()
+        for step = 1:2
+            # Набор инфицированных агентов на данном шаге
+            newly_infected_agents = Agent[]
+            for agent in infected_agents
+                for agent2 in agent.household.agents
+                    make_contact(agent, agent2,
+                        get_contact_duration(12.5, 5.5), newly_infected_agents)
+                end
+                if agent.group !== nothing
+                    group = agent.group
+                    for agent2 in group.agents
+                        make_contact(agent, agent2, get_contact_duration(
+                            group.collective.mean_time_spent,
+                            group.collective.time_spent_sd), newly_infected_agents)
+                    end
+                end
+            end
+        end
+    end
+
+    println("Simulation")
+    @time run_simulation()
 end
-
-
-# // Взрослый
-# // Случайное число для возрастной группы
-# val ageGroupRandomNum = if (isOld != null) {
-#     if (isOld) {
-#         // Взрослый в возрасте
-#         // 45+
-#         (district_household_df[12, "$(index)_$(size_of_household)"] + 1..100).random()
-#     } else {
-#         // Более молодой взрослый
-#         // 18-54
-#         (1..district_household_df[13, "$(index)_$(size_of_household)"]).random()
-#     }
-# } else {
-#     (1..100).random()
-# }

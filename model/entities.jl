@@ -3,6 +3,8 @@ using Distributions, Random
 struct Virus
     # Идентификатор
     id::Int
+    # Наименование
+    name::String
     # Средняя продолжительность инкубационного периода
     mean_incubation_period::Float64
     # Дисперсия продолжительности инкубационного периода
@@ -38,6 +40,7 @@ struct Virus
 
     function Virus(
         id::Int,
+        name::String,
         mean_incubation_period::Float64,
         incubation_period_variance::Float64,
         min_incubation_period::Int,
@@ -55,6 +58,7 @@ struct Virus
     )
         new(
             id,
+            name,
             mean_incubation_period,
             incubation_period_variance,
             min_incubation_period,
@@ -93,13 +97,13 @@ function get_viral_load(
 end
 
 viruses = Dict(
-    "FluA" => Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 16),
-    "FluB" => Virus(2, 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 16),
-    "RV" => Virus(3, 1.9, 0.175, 1, 7, 10.1, 4.93, 3, 12, 11.4, 6.25, 4, 14, 3.5, 30),
-    "RSV" => Virus(4, 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 30),
-    "AdV" => Virus(5, 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 30),
-    "PIV" => Virus(6, 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.7, 30),
-    "CoV" => Virus(7, 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 30)
+    "FluA" => Virus(1, "FluA", 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 16),
+    "FluB" => Virus(2, "FluB", 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 16),
+    "RV" => Virus(3, "RV", 1.9, 0.175, 1, 7, 10.1, 4.93, 3, 12, 11.4, 6.25, 4, 14, 3.5, 30),
+    "RSV" => Virus(4, "RSV", 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 30),
+    "AdV" => Virus(5, "AdV", 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 30),
+    "PIV" => Virus(6, "PIV", 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.7, 30),
+    "CoV" => Virus(7, "CoV", 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 30)
 )
 
 viral_loads = cat(
@@ -124,8 +128,8 @@ for days_infected in -6:14
     end
 end
 
-abstract type AbstractCollective end
 abstract type AbstractGroup end
+abstract type AbstractCollective end
 
 mutable struct Agent
     # Возраст
@@ -136,10 +140,8 @@ mutable struct Agent
     is_male::Bool
     # Социальный статус
     social_status::Int
-    # Связи в домохозяйстве, массив номеров агентов
-    household_conn::Vector{Int}
-    # Связи в коллективе, массив номеров агентов
-    other_conn::Vector{Int}
+    # Связи в коллективе
+    work_conn::Vector{Agent}
     # Нужда по уходу за больным ребенком
     need_parent_leave::Bool
     # Уход за больным ребенком
@@ -167,10 +169,10 @@ mutable struct Agent
     # Вирусная нагрузка
     viral_load::Float64
 
-    household::AbstractCollective
-    workplace::Union{AbstractCollective, Nothing}
+    household::AbstractGroup
+    group::Union{AbstractGroup, Nothing}
 
-    function Agent(household::AbstractCollective, is_male::Bool, age::Int)
+    function Agent(household::AbstractGroup, is_male::Bool, age::Int)
         # Возраст новорожденного
         infant_age = 0
         if age == 0
@@ -517,7 +519,7 @@ mutable struct Agent
 
         new(
             age, infant_age, is_male, social_status,
-            Int[], Int[], false, false, ig_level,
+            Agent[], false, false, ig_level,
             virus, immunity, immunity_days,
             incubation_period, infection_period, days_infected,
             days_immune, is_asymptomatic, is_isolated, viral_load,
@@ -536,6 +538,17 @@ function get_period_from_erlang(
     return round(rand(truncated(Erlang(shape, scale), low, upper)))
 end
 
+mutable struct Group <: AbstractGroup
+    # Агенты
+    agents::Vector{Agent}
+    # Коллектив
+    collective::Union{AbstractCollective, Nothing}
+
+    function Group(agents::Vector{Agent} = Agent[], collective::Union{AbstractCollective, Nothing} = nothing)
+        new(agents, collective)
+    end
+end
+
 mutable struct Collective <: AbstractCollective
     # Среднее время проводимое агентами
     mean_time_spent::Float64
@@ -544,22 +557,9 @@ mutable struct Collective <: AbstractCollective
     # Активен на текущем шаге
     is_active::Bool
     # Агенты
-    agents::Vector{Agent}
+    groups::Vector{Vector{Group}}
 
-    function Collective(mean_time_spent::Float64, time_spent_sd::Float64, agents::Vector{Agent} = Agent[])
-        new(mean_time_spent, time_spent_sd, true, agents)
+    function Collective(mean_time_spent::Float64, time_spent_sd::Float64, groups::Vector{Vector{Group}})
+        new(mean_time_spent, time_spent_sd, true, groups)
     end
-end
-
-mutable struct Group <: AbstractGroup
-    # Агенты
-    agents::Vector{Agent}
-
-    function Group(agents::Vector{Agent} = Agent[])
-        new(agents)
-    end
-end
-
-function get_contact_duration(mean::Float64, sd::Float64)
-    return rand(truncated(Normal(mean, sd), 0.0, Inf))
 end
