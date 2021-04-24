@@ -150,8 +150,6 @@ mutable struct Agent
     ig_level::Float64
     # Вирус
     virus::Union{Virus, Nothing}
-    # Набор иммунитетов
-    immunity::Dict{String, Bool}
     # Набор дней после приобретения типоспецифического иммунитета кроме гриппа
     immunity_days::Dict{String, Int}
     # Продолжительность инкубационного периода
@@ -384,19 +382,9 @@ mutable struct Agent
             end
         end
 
-        # Набор иммунитетов
-        immunity = Dict(
-            "FluA" => false,
-            "FluB" => false,
-            "RV" => false,
-            "RSV" => false,
-            "AdV" => false,
-            "PIV" => false,
-            "CoV" => false)
-
         # Набор дней после приобретения типоспецифического иммунитета кроме гриппа
         immunity_days = Dict(
-            "RV" => 0, "RSV" => 0, "AdV" => 0, "PIV" => 0, "CoV" => 0)
+            "FluA" => 0, "FluB" => 0, "RV" => 0, "RSV" => 0, "AdV" => 0, "PIV" => 0, "CoV" => 0)
 
         # Информация при болезни
         virus::Union{Virus, Nothing} = nothing
@@ -445,7 +433,7 @@ mutable struct Agent
             if rand(1:100) <= virus.asymptomatic_probab
                 # Асимптомный
                 is_asymptomatic = true
-
+            else
                 # Самоизоляция
                 rand_num = rand(1:1000)
                 if days_infected == incubation_period + 1
@@ -520,10 +508,10 @@ mutable struct Agent
         new(
             age, infant_age, is_male, social_status,
             Agent[], false, false, ig_level,
-            virus, immunity, immunity_days,
-            incubation_period, infection_period, days_infected,
-            days_immune, is_asymptomatic, is_isolated, viral_load,
-            household, nothing)
+            virus, immunity_days, incubation_period,
+            infection_period, days_infected,
+            days_immune, is_asymptomatic, is_isolated,
+            viral_load, household, nothing)
     end
 end
 
@@ -554,12 +542,10 @@ mutable struct Collective <: AbstractCollective
     mean_time_spent::Float64
     # Среднеквадратическое отклонение времени проводимого агентами
     time_spent_sd::Float64
-    # Активен на текущем шаге
-    is_active::Bool
     # Агенты
     groups::Vector{Vector{Group}}
 
     function Collective(mean_time_spent::Float64, time_spent_sd::Float64, groups::Vector{Vector{Group}})
-        new(mean_time_spent, time_spent_sd, true, groups)
+        new(mean_time_spent, time_spent_sd, groups)
     end
 end
