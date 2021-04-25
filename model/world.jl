@@ -4,11 +4,13 @@ module Model
     using CSV
     using DataFrames
     using Plots
-    # pyplot()
-    # using PyPlot
-    # pygui(true)
-
+    using Base.Threads
+    
     include("entities.jl")
+
+    # DEBUG
+    max_simulation_step = 20
+    is_break = true
 
     # Параметры
     duration_parameter = 7.05
@@ -778,7 +780,7 @@ module Model
         return rand(3:15)
     end
 
-    function create_population()
+    function create_population(l::SpinLock)
         Threads.@threads for index = 1:107
             println("Index: $(index)")
 
@@ -1499,19 +1501,26 @@ module Model
                     workplace, workplace_group_sizes,
                     thread_agents, thread_infected_agents)
             end
-            l = ReentrantLock()
-            lock(l) do
+            lock(l)
+            try
                 global all_agents
                 global infected_agents
                 all_agents = vcat(all_agents, thread_agents)
                 infected_agents = vcat(infected_agents, thread_infected_agents)
+            finally
+                unlock(l)
             end
-            break
+
+            # DEBUG
+            if is_break
+                break
+            end
         end
     end
 
     println("Initialization")
-    @time create_population()
+    l = SpinLock()
+    @time create_population(l)
 
     function find_current_viral_load(agent::Agent)
         if agent.age < 3
@@ -1698,7 +1707,7 @@ module Model
         end
     end
 
-    function run_simulation()
+    function run_simulation(l::SpinLock)
         # Температура воздуха, начиная с 1 января
         temperature = [-5.8, -5.9, -5.9, -5.9,
             -6.0, -6.0, -6.1, -6.1, -6.2, -6.2, -6.2, -6.3,
@@ -1768,8 +1777,7 @@ module Model
         all_recovered_agents = Agent[]
 
         daily_new_cases = Int[]
-        for step = 1:100
-        # for step = 1:3
+        for step = 1:max_simulation_step
             println("Step: $(step)")
             # Набор инфицированных агентов на данном шаге
             newly_infected_agents = Agent[]
@@ -1833,7 +1841,7 @@ module Model
                 is_university_holiday = true
             end
 
-            Threads.@threads for agent in all_infected_agents
+            for agent in all_infected_agents
                 for agent2 in agent.household.agents
                     agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.social_status == 0
                     agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.social_status == 0
@@ -1879,6 +1887,62 @@ module Model
                     end
                 end
             end
+
+            # if (size(all_infected_agents, 1) > 3)
+            #     s::Int = size(all_infected_agents, 1) ÷ 4
+            #     range_arr = [1:s, (s+1):(2s), (2s+1):(3s), (3s + 1):size(all_infected_agents, 1)]
+            #     Threads.@threads for range in range_arr
+            #         for i in range
+            #             agent = all_infected_agents[i]
+            #             for agent2 in agent.household.agents
+            #                 agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.social_status == 0
+            #                 agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.social_status == 0
+            #                 if is_holiday || (agent_at_home && agent2_at_home)
+            #                     make_contact(agent, agent2, get_contact_duration(12.5, 5.5),
+            #                         current_temp, newly_infected_agents)
+            #                 elseif ((agent.social_status == 1 && !agent_at_home) ||
+            #                     (agent2.social_status == 1 && !agent2_at_home)) && !is_kindergarten_holiday
+            #                     make_contact(agent, agent2, get_contact_duration(5.0, 2.05),
+            #                         current_temp, newly_infected_agents)
+            #                 elseif ((agent.social_status == 4 && !agent_at_home) ||
+            #                     (agent2.social_status == 4 && !agent2_at_home)) && !is_work_holiday
+            #                     make_contact(agent, agent2, get_contact_duration(5.5, 2.25),
+            #                         current_temp, newly_infected_agents)
+            #                 elseif ((agent.social_status == 2 && !agent_at_home) ||
+            #                     (agent2.social_status == 2 && !agent2_at_home)) && !is_school_holiday
+            #                     make_contact(agent, agent2, get_contact_duration(6.0, 2.46),
+            #                         current_temp, newly_infected_agents)
+            #                 elseif ((agent.social_status == 3 && !agent_at_home) ||
+            #                     (agent2.social_status == 3 && !agent2_at_home)) && !is_university_holiday
+            #                     make_contact(agent, agent2, get_contact_duration(7.0, 3.69),
+            #                         current_temp, newly_infected_agents)
+            #                 end
+            #             end
+            #             if !is_holiday && agent.group !== nothing && !agent.is_isolated && !agent.on_parent_leave
+            #                 group = agent.group
+            #                 if (agent.social_status == 1 && !is_kindergarten_holiday) ||
+            #                     (agent.social_status == 2 && !is_school_holiday) ||
+            #                     (agent.social_status == 3 && !is_university_holiday) ||
+            #                     (agent.social_status == 4 && !is_work_holiday)
+            #                     for agent2 in group.agents
+            #                         if !agent2.is_isolated && !agent2.on_parent_leave
+            #                             make_contact(
+            #                                 agent,
+            #                                 agent2,
+            #                                 get_contact_duration(
+            #                                     group.collective.mean_time_spent,
+            #                                     group.collective.time_spent_sd),
+            #                                 current_temp,
+            #                                 newly_infected_agents)
+            #                         end
+            #                     end
+            #                 end
+            #             end
+            #         end
+            #     end
+            # else
+                
+            # end
 
             # Обновление состояния восприимчивых агентов
             Threads.@threads for i = 1:1000
@@ -2039,11 +2103,11 @@ module Model
             all_infected_agents = vcat(all_infected_agents, newly_infected_agents)
             push!(daily_new_cases, size(newly_infected_agents, 1))
         end
-        daily_new_cases_plot = plot(1:3, daily_new_cases, title = "Daily New Cases", lw = 3, legend = false)
+        daily_new_cases_plot = plot(1:max_simulation_step, daily_new_cases, title = "Daily New Cases", lw = 3, legend = false)
         xlabel!("Day")
         ylabel!("Num of people")
-        savefig(daily_new_cases_plot, joinpath(@__DIR__, "..", "output", "daily_new_cases.png"))
+        savefig(daily_new_cases_plot, joinpath(@__DIR__, "..", "output", "daily_new_cases.pdf"))
     end
     println("Simulation")
-    @time run_simulation()
+    @time run_simulation(l)
 end

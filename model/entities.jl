@@ -168,8 +168,9 @@ mutable struct Agent
     is_isolated::Bool
     # Вирусная нагрузка
     viral_load::Float64
-
+    # Домохозяйство
     household::AbstractGroup
+    # Группа
     group::Union{AbstractGroup, Nothing}
 
     function Agent(household::AbstractGroup, is_male::Bool, age::Int)
