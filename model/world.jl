@@ -3,6 +3,10 @@
 module Model
     using CSV
     using DataFrames
+    using Plots
+    # pyplot()
+    # using PyPlot
+    # pygui(true)
 
     include("entities.jl")
 
@@ -260,7 +264,8 @@ module Model
 
     function check_parent_leave(no_one_at_home::Bool, adult::Agent, child::Agent)
         if no_one_at_home && child.age < 14
-            adult.need_parent_leave = true
+            push!(adult.dependants, child)
+            child.supporter = adult
             if child.age < 3 && child.social_status == 0
                 adult.social_status == 0
             end
@@ -770,11 +775,12 @@ module Model
 
     function get_workplace_group_size(group_num::Int)
         # zipfDistribution.sample() + (minFirmSize - 1)
-        return 5
+        return rand(3:15)
     end
 
     function create_population()
         Threads.@threads for index = 1:107
+            println("Index: $(index)")
 
             kindergarten = Collective(5.88, 2.52, fill(Group[], 6))
             kindergarten_group_sizes = Int[
@@ -814,7 +820,6 @@ module Model
             thread_agents = Agent[]
             thread_infected_agents = Agent[]
 
-            println(index)
             index_for_1_people::Int = (index - 1) * 5 + 1
             index_for_2_people::Int = index_for_1_people + 1
             index_for_3_people::Int = index_for_2_people + 1
@@ -1501,7 +1506,7 @@ module Model
                 all_agents = vcat(all_agents, thread_agents)
                 infected_agents = vcat(infected_agents, thread_infected_agents)
             end
-            # break
+            break
         end
     end
 
@@ -1537,7 +1542,7 @@ module Model
     end
 
     function update_infected_agent(agent::Agent)
-        if !agent.is_asymptomatic && !agent.is_isolated && agent.social_status != 0 && !agent.parent_leave
+        if !agent.is_asymptomatic && !agent.is_isolated && agent.social_status != 0 && !agent.on_parent_leave
             # Самоизоляция
             rand_num = rand(1:1000)
             if agent.days_infected == agent.incubation_period + 1
@@ -1762,7 +1767,10 @@ module Model
         # Резистентные агенты
         all_recovered_agents = Agent[]
 
-        for step = 1:3
+        daily_new_cases = Int[]
+        for step = 1:100
+        # for step = 1:3
+            println("Step: $(step)")
             # Набор инфицированных агентов на данном шаге
             newly_infected_agents = Agent[]
             # Текущая нормализованная температура
@@ -1827,24 +1835,46 @@ module Model
 
             Threads.@threads for agent in all_infected_agents
                 for agent2 in agent.household.agents
-                    make_contact(agent, agent2, get_contact_duration(12.5, 5.5),
-                        current_temp, newly_infected_agents)
+                    agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.social_status == 0
+                    agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.social_status == 0
+                    if is_holiday || (agent_at_home && agent2_at_home)
+                        make_contact(agent, agent2, get_contact_duration(12.5, 5.5),
+                            current_temp, newly_infected_agents)
+                    elseif ((agent.social_status == 1 && !agent_at_home) ||
+                        (agent2.social_status == 1 && !agent2_at_home)) && !is_kindergarten_holiday
+                        make_contact(agent, agent2, get_contact_duration(5.0, 2.05),
+                            current_temp, newly_infected_agents)
+                    elseif ((agent.social_status == 4 && !agent_at_home) ||
+                        (agent2.social_status == 4 && !agent2_at_home)) && !is_work_holiday
+                        make_contact(agent, agent2, get_contact_duration(5.5, 2.25),
+                            current_temp, newly_infected_agents)
+                    elseif ((agent.social_status == 2 && !agent_at_home) ||
+                        (agent2.social_status == 2 && !agent2_at_home)) && !is_school_holiday
+                        make_contact(agent, agent2, get_contact_duration(6.0, 2.46),
+                            current_temp, newly_infected_agents)
+                    elseif ((agent.social_status == 3 && !agent_at_home) ||
+                        (agent2.social_status == 3 && !agent2_at_home)) && !is_university_holiday
+                        make_contact(agent, agent2, get_contact_duration(7.0, 3.69),
+                            current_temp, newly_infected_agents)
+                    end
                 end
-                if !is_holiday && agent.group !== nothing
+                if !is_holiday && agent.group !== nothing && !agent.is_isolated && !agent.on_parent_leave
                     group = agent.group
                     if (agent.social_status == 1 && !is_kindergarten_holiday) ||
                         (agent.social_status == 2 && !is_school_holiday) ||
                         (agent.social_status == 3 && !is_university_holiday) ||
                         (agent.social_status == 4 && !is_work_holiday)
                         for agent2 in group.agents
-                            make_contact(
-                                agent,
-                                agent2,
-                                get_contact_duration(
-                                    group.collective.mean_time_spent,
-                                    group.collective.time_spent_sd),
-                                current_temp,
-                                newly_infected_agents)
+                            if !agent2.is_isolated && !agent2.on_parent_leave
+                                make_contact(
+                                    agent,
+                                    agent2,
+                                    get_contact_duration(
+                                        group.collective.mean_time_spent,
+                                        group.collective.time_spent_sd),
+                                    current_temp,
+                                    newly_infected_agents)
+                            end
                         end
                     end
                 end
@@ -1902,19 +1932,32 @@ module Model
                     agent.days_immune = 1
                     agent.virus = nothing
                     deleteat!(all_infected_agents, i)
-                    # Конец больничного по уходу за ребенком
-                    # if ((agent.age < 14) && (agent.isStayingHomeWhenInfected)) {
-                    #     for (otherAgent in household.agents) {
-                    #         if (otherAgent.isOnMotherLeave) {
-                    #             otherAgent.isOnMotherLeave = false
-                    #             break
-                    #         }
-                    #     }
-                    # }
+
+                    if agent.supporter !== nothing
+                        is_support_still_needed = false
+                        for dependant in agent.supporter.dependants
+                            if dependant.virus !== nothing && (dependant.social_status == 0 || dependant.is_isolated)
+                                is_support_still_needed = true
+                            end
+                        end
+                        if !is_support_still_needed
+                            agent.supporter.on_parent_leave = false
+                        end
+                    end
                 else
                     agent.days_infected += 1
                     update_infected_agent(agent)
+
+                    if agent.supporter !== nothing && !agent.is_asymptomatic
+                        if agent.days_infected >= agent.incubation_period + 1
+                            if agent.is_isolated || agent.social_status == 0
+                                agent.supporter.on_parent_leave = true
+                            end
+                        end
+                    end
+                    
                 end
+
                 #         agent.isStayingHomeWhenInfected = agent.findIfShouldStayAtHome()
                 #         if (agent.isStayingHomeWhenInfected) {
                 #             // Выявление
@@ -1948,21 +1991,14 @@ module Model
                 #                 "CoV" -> etiologyDayStats[6] += 1
                 #             }
 
-                #             // Больничный по уходу за ребенком
-                #             if (agent.age < 14) {
-                #                 for (otherAgent in household.agents) {
-                #                     if (otherAgent.needMotherLeave) {
-                #                         otherAgent.isOnMotherLeave = true
-                #                         break
-                #                     }
-                #                 }
-                #             }
-                #         }
-                #     }
-                # }
-
                 i -= 1
             end
+
+            # for agent in newly_infected_agents
+            #     println(agent.age)
+            #     set_agent_infection(agent)
+            # end
+            # exit(0)
 
             Threads.@threads for agent in newly_infected_agents
                 set_agent_infection(agent)
@@ -2001,9 +2037,13 @@ module Model
             end
 
             all_infected_agents = vcat(all_infected_agents, newly_infected_agents)
+            push!(daily_new_cases, size(newly_infected_agents, 1))
         end
+        daily_new_cases_plot = plot(1:3, daily_new_cases, title = "Daily New Cases", lw = 3, legend = false)
+        xlabel!("Day")
+        ylabel!("Num of people")
+        savefig(daily_new_cases_plot, joinpath(@__DIR__, "..", "output", "daily_new_cases.png"))
     end
-
     println("Simulation")
     @time run_simulation()
 end

@@ -142,10 +142,12 @@ mutable struct Agent
     social_status::Int
     # Связи в коллективе
     work_conn::Vector{Agent}
-    # Нужда по уходу за больным ребенком
-    need_parent_leave::Bool
+    # Дети за которыми нужен уход в случае болезни
+    dependants::Vector{Agent}
+    # Кто будет ухаживать в случае болезни
+    supporter::Union{Agent, Nothing}
     # Уход за больным ребенком
-    parent_leave::Bool
+    on_parent_leave::Bool
     # Уровень иммуноглобулина
     ig_level::Float64
     # Вирус
@@ -507,7 +509,7 @@ mutable struct Agent
 
         new(
             age, infant_age, is_male, social_status,
-            Agent[], false, false, ig_level,
+            Agent[], Agent[], nothing, false, ig_level,
             virus, immunity_days, incubation_period,
             infection_period, days_infected,
             days_immune, is_asymptomatic, is_isolated,
