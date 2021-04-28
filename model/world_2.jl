@@ -1,16 +1,14 @@
-# include("/Users/andreivlad/Documents/Projects/Julia/Project/modelworld.jl")
-
 module Model
     using CSV
     using DataFrames
     using Plots
-    using Base.Threads
+    using MPI
     
-    include("entities.jl")
+    include("collective.jl")
 
     # DEBUG
-    max_simulation_step = 20
-    is_break = true
+    max_simulation_step = 10
+    is_break = false
 
     # Параметры
     duration_parameter = 7.05
@@ -39,17 +37,29 @@ module Model
         "PIV" => 366,
         "CoV" => 366)
 
-    # Набор агентов
-    all_agents = Agent[]
-    # Набор инфицированных агентов
-    infected_agents = Agent[]
-
     district_df = CSV.read(
         joinpath(@__DIR__, "..", "tables", "districts.csv"), DataFrame, tasks=1)
     district_household_df = CSV.read(
         joinpath(@__DIR__, "..", "tables", "districts_households.csv"), DataFrame, tasks=1)
     etiologies = CSV.read(
         joinpath(@__DIR__, "..", "tables", "etiologies.csv"), DataFrame, tasks=1)
+    temperature_df = CSV.read(
+        joinpath(@__DIR__, "..", "tables", "temperature.csv"), DataFrame, tasks=1)
+    processes_df = CSV.read(
+        joinpath(@__DIR__, "..", "tables", "num_of_people_sort.csv"), DataFrame, tasks=1)
+
+    MPI.Init()
+
+    comm = MPI.COMM_WORLD
+    comm_size = MPI.Comm_size(comm)
+    comm_rank = MPI.Comm_rank(comm)
+
+    district_nums = filter(x -> x["Process_$(comm_size)"] == comm_rank, processes_df)[:, "District"]
+
+    # Набор агентов
+    all_agents = Agent[]
+    # Набор инфицированных агентов
+    infected_agents = Agent[]
 
     function create_agent(
         household::Group,
@@ -669,13 +679,11 @@ module Model
         university::Collective,
         university_group_sizes::Vector{Int},
         workplace::Collective,
-        workplace_group_sizes::Vector{Int},
-        thread_agents::Vector{Agent},
-        thread_infected_agents::Vector{Agent}
+        workplace_group_sizes::Vector{Int}
     )
         for agent in agents
             if agent.virus !== nothing
-                push!(thread_infected_agents, agent)
+                push!(infected_agents, agent)
             end
             if agent.social_status == 1
                 add_agent_to_kindergarten(agent, kindergarten, kindergarten_group_sizes)
@@ -686,141 +694,46 @@ module Model
             elseif agent.social_status == 4
                 add_agent_to_workplace(agent, workplace, workplace_group_sizes)
             end
-            push!(thread_agents, agent)
+            push!(all_agents, agent)
         end
     end
 
-    function get_kindergarten_group_size(group_num::Int)
-        rand_num = rand(1:100)
-        if group_num == 1
-            if rand_num <= 20
-                return 9
-            elseif rand_num <= 80
-                return 10
-            else
-                return 11
-            end
-        elseif group_num == 2 || group_num == 3
-            if rand_num <= 20
-                return 14
-            elseif rand_num <= 80
-                return 15
-            else
-                return 16
-            end
-        else
-            if rand_num <= 20
-                return 19
-            elseif rand_num <= 80
-                return 20
-            else
-                return 21
-            end
-        end
-    end
+    function create_population(district_nums::Vector{Int})
+        kindergarten = Collective(5.88, 2.52, fill(Group[], 6))
+        kindergarten_group_sizes = Int[
+            get_kindergarten_group_size(1),
+            get_kindergarten_group_size(2),
+            get_kindergarten_group_size(3),
+            get_kindergarten_group_size(4),
+            get_kindergarten_group_size(5),
+            get_kindergarten_group_size(6)]
 
-    function get_school_group_size(group_num::Int)
-        rand_num = rand(1:100)
-        if rand_num <= 20
-            return 24
-        elseif rand_num <= 80
-            return 25
-        else
-            return 26
-        end
-    end
+        school = Collective(4.783, 2.67, fill(Group[], 11))
+        school_group_sizes = Int[
+            get_school_group_size(1),
+            get_school_group_size(2),
+            get_school_group_size(3),
+            get_school_group_size(4),
+            get_school_group_size(5),
+            get_school_group_size(6),
+            get_school_group_size(7),
+            get_school_group_size(8),
+            get_school_group_size(9),
+            get_school_group_size(10),
+            get_school_group_size(11)]
 
-    function get_university_group_size(group_num::Int)
-        rand_num = rand(1:100)
-        if group_num == 1
-            if rand_num <= 20
-                return 14
-            elseif rand_num <= 80
-                return 15
-            else
-                return 16
-            end
-        elseif group_num == 2 || group_num == 3
-            if rand_num <= 20
-                return 13
-            elseif rand_num <= 80
-                return 14
-            else
-                return 15
-            end
-        elseif group_num == 4
-            if rand_num <= 20
-                return 12
-            elseif rand_num <= 80
-                return 13
-            else
-                return 14
-            end
-        elseif group_num == 5
-            if rand_num <= 20
-                return 10
-            elseif rand_num <= 80
-                return 11
-            else
-                return 12
-            end
-        else
-            if rand_num <= 20
-                return 9
-            elseif rand_num <= 80
-                return 10
-            else
-                return 11
-            end
-        end
-    end
+        university = Collective(2.1, 3.0, fill(Group[], 6))
+        university_group_sizes = Int[
+            get_university_group_size(1),
+            get_university_group_size(2),
+            get_university_group_size(3),
+            get_university_group_size(4),
+            get_university_group_size(5),
+            get_university_group_size(6)]
 
-    function get_workplace_group_size(group_num::Int)
-        # zipfDistribution.sample() + (minFirmSize - 1)
-        return rand(3:15)
-    end
-
-    function create_population(l::SpinLock)
-        Threads.@threads for index = 1:107
-            println("Index: $(index)")
-
-            kindergarten = Collective(5.88, 2.52, fill(Group[], 6))
-            kindergarten_group_sizes = Int[
-                get_kindergarten_group_size(1),
-                get_kindergarten_group_size(2),
-                get_kindergarten_group_size(3),
-                get_kindergarten_group_size(4),
-                get_kindergarten_group_size(5),
-                get_kindergarten_group_size(6)]
-
-            school = Collective(4.783, 2.67, fill(Group[], 11))
-            school_group_sizes = Int[
-                get_school_group_size(1),
-                get_school_group_size(2),
-                get_school_group_size(3),
-                get_school_group_size(4),
-                get_school_group_size(5),
-                get_school_group_size(6),
-                get_school_group_size(7),
-                get_school_group_size(8),
-                get_school_group_size(9),
-                get_school_group_size(10),
-                get_school_group_size(11)]
-
-            university = Collective(2.1, 3.0, fill(Group[], 6))
-            university_group_sizes = Int[
-                get_university_group_size(1),
-                get_university_group_size(2),
-                get_university_group_size(3),
-                get_university_group_size(4),
-                get_university_group_size(5),
-                get_university_group_size(6)]
-
-            workplace = Collective(3.0, 3.0, fill(Group[], 1))
-            workplace_group_sizes = Int[get_workplace_group_size(1)]
-
-            thread_agents = Agent[]
-            thread_infected_agents = Agent[]
+        workplace = Collective(3.0, 3.0, fill(Group[], 1))
+        workplace_group_sizes = Int[get_workplace_group_size(1)]
+        for index in district_nums
 
             index_for_1_people::Int = (index - 1) * 5 + 1
             index_for_2_people::Int = index_for_1_people + 1
@@ -835,8 +748,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP2P0C"]
                 household = Group()
@@ -846,8 +758,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP3P0C"]
                 household = Group()
@@ -857,8 +768,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP3P1C"]
                 household = Group()
@@ -868,8 +778,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP4P0C"]
                 household = Group()
@@ -879,8 +788,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP4P1C"]
                 household = Group()
@@ -890,8 +798,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP4P2C"]
                 household = Group()
@@ -901,8 +808,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP5P0C"]
                 household = Group()
@@ -912,8 +818,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP5P1C"]
                 household = Group()
@@ -923,8 +828,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP5P2C"]
                 household = Group()
@@ -934,8 +838,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP5P3C"]
                 household = Group()
@@ -945,8 +848,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP6P0C"]
                 household = Group()
@@ -956,8 +858,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP6P1C"]
                 household = Group()
@@ -967,8 +868,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP6P2C"]
                 household = Group()
@@ -978,8 +878,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "PWOP6P3C"]
                 household = Group()
@@ -989,8 +888,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "2PWOP4P0C"]
                 household = Group()
@@ -1002,8 +900,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "2PWOP5P0C"]
                 household = Group()
@@ -1015,8 +912,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "2PWOP5P1C"]
                 household = Group()
@@ -1028,8 +924,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "2PWOP6P0C"]
                 household = Group()
@@ -1041,8 +936,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "2PWOP6P1C"]
                 household = Group()
@@ -1054,8 +948,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "2PWOP6P2C"]
                 household = Group()
@@ -1067,8 +960,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SMWC2P0C"]
                 household = Group()
@@ -1078,8 +970,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SMWC2P1C"]
                 household = Group()
@@ -1089,8 +980,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SMWC3P0C"]
                 household = Group()
@@ -1100,8 +990,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SMWC3P1C"]
                 household = Group()
@@ -1111,8 +1000,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SMWC3P2C"]
                 household = Group()
@@ -1122,8 +1010,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SMWC3P2C"]
                 household = Group()
@@ -1133,8 +1020,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SMWC4P0C"]
                 household = Group()
@@ -1144,8 +1030,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SMWC4P1C"]
                 household = Group()
@@ -1155,8 +1040,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SMWC4P2C"]
                 household = Group()
@@ -1166,8 +1050,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SMWC4P3C"]
                 household = Group()
@@ -1177,8 +1060,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SFWC2P0C"]
                 household = Group()
@@ -1188,8 +1070,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SFWC2P1C"]
                 household = Group()
@@ -1199,8 +1080,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SFWC3P0C"]
                 household = Group()
@@ -1210,8 +1090,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SFWC3P1C"]
                 household = Group()
@@ -1221,8 +1100,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SFWC3P2C"]
                 household = Group()
@@ -1232,8 +1110,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SPWCWP3P0C"]
                 household = Group()
@@ -1243,8 +1120,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SPWCWP3P1C"]
                 household = Group()
@@ -1254,8 +1130,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SPWCWP4P0C"]
                 household = Group()
@@ -1265,8 +1140,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SPWCWP4P1C"]
                 household = Group()
@@ -1276,8 +1150,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SPWCWP4P2C"]
                 household = Group()
@@ -1287,8 +1160,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
 
             for i in 1:district_df[index, "SPWCWPWOP3P0C"]
@@ -1299,8 +1171,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SPWCWPWOP3P1C"]
                 household = Group()
@@ -1310,8 +1181,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SPWCWPWOP4P0C"]
                 household = Group()
@@ -1321,8 +1191,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SPWCWPWOP4P1C"]
                 household = Group()
@@ -1332,8 +1201,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SPWCWPWOP4P2C"]
                 household = Group()
@@ -1343,8 +1211,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SPWCWPWOP5P0C"]
                 household = Group()
@@ -1354,8 +1221,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SPWCWPWOP5P1C"]
                 household = Group()
@@ -1365,8 +1231,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "SPWCWPWOP5P2C"]
                 household = Group()
@@ -1376,8 +1241,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
 
             for i in 1:district_df[index, "O2P0C"]
@@ -1388,8 +1252,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "O2P1C"]
                 household = Group()
@@ -1399,8 +1262,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "O3P0C"]
                 household = Group()
@@ -1410,8 +1272,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "O3P1C"]
                 household = Group()
@@ -1421,8 +1282,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "O3P2C"]
                 household = Group()
@@ -1432,8 +1292,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "O4P0C"]
                 household = Group()
@@ -1443,8 +1302,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "O4P1C"]
                 household = Group()
@@ -1454,8 +1312,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "O4P2C"]
                 household = Group()
@@ -1465,8 +1322,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "O5P0C"]
                 household = Group()
@@ -1476,8 +1332,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "O5P1C"]
                 household = Group()
@@ -1487,8 +1342,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:district_df[index, "O5P2C"]
                 household = Group()
@@ -1498,17 +1352,7 @@ module Model
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_sizes,
-                    thread_agents, thread_infected_agents)
-            end
-            lock(l)
-            try
-                global all_agents
-                global infected_agents
-                all_agents = vcat(all_agents, thread_agents)
-                infected_agents = vcat(infected_agents, thread_infected_agents)
-            finally
-                unlock(l)
+                    workplace, workplace_group_sizes)
             end
 
             # DEBUG
@@ -1518,39 +1362,7 @@ module Model
         end
     end
 
-    println("Initialization")
-    l = SpinLock()
-    @time create_population(l)
-
-    function find_current_viral_load(agent::Agent)
-        if agent.age < 3
-            if agent.is_asymptomatic
-                agent.viral_load = viral_loads[
-                    agent.days_infected, agent.infection_period - 1, agent.incubation_period, agent.virus.id] * 0.5
-            else
-                agent.viral_load = viral_loads[
-                    agent.days_infected, agent.infection_period - 1, agent.incubation_period, agent.virus.id]
-            end
-        elseif agent.age < 16
-            if agent.is_asymptomatic
-                agent.viral_load = viral_loads[
-                    agent.days_infected, agent.infection_period - 1, agent.incubation_period, agent.virus.id] * 0.375
-            else
-                agent.viral_load = viral_loads[
-                    agent.days_infected, agent.infection_period - 1, agent.incubation_period, agent.virus.id] * 0.75
-            end
-        else
-            if agent.is_asymptomatic
-                agent.viral_load = viral_loads[
-                    agent.days_infected, agent.infection_period - 1, agent.incubation_period, agent.virus.id] * 0.25
-            else
-                agent.viral_load = viral_loads[
-                    agent.days_infected, agent.infection_period - 1, agent.incubation_period, agent.virus.id] * 0.5
-            end
-        end
-    end
-
-    function update_infected_agent(agent::Agent)
+    function update_infected_agent_state(agent::Agent)
         if !agent.is_asymptomatic && !agent.is_isolated && agent.social_status != 0 && !agent.on_parent_leave
             # Самоизоляция
             rand_num = rand(1:1000)
@@ -1600,7 +1412,13 @@ module Model
         end
         
         # Вирусная нагрузка
-        find_current_viral_load(agent)
+        agent.viral_load = find_agent_viral_load(
+            agent.age,
+            agent.days_infected,
+            agent.infection_period,
+            agent.incubation_period,
+            agent.is_asymptomatic && agent.days_infected > 0,
+            agent.virus.id)
     end
 
     function set_agent_infection(agent::Agent)
@@ -1626,7 +1444,7 @@ module Model
         end
 
         # Дней с момента инфицирования
-        agent.days_infected = 1
+        agent.days_infected = 1 - incubation_period
 
         if rand(1:100) <= agent.virus.asymptomatic_probab
             # Асимптомный
@@ -1634,7 +1452,13 @@ module Model
         end
 
         # Вирусная нагрузка
-        find_current_viral_load(agent)
+        agent.viral_load = find_agent_viral_load(
+            agent.age,
+            agent.days_infected,
+            agent.infection_period,
+            agent.incubation_period,
+            agent.is_asymptomatic && agent.days_infected > 0,
+            agent.virus.id)
     end
 
     function get_contact_duration(mean::Float64, sd::Float64)
@@ -1707,54 +1531,7 @@ module Model
         end
     end
 
-    function run_simulation(l::SpinLock)
-        # Температура воздуха, начиная с 1 января
-        temperature = [-5.8, -5.9, -5.9, -5.9,
-            -6.0, -6.0, -6.1, -6.1, -6.2, -6.2, -6.2, -6.3,
-            -6.3, -6.4, -6.5, -6.5, -6.6, -6.6, -6.7, -6.7,
-            -6.8, -6.8, -6.9, -6.9, -7.0, -7.0, -7.0, -7.1, -7.1,
-            -7.1, -7.1, -7.2, -7.2, -7.2, -7.2, -7.2, -7.2, -7.1,
-            -7.1, -7.1, -7.0, -7.0, -6.9, -6.8, -6.8, -6.7, -6.6,
-            -6.5, -6.4, -6.3, -6.1, -6.0, -5.9, -5.7, -5.6, -5.4,
-            -5.2, -5.0, -4.8, -4.7, -4.5, -4.2, -4.0, -3.8,
-            -3.6, -3.4, -3.1, -2.9, -2.7, -2.4, -2.2, -1.9, -1.7,
-            -1.4, -1.2, -0.9, -0.6, -0.4, -0.1, 0.2, 0.4,
-            0.7, 1.0, 1.2, 1.5, 1.8, 2.0, 2.3, 2.5, 2.8,
-            3.1, 3.3, 3.6, 3.9, 4.1, 4.4, 4.6, 4.9, 5.1,
-            5.4, 5.6, 5.9, 6.1, 6.4, 6.6, 6.9, 7.1, 7.4,
-            7.6, 7.8, 8.1, 8.3, 8.5, 8.8, 9.0, 9.2, 9.4,
-            9.7, 9.9, 10.1, 10.3, 10.5, 10.7, 11.0, 11.2,
-            11.4, 11.6, 11.8, 12.0, 12.1, 12.3, 12.5, 12.7,
-            12.9, 13.1, 13.2, 13.4, 13.6, 13.7, 13.9, 14.0,
-            14.2, 14.3, 14.5, 14.6, 14.8, 14.9, 15.0, 15.2,
-            15.3, 15.4, 15.5, 15.6, 15.8, 15.9, 16.0, 16.1,
-            16.2, 16.3, 16.4, 16.5, 16.6, 16.7, 16.8, 16.9,
-            17.0, 17.1, 17.2, 17.2, 17.3, 17.4, 17.5, 17.6,
-            17.7, 17.8, 17.9, 17.9, 18.0, 18.1, 18.2, 18.3,
-            18.4, 18.4, 18.5, 18.6, 18.7, 18.7, 18.8, 18.9,
-            18.9, 19.0, 19.1, 19.1, 19.2, 19.2, 19.3, 19.3,
-            19.3, 19.4, 19.4, 19.4, 19.4, 19.4, 19.4, 19.4,
-            19.4, 19.4, 19.3, 19.3, 19.3, 19.2, 19.1, 19.1,
-            19.0, 18.9, 18.8, 18.7, 18.6, 18.5, 18.4, 18.3,
-            18.2, 18.0, 17.9, 17.7, 17.6, 17.4, 17.2, 17.1,
-            16.9, 16.7, 16.5, 16.3, 16.1, 15.9, 15.7, 15.5,
-            15.3, 15.1, 14.9, 14.7, 14.5, 14.3, 14.1, 13.9,
-            13.7, 13.5, 13.3, 13.1, 12.8, 12.6, 12.4, 12.2,
-            12.1, 11.9, 11.7, 11.5, 11.3, 11.1, 10.9, 10.7,
-            10.6, 10.4, 10.2, 10.0, 9.9, 9.7, 9.5, 9.4,
-            9.2, 9.0, 8.9, 8.7, 8.5, 8.3, 8.2, 8.0,
-            7.8, 7.7, 7.5, 7.3, 7.1, 6.9, 6.8, 6.6,
-            6.4, 6.2, 6.0, 5.8, 5.6, 5.4, 5.2, 4.9,
-            4.7, 4.5, 4.3, 4.0, 3.8, 3.6, 3.3, 3.1,
-            2.9, 2.6, 2.4, 2.1, 1.9, 1.6, 1.4, 1.1,
-            0.9, 0.7, 0.4, 0.2, -0.1, -0.3, -0.5, -0.8,
-            -1.0, -1.2, -1.5, -1.7, -1.9, -2.1, -2.3, -2.5,
-            -2.7, -2.9, -3.0, -3.2, -3.4, -3.5, -3.7, -3.8,
-            -4.0, -4.1, -4.2, -4.3, -4.4, -4.5, -4.6, -4.7,
-            -4.8, -4.9, -5.0, -5.0, -5.1, -5.2, -5.2, -5.3,
-            -5.3, -5.4, -5.4, -5.4, -5.5, -5.5, -5.5, -5.6,
-            -5.6, -5.6, -5.7, -5.7, -5.7, -5.7, -5.8, -5.8]
-
+    function run_simulation()
         # Минимальная температура воздуха
         min_temp = -7.2
         # Max - Min температура
@@ -1778,11 +1555,13 @@ module Model
 
         daily_new_cases = Int[]
         for step = 1:max_simulation_step
-            println("Step: $(step)")
+            if step == 10
+                println("Step $(comm_rank)")
+            end
             # Набор инфицированных агентов на данном шаге
             newly_infected_agents = Agent[]
             # Текущая нормализованная температура
-            current_temp = (temperature[year_day] - min_temp) / max_min_temp
+            current_temp = (temperature_df[1, year_day] - min_temp) / max_min_temp
 
             # Выходные, праздники
             is_holiday = false
@@ -1888,64 +1667,8 @@ module Model
                 end
             end
 
-            # if (size(all_infected_agents, 1) > 3)
-            #     s::Int = size(all_infected_agents, 1) ÷ 4
-            #     range_arr = [1:s, (s+1):(2s), (2s+1):(3s), (3s + 1):size(all_infected_agents, 1)]
-            #     Threads.@threads for range in range_arr
-            #         for i in range
-            #             agent = all_infected_agents[i]
-            #             for agent2 in agent.household.agents
-            #                 agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.social_status == 0
-            #                 agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.social_status == 0
-            #                 if is_holiday || (agent_at_home && agent2_at_home)
-            #                     make_contact(agent, agent2, get_contact_duration(12.5, 5.5),
-            #                         current_temp, newly_infected_agents)
-            #                 elseif ((agent.social_status == 1 && !agent_at_home) ||
-            #                     (agent2.social_status == 1 && !agent2_at_home)) && !is_kindergarten_holiday
-            #                     make_contact(agent, agent2, get_contact_duration(5.0, 2.05),
-            #                         current_temp, newly_infected_agents)
-            #                 elseif ((agent.social_status == 4 && !agent_at_home) ||
-            #                     (agent2.social_status == 4 && !agent2_at_home)) && !is_work_holiday
-            #                     make_contact(agent, agent2, get_contact_duration(5.5, 2.25),
-            #                         current_temp, newly_infected_agents)
-            #                 elseif ((agent.social_status == 2 && !agent_at_home) ||
-            #                     (agent2.social_status == 2 && !agent2_at_home)) && !is_school_holiday
-            #                     make_contact(agent, agent2, get_contact_duration(6.0, 2.46),
-            #                         current_temp, newly_infected_agents)
-            #                 elseif ((agent.social_status == 3 && !agent_at_home) ||
-            #                     (agent2.social_status == 3 && !agent2_at_home)) && !is_university_holiday
-            #                     make_contact(agent, agent2, get_contact_duration(7.0, 3.69),
-            #                         current_temp, newly_infected_agents)
-            #                 end
-            #             end
-            #             if !is_holiday && agent.group !== nothing && !agent.is_isolated && !agent.on_parent_leave
-            #                 group = agent.group
-            #                 if (agent.social_status == 1 && !is_kindergarten_holiday) ||
-            #                     (agent.social_status == 2 && !is_school_holiday) ||
-            #                     (agent.social_status == 3 && !is_university_holiday) ||
-            #                     (agent.social_status == 4 && !is_work_holiday)
-            #                     for agent2 in group.agents
-            #                         if !agent2.is_isolated && !agent2.on_parent_leave
-            #                             make_contact(
-            #                                 agent,
-            #                                 agent2,
-            #                                 get_contact_duration(
-            #                                     group.collective.mean_time_spent,
-            #                                     group.collective.time_spent_sd),
-            #                                 current_temp,
-            #                                 newly_infected_agents)
-            #                         end
-            #                     end
-            #                 end
-            #             end
-            #         end
-            #     end
-            # else
-                
-            # end
-
             # Обновление состояния восприимчивых агентов
-            Threads.@threads for i = 1:1000
+            for i = 1:1000
                 length = size(all_agents, 1)
                 rand_num = rand(1:length)
                 agent = all_agents[rand_num]
@@ -1991,7 +1714,7 @@ module Model
             i = size(all_infected_agents, 1)
             while i > 0
                 agent = all_infected_agents[i]
-                if agent.days_infected == agent.infection_period + agent.incubation_period
+                if agent.days_infected == agent.infection_period
                     agent.immunity_days[agent.virus.name] = 1
                     agent.days_immune = 1
                     agent.virus = nothing
@@ -2010,10 +1733,10 @@ module Model
                     end
                 else
                     agent.days_infected += 1
-                    update_infected_agent(agent)
+                    update_infected_agent_state(agent)
 
                     if agent.supporter !== nothing && !agent.is_asymptomatic
-                        if agent.days_infected >= agent.incubation_period + 1
+                        if agent.days_infected > 0
                             if agent.is_isolated || agent.social_status == 0
                                 agent.supporter.on_parent_leave = true
                             end
@@ -2103,11 +1826,26 @@ module Model
             all_infected_agents = vcat(all_infected_agents, newly_infected_agents)
             push!(daily_new_cases, size(newly_infected_agents, 1))
         end
-        daily_new_cases_plot = plot(1:max_simulation_step, daily_new_cases, title = "Daily New Cases", lw = 3, legend = false)
-        xlabel!("Day")
-        ylabel!("Num of people")
-        savefig(daily_new_cases_plot, joinpath(@__DIR__, "..", "output", "daily_new_cases.pdf"))
+
+
+        new_cases_data = MPI.Reduce(daily_new_cases, MPI.SUM, 0, comm)
+        if comm_rank == 0
+            daily_new_cases_plot = plot(1:max_simulation_step, new_cases_data, title = "Daily New Cases", lw = 3, legend = false)
+            xlabel!("Day")
+            ylabel!("Num of people")
+            savefig(daily_new_cases_plot, joinpath(@__DIR__, "..", "output", "daily_new_cases.pdf"))
+        end
     end
-    println("Simulation")
-    @time run_simulation(l)
+
+    println("Initialization $(comm_rank)")
+    # @time create_population()
+    @time create_population(district_nums)
+
+    println(size(all_agents, 1))
+
+    # println("Simulation $(comm_rank)")
+    # @time run_simulation()
+    # run_simulation()
+
+    MPI.Barrier(comm)
 end

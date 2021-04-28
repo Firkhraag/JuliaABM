@@ -1,132 +1,4 @@
-using Distributions, Random
-
-struct Virus
-    # Идентификатор
-    id::Int
-    # Наименование
-    name::String
-    # Средняя продолжительность инкубационного периода
-    mean_incubation_period::Float64
-    # Дисперсия продолжительности инкубационного периода
-    incubation_period_variance::Float64
-    # Минимальная продолжительность инкубационного периода
-    min_incubation_period::Int
-    # Максимальная продолжительность инкубационного периода
-    max_incubation_period::Int
-
-    # Средняя продолжительность периода болезни (взрослый)
-    mean_infection_period_adult::Float64
-    # Дисперсия продолжительности периода болезни (взрослый)
-    infection_period_variance_adult::Float64
-    # Минимальная продолжительность периода болезни(взрослый)
-    min_infection_period_adult::Int
-    # Максимальная продолжительность периода болезни(взрослый)
-    max_infection_period_adult::Int
-
-    # Средняя продолжительность периода болезни (ребенок)
-    mean_infection_period_child::Float64
-    # Дисперсия продолжительности периода болезни (ребенок)
-    infection_period_variance_child::Float64
-    # Минимальная продолжительность периода болезни(ребенок)
-    min_infection_period_child::Int
-    # Максимальная продолжительность периода болезни(ребенок)
-    max_infection_period_child::Int
-
-    # Средняя вирусная нагрузка (по умолчю для младенеца)
-    mean_viral_load::Float64
-
-    # Вероятность бессимптомного протекания болезни
-    asymptomatic_probab::Int
-
-    function Virus(
-        id::Int,
-        name::String,
-        mean_incubation_period::Float64,
-        incubation_period_variance::Float64,
-        min_incubation_period::Int,
-        max_incubation_period::Int,
-        mean_infection_period_adult::Float64,
-        infection_period_variance_adult::Float64,
-        min_infection_period_adult::Int,
-        max_infection_period_adult::Int,
-        mean_infection_period_child::Float64,
-        infection_period_variance_child::Float64,
-        min_infection_period_child::Int,
-        max_infection_period_child::Int,
-        mean_viral_load::Float64,
-        asymptomatic_probab::Int
-    )
-        new(
-            id,
-            name,
-            mean_incubation_period,
-            incubation_period_variance,
-            min_incubation_period,
-            max_incubation_period,
-            mean_infection_period_adult,
-            infection_period_variance_adult,
-            min_infection_period_adult,
-            max_infection_period_adult,
-            mean_infection_period_child,
-            infection_period_variance_child,
-            min_infection_period_child,
-            max_infection_period_child,
-            mean_viral_load,
-            asymptomatic_probab
-        )
-    end
-end
-
-function get_viral_load(
-    days_infected::Int,
-    incubation_period::Int,
-    infection_period::Int,
-    mean_viral_load::Float64
-)
-    if days_infected < 1
-        if incubation_period == 1
-            return mean_viral_load / 2
-        end
-        k = mean_viral_load / (incubation_period - 1)
-        b = k * (incubation_period - 1)
-        return k * days_infected + b
-    end
-    k = 2 * mean_viral_load / (1 - infection_period)
-    b = -k * infection_period
-    return k * days_infected + b
-end
-
-viruses = Dict(
-    "FluA" => Virus(1, "FluA", 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 16),
-    "FluB" => Virus(2, "FluB", 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 16),
-    "RV" => Virus(3, "RV", 1.9, 0.175, 1, 7, 10.1, 4.93, 3, 12, 11.4, 6.25, 4, 14, 3.5, 30),
-    "RSV" => Virus(4, "RSV", 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 30),
-    "AdV" => Virus(5, "AdV", 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 30),
-    "PIV" => Virus(6, "PIV", 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.7, 30),
-    "CoV" => Virus(7, "CoV", 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 30)
-)
-
-viral_loads = cat(
-    zeros(21, 13), zeros(21, 13), zeros(21, 13),
-    zeros(21, 13), zeros(21, 13), zeros(21, 13),
-    zeros(21, 13), dims=3)
-viral_loads = cat(
-    viral_loads, viral_loads, viral_loads,
-    viral_loads, viral_loads, viral_loads,
-    viral_loads, dims=4)
-
-for days_infected in -6:14
-    for infection_period in 2:14
-        for incubation_period in 1:7
-            mean_viral_loads = [4.6, 4.7, 3.5, 6.0, 4.1, 4.7, 4.93]
-            for i in 1:7
-                viral_loads[days_infected + 7, infection_period - 1, incubation_period, i] = get_viral_load(
-                    days_infected, incubation_period, infection_period, mean_viral_loads[i]
-                )
-            end
-        end
-    end
-end
+include("virus.jl")
 
 abstract type AbstractGroup end
 abstract type AbstractCollective end
@@ -173,7 +45,12 @@ mutable struct Agent
     # Группа
     group::Union{AbstractGroup, Nothing}
 
-    function Agent(household::AbstractGroup, is_male::Bool, age::Int)
+    function Agent(
+        viruses::Dict{String, Virus},
+        viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
+        household::AbstractGroup,
+        is_male::Bool, age::Int
+    )
         # Возраст новорожденного
         infant_age = 0
         if age == 0
@@ -430,16 +307,16 @@ mutable struct Agent
             end
 
             # Дней с момента инфицирования
-            # days_infected = rand((1 - incubation_period):infection_period)
-            days_infected = rand(1:(infection_period + incubation_period))
+            days_infected = rand((1 - incubation_period):infection_period)
+            # days_infected = rand(1:(infection_period + incubation_period))
 
             if rand(1:100) <= virus.asymptomatic_probab
                 # Асимптомный
                 is_asymptomatic = true
             else
                 # Самоизоляция
-                rand_num = rand(1:1000)
-                if days_infected == incubation_period + 1
+                if days_infected >= 1
+                    rand_num = rand(1:1000)
                     if age < 8
                         if rand_num < 305
                             is_isolated = true
@@ -453,7 +330,9 @@ mutable struct Agent
                             is_isolated = true
                         end
                     end
-                elseif days_infected == incubation_period + 2
+                end
+                if days_infected >= 2 && !is_isolated
+                    rand_num = rand(1:1000)
                     if age < 8
                         if rand_num < 576
                             is_isolated = true
@@ -467,7 +346,9 @@ mutable struct Agent
                             is_isolated = true
                         end
                     end
-                elseif days_infected == incubation_period + 3
+                end
+                if days_infected >= 3 && !is_isolated
+                    rand_num = rand(1:1000)
                     if age < 8
                         if rand_num < 325
                             is_isolated = true
@@ -484,26 +365,10 @@ mutable struct Agent
                 end
             end
 
-            # Вирусная нагрузка
-            if age < 3
-                if is_asymptomatic
-                    viral_load = viral_loads[days_infected, infection_period - 1, incubation_period, virus.id] * 0.5
-                else
-                    viral_load = viral_loads[days_infected, infection_period - 1, incubation_period, virus.id]
-                end
-            elseif age < 16
-                if is_asymptomatic
-                    viral_load = viral_loads[days_infected, infection_period - 1, incubation_period, virus.id] * 0.375
-                else
-                    viral_load = viral_loads[days_infected, infection_period - 1, incubation_period, virus.id] * 0.75
-                end
-            else
-                if is_asymptomatic
-                    viral_load = viral_loads[days_infected, infection_period - 1, incubation_period, virus.id] * 0.25
-                else
-                    viral_load = viral_loads[days_infected, infection_period - 1, incubation_period, virus.id] * 0.5
-                end
-            end
+            # Вирусная нагрузкаx
+            viral_load = find_agent_viral_load(
+                viral_loads, age, days_infected, infection_period,
+                incubation_period, is_asymptomatic && days_infected > 0, virus.id)
         end
 
         days_immune = 0
@@ -518,6 +383,7 @@ mutable struct Agent
     end
 end
 
+# Получить длительность инкубационного периода или периода болезни
 function get_period_from_erlang(
     mean::Float64,
     variance::Float64,
@@ -529,26 +395,33 @@ function get_period_from_erlang(
     return round(rand(truncated(Erlang(shape, scale), low, upper)))
 end
 
-mutable struct Group <: AbstractGroup
-    # Агенты
-    agents::Vector{Agent}
-    # Коллектив
-    collective::Union{AbstractCollective, Nothing}
-
-    function Group(agents::Vector{Agent} = Agent[], collective::Union{AbstractCollective, Nothing} = nothing)
-        new(agents, collective)
-    end
-end
-
-mutable struct Collective <: AbstractCollective
-    # Среднее время проводимое агентами
-    mean_time_spent::Float64
-    # Среднеквадратическое отклонение времени проводимого агентами
-    time_spent_sd::Float64
-    # Агенты
-    groups::Vector{Vector{Group}}
-
-    function Collective(mean_time_spent::Float64, time_spent_sd::Float64, groups::Vector{Vector{Group}})
-        new(mean_time_spent, time_spent_sd, groups)
+# Получить вирусную нагрузку
+function find_agent_viral_load(
+    viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
+    age::Int,
+    days_infected::Int,
+    infection_period::Int,
+    incubation_period::Int,
+    is_viral_load_halved::Bool,
+    virus_id::Int
+)::Float64
+    if age < 3
+        if is_viral_load_halved
+            return viral_loads[days_infected + 7][infection_period - 1][incubation_period][virus_id] * 0.5
+        else
+            return viral_loads[days_infected + 7][infection_period - 1][incubation_period][virus_id]
+        end
+    elseif age < 16
+        if is_viral_load_halved
+            return viral_loads[days_infected + 7][infection_period - 1][incubation_period][virus_id] * 0.375
+        else
+            return viral_loads[days_infected + 7][infection_period - 1][incubation_period][virus_id] * 0.75
+        end
+    else
+        if is_viral_load_halved
+            return viral_loads[days_infected + 7][infection_period - 1][incubation_period][virus_id] * 0.25
+        else
+            return viral_loads[days_infected + 7][infection_period - 1][incubation_period][virus_id] * 0.5
+        end
     end
 end
