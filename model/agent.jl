@@ -47,7 +47,7 @@ mutable struct Agent
 
     function Agent(
         viruses::Dict{String, Virus},
-        viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
+        viral_loads::Array{Float64, 4},
         household::AbstractGroup,
         is_male::Bool, age::Int
     )
@@ -367,8 +367,8 @@ mutable struct Agent
 
             # Вирусная нагрузкаx
             viral_load = find_agent_viral_load(
-                viral_loads, age, days_infected, infection_period,
-                incubation_period, is_asymptomatic && days_infected > 0, virus.id)
+                age, viral_loads[virus.id, incubation_period, infection_period - 1, days_infected + 7],
+                is_asymptomatic && days_infected > 0)
         end
 
         days_immune = 0
@@ -397,31 +397,27 @@ end
 
 # Получить вирусную нагрузку
 function find_agent_viral_load(
-    viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
     age::Int,
-    days_infected::Int,
-    infection_period::Int,
-    incubation_period::Int,
+    viral_load_value::Float64,
     is_viral_load_halved::Bool,
-    virus_id::Int
 )::Float64
     if age < 3
         if is_viral_load_halved
-            return viral_loads[days_infected + 7][infection_period - 1][incubation_period][virus_id] * 0.5
+            return viral_load_value * 0.5
         else
-            return viral_loads[days_infected + 7][infection_period - 1][incubation_period][virus_id]
+            return viral_load_value
         end
     elseif age < 16
         if is_viral_load_halved
-            return viral_loads[days_infected + 7][infection_period - 1][incubation_period][virus_id] * 0.375
+            return viral_load_value * 0.375
         else
-            return viral_loads[days_infected + 7][infection_period - 1][incubation_period][virus_id] * 0.75
+            return viral_load_value * 0.75
         end
     else
         if is_viral_load_halved
-            return viral_loads[days_infected + 7][infection_period - 1][incubation_period][virus_id] * 0.25
+            return viral_load_value * 0.25
         else
-            return viral_loads[days_infected + 7][infection_period - 1][incubation_period][virus_id] * 0.5
+            return viral_load_value * 0.5
         end
     end
 end

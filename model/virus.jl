@@ -96,32 +96,3 @@ function get_viral_load(
     b = -k * infection_period
     return k * days_infected + b
 end
-
-# Кэшируем всевозможные вирусные нагрузки
-function init_viral_loads()::Vector{Vector{Vector{Vector{Float64}}}}
-    arr1 = fill(0.0, 7)
-    arr2 = fill(arr1, 7)
-    arr3 = fill(arr2, 13)
-    arr = fill(arr3, 21)
-
-    for days_infected in -6:14
-        days_infected_index = days_infected + 7
-        for infection_period in 2:14
-            infection_period_index = infection_period - 1
-            for incubation_period in 1:7
-                min_days_infected = 1 - incubation_period
-                mean_viral_loads = [4.6, 4.7, 3.5, 6.0, 4.1, 4.7, 4.93]
-                for i in 1:7
-                    if (days_infected < min_days_infected) || (days_infected > infection_period)
-                        arr[days_infected_index][infection_period_index][incubation_period][i] = -1.0
-                    else
-                        arr[days_infected_index][infection_period_index][incubation_period][i] = get_viral_load(
-                            days_infected, incubation_period, infection_period, mean_viral_loads[i])
-                    end
-                end
-            end
-        end
-    end
-
-    return arr
-end

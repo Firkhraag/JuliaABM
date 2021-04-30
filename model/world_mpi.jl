@@ -6,7 +6,7 @@ module Model
 
     function create_agent(
         viruses::Dict{String, Virus},
-        viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
+        viral_loads::Array{Float64, 4},
         household::Group,
         index::Int,
         districts_age_sex::Vector{Vector{Int}},
@@ -232,7 +232,7 @@ module Model
 
     function create_spouse(
         viruses::Dict{String, Virus},
-        viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
+        viral_loads::Array{Float64, 4},
         household::Group,
         partner_age::Int
     )
@@ -281,7 +281,7 @@ module Model
 
     function create_parents_with_children(
         viruses::Dict{String, Virus},
-        viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
+        viral_loads::Array{Float64, 4},
         household::Group,
         districts_age_sex::Vector{Vector{Int}},
         district_households::Vector{Vector{Int}},
@@ -479,7 +479,7 @@ module Model
 
     function create_parent_with_children(
         viruses::Dict{String, Virus},
-        viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
+        viral_loads::Array{Float64, 4},
         household::Group,
         districts_age_sex::Vector{Vector{Int}},
         district_households::Vector{Vector{Int}},
@@ -695,7 +695,7 @@ module Model
 
     function create_others(
         viruses::Dict{String, Virus},
-        viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
+        viral_loads::Array{Float64, 4},
         household::Group,
         districts_age_sex::Vector{Vector{Int}},
         district_households::Vector{Vector{Int}},
@@ -1032,7 +1032,7 @@ module Model
 
     function create_population(
         viruses::Dict{String, Virus},
-        viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
+        viral_loads::Array{Float64, 4},
         comm_rank::Int,
         comm_size::Int
     )::Tuple{Vector{Agent}, Vector{Agent}}
@@ -1259,18 +1259,56 @@ module Model
             [34,53,76,74,71,58,64,76,79,75,44,61,73,75,71,68,57,71,73,73,38,57,74,75,71,41,59,79,78,72,45,56,72,76,72,52,60,73,77,74,55,54,68,70,80,47,51,72,75,72,45,55,72,75,74,49,60,74,78,83,74,62,78,78,76,57,58,83,85,81,67,57,72,77,73,61,52,70,73,71,88,60,74,78,76,41,54,71,73,71,55,55,70,76,74,47,57,75,79,76,41,55,70,73,71,51,56,75,78,74,48,57,73,77,74,53,66,79,81,86,49,61,79,83,79,46,59,74,78,76,60,58,73,75,71,69,61,72,73,73,63,55,76,80,75,48,54,75,78,75,78,53,74,79,77,45,60,78,77,73,54,54,68,72,73,68,55,70,74,74,62,58,72,75,70,45,53,71,75,85,54,56,70,75,75,48,54,66,72,72,54,59,77,78,83,34,50,73,76,79,46,55,72,76,78,45,57,74,76,75,69,62,76,79,84,43,57,77,81,76,49,67,73,77,78,43,55,78,82,76,53,56,70,73,73,55,55,73,76,71,41,53,68,71,78,58,56,71,71,71,49,57,71,77,77,54,58,73,78,73,42,50,71,76,72,63,55,75,78,74,64,58,70,75,73,66,63,75,76,78,56,61,75,76,78,63,61,70,73,78,62,62,76,80,75,51,64,78,81,79,79,63,74,76,75,46,59,73,74,67,56,58,70,72,71,48,59,71,73,72,47,60,72,74,72,75,57,68,72,70,52,54,64,70,77,60,59,70,74,79,68,55,71,76,80,49,58,74,78,83,44,52,66,71,73,73,59,71,76,75,40,50,65,71,74,70,55,73,79,75,59,50,68,72,72,49,59,75,80,77,62,59,73,80,73,51,65,76,76,74,39,57,70,73,72,48,55,69,75,73,45,57,70,73,72,64,62,75,78,74,41,56,71,76,73,41,53,68,71,71,47,57,76,82,77,38,52,70,73,71,44,59,82,78,76,62,68,77,77,74,58,57,81,75,77,40,56,70,74,71,50,59,76,76,81,56,57,68,69,66,51,58,72,76,73,49,60,72,76,74,45,37,76,76,75,42,59,76,76,73,53,59,71,73,72,66,55,72,75,76,50,60,73,74,75,41,49,68,72,71,47,57,72,73,71,48,56,71,74,71,43,58,75,77,75,46,49,71,73,69,47,56,71,73,72,47,50,69,77,71,43,56,75,80,76],
             [54,70,88,86,84,72,80,88,90,88,62,78,86,88,85,79,75,86,87,87,56,73,87,87,85,60,77,92,90,86,62,73,85,88,86,68,77,87,89,86,69,72,84,83,89,69,76,91,92,91,62,74,87,89,88,67,77,87,91,92,84,79,88,89,89,70,76,92,94,92,78,76,88,90,88,74,72,86,87,86,92,78,88,91,90,57,71,84,85,84,69,72,84,88,87,69,76,88,90,89,60,72,84,86,85,69,76,89,90,88,64,74,86,89,87,69,81,90,91,94,67,78,91,93,92,64,76,87,89,88,70,73,85,86,84,78,75,85,85,85,74,73,88,90,89,64,70,86,88,86,86,72,87,89,90,65,81,92,91,90,71,74,84,87,88,81,78,87,89,90,74,77,86,89,85,68,78,89,90,95,71,74,86,88,87,67,70,81,85,86,69,76,89,89,93,54,71,87,88,90,66,77,88,90,92,62,74,87,88,87,79,78,88,89,92,62,75,89,91,90,67,82,88,90,91,63,75,90,92,89,70,75,85,87,89,69,72,87,88,85,63,77,87,88,93,73,75,87,87,85,67,75,85,89,89,70,76,88,90,86,59,68,85,88,85,74,72,86,89,86,80,77,85,88,87,83,82,90,91,92,72,78,88,88,90,79,79,86,87,90,77,81,91,93,90,72,85,93,93,93,88,80,87,88,89,65,77,87,87,82,74,76,84,87,86,68,76,85,86,86,68,78,87,88,86,85,76,84,86,85,67,71,81,84,86,75,76,85,87,90,77,71,84,87,91,67,75,87,90,94,64,71,83,85,86,83,77,85,88,86,58,70,82,85,89,80,74,87,91,89,75,74,86,88,89,67,79,89,92,90,76,77,87,91,86,72,84,92,90,89,59,76,87,88,88,66,73,84,88,87,67,79,88,89,89,78,80,90,91,89,60,74,86,89,87,59,72,82,85,86,64,75,89,92,89,60,75,86,86,84,64,80,92,92,91,75,80,89,89,87,71,74,91,89,92,59,75,84,87,86,67,77,88,89,92,73,75,83,84,81,68,75,86,88,86,65,76,86,88,87,63,63,90,89,87,61,76,89,88,88,69,77,86,88,86,79,74,86,88,89,66,77,86,87,88,60,69,84,86,85,64,72,84,85,84,65,74,86,87,85,60,75,88,88,88,64,66,85,86,83,65,75,86,86,87,63,68,84,88,85,62,77,89,91,89]]
 
-        processes = [60, 55, 75, 50, 41, 59, 96,
-            34, 48, 69, 87, 11, 6, 57, 76, 91,
-            49, 88, 81, 15, 12, 102, 3, 44, 1,
-            73, 68, 105, 86, 13, 84, 89, 16, 90,
-            18, 93, 95, 51, 74, 52, 66, 4, 63, 53,
-            23, 64, 78, 26, 5, 22, 46, 79, 17, 8,
-            77, 33, 7, 101, 58, 30, 45, 71, 29,
-            62, 24, 37, 31, 25, 72, 85, 10, 2, 83,
-            82, 106, 20, 19, 65, 67, 36, 35, 21,
-            39, 9, 14, 70, 43, 100, 103, 28, 104,
-            107, 32, 40, 97, 47, 27, 80, 98, 61,
-            94, 42, 99, 56, 92, 54, 38]
+        # processes = [60, 55, 75, 50, 41, 59, 96,
+        #     34, 48, 69, 87, 11, 6, 57, 76, 91,
+        #     49, 88, 81, 15, 12, 102, 3, 44, 1,
+        #     73, 68, 105, 86, 13, 84, 89, 16, 90,
+        #     18, 93, 95, 51, 74, 52, 66, 4, 63, 53,
+        #     23, 64, 78, 26, 5, 22, 46, 79, 17, 8,
+        #     77, 33, 7, 101, 58, 30, 45, 71, 29,
+        #     62, 24, 37, 31, 25, 72, 85, 10, 2, 83,
+        #     82, 106, 20, 19, 65, 67, 36, 35, 21,
+        #     39, 9, 14, 70, 43, 100, 103, 28, 104,
+        #     107, 32, 40, 97, 47, 27, 80, 98, 61,
+        #     94, 42, 99, 56, 92, 54, 38]
+
+        # processes = [60, 55, 75, 50, 41, 59,
+        #     96, 34, 48, 69, 87, 11,
+        #     6, 57, 76, 91, 49, 88,
+        #     81, 15, 12, 102, 3, 44,
+        #     1, 73, 68, 105, 86, 13,
+        #     84, 89, 16, 90, 18, 93,
+        #     95, 51, 74, 52, 66, 4,
+        #     63, 53, 23, 64, 78, 26,
+        #     5, 22, 46, 79, 17, 8,
+        #     77, 33, 7, 101, 58, 30,
+        #     45, 71, 29, 62, 24, 37,
+        #     31, 25, 72, 85, 10, 2, 83,
+        #     82, 106, 20, 19, 65, 67,
+        #     36, 35, 21, 39, 9, 14,
+        #     70, 43, 100, 103, 28, 104,
+        #     107, 32, 40, 97, 47, 27,
+        #     80, 98, 61, 94, 42, 99,
+        #     56, 92, 54, 38]
+
+        processes = [60, 55, 75, 50, 41, 59,
+            11, 87, 69, 48, 34, 96,
+            6, 57, 76, 91, 49, 88,
+            44, 3, 102, 12, 15, 81,
+            1, 73, 68, 105, 86, 13,
+            93, 18, 90, 16, 89, 84,
+            95, 51, 74, 52, 66, 4,
+            26, 78, 64, 23, 53, 63,
+            5, 22, 46, 79, 17, 8,
+            30, 58, 101, 7, 33, 77,
+            45, 71, 29, 62, 24, 37,
+            83, 2, 10, 85, 72, 25, 31,
+            82, 106, 20, 19, 65, 67,
+            14, 9, 39, 21, 35, 36,
+            70, 43, 100, 103, 28, 104,
+            27, 47, 97, 40, 32, 107,
+            80, 98, 61, 94, 42, 99,
+            38, 54, 92, 56]
         
         kindergarten = Collective(5.88, 2.52, fill(Group[], 6))
         kindergarten_group_sizes = Int[
@@ -2064,7 +2102,7 @@ module Model
     end
 
     function update_infected_agent_state(
-        viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
+        viral_loads::Array{Float64, 4},
         agent::Agent,
     )
         if !agent.is_asymptomatic && !agent.is_isolated && agent.social_status != 0 && !agent.on_parent_leave
@@ -2117,17 +2155,13 @@ module Model
         
         # Вирусная нагрузка
         agent.viral_load = find_agent_viral_load(
-            viral_loads,
             agent.age,
-            agent.days_infected,
-            agent.infection_period,
-            agent.incubation_period,
-            agent.is_asymptomatic && agent.days_infected > 0,
-            agent.virus.id)
+            viral_loads[agent.virus.id, incubation_period, infection_period - 1, days_infected + 7],
+            agent.is_asymptomatic && agent.days_infected > 0)
     end
 
     function set_agent_infection(
-        viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
+        viral_loads::Array{Float64, 4},
         agent::Agent
     )
         # Инкубационный период
@@ -2161,13 +2195,9 @@ module Model
 
         # Вирусная нагрузка
         agent.viral_load = find_agent_viral_load(
-            viral_loads,
             agent.age,
-            agent.days_infected,
-            agent.infection_period,
-            agent.incubation_period,
-            agent.is_asymptomatic && agent.days_infected > 0,
-            agent.virus.id)
+            viral_loads[agent.virus.id, incubation_period, infection_period - 1, days_infected + 7],
+            agent.is_asymptomatic && agent.days_infected > 0)
     end
 
     function get_contact_duration(mean::Float64, sd::Float64)
@@ -2243,7 +2273,7 @@ module Model
 
     function run_simulation(
         viruses::Dict{String, Virus},
-        viral_loads::Vector{Vector{Vector{Vector{Float64}}}},
+        viral_loads::Array{Float64, 4},
         comm_rank::Int,
         comm_size::Int,
         all_agents::Vector{Agent},
@@ -2700,9 +2730,28 @@ module Model
             "CoV" => Virus(7, "CoV", 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 30)
         )
 
-        viral_loads = init_viral_loads()
+        viral_loads = Array{Float64,4}(undef, 7, 7, 13, 21)
+
+        for days_infected in -6:14
+            days_infected_index = days_infected + 7
+            for infection_period in 2:14
+                infection_period_index = infection_period - 1
+                for incubation_period in 1:7
+                    min_days_infected = 1 - incubation_period
+                    mean_viral_loads = [4.6, 4.7, 3.5, 6.0, 4.1, 4.7, 4.93]
+                    for i in 1:7
+                        if (days_infected >= min_days_infected) && (days_infected <= infection_period)
+                            viral_loads[i, incubation_period, infection_period_index, days_infected_index] = get_viral_load(
+                                days_infected, incubation_period, infection_period, mean_viral_loads[i])
+                        end
+                    end
+                end
+            end
+        end
 
         @time create_population(viruses, viral_loads, comm_rank, comm_size)
+
+        println("Process $(comm_rank) finished")
     
         MPI.Barrier(comm)
     
