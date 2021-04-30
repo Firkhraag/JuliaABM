@@ -11,7 +11,7 @@ mutable struct Group <: AbstractGroup
     end
 end
 
-mutable struct Collective <: AbstractCollective
+struct Collective <: AbstractCollective
     # Среднее время проводимое агентами
     mean_time_spent::Float64
     # Среднеквадратическое отклонение времени проводимого агентами
