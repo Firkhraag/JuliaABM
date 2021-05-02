@@ -86,13 +86,16 @@ function get_viral_load(
 )::Float64
     if days_infected < 1
         if incubation_period == 1
-            return mean_viral_load / 2
+            # return mean_viral_load / 2
+            return mean_viral_load / 24
         end
         k = mean_viral_load / (incubation_period - 1)
         b = k * (incubation_period - 1)
-        return k * days_infected + b
+        # return k * days_infected + b
+        return (k * days_infected + b) / 12
     end
     k = 2 * mean_viral_load / (1 - infection_period)
     b = -k * infection_period
-    return k * days_infected + b
+    # return k * days_infected + b
+    return (k * days_infected + b) / 12
 end

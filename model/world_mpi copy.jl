@@ -2199,11 +2199,15 @@ module Model
         agent::Agent,
         contact_duration::Float64,
         current_temp::Float64,
+        newly_infected_agents::Vector{Agent},
         duration_parameter::Float64,
         temperature_parameters::Dict{String, Float64},
-        susceptibility_parameters::Dict{String, Float64},
-        newly_infected_agents::Vector{Agent}
+        susceptibility_parameters::Dict{String, Float64}
     )
+        # Проверка восприимчивости агента к вирусу
+        if agent.virus !== nothing || agent.days_immune > 0 || agent.immunity_days[infected_agent.virus.name] > 0
+            return
+        end
         # Влияние продолжительности контакта на вероятность инфицирования
         duration_influence = 1 / (1 + exp(-contact_duration + duration_parameter))
                 
@@ -2214,25 +2218,13 @@ module Model
         susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus.name] * agent.ig_level))
 
         # Влияние силы инфекции на вероятность инфицирования
-        infectivity_influence = infected_agent.viral_load
+        infectivity_influence = infected_agent.viral_load / 12.0
 
         # Вероятность инфицирования
         infection_probability = infectivity_influence * susceptibility_influence *
             temperature_influence * duration_influence
 
-        rand_num = rand(Float64)
-
-        # println("Dur: $duration_influence; Temp: $temperature_influence; Susc: $susceptibility_influence; Inf: $infectivity_influence; Prob: $infection_probability")
-
-        # if rand_num < infection_probability
-        #     println("Dur: $duration_influence; Temp: $temperature_influence; Susc: $susceptibility_influence; Inf: $infectivity_influence; Prob: $infection_probability")
-        # end
-
-        # println("Dur: $duration_influence; Temp: $temperature_influence; Susc: $susceptibility_influence; Inf: $infectivity_influence; Prob: $infection_probability")
-
-        # println("Rand: $(rand(Float64)), inf: $(infection_probability)")
-
-        if rand_num < infection_probability
+        if rand(Float64) < infection_probability
             agent.virus = infected_agent.virus
             push!(newly_infected_agents, agent)
         end
@@ -2242,44 +2234,37 @@ module Model
         viruses::Dict{String, Virus},
         agent::Agent,
         week_num::Int,
-        etiologies::Vector{Vector{Float64}},
-        newly_infected_agents::Vector{Agent}
+        etiologies::Vector{Vector{Float64}}
     )
+        # Check age
         rand_num = rand(Float64)
         if rand_num < etiologies[week_num][1]
             if agent.immunity_days["FluA"] == 0
                 agent.virus = viruses["FluA"]
-                push!(newly_infected_agents, agent)
             end
         elseif rand_num < etiologies[week_num][2]
             if agent.immunity_days["FluB"] == 0
                 agent.virus = viruses["FluB"]
-                push!(newly_infected_agents, agent)
             end
         elseif rand_num < etiologies[week_num][3]
             if agent.immunity_days["RV"] == 0
                 agent.virus = viruses["RV"]
-                push!(newly_infected_agents, agent)
             end
         elseif rand_num < etiologies[week_num][4]
             if agent.immunity_days["RSV"] == 0
                 agent.virus = viruses["RSV"]
-                push!(newly_infected_agents, agent)
             end
         elseif rand_num < etiologies[week_num][5]
             if agent.immunity_days["AdV"] == 0
                 agent.virus = viruses["AdV"]
-                push!(newly_infected_agents, agent)
             end
         elseif rand_num < etiologies[week_num][6]
             if agent.immunity_days["PIV"] == 0
                 agent.virus = viruses["PIV"]
-                push!(newly_infected_agents, agent)
             end
         else
             if agent.immunity_days["CoV"] == 0
                 agent.virus = viruses["CoV"]
-                push!(newly_infected_agents, agent)
             end
         end
     end
@@ -2441,19 +2426,9 @@ module Model
         # Резистентные агенты
         all_recovered_agents = Agent[]
 
+        daily_new_cases = Int[]
         # DEBUG
-        max_step = 365
-
-        incidence = Array{Float64, 1}(undef, 52)
-        etiologies_incidence = [fill(0.0, 52), fill(0.0, 52), fill(0.0, 52),
-            fill(0.0, 52), fill(0.0, 52), fill(0.0, 52), fill(0.0, 52)]
-
-        weekly_new_infections_num = 0
-        etiologies_weekly_new_infections_num = Int[0, 0, 0, 0, 0, 0, 0]
-        collectives_weekly_new_infections_num = Dict(
-            "Household" => 0, "Kindergarten" => 0, "School" => 0, "University" => 0, "Workplace" => 0, "Random" => 0)
-
-        incidence_multiplier = 1000 / size(all_agents, 1)
+        max_step = 32
 
         for step = 1:max_step
             # Набор инфицированных агентов на данном шаге
@@ -2518,75 +2493,72 @@ module Model
                 is_university_holiday = true
             end
             
+            # for agent in all_infected_agents
             for agent in all_infected_agents
-                if agent.viral_load > 0.0001
-                    for agent2 in agent.household.agents
-                        # Проверка восприимчивости агента к вирусу
-                        if agent2.virus === nothing && agent.days_immune == 0 &&
-                                agent.immunity_days[agent.virus.name] == 0
-                            agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.social_status == 0
-                            agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.social_status == 0
-                            if is_holiday || (agent_at_home && agent2_at_home)
-                                make_contact(
-                                    agent, agent2, get_contact_duration(12.5, 5.5),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
-                            elseif ((agent.social_status == 1 && !agent_at_home) ||
-                                (agent2.social_status == 1 && !agent2_at_home)) && !is_kindergarten_holiday
-                                make_contact(
-                                    agent, agent2, get_contact_duration(5.0, 2.05),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
-                            elseif ((agent.social_status == 4 && !agent_at_home) ||
-                                (agent2.social_status == 4 && !agent2_at_home)) && !is_work_holiday
-                                make_contact(
-                                    agent, agent2, get_contact_duration(5.5, 2.25),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
-                            elseif ((agent.social_status == 2 && !agent_at_home) ||
-                                (agent2.social_status == 2 && !agent2_at_home)) && !is_school_holiday
-                                make_contact(
-                                    agent, agent2, get_contact_duration(6.0, 2.46),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
-                            elseif ((agent.social_status == 3 && !agent_at_home) ||
-                                (agent2.social_status == 3 && !agent2_at_home)) && !is_university_holiday
-                                make_contact(
-                                    agent, agent2, get_contact_duration(7.0, 3.69),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
-                            end
-                        end
+                for agent2 in agent.household.agents
+                    agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.social_status == 0
+                    agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.social_status == 0
+                    if is_holiday || (agent_at_home && agent2_at_home)
+                        make_contact(agent, agent2, get_contact_duration(12.5, 5.5),
+                            current_temp, newly_infected_agents,
+                            duration_parameter, temperature_parameters, susceptibility_parameters)
+                    elseif ((agent.social_status == 1 && !agent_at_home) ||
+                        (agent2.social_status == 1 && !agent2_at_home)) && !is_kindergarten_holiday
+                        make_contact(agent, agent2, get_contact_duration(5.0, 2.05),
+                            current_temp, newly_infected_agents,
+                            duration_parameter, temperature_parameters, susceptibility_parameters)
+                    elseif ((agent.social_status == 4 && !agent_at_home) ||
+                        (agent2.social_status == 4 && !agent2_at_home)) && !is_work_holiday
+                        make_contact(agent, agent2, get_contact_duration(5.5, 2.25),
+                            current_temp, newly_infected_agents,
+                            duration_parameter, temperature_parameters, susceptibility_parameters)
+                    elseif ((agent.social_status == 2 && !agent_at_home) ||
+                        (agent2.social_status == 2 && !agent2_at_home)) && !is_school_holiday
+                        make_contact(agent, agent2, get_contact_duration(6.0, 2.46),
+                            current_temp, newly_infected_agents,
+                            duration_parameter, temperature_parameters, susceptibility_parameters)
+                    elseif ((agent.social_status == 3 && !agent_at_home) ||
+                        (agent2.social_status == 3 && !agent2_at_home)) && !is_university_holiday
+                        make_contact(agent, agent2, get_contact_duration(7.0, 3.69),
+                            current_temp, newly_infected_agents,
+                            duration_parameter, temperature_parameters, susceptibility_parameters)
                     end
-                    if !is_holiday && agent.group !== nothing && !agent.is_isolated && !agent.on_parent_leave &&
-                        ((agent.social_status == 1 && !is_kindergarten_holiday) ||
-                            (agent.social_status == 2 && !is_school_holiday) ||
-                            (agent.social_status == 3 && !is_university_holiday) ||
-                            (agent.social_status == 4 && !is_work_holiday))
-                        group = agent.group
+                end
+                if !is_holiday && agent.group !== nothing && !agent.is_isolated && !agent.on_parent_leave
+                    group = agent.group
+                    if (agent.social_status == 1 && !is_kindergarten_holiday) ||
+                        (agent.social_status == 2 && !is_school_holiday) ||
+                        (agent.social_status == 3 && !is_university_holiday) ||
+                        (agent.social_status == 4 && !is_work_holiday)
                         for agent2 in group.agents
-                            # Проверка восприимчивости агента к вирусу
-                            if agent2.virus === nothing && agent.days_immune == 0 &&
-                                    agent.immunity_days[agent.virus.name] == 0 &&
-                                        !agent2.is_isolated && !agent2.on_parent_leave
-                                    make_contact(
-                                        agent, agent2, get_contact_duration(
-                                            group.collective.mean_time_spent,
-                                            group.collective.time_spent_sd),
-                                        current_temp, duration_parameter,
-                                        temperature_parameters, susceptibility_parameters, newly_infected_agents)
+                            if !agent2.is_isolated && !agent2.on_parent_leave
+                                make_contact(
+                                    agent,
+                                    agent2,
+                                    get_contact_duration(
+                                        group.collective.mean_time_spent,
+                                        group.collective.time_spent_sd),
+                                    current_temp, newly_infected_agents,
+                                    duration_parameter, temperature_parameters, susceptibility_parameters)
                             end
                         end
                     end
                 end
             end
 
-            # Случайное инфицирование восприимчивых агентов
+            # Обновление состояния восприимчивых агентов
             for i = 1:1000
-                agent = all_agents[rand(1:size(all_agents, 1))]
+                length = size(all_agents, 1)
+                rand_num = rand(1:length)
+                agent = all_agents[rand_num]
                 if agent.virus === nothing && agent.days_immune == 0
                     if agent.age < 16
                         if rand(1:10000) < 3
-                            infect_randomly(viruses, agent, week_num, etiologies, newly_infected_agents)
+                            infect_randomly(viruses, agent, week_num, etiologies)
                         end
                     else
                         if rand(1:10000) == 1
-                            infect_randomly(viruses, agent, week_num, etiologies, newly_infected_agents)
+                            infect_randomly(viruses, agent, week_num, etiologies)
                         end
                     end
                 end
@@ -2692,27 +2664,18 @@ module Model
                 i -= 1
             end
 
-            new_infections_num = 0
+            # for agent in newly_infected_agents
+            #     println(agent.age)
+            #     set_agent_infection(agent)
+            # end
+            # exit(0)
 
             for agent in newly_infected_agents
                 set_agent_infection(viral_loads, agent)
-                new_infections_num += 1
-                etiologies_weekly_new_infections_num[agent.virus.id] += 1
             end
-
-            weekly_new_infections_num += new_infections_num
 
             # Обновление даты
             if week_day == 7
-
-                incidence[week_num] = weekly_new_infections_num * incidence_multiplier
-                weekly_new_infections_num = 0
-
-                for i = 1:size(etiologies_weekly_new_infections_num, 1)
-                    etiologies_incidence[i][week_num] = etiologies_weekly_new_infections_num[i]
-                    etiologies_weekly_new_infections_num[i] = 0
-                end
-
                 week_day = 1
                 if week_num == 52
                     week_num = 1
@@ -2734,32 +2697,25 @@ module Model
                 (month == 2 && day == 28)
                 day = 1
                 month += 1
+                println("New month")
             elseif (month == 12 && day == 31)
                 day = 1
                 month = 1
+                println("New month")
             else
                 day += 1
             end
 
             append!(all_infected_agents, newly_infected_agents)
+            push!(daily_new_cases, size(newly_infected_agents, 1))
         end
 
-        incidence_data = MPI.Reduce(incidence, MPI.SUM, 0, comm)
+        new_cases_data = MPI.Reduce(daily_new_cases, MPI.SUM, 0, comm)
         if comm_rank == 0
-            incidence_plot = plot(1:52, incidence_data, title = "Incidence", lw = 3, legend = false)
-            xlabel!("Week")
-            ylabel!("Incidence")
-            savefig(incidence_plot, joinpath(@__DIR__, "..", "output", "incidence.pdf"))
-
-            # etilogies_incidence_plot = plot(
-            #     1:52,
-            #     [etiologies_incidence[i] for i = 1:7],
-            #     title = "Etiologies",
-            #     lw = 3,
-            #     label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
-            # xlabel!("Week")
-            # ylabel!("Incidence")
-            # savefig(etilogies_incidence_plot, joinpath(@__DIR__, "..", "output", "etiologies.pdf"))
+            daily_new_cases_plot = plot(1:max_step, new_cases_data, title = "Daily New Cases", lw = 3, legend = false)
+            xlabel!("Day")
+            ylabel!("Num of people")
+            savefig(daily_new_cases_plot, joinpath(@__DIR__, "..", "output", "daily_new_cases.pdf"))
         end
     end
 
@@ -2810,13 +2766,17 @@ module Model
         infected_agents = Agent[]
 
         @time create_population(viruses, viral_loads, comm_rank, comm_size, all_agents, infected_agents)
+        # create_population(viruses, viral_loads, comm_rank, comm_size)
+
         MPI.Barrier(comm)
     
         if comm_rank == 0
             println("Simulation...")
         end
-        @time run_simulation(viruses, viral_loads, comm_rank, comm, all_agents, infected_agents)
-        MPI.Barrier(comm)
+        # @time run_simulation(viruses, viral_loads, comm_rank, comm, all_agents, infected_agents)
+        # run_simulation()
+    
+        # MPI.Barrier(comm)
     end
 
     main()

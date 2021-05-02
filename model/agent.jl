@@ -40,6 +40,8 @@ mutable struct Agent
     is_isolated::Bool
     # Вирусная нагрузка
     viral_load::Float64
+    # ...
+    was_infected_on_current_step::Bool
     # Домохозяйство
     household::AbstractGroup
     # Группа
@@ -49,7 +51,8 @@ mutable struct Agent
         viruses::Dict{String, Virus},
         viral_loads::Array{Float64, 4},
         household::AbstractGroup,
-        is_male::Bool, age::Int
+        is_male::Bool,
+        age::Int
     )
         # Возраст новорожденного
         infant_age = 0
@@ -379,7 +382,7 @@ mutable struct Agent
             virus, immunity_days, incubation_period,
             infection_period, days_infected,
             days_immune, is_asymptomatic, is_isolated,
-            viral_load, household, nothing)
+            viral_load, false, household, nothing)
     end
 end
 

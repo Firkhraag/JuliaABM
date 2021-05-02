@@ -1,6 +1,5 @@
 module Model
     using Plots
-    using MPI
     
     include("collective.jl")
 
@@ -901,13 +900,13 @@ module Model
             push!(collective.groups[group_num], group)
             group.collective = collective
         end
-        length = size(collective.groups[group_num], 1)
-        last_group = collective.groups[group_num][length]
+        last_group = collective.groups[group_num][size(collective.groups[group_num], 1)]
         if size(last_group.agents, 1) == group_sizes[group_num]
             last_group = Group()
             push!(collective.groups[group_num], last_group)
             last_group.collective = collective
             group_sizes[group_num] = get_group_size(group_num)
+
         end
         push!(last_group.agents, agent)
         agent.group = last_group
@@ -1030,8 +1029,6 @@ module Model
     function create_population(
         viruses::Dict{String, Virus},
         viral_loads::Array{Float64, 4},
-        comm_rank::Int,
-        comm_size::Int,
         all_agents::Vector{Agent},
         infected_agents::Vector{Agent}
     )
@@ -1257,57 +1254,6 @@ module Model
             [20,36,51,54,54,46,47,57,60,58,29,44,52,57,56,58,40,51,54,57,24,39,54,56,54,25,39,51,56,54,30,38,51,57,56,37,42,53,57,57,42,37,48,51,63,33,36,53,58,57,31,38,51,56,57,32,41,54,58,66,55,43,60,58,60,44,39,55,59,58,56,41,52,58,57,50,36,50,54,54,72,40,51,56,56,27,37,52,54,55,43,40,51,57,57,18,33,51,57,55,26,38,51,54,55,38,39,55,58,56,34,40,53,57,57,38,50,61,64,76,31,41,56,61,60,31,40,54,58,57,51,42,54,56,55,61,48,56,58,59,54,39,57,62,59,33,37,55,60,58,65,37,56,62,61,29,43,57,60,58,37,36,48,53,57,53,40,53,58,60,49,42,53,56,53,28,36,52,58,67,33,38,49,55,56,31,36,46,53,55,39,42,56,59,68,23,37,55,57,58,31,38,52,57,62,30,40,54,56,58,58,45,56,60,70,28,39,58,61,58,33,51,54,58,62,30,39,60,64,59,40,38,50,54,56,44,38,53,57,54,26,38,51,55,63,37,38,51,53,51,32,39,51,57,59,37,39,51,57,55,28,34,51,56,55,50,40,59,60,55,43,38,49,54,54,47,45,56,59,63,34,38,51,51,54,48,43,51,53,63,45,43,55,60,58,33,44,55,59,60,62,44,53,56,56,29,40,52,54,50,39,40,51,52,53,29,39,50,53,53,29,41,50,53,53,63,39,48,52,52,36,37,44,51,57,42,39,49,54,61,55,38,51,57,56,31,40,52,58,64,28,35,48,52,58,64,42,51,57,59,28,36,49,55,59,56,38,53,59,56,44,34,50,55,57,32,42,56,62,62,48,40,53,59,56,32,45,54,55,55,25,39,49,53,54,34,38,51,57,56,29,40,52,55,57,48,39,48,52,53,26,38,51,56,55,26,36,49,53,55,34,39,56,60,59,24,36,51,58,57,28,40,60,57,58,46,51,53,56,57,44,40,65,56,64,25,39,51,55,53,35,41,56,57,69,37,39,47,49,49,36,41,52,56,58,37,46,54,58,58,33,25,58,56,58,26,41,53,57,57,39,41,51,54,55,49,39,53,57,59,36,41,52,55,58,28,35,49,54,55,32,40,51,53,53,33,39,50,54,53,28,42,57,58,59,28,33,49,51,51,31,39,51,54,55,33,34,49,60,54,30,40,55,61,58],
             [34,53,76,74,71,58,64,76,79,75,44,61,73,75,71,68,57,71,73,73,38,57,74,75,71,41,59,79,78,72,45,56,72,76,72,52,60,73,77,74,55,54,68,70,80,47,51,72,75,72,45,55,72,75,74,49,60,74,78,83,74,62,78,78,76,57,58,83,85,81,67,57,72,77,73,61,52,70,73,71,88,60,74,78,76,41,54,71,73,71,55,55,70,76,74,47,57,75,79,76,41,55,70,73,71,51,56,75,78,74,48,57,73,77,74,53,66,79,81,86,49,61,79,83,79,46,59,74,78,76,60,58,73,75,71,69,61,72,73,73,63,55,76,80,75,48,54,75,78,75,78,53,74,79,77,45,60,78,77,73,54,54,68,72,73,68,55,70,74,74,62,58,72,75,70,45,53,71,75,85,54,56,70,75,75,48,54,66,72,72,54,59,77,78,83,34,50,73,76,79,46,55,72,76,78,45,57,74,76,75,69,62,76,79,84,43,57,77,81,76,49,67,73,77,78,43,55,78,82,76,53,56,70,73,73,55,55,73,76,71,41,53,68,71,78,58,56,71,71,71,49,57,71,77,77,54,58,73,78,73,42,50,71,76,72,63,55,75,78,74,64,58,70,75,73,66,63,75,76,78,56,61,75,76,78,63,61,70,73,78,62,62,76,80,75,51,64,78,81,79,79,63,74,76,75,46,59,73,74,67,56,58,70,72,71,48,59,71,73,72,47,60,72,74,72,75,57,68,72,70,52,54,64,70,77,60,59,70,74,79,68,55,71,76,80,49,58,74,78,83,44,52,66,71,73,73,59,71,76,75,40,50,65,71,74,70,55,73,79,75,59,50,68,72,72,49,59,75,80,77,62,59,73,80,73,51,65,76,76,74,39,57,70,73,72,48,55,69,75,73,45,57,70,73,72,64,62,75,78,74,41,56,71,76,73,41,53,68,71,71,47,57,76,82,77,38,52,70,73,71,44,59,82,78,76,62,68,77,77,74,58,57,81,75,77,40,56,70,74,71,50,59,76,76,81,56,57,68,69,66,51,58,72,76,73,49,60,72,76,74,45,37,76,76,75,42,59,76,76,73,53,59,71,73,72,66,55,72,75,76,50,60,73,74,75,41,49,68,72,71,47,57,72,73,71,48,56,71,74,71,43,58,75,77,75,46,49,71,73,69,47,56,71,73,72,47,50,69,77,71,43,56,75,80,76],
             [54,70,88,86,84,72,80,88,90,88,62,78,86,88,85,79,75,86,87,87,56,73,87,87,85,60,77,92,90,86,62,73,85,88,86,68,77,87,89,86,69,72,84,83,89,69,76,91,92,91,62,74,87,89,88,67,77,87,91,92,84,79,88,89,89,70,76,92,94,92,78,76,88,90,88,74,72,86,87,86,92,78,88,91,90,57,71,84,85,84,69,72,84,88,87,69,76,88,90,89,60,72,84,86,85,69,76,89,90,88,64,74,86,89,87,69,81,90,91,94,67,78,91,93,92,64,76,87,89,88,70,73,85,86,84,78,75,85,85,85,74,73,88,90,89,64,70,86,88,86,86,72,87,89,90,65,81,92,91,90,71,74,84,87,88,81,78,87,89,90,74,77,86,89,85,68,78,89,90,95,71,74,86,88,87,67,70,81,85,86,69,76,89,89,93,54,71,87,88,90,66,77,88,90,92,62,74,87,88,87,79,78,88,89,92,62,75,89,91,90,67,82,88,90,91,63,75,90,92,89,70,75,85,87,89,69,72,87,88,85,63,77,87,88,93,73,75,87,87,85,67,75,85,89,89,70,76,88,90,86,59,68,85,88,85,74,72,86,89,86,80,77,85,88,87,83,82,90,91,92,72,78,88,88,90,79,79,86,87,90,77,81,91,93,90,72,85,93,93,93,88,80,87,88,89,65,77,87,87,82,74,76,84,87,86,68,76,85,86,86,68,78,87,88,86,85,76,84,86,85,67,71,81,84,86,75,76,85,87,90,77,71,84,87,91,67,75,87,90,94,64,71,83,85,86,83,77,85,88,86,58,70,82,85,89,80,74,87,91,89,75,74,86,88,89,67,79,89,92,90,76,77,87,91,86,72,84,92,90,89,59,76,87,88,88,66,73,84,88,87,67,79,88,89,89,78,80,90,91,89,60,74,86,89,87,59,72,82,85,86,64,75,89,92,89,60,75,86,86,84,64,80,92,92,91,75,80,89,89,87,71,74,91,89,92,59,75,84,87,86,67,77,88,89,92,73,75,83,84,81,68,75,86,88,86,65,76,86,88,87,63,63,90,89,87,61,76,89,88,88,69,77,86,88,86,79,74,86,88,89,66,77,86,87,88,60,69,84,86,85,64,72,84,85,84,65,74,86,87,85,60,75,88,88,88,64,66,85,86,83,65,75,86,86,87,63,68,84,88,85,62,77,89,91,89]]
-
-        # processes = [60, 55, 75, 50, 41, 59, 96,
-        #     34, 48, 69, 87, 11, 6, 57, 76, 91,
-        #     49, 88, 81, 15, 12, 102, 3, 44, 1,
-        #     73, 68, 105, 86, 13, 84, 89, 16, 90,
-        #     18, 93, 95, 51, 74, 52, 66, 4, 63, 53,
-        #     23, 64, 78, 26, 5, 22, 46, 79, 17, 8,
-        #     77, 33, 7, 101, 58, 30, 45, 71, 29,
-        #     62, 24, 37, 31, 25, 72, 85, 10, 2, 83,
-        #     82, 106, 20, 19, 65, 67, 36, 35, 21,
-        #     39, 9, 14, 70, 43, 100, 103, 28, 104,
-        #     107, 32, 40, 97, 47, 27, 80, 98, 61,
-        #     94, 42, 99, 56, 92, 54, 38]
-
-        # processes = [60, 55, 75, 50, 41, 59,
-        #     96, 34, 48, 69, 87, 11,
-        #     6, 57, 76, 91, 49, 88,
-        #     81, 15, 12, 102, 3, 44,
-        #     1, 73, 68, 105, 86, 13,
-        #     84, 89, 16, 90, 18, 93,
-        #     95, 51, 74, 52, 66, 4,
-        #     63, 53, 23, 64, 78, 26,
-        #     5, 22, 46, 79, 17, 8,
-        #     77, 33, 7, 101, 58, 30,
-        #     45, 71, 29, 62, 24, 37,
-        #     31, 25, 72, 85, 10, 2, 83,
-        #     82, 106, 20, 19, 65, 67,
-        #     36, 35, 21, 39, 9, 14,
-        #     70, 43, 100, 103, 28, 104,
-        #     107, 32, 40, 97, 47, 27,
-        #     80, 98, 61, 94, 42, 99,
-        #     56, 92, 54, 38]
-
-        processes = [60, 55, 75, 50, 41, 59,
-            11, 87, 69, 48, 34, 96,
-            6, 57, 76, 91, 49, 88,
-            44, 3, 102, 12, 15, 81,
-            1, 73, 68, 105, 86, 13,
-            93, 18, 90, 16, 89, 84,
-            95, 51, 74, 52, 66, 4,
-            26, 78, 64, 23, 53, 63,
-            5, 22, 46, 79, 17, 8,
-            30, 58, 101, 7, 33, 77,
-            45, 71, 29, 62, 24, 37,
-            83, 2, 10, 85, 72, 25, 31,
-            82, 106, 20, 19, 65, 67,
-            14, 9, 39, 21, 35, 36,
-            70, 43, 100, 103, 28, 104,
-            27, 47, 97, 40, 32, 107,
-            80, 98, 61, 94, 42, 99,
-            38, 54, 92, 56]
         
         kindergarten = Collective(
             5.88, 2.52, [Group[], Group[], Group[], Group[], Group[], Group[]])
@@ -1349,7 +1295,7 @@ module Model
         workplace = Collective(3.0, 3.0, [Group[]])
         workplace_group_sizes = Int[get_workplace_group_size(1)]
 
-        for index in processes[(comm_rank + 1):comm_size:107]
+        for index in [1, 2, 3]
             index_for_1_people::Int = (index - 1) * 5 + 1
             index_for_2_people::Int = index_for_1_people + 1
             index_for_3_people::Int = index_for_2_people + 1
@@ -2091,105 +2037,6 @@ module Model
         end
     end
 
-    function update_infected_agent_state(
-        viral_loads::Array{Float64, 4},
-        agent::Agent,
-    )
-        if !agent.is_asymptomatic && !agent.is_isolated && agent.social_status != 0 && !agent.on_parent_leave
-            # Самоизоляция
-            rand_num = rand(1:1000)
-            if agent.days_infected == agent.incubation_period + 1
-                if agent.age < 8
-                    if rand_num < 305
-                        agent.is_isolated = true
-                    end
-                elseif agent.age < 18
-                    if rand_num < 204
-                        agent.is_isolated = true
-                    end
-                else
-                    if rand_num < 101
-                        agent.is_isolated = true
-                    end
-                end
-            elseif agent.days_infected == agent.incubation_period + 2
-                if agent.age < 8
-                    if rand_num < 576
-                        agent.is_isolated = true
-                    end
-                elseif agent.age < 18
-                    if rand_num < 499
-                        agent.is_isolated = true
-                    end
-                else
-                    if rand_num < 334
-                        agent.is_isolated = true
-                    end
-                end
-            elseif agent.days_infected == agent.incubation_period + 3
-                if agent.age < 8
-                    if rand_num < 325
-                        agent.is_isolated = true
-                    end
-                elseif agent.age < 18
-                    if rand_num < 376
-                        agent.is_isolated = true
-                    end
-                else
-                    if rand_num < 168
-                        agent.is_isolated = true
-                    end
-                end
-            end
-        end
-        
-        # Вирусная нагрузка
-        agent.viral_load = find_agent_viral_load(
-            agent.age,
-            viral_loads[agent.virus.id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
-            agent.is_asymptomatic && agent.days_infected > 0)
-    end
-
-    function set_agent_infection(
-        viral_loads::Array{Float64, 4},
-        agent::Agent
-    )
-        # Инкубационный период
-        agent.incubation_period = get_period_from_erlang(
-            agent.virus.mean_incubation_period,
-            agent.virus.incubation_period_variance,
-            agent.virus.min_incubation_period,
-            agent.virus.max_incubation_period)
-        # Период болезни
-        if agent.age < 16
-            agent.infection_period = get_period_from_erlang(
-                agent.virus.mean_infection_period_child,
-                agent.virus.infection_period_variance_child,
-                agent.virus.min_infection_period_child,
-                agent.virus.max_infection_period_child)
-        else
-            agent.infection_period = get_period_from_erlang(
-                agent.virus.mean_infection_period_adult,
-                agent.virus.infection_period_variance_adult,
-                agent.virus.min_infection_period_adult,
-                agent.virus.max_infection_period_adult)
-        end
-
-        # Дней с момента инфицирования
-        agent.days_infected = 1 - agent.incubation_period
-
-        if rand(1:100) <= agent.virus.asymptomatic_probab
-            # Асимптомный
-            agent.is_asymptomatic = true
-        end
-
-        # Вирусная нагрузка
-        agent.viral_load = find_agent_viral_load(
-            agent.age,
-            viral_loads[agent.virus.id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
-            agent.is_asymptomatic && agent.days_infected > 0)
-    end
-
     function get_contact_duration(mean::Float64, sd::Float64)
         return rand(truncated(Normal(mean, sd), 0.0, Inf))
     end
@@ -2201,8 +2048,7 @@ module Model
         current_temp::Float64,
         duration_parameter::Float64,
         temperature_parameters::Dict{String, Float64},
-        susceptibility_parameters::Dict{String, Float64},
-        newly_infected_agents::Vector{Agent}
+        susceptibility_parameters::Dict{String, Float64}
     )
         # Влияние продолжительности контакта на вероятность инфицирования
         duration_influence = 1 / (1 + exp(-contact_duration + duration_parameter))
@@ -2234,7 +2080,7 @@ module Model
 
         if rand_num < infection_probability
             agent.virus = infected_agent.virus
-            push!(newly_infected_agents, agent)
+            agent.was_infected_on_current_step = true
         end
     end
 
@@ -2242,44 +2088,43 @@ module Model
         viruses::Dict{String, Virus},
         agent::Agent,
         week_num::Int,
-        etiologies::Vector{Vector{Float64}},
-        newly_infected_agents::Vector{Agent}
+        etiologies::Vector{Vector{Float64}}
     )
         rand_num = rand(Float64)
         if rand_num < etiologies[week_num][1]
             if agent.immunity_days["FluA"] == 0
                 agent.virus = viruses["FluA"]
-                push!(newly_infected_agents, agent)
+                agent.was_infected_on_current_step = true
             end
         elseif rand_num < etiologies[week_num][2]
             if agent.immunity_days["FluB"] == 0
                 agent.virus = viruses["FluB"]
-                push!(newly_infected_agents, agent)
+                agent.was_infected_on_current_step = true
             end
         elseif rand_num < etiologies[week_num][3]
             if agent.immunity_days["RV"] == 0
                 agent.virus = viruses["RV"]
-                push!(newly_infected_agents, agent)
+                agent.was_infected_on_current_step = true
             end
         elseif rand_num < etiologies[week_num][4]
             if agent.immunity_days["RSV"] == 0
                 agent.virus = viruses["RSV"]
-                push!(newly_infected_agents, agent)
+                agent.was_infected_on_current_step = true
             end
         elseif rand_num < etiologies[week_num][5]
             if agent.immunity_days["AdV"] == 0
                 agent.virus = viruses["AdV"]
-                push!(newly_infected_agents, agent)
+                agent.was_infected_on_current_step = true
             end
         elseif rand_num < etiologies[week_num][6]
             if agent.immunity_days["PIV"] == 0
                 agent.virus = viruses["PIV"]
-                push!(newly_infected_agents, agent)
+                agent.was_infected_on_current_step = true
             end
         else
             if agent.immunity_days["CoV"] == 0
                 agent.virus = viruses["CoV"]
-                push!(newly_infected_agents, agent)
+                agent.was_infected_on_current_step = true
             end
         end
     end
@@ -2287,10 +2132,7 @@ module Model
     function run_simulation(
         viruses::Dict{String, Virus},
         viral_loads::Array{Float64, 4},
-        comm_rank::Int,
-        comm::MPI.Comm,
-        all_agents::Vector{Agent},
-        infected_agents::Vector{Agent}
+        all_agents::Vector{Agent}
     )
         # Параметры
         duration_parameter = 7.05
@@ -2310,6 +2152,14 @@ module Model
             "AdV" => 4.69,
             "PIV" => 3.89,
             "CoV" => 3.77)
+        # susceptibility_parameters = Dict(
+        #     "FluA" => 30.0,
+        #     "FluB" => 30.0,
+        #     "RV" => 30.0,
+        #     "RSV" => 30.0,
+        #     "AdV" => 30.0,
+        #     "PIV" => 30.0,
+        #     "CoV" => 30.0)
         immunity_durations = Dict(
             "FluA" => 366,
             "FluB" => 366,
@@ -2367,58 +2217,58 @@ module Model
             -5.6, -5.6, -5.7, -5.7, -5.7, -5.7, -5.8, -5.8]
 
         # Вероятность случайного инфицирования [номер недели, вирус]
-        etiologies = [[0.00980294117647054,0.00490147058823527,0.499999999999999,0.588235294117646,0.823529411764704,0.985294117647056],
-            [0.00784235294117644,0.00392117647058822,0.494117647058823,0.529411764705882,0.811764705882352,0.976470588235293],
-            [0.00724565217391304,0.00362282608695652,0.499999999999999,0.554347826086956,0.771739130434782,0.956521739130434],
-            [0.00748988764044939,0.00374494382022469,0.539325842696629,0.584269662921348,0.831460674157303,0.988764044943819],
-            [0.00529047619047619,0.00264523809523809,0.603174603174603,0.626984126984127,0.785714285714285,0.968253968253967],
-            [0.00432857142857143,0.00216428571428571,0.655844155844155,0.688311688311688,0.805194805194804,0.987012987012985],
-            [0.00383103448275861,0.00191551724137931,0.706896551724138,0.741379310344827,0.827586206896551,0.994252873563217],
-            [0.00368287292817679,0.00184143646408839,0.685082872928176,0.718232044198894,0.823204419889501,0.988950276243092],
-            [0.00310046511627907,0.00155023255813953,0.627906976744186,0.646511627906976,0.753488372093022,0.981395348837208],
-            [0.00362282608695652,0.00181141304347826,0.684782608695652,0.717391304347826,0.79891304347826,0.989130434782607],
-            [0.003471875,0.0017359375,0.671874999999999,0.697916666666666,0.802083333333332,0.994791666666665],
-            [0.00336666666666667,0.00168333333333333,0.6010101010101,0.63131313131313,0.782828282828281,0.974747474747472],
-            [0.00314433962264151,0.00157216981132075,0.622641509433961,0.65566037735849,0.787735849056603,0.96698113207547],
-            [0.00296266666666666,0.00148133333333333,0.555555555555555,0.577777777777778,0.742222222222222,0.982222222222222],
-            [0.00352698412698413,0.00176349206349206,0.481481481481481,0.523809523809524,0.73015873015873,0.973544973544973],
-            [0.003333,0.0016665,0.505,0.59,0.79,0.965],
-            [0.00288571428571428,0.00144285714285714,0.489177489177488,0.606060606060604,0.744588744588742,0.965367965367962],
-            [0.0264523809523809,0.0132261904761904,0.547619047619047,0.634920634920634,0.793650793650792,0.980158730158728],
-            [0.06666,0.03333,0.5,0.608,0.776,0.976],
-            [0.093740625,0.0468703125,0.45703125,0.61328125,0.82421875,0.94140625],
-            [0.183805147058823,0.0919025735294117,0.485294117647058,0.602941176470587,0.768382352941175,0.952205882352939],
-            [0.155828571428571,0.0779142857142855,0.46103896103896,0.629870129870128,0.831168831168829,0.961038961038958],
-            [0.312138095238095,0.156069047619048,0.642857142857142,0.793650793650792,0.857142857142855,0.992063492063489],
-            [0.3333,0.16665,0.653846153846153,0.776923076923076,0.826923076923076,0.973076923076922],
-            [0.360324324324324,0.180162162162162,0.702702702702702,0.805405405405404,0.889189189189188,0.975675675675674],
-            [0.347791304347826,0.173895652173913,0.695652173913042,0.808695652173911,0.895652173913041,0.967391304347824],
-            [0.311719424460431,0.155859712230216,0.640287769784172,0.802158273381294,0.874100719424459,0.964028776978416],
-            [0.313251879699248,0.156625939849624,0.639097744360902,0.774436090225563,0.887218045112781,0.964285714285713],
-            [0.303690205011389,0.151845102505695,0.612756264236901,0.749430523917994,0.890660592255123,0.943052391799542],
-            [0.291050704225352,0.145525352112676,0.605633802816901,0.814084507042253,0.907042253521126,0.957746478873239],
-            [0.249975,0.1249875,0.576086956521739,0.869565217391304,0.945652173913043,0.975543478260869],
-            [0.166188365650969,0.0830941828254845,0.470914127423821,0.858725761772851,0.941828254847643,0.977839335180053],
-            [0.130498412698412,0.0652492063492061,0.423280423280422,0.846560846560845,0.936507936507935,0.984126984126983],
-            [0.10330350877193,0.0516517543859649,0.444444444444444,0.7953216374269,0.888888888888888,0.947368421052631],
-            [0.0973928571428571,0.0486964285714285,0.405844155844155,0.788961038961038,0.889610389610388,0.935064935064933],
-            [0.0902964143426293,0.0451482071713146,0.434262948207171,0.824701195219123,0.872509960159362,0.940239043824701],
-            [0.0939299999999994,0.0469649999999997,0.422727272727271,0.786363636363634,0.863636363636361,0.945454545454543],
-            [0.087369902912621,0.0436849514563105,0.441747572815533,0.757281553398057,0.849514563106795,0.95145631067961],
-            [0.06666,0.03333,0.41578947368421,0.773684210526315,0.884210526315788,0.973684210526314],
-            [0.0617222222222222,0.0308611111111111,0.401234567901234,0.808641975308641,0.932098765432097,0.981481481481479],
-            [0.0563323943661972,0.0281661971830986,0.422535211267605,0.788732394366196,0.90845070422535,0.992957746478871],
-            [0.03749625,0.018748125,0.43125,0.7,0.85,0.96875],
-            [0.00404,0.00202,0.424242424242424,0.709090909090908,0.860606060606059,0.957575757575756],
-            [0.00524881889763779,0.0026244094488189,0.32283464566929,0.661417322834644,0.80314960629921,0.937007874015745],
-            [0.0053758064516129,0.00268790322580645,0.387096774193548,0.693548387096773,0.846774193548385,0.975806451612901],
-            [0.006666,0.003333,0.39,0.7,0.82,0.98],
-            [0.00812926829268292,0.00406463414634146,0.463414634146341,0.695121951219511,0.817073170731706,0.987804878048779],
-            [0.00843797468354426,0.00421898734177213,0.50632911392405,0.594936708860759,0.734177215189872,0.987341772151897],
-            [0.0102553846153846,0.00512769230769228,0.369230769230768,0.461538461538461,0.784615384615384,0.984615384615384],
-            [0.00938873239436618,0.00469436619718309,0.436619718309859,0.507042253521126,0.830985915492957,0.985915492957745],
-            [0.0101,0.00504999999999998,0.424242424242424,0.484848484848485,0.833333333333333,0.984848484848484],
-            [0.00994925373134324,0.00497462686567162,0.492537313432835,0.567164179104477,0.850746268656715,0.98507462686567]]
+        etiologies = [[0.009802941,0.024507353,0.5,0.588235294,0.823529412,0.985294118],
+            [0.007842353,0.019605882,0.494117647,0.529411765,0.811764706,0.976470588],
+            [0.007245652,0.018114130,0.5,0.554347826,0.771739130,0.956521739],
+            [0.007489888,0.018724719,0.539325843,0.584269663,0.831460674,0.988764045],
+            [0.005290476,0.013226190,0.603174603,0.626984127,0.785714286,0.968253968],
+            [0.004328571,0.010821429,0.655844156,0.688311688,0.805194805,0.987012987],
+            [0.003831034,0.005746552,0.706896552,0.741379310,0.827586207,0.994252874],
+            [0.003682873,0.005524309,0.685082873,0.718232044,0.823204420,0.988950276],
+            [0.003100465,0.004650698,0.627906977,0.646511628,0.753488372,0.981395349],
+            [0.003622826,0.005434239,0.684782609,0.717391304,0.798913043,0.989130435],
+            [0.003471875,0.005207813,0.671875,0.697916667,0.802083333,0.994791667],
+            [0.003366667,0.00505,0.601010101,0.631313131,0.782828283,0.974747475],
+            [0.003144340,0.004716509,0.622641509,0.655660377,0.787735849,0.966981132],
+            [0.002962667,0.004444,0.555555556,0.577777778,0.742222222,0.982222222],
+            [0.003526984,0.005290476,0.481481481,0.523809524,0.730158730,0.973544974],
+            [0.003333,0.004999500,0.505,0.59,0.79,0.965],
+            [0.002885714,0.004328571,0.489177489,0.606060606,0.744588745,0.965367965],
+            [0.026452381,0.039678571,0.547619048,0.634920635,0.793650794,0.980158730],
+            [0.06666,0.09999,0.5,0.608,0.776,0.976],
+            [0.093740625,0.140610938,0.457031250,0.613281250,0.824218750,0.941406250],
+            [0.183805147,0.275707721,0.485294118,0.602941176,0.768382353,0.952205882],
+            [0.155828571,0.233742857,0.461038961,0.629870130,0.831168831,0.961038961],
+            [0.312138095,0.468207143,0.642857143,0.793650794,0.857142857,0.992063492],
+            [0.3333,0.49995,0.653846154,0.776923077,0.826923077,0.973076923],
+            [0.360324324,0.540486486,0.702702703,0.805405405,0.889189189,0.975675676],
+            [0.347791304,0.521686957,0.695652174,0.808695652,0.895652174,0.967391304],
+            [0.311719424,0.467579137,0.640287770,0.802158273,0.874100719,0.964028777],
+            [0.313251880,0.469877820,0.639097744,0.774436090,0.887218045,0.964285714],
+            [0.303690205,0.455535308,0.612756264,0.749430524,0.890660592,0.943052392],
+            [0.291050704,0.436576056,0.605633803,0.814084507,0.907042254,0.957746479],
+            [0.249975,0.374962500,0.576086957,0.869565217,0.945652174,0.975543478],
+            [0.166188366,0.249282548,0.470914127,0.858725762,0.941828255,0.977839335],
+            [0.130498413,0.195747619,0.423280423,0.846560847,0.936507937,0.984126984],
+            [0.103303509,0.154955263,0.444444444,0.795321637,0.888888889,0.947368421],
+            [0.097392857,0.146089286,0.405844156,0.788961039,0.889610390,0.935064935],
+            [0.090296414,0.135444622,0.434262948,0.824701195,0.872509960,0.940239044],
+            [0.09393,0.140895,0.422727273,0.786363636,0.863636364,0.945454545],
+            [0.087369903,0.131054854,0.441747573,0.757281553,0.849514563,0.951456311],
+            [0.06666,0.09999,0.415789474,0.773684211,0.884210526,0.973684211],
+            [0.061722222,0.092583333,0.401234568,0.808641975,0.932098765,0.981481481],
+            [0.056332394,0.084498592,0.422535211,0.788732394,0.908450704,0.992957746],
+            [0.037496250,0.056244375,0.43125,0.7,0.85,0.96875],
+            [0.00404,0.00606,0.424242424,0.709090909,0.860606061,0.957575758],
+            [0.005248819,0.007873228,0.322834646,0.661417323,0.803149606,0.937007874],
+            [0.005375806,0.008063710,0.387096774,0.693548387,0.846774194,0.975806452],
+            [0.006666,0.009999,0.39,0.7,0.82,0.98],
+            [0.008129268,0.012193902,0.463414634,0.695121951,0.817073171,0.987804878],
+            [0.008437975,0.012656962,0.506329114,0.594936709,0.734177215,0.987341772],
+            [0.010255385,0.015383077,0.369230769,0.461538462,0.784615385,0.984615385],
+            [0.009388732,0.014083099,0.436619718,0.507042254,0.830985915,0.985915493],
+            [0.01010,0.01515,0.424242424,0.484848485,0.833333333,0.984848485],
+            [0.009949254,0.014923881,0.492537313,0.567164179,0.850746269,0.985074627]]
 
         # Минимальная температура воздуха
         min_temp = -7.2
@@ -2436,11 +2286,6 @@ module Model
         # Номер недели
         week_num = 1
 
-        # Инфицированные агенты
-        all_infected_agents = copy(infected_agents)
-        # Резистентные агенты
-        all_recovered_agents = Agent[]
-
         # DEBUG
         max_step = 365
 
@@ -2456,8 +2301,7 @@ module Model
         incidence_multiplier = 1000 / size(all_agents, 1)
 
         for step = 1:max_step
-            # Набор инфицированных агентов на данном шаге
-            newly_infected_agents = Agent[]
+            println("Step $step")
             # Текущая нормализованная температура
             current_temp = (temperature[year_day] - min_temp) / max_min_temp
 
@@ -2517,9 +2361,9 @@ module Model
             elseif (month == 12 && (day >= 22 && day <= 31))
                 is_university_holiday = true
             end
-            
-            for agent in all_infected_agents
-                if agent.viral_load > 0.0001
+
+            for agent in all_agents
+                if agent.virus !== nothing && !agent.was_infected_on_current_step && agent.viral_load > 0.0001
                     for agent2 in agent.household.agents
                         # Проверка восприимчивости агента к вирусу
                         if agent2.virus === nothing && agent.days_immune == 0 &&
@@ -2529,27 +2373,27 @@ module Model
                             if is_holiday || (agent_at_home && agent2_at_home)
                                 make_contact(
                                     agent, agent2, get_contact_duration(12.5, 5.5),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
+                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters)
                             elseif ((agent.social_status == 1 && !agent_at_home) ||
                                 (agent2.social_status == 1 && !agent2_at_home)) && !is_kindergarten_holiday
                                 make_contact(
                                     agent, agent2, get_contact_duration(5.0, 2.05),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
+                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters)
                             elseif ((agent.social_status == 4 && !agent_at_home) ||
                                 (agent2.social_status == 4 && !agent2_at_home)) && !is_work_holiday
                                 make_contact(
                                     agent, agent2, get_contact_duration(5.5, 2.25),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
+                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters)
                             elseif ((agent.social_status == 2 && !agent_at_home) ||
                                 (agent2.social_status == 2 && !agent2_at_home)) && !is_school_holiday
                                 make_contact(
                                     agent, agent2, get_contact_duration(6.0, 2.46),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
+                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters)
                             elseif ((agent.social_status == 3 && !agent_at_home) ||
                                 (agent2.social_status == 3 && !agent2_at_home)) && !is_university_holiday
                                 make_contact(
                                     agent, agent2, get_contact_duration(7.0, 3.69),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
+                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters)
                             end
                         end
                     end
@@ -2569,34 +2413,26 @@ module Model
                                             group.collective.mean_time_spent,
                                             group.collective.time_spent_sd),
                                         current_temp, duration_parameter,
-                                        temperature_parameters, susceptibility_parameters, newly_infected_agents)
+                                        temperature_parameters, susceptibility_parameters)
                             end
                         end
                     end
-                end
-            end
-
-            # Случайное инфицирование восприимчивых агентов
-            for i = 1:1000
-                agent = all_agents[rand(1:size(all_agents, 1))]
-                if agent.virus === nothing && agent.days_immune == 0
+                elseif agent.virus === nothing && agent.days_immune == 0
                     if agent.age < 16
                         if rand(1:10000) < 3
-                            infect_randomly(viruses, agent, week_num, etiologies, newly_infected_agents)
+                            infect_randomly(viruses, agent, week_num, etiologies)
                         end
                     else
                         if rand(1:10000) == 1
-                            infect_randomly(viruses, agent, week_num, etiologies, newly_infected_agents)
+                            infect_randomly(viruses, agent, week_num, etiologies)
                         end
                     end
                 end
             end
 
-            # Обновление состояния выздоровевших агентов
-            i = size(all_recovered_agents, 1)
-            while i > 0
-                agent = all_recovered_agents[i]
-                if agent.days_immune != 0
+            new_infections_num = 0
+            for agent in all_agents
+                if agent.days_immune > 0
                     if agent.days_immune == 14
                         # Переход из резистентного состояния в восприимчивое
                         agent.days_immune = 0
@@ -2604,102 +2440,125 @@ module Model
                         agent.days_immune += 1
                     end
                 end
-                immunity_found = false
                 for (virus, immunity_days) in agent.immunity_days
                     if immunity_days > 0
                         if immunity_days == immunity_durations[virus]
                             agent.immunity_days[virus] = 0
                         else
                             agent.immunity_days[virus] += 1
-                            immunity_found = true
                         end
                     end
                 end
-                if !immunity_found
-                    deleteat!(all_recovered_agents, i)
-                end
-                i -= 1
-            end
 
-            # Обновление состояния инфицированных агентов
-            i = size(all_infected_agents, 1)
-            while i > 0
-                agent = all_infected_agents[i]
-                if agent.days_infected == agent.infection_period
-                    agent.immunity_days[agent.virus.name] = 1
-                    agent.days_immune = 1
-                    agent.virus = nothing
-                    deleteat!(all_infected_agents, i)
+                if agent.was_infected_on_current_step
+                    # Обновление состояния новых инфицированных агентов
+                    agent.incubation_period = get_period_from_erlang(
+                        agent.virus.mean_incubation_period,
+                        agent.virus.incubation_period_variance,
+                        agent.virus.min_incubation_period,
+                        agent.virus.max_incubation_period)
+                    if agent.age < 16
+                        agent.infection_period = get_period_from_erlang(
+                            agent.virus.mean_infection_period_child,
+                            agent.virus.infection_period_variance_child,
+                            agent.virus.min_infection_period_child,
+                            agent.virus.max_infection_period_child)
+                    else
+                        agent.infection_period = get_period_from_erlang(
+                            agent.virus.mean_infection_period_adult,
+                            agent.virus.infection_period_variance_adult,
+                            agent.virus.min_infection_period_adult,
+                            agent.virus.max_infection_period_adult)
+                    end
+                    agent.days_infected = 1 - agent.incubation_period
+                    if rand(1:100) <= agent.virus.asymptomatic_probab
+                        agent.is_asymptomatic = true
+                    end
+                    agent.viral_load = find_agent_viral_load(
+                        agent.age,
+                        viral_loads[agent.virus.id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
+                        agent.is_asymptomatic && agent.days_infected > 0)
+                    agent.was_infected_on_current_step = false
 
-                    if agent.supporter !== nothing
-                        is_support_still_needed = false
-                        for dependant in agent.supporter.dependants
-                            if dependant.virus !== nothing && (dependant.social_status == 0 || dependant.is_isolated)
-                                is_support_still_needed = true
+                    new_infections_num += 1
+                    etiologies_weekly_new_infections_num[agent.virus.id] += 1
+                elseif agent.virus !== nothing
+                    # Обновление состояния инфицированных агентов
+                    if agent.days_infected == agent.infection_period
+                        agent.immunity_days[agent.virus.name] = 1
+                        agent.days_immune = 1
+                        agent.virus = nothing
+                        if agent.supporter !== nothing
+                            is_support_still_needed = false
+                            for dependant in agent.supporter.dependants
+                                if dependant.virus !== nothing && (dependant.social_status == 0 || dependant.is_isolated)
+                                    is_support_still_needed = true
+                                end
+                            end
+                            if !is_support_still_needed
+                                agent.supporter.on_parent_leave = false
                             end
                         end
-                        if !is_support_still_needed
-                            agent.supporter.on_parent_leave = false
+                    else
+                        agent.days_infected += 1
+                        if !agent.is_asymptomatic && !agent.is_isolated && agent.social_status != 0 && !agent.on_parent_leave
+                            rand_num = rand(1:1000)
+                            if agent.days_infected == agent.incubation_period + 1
+                                if agent.age < 8
+                                    if rand_num < 305
+                                        agent.is_isolated = true
+                                    end
+                                elseif agent.age < 18
+                                    if rand_num < 204
+                                        agent.is_isolated = true
+                                    end
+                                else
+                                    if rand_num < 101
+                                        agent.is_isolated = true
+                                    end
+                                end
+                            elseif agent.days_infected == agent.incubation_period + 2
+                                if agent.age < 8
+                                    if rand_num < 576
+                                        agent.is_isolated = true
+                                    end
+                                elseif agent.age < 18
+                                    if rand_num < 499
+                                        agent.is_isolated = true
+                                    end
+                                else
+                                    if rand_num < 334
+                                        agent.is_isolated = true
+                                    end
+                                end
+                            elseif agent.days_infected == agent.incubation_period + 3
+                                if agent.age < 8
+                                    if rand_num < 325
+                                        agent.is_isolated = true
+                                    end
+                                elseif agent.age < 18
+                                    if rand_num < 376
+                                        agent.is_isolated = true
+                                    end
+                                else
+                                    if rand_num < 168
+                                        agent.is_isolated = true
+                                    end
+                                end
+                            end
                         end
-                    end
-                else
-                    agent.days_infected += 1
-                    update_infected_agent_state(viral_loads, agent)
-
-                    if agent.supporter !== nothing && !agent.is_asymptomatic
-                        if agent.days_infected > 0
+                        agent.viral_load = find_agent_viral_load(
+                            agent.age,
+                            viral_loads[agent.virus.id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
+                            agent.is_asymptomatic && agent.days_infected > 0)
+                        if agent.supporter !== nothing && !agent.is_asymptomatic && agent.days_infected > 0
                             if agent.is_isolated || agent.social_status == 0
                                 agent.supporter.on_parent_leave = true
                             end
                         end
                     end
-                    
                 end
-
-                #         agent.isStayingHomeWhenInfected = agent.findIfShouldStayAtHome()
-                #         if (agent.isStayingHomeWhenInfected) {
-                #             // Выявление
-                #             newCasesDayStats[1] += 1
-                #             when (agent.age) {
-                #                 in (0..2) -> {
-                #                     ageGroupsWeekStats[ageGroupsWeekStats.size - 1][0] += 1
-                #                     ageGroupsDayStats[0] += 1
-                #                 }
-                #                 in (3..6) -> {
-                #                     ageGroupsWeekStats[ageGroupsWeekStats.size - 1][1] += 1
-                #                     ageGroupsDayStats[1] += 1
-                #                 }
-                #                 in (7..14) -> {
-                #                     ageGroupsWeekStats[ageGroupsWeekStats.size - 1][2] += 1
-                #                     ageGroupsDayStats[2] += 1
-                #                 }
-                #                 else -> {
-                #                     ageGroupsWeekStats[ageGroupsWeekStats.size - 1][3] += 1
-                #                     ageGroupsDayStats[3] += 1
-                #                 }
-                #             }
-
-                #             when (agent.infectionType) {
-                #                 "fluA" -> etiologyDayStats[0] += 1
-                #                 "fluB" -> etiologyDayStats[1] += 1
-                #                 "RV" -> etiologyDayStats[2] += 1
-                #                 "RSV" -> etiologyDayStats[3] += 1
-                #                 "AdV" -> etiologyDayStats[4] += 1
-                #                 "PIV" -> etiologyDayStats[5] += 1
-                #                 "CoV" -> etiologyDayStats[6] += 1
-                #             }
-
-                i -= 1
             end
-
-            new_infections_num = 0
-
-            for agent in newly_infected_agents
-                set_agent_infection(viral_loads, agent)
-                new_infections_num += 1
-                etiologies_weekly_new_infections_num[agent.virus.id] += 1
-            end
-
             weekly_new_infections_num += new_infections_num
 
             # Обновление даты
@@ -2740,39 +2599,26 @@ module Model
             else
                 day += 1
             end
-
-            append!(all_infected_agents, newly_infected_agents)
         end
 
-        incidence_data = MPI.Reduce(incidence, MPI.SUM, 0, comm)
-        if comm_rank == 0
-            incidence_plot = plot(1:52, incidence_data, title = "Incidence", lw = 3, legend = false)
-            xlabel!("Week")
-            ylabel!("Incidence")
-            savefig(incidence_plot, joinpath(@__DIR__, "..", "output", "incidence.pdf"))
+        incidence_plot = plot(1:52, incidence, title = "Incidence", lw = 3, legend = false)
+        xlabel!("Week")
+        ylabel!("Incidence")
+        savefig(incidence_plot, joinpath(@__DIR__, "..", "output", "incidence.pdf"))
 
-            # etilogies_incidence_plot = plot(
-            #     1:52,
-            #     [etiologies_incidence[i] for i = 1:7],
-            #     title = "Etiologies",
-            #     lw = 3,
-            #     label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
-            # xlabel!("Week")
-            # ylabel!("Incidence")
-            # savefig(etilogies_incidence_plot, joinpath(@__DIR__, "..", "output", "etiologies.pdf"))
-        end
+        etilogies_incidence_plot = plot(
+            1:52,
+            [etiologies_incidence[i] for i = 1:7],
+            title = "Etiologies",
+            lw = 3,
+            label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
+        xlabel!("Week")
+        ylabel!("Incidence")
+        savefig(etilogies_incidence_plot, joinpath(@__DIR__, "..", "output", "etiologies.pdf"))
     end
 
     function main()
-        MPI.Init()
-
-        comm = MPI.COMM_WORLD
-        comm_size = MPI.Comm_size(comm)
-        comm_rank = MPI.Comm_rank(comm)
-
-        if comm_rank == 0
-            println("Initialization...")
-        end
+        println("Initialization...")
         
         # Вирусы
         viruses = Dict(
@@ -2809,14 +2655,12 @@ module Model
         # Набор инфицированных агентов
         infected_agents = Agent[]
 
-        @time create_population(viruses, viral_loads, comm_rank, comm_size, all_agents, infected_agents)
-        MPI.Barrier(comm)
-    
-        if comm_rank == 0
-            println("Simulation...")
-        end
-        @time run_simulation(viruses, viral_loads, comm_rank, comm, all_agents, infected_agents)
-        MPI.Barrier(comm)
+        @time create_population(viruses, viral_loads, all_agents, infected_agents)
+
+        println(size(all_agents, 1))
+
+        println("Simulation...")
+        @time run_simulation(viruses, viral_loads, all_agents)
     end
 
     main()
