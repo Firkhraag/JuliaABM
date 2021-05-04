@@ -1,30 +1,35 @@
-abstract type AbstractCollective end
-
+# Группа
 struct Group
     # Агенты
     agent_ids::Vector{Int}
-    # Коллектив
-    collective::Union{AbstractCollective, Nothing}
+    # Id коллектива
+    collective_id::Int
 
-    function Group(
-        agent_ids::Vector{Int} = Int[], collective::Union{AbstractCollective, Nothing} = nothing
-    )
-        new(agent_ids, collective)
+    function Group(agent_ids::Vector{Int} = Int[], collective_id::Int = 0)
+        new(agent_ids, collective_id)
     end
 end
 
-struct Collective <: AbstractCollective
+# Kindergarten => 1
+# School => 2
+# University   => 3
+# Workplace  => 4
+
+# Коллектив
+struct Collective
+    # Идентификатор
+    id::Int
     # Среднее время проводимое агентами
     mean_time_spent::Float64
     # Среднеквадратическое отклонение времени проводимого агентами
     time_spent_sd::Float64
-    # Агенты
+    # Группы
     groups::Vector{Vector{Group}}
 
     function Collective(
-        mean_time_spent::Float64, time_spent_sd::Float64, groups::Vector{Vector{Group}}
+        id::Int, mean_time_spent::Float64, time_spent_sd::Float64, groups::Vector{Vector{Group}}
     )
-        new(mean_time_spent, time_spent_sd, groups)
+        new(id, mean_time_spent, time_spent_sd, groups)
     end
 end
 

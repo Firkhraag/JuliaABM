@@ -1,6 +1,7 @@
 include("virus.jl")
 include("collective.jl")
 
+# Агент
 mutable struct Agent
     # Идентификатор
     id::Int
@@ -14,17 +15,17 @@ mutable struct Agent
     social_status::Int
     # Связи в коллективе
     work_conn_ids::Vector{Int}
-    # Дети за которыми нужен уход в случае болезни
+    # Id детей за которыми нужен уход в случае болезни
     dependant_ids::Vector{Int}
-    # Кто будет ухаживать в случае болезни
+    # Id того, кто будет ухаживать в случае болезни
     supporter_id::Int
     # Уход за больным ребенком
     on_parent_leave::Bool
     # Уровень иммуноглобулина
     ig_level::Float64
-    # Вирус
+    # Id вируса
     virus_id::Int
-    # Набор дней после приобретения типоспецифического иммунитета кроме гриппа
+    # Набор дней после приобретения типоспецифического иммунитета
     immunity_days::Vector{Int}
     # Продолжительность инкубационного периода
     incubation_period::Int
@@ -40,8 +41,6 @@ mutable struct Agent
     is_isolated::Bool
     # Вирусная нагрузка
     viral_load::Float64
-    # ...
-    was_infected_on_current_step::Bool
     # Домохозяйство
     household::Group
     # Группа
@@ -382,7 +381,7 @@ mutable struct Agent
             virus_id, immunity_days, incubation_period,
             infection_period, days_infected,
             days_immune, is_asymptomatic, is_isolated,
-            viral_load, false, household, nothing)
+            viral_load, household, nothing)
     end
 end
 

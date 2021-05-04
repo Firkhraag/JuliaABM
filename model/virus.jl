@@ -1,5 +1,3 @@
-using Distributions, Random
-
 # FluA => 1
 # FluB => 2
 # RV   => 3
@@ -8,6 +6,7 @@ using Distributions, Random
 # PIV  => 6
 # CoV  => 7
 
+# Вирус
 struct Virus
     # Идентификатор
     id::Int
@@ -38,7 +37,7 @@ struct Virus
     # Максимальная продолжительность периода болезни(ребенок)
     max_infection_period_child::Int
 
-    # Средняя вирусная нагрузка (по умолчю для младенеца)
+    # Средняя вирусная нагрузка (по умолчанию для младенца)
     mean_viral_load::Float64
 
     # Вероятность бессимптомного протекания болезни
