@@ -1,9 +1,9 @@
 include("virus.jl")
-
-abstract type AbstractGroup end
-abstract type AbstractCollective end
+include("collective.jl")
 
 mutable struct Agent
+    # Идентификатор
+    id::Int
     # Возраст
     age::Int
     # Возраст новорожденного
@@ -13,19 +13,19 @@ mutable struct Agent
     # Социальный статус
     social_status::Int
     # Связи в коллективе
-    work_conn::Vector{Agent}
+    work_conn_ids::Vector{Int}
     # Дети за которыми нужен уход в случае болезни
-    dependants::Vector{Agent}
+    dependant_ids::Vector{Int}
     # Кто будет ухаживать в случае болезни
-    supporter::Union{Agent, Nothing}
+    supporter_id::Int
     # Уход за больным ребенком
     on_parent_leave::Bool
     # Уровень иммуноглобулина
     ig_level::Float64
     # Вирус
-    virus::Union{Virus, Nothing}
+    virus_id::Int
     # Набор дней после приобретения типоспецифического иммунитета кроме гриппа
-    immunity_days::Dict{String, Int}
+    immunity_days::Vector{Int}
     # Продолжительность инкубационного периода
     incubation_period::Int
     # Продолжительность периода болезни
@@ -43,14 +43,15 @@ mutable struct Agent
     # ...
     was_infected_on_current_step::Bool
     # Домохозяйство
-    household::AbstractGroup
+    household::Group
     # Группа
-    group::Union{AbstractGroup, Nothing}
+    group::Union{Group, Nothing}
 
     function Agent(
-        viruses::Dict{String, Virus},
+        id::Int,
+        viruses::Vector{Virus},
         viral_loads::Array{Float64, 4},
-        household::AbstractGroup,
+        household::Group,
         is_male::Bool,
         age::Int
     )
@@ -266,11 +267,10 @@ mutable struct Agent
         end
 
         # Набор дней после приобретения типоспецифического иммунитета кроме гриппа
-        immunity_days = Dict(
-            "FluA" => 0, "FluB" => 0, "RV" => 0, "RSV" => 0, "AdV" => 0, "PIV" => 0, "CoV" => 0)
+        immunity_days = Int[0, 0, 0, 0, 0, 0, 0]
 
         # Информация при болезни
-        virus::Union{Virus, Nothing} = nothing
+        virus_id = 0
         incubation_period = 0
         infection_period = 0
         days_infected = 0
@@ -281,39 +281,39 @@ mutable struct Agent
             # Тип инфекции
             rand_num = rand(1:100)
             if rand_num < 61
-                virus = viruses["RV"]
+                virus_id = viruses[3].id
             elseif rand_num < 81
-                virus = viruses["AdV"]
+                virus_id = viruses[5].id
             else
-                virus = viruses["PIV"]
+                virus_id = viruses[6].id
             end
 
             # Инкубационный период
             incubation_period = get_period_from_erlang(
-                virus.mean_incubation_period,
-                virus.incubation_period_variance,
-                virus.min_incubation_period,
-                virus.max_incubation_period)
+                viruses[virus_id].mean_incubation_period,
+                viruses[virus_id].incubation_period_variance,
+                viruses[virus_id].min_incubation_period,
+                viruses[virus_id].max_incubation_period)
             # Период болезни
             if age < 16
                 infection_period = get_period_from_erlang(
-                    virus.mean_infection_period_child,
-                    virus.infection_period_variance_child,
-                    virus.min_infection_period_child,
-                    virus.max_infection_period_child)
+                    viruses[virus_id].mean_infection_period_child,
+                    viruses[virus_id].infection_period_variance_child,
+                    viruses[virus_id].min_infection_period_child,
+                    viruses[virus_id].max_infection_period_child)
             else
                 infection_period = get_period_from_erlang(
-                    virus.mean_infection_period_adult,
-                    virus.infection_period_variance_adult,
-                    virus.min_infection_period_adult,
-                    virus.max_infection_period_adult)
+                    viruses[virus_id].mean_infection_period_adult,
+                    viruses[virus_id].infection_period_variance_adult,
+                    viruses[virus_id].min_infection_period_adult,
+                    viruses[virus_id].max_infection_period_adult)
             end
 
             # Дней с момента инфицирования
             days_infected = rand((1 - incubation_period):infection_period)
             # days_infected = rand(1:(infection_period + incubation_period))
 
-            if rand(1:100) <= virus.asymptomatic_probab
+            if rand(1:100) <= viruses[virus_id].asymptomatic_probab
                 # Асимптомный
                 is_asymptomatic = true
             else
@@ -370,16 +370,16 @@ mutable struct Agent
 
             # Вирусная нагрузкаx
             viral_load = find_agent_viral_load(
-                age, viral_loads[virus.id, incubation_period, infection_period - 1, days_infected + 7],
+                age, viral_loads[virus_id, incubation_period, infection_period - 1, days_infected + 7],
                 is_asymptomatic && days_infected > 0)
         end
 
         days_immune = 0
 
         new(
-            age, infant_age, is_male, social_status,
-            Agent[], Agent[], nothing, false, ig_level,
-            virus, immunity_days, incubation_period,
+            id, age, infant_age, is_male, social_status,
+            Int[], Int[], 0, false, ig_level,
+            virus_id, immunity_days, incubation_period,
             infection_period, days_infected,
             days_immune, is_asymptomatic, is_isolated,
             viral_load, false, household, nothing)

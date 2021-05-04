@@ -1,13 +1,15 @@
-include("agent.jl")
+abstract type AbstractCollective end
 
-mutable struct Group <: AbstractGroup
+struct Group
     # Агенты
-    agents::Vector{Agent}
+    agent_ids::Vector{Int}
     # Коллектив
     collective::Union{AbstractCollective, Nothing}
 
-    function Group(agents::Vector{Agent} = Agent[], collective::Union{AbstractCollective, Nothing} = nothing)
-        new(agents, collective)
+    function Group(
+        agent_ids::Vector{Int} = Int[], collective::Union{AbstractCollective, Nothing} = nothing
+    )
+        new(agent_ids, collective)
     end
 end
 
@@ -19,7 +21,9 @@ struct Collective <: AbstractCollective
     # Агенты
     groups::Vector{Vector{Group}}
 
-    function Collective(mean_time_spent::Float64, time_spent_sd::Float64, groups::Vector{Vector{Group}})
+    function Collective(
+        mean_time_spent::Float64, time_spent_sd::Float64, groups::Vector{Vector{Group}}
+    )
         new(mean_time_spent, time_spent_sd, groups)
     end
 end
@@ -109,7 +113,7 @@ function get_university_group_size(group_num::Int)
     end
 end
 
-function get_workplace_group_size(group_num::Int)
+function get_workplace_group_size()
     # zipfDistribution.sample() + (minFirmSize - 1)
-    return rand(3:15)
+    return rand(6:10)
 end

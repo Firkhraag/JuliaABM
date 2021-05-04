@@ -2,15 +2,14 @@ module Model
     using Plots
     using MPI
     
-    include("agent.jl")
+    include("collective.jl")
 
     function create_agent(
-        agent_id::Int,
-        viruses::Vector{Virus},
+        viruses::Dict{String, Virus},
         viral_loads::Array{Float64, 4},
         household::Group,
         index::Int,
-        districts_age_sex::Matrix{Int},
+        districts_age_sex::Vector{Vector{Int}},
         district_households::Vector{Vector{Int}},
         district_household_index::Int,
         is_male::Union{Bool, Nothing} = nothing,
@@ -24,66 +23,66 @@ module Model
         if is_child
             if parent_age < 23
                 # M0–4
-                return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 1], rand(0:(parent_age - 18)))
+                return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][1], rand(0:(parent_age - 18)))
             elseif parent_age < 28
                 # T0-4_0–9
-                if (age_rand_num <= districts_age_sex[index, 19])
+                if (age_rand_num <= districts_age_sex[index][19])
                     # M0–4
-                    Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 1], rand(0:4))
+                    Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][1], rand(0:4))
                 else
                     # M5–9
-                    Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 2], rand(5:(parent_age - 18)))
+                    Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][2], rand(5:(parent_age - 18)))
                 end
             elseif parent_age < 33
                 # T0-4_0–14
-                if (age_rand_num <= districts_age_sex[index, 20])
+                if (age_rand_num <= districts_age_sex[index][20])
                     # M0–4
-                    Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 1], rand(0:4))
+                    Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][1], rand(0:4))
                 # T0-9_0–14
-                elseif (age_rand_num <= districts_age_sex[index, 21])
+                elseif (age_rand_num <= districts_age_sex[index][21])
                     # M5–9
-                    Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 2], rand(5:9))
+                    Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][2], rand(5:9))
                 else
                     # M10–14
-                    Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 3], rand(10:(parent_age - 18)))
+                    Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][3], rand(10:(parent_age - 18)))
                 end
             elseif parent_age < 35
                 age_group_rand_num = rand(1:100)
                 if age_group_rand_num <= district_households[1][district_household_index]
                     # T0-4_0–14
-                    if (age_rand_num <= districts_age_sex[index, 20])
+                    if (age_rand_num <= districts_age_sex[index][20])
                         # M0–4
-                        Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 1], rand(0:4))
+                        Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][1], rand(0:4))
                     # T0-9_0–14
-                    elseif (age_rand_num <= districts_age_sex[index, 21])
+                    elseif (age_rand_num <= districts_age_sex[index][21])
                         # M5–9
-                        Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 2], rand(5:9))
+                        Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][2], rand(5:9))
                     else
                         # M10–14
-                        Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 3], rand(10:14))
+                        Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][3], rand(10:14))
                     end
                 else
                     # M15–19
-                    return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 4], rand(15:(parent_age - 18)))
+                    return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][4], rand(15:(parent_age - 18)))
                 end
             else
                 age_group_rand_num = rand(1:100)
                 if age_group_rand_num <= district_households[1][district_household_index]
                     # T0-4_0–14
-                    if (age_rand_num <= districts_age_sex[index, 20])
+                    if (age_rand_num <= districts_age_sex[index][20])
                         # M0–4
-                        Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 1], rand(0:4))
+                        Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][1], rand(0:4))
                     # T0-9_0–14
-                    elseif (age_rand_num <= districts_age_sex[index, 21])
+                    elseif (age_rand_num <= districts_age_sex[index][21])
                         # M5–9
-                        Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 2], rand(5:9))
+                        Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][2], rand(5:9))
                     else
                         # M10–14
-                        Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 3], rand(10:14))
+                        Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][3], rand(10:14))
                     end
                 else
                     # M15–19
-                    return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 4], rand(15:17))
+                    return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][4], rand(15:17))
                 end
             end
         else
@@ -113,118 +112,118 @@ module Model
             end
             if age_group_rand_num <= district_households[2][district_household_index]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, viral_loads, household, is_male, rand(18:24))
+                    return Agent(viruses, viral_loads, household, is_male, rand(18:24))
                 else
                     # M20–24
-                    return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 5], rand(18:24))
+                    return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][5], rand(18:24))
                 end
             elseif age_group_rand_num <= district_households[3][district_household_index]
                 # T25-29_25–34
-                if age_rand_num <= districts_age_sex[index, 22]
+                if age_rand_num <= districts_age_sex[index][22]
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(25:29))
+                        return Agent(viruses, viral_loads, household, is_male, rand(25:29))
                     else
                         # M25–29
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 6], rand(25:29))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][6], rand(25:29))
                     end
                 else
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(30:34))
+                        return Agent(viruses, viral_loads, household, is_male, rand(30:34))
                     else
                         # M30–34
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 7], rand(30:34))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][7], rand(30:34))
                     end
                 end
             elseif age_group_rand_num <= district_households[4][district_household_index]
                 # T35-39_35–44
-                if age_rand_num <= districts_age_sex[index, 23]
+                if age_rand_num <= districts_age_sex[index][23]
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(35:39))
+                        return Agent(viruses, viral_loads, household, is_male, rand(35:39))
                     else
                         # M35–39
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 8], rand(35:39))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][8], rand(35:39))
                     end
                 else
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(40:44))
+                        return Agent(viruses, viral_loads, household, is_male, rand(40:44))
                     else
                         # M40–44
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 9], rand(40:44))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][9], rand(40:44))
                     end
                 end
             elseif age_group_rand_num <= district_households[5][district_household_index]
                 # T45-49_45–54
-                if age_rand_num <= districts_age_sex[index, 24]
+                if age_rand_num <= districts_age_sex[index][24]
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(45:49))
+                        return Agent(viruses, viral_loads, household, is_male, rand(45:49))
                     else
                         # M45–49
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 10], rand(45:49))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][10], rand(45:49))
                     end
                 else
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(50:54))
+                        return Agent(viruses, viral_loads, household, is_male, rand(50:54))
                     else
                         # M50–54
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 11], rand(50:54))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][11], rand(50:54))
                     end
                 end
             elseif age_group_rand_num <= district_households[6][district_household_index]
                 # T55-59_55–64
-                if age_rand_num <= districts_age_sex[index, 25]
+                if age_rand_num <= districts_age_sex[index][25]
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(55:59))
+                        return Agent(viruses, viral_loads, household, is_male, rand(55:59))
                     else
                         # M55–59
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 12], rand(55:59))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][12], rand(55:59))
                     end
                 else
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(60:64))
+                        return Agent(viruses, viral_loads, household, is_male, rand(60:64))
                     else
                         # M60–64
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 13], rand(60:64))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][13], rand(60:64))
                     end
                 end
             else
                 # T65-69_65–89
-                if age_rand_num <= districts_age_sex[index, 26]
+                if age_rand_num <= districts_age_sex[index][26]
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(65:69))
+                        return Agent(viruses, viral_loads, household, is_male, rand(65:69))
                     else
                         # M65–69
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 14], rand(65:69))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][14], rand(65:69))
                     end
                 # T65-74_65–89
-                elseif age_rand_num <= districts_age_sex[index, 27]
+                elseif age_rand_num <= districts_age_sex[index][27]
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(70:74))
+                        return Agent(viruses, viral_loads, household, is_male, rand(70:74))
                     else
                         # M70–74
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 15], rand(70:74))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][15], rand(70:74))
                     end
                 # T65-79_65–89
-                elseif age_rand_num <= districts_age_sex[index, 28]
+                elseif age_rand_num <= districts_age_sex[index][28]
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(75:79))
+                        return Agent(viruses, viral_loads, household, is_male, rand(75:79))
                     else
                         # M75–79
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 16], rand(75:79))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][16], rand(75:79))
                     end
                 # T65-84_65–89
-                elseif age_rand_num <= districts_age_sex[index, 29]
+                elseif age_rand_num <= districts_age_sex[index][29]
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(80:84))
+                        return Agent(viruses, viral_loads, household, is_male, rand(80:84))
                     else
                         # M80–84
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 17], rand(80:84))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][17], rand(80:84))
                     end
                 else
                     if is_male !== nothing
-                        return Agent(agent_id, viruses, viral_loads, household, is_male, rand(85:89))
+                        return Agent(viruses, viral_loads, household, is_male, rand(85:89))
                     else
                         # M85–89
-                        return Agent(agent_id, viruses, viral_loads, household, sex_random_num <= districts_age_sex[index, 18], rand(85:89))
+                        return Agent(viruses, viral_loads, household, sex_random_num <= districts_age_sex[index][18], rand(85:89))
                     end
                 end
             end
@@ -232,8 +231,7 @@ module Model
     end
 
     function create_spouse(
-        agent_id::Int,
-        viruses::Vector{Virus},
+        viruses::Dict{String, Virus},
         viral_loads::Array{Float64, 4},
         household::Group,
         partner_age::Int
@@ -268,13 +266,13 @@ module Model
         elseif spouse_age > 89
             spouse_age = 89
         end
-        return Agent(agent_id, viruses, viral_loads, household, false, spouse_age)
+        return Agent(viruses, viral_loads, household, false, spouse_age)
     end
 
     function check_parent_leave(no_one_at_home::Bool, adult::Agent, child::Agent)
         if no_one_at_home && child.age < 14
-            push!(adult.dependant_ids, child.id)
-            child.supporter_id = adult.id
+            push!(adult.dependants, child)
+            child.supporter = adult
             if child.age < 3 && child.social_status == 0
                 adult.social_status == 0
             end
@@ -282,47 +280,42 @@ module Model
     end
 
     function create_parents_with_children(
-        agent_id::Int,
-        viruses::Vector{Virus},
+        viruses::Dict{String, Virus},
         viral_loads::Array{Float64, 4},
         household::Group,
-        districts_age_sex::Matrix{Int},
+        districts_age_sex::Vector{Vector{Int}},
         district_households::Vector{Vector{Int}},
         district_household_index::Int,
         num_of_children::Int,
         num_of_other_people::Int,
         index::Int
     )::Vector{Agent}
-        agent_male = create_agent(agent_id,
+        agent_male = create_agent(
             viruses, viral_loads, household, index,
             districts_age_sex, district_households,
             district_household_index, true)
-        agent_id += 1
         agent_female = create_spouse(
-            agent_id, viruses, viral_loads, household, agent_male.age)
-        agent_id += 1
+            viruses, viral_loads, household, agent_male.age)
         if num_of_other_people == 0
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
-                agent_id += 1
                 no_one_at_home = agent_male.social_status != 0 && agent_female.social_status != 0
                 check_parent_leave(no_one_at_home, agent_female, child)
                 if num_of_children == 1
                     return Agent[agent_male, agent_female, child]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, agent_female, child2)
                 if num_of_children == 2
                     return Agent[agent_male, agent_female, child, child2]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
@@ -331,16 +324,14 @@ module Model
             end
             return Agent[agent_male, agent_female]
         elseif num_of_other_people == 1
-            agent_other = create_agent(agent_id,
+            agent_other = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
-                agent_id += 1
                 no_one_at_home = agent_male.social_status != 0 && agent_female.social_status != 0
                 if agent_other.social_status == 0
                     no_one_at_home = false
@@ -349,16 +340,15 @@ module Model
                 if num_of_children == 1
                     return Agent[agent_male, agent_female, child, agent_other]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, agent_female, child2)
                 if num_of_children == 2
                     return Agent[agent_male, agent_female, child, child2, agent_other]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
@@ -367,20 +357,17 @@ module Model
             end
             return Agent[agent_male, agent_female, agent_other]
         elseif num_of_other_people == 2
-            agent_other = create_agent(agent_id,
+            agent_other = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
-            agent_other2 = create_agent(agent_id,
+            agent_other2 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
-                agent_id += 1
                 no_one_at_home = agent_male.social_status != 0 && agent_female.social_status != 0
                 if agent_other.social_status == 0 || agent_other2.social_status == 0
                     no_one_at_home = false
@@ -389,16 +376,15 @@ module Model
                 if num_of_children == 1
                     return Agent[agent_male, agent_female, child, agent_other, agent_other2]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, agent_female, child2)
                 if num_of_children == 2
                     return Agent[agent_male, agent_female, child, child2, agent_other, agent_other2]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
@@ -407,24 +393,20 @@ module Model
             end
             return Agent[agent_male, agent_female, agent_other, agent_other2]
         elseif num_of_other_people == 3
-            agent_other = create_agent(agent_id,
+            agent_other = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
-            agent_other2 = create_agent(agent_id,
+            agent_other2 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
-            agent_other3 = create_agent(agent_id,
+            agent_other3 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
-                agent_id += 1
                 no_one_at_home = agent_male.social_status != 0 && agent_female.social_status != 0
                 if agent_other.social_status == 0 || agent_other2.social_status == 0 || agent_other3.social_status == 0
                     no_one_at_home = false
@@ -433,16 +415,15 @@ module Model
                 if num_of_children == 1
                     return Agent[agent_male, agent_female, child, agent_other, agent_other2, agent_other3]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, agent_female, child2)
                 if num_of_children == 2
                     return Agent[agent_male, agent_female, child, child2, agent_other, agent_other2, agent_other3]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
@@ -451,28 +432,23 @@ module Model
             end
             return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3]
         else
-            agent_other = create_agent(agent_id,
+            agent_other = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
-            agent_other2 = create_agent(agent_id,
+            agent_other2 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
-            agent_other3 = create_agent(agent_id,
+            agent_other3 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
-            agent_other4 = create_agent(agent_id,
+            agent_other4 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
-                agent_id += 1
                 no_one_at_home = agent_male.social_status != 0 && agent_female.social_status != 0
                 if agent_other.social_status == 0 || agent_other2.social_status == 0 ||
                     agent_other3.social_status == 0 || agent_other4.social_status
@@ -482,16 +458,15 @@ module Model
                 if num_of_children == 1
                     return Agent[agent_male, agent_female, child, agent_other, agent_other2, agent_other3, agent_other4]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, agent_female, child2)
                 if num_of_children == 2
                     return Agent[agent_male, agent_female, child, child2, agent_other, agent_other2, agent_other3, agent_other4]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, agent_female.age)
@@ -503,11 +478,10 @@ module Model
     end
 
     function create_parent_with_children(
-        agent_id::Int,
-        viruses::Vector{Virus},
+        viruses::Dict{String, Virus},
         viral_loads::Array{Float64, 4},
         household::Group,
-        districts_age_sex::Matrix{Int},
+        districts_age_sex::Vector{Vector{Int}},
         district_households::Vector{Vector{Int}},
         district_household_index::Int,
         num_of_children::Int,
@@ -516,51 +490,46 @@ module Model
         is_male_parent::Union{Bool, Nothing},
         with_parent_of_parent::Bool = false
     )::Vector{Agent}
-        parent = create_agent(agent_id,
+        parent = create_agent(
             viruses, viral_loads, household, index,
             districts_age_sex, district_households,
             district_household_index, is_male_parent,
             false, nothing, num_of_other_people > 0)
-        agent_id += 1
         if num_of_other_people == 0
-            child = create_agent(agent_id,
+            child = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, parent.age)
-            agent_id += 1
             no_one_at_home = parent.social_status != 0
             check_parent_leave(no_one_at_home, parent, child)
             if num_of_children == 1
                 return Agent[parent, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, parent.age)
-            agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
                 return Agent[parent, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, parent.age)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, child, child2, child3]
         elseif num_of_other_people == 1
-            agent_other = create_agent(agent_id,
+            agent_other = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing, false,
                 parent.age, false, with_parent_of_parent)
-            agent_id += 1
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, parent.age)
-                agent_id += 1
                 no_one_at_home = parent.social_status != 0
                 if agent_other.social_status == 0
                     no_one_at_home = false
@@ -569,16 +538,15 @@ module Model
                 if num_of_children == 1
                     return Agent[parent, child, agent_other]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, parent.age)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, parent, child2)
                 if num_of_children == 2
                     return Agent[parent, child, child2, agent_other]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, parent.age)
@@ -587,24 +555,21 @@ module Model
             end
             return Agent[parent, agent_other]
         elseif num_of_other_people == 2
-            agent_other = create_agent(agent_id,
+            agent_other = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing, false,
                 parent.age, false, with_parent_of_parent)
-            agent_id += 1
-            agent_other2 = create_agent(agent_id,
+            agent_other2 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing,
                 false, parent.age)
-            agent_id += 1
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, parent.age)
-                agent_id += 1
                 no_one_at_home = parent.social_status != 0
                 if agent_other.social_status == 0 || agent_other2.social_status == 0
                     no_one_at_home = false
@@ -613,16 +578,15 @@ module Model
                 if num_of_children == 1
                     return Agent[parent, child, agent_other, agent_other2]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, parent.age)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, parent, child2)
                 if num_of_children == 2
                     return Agent[parent, child, child2, agent_other, agent_other2]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, parent.age)
@@ -631,30 +595,26 @@ module Model
             end
             return Agent[parent, agent_other, agent_other2]
         elseif num_of_other_people == 3
-            agent_other = create_agent(agent_id,
+            agent_other = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing, false,
                 parent.age, false, with_parent_of_parent)
-            agent_id += 1
-            agent_other2 = create_agent(agent_id,
+            agent_other2 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing,
                 false, parent.age)
-            agent_id += 1
-            agent_other3 = create_agent(agent_id,
+            agent_other3 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing,
                 false, parent.age)
-            agent_id += 1
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, parent.age)
-                agent_id += 1
                 no_one_at_home = parent.social_status != 0
                 if agent_other.social_status == 0 || agent_other2.social_status == 0 || agent_other3.social_status == 0
                     no_one_at_home = false
@@ -663,16 +623,15 @@ module Model
                 if num_of_children == 1
                     return Agent[parent, child, agent_other, agent_other2, agent_other3]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, parent.age)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, parent, child2)
                 if num_of_children == 2
                     return Agent[parent, child, child2, agent_other, agent_other2, agent_other3]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, parent.age)
@@ -681,36 +640,31 @@ module Model
             end
             return Agent[parent, agent_other, agent_other2, agent_other3]
         else
-            agent_other = create_agent(agent_id,
+            agent_other = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing, false,
                 parent.age, false, with_parent_of_parent)
-            agent_id += 1
-            agent_other2 = create_agent(agent_id,
+            agent_other2 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing,
                 false, parent.age)
-            agent_id += 1
-            agent_other3 = create_agent(agent_id,
+            agent_other3 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing,
                 false, parent.age)
-            agent_id += 1
-            agent_other4 = create_agent(agent_id,
+            agent_other4 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households,
                 district_household_index, nothing,
                 false, parent.age)
-            agent_id += 1
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, parent.age)
-                agent_id += 1
                 no_one_at_home = parent.social_status != 0
                 if agent_other.social_status == 0 || agent_other2.social_status == 0 ||
                     agent_other3.social_status == 0 || agent_other4.social_status
@@ -720,16 +674,15 @@ module Model
                 if num_of_children == 1
                     return Agent[parent, child, agent_other, agent_other2, agent_other3, agent_other4]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, parent.age)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, parent, child2)
                 if num_of_children == 2
                     return Agent[parent, child, child2, agent_other, agent_other2, agent_other3, agent_other4]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, parent.age)
@@ -741,43 +694,39 @@ module Model
     end
 
     function create_others(
-        agent_id::Int,
-        viruses::Vector{Virus},
+        viruses::Dict{String, Virus},
         viral_loads::Array{Float64, 4},
         household::Group,
-        districts_age_sex::Matrix{Int},
+        districts_age_sex::Vector{Vector{Int}},
         district_households::Vector{Vector{Int}},
         district_household_index::Int,
         num_of_children::Int,
         num_of_other_people::Int,
         index::Int
     )::Vector{Agent}
-        agent = create_agent(agent_id,
+        agent = create_agent(
             viruses, viral_loads, household, index,
             districts_age_sex, district_households, district_household_index)
-        agent_id += 1
         if num_of_other_people == 0
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
-                agent_id += 1
                 no_one_at_home = agent.social_status != 0
                 check_parent_leave(no_one_at_home, agent, child)
                 if num_of_children == 1
                     return Agent[agent, child]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, agent, child2)
                 if num_of_children == 2
                     return Agent[agent, child, child2]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
@@ -786,16 +735,14 @@ module Model
             end
             return Agent[agent]
         elseif num_of_other_people == 1
-            agent_other = create_agent(agent_id,
+            agent_other = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
-                agent_id += 1
                 no_one_at_home = agent.social_status != 0
                 if agent_other.social_status == 0
                     no_one_at_home = false
@@ -804,16 +751,15 @@ module Model
                 if num_of_children == 1
                     return Agent[agent, child, agent_other]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, agent, child2)
                 if num_of_children == 2
                     return Agent[agent, child, child2, agent_other]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
@@ -822,20 +768,17 @@ module Model
             end
             return Agent[agent, agent_other]
         elseif num_of_other_people == 2
-            agent_other = create_agent(agent_id,
+            agent_other = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
-            agent_other2 = create_agent(agent_id,
+            agent_other2 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
-                agent_id += 1
                 no_one_at_home = agent.social_status != 0
                 if agent_other.social_status == 0 || agent_other2.social_status == 0
                     no_one_at_home = false
@@ -844,16 +787,15 @@ module Model
                 if num_of_children == 1
                     return Agent[agent, child, agent_other, agent_other2]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, agent, child2)
                 if num_of_children == 2
                     return Agent[agent, child, child2, agent_other, agent_other2]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
@@ -862,24 +804,20 @@ module Model
             end
             return Agent[agent, agent_other, agent_other2]
         elseif num_of_other_people == 3
-            agent_other = create_agent(agent_id,
+            agent_other = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
-            agent_other2 = create_agent(agent_id,
+            agent_other2 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
-            agent_other3 = create_agent(agent_id,
+            agent_other3 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
-                agent_id += 1
                 no_one_at_home = agent.social_status != 0
                 if agent_other.social_status == 0 || agent_other2.social_status == 0 ||
                     agent_other3.social_status == 0
@@ -889,16 +827,15 @@ module Model
                 if num_of_children == 1
                     return Agent[agent, child, agent_other, agent_other2, agent_other3]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, agent, child2)
                 if num_of_children == 2
                     return Agent[agent, child, child2, agent_other, agent_other2, agent_other3]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
@@ -907,28 +844,23 @@ module Model
             end
             return Agent[agent, agent_other, agent_other2, agent_other3]
         else
-            agent_other = create_agent(agent_id,
+            agent_other = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
-            agent_other2 = create_agent(agent_id,
+            agent_other2 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
-            agent_other3 = create_agent(agent_id,
+            agent_other3 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
-            agent_other4 = create_agent(agent_id,
+            agent_other4 = create_agent(
                 viruses, viral_loads, household, index,
                 districts_age_sex, district_households, district_household_index)
-            agent_id += 1
             if num_of_children > 0
-                child = create_agent(agent_id,
+                child = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
-                agent_id += 1
                 no_one_at_home = agent.social_status != 0
                 if agent_other.social_status == 0 || agent_other2.social_status == 0 ||
                     agent_other3.social_status == 0 || agent_other4.social_status == 0
@@ -938,16 +870,15 @@ module Model
                 if num_of_children == 1
                     return Agent[agent, child, agent_other, agent_other2, agent_other3, agent_other4]
                 end
-                child2 = create_agent(agent_id,
+                child2 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
-                agent_id += 1
                 check_parent_leave(no_one_at_home, agent, child2)
                 if num_of_children == 2
                     return Agent[agent, child, child2, agent_other, agent_other2, agent_other3, agent_other4]
                 end
-                child3 = create_agent(agent_id,
+                child3 = create_agent(
                     viruses, viral_loads, household, index,
                     districts_age_sex, district_households,
                     district_household_index, nothing, true, 35)
@@ -966,17 +897,19 @@ module Model
         get_group_size
     )
         if size(collective.groups[group_num], 1) == 0
-            group = Group(Int[], collective)
+            group = Group()
             push!(collective.groups[group_num], group)
+            group.collective = collective
         end
         length = size(collective.groups[group_num], 1)
         last_group = collective.groups[group_num][length]
-        if size(last_group.agent_ids, 1) == group_sizes[group_num]
-            last_group = Group(Int[], collective)
+        if size(last_group.agents, 1) == group_sizes[group_num]
+            last_group = Group()
             push!(collective.groups[group_num], last_group)
+            last_group.collective = collective
             group_sizes[group_num] = get_group_size(group_num)
         end
-        push!(last_group.agent_ids, agent.id)
+        push!(last_group.agents, agent)
         agent.group = last_group
     end
 
@@ -1056,68 +989,17 @@ module Model
         add_agent_to_group(agent, university, group_num, group_sizes, get_university_group_size)
     end
 
-    # Создание графа Барабаши-Альберта
-    # На вход подаются группа с набором агентов (group) и число минимальных связей, которые должен иметь агент (m)
-    function generate_barabasi_albert_network(all_agents::Vector{Agent}, group::Group, m::Int)
-        # Связный граф с m вершинами
-        for i = 1:m
-            for j = 1:m
-                if i != j
-                    push!(all_agents[group.agent_ids[i]].work_conn_ids, all_agents[group.agent_ids[j]].id)
-                end
-            end
-        end
-        # Сумма связей всех вершин
-        degree_sum = m * (m - 1)
-        # Добавление новых вершин
-        for i = (m + 1):size(group.agent_ids, 1)
-            agent = all_agents[group.agent_ids[i]]
-            added_conn = 0
-            # Новая вершина должна иметь m связей
-            while (added_conn < m)
-                for j = 1:i
-                    agent2 = all_agents[group.agent_ids[j]]
-                    p = size(agent2.work_conn_ids, 1) / degree_sum
-                    if rand(Float64) < p
-                        push!(agent.work_conn_ids, agent2.id)
-                        push!(agent2.work_conn_ids, agent.id)
-                        added_conn += 1
-                        if added_conn == m
-                            break
-                        end
-                    end
-                end
-            end
-            degree_sum += m
-        end
-    end
-
     function add_agent_to_workplace(
-        all_agents::Vector{Agent},
         agent::Agent,
         workplace::Collective,
-        group_size::Int
+        group_sizes::Vector{Int}
     )
-        min_workplace_size = 6
-        if size(workplace.groups[1], 1) == 0
-            group = Group(Int[], workplace)
-            push!(workplace.groups[1], group)
-        end
-        length = size(workplace.groups[1], 1)
-        last_group = workplace.groups[1][length]
-        if size(last_group.agent_ids, 1) == group_size
-            generate_barabasi_albert_network(all_agents, last_group, min_workplace_size)
-            last_group = Group(Int[], workplace)
-            push!(workplace.groups[1], last_group)
-            group_size = get_workplace_group_size()
-        end
-        push!(last_group.agent_ids, agent.id)
-        agent.group = last_group
+        add_agent_to_group(agent, workplace, 1, group_sizes, get_workplace_group_size)
     end
 
     function add_agents_to_collectives(
         all_agents::Vector{Agent},
-        infected_agent_ids::Vector{Int},
+        infected_agents::Vector{Agent},
         agents::Vector{Agent},
         kindergarten::Collective,
         kindergarten_group_sizes::Vector{Int},
@@ -1126,12 +1008,11 @@ module Model
         university::Collective,
         university_group_sizes::Vector{Int},
         workplace::Collective,
-        workplace_group_size::Int
+        workplace_group_sizes::Vector{Int}
     )
-        append!(all_agents, agents)
         for agent in agents
-            if agent.virus_id != 0
-                push!(infected_agent_ids, agent.id)
+            if agent.virus !== nothing
+                push!(infected_agents, agent)
             end
             if agent.social_status == 1
                 add_agent_to_kindergarten(agent, kindergarten, kindergarten_group_sizes)
@@ -1140,20 +1021,20 @@ module Model
             elseif agent.social_status == 3
                 add_agent_to_university(agent, university, university_group_sizes)
             elseif agent.social_status == 4
-                add_agent_to_workplace(all_agents, agent, workplace, workplace_group_size)
+                add_agent_to_workplace(agent, workplace, workplace_group_sizes)
             end
         end
+        append!(all_agents, agents)
     end
 
     function create_population(
-        viruses::Vector{Virus},
+        viruses::Dict{String, Virus},
         viral_loads::Array{Float64, 4},
         comm_rank::Int,
         comm_size::Int,
         all_agents::Vector{Agent},
-        infected_agent_ids::Vector{Int}
+        infected_agents::Vector{Agent}
     )
-        
         districts = [10702 4300 8419 1540 2016 1253 712 372 475 355 98 88 81 123 96 277 139 243 65 117 103 2941 773 591 137 189 13 17 13 20 542 257 125 28 53 546 784 50 60 117 580 216 210 256 47 47 53 55 3481 647 956 309 103 177 240 74 39 77 64;
             8912 4549 2359 2351 1114 1018 1292 201 326 308 149 40 69 115 92 150 102 201 56 76 115 1618 533 217 76 126 8 5 9 18 334 164 41 13 45 305 450 31 25 86 241 138 115 159 36 29 23 25 1531 70 297 30 4 129 94 11 38 29 36;
             9525 6484 6101 1720 1772 1541 862 255 526 433 123 50 125 188 143 251 128 225 65 96 138 3329 832 468 131 209 24 10 15 22 746 277 125 30 51 601 825 59 57 150 858 337 290 336 88 68 101 84 4007 226 1097 232 28 304 251 46 92 110 82;
@@ -1262,113 +1143,113 @@ module Model
             7073 3126 2324 1350 992 913 1310 297 424 414 176 90 141 190 244 131 169 305 185 307 343 1667 563 189 93 159 16 7 17 28 348 147 37 15 36 255 379 34 37 105 222 109 97 101 37 35 29 25 1343 63 246 26 12 76 67 9 19 24 26;
             5139 2625 1959 1666 771 828 1001 114 238 274 215 33 70 109 138 88 72 170 74 99 146 1341 586 164 70 157 8 6 10 12 230 127 35 18 36 198 316 24 25 63 182 112 62 73 22 17 13 20 970 50 266 43 10 80 58 5 16 18 28]
         
-        districts_age_sex = [52 51 52 50 50 50 48 48 44 46 46 45 38 38 36 32 29 22 51 34 67 55 44 54 47 26 63 81 94;
-            50 52 51 49 50 46 49 48 50 47 47 43 43 39 35 31 25 25 51 36 70 52 53 50 52 22 54 73 89;
-            51 51 50 50 49 47 48 49 47 48 48 41 38 39 36 32 27 20 53 36 68 51 50 54 46 25 60 79 92;
-            52 51 51 54 53 52 51 49 49 48 45 45 42 39 36 31 27 20 51 35 68 51 52 48 50 21 52 72 89;
-            51 50 48 48 48 45 46 45 46 45 45 42 40 37 35 29 29 23 48 33 69 52 50 51 51 22 57 76 92;
-            50 50 50 49 48 48 47 47 44 43 46 44 42 37 33 30 27 22 52 36 69 56 46 50 55 22 55 75 92;
-            52 50 51 49 49 46 48 48 48 47 44 41 41 37 34 33 27 23 52 36 69 51 51 49 51 20 53 74 91;
-            53 54 56 54 54 50 51 49 49 49 46 45 42 40 37 33 29 25 51 33 66 53 50 51 52 22 55 74 90;
-            52 50 50 51 51 51 57 59 56 52 50 46 45 43 41 37 31 25 51 34 67 48 53 52 51 23 54 73 89;
-            52 49 49 58 60 49 49 51 51 45 40 42 45 47 42 34 29 24 49 33 67 51 64 38 55 28 60 77 91;
-            51 52 54 50 51 48 50 48 48 47 45 44 43 41 34 30 27 21 52 36 69 51 54 48 53 21 53 72 89;
-            52 51 51 50 50 53 53 56 54 52 49 41 42 39 32 27 27 17 48 32 67 52 53 53 53 21 55 76 93;
-            50 53 52 56 60 53 55 54 58 55 50 44 42 41 35 29 27 17 51 36 70 49 49 58 52 27 60 78 93;
-            51 52 50 51 46 48 49 47 44 47 52 43 40 41 35 30 29 25 52 35 67 57 45 58 54 20 51 71 89;
-            52 51 51 55 53 50 50 49 51 47 44 43 42 41 38 33 30 23 52 37 71 55 55 45 54 23 56 74 90;
-            51 51 52 48 50 48 48 48 49 48 45 45 43 41 39 37 31 28 53 37 69 50 52 48 51 23 57 76 91;
-            51 50 51 48 51 58 62 63 62 59 51 46 42 39 35 29 28 19 52 36 69 52 52 56 56 22 54 74 91;
-            51 49 49 50 50 50 51 50 52 48 46 43 42 38 35 31 30 28 52 35 68 51 51 50 52 20 51 71 89;
-            51 52 51 55 51 50 50 48 49 48 46 43 41 39 37 33 30 26 53 37 69 53 53 49 50 21 52 71 87;
-            51 53 52 52 50 47 47 49 48 43 46 48 43 39 35 32 25 18 52 37 70 50 50 52 54 27 62 81 94;
-            49 48 51 49 50 47 48 47 48 47 45 43 40 40 36 31 29 23 52 36 69 52 52 51 48 24 56 74 89;
-            50 52 52 47 48 49 49 47 48 47 45 41 40 38 35 31 26 18 51 34 67 50 53 50 49 26 62 80 93;
-            52 52 52 53 53 50 50 50 50 48 46 44 41 36 34 30 29 21 52 35 67 51 50 51 52 21 54 73 90;
-            51 51 51 51 51 53 48 48 54 53 44 41 39 37 31 27 26 18 53 37 70 46 56 53 55 22 56 77 93;
-            50 52 54 49 49 49 50 50 47 46 45 43 41 38 33 29 25 20 50 35 70 53 51 50 57 23 57 77 92;
-            53 53 52 51 50 47 48 49 48 48 46 43 41 38 33 30 27 21 52 36 69 51 51 50 52 21 54 73 90;
-            52 54 52 55 55 49 50 51 51 49 48 43 42 42 37 37 32 29 51 35 69 55 53 51 51 20 52 72 88;
-            52 52 54 53 54 47 48 50 48 48 48 45 42 41 38 37 33 28 51 34 66 47 53 50 47 21 51 70 86;
-            52 52 53 46 49 49 48 48 49 46 46 44 40 40 37 32 27 23 49 33 67 53 52 49 51 21 55 75 91;
-            50 51 53 51 51 46 46 46 48 49 47 42 39 36 35 34 32 26 49 34 69 49 49 55 51 21 56 76 92;
-            52 52 54 46 52 60 61 62 61 59 52 46 39 39 34 31 26 22 51 35 68 51 53 53 51 22 54 72 88;
-            52 52 52 56 51 48 49 48 48 48 46 40 43 41 34 32 26 19 49 33 68 46 55 49 51 25 60 79 93;
-            53 51 55 60 55 51 51 50 51 48 45 43 41 40 36 33 29 24 52 34 66 50 54 47 54 21 54 73 90;
-            51 52 54 51 54 52 53 51 52 50 44 40 42 40 34 30 25 18 49 34 68 48 56 50 51 28 61 78 92;
-            51 53 55 51 52 49 51 50 51 48 47 45 46 42 40 40 36 32 53 36 68 51 52 50 52 23 56 75 90;
-            50 49 52 53 53 52 54 55 58 55 48 42 42 42 36 31 23 17 53 38 71 46 55 53 50 29 63 80 94;
-            51 52 51 50 52 48 49 48 47 47 44 42 38 40 35 33 29 24 52 35 68 50 52 50 51 22 56 75 90;
-            52 51 52 49 51 47 46 49 50 47 45 46 44 43 34 33 33 24 53 37 71 52 53 47 53 19 48 67 87;
-            51 52 52 53 53 51 52 54 50 47 46 44 40 38 35 34 27 19 52 37 71 50 53 51 53 21 55 76 91;
-            51 51 50 48 45 48 51 51 49 49 47 40 41 42 36 31 27 26 45 30 67 50 55 51 49 27 60 78 91;
-            51 52 52 51 52 51 53 52 51 49 46 41 41 41 37 32 28 20 50 34 68 49 56 49 51 28 63 80 93;
-            50 50 51 51 51 48 48 49 50 48 48 43 40 38 36 34 30 22 51 36 71 51 51 52 52 20 53 73 89;
-            49 48 46 54 47 44 48 49 51 48 47 44 40 38 33 29 24 20 51 36 71 52 55 50 55 21 55 76 92;
-            48 48 48 47 47 46 47 49 49 47 46 43 40 38 33 31 28 22 46 30 65 50 53 52 53 24 59 78 93;
-            52 53 53 50 50 50 51 50 48 46 44 42 42 41 35 33 29 25 50 35 70 53 53 50 52 24 59 77 91;
-            48 47 48 47 48 46 50 50 49 49 45 42 40 38 36 34 28 19 47 30 64 50 51 52 49 27 63 80 93;
-            49 50 47 51 53 47 47 49 47 46 45 42 42 41 36 31 29 21 51 33 65 51 53 48 55 22 55 74 91;
-            53 52 52 49 52 48 48 48 48 48 46 43 42 39 36 33 32 24 50 33 67 50 50 52 51 23 59 78 93;
-            53 52 53 51 56 52 52 53 54 50 44 42 44 44 39 35 30 25 52 36 69 46 58 47 52 30 62 79 92;
-            51 50 52 51 49 49 49 51 52 50 47 42 42 38 34 31 29 24 50 33 67 51 53 48 57 21 53 73 90;
-            50 51 51 52 50 50 51 50 52 48 46 44 41 40 36 31 30 25 49 34 69 50 52 48 53 22 53 72 88;
-            51 52 52 51 55 53 52 51 50 49 46 44 42 40 34 30 28 21 52 36 69 53 54 47 56 20 52 73 91;
-            50 50 46 48 52 46 47 46 47 47 46 45 43 40 37 39 32 29 47 31 65 52 49 50 52 21 51 71 88;
-            48 48 46 49 44 47 53 52 49 48 46 43 44 40 38 41 31 29 53 37 70 53 53 51 51 23 54 73 89;
-            52 51 51 48 51 49 47 48 48 48 48 46 45 43 42 32 25 21 52 35 68 54 47 50 52 27 68 83 94;
-            55 51 50 52 51 51 58 61 62 56 50 49 45 43 37 29 27 20 51 35 69 44 57 47 59 21 52 70 89;
-            49 48 48 50 50 47 49 49 50 49 41 44 40 35 31 27 23 18 52 36 69 50 54 41 58 20 54 74 91;
-            52 52 50 65 64 49 50 49 49 47 45 43 43 43 37 31 30 25 52 36 69 50 53 48 53 25 58 75 90;
-            52 50 51 54 53 47 48 49 47 45 44 41 42 38 33 28 25 19 51 35 69 50 55 49 56 26 59 76 92;
-            52 51 52 51 51 48 48 48 46 44 43 41 42 41 32 27 24 19 51 36 70 52 55 46 58 27 60 78 92;
-            51 52 52 51 53 49 53 53 52 52 49 44 44 39 34 28 29 21 51 35 68 48 52 52 54 22 54 74 91;
-            53 51 51 51 51 48 49 49 49 46 45 43 41 40 37 33 29 24 52 35 67 53 51 50 51 23 54 72 89;
-            52 51 53 51 47 46 48 47 47 47 45 39 45 44 37 34 31 23 45 30 66 51 51 50 52 24 57 77 92;
-            53 52 53 51 50 49 48 48 47 47 46 43 41 39 35 32 30 23 53 36 68 52 50 51 52 22 55 74 91;
-            52 51 52 51 53 50 48 49 48 46 45 42 40 40 34 30 26 22 52 36 69 52 51 46 53 23 55 73 89;
-            52 52 50 46 49 48 47 49 48 49 46 44 44 43 38 35 30 27 51 34 67 52 51 50 52 25 56 74 89;
-            53 54 54 55 51 53 51 51 51 44 50 46 43 52 37 33 30 25 53 37 69 54 48 48 50 24 54 73 89;
-            51 52 52 52 55 52 53 53 53 49 47 44 40 38 33 28 26 19 52 36 70 51 53 50 53 23 58 77 93;
-            55 54 53 52 54 51 51 56 56 55 53 48 43 39 38 36 32 25 52 35 68 51 49 49 54 21 57 77 92;
-            51 51 53 51 49 49 51 50 48 47 44 43 40 37 33 27 24 16 52 37 70 52 53 49 56 23 55 74 91;
-            47 48 48 46 49 47 47 48 46 45 43 42 42 40 38 36 30 26 50 34 68 51 51 47 50 22 53 71 87;
-            52 51 51 49 46 46 46 48 48 46 46 44 43 39 37 33 29 27 50 34 67 50 54 50 52 22 53 72 88;
-            50 51 52 49 51 49 46 48 50 47 44 42 42 44 39 35 30 23 50 34 68 42 55 51 44 31 65 80 92;
-            51 51 53 49 49 50 50 51 50 47 47 42 43 41 37 33 30 28 49 33 67 47 55 50 53 21 54 73 90;
-            52 51 51 50 50 48 48 49 50 46 43 41 41 43 40 36 30 22 51 35 68 45 57 48 49 27 62 80 93;
-            52 52 52 51 51 50 53 53 52 47 45 42 41 40 36 32 27 20 49 33 67 48 56 50 53 26 60 79 93;
-            52 49 51 49 52 50 51 51 49 48 46 40 39 39 34 30 26 17 49 32 65 51 51 53 49 25 61 80 94;
-            52 52 51 50 50 48 50 50 49 46 44 44 46 47 40 32 28 26 54 39 72 54 55 44 60 25 58 76 92;
-            50 49 50 49 50 47 47 46 46 44 41 41 39 40 33 27 24 18 53 37 70 53 53 47 52 24 56 74 90;
-            50 49 51 50 48 47 48 47 46 46 45 42 42 43 35 33 28 22 51 35 68 51 53 49 50 23 56 75 92;
-            53 54 53 50 49 46 50 51 49 47 44 42 43 43 37 35 30 21 51 35 68 49 58 47 52 28 61 78 92;
-            49 50 51 52 52 48 50 50 47 43 45 45 43 41 35 34 30 22 55 40 72 57 55 44 60 23 56 74 90;
-            52 53 53 53 51 49 49 48 48 46 43 42 39 37 34 29 25 18 53 37 70 52 51 49 53 23 57 76 91;
-            50 51 51 52 50 48 49 49 49 47 45 43 43 40 37 33 30 25 50 33 66 49 51 50 53 23 58 77 93;
-            51 49 53 49 50 48 47 46 46 47 46 42 40 38 35 32 26 21 51 34 67 53 52 53 52 23 58 77 93;
-            50 52 51 45 41 42 41 48 48 45 45 40 39 44 44 40 33 33 52 36 69 50 57 48 50 28 60 78 91;
-            52 51 52 39 39 47 45 52 49 46 46 51 40 42 37 35 30 22 50 32 63 51 52 49 58 26 59 78 93;
-            53 53 52 49 49 47 50 49 45 48 46 45 42 39 34 28 25 20 53 37 70 50 50 55 53 21 54 75 91;
-            50 39 47 48 51 43 41 46 47 47 42 33 34 37 36 32 28 23 40 26 66 45 59 49 54 25 60 78 92;
-            46 45 44 44 46 47 46 48 48 47 45 41 40 40 36 32 31 24 47 31 66 53 51 48 50 26 63 81 94;
-            54 55 49 49 49 52 55 52 46 43 41 43 42 36 32 27 19 19 47 33 70 51 54 45 47 24 59 77 94;
-            53 53 52 49 51 51 50 50 51 50 50 50 44 44 41 41 34 33 50 35 69 52 48 50 54 23 49 67 84;
-            53 53 55 52 52 49 49 48 47 46 46 44 43 41 36 36 29 23 50 33 65 52 51 49 50 24 58 77 91;
-            53 53 54 48 48 49 50 48 49 47 47 42 41 40 37 33 27 22 52 36 68 53 52 50 49 25 57 73 88;
-            51 48 50 53 53 50 50 52 51 48 48 41 43 50 42 28 25 19 54 39 72 56 52 57 33 38 68 82 94;
-            51 53 51 50 47 46 47 47 46 46 45 41 39 38 35 31 27 22 51 35 69 53 47 52 51 24 59 78 92;
-            51 48 48 44 47 44 46 47 46 44 43 42 42 41 35 29 28 20 50 34 68 51 52 49 52 24 55 73 88;
-            48 52 51 50 50 49 49 47 47 45 45 42 43 41 37 34 31 25 46 30 64 50 52 50 53 23 54 72 88;
-            51 52 52 48 47 48 49 48 48 46 47 41 43 35 35 34 29 20 51 35 68 52 52 50 54 21 54 75 91;
-            52 49 50 49 50 47 49 48 48 47 45 43 42 40 36 33 29 25 48 31 64 49 51 47 49 22 54 73 89;
-            50 51 50 49 47 49 50 47 47 48 47 44 41 38 36 34 33 30 52 36 69 51 47 53 51 21 54 74 90;
-            52 53 52 51 52 50 49 49 48 48 47 46 43 41 37 36 31 28 54 37 69 53 50 49 54 22 51 70 88;
-            49 49 54 52 49 49 48 50 47 47 45 42 41 38 36 30 27 21 52 36 70 52 52 52 51 22 55 75 91;
-            51 50 54 52 51 50 47 46 46 45 46 46 41 40 38 35 32 24 50 33 66 54 47 50 51 20 50 69 85;
-            52 51 51 52 51 47 48 47 48 46 45 43 42 40 37 32 29 22 52 35 68 52 52 48 51 23 56 75 90;
-            48 49 48 53 54 45 45 50 47 46 44 42 42 42 37 37 32 27 44 27 61 48 53 48 50 23 54 74 90;
-            52 51 52 50 52 47 46 47 49 45 45 43 40 41 37 31 28 22 56 41 73 54 54 50 52 24 57 74 89]
+        districts_age_sex = [[52,51,52,50,50,50,48,48,44,46,46,45,38,38,36,32,29,22,51,34,67,55,44,54,47,26,63,81,94],
+            [50,52,51,49,50,46,49,48,50,47,47,43,43,39,35,31,25,25,51,36,70,52,53,50,52,22,54,73,89],
+            [51,51,50,50,49,47,48,49,47,48,48,41,38,39,36,32,27,20,53,36,68,51,50,54,46,25,60,79,92],
+            [52,51,51,54,53,52,51,49,49,48,45,45,42,39,36,31,27,20,51,35,68,51,52,48,50,21,52,72,89],
+            [51,50,48,48,48,45,46,45,46,45,45,42,40,37,35,29,29,23,48,33,69,52,50,51,51,22,57,76,92],
+            [50,50,50,49,48,48,47,47,44,43,46,44,42,37,33,30,27,22,52,36,69,56,46,50,55,22,55,75,92],
+            [52,50,51,49,49,46,48,48,48,47,44,41,41,37,34,33,27,23,52,36,69,51,51,49,51,20,53,74,91],
+            [53,54,56,54,54,50,51,49,49,49,46,45,42,40,37,33,29,25,51,33,66,53,50,51,52,22,55,74,90],
+            [52,50,50,51,51,51,57,59,56,52,50,46,45,43,41,37,31,25,51,34,67,48,53,52,51,23,54,73,89],
+            [52,49,49,58,60,49,49,51,51,45,40,42,45,47,42,34,29,24,49,33,67,51,64,38,55,28,60,77,91],
+            [51,52,54,50,51,48,50,48,48,47,45,44,43,41,34,30,27,21,52,36,69,51,54,48,53,21,53,72,89],
+            [52,51,51,50,50,53,53,56,54,52,49,41,42,39,32,27,27,17,48,32,67,52,53,53,53,21,55,76,93],
+            [50,53,52,56,60,53,55,54,58,55,50,44,42,41,35,29,27,17,51,36,70,49,49,58,52,27,60,78,93],
+            [51,52,50,51,46,48,49,47,44,47,52,43,40,41,35,30,29,25,52,35,67,57,45,58,54,20,51,71,89],
+            [52,51,51,55,53,50,50,49,51,47,44,43,42,41,38,33,30,23,52,37,71,55,55,45,54,23,56,74,90],
+            [51,51,52,48,50,48,48,48,49,48,45,45,43,41,39,37,31,28,53,37,69,50,52,48,51,23,57,76,91],
+            [51,50,51,48,51,58,62,63,62,59,51,46,42,39,35,29,28,19,52,36,69,52,52,56,56,22,54,74,91],
+            [51,49,49,50,50,50,51,50,52,48,46,43,42,38,35,31,30,28,52,35,68,51,51,50,52,20,51,71,89],
+            [51,52,51,55,51,50,50,48,49,48,46,43,41,39,37,33,30,26,53,37,69,53,53,49,50,21,52,71,87],
+            [51,53,52,52,50,47,47,49,48,43,46,48,43,39,35,32,25,18,52,37,70,50,50,52,54,27,62,81,94],
+            [49,48,51,49,50,47,48,47,48,47,45,43,40,40,36,31,29,23,52,36,69,52,52,51,48,24,56,74,89],
+            [50,52,52,47,48,49,49,47,48,47,45,41,40,38,35,31,26,18,51,34,67,50,53,50,49,26,62,80,93],
+            [52,52,52,53,53,50,50,50,50,48,46,44,41,36,34,30,29,21,52,35,67,51,50,51,52,21,54,73,90],
+            [51,51,51,51,51,53,48,48,54,53,44,41,39,37,31,27,26,18,53,37,70,46,56,53,55,22,56,77,93],
+            [50,52,54,49,49,49,50,50,47,46,45,43,41,38,33,29,25,20,50,35,70,53,51,50,57,23,57,77,92],
+            [53,53,52,51,50,47,48,49,48,48,46,43,41,38,33,30,27,21,52,36,69,51,51,50,52,21,54,73,90],
+            [52,54,52,55,55,49,50,51,51,49,48,43,42,42,37,37,32,29,51,35,69,55,53,51,51,20,52,72,88],
+            [52,52,54,53,54,47,48,50,48,48,48,45,42,41,38,37,33,28,51,34,66,47,53,50,47,21,51,70,86],
+            [52,52,53,46,49,49,48,48,49,46,46,44,40,40,37,32,27,23,49,33,67,53,52,49,51,21,55,75,91],
+            [50,51,53,51,51,46,46,46,48,49,47,42,39,36,35,34,32,26,49,34,69,49,49,55,51,21,56,76,92],
+            [52,52,54,46,52,60,61,62,61,59,52,46,39,39,34,31,26,22,51,35,68,51,53,53,51,22,54,72,88],
+            [52,52,52,56,51,48,49,48,48,48,46,40,43,41,34,32,26,19,49,33,68,46,55,49,51,25,60,79,93],
+            [53,51,55,60,55,51,51,50,51,48,45,43,41,40,36,33,29,24,52,34,66,50,54,47,54,21,54,73,90],
+            [51,52,54,51,54,52,53,51,52,50,44,40,42,40,34,30,25,18,49,34,68,48,56,50,51,28,61,78,92],
+            [51,53,55,51,52,49,51,50,51,48,47,45,46,42,40,40,36,32,53,36,68,51,52,50,52,23,56,75,90],
+            [50,49,52,53,53,52,54,55,58,55,48,42,42,42,36,31,23,17,53,38,71,46,55,53,50,29,63,80,94],
+            [51,52,51,50,52,48,49,48,47,47,44,42,38,40,35,33,29,24,52,35,68,50,52,50,51,22,56,75,90],
+            [52,51,52,49,51,47,46,49,50,47,45,46,44,43,34,33,33,24,53,37,71,52,53,47,53,19,48,67,87],
+            [51,52,52,53,53,51,52,54,50,47,46,44,40,38,35,34,27,19,52,37,71,50,53,51,53,21,55,76,91],
+            [51,51,50,48,45,48,51,51,49,49,47,40,41,42,36,31,27,26,45,30,67,50,55,51,49,27,60,78,91],
+            [51,52,52,51,52,51,53,52,51,49,46,41,41,41,37,32,28,20,50,34,68,49,56,49,51,28,63,80,93],
+            [50,50,51,51,51,48,48,49,50,48,48,43,40,38,36,34,30,22,51,36,71,51,51,52,52,20,53,73,89],
+            [49,48,46,54,47,44,48,49,51,48,47,44,40,38,33,29,24,20,51,36,71,52,55,50,55,21,55,76,92],
+            [48,48,48,47,47,46,47,49,49,47,46,43,40,38,33,31,28,22,46,30,65,50,53,52,53,24,59,78,93],
+            [52,53,53,50,50,50,51,50,48,46,44,42,42,41,35,33,29,25,50,35,70,53,53,50,52,24,59,77,91],
+            [48,47,48,47,48,46,50,50,49,49,45,42,40,38,36,34,28,19,47,30,64,50,51,52,49,27,63,80,93],
+            [49,50,47,51,53,47,47,49,47,46,45,42,42,41,36,31,29,21,51,33,65,51,53,48,55,22,55,74,91],
+            [53,52,52,49,52,48,48,48,48,48,46,43,42,39,36,33,32,24,50,33,67,50,50,52,51,23,59,78,93],
+            [53,52,53,51,56,52,52,53,54,50,44,42,44,44,39,35,30,25,52,36,69,46,58,47,52,30,62,79,92],
+            [51,50,52,51,49,49,49,51,52,50,47,42,42,38,34,31,29,24,50,33,67,51,53,48,57,21,53,73,90],
+            [50,51,51,52,50,50,51,50,52,48,46,44,41,40,36,31,30,25,49,34,69,50,52,48,53,22,53,72,88],
+            [51,52,52,51,55,53,52,51,50,49,46,44,42,40,34,30,28,21,52,36,69,53,54,47,56,20,52,73,91],
+            [50,50,46,48,52,46,47,46,47,47,46,45,43,40,37,39,32,29,47,31,65,52,49,50,52,21,51,71,88],
+            [48,48,46,49,44,47,53,52,49,48,46,43,44,40,38,41,31,29,53,37,70,53,53,51,51,23,54,73,89],
+            [52,51,51,48,51,49,47,48,48,48,48,46,45,43,42,32,25,21,52,35,68,54,47,50,52,27,68,83,94],
+            [55,51,50,52,51,51,58,61,62,56,50,49,45,43,37,29,27,20,51,35,69,44,57,47,59,21,52,70,89],
+            [49,48,48,50,50,47,49,49,50,49,41,44,40,35,31,27,23,18,52,36,69,50,54,41,58,20,54,74,91],
+            [52,52,50,65,64,49,50,49,49,47,45,43,43,43,37,31,30,25,52,36,69,50,53,48,53,25,58,75,90],
+            [52,50,51,54,53,47,48,49,47,45,44,41,42,38,33,28,25,19,51,35,69,50,55,49,56,26,59,76,92],
+            [52,51,52,51,51,48,48,48,46,44,43,41,42,41,32,27,24,19,51,36,70,52,55,46,58,27,60,78,92],
+            [51,52,52,51,53,49,53,53,52,52,49,44,44,39,34,28,29,21,51,35,68,48,52,52,54,22,54,74,91],
+            [53,51,51,51,51,48,49,49,49,46,45,43,41,40,37,33,29,24,52,35,67,53,51,50,51,23,54,72,89],
+            [52,51,53,51,47,46,48,47,47,47,45,39,45,44,37,34,31,23,45,30,66,51,51,50,52,24,57,77,92],
+            [53,52,53,51,50,49,48,48,47,47,46,43,41,39,35,32,30,23,53,36,68,52,50,51,52,22,55,74,91],
+            [52,51,52,51,53,50,48,49,48,46,45,42,40,40,34,30,26,22,52,36,69,52,51,46,53,23,55,73,89],
+            [52,52,50,46,49,48,47,49,48,49,46,44,44,43,38,35,30,27,51,34,67,52,51,50,52,25,56,74,89],
+            [53,54,54,55,51,53,51,51,51,44,50,46,43,52,37,33,30,25,53,37,69,54,48,48,50,24,54,73,89],
+            [51,52,52,52,55,52,53,53,53,49,47,44,40,38,33,28,26,19,52,36,70,51,53,50,53,23,58,77,93],
+            [55,54,53,52,54,51,51,56,56,55,53,48,43,39,38,36,32,25,52,35,68,51,49,49,54,21,57,77,92],
+            [51,51,53,51,49,49,51,50,48,47,44,43,40,37,33,27,24,16,52,37,70,52,53,49,56,23,55,74,91],
+            [47,48,48,46,49,47,47,48,46,45,43,42,42,40,38,36,30,26,50,34,68,51,51,47,50,22,53,71,87],
+            [52,51,51,49,46,46,46,48,48,46,46,44,43,39,37,33,29,27,50,34,67,50,54,50,52,22,53,72,88],
+            [50,51,52,49,51,49,46,48,50,47,44,42,42,44,39,35,30,23,50,34,68,42,55,51,44,31,65,80,92],
+            [51,51,53,49,49,50,50,51,50,47,47,42,43,41,37,33,30,28,49,33,67,47,55,50,53,21,54,73,90],
+            [52,51,51,50,50,48,48,49,50,46,43,41,41,43,40,36,30,22,51,35,68,45,57,48,49,27,62,80,93],
+            [52,52,52,51,51,50,53,53,52,47,45,42,41,40,36,32,27,20,49,33,67,48,56,50,53,26,60,79,93],
+            [52,49,51,49,52,50,51,51,49,48,46,40,39,39,34,30,26,17,49,32,65,51,51,53,49,25,61,80,94],
+            [52,52,51,50,50,48,50,50,49,46,44,44,46,47,40,32,28,26,54,39,72,54,55,44,60,25,58,76,92],
+            [50,49,50,49,50,47,47,46,46,44,41,41,39,40,33,27,24,18,53,37,70,53,53,47,52,24,56,74,90],
+            [50,49,51,50,48,47,48,47,46,46,45,42,42,43,35,33,28,22,51,35,68,51,53,49,50,23,56,75,92],
+            [53,54,53,50,49,46,50,51,49,47,44,42,43,43,37,35,30,21,51,35,68,49,58,47,52,28,61,78,92],
+            [49,50,51,52,52,48,50,50,47,43,45,45,43,41,35,34,30,22,55,40,72,57,55,44,60,23,56,74,90],
+            [52,53,53,53,51,49,49,48,48,46,43,42,39,37,34,29,25,18,53,37,70,52,51,49,53,23,57,76,91],
+            [50,51,51,52,50,48,49,49,49,47,45,43,43,40,37,33,30,25,50,33,66,49,51,50,53,23,58,77,93],
+            [51,49,53,49,50,48,47,46,46,47,46,42,40,38,35,32,26,21,51,34,67,53,52,53,52,23,58,77,93],
+            [50,52,51,45,41,42,41,48,48,45,45,40,39,44,44,40,33,33,52,36,69,50,57,48,50,28,60,78,91],
+            [52,51,52,39,39,47,45,52,49,46,46,51,40,42,37,35,30,22,50,32,63,51,52,49,58,26,59,78,93],
+            [53,53,52,49,49,47,50,49,45,48,46,45,42,39,34,28,25,20,53,37,70,50,50,55,53,21,54,75,91],
+            [50,39,47,48,51,43,41,46,47,47,42,33,34,37,36,32,28,23,40,26,66,45,59,49,54,25,60,78,92],
+            [46,45,44,44,46,47,46,48,48,47,45,41,40,40,36,32,31,24,47,31,66,53,51,48,50,26,63,81,94],
+            [54,55,49,49,49,52,55,52,46,43,41,43,42,36,32,27,19,19,47,33,70,51,54,45,47,24,59,77,94],
+            [53,53,52,49,51,51,50,50,51,50,50,50,44,44,41,41,34,33,50,35,69,52,48,50,54,23,49,67,84],
+            [53,53,55,52,52,49,49,48,47,46,46,44,43,41,36,36,29,23,50,33,65,52,51,49,50,24,58,77,91],
+            [53,53,54,48,48,49,50,48,49,47,47,42,41,40,37,33,27,22,52,36,68,53,52,50,49,25,57,73,88],
+            [51,48,50,53,53,50,50,52,51,48,48,41,43,50,42,28,25,19,54,39,72,56,52,57,33,38,68,82,94],
+            [51,53,51,50,47,46,47,47,46,46,45,41,39,38,35,31,27,22,51,35,69,53,47,52,51,24,59,78,92],
+            [51,48,48,44,47,44,46,47,46,44,43,42,42,41,35,29,28,20,50,34,68,51,52,49,52,24,55,73,88],
+            [48,52,51,50,50,49,49,47,47,45,45,42,43,41,37,34,31,25,46,30,64,50,52,50,53,23,54,72,88],
+            [51,52,52,48,47,48,49,48,48,46,47,41,43,35,35,34,29,20,51,35,68,52,52,50,54,21,54,75,91],
+            [52,49,50,49,50,47,49,48,48,47,45,43,42,40,36,33,29,25,48,31,64,49,51,47,49,22,54,73,89],
+            [50,51,50,49,47,49,50,47,47,48,47,44,41,38,36,34,33,30,52,36,69,51,47,53,51,21,54,74,90],
+            [52,53,52,51,52,50,49,49,48,48,47,46,43,41,37,36,31,28,54,37,69,53,50,49,54,22,51,70,88],
+            [49,49,54,52,49,49,48,50,47,47,45,42,41,38,36,30,27,21,52,36,70,52,52,52,51,22,55,75,91],
+            [51,50,54,52,51,50,47,46,46,45,46,46,41,40,38,35,32,24,50,33,66,54,47,50,51,20,50,69,85],
+            [52,51,51,52,51,47,48,47,48,46,45,43,42,40,37,32,29,22,52,35,68,52,52,48,51,23,56,75,90],
+            [48,49,48,53,54,45,45,50,47,46,44,42,42,42,37,37,32,27,44,27,61,48,53,48,50,23,54,74,90],
+            [52,51,52,50,52,47,46,47,49,45,45,43,40,41,37,31,28,22,56,41,73,54,54,50,52,24,57,74,89]]
         
         district_households = [[74,70,80,82,88,8,75,84,87,85,78,74,80,83,87,4,76,80,84,86,68,77,84,85,88,23,73,82,84,88,54,77,84,86,89,7,74,83,82,83,9,74,78,81,89,61,80,87,90,92,71,78,83,85,88,55,77,84,85,87,71,82,82,84,87,3,74,81,83,87,4,75,84,87,90,10,79,83,85,87,59,78,83,84,89,73,75,81,83,88,15,76,83,83,87,76,80,86,85,89,77,78,83,85,87,11,75,81,83,86,31,70,82,83,86,60,73,81,82,88,25,77,83,84,88,44,78,83,85,87,16,79,84,87,87,19,77,82,83,85,4,71,82,83,86,29,78,84,86,87,4,76,83,85,89,30,77,80,86,87,15,77,82,84,86,30,77,82,85,88,16,77,84,85,88,78,82,84,83,88,61,82,81,84,88,16,74,84,83,88,5,79,84,87,89,50,77,85,87,89,59,77,82,83,88,61,79,83,85,86,5,81,86,86,87,58,75,84,85,86,49,78,83,86,88,5,67,79,83,85,50,74,83,85,87,4,74,82,83,87,50,76,83,85,88,43,80,84,84,87,45,76,83,86,87,61,77,83,85,88,25,76,81,83,88,14,81,87,88,88,25,76,80,82,87,24,71,85,86,88,74,80,84,85,87,49,82,84,85,83,59,80,82,85,88,37,80,83,84,89,76,79,83,84,88,64,73,80,82,86,49,78,83,83,86,61,73,79,80,85,39,76,83,84,87,10,80,84,85,88,55,79,82,83,82,35,79,83,85,88,3,73,82,83,88,65,78,83,85,87,47,79,84,85,86,6,78,84,86,82,70,76,80,84,87,49,80,84,86,88,32,75,81,83,87,45,77,83,84,87,11,71,79,81,86,17,77,82,84,90,56,78,82,84,88,33,78,82,84,86,63,74,81,83,87,9,72,82,85,90,50,76,82,83,89,45,76,81,82,85,20,78,85,84,86,28,74,80,84,88,38,74,87,84,89,39,71,80,82,87,57,79,81,84,93,50,78,81,82,87,41,76,85,84,87,25,79,81,83,86,23,76,81,82,84,6,75,84,83,86,6,74,86,84,90,55,74,80,84,89,39,76,81,83,86,41,71,81,82,84,5,74,81,83,84,50,75,82,84,83,22,68,79,83,86,57,75,81,83,87,33,80,85,88,90,29,71,80,80,87,57,75,82,83,86,12,77,82,89,86,11,76,85,86,88],
             [4,10,15,15,14,23,14,13,14,16,5,9,14,15,13,40,9,12,13,14,4,9,12,14,13,5,9,15,15,14,6,9,12,15,13,13,10,14,16,16,19,10,12,12,7,4,7,9,10,9,6,9,12,14,12,6,11,11,14,10,9,11,14,15,14,25,10,18,20,12,33,11,13,14,12,26,9,12,13,13,3,9,12,14,12,5,9,12,13,12,20,10,12,15,15,2,7,11,14,14,4,9,13,15,14,18,10,13,15,13,9,9,13,15,14,3,8,10,11,7,6,11,14,17,15,7,9,13,14,15,27,11,13,14,15,44,13,15,16,22,36,12,16,20,16,6,8,13,14,14,24,10,15,16,16,5,9,12,13,11,8,8,11,13,14,15,8,11,13,12,24,11,12,14,13,4,7,11,14,9,3,8,12,15,12,7,7,10,13,12,11,10,14,15,12,4,11,13,12,7,5,8,12,14,11,5,10,13,13,14,16,12,12,14,15,5,9,12,14,11,6,12,13,15,13,7,11,17,15,13,22,9,13,13,14,26,9,12,14,13,4,8,10,12,14,8,8,12,13,14,4,9,11,14,13,8,11,12,16,14,7,8,12,15,17,7,9,12,13,14,13,8,12,15,14,6,8,11,12,10,5,8,11,11,11,18,11,13,14,27,8,10,13,15,14,6,10,14,16,15,6,10,12,14,12,5,10,13,14,12,6,8,11,12,12,4,10,13,16,14,6,10,13,16,14,40,9,12,13,13,5,8,11,14,22,9,9,12,14,13,25,10,12,16,10,5,8,12,14,13,4,8,11,13,15,23,12,12,14,18,5,8,10,13,11,6,8,12,14,13,7,7,11,13,12,5,10,13,15,13,17,10,13,16,14,4,9,12,14,12,5,9,12,14,13,12,10,14,17,15,5,9,11,13,12,27,10,14,16,14,4,9,12,15,13,4,8,11,13,14,6,9,13,17,16,5,9,11,15,15,5,9,15,15,13,7,9,16,16,14,8,8,13,13,8,4,9,12,13,11,10,9,13,14,11,6,8,12,13,13,9,10,14,17,20,11,12,16,15,16,8,6,16,14,13,4,9,15,14,13,15,10,13,14,15,7,9,13,15,14,18,10,14,16,17,3,6,11,14,15,6,8,14,15,13,6,9,12,14,14,4,10,13,14,13,4,7,12,15,13,5,9,12,15,14,11,8,11,13,13,7,10,14,16,15],
@@ -1376,6 +1257,19 @@ module Model
             [20,36,51,54,54,46,47,57,60,58,29,44,52,57,56,58,40,51,54,57,24,39,54,56,54,25,39,51,56,54,30,38,51,57,56,37,42,53,57,57,42,37,48,51,63,33,36,53,58,57,31,38,51,56,57,32,41,54,58,66,55,43,60,58,60,44,39,55,59,58,56,41,52,58,57,50,36,50,54,54,72,40,51,56,56,27,37,52,54,55,43,40,51,57,57,18,33,51,57,55,26,38,51,54,55,38,39,55,58,56,34,40,53,57,57,38,50,61,64,76,31,41,56,61,60,31,40,54,58,57,51,42,54,56,55,61,48,56,58,59,54,39,57,62,59,33,37,55,60,58,65,37,56,62,61,29,43,57,60,58,37,36,48,53,57,53,40,53,58,60,49,42,53,56,53,28,36,52,58,67,33,38,49,55,56,31,36,46,53,55,39,42,56,59,68,23,37,55,57,58,31,38,52,57,62,30,40,54,56,58,58,45,56,60,70,28,39,58,61,58,33,51,54,58,62,30,39,60,64,59,40,38,50,54,56,44,38,53,57,54,26,38,51,55,63,37,38,51,53,51,32,39,51,57,59,37,39,51,57,55,28,34,51,56,55,50,40,59,60,55,43,38,49,54,54,47,45,56,59,63,34,38,51,51,54,48,43,51,53,63,45,43,55,60,58,33,44,55,59,60,62,44,53,56,56,29,40,52,54,50,39,40,51,52,53,29,39,50,53,53,29,41,50,53,53,63,39,48,52,52,36,37,44,51,57,42,39,49,54,61,55,38,51,57,56,31,40,52,58,64,28,35,48,52,58,64,42,51,57,59,28,36,49,55,59,56,38,53,59,56,44,34,50,55,57,32,42,56,62,62,48,40,53,59,56,32,45,54,55,55,25,39,49,53,54,34,38,51,57,56,29,40,52,55,57,48,39,48,52,53,26,38,51,56,55,26,36,49,53,55,34,39,56,60,59,24,36,51,58,57,28,40,60,57,58,46,51,53,56,57,44,40,65,56,64,25,39,51,55,53,35,41,56,57,69,37,39,47,49,49,36,41,52,56,58,37,46,54,58,58,33,25,58,56,58,26,41,53,57,57,39,41,51,54,55,49,39,53,57,59,36,41,52,55,58,28,35,49,54,55,32,40,51,53,53,33,39,50,54,53,28,42,57,58,59,28,33,49,51,51,31,39,51,54,55,33,34,49,60,54,30,40,55,61,58],
             [34,53,76,74,71,58,64,76,79,75,44,61,73,75,71,68,57,71,73,73,38,57,74,75,71,41,59,79,78,72,45,56,72,76,72,52,60,73,77,74,55,54,68,70,80,47,51,72,75,72,45,55,72,75,74,49,60,74,78,83,74,62,78,78,76,57,58,83,85,81,67,57,72,77,73,61,52,70,73,71,88,60,74,78,76,41,54,71,73,71,55,55,70,76,74,47,57,75,79,76,41,55,70,73,71,51,56,75,78,74,48,57,73,77,74,53,66,79,81,86,49,61,79,83,79,46,59,74,78,76,60,58,73,75,71,69,61,72,73,73,63,55,76,80,75,48,54,75,78,75,78,53,74,79,77,45,60,78,77,73,54,54,68,72,73,68,55,70,74,74,62,58,72,75,70,45,53,71,75,85,54,56,70,75,75,48,54,66,72,72,54,59,77,78,83,34,50,73,76,79,46,55,72,76,78,45,57,74,76,75,69,62,76,79,84,43,57,77,81,76,49,67,73,77,78,43,55,78,82,76,53,56,70,73,73,55,55,73,76,71,41,53,68,71,78,58,56,71,71,71,49,57,71,77,77,54,58,73,78,73,42,50,71,76,72,63,55,75,78,74,64,58,70,75,73,66,63,75,76,78,56,61,75,76,78,63,61,70,73,78,62,62,76,80,75,51,64,78,81,79,79,63,74,76,75,46,59,73,74,67,56,58,70,72,71,48,59,71,73,72,47,60,72,74,72,75,57,68,72,70,52,54,64,70,77,60,59,70,74,79,68,55,71,76,80,49,58,74,78,83,44,52,66,71,73,73,59,71,76,75,40,50,65,71,74,70,55,73,79,75,59,50,68,72,72,49,59,75,80,77,62,59,73,80,73,51,65,76,76,74,39,57,70,73,72,48,55,69,75,73,45,57,70,73,72,64,62,75,78,74,41,56,71,76,73,41,53,68,71,71,47,57,76,82,77,38,52,70,73,71,44,59,82,78,76,62,68,77,77,74,58,57,81,75,77,40,56,70,74,71,50,59,76,76,81,56,57,68,69,66,51,58,72,76,73,49,60,72,76,74,45,37,76,76,75,42,59,76,76,73,53,59,71,73,72,66,55,72,75,76,50,60,73,74,75,41,49,68,72,71,47,57,72,73,71,48,56,71,74,71,43,58,75,77,75,46,49,71,73,69,47,56,71,73,72,47,50,69,77,71,43,56,75,80,76],
             [54,70,88,86,84,72,80,88,90,88,62,78,86,88,85,79,75,86,87,87,56,73,87,87,85,60,77,92,90,86,62,73,85,88,86,68,77,87,89,86,69,72,84,83,89,69,76,91,92,91,62,74,87,89,88,67,77,87,91,92,84,79,88,89,89,70,76,92,94,92,78,76,88,90,88,74,72,86,87,86,92,78,88,91,90,57,71,84,85,84,69,72,84,88,87,69,76,88,90,89,60,72,84,86,85,69,76,89,90,88,64,74,86,89,87,69,81,90,91,94,67,78,91,93,92,64,76,87,89,88,70,73,85,86,84,78,75,85,85,85,74,73,88,90,89,64,70,86,88,86,86,72,87,89,90,65,81,92,91,90,71,74,84,87,88,81,78,87,89,90,74,77,86,89,85,68,78,89,90,95,71,74,86,88,87,67,70,81,85,86,69,76,89,89,93,54,71,87,88,90,66,77,88,90,92,62,74,87,88,87,79,78,88,89,92,62,75,89,91,90,67,82,88,90,91,63,75,90,92,89,70,75,85,87,89,69,72,87,88,85,63,77,87,88,93,73,75,87,87,85,67,75,85,89,89,70,76,88,90,86,59,68,85,88,85,74,72,86,89,86,80,77,85,88,87,83,82,90,91,92,72,78,88,88,90,79,79,86,87,90,77,81,91,93,90,72,85,93,93,93,88,80,87,88,89,65,77,87,87,82,74,76,84,87,86,68,76,85,86,86,68,78,87,88,86,85,76,84,86,85,67,71,81,84,86,75,76,85,87,90,77,71,84,87,91,67,75,87,90,94,64,71,83,85,86,83,77,85,88,86,58,70,82,85,89,80,74,87,91,89,75,74,86,88,89,67,79,89,92,90,76,77,87,91,86,72,84,92,90,89,59,76,87,88,88,66,73,84,88,87,67,79,88,89,89,78,80,90,91,89,60,74,86,89,87,59,72,82,85,86,64,75,89,92,89,60,75,86,86,84,64,80,92,92,91,75,80,89,89,87,71,74,91,89,92,59,75,84,87,86,67,77,88,89,92,73,75,83,84,81,68,75,86,88,86,65,76,86,88,87,63,63,90,89,87,61,76,89,88,88,69,77,86,88,86,79,74,86,88,89,66,77,86,87,88,60,69,84,86,85,64,72,84,85,84,65,74,86,87,85,60,75,88,88,88,64,66,85,86,83,65,75,86,86,87,63,68,84,88,85,62,77,89,91,89]]
+
+        # processes = [60, 55, 75, 50, 41, 59, 96,
+        #     34, 48, 69, 87, 11, 6, 57, 76, 91,
+        #     49, 88, 81, 15, 12, 102, 3, 44, 1,
+        #     73, 68, 105, 86, 13, 84, 89, 16, 90,
+        #     18, 93, 95, 51, 74, 52, 66, 4, 63, 53,
+        #     23, 64, 78, 26, 5, 22, 46, 79, 17, 8,
+        #     77, 33, 7, 101, 58, 30, 45, 71, 29,
+        #     62, 24, 37, 31, 25, 72, 85, 10, 2, 83,
+        #     82, 106, 20, 19, 65, 67, 36, 35, 21,
+        #     39, 9, 14, 70, 43, 100, 103, 28, 104,
+        #     107, 32, 40, 97, 47, 27, 80, 98, 61,
+        #     94, 42, 99, 56, 92, 54, 38]
 
         # processes = [60, 55, 75, 50, 41, 59,
         #     96, 34, 48, 69, 87, 11,
@@ -1453,9 +1347,8 @@ module Model
             get_university_group_size(6)]
 
         workplace = Collective(3.0, 3.0, [Group[]])
-        workplace_group_size = get_workplace_group_size()
+        workplace_group_sizes = Int[get_workplace_group_size(1)]
 
-        agent_id = 1
         for index in processes[(comm_rank + 1):comm_size:107]
             index_for_1_people::Int = (index - 1) * 5 + 1
             index_for_2_people::Int = index_for_1_people + 1
@@ -1464,808 +1357,837 @@ module Model
             index_for_5_people::Int = index_for_4_people + 1
             for i in 1:districts[index, 1]
                 # 1P
-                household = Group([agent_id])
-                agents = Agent[create_agent(agent_id, viruses, viral_loads, household, index, districts_age_sex, district_households, index_for_1_people)]
-                agent_id += 1
+                household = Group()
+                agents = Agent[create_agent(viruses, viral_loads, household, index, districts_age_sex, district_households, index_for_1_people)]
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
-            # println(agent_id)
-            # println(districts[index, 1])
             for i in 1:districts[index, 2]
                 # PWOP2P0C
-                # println("Start: $agent_id")
-                new_agent_id = agent_id + 1
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 0, 0, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 0, 0, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
-                # println("End: $agent_id")
+                    workplace, workplace_group_sizes)
             end
-            # println(agent_id)
-            # println(districts[index, 2])
             for i in 1:districts[index, 3]
                 # PWOP3P0C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 1, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 1, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 4]
                 # PWOP3P1C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 0, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 0, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 5]
                 # PWOP4P0C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 2, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 2, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 6]
                 # PWOP4P1C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 1, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 1, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 7]
                 # PWOP4P2C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 0, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 0, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 8]
                 # PWOP5P0C
-                new_agent_id = agent_id + 4
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 3, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 3, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 9]
                 # PWOP5P1C
-                new_agent_id = agent_id + 4
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 2, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 2, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 10]
                 # PWOP5P2C
-                new_agent_id = agent_id + 4
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 2, 1, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 2, 1, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 11]
                 # PWOP5P3C
-                new_agent_id = agent_id + 4
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 3, 0, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 3, 0, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 12]
                 # PWOP6P0C
-                new_agent_id = agent_id + 5
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 4, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 4, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 13]
                 # PWOP6P1C
-                new_agent_id = agent_id + 5
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 3, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 3, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 14]
                 # PWOP6P2C
-                new_agent_id = agent_id + 5
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 2, 2, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 2, 2, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 15]
                 # PWOP6P3C
-                new_agent_id = agent_id + 5
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 3, 1, index)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 3, 1, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 16]
                 # 2PWOP4P0C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 0, index)
-                agent_id += 2
-                agents2 = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 0, index)
-                append!(agents, agents2)
-                agent_id = new_agent_id + 1
+                household = Group()
+                pair1 = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 0, index)
+                pair2 = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 0, index)
+                agents = vcat(pair1, pair2)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 17]
                 # 2PWOP5P0C
-                new_agent_id = agent_id + 4
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 1, index)
-                agent_id += 3
-                agents2 = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 0, index)
-                append!(agents, agents2)
-                agent_id = new_agent_id + 1
+                household = Group()
+                pair1 = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 1, index)
+                pair2 = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 0, index)
+                agents = vcat(pair1, pair2)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 18]
                 # 2PWOP5P1C
-                new_agent_id = agent_id + 4
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 0, index)
-                agent_id += 3
-                agents2 = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 0, index)
-                append!(agents, agents2)
-                agent_id = new_agent_id + 1
+                household = Group()
+                pair1 = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 0, index)
+                pair2 = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 0, index)
+                agents = vcat(pair1, pair2)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 19]
                 # 2PWOP6P0C
-                new_agent_id = agent_id + 5
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 1, index)
-                agent_id += 3
-                agents2 = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 1, index)
-                append!(agents, agents2)
-                agent_id = new_agent_id + 1
+                household = Group()
+                pair1 = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 1, index)
+                pair2 = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 1, index)
+                agents = vcat(pair1, pair2)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 20]
                 # 2PWOP6P1C
-                new_agent_id = agent_id + 5
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 0, index)
-                agent_id += 3
-                agents2 = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 1, index)
-                append!(agents, agents2)
-                agent_id = new_agent_id + 1
+                household = Group()
+                pair1 = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 0, index)
+                pair2 = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 1, index)
+                agents = vcat(pair1, pair2)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 21]
                 # 2PWOP6P2C
-                new_agent_id = agent_id + 5
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 0, index)
-                agent_id += 3
-                agents2 = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 0, index)
-                append!(agents, agents2)
-                agent_id = new_agent_id + 1
+                household = Group()
+                pair1 = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 0, index)
+                pair2 = create_parents_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 0, index)
+                agents = vcat(pair1, pair2)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 22]
                 # SMWC2P0C
-                new_agent_id = agent_id + 1
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 0, 1, index, false)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 0, 1, index, false)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 23]
                 # SMWC2P1C
-                new_agent_id = agent_id + 1
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 1, 0, index, false)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 1, 0, index, false)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 24]
                 # SMWC3P0C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index, false)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index, false)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 25]
                 # SMWC3P1C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index, false)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index, false)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 26]
                 # SMWC3P2C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 2, 0, index, false)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 2, 0, index, false)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 27]
                 # SMWC4P0C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 3, index, false)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 3, index, false)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 28]
                 # SMWC4P1C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 2, index, false)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 2, index, false)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 29]
                 # SMWC4P2C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 1, index, false)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 1, index, false)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 30]
                 # SMWC4P3C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 3, 0, index, false)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 3, 0, index, false)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 31]
                 # SFWC2P0C
-                new_agent_id = agent_id + 1
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 0, 1, index, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 0, 1, index, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 32]
                 # SFWC2P1C
-                new_agent_id = agent_id + 1
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 1, 0, index, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 1, 0, index, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 33]
                 # SFWC3P0C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 34]
                 # SFWC3P1C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 35]
                 # SFWC3P2C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 2, 0, index, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 2, 0, index, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 36]
                 # SPWCWP3P0C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 37]
                 # SPWCWP3P1C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 38]
                 # SPWCWP4P0C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 3, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 3, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 39]
                 # SPWCWP4P1C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 2, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 2, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 40]
                 # SPWCWP4P2C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 1, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 1, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
 
             for i in 1:districts[index, 41]
                 # SPWCWPWOP3P0C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 42]
                 # SPWCWPWOP3P1C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 43]
                 # SPWCWPWOP4P0C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 3, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 3, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 44]
                 # SPWCWPWOP4P1C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 2, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 2, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 45]
                 # SPWCWPWOP4P2C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 1, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 1, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 46]
                 # SPWCWPWOP5P0C
-                new_agent_id = agent_id + 4
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 4, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 4, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 47]
                 # SPWCWPWOP5P1C
-                new_agent_id = agent_id + 4
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 3, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 3, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 48]
                 # SPWCWPWOP5P2C
-                new_agent_id = agent_id + 4
-                household = Group(collect(agent_id:new_agent_id))
-                agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 2, 2, index, nothing, true)
-                agent_id = new_agent_id + 1
+                household = Group()
+                agents = create_parent_with_children(viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 2, 2, index, nothing, true)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
 
             for i in 1:districts[index, 49]
                 # O2P0C
-                new_agent_id = agent_id + 1
-                household = Group(collect(agent_id:new_agent_id))
+                household = Group()
                 agents = create_others(
-                    agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 0, 1, index)
-                agent_id = new_agent_id + 1
+                    viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 0, 1, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 50]
                 # O2P1C
-                new_agent_id = agent_id + 1
-                household = Group(collect(agent_id:new_agent_id))
+                household = Group()
                 agents = create_others(
-                    agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 1, 0, index)
-                agent_id = new_agent_id + 1
+                    viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 1, 0, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 51]
                 # O3P0C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
+                household = Group()
                 agents = create_others(
-                    agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index)
-                agent_id = new_agent_id + 1
+                    viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 52]
                 # O3P1C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
+                household = Group()
                 agents = create_others(
-                    agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index)
-                agent_id = new_agent_id + 1
+                    viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 53]
                 # O3P2C
-                new_agent_id = agent_id + 2
-                household = Group(collect(agent_id:new_agent_id))
+                household = Group()
                 agents = create_others(
-                    agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 2, 0, index)
-                agent_id = new_agent_id + 1
+                    viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 2, 0, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 54]
                 # O4P0C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
+                household = Group()
                 agents = create_others(
-                    agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 3, index)
-                agent_id = new_agent_id + 1
+                    viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 3, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 55]
                 # O4P1C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
+                household = Group()
                 agents = create_others(
-                    agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 2, index)
-                agent_id = new_agent_id + 1
+                    viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 2, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 56]
                 # O4P2C
-                new_agent_id = agent_id + 3
-                household = Group(collect(agent_id:new_agent_id))
+                household = Group()
                 agents = create_others(
-                    agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 1, index)
-                agent_id = new_agent_id + 1
+                    viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 1, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 57]
                 # O5P0C
-                new_agent_id = agent_id + 4
-                household = Group(collect(agent_id:new_agent_id))
+                household = Group()
                 agents = create_others(
-                    agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 4, index)
-                agent_id = new_agent_id + 1
+                    viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 4, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 58]
                 # O5P1C
-                new_agent_id = agent_id + 4
-                household = Group(collect(agent_id:new_agent_id))
+                household = Group()
                 agents = create_others(
-                    agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 3, index)
-                agent_id = new_agent_id + 1
+                    viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 3, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
             for i in 1:districts[index, 59]
                 # O5P2C
-                new_agent_id = agent_id + 4
-                household = Group(collect(agent_id:new_agent_id))
+                household = Group()
                 agents = create_others(
-                    agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 2, 2, index)
-                agent_id = new_agent_id + 1
+                    viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 2, 2, index)
+                household.agents = agents
                 add_agents_to_collectives(
-                    all_agents, infected_agent_ids,
+                    all_agents, infected_agents,
                     agents, kindergarten, kindergarten_group_sizes,
                     school, school_group_sizes,
                     university, university_group_sizes,
-                    workplace, workplace_group_size)
+                    workplace, workplace_group_sizes)
             end
         end
+    end
+
+    function update_infected_agent_state(
+        viral_loads::Array{Float64, 4},
+        agent::Agent,
+    )
+        if !agent.is_asymptomatic && !agent.is_isolated && agent.social_status != 0 && !agent.on_parent_leave
+            # Самоизоляция
+            rand_num = rand(1:1000)
+            if agent.days_infected == agent.incubation_period + 1
+                if agent.age < 8
+                    if rand_num < 305
+                        agent.is_isolated = true
+                    end
+                elseif agent.age < 18
+                    if rand_num < 204
+                        agent.is_isolated = true
+                    end
+                else
+                    if rand_num < 101
+                        agent.is_isolated = true
+                    end
+                end
+            elseif agent.days_infected == agent.incubation_period + 2
+                if agent.age < 8
+                    if rand_num < 576
+                        agent.is_isolated = true
+                    end
+                elseif agent.age < 18
+                    if rand_num < 499
+                        agent.is_isolated = true
+                    end
+                else
+                    if rand_num < 334
+                        agent.is_isolated = true
+                    end
+                end
+            elseif agent.days_infected == agent.incubation_period + 3
+                if agent.age < 8
+                    if rand_num < 325
+                        agent.is_isolated = true
+                    end
+                elseif agent.age < 18
+                    if rand_num < 376
+                        agent.is_isolated = true
+                    end
+                else
+                    if rand_num < 168
+                        agent.is_isolated = true
+                    end
+                end
+            end
+        end
+        
+        # Вирусная нагрузка
+        agent.viral_load = find_agent_viral_load(
+            agent.age,
+            viral_loads[agent.virus.id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
+            agent.is_asymptomatic && agent.days_infected > 0)
+    end
+
+    function set_agent_infection(
+        viral_loads::Array{Float64, 4},
+        agent::Agent
+    )
+        # Инкубационный период
+        agent.incubation_period = get_period_from_erlang(
+            agent.virus.mean_incubation_period,
+            agent.virus.incubation_period_variance,
+            agent.virus.min_incubation_period,
+            agent.virus.max_incubation_period)
+        # Период болезни
+        if agent.age < 16
+            agent.infection_period = get_period_from_erlang(
+                agent.virus.mean_infection_period_child,
+                agent.virus.infection_period_variance_child,
+                agent.virus.min_infection_period_child,
+                agent.virus.max_infection_period_child)
+        else
+            agent.infection_period = get_period_from_erlang(
+                agent.virus.mean_infection_period_adult,
+                agent.virus.infection_period_variance_adult,
+                agent.virus.min_infection_period_adult,
+                agent.virus.max_infection_period_adult)
+        end
+
+        # Дней с момента инфицирования
+        agent.days_infected = 1 - agent.incubation_period
+
+        if rand(1:100) <= agent.virus.asymptomatic_probab
+            # Асимптомный
+            agent.is_asymptomatic = true
+        end
+
+        # Вирусная нагрузка
+        agent.viral_load = find_agent_viral_load(
+            agent.age,
+            viral_loads[agent.virus.id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
+            agent.is_asymptomatic && agent.days_infected > 0)
     end
 
     function get_contact_duration(mean::Float64, sd::Float64)
@@ -2278,18 +2200,18 @@ module Model
         contact_duration::Float64,
         current_temp::Float64,
         duration_parameter::Float64,
-        temperature_parameters::Vector{Float64},
-        susceptibility_parameters::Vector{Float64},
-        newly_infected_agent_ids::Vector{Int}
+        temperature_parameters::Dict{String, Float64},
+        susceptibility_parameters::Dict{String, Float64},
+        newly_infected_agents::Vector{Agent}
     )
         # Влияние продолжительности контакта на вероятность инфицирования
         duration_influence = 1 / (1 + exp(-contact_duration + duration_parameter))
                 
         # Влияние температуры воздуха на вероятность инфицирования
-        temperature_influence = temperature_parameters[infected_agent.virus_id] * current_temp + 1.0
+        temperature_influence = temperature_parameters[infected_agent.virus.name] * current_temp + 1.0
 
         # Влияние восприимчивости агента на вероятность инфицирования
-        susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus_id] * agent.ig_level))
+        susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus.name] * agent.ig_level))
 
         # Влияние силы инфекции на вероятность инфицирования
         infectivity_influence = infected_agent.viral_load
@@ -2311,70 +2233,91 @@ module Model
         # println("Rand: $(rand(Float64)), inf: $(infection_probability)")
 
         if rand_num < infection_probability
-            agent.virus_id = infected_agent.virus_id
-            push!(newly_infected_agent_ids, agent.id)
+            agent.virus = infected_agent.virus
+            push!(newly_infected_agents, agent)
         end
     end
 
     function infect_randomly(
-        viruses::Vector{Virus},
+        viruses::Dict{String, Virus},
         agent::Agent,
         week_num::Int,
         etiologies::Vector{Vector{Float64}},
-        newly_infected_agent_ids::Vector{Int}
+        newly_infected_agents::Vector{Agent}
     )
         rand_num = rand(Float64)
         if rand_num < etiologies[week_num][1]
-            if agent.immunity_days[1] == 0
-                agent.virus_id = viruses[1].id
-                push!(newly_infected_agent_ids, agent.id)
+            if agent.immunity_days["FluA"] == 0
+                agent.virus = viruses["FluA"]
+                push!(newly_infected_agents, agent)
             end
         elseif rand_num < etiologies[week_num][2]
-            if agent.immunity_days[2] == 0
-                agent.virus_id = viruses[2].id
-                push!(newly_infected_agent_ids, agent.id)
+            if agent.immunity_days["FluB"] == 0
+                agent.virus = viruses["FluB"]
+                push!(newly_infected_agents, agent)
             end
         elseif rand_num < etiologies[week_num][3]
-            if agent.immunity_days[3] == 0
-                agent.virus_id = viruses[3].id
-                push!(newly_infected_agent_ids, agent.id)
+            if agent.immunity_days["RV"] == 0
+                agent.virus = viruses["RV"]
+                push!(newly_infected_agents, agent)
             end
         elseif rand_num < etiologies[week_num][4]
-            if agent.immunity_days[4] == 0
-                agent.virus_id = viruses[4].id
-                push!(newly_infected_agent_ids, agent.id)
+            if agent.immunity_days["RSV"] == 0
+                agent.virus = viruses["RSV"]
+                push!(newly_infected_agents, agent)
             end
         elseif rand_num < etiologies[week_num][5]
-            if agent.immunity_days[5] == 0
-                agent.virus_id = viruses[5].id
-                push!(newly_infected_agent_ids, agent.id)
+            if agent.immunity_days["AdV"] == 0
+                agent.virus = viruses["AdV"]
+                push!(newly_infected_agents, agent)
             end
         elseif rand_num < etiologies[week_num][6]
-            if agent.immunity_days[6] == 0
-                agent.virus_id = viruses[6].id
-                push!(newly_infected_agent_ids, agent.id)
+            if agent.immunity_days["PIV"] == 0
+                agent.virus = viruses["PIV"]
+                push!(newly_infected_agents, agent)
             end
         else
-            if agent.immunity_days[7] == 0
-                agent.virus_id = viruses[7].id
-                push!(newly_infected_agent_ids, agent.id)
+            if agent.immunity_days["CoV"] == 0
+                agent.virus = viruses["CoV"]
+                push!(newly_infected_agents, agent)
             end
         end
     end
 
     function run_simulation(
-        viruses::Vector{Virus},
+        viruses::Dict{String, Virus},
         viral_loads::Array{Float64, 4},
         comm_rank::Int,
         comm::MPI.Comm,
         all_agents::Vector{Agent},
-        infected_agent_ids::Vector{Int}
+        infected_agents::Vector{Agent}
     )
         # Параметры
         duration_parameter = 7.05
-        temperature_parameters = Float64[-0.8, -0.8, -0.05, -0.64, -0.2, -0.05, -0.8]
-        susceptibility_parameters = Float64[2.61, 2.61, 3.17, 5.11, 4.69, 3.89, 3.77]
-        immunity_durations = Int[366, 366, 60, 60, 366, 366, 366]
+        temperature_parameters = Dict(
+            "FluA" => -0.8,
+            "FluB" => -0.8,
+            "RV" => -0.05,
+            "RSV" => -0.64,
+            "AdV" => -0.2,
+            "PIV" => -0.05,
+            "CoV" => -0.8)
+        susceptibility_parameters = Dict(
+            "FluA" => 2.61,
+            "FluB" => 2.61,
+            "RV" => 3.17,
+            "RSV" => 5.11,
+            "AdV" => 4.69,
+            "PIV" => 3.89,
+            "CoV" => 3.77)
+        immunity_durations = Dict(
+            "FluA" => 366,
+            "FluB" => 366,
+            "RV" => 60,
+            "RSV" => 60,
+            "AdV" => 366,
+            "PIV" => 366,
+            "CoV" => 366)
 
         # Температура воздуха, начиная с 1 января
         temperature = [-5.8, -5.9, -5.9, -5.9,
@@ -2493,11 +2436,13 @@ module Model
         # Номер недели
         week_num = 1
 
+        # Инфицированные агенты
+        all_infected_agents = copy(infected_agents)
         # Резистентные агенты
-        all_recovered_agent_ids = Int[]
+        all_recovered_agents = Agent[]
 
         # DEBUG
-        max_step = 2
+        max_step = 365
 
         incidence = Array{Float64, 1}(undef, 52)
         etiologies_incidence = [fill(0.0, 52), fill(0.0, 52), fill(0.0, 52),
@@ -2511,8 +2456,8 @@ module Model
         incidence_multiplier = 1000 / size(all_agents, 1)
 
         for step = 1:max_step
-            # Набор id инфицированных агентов на данном шаге
-            newly_infected_agent_ids = Int[]
+            # Набор инфицированных агентов на данном шаге
+            newly_infected_agents = Agent[]
             # Текущая нормализованная температура
             current_temp = (temperature[year_day] - min_temp) / max_min_temp
 
@@ -2573,40 +2518,38 @@ module Model
                 is_university_holiday = true
             end
             
-            for agent_id in infected_agent_ids
-                agent = all_agents[agent_id]
+            for agent in all_infected_agents
                 if agent.viral_load > 0.0001
-                    for agent2_id in agent.household.agent_ids
-                        agent2 = all_agents[agent2_id]
+                    for agent2 in agent.household.agents
                         # Проверка восприимчивости агента к вирусу
-                        if agent2.virus_id == 0 && agent.days_immune == 0 &&
-                                agent.immunity_days[agent.virus_id] == 0
+                        if agent2.virus === nothing && agent.days_immune == 0 &&
+                                agent.immunity_days[agent.virus.name] == 0
                             agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.social_status == 0
                             agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.social_status == 0
                             if is_holiday || (agent_at_home && agent2_at_home)
                                 make_contact(
                                     agent, agent2, get_contact_duration(12.5, 5.5),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
                             elseif ((agent.social_status == 1 && !agent_at_home) ||
                                 (agent2.social_status == 1 && !agent2_at_home)) && !is_kindergarten_holiday
                                 make_contact(
                                     agent, agent2, get_contact_duration(5.0, 2.05),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
                             elseif ((agent.social_status == 4 && !agent_at_home) ||
                                 (agent2.social_status == 4 && !agent2_at_home)) && !is_work_holiday
                                 make_contact(
                                     agent, agent2, get_contact_duration(5.5, 2.25),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
                             elseif ((agent.social_status == 2 && !agent_at_home) ||
                                 (agent2.social_status == 2 && !agent2_at_home)) && !is_school_holiday
                                 make_contact(
                                     agent, agent2, get_contact_duration(6.0, 2.46),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
                             elseif ((agent.social_status == 3 && !agent_at_home) ||
                                 (agent2.social_status == 3 && !agent2_at_home)) && !is_university_holiday
                                 make_contact(
                                     agent, agent2, get_contact_duration(7.0, 3.69),
-                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                    current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agents)
                             end
                         end
                     end
@@ -2616,18 +2559,17 @@ module Model
                             (agent.social_status == 3 && !is_university_holiday) ||
                             (agent.social_status == 4 && !is_work_holiday))
                         group = agent.group
-                        for agent2_id in group.agent_ids
-                            agent2 = all_agents[agent2_id]
+                        for agent2 in group.agents
                             # Проверка восприимчивости агента к вирусу
-                            if agent2.virus_id == 0 && agent.days_immune == 0 &&
-                                    agent.immunity_days[agent.virus_id] == 0 &&
+                            if agent2.virus === nothing && agent.days_immune == 0 &&
+                                    agent.immunity_days[agent.virus.name] == 0 &&
                                         !agent2.is_isolated && !agent2.on_parent_leave
                                     make_contact(
                                         agent, agent2, get_contact_duration(
                                             group.collective.mean_time_spent,
                                             group.collective.time_spent_sd),
                                         current_temp, duration_parameter,
-                                        temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                        temperature_parameters, susceptibility_parameters, newly_infected_agents)
                             end
                         end
                     end
@@ -2637,23 +2579,23 @@ module Model
             # Случайное инфицирование восприимчивых агентов
             for i = 1:1000
                 agent = all_agents[rand(1:size(all_agents, 1))]
-                if agent.virus_id == 0 && agent.days_immune == 0
+                if agent.virus === nothing && agent.days_immune == 0
                     if agent.age < 16
                         if rand(1:10000) < 3
-                            infect_randomly(viruses, agent, week_num, etiologies, newly_infected_agent_ids)
+                            infect_randomly(viruses, agent, week_num, etiologies, newly_infected_agents)
                         end
                     else
                         if rand(1:10000) == 1
-                            infect_randomly(viruses, agent, week_num, etiologies, newly_infected_agent_ids)
+                            infect_randomly(viruses, agent, week_num, etiologies, newly_infected_agents)
                         end
                     end
                 end
             end
 
             # Обновление состояния выздоровевших агентов
-            i = size(all_recovered_agent_ids, 1)
+            i = size(all_recovered_agents, 1)
             while i > 0
-                agent = all_agents[all_recovered_agent_ids[i]]
+                agent = all_recovered_agents[i]
                 if agent.days_immune != 0
                     if agent.days_immune == 14
                         # Переход из резистентного состояния в восприимчивое
@@ -2663,115 +2605,51 @@ module Model
                     end
                 end
                 immunity_found = false
-                for k = 1:size(agent.immunity_days, 1)
-                    immunity_days = agent.immunity_days[k]
+                for (virus, immunity_days) in agent.immunity_days
                     if immunity_days > 0
                         if immunity_days == immunity_durations[virus]
-                            agent.immunity_days[k] = 0
+                            agent.immunity_days[virus] = 0
                         else
-                            agent.immunity_days[k] += 1
+                            agent.immunity_days[virus] += 1
                             immunity_found = true
                         end
                     end
                 end
                 if !immunity_found
-                    deleteat!(all_recovered_agent_ids, i)
+                    deleteat!(all_recovered_agents, i)
                 end
                 i -= 1
             end
 
-            new_infections_num = 0
-
             # Обновление состояния инфицированных агентов
-            i = size(infected_agent_ids, 1)
+            i = size(all_infected_agents, 1)
             while i > 0
-                agent = all_agents[infected_agent_ids[i]]
+                agent = all_infected_agents[i]
                 if agent.days_infected == agent.infection_period
-                    agent.immunity_days[agent.virus_id] = 1
+                    agent.immunity_days[agent.virus.name] = 1
                     agent.days_immune = 1
-                    agent.virus_id = 0
-                    deleteat!(infected_agent_ids, i)
+                    agent.virus = nothing
+                    deleteat!(all_infected_agents, i)
 
-                    if agent.supporter_id != 0
+                    if agent.supporter !== nothing
                         is_support_still_needed = false
-                        for dependant_id in all_agents[agent.supporter_id].dependant_ids
-                            dependant = all_agents[dependant_id]
-                            if dependant.virus_id != 0 && (dependant.social_status == 0 || dependant.is_isolated)
+                        for dependant in agent.supporter.dependants
+                            if dependant.virus !== nothing && (dependant.social_status == 0 || dependant.is_isolated)
                                 is_support_still_needed = true
                             end
                         end
                         if !is_support_still_needed
-                            all_agents[agent.supporter_id].on_parent_leave = false
+                            agent.supporter.on_parent_leave = false
                         end
                     end
                 else
                     agent.days_infected += 1
+                    update_infected_agent_state(viral_loads, agent)
 
-                    if !agent.is_asymptomatic && !agent.is_isolated && agent.social_status != 0 && !agent.on_parent_leave
-                        rand_num = rand(1:1000)
-                        if agent.days_infected == agent.incubation_period + 1
-                            if agent.age < 8
-                                if rand_num < 305
-                                    agent.is_isolated = true
-                                    new_infections_num += 1
-                                end
-                            elseif agent.age < 18
-                                if rand_num < 204
-                                    agent.is_isolated = true
-                                    new_infections_num += 1
-                                end
-                            else
-                                if rand_num < 101
-                                    agent.is_isolated = true
-                                    new_infections_num += 1
-                                end
-                            end
-                        elseif agent.days_infected == agent.incubation_period + 2
-                            if agent.age < 8
-                                if rand_num < 576
-                                    agent.is_isolated = true
-                                    new_infections_num += 1
-                                end
-                            elseif agent.age < 18
-                                if rand_num < 499
-                                    agent.is_isolated = true
-                                    new_infections_num += 1
-                                end
-                            else
-                                if rand_num < 334
-                                    agent.is_isolated = true
-                                    new_infections_num += 1
-                                end
-                            end
-                        elseif agent.days_infected == agent.incubation_period + 3
-                            if agent.age < 8
-                                if rand_num < 325
-                                    agent.is_isolated = true
-                                    new_infections_num += 1
-                                end
-                            elseif agent.age < 18
-                                if rand_num < 376
-                                    agent.is_isolated = true
-                                    new_infections_num += 1
-                                end
-                            else
-                                if rand_num < 168
-                                    agent.is_isolated = true
-                                    new_infections_num += 1
-                                end
-                            end
-                        end
-                    end
-                    
-                    agent.viral_load = find_agent_viral_load(
-                        agent.age,
-                        viral_loads[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
-                        agent.is_asymptomatic && agent.days_infected > 0)
-
-                    if agent.supporter_id !== nothing && !agent.is_asymptomatic
+                    if agent.supporter !== nothing && !agent.is_asymptomatic
                         if agent.days_infected > 0
                             if agent.is_isolated || agent.social_status == 0
-                                all_agents[agent.supporter_id].on_parent_leave = true
+                                agent.supporter.on_parent_leave = true
                             end
                         end
                     end
@@ -2802,49 +2680,24 @@ module Model
                 #             }
 
                 #             when (agent.infectionType) {
-                #                 1 -> etiologyDayStats[0] += 1
-                #                 2 -> etiologyDayStats[1] += 1
-                #                 3 -> etiologyDayStats[2] += 1
-                #                 4 -> etiologyDayStats[3] += 1
-                #                 5 -> etiologyDayStats[4] += 1
-                #                 6 -> etiologyDayStats[5] += 1
-                #                 7 -> etiologyDayStats[6] += 1
+                #                 "fluA" -> etiologyDayStats[0] += 1
+                #                 "fluB" -> etiologyDayStats[1] += 1
+                #                 "RV" -> etiologyDayStats[2] += 1
+                #                 "RSV" -> etiologyDayStats[3] += 1
+                #                 "AdV" -> etiologyDayStats[4] += 1
+                #                 "PIV" -> etiologyDayStats[5] += 1
+                #                 "CoV" -> etiologyDayStats[6] += 1
                 #             }
 
                 i -= 1
             end
 
-            for agent_id in newly_infected_agent_ids
-                agent = all_agents[agent_id]
-                agent.incubation_period = get_period_from_erlang(
-                    viruses[agent.virus_id].mean_incubation_period,
-                    viruses[agent.virus_id].incubation_period_variance,
-                    viruses[agent.virus_id].min_incubation_period,
-                    viruses[agent.virus_id].max_incubation_period)
-                if agent.age < 16
-                    agent.infection_period = get_period_from_erlang(
-                        viruses[agent.virus_id].mean_infection_period_child,
-                        viruses[agent.virus_id].infection_period_variance_child,
-                        viruses[agent.virus_id].min_infection_period_child,
-                        viruses[agent.virus_id].max_infection_period_child)
-                else
-                    agent.infection_period = get_period_from_erlang(
-                        viruses[agent.virus_id].mean_infection_period_adult,
-                        viruses[agent.virus_id].infection_period_variance_adult,
-                        viruses[agent.virus_id].min_infection_period_adult,
-                        viruses[agent.virus_id].max_infection_period_adult)
-                end
-                agent.days_infected = 1 - agent.incubation_period
-                if rand(1:100) <= viruses[agent.virus_id].asymptomatic_probab
-                    agent.is_asymptomatic = true
-                end
-                agent.viral_load = find_agent_viral_load(
-                    agent.age,
-                    viral_loads[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
-                    agent.is_asymptomatic && agent.days_infected > 0)
+            new_infections_num = 0
 
-                # new_infections_num += 1
-                etiologies_weekly_new_infections_num[agent.virus_id] += 1
+            for agent in newly_infected_agents
+                set_agent_infection(viral_loads, agent)
+                new_infections_num += 1
+                etiologies_weekly_new_infections_num[agent.virus.id] += 1
             end
 
             weekly_new_infections_num += new_infections_num
@@ -2888,7 +2741,7 @@ module Model
                 day += 1
             end
 
-            append!(infected_agent_ids, newly_infected_agent_ids)
+            append!(all_infected_agents, newly_infected_agents)
         end
 
         incidence_data = MPI.Reduce(incidence, MPI.SUM, 0, comm)
@@ -2903,7 +2756,7 @@ module Model
             #     [etiologies_incidence[i] for i = 1:7],
             #     title = "Etiologies",
             #     lw = 3,
-            #     label = [1 2 3 4 5 6 7])
+            #     label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
             # xlabel!("Week")
             # ylabel!("Incidence")
             # savefig(etilogies_incidence_plot, joinpath(@__DIR__, "..", "output", "etiologies.pdf"))
@@ -2922,14 +2775,15 @@ module Model
         end
         
         # Вирусы
-        viruses = Virus[
-            Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 16),
-            Virus(2, 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 16),
-            Virus(3, 1.9, 0.175, 1, 7, 10.1, 4.93, 3, 12, 11.4, 6.25, 4, 14, 3.5, 30),
-            Virus(4, 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 30),
-            Virus(5, 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 30),
-            Virus(6, 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.7, 30),
-            Virus(7, 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 30)]
+        viruses = Dict(
+            "FluA" => Virus(1, "FluA", 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 16),
+            "FluB" => Virus(2, "FluB", 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 16),
+            "RV" => Virus(3, "RV", 1.9, 0.175, 1, 7, 10.1, 4.93, 3, 12, 11.4, 6.25, 4, 14, 3.5, 30),
+            "RSV" => Virus(4, "RSV", 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 30),
+            "AdV" => Virus(5, "AdV", 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 30),
+            "PIV" => Virus(6, "PIV", 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.7, 30),
+            "CoV" => Virus(7, "CoV", 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 30)
+        )
 
         viral_loads = Array{Float64,4}(undef, 7, 7, 13, 21)
 
@@ -2950,25 +2804,19 @@ module Model
             end
         end
 
-        # temp_influences = Array{Float64,1}(undef, 365)
-
-        # for step in 1:365
-        #     temp_influences[i] = temperature_parameters[infected_agent.virus_id] * current_temp + 1.0
-        # end
-
         # Набор агентов
         all_agents = Agent[]
-        # Набор id инфицированных агентов
-        infected_agent_ids = Int[]
+        # Набор инфицированных агентов
+        infected_agents = Agent[]
 
-        @time create_population(viruses, viral_loads, comm_rank, comm_size, all_agents, infected_agent_ids)
+        @time create_population(viruses, viral_loads, comm_rank, comm_size, all_agents, infected_agents)
         MPI.Barrier(comm)
     
         if comm_rank == 0
             println("Simulation...")
         end
-        # @time run_simulation(viruses, viral_loads, comm_rank, comm, all_agents, infected_agent_ids)
-        # MPI.Barrier(comm)
+        @time run_simulation(viruses, viral_loads, comm_rank, comm, all_agents, infected_agents)
+        MPI.Barrier(comm)
     end
 
     main()

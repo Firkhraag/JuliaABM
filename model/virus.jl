@@ -1,10 +1,16 @@
 using Distributions, Random
 
+# FluA => 1
+# FluB => 2
+# RV   => 3
+# RSV  => 4
+# AdV  => 5
+# PIV  => 6
+# CoV  => 7
+
 struct Virus
     # Идентификатор
     id::Int
-    # Наименование
-    name::String
     # Средняя продолжительность инкубационного периода
     mean_incubation_period::Float64
     # Дисперсия продолжительности инкубационного периода
@@ -40,7 +46,6 @@ struct Virus
 
     function Virus(
         id::Int,
-        name::String,
         mean_incubation_period::Float64,
         incubation_period_variance::Float64,
         min_incubation_period::Int,
@@ -58,7 +63,6 @@ struct Virus
     )
         new(
             id,
-            name,
             mean_incubation_period,
             incubation_period_variance,
             min_incubation_period,
@@ -86,16 +90,13 @@ function get_viral_load(
 )::Float64
     if days_infected < 1
         if incubation_period == 1
-            # return mean_viral_load / 2
             return mean_viral_load / 24
         end
         k = mean_viral_load / (incubation_period - 1)
         b = k * (incubation_period - 1)
-        # return k * days_infected + b
         return (k * days_infected + b) / 12
     end
     k = 2 * mean_viral_load / (1 - infection_period)
     b = -k * infection_period
-    # return k * days_infected + b
     return (k * days_infected + b) / 12
 end
