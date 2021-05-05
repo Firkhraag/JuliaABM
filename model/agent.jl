@@ -11,8 +11,12 @@ mutable struct Agent
     infant_age::Int
     # Пол
     is_male::Bool
-    # Социальный статус
-    social_status::Int
+    # Id коллектива
+    collective_id::Int
+    # Номер группы
+    group_num::Int
+    # Id группы
+    group_id::Int
     # Связи в коллективе
     work_conn_ids::Vector{Int}
     # Id детей за которыми нужен уход в случае болезни
@@ -43,8 +47,6 @@ mutable struct Agent
     viral_load::Float64
     # Домохозяйство
     household::Group
-    # Группа
-    group::Union{Group, Nothing}
 
     function Agent(
         id::Int,
@@ -61,99 +63,99 @@ mutable struct Agent
         end
 
         # Социальный статус
-        social_status = 0 # безработный
+        collective_id = 0
         if age < 3
             if rand(1:100) < 24
-                social_status = 1 # детсад
+                collective_id = 1
             end
         elseif age < 6
             if rand(1:100) < 84
-                social_status = 1 # детсад
+                collective_id = 1
             end
         elseif age == 6
             if rand(1:100) < 76
-                social_status = 1 # детсад
+                collective_id = 1
             else
-                social_status = 2 # школа
+                collective_id = 2
             end
         elseif age < 18
-            social_status = 2 # школа
+            collective_id = 2
         elseif age == 18
             rand_num = rand(1:100)
             if rand_num < 51
-                social_status = 2 # школа
+                collective_id = 2
             elseif rand_num < 76
-                social_status = 3 # универ
+                collective_id = 3
             elseif rand_num < 86
-                social_status = 4 # работа
+                collective_id = 4
             end
         elseif age < 23
             rand_num = rand(1:100)
             if rand_num < 34
-                social_status = 3 # универ
+                collective_id = 3
             elseif rand_num < 67
-                social_status = 4 # работа
+                collective_id = 4
             end
         elseif age < 25
             rand_num = rand(1:100)
             if rand_num < 83
-                social_status = 4 # работа
+                collective_id = 4
             elseif rand_num < 89
-                social_status = 3 # универ
+                collective_id = 3
             end
         elseif age < 30
             rand_num = rand(1:100)
             if is_male
                 if rand_num < 83
-                    social_status = 4 # работа
+                    collective_id = 4
                 end
             else
                 if rand_num < 75
-                    social_status = 4 # работа
+                    collective_id = 4
                 end
             end
         elseif age < 40
             rand_num = rand(1:100)
             if is_male
                 if rand_num < 96
-                    social_status = 4 # работа
+                    collective_id = 4
                 end
             else
                 if rand_num < 86
-                    social_status = 4 # работа
+                    collective_id = 4
                 end
             end
         elseif age < 50
             rand_num = rand(1:100)
             if is_male
                 if rand_num < 95
-                    social_status = 4 # работа
+                    collective_id = 4
                 end
             else
                 if rand_num < 90
-                    social_status = 4 # работа
+                    collective_id = 4
                 end
             end
         elseif age < 60
             rand_num = rand(1:100)
             if is_male
                 if rand_num < 89
-                    social_status = 4 # работа
+                    collective_id = 4
                 end
             else
                 if rand_num < 71
-                    social_status = 4 # работа
+                    collective_id = 4
                 end
             end
         elseif age < 65
             rand_num = rand(1:100)
             if is_male
                 if rand_num < 52
-                    social_status = 4 # работа
+                    collective_id = 4
                 end
             else
                 if rand_num < 30
-                    social_status = 4 # работа
+                    collective_id = 4
                 end
             end
         end
@@ -376,12 +378,12 @@ mutable struct Agent
         days_immune = 0
 
         new(
-            id, age, infant_age, is_male, social_status,
+            id, age, infant_age, is_male, collective_id, 0, 0,
             Int[], Int[], 0, false, ig_level,
             virus_id, immunity_days, incubation_period,
             infection_period, days_infected,
             days_immune, is_asymptomatic, is_isolated,
-            viral_load, household, nothing)
+            viral_load, household)
     end
 end
 

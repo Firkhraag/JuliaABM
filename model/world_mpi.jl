@@ -276,8 +276,8 @@ function check_parent_leave(no_one_at_home::Bool, adult::Agent, child::Agent)
     if no_one_at_home && child.age < 14
         push!(adult.dependant_ids, child.id)
         child.supporter_id = adult.id
-        if child.age < 3 && child.social_status == 0
-            adult.social_status == 0
+        if child.age < 3 && child.collective_id == 0
+            adult.collective_id == 0
         end
     end
 end
@@ -309,7 +309,7 @@ function create_parents_with_children(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, agent_female.age)
             agent_id += 1
-            no_one_at_home = agent_male.social_status != 0 && agent_female.social_status != 0
+            no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
             check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, child]
@@ -342,8 +342,8 @@ function create_parents_with_children(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, agent_female.age)
             agent_id += 1
-            no_one_at_home = agent_male.social_status != 0 && agent_female.social_status != 0
-            if agent_other.social_status == 0
+            no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
+            if agent_other.collective_id == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent_female, child)
@@ -382,8 +382,8 @@ function create_parents_with_children(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, agent_female.age)
             agent_id += 1
-            no_one_at_home = agent_male.social_status != 0 && agent_female.social_status != 0
-            if agent_other.social_status == 0 || agent_other2.social_status == 0
+            no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
+            if agent_other.collective_id == 0 || agent_other2.collective_id == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent_female, child)
@@ -426,8 +426,8 @@ function create_parents_with_children(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, agent_female.age)
             agent_id += 1
-            no_one_at_home = agent_male.social_status != 0 && agent_female.social_status != 0
-            if agent_other.social_status == 0 || agent_other2.social_status == 0 || agent_other3.social_status == 0
+            no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
+            if agent_other.collective_id == 0 || agent_other2.collective_id == 0 || agent_other3.collective_id == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent_female, child)
@@ -474,9 +474,9 @@ function create_parents_with_children(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, agent_female.age)
             agent_id += 1
-            no_one_at_home = agent_male.social_status != 0 && agent_female.social_status != 0
-            if agent_other.social_status == 0 || agent_other2.social_status == 0 ||
-                agent_other3.social_status == 0 || agent_other4.social_status
+            no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
+            if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
+                agent_other3.collective_id == 0 || agent_other4.collective_id
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent_female, child)
@@ -529,7 +529,7 @@ function create_parent_with_children(
             districts_age_sex, district_households,
             district_household_index, nothing, true, parent.age)
         agent_id += 1
-        no_one_at_home = parent.social_status != 0
+        no_one_at_home = parent.collective_id != 0
         check_parent_leave(no_one_at_home, parent, child)
         if num_of_children == 1
             return Agent[parent, child]
@@ -562,8 +562,8 @@ function create_parent_with_children(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, parent.age)
             agent_id += 1
-            no_one_at_home = parent.social_status != 0
-            if agent_other.social_status == 0
+            no_one_at_home = parent.collective_id != 0
+            if agent_other.collective_id == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, parent, child)
@@ -606,8 +606,8 @@ function create_parent_with_children(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, parent.age)
             agent_id += 1
-            no_one_at_home = parent.social_status != 0
-            if agent_other.social_status == 0 || agent_other2.social_status == 0
+            no_one_at_home = parent.collective_id != 0
+            if agent_other.collective_id == 0 || agent_other2.collective_id == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, parent, child)
@@ -656,8 +656,8 @@ function create_parent_with_children(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, parent.age)
             agent_id += 1
-            no_one_at_home = parent.social_status != 0
-            if agent_other.social_status == 0 || agent_other2.social_status == 0 || agent_other3.social_status == 0
+            no_one_at_home = parent.collective_id != 0
+            if agent_other.collective_id == 0 || agent_other2.collective_id == 0 || agent_other3.collective_id == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, parent, child)
@@ -712,9 +712,9 @@ function create_parent_with_children(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, parent.age)
             agent_id += 1
-            no_one_at_home = parent.social_status != 0
-            if agent_other.social_status == 0 || agent_other2.social_status == 0 ||
-                agent_other3.social_status == 0 || agent_other4.social_status
+            no_one_at_home = parent.collective_id != 0
+            if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
+                agent_other3.collective_id == 0 || agent_other4.collective_id
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, parent, child)
@@ -764,7 +764,7 @@ function create_others(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, 35)
             agent_id += 1
-            no_one_at_home = agent.social_status != 0
+            no_one_at_home = agent.collective_id != 0
             check_parent_leave(no_one_at_home, agent, child)
             if num_of_children == 1
                 return Agent[agent, child]
@@ -797,8 +797,8 @@ function create_others(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, 35)
             agent_id += 1
-            no_one_at_home = agent.social_status != 0
-            if agent_other.social_status == 0
+            no_one_at_home = agent.collective_id != 0
+            if agent_other.collective_id == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent, child)
@@ -837,8 +837,8 @@ function create_others(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, 35)
             agent_id += 1
-            no_one_at_home = agent.social_status != 0
-            if agent_other.social_status == 0 || agent_other2.social_status == 0
+            no_one_at_home = agent.collective_id != 0
+            if agent_other.collective_id == 0 || agent_other2.collective_id == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent, child)
@@ -881,9 +881,9 @@ function create_others(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, 35)
             agent_id += 1
-            no_one_at_home = agent.social_status != 0
-            if agent_other.social_status == 0 || agent_other2.social_status == 0 ||
-                agent_other3.social_status == 0
+            no_one_at_home = agent.collective_id != 0
+            if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
+                agent_other3.collective_id == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent, child)
@@ -930,9 +930,9 @@ function create_others(
                 districts_age_sex, district_households,
                 district_household_index, nothing, true, 35)
             agent_id += 1
-            no_one_at_home = agent.social_status != 0
-            if agent_other.social_status == 0 || agent_other2.social_status == 0 ||
-                agent_other3.social_status == 0 || agent_other4.social_status == 0
+            no_one_at_home = agent.collective_id != 0
+            if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
+                agent_other3.collective_id == 0 || agent_other4.collective_id == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent, child)
@@ -976,9 +976,11 @@ function add_agent_to_group(
         last_group = Group(Int[], collective.id)
         push!(collective.groups[group_num], last_group)
         group_sizes[group_num] = get_group_size(group_num)
+        length += 1
     end
     push!(last_group.agent_ids, agent.id)
-    agent.group = last_group
+    agent.group_num = group_num
+    agent.group_id = length
 end
 
 function add_agent_to_kindergarten(
@@ -1093,6 +1095,10 @@ function generate_barabasi_albert_network(all_agents::Vector{Agent}, group::Grou
     end
 end
 
+function generate_remaining_barabasi_albert_network()
+
+end
+
 function add_agent_to_workplace(
     all_agents::Vector{Agent},
     agent::Agent,
@@ -1111,9 +1117,11 @@ function add_agent_to_workplace(
         last_group = Group(Int[], workplace.id)
         push!(workplace.groups[1], last_group)
         group_size = get_workplace_group_size()
+        length += 1
     end
     push!(last_group.agent_ids, agent.id)
-    agent.group = last_group
+    agent.group_num = 1
+    agent.group_id = length
 end
 
 function add_agents_to_collectives(
@@ -1131,13 +1139,13 @@ function add_agents_to_collectives(
         if agent.virus_id != 0
             push!(infected_agent_ids, agent.id)
         end
-        if agent.social_status == 1
+        if agent.collective_id == 1
             add_agent_to_kindergarten(agent, collectives[1], kindergarten_group_sizes)
-        elseif agent.social_status == 2
+        elseif agent.collective_id == 2
             add_agent_to_school(agent, collectives[2], school_group_sizes)
-        elseif agent.social_status == 3
+        elseif agent.collective_id == 3
             add_agent_to_university(agent, collectives[3], university_group_sizes)
-        elseif agent.social_status == 4
+        elseif agent.collective_id == 4
             add_agent_to_workplace(all_agents, agent, collectives[4], workplace_group_size)
         end
     end
@@ -2363,9 +2371,10 @@ function run_simulation(
     all_recovered_agent_ids = Int[]
 
     # DEBUG
-    max_step = 10
+    max_step = 365
 
-    incidence = Array{Float64, 1}(undef, 52)
+    # incidence = Array{Float64, 1}(undef, 52)
+    incidence = Array{Int, 1}(undef, 52)
     etiologies_incidence = [fill(0.0, 52), fill(0.0, 52), fill(0.0, 52),
         fill(0.0, 52), fill(0.0, 52), fill(0.0, 52), fill(0.0, 52)]
 
@@ -2374,7 +2383,7 @@ function run_simulation(
     collectives_weekly_new_infections_num = Dict(
         "Household" => 0, "Kindergarten" => 0, "School" => 0, "University" => 0, "Workplace" => 0, "Random" => 0)
 
-    incidence_multiplier = 1000 / size(all_agents, 1)
+    # incidence_multiplier = 1000 / size(all_agents, 1)
 
     for step = 1:max_step
         # Набор id инфицированных агентов на данном шаге
@@ -2447,42 +2456,42 @@ function run_simulation(
                     # Проверка восприимчивости агента к вирусу
                     if agent2.virus_id == 0 && agent.days_immune == 0 &&
                             agent.immunity_days[agent.virus_id] == 0
-                        agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.social_status == 0
-                        agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.social_status == 0
+                        agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0
+                        agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0
                         if is_holiday || (agent_at_home && agent2_at_home)
                             make_contact(
                                 agent, agent2, get_contact_duration(12.5, 5.5),
                                 current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
-                        elseif ((agent.social_status == 1 && !agent_at_home) ||
-                            (agent2.social_status == 1 && !agent2_at_home)) && !is_kindergarten_holiday
+                        elseif ((agent.collective_id == 1 && !agent_at_home) ||
+                            (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
                             make_contact(
                                 agent, agent2, get_contact_duration(5.0, 2.05),
                                 current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
-                        elseif ((agent.social_status == 4 && !agent_at_home) ||
-                            (agent2.social_status == 4 && !agent2_at_home)) && !is_work_holiday
+                        elseif ((agent.collective_id == 4 && !agent_at_home) ||
+                            (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
                             make_contact(
                                 agent, agent2, get_contact_duration(5.5, 2.25),
                                 current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
-                        elseif ((agent.social_status == 2 && !agent_at_home) ||
-                            (agent2.social_status == 2 && !agent2_at_home)) && !is_school_holiday
+                        elseif ((agent.collective_id == 2 && !agent_at_home) ||
+                            (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
                             make_contact(
                                 agent, agent2, get_contact_duration(6.0, 2.46),
                                 current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
-                        elseif ((agent.social_status == 3 && !agent_at_home) ||
-                            (agent2.social_status == 3 && !agent2_at_home)) && !is_university_holiday
+                        elseif ((agent.collective_id == 3 && !agent_at_home) ||
+                            (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
                             make_contact(
                                 agent, agent2, get_contact_duration(7.0, 3.69),
                                 current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
                         end
                     end
                 end
-                if !is_holiday && agent.group !== nothing && !agent.is_isolated && !agent.on_parent_leave &&
-                    ((agent.social_status == 1 && !is_kindergarten_holiday) ||
-                        (agent.social_status == 2 && !is_school_holiday) ||
-                        (agent.social_status == 3 && !is_university_holiday) ||
-                        (agent.social_status == 4 && !is_work_holiday))
-                    group = agent.group
-                    if agent.social_status == 4
+                if !is_holiday && agent.group_num != 0 && !agent.is_isolated && !agent.on_parent_leave &&
+                    ((agent.collective_id == 1 && !is_kindergarten_holiday) ||
+                        (agent.collective_id == 2 && !is_school_holiday) ||
+                        (agent.collective_id == 3 && !is_university_holiday) ||
+                        (agent.collective_id == 4 && !is_work_holiday))
+                    group = collectives[agent.collective_id].groups[agent.group_num][agent.group_id]
+                    if agent.collective_id == 4
                         for agent2_id in agent.work_conn_ids
                             agent2 = all_agents[agent2_id]
                             # Проверка восприимчивости агента к вирусу
@@ -2579,7 +2588,7 @@ function run_simulation(
                     is_support_still_needed = false
                     for dependant_id in all_agents[agent.supporter_id].dependant_ids
                         dependant = all_agents[dependant_id]
-                        if dependant.virus_id != 0 && (dependant.social_status == 0 || dependant.is_isolated)
+                        if dependant.virus_id != 0 && (dependant.collective_id == 0 || dependant.is_isolated)
                             is_support_still_needed = true
                         end
                     end
@@ -2590,7 +2599,7 @@ function run_simulation(
             else
                 agent.days_infected += 1
 
-                if !agent.is_asymptomatic && !agent.is_isolated && agent.social_status != 0 && !agent.on_parent_leave
+                if !agent.is_asymptomatic && !agent.is_isolated && agent.collective_id != 0 && !agent.on_parent_leave
                     rand_num = rand(1:1000)
                     if agent.days_infected == agent.incubation_period + 1
                         if agent.age < 8
@@ -2653,7 +2662,7 @@ function run_simulation(
 
                 if agent.supporter_id != 0 && !agent.is_asymptomatic
                     if agent.days_infected > 0
-                        if agent.is_isolated || agent.social_status == 0
+                        if agent.is_isolated || agent.collective_id == 0
                             all_agents[agent.supporter_id].on_parent_leave = true
                         end
                     end
@@ -2735,7 +2744,8 @@ function run_simulation(
         # Обновление даты
         if week_day == 7
 
-            incidence[week_num] = weekly_new_infections_num * incidence_multiplier
+            # incidence[week_num] = weekly_new_infections_num * incidence_multiplier
+            incidence[week_num] = weekly_new_infections_num
             weekly_new_infections_num = 0
 
             for i = 1:size(etiologies_weekly_new_infections_num, 1)
