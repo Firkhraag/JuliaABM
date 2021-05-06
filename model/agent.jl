@@ -29,6 +29,8 @@ mutable struct Agent
     ig_level::Float64
     # Id вируса
     virus_id::Int
+    # Был заражен на текущем шаге
+    was_infected_on_current_step::Bool
     # Набор дней после приобретения типоспецифического иммунитета
     immunity_days::Vector{Int}
     # Продолжительность инкубационного периода
@@ -47,6 +49,7 @@ mutable struct Agent
     viral_load::Float64
     # Домохозяйство
     household::Group
+
 
     function Agent(
         id::Int,
@@ -270,6 +273,54 @@ mutable struct Agent
         # Набор дней после приобретения типоспецифического иммунитета кроме гриппа
         immunity_days = Int[0, 0, 0, 0, 0, 0, 0]
 
+        if !is_infected
+            if age < 3
+                if rand(1:100) < 64
+                    rand_num = rand(1:100)
+                    if rand_num < 61
+                        immunity_days[3] = rand(1:60)
+                    elseif rand_num < 81
+                        immunity_days[5] = rand(1:60)
+                    else
+                        immunity_days[6] = rand(1:60)
+                    end
+                end
+            elseif age < 7
+                if rand(1:100) < 45
+                    rand_num = rand(1:100)
+                    if rand_num < 61
+                        immunity_days[3] = rand(1:60)
+                    elseif rand_num < 81
+                        immunity_days[5] = rand(1:60)
+                    else
+                        immunity_days[6] = rand(1:60)
+                    end
+                end
+            elseif age < 15
+                if rand(1:1000) < 38
+                    rand_num = rand(1:100)
+                    if rand_num < 61
+                        immunity_days[3] = rand(1:60)
+                    elseif rand_num < 81
+                        immunity_days[5] = rand(1:60)
+                    else
+                        immunity_days[6] = rand(1:60)
+                    end
+                end
+            else
+                if rand(1:1000) < 21
+                    rand_num = rand(1:100)
+                    if rand_num < 61
+                        immunity_days[3] = rand(1:60)
+                    elseif rand_num < 81
+                        immunity_days[5] = rand(1:60)
+                    else
+                        immunity_days[6] = rand(1:60)
+                    end
+                end
+            end
+        end
+
         # Информация при болезни
         virus_id = 0
         incubation_period = 0
@@ -380,7 +431,7 @@ mutable struct Agent
         new(
             id, age, infant_age, is_male, collective_id, 0, 0,
             Int[], Int[], 0, false, ig_level,
-            virus_id, immunity_days, incubation_period,
+            virus_id, false, immunity_days, incubation_period,
             infection_period, days_infected,
             days_immune, is_asymptomatic, is_isolated,
             viral_load, household)

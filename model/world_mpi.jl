@@ -1075,28 +1075,38 @@ function generate_barabasi_albert_network(all_agents::Vector{Agent}, group::Grou
     # Добавление новых вершин
     for i = (m + 1):size(group.agent_ids, 1)
         agent = all_agents[group.agent_ids[i]]
-        added_conn = 0
-        # Новая вершина должна иметь m связей
-        while (added_conn < m)
-            for j = 1:i
+        degree_sum_temp = degree_sum
+        for k = 1:m
+            cumulative = 0.0
+            rand_num = rand(Float64)
+            for j = 1:(i-1)
+                if j in agent.work_conn_ids
+                    continue
+                end
                 agent2 = all_agents[group.agent_ids[j]]
-                p = size(agent2.work_conn_ids, 1) / degree_sum
-                if rand(Float64) < p
+                cumulative += size(agent2.work_conn_ids, 1) / degree_sum_temp
+                if rand_num < cumulative
+                    degree_sum_temp -= size(agent2.work_conn_ids, 1)
                     push!(agent.work_conn_ids, agent2.id)
                     push!(agent2.work_conn_ids, agent.id)
-                    added_conn += 1
-                    if added_conn == m
-                        break
-                    end
+                    break
                 end
             end
         end
-        degree_sum += m
+        degree_sum += 2m
     end
 end
 
-function generate_remaining_barabasi_albert_network()
-
+function generate_remaining_barabasi_albert_network(
+    all_agents::Vector{Agent}, workplace::Collective
+)
+    min_workplace_size = 6
+    last_group = workplace.groups[1][size(workplace.groups[1], 1)]
+    if size(last_group.agent_ids, 1) >= min_workplace_size
+        generate_barabasi_albert_network(all_agents, last_group, min_workplace_size)
+    else
+        generate_barabasi_albert_network(all_agents, last_group, size(last_group.agent_ids, 1))
+    end
 end
 
 function add_agent_to_workplace(
@@ -1126,7 +1136,6 @@ end
 
 function add_agents_to_collectives(
     all_agents::Vector{Agent},
-    infected_agent_ids::Vector{Int},
     agents::Vector{Agent},
     collectives::Vector{Collective},
     kindergarten_group_sizes::Vector{Int},
@@ -1136,9 +1145,6 @@ function add_agents_to_collectives(
 )
     append!(all_agents, agents)
     for agent in agents
-        if agent.virus_id != 0
-            push!(infected_agent_ids, agent.id)
-        end
         if agent.collective_id == 1
             add_agent_to_kindergarten(agent, collectives[1], kindergarten_group_sizes)
         elseif agent.collective_id == 2
@@ -1155,7 +1161,6 @@ function create_population(
     comm_rank::Int,
     comm_size::Int,
     all_agents::Vector{Agent},
-    infected_agent_ids::Vector{Int},
     viruses::Vector{Virus},
     viral_loads::Array{Float64, 4},
     collectives::Vector{Collective}
@@ -1450,7 +1455,10 @@ function create_population(
     workplace_group_size = get_workplace_group_size()
 
     agent_id = 1
-    for index in processes[(comm_rank + 1):comm_size:107]
+    # for index in processes[(comm_rank + 1):comm_size:107]
+    # for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    # for index in [1]
         index_for_1_people::Int = (index - 1) * 5 + 1
         index_for_2_people::Int = index_for_1_people + 1
         index_for_3_people::Int = index_for_2_people + 1
@@ -1462,8 +1470,7 @@ function create_population(
             agents = Agent[create_agent(agent_id, viruses, viral_loads, household, index, districts_age_sex, district_households, index_for_1_people)]
             agent_id += 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 2]
@@ -1473,8 +1480,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 0, 0, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 3]
@@ -1484,8 +1490,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 1, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 4]
@@ -1495,8 +1500,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 0, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 5]
@@ -1506,8 +1510,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 2, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 6]
@@ -1517,8 +1520,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 1, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
             if (size(all_agents, 1) != all_agents[size(all_agents, 1)].id)
                 exit(0)
@@ -1531,8 +1533,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 0, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 8]
@@ -1542,8 +1543,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 3, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 9]
@@ -1553,8 +1553,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 2, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 10]
@@ -1564,8 +1563,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 2, 1, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 11]
@@ -1575,8 +1573,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 3, 0, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 12]
@@ -1586,8 +1583,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 4, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 13]
@@ -1597,8 +1593,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 3, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 14]
@@ -1608,8 +1603,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 2, 2, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 15]
@@ -1619,8 +1613,7 @@ function create_population(
             agents = create_parents_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 3, 1, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 16]
@@ -1633,8 +1626,7 @@ function create_population(
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 17]
@@ -1647,8 +1639,7 @@ function create_population(
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 18]
@@ -1661,8 +1652,7 @@ function create_population(
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 19]
@@ -1675,8 +1665,7 @@ function create_population(
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 20]
@@ -1689,8 +1678,7 @@ function create_population(
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 21]
@@ -1703,8 +1691,7 @@ function create_population(
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 22]
@@ -1714,8 +1701,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 0, 1, index, false)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 23]
@@ -1725,8 +1711,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 1, 0, index, false)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 24]
@@ -1736,8 +1721,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index, false)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 25]
@@ -1747,8 +1731,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index, false)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 26]
@@ -1758,8 +1741,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 2, 0, index, false)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 27]
@@ -1769,8 +1751,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 3, index, false)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 28]
@@ -1780,8 +1761,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 2, index, false)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 29]
@@ -1791,8 +1771,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 1, index, false)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 30]
@@ -1802,8 +1781,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 3, 0, index, false)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 31]
@@ -1813,8 +1791,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 0, 1, index, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 32]
@@ -1824,8 +1801,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 1, 0, index, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 33]
@@ -1835,8 +1811,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 34]
@@ -1846,8 +1821,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 35]
@@ -1857,8 +1831,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 2, 0, index, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 36]
@@ -1868,8 +1841,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 37]
@@ -1879,8 +1851,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 38]
@@ -1890,8 +1861,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 3, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 39]
@@ -1901,8 +1871,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 2, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 40]
@@ -1912,8 +1881,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 1, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
 
@@ -1924,8 +1892,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 42]
@@ -1935,8 +1902,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 43]
@@ -1946,8 +1912,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 3, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 44]
@@ -1957,8 +1922,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 2, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 45]
@@ -1968,8 +1932,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 1, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 46]
@@ -1979,8 +1942,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 4, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 47]
@@ -1990,8 +1952,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 3, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 48]
@@ -2001,8 +1962,7 @@ function create_population(
             agents = create_parent_with_children(agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 2, 2, index, nothing, true)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
 
@@ -2014,8 +1974,7 @@ function create_population(
                 agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 0, 1, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 50]
@@ -2026,8 +1985,7 @@ function create_population(
                 agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_2_people, 1, 0, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 51]
@@ -2038,8 +1996,7 @@ function create_population(
                 agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 0, 2, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 52]
@@ -2050,8 +2007,7 @@ function create_population(
                 agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 1, 1, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 53]
@@ -2062,8 +2018,7 @@ function create_population(
                 agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_3_people, 2, 0, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 54]
@@ -2074,8 +2029,7 @@ function create_population(
                 agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 0, 3, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 55]
@@ -2086,8 +2040,7 @@ function create_population(
                 agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 1, 2, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 56]
@@ -2098,8 +2051,7 @@ function create_population(
                 agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_4_people, 2, 1, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 57]
@@ -2110,8 +2062,7 @@ function create_population(
                 agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 0, 4, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 58]
@@ -2122,8 +2073,7 @@ function create_population(
                 agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 1, 3, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
         for i in 1:districts[index, 59]
@@ -2134,11 +2084,11 @@ function create_population(
                 agent_id, viruses, viral_loads, household, districts_age_sex, district_households, index_for_5_people, 2, 2, index)
             agent_id = new_agent_id + 1
             add_agents_to_collectives(
-                all_agents, infected_agent_ids,
-                agents, collectives, kindergarten_group_sizes,
+                all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
         end
     end
+    generate_remaining_barabasi_albert_network(all_agents, collectives[4])
 end
 
 function get_contact_duration(mean::Float64, sd::Float64)
@@ -2149,17 +2099,16 @@ function make_contact(
     infected_agent::Agent,
     agent::Agent,
     contact_duration::Float64,
-    current_temp::Float64,
+    step::Int,
     duration_parameter::Float64,
-    temperature_parameters::Vector{Float64},
     susceptibility_parameters::Vector{Float64},
-    newly_infected_agent_ids::Vector{Int}
+    temp_influences::Array{Float64, 2}
 )
     # Влияние продолжительности контакта на вероятность инфицирования
     duration_influence = 1 / (1 + exp(-contact_duration + duration_parameter))
             
     # Влияние температуры воздуха на вероятность инфицирования
-    temperature_influence = temperature_parameters[infected_agent.virus_id] * current_temp + 1.0
+    temperature_influence = temp_influences[infected_agent.virus_id, step]
 
     # Влияние восприимчивости агента на вероятность инфицирования
     susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus_id] * agent.ig_level))
@@ -2173,7 +2122,11 @@ function make_contact(
 
     rand_num = rand(Float64)
 
-    # println("Dur: $duration_influence; Temp: $temperature_influence; Susc: $susceptibility_influence; Inf: $infectivity_influence; Prob: $infection_probability")
+    # if infected_agent.virus_id == 1 || infected_agent.virus_id == 2
+    #     println("Dur: $duration_influence; Temp: $temperature_influence; Susc: $susceptibility_influence; Inf: $infectivity_influence; Prob: $infection_probability")
+    # end
+
+    # println("Virus: $(infected_agent.virus_id); Dur: $duration_influence; Temp: $temperature_influence; Susc: $susceptibility_influence; Inf: $infectivity_influence; Prob: $infection_probability")
 
     # if rand_num < infection_probability
     #     println("Dur: $duration_influence; Temp: $temperature_influence; Susc: $susceptibility_influence; Inf: $infectivity_influence; Prob: $infection_probability")
@@ -2185,7 +2138,7 @@ function make_contact(
 
     if rand_num < infection_probability
         agent.virus_id = infected_agent.virus_id
-        push!(newly_infected_agent_ids, agent.id)
+        agent.was_infected_on_current_step = true
     end
 end
 
@@ -2194,43 +2147,42 @@ function infect_randomly(
     agent::Agent,
     week_num::Int,
     etiologies::Vector{Vector{Float64}},
-    newly_infected_agent_ids::Vector{Int}
 )
     rand_num = rand(Float64)
     if rand_num < etiologies[week_num][1]
         if agent.immunity_days[1] == 0
             agent.virus_id = viruses[1].id
-            push!(newly_infected_agent_ids, agent.id)
+            agent.was_infected_on_current_step = true
         end
     elseif rand_num < etiologies[week_num][2]
         if agent.immunity_days[2] == 0
             agent.virus_id = viruses[2].id
-            push!(newly_infected_agent_ids, agent.id)
+            agent.was_infected_on_current_step = true
         end
     elseif rand_num < etiologies[week_num][3]
         if agent.immunity_days[3] == 0
             agent.virus_id = viruses[3].id
-            push!(newly_infected_agent_ids, agent.id)
+            agent.was_infected_on_current_step = true
         end
     elseif rand_num < etiologies[week_num][4]
         if agent.immunity_days[4] == 0
             agent.virus_id = viruses[4].id
-            push!(newly_infected_agent_ids, agent.id)
+            agent.was_infected_on_current_step = true
         end
     elseif rand_num < etiologies[week_num][5]
         if agent.immunity_days[5] == 0
             agent.virus_id = viruses[5].id
-            push!(newly_infected_agent_ids, agent.id)
+            agent.was_infected_on_current_step = true
         end
     elseif rand_num < etiologies[week_num][6]
         if agent.immunity_days[6] == 0
             agent.virus_id = viruses[6].id
-            push!(newly_infected_agent_ids, agent.id)
+            agent.was_infected_on_current_step = true
         end
     else
         if agent.immunity_days[7] == 0
             agent.virus_id = viruses[7].id
-            push!(newly_infected_agent_ids, agent.id)
+            agent.was_infected_on_current_step = true
         end
     end
 end
@@ -2239,122 +2191,67 @@ function run_simulation(
     comm_rank::Int,
     comm::MPI.Comm,
     all_agents::Vector{Agent},
-    infected_agent_ids::Vector{Int},
     viruses::Vector{Virus},
     viral_loads::Array{Float64, 4},
-    collectives::Vector{Collective}
+    collectives::Vector{Collective},
+    temp_influences::Array{Float64, 2},
+    duration_parameter::Float64,
+    susceptibility_parameters::Vector{Float64},
+    immunity_durations::Vector{Int}
 )
-    # Параметры
-    duration_parameter = 7.05
-    temperature_parameters = Float64[-0.8, -0.8, -0.05, -0.64, -0.2, -0.05, -0.8]
-    susceptibility_parameters = Float64[2.61, 2.61, 3.17, 5.11, 4.69, 3.89, 3.77]
-    immunity_durations = Int[366, 366, 60, 60, 366, 366, 366]
-
-    # Температура воздуха, начиная с 1 января
-    temperature = [-5.8, -5.9, -5.9, -5.9,
-        -6.0, -6.0, -6.1, -6.1, -6.2, -6.2, -6.2, -6.3,
-        -6.3, -6.4, -6.5, -6.5, -6.6, -6.6, -6.7, -6.7,
-        -6.8, -6.8, -6.9, -6.9, -7.0, -7.0, -7.0, -7.1, -7.1,
-        -7.1, -7.1, -7.2, -7.2, -7.2, -7.2, -7.2, -7.2, -7.1,
-        -7.1, -7.1, -7.0, -7.0, -6.9, -6.8, -6.8, -6.7, -6.6,
-        -6.5, -6.4, -6.3, -6.1, -6.0, -5.9, -5.7, -5.6, -5.4,
-        -5.2, -5.0, -4.8, -4.7, -4.5, -4.2, -4.0, -3.8,
-        -3.6, -3.4, -3.1, -2.9, -2.7, -2.4, -2.2, -1.9, -1.7,
-        -1.4, -1.2, -0.9, -0.6, -0.4, -0.1, 0.2, 0.4,
-        0.7, 1.0, 1.2, 1.5, 1.8, 2.0, 2.3, 2.5, 2.8,
-        3.1, 3.3, 3.6, 3.9, 4.1, 4.4, 4.6, 4.9, 5.1,
-        5.4, 5.6, 5.9, 6.1, 6.4, 6.6, 6.9, 7.1, 7.4,
-        7.6, 7.8, 8.1, 8.3, 8.5, 8.8, 9.0, 9.2, 9.4,
-        9.7, 9.9, 10.1, 10.3, 10.5, 10.7, 11.0, 11.2,
-        11.4, 11.6, 11.8, 12.0, 12.1, 12.3, 12.5, 12.7,
-        12.9, 13.1, 13.2, 13.4, 13.6, 13.7, 13.9, 14.0,
-        14.2, 14.3, 14.5, 14.6, 14.8, 14.9, 15.0, 15.2,
-        15.3, 15.4, 15.5, 15.6, 15.8, 15.9, 16.0, 16.1,
-        16.2, 16.3, 16.4, 16.5, 16.6, 16.7, 16.8, 16.9,
-        17.0, 17.1, 17.2, 17.2, 17.3, 17.4, 17.5, 17.6,
-        17.7, 17.8, 17.9, 17.9, 18.0, 18.1, 18.2, 18.3,
-        18.4, 18.4, 18.5, 18.6, 18.7, 18.7, 18.8, 18.9,
-        18.9, 19.0, 19.1, 19.1, 19.2, 19.2, 19.3, 19.3,
-        19.3, 19.4, 19.4, 19.4, 19.4, 19.4, 19.4, 19.4,
-        19.4, 19.4, 19.3, 19.3, 19.3, 19.2, 19.1, 19.1,
-        19.0, 18.9, 18.8, 18.7, 18.6, 18.5, 18.4, 18.3,
-        18.2, 18.0, 17.9, 17.7, 17.6, 17.4, 17.2, 17.1,
-        16.9, 16.7, 16.5, 16.3, 16.1, 15.9, 15.7, 15.5,
-        15.3, 15.1, 14.9, 14.7, 14.5, 14.3, 14.1, 13.9,
-        13.7, 13.5, 13.3, 13.1, 12.8, 12.6, 12.4, 12.2,
-        12.1, 11.9, 11.7, 11.5, 11.3, 11.1, 10.9, 10.7,
-        10.6, 10.4, 10.2, 10.0, 9.9, 9.7, 9.5, 9.4,
-        9.2, 9.0, 8.9, 8.7, 8.5, 8.3, 8.2, 8.0,
-        7.8, 7.7, 7.5, 7.3, 7.1, 6.9, 6.8, 6.6,
-        6.4, 6.2, 6.0, 5.8, 5.6, 5.4, 5.2, 4.9,
-        4.7, 4.5, 4.3, 4.0, 3.8, 3.6, 3.3, 3.1,
-        2.9, 2.6, 2.4, 2.1, 1.9, 1.6, 1.4, 1.1,
-        0.9, 0.7, 0.4, 0.2, -0.1, -0.3, -0.5, -0.8,
-        -1.0, -1.2, -1.5, -1.7, -1.9, -2.1, -2.3, -2.5,
-        -2.7, -2.9, -3.0, -3.2, -3.4, -3.5, -3.7, -3.8,
-        -4.0, -4.1, -4.2, -4.3, -4.4, -4.5, -4.6, -4.7,
-        -4.8, -4.9, -5.0, -5.0, -5.1, -5.2, -5.2, -5.3,
-        -5.3, -5.4, -5.4, -5.4, -5.5, -5.5, -5.5, -5.6,
-        -5.6, -5.6, -5.7, -5.7, -5.7, -5.7, -5.8, -5.8]
-
     # Вероятность случайного инфицирования [номер недели, вирус]
-    etiologies = [[0.00980294117647054,0.00490147058823527,0.499999999999999,0.588235294117646,0.823529411764704,0.985294117647056],
-        [0.00784235294117644,0.00392117647058822,0.494117647058823,0.529411764705882,0.811764705882352,0.976470588235293],
-        [0.00724565217391304,0.00362282608695652,0.499999999999999,0.554347826086956,0.771739130434782,0.956521739130434],
-        [0.00748988764044939,0.00374494382022469,0.539325842696629,0.584269662921348,0.831460674157303,0.988764044943819],
-        [0.00529047619047619,0.00264523809523809,0.603174603174603,0.626984126984127,0.785714285714285,0.968253968253967],
-        [0.00432857142857143,0.00216428571428571,0.655844155844155,0.688311688311688,0.805194805194804,0.987012987012985],
-        [0.00383103448275861,0.00191551724137931,0.706896551724138,0.741379310344827,0.827586206896551,0.994252873563217],
-        [0.00368287292817679,0.00184143646408839,0.685082872928176,0.718232044198894,0.823204419889501,0.988950276243092],
-        [0.00310046511627907,0.00155023255813953,0.627906976744186,0.646511627906976,0.753488372093022,0.981395348837208],
-        [0.00362282608695652,0.00181141304347826,0.684782608695652,0.717391304347826,0.79891304347826,0.989130434782607],
-        [0.003471875,0.0017359375,0.671874999999999,0.697916666666666,0.802083333333332,0.994791666666665],
-        [0.00336666666666667,0.00168333333333333,0.6010101010101,0.63131313131313,0.782828282828281,0.974747474747472],
-        [0.00314433962264151,0.00157216981132075,0.622641509433961,0.65566037735849,0.787735849056603,0.96698113207547],
-        [0.00296266666666666,0.00148133333333333,0.555555555555555,0.577777777777778,0.742222222222222,0.982222222222222],
-        [0.00352698412698413,0.00176349206349206,0.481481481481481,0.523809523809524,0.73015873015873,0.973544973544973],
-        [0.003333,0.0016665,0.505,0.59,0.79,0.965],
-        [0.00288571428571428,0.00144285714285714,0.489177489177488,0.606060606060604,0.744588744588742,0.965367965367962],
-        [0.0264523809523809,0.0132261904761904,0.547619047619047,0.634920634920634,0.793650793650792,0.980158730158728],
-        [0.06666,0.03333,0.5,0.608,0.776,0.976],
-        [0.093740625,0.0468703125,0.45703125,0.61328125,0.82421875,0.94140625],
-        [0.183805147058823,0.0919025735294117,0.485294117647058,0.602941176470587,0.768382352941175,0.952205882352939],
-        [0.155828571428571,0.0779142857142855,0.46103896103896,0.629870129870128,0.831168831168829,0.961038961038958],
-        [0.312138095238095,0.156069047619048,0.642857142857142,0.793650793650792,0.857142857142855,0.992063492063489],
-        [0.3333,0.16665,0.653846153846153,0.776923076923076,0.826923076923076,0.973076923076922],
-        [0.360324324324324,0.180162162162162,0.702702702702702,0.805405405405404,0.889189189189188,0.975675675675674],
-        [0.347791304347826,0.173895652173913,0.695652173913042,0.808695652173911,0.895652173913041,0.967391304347824],
-        [0.311719424460431,0.155859712230216,0.640287769784172,0.802158273381294,0.874100719424459,0.964028776978416],
-        [0.313251879699248,0.156625939849624,0.639097744360902,0.774436090225563,0.887218045112781,0.964285714285713],
-        [0.303690205011389,0.151845102505695,0.612756264236901,0.749430523917994,0.890660592255123,0.943052391799542],
-        [0.291050704225352,0.145525352112676,0.605633802816901,0.814084507042253,0.907042253521126,0.957746478873239],
-        [0.249975,0.1249875,0.576086956521739,0.869565217391304,0.945652173913043,0.975543478260869],
-        [0.166188365650969,0.0830941828254845,0.470914127423821,0.858725761772851,0.941828254847643,0.977839335180053],
-        [0.130498412698412,0.0652492063492061,0.423280423280422,0.846560846560845,0.936507936507935,0.984126984126983],
-        [0.10330350877193,0.0516517543859649,0.444444444444444,0.7953216374269,0.888888888888888,0.947368421052631],
-        [0.0973928571428571,0.0486964285714285,0.405844155844155,0.788961038961038,0.889610389610388,0.935064935064933],
-        [0.0902964143426293,0.0451482071713146,0.434262948207171,0.824701195219123,0.872509960159362,0.940239043824701],
-        [0.0939299999999994,0.0469649999999997,0.422727272727271,0.786363636363634,0.863636363636361,0.945454545454543],
-        [0.087369902912621,0.0436849514563105,0.441747572815533,0.757281553398057,0.849514563106795,0.95145631067961],
-        [0.06666,0.03333,0.41578947368421,0.773684210526315,0.884210526315788,0.973684210526314],
-        [0.0617222222222222,0.0308611111111111,0.401234567901234,0.808641975308641,0.932098765432097,0.981481481481479],
-        [0.0563323943661972,0.0281661971830986,0.422535211267605,0.788732394366196,0.90845070422535,0.992957746478871],
-        [0.03749625,0.018748125,0.43125,0.7,0.85,0.96875],
-        [0.00404,0.00202,0.424242424242424,0.709090909090908,0.860606060606059,0.957575757575756],
-        [0.00524881889763779,0.0026244094488189,0.32283464566929,0.661417322834644,0.80314960629921,0.937007874015745],
-        [0.0053758064516129,0.00268790322580645,0.387096774193548,0.693548387096773,0.846774193548385,0.975806451612901],
-        [0.006666,0.003333,0.39,0.7,0.82,0.98],
-        [0.00812926829268292,0.00406463414634146,0.463414634146341,0.695121951219511,0.817073170731706,0.987804878048779],
-        [0.00843797468354426,0.00421898734177213,0.50632911392405,0.594936708860759,0.734177215189872,0.987341772151897],
-        [0.0102553846153846,0.00512769230769228,0.369230769230768,0.461538461538461,0.784615384615384,0.984615384615384],
-        [0.00938873239436618,0.00469436619718309,0.436619718309859,0.507042253521126,0.830985915492957,0.985915492957745],
-        [0.0101,0.00504999999999998,0.424242424242424,0.484848484848485,0.833333333333333,0.984848484848484],
-        [0.00994925373134324,0.00497462686567162,0.492537313432835,0.567164179104477,0.850746268656715,0.98507462686567]]
-
-    # Минимальная температура воздуха
-    min_temp = -7.2
-    # Max - Min температура
-    max_min_temp = 26.6
+    etiologies = [[0.009802941,0.024507353,0.5,0.588235294,0.823529412,0.985294118],
+        [0.007842353,0.019605882,0.494117647,0.529411765,0.811764706,0.976470588],
+        [0.007245652,0.01811413,0.5,0.554347826,0.77173913,0.956521739],
+        [0.007489888,0.018724719,0.539325843,0.584269663,0.831460674,0.988764045],
+        [0.005290476,0.01322619,0.603174603,0.626984127,0.785714286,0.968253968],
+        [0.004328571,0.010821429,0.655844156,0.688311688,0.805194805,0.987012987],
+        [0.003831034,0.005746552,0.706896552,0.74137931,0.827586207,0.994252874],
+        [0.003682873,0.005524309,0.685082873,0.718232044,0.82320442,0.988950276],
+        [0.003100465,0.004650698,0.627906977,0.646511628,0.753488372,0.981395349],
+        [0.003622826,0.005434239,0.684782609,0.717391304,0.798913043,0.989130435],
+        [0.003471875,0.005207813,0.671875,0.697916667,0.802083333,0.994791667],
+        [0.003366667,0.00505,0.601010101,0.631313131,0.782828283,0.974747475],
+        [0.00314434,0.004716509,0.622641509,0.655660377,0.787735849,0.966981132],
+        [0.002962667,0.004444,0.555555556,0.577777778,0.742222222,0.982222222],
+        [0.003526984,0.005290476,0.481481481,0.523809524,0.73015873,0.973544974],
+        [0.003333,0.0049995,0.505,0.59,0.79,0.965],
+        [0.002885714,0.004328571,0.489177489,0.606060606,0.744588745,0.965367965],
+        [0.026452381,0.039678571,0.547619048,0.634920635,0.793650794,0.98015873],
+        [0.06666,0.09999,0.5,0.608,0.776,0.976],
+        [0.093740625,0.140610938,0.45703125,0.61328125,0.82421875,0.94140625],
+        [0.183805147,0.275707721,0.485294118,0.602941176,0.768382353,0.952205882],
+        [0.155828571,0.233742857,0.461038961,0.62987013,0.831168831,0.961038961],
+        [0.312138095,0.468207143,0.642857143,0.793650794,0.857142857,0.992063492],
+        [0.3333,0.49995,0.653846154,0.776923077,0.826923077,0.973076923],
+        [0.360324324,0.540486486,0.702702703,0.805405405,0.889189189,0.975675676],
+        [0.347791304,0.521686957,0.695652174,0.808695652,0.895652174,0.967391304],
+        [0.311719424,0.467579137,0.64028777,0.802158273,0.874100719,0.964028777],
+        [0.31325188,0.46987782,0.639097744,0.77443609,0.887218045,0.964285714],
+        [0.303690205,0.455535308,0.612756264,0.749430524,0.890660592,0.943052392],
+        [0.291050704,0.436576056,0.605633803,0.814084507,0.907042254,0.957746479],
+        [0.249975,0.3749625,0.576086957,0.869565217,0.945652174,0.975543478],
+        [0.166188366,0.249282548,0.470914127,0.858725762,0.941828255,0.977839335],
+        [0.130498413,0.195747619,0.423280423,0.846560847,0.936507937,0.984126984],
+        [0.103303509,0.154955263,0.444444444,0.795321637,0.888888889,0.947368421],
+        [0.097392857,0.146089286,0.405844156,0.788961039,0.88961039,0.935064935],
+        [0.090296414,0.135444622,0.434262948,0.824701195,0.87250996,0.940239044],
+        [0.09393,0.140895,0.422727273,0.786363636,0.863636364,0.945454545],
+        [0.087369903,0.131054854,0.441747573,0.757281553,0.849514563,0.951456311],
+        [0.06666,0.09999,0.415789474,0.773684211,0.884210526,0.973684211],
+        [0.061722222,0.092583333,0.401234568,0.808641975,0.932098765,0.981481481],
+        [0.056332394,0.084498592,0.422535211,0.788732394,0.908450704,0.992957746],
+        [0.03749625,0.056244375,0.43125,0.7,0.85,0.96875],
+        [0.00404,0.00606,0.424242424,0.709090909,0.860606061,0.957575758],
+        [0.005248819,0.007873228,0.322834646,0.661417323,0.803149606,0.937007874],
+        [0.005375806,0.00806371,0.387096774,0.693548387,0.846774194,0.975806452],
+        [0.006666,0.009999,0.39,0.7,0.82,0.98],
+        [0.008129268,0.012193902,0.463414634,0.695121951,0.817073171,0.987804878],
+        [0.008437975,0.012656962,0.506329114,0.594936709,0.734177215,0.987341772],
+        [0.010255385,0.015383077,0.369230769,0.461538462,0.784615385,0.984615385],
+        [0.009388732,0.014083099,0.436619718,0.507042254,0.830985915,0.985915493],
+        [0.0101,0.01515,0.424242424,0.484848485,0.833333333,0.984848485],
+        [0.009949254,0.014923881,0.492537313,0.567164179,0.850746269,0.985074627]]
 
     # День месяца
     day = 1
@@ -2362,35 +2259,23 @@ function run_simulation(
     month = 8
     # День недели
     week_day = 1
-    # День в году
-    year_day = 213
     # Номер недели
     week_num = 1
-
-    # Резистентные агенты
-    all_recovered_agent_ids = Int[]
 
     # DEBUG
     max_step = 365
 
-    # incidence = Array{Float64, 1}(undef, 52)
     incidence = Array{Int, 1}(undef, 52)
-    etiologies_incidence = [fill(0.0, 52), fill(0.0, 52), fill(0.0, 52),
-        fill(0.0, 52), fill(0.0, 52), fill(0.0, 52), fill(0.0, 52)]
+    etiologies_incidence = Array{Int, 2}(undef, 7, 52)
+    age_groups_incidence = Array{Int, 2}(undef, 4, 52)
+    collectives_incidence = Array{Int, 2}(undef, 5, 52)
 
     weekly_new_infections_num = 0
     etiologies_weekly_new_infections_num = Int[0, 0, 0, 0, 0, 0, 0]
-    collectives_weekly_new_infections_num = Dict(
-        "Household" => 0, "Kindergarten" => 0, "School" => 0, "University" => 0, "Workplace" => 0, "Random" => 0)
-
-    # incidence_multiplier = 1000 / size(all_agents, 1)
+    age_groups_weekly_new_infections_num = Int[0, 0, 0, 0]
+    collectives_weekly_new_infections_num = Int[0, 0, 0, 0, 0]
 
     for step = 1:max_step
-        # Набор id инфицированных агентов на данном шаге
-        newly_infected_agent_ids = Int[]
-        # Текущая нормализованная температура
-        current_temp = (temperature[year_day] - min_temp) / max_min_temp
-
         # Выходные, праздники
         is_holiday = false
         if (week_day == 7)
@@ -2448,9 +2333,8 @@ function run_simulation(
             is_university_holiday = true
         end
         
-        for agent_id in infected_agent_ids
-            agent = all_agents[agent_id]
-            if agent.viral_load > 0.0001
+        for agent in all_agents
+            if agent.virus_id != 0 && !agent.was_infected_on_current_step && agent.viral_load > 0.0001
                 for agent2_id in agent.household.agent_ids
                     agent2 = all_agents[agent2_id]
                     # Проверка восприимчивости агента к вирусу
@@ -2461,27 +2345,27 @@ function run_simulation(
                         if is_holiday || (agent_at_home && agent2_at_home)
                             make_contact(
                                 agent, agent2, get_contact_duration(12.5, 5.5),
-                                current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                step, duration_parameter, susceptibility_parameters, temp_influences)
                         elseif ((agent.collective_id == 1 && !agent_at_home) ||
                             (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
                             make_contact(
                                 agent, agent2, get_contact_duration(5.0, 2.05),
-                                current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                step, duration_parameter, susceptibility_parameters, temp_influences)
                         elseif ((agent.collective_id == 4 && !agent_at_home) ||
                             (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
                             make_contact(
                                 agent, agent2, get_contact_duration(5.5, 2.25),
-                                current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                step, duration_parameter, susceptibility_parameters, temp_influences)
                         elseif ((agent.collective_id == 2 && !agent_at_home) ||
                             (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
                             make_contact(
                                 agent, agent2, get_contact_duration(6.0, 2.46),
-                                current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                step, duration_parameter, susceptibility_parameters, temp_influences)
                         elseif ((agent.collective_id == 3 && !agent_at_home) ||
                             (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
                             make_contact(
                                 agent, agent2, get_contact_duration(7.0, 3.69),
-                                current_temp, duration_parameter, temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                step, duration_parameter, susceptibility_parameters, temp_influences)
                         end
                     end
                 end
@@ -2502,8 +2386,8 @@ function run_simulation(
                                         agent, agent2, get_contact_duration(
                                             collectives[group.collective_id].mean_time_spent,
                                             collectives[group.collective_id].time_spent_sd),
-                                        current_temp, duration_parameter,
-                                        temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                        step, duration_parameter,
+                                        susceptibility_parameters, temp_influences)
                             end
                         end
                     else
@@ -2517,35 +2401,27 @@ function run_simulation(
                                         agent, agent2, get_contact_duration(
                                             collectives[group.collective_id].mean_time_spent,
                                             collectives[group.collective_id].time_spent_sd),
-                                        current_temp, duration_parameter,
-                                        temperature_parameters, susceptibility_parameters, newly_infected_agent_ids)
+                                        step, duration_parameter,
+                                        susceptibility_parameters, temp_influences)
                             end
                         end
                     end
                 end
-            end
-        end
-
-        # Случайное инфицирование восприимчивых агентов
-        for i = 1:1000
-            agent = all_agents[rand(1:size(all_agents, 1))]
-            if agent.virus_id == 0 && agent.days_immune == 0
+            elseif agent.virus_id == 0 && agent.days_immune == 0
                 if agent.age < 16
                     if rand(1:10000) < 3
-                        infect_randomly(viruses, agent, week_num, etiologies, newly_infected_agent_ids)
+                        infect_randomly(viruses, agent, week_num, etiologies)
                     end
                 else
                     if rand(1:10000) == 1
-                        infect_randomly(viruses, agent, week_num, etiologies, newly_infected_agent_ids)
+                        infect_randomly(viruses, agent, week_num, etiologies)
                     end
                 end
             end
         end
 
-        # Обновление состояния выздоровевших агентов
-        i = size(all_recovered_agent_ids, 1)
-        while i > 0
-            agent = all_agents[all_recovered_agent_ids[i]]
+        new_infections_num = 0
+        for agent in all_agents
             if agent.days_immune != 0
                 if agent.days_immune == 14
                     # Переход из резистентного состояния в восприимчивое
@@ -2554,203 +2430,240 @@ function run_simulation(
                     agent.days_immune += 1
                 end
             end
-            immunity_found = false
             for k = 1:size(agent.immunity_days, 1)
                 immunity_days = agent.immunity_days[k]
                 if immunity_days > 0
-                    if immunity_days == immunity_durations[virus]
+                    if immunity_days == immunity_durations[k]
                         agent.immunity_days[k] = 0
                     else
                         agent.immunity_days[k] += 1
-                        immunity_found = true
                     end
                 end
             end
-            if !immunity_found
-                deleteat!(all_recovered_agent_ids, i)
-            end
-            i -= 1
-        end
 
-        new_infections_num = 0
-
-        # Обновление состояния инфицированных агентов
-        i = size(infected_agent_ids, 1)
-        while i > 0
-            agent = all_agents[infected_agent_ids[i]]
-            if agent.days_infected == agent.infection_period
-                agent.immunity_days[agent.virus_id] = 1
-                agent.days_immune = 1
-                agent.virus_id = 0
-                deleteat!(infected_agent_ids, i)
-
-                if agent.supporter_id != 0
-                    is_support_still_needed = false
-                    for dependant_id in all_agents[agent.supporter_id].dependant_ids
-                        dependant = all_agents[dependant_id]
-                        if dependant.virus_id != 0 && (dependant.collective_id == 0 || dependant.is_isolated)
-                            is_support_still_needed = true
+            if agent.virus_id != 0 && !agent.was_infected_on_current_step
+                if agent.days_infected == agent.infection_period
+                    agent.immunity_days[agent.virus_id] = 1
+                    agent.days_immune = 1
+                    agent.virus_id = 0
+                    agent.is_isolated = false
+    
+                    if agent.supporter_id != 0
+                        is_support_still_needed = false
+                        for dependant_id in all_agents[agent.supporter_id].dependant_ids
+                            dependant = all_agents[dependant_id]
+                            if dependant.virus_id != 0 && (dependant.collective_id == 0 || dependant.is_isolated)
+                                is_support_still_needed = true
+                            end
+                        end
+                        if !is_support_still_needed
+                            all_agents[agent.supporter_id].on_parent_leave = false
                         end
                     end
-                    if !is_support_still_needed
-                        all_agents[agent.supporter_id].on_parent_leave = false
+                else
+                    agent.days_infected += 1
+    
+                    if !agent.is_asymptomatic && !agent.is_isolated && agent.collective_id != 0 && !agent.on_parent_leave
+                        rand_num = rand(1:1000)
+                        if agent.days_infected == agent.incubation_period + 1
+                            if agent.age < 8
+                                if rand_num < 305
+                                    agent.is_isolated = true
+                                    new_infections_num += 1
+                                    etiologies_weekly_new_infections_num[agent.virus_id] += 1
+                                    if agent.age < 3
+                                        age_groups_weekly_new_infections_num[1] += 1
+                                    elseif agent.age < 7
+                                        age_groups_weekly_new_infections_num[2] += 1
+                                    else
+                                        age_groups_weekly_new_infections_num[3] += 1
+                                    end
+                                end
+                            elseif agent.age < 18
+                                if rand_num < 204
+                                    agent.is_isolated = true
+                                    new_infections_num += 1
+                                    etiologies_weekly_new_infections_num[agent.virus_id] += 1
+                                    if agent.age < 3
+                                        age_groups_weekly_new_infections_num[1] += 1
+                                    elseif agent.age < 7
+                                        age_groups_weekly_new_infections_num[2] += 1
+                                    elseif agent.age < 15
+                                        age_groups_weekly_new_infections_num[3] += 1
+                                    else
+                                        age_groups_weekly_new_infections_num[4] += 1
+                                    end
+                                end
+                            else
+                                if rand_num < 101
+                                    agent.is_isolated = true
+                                    new_infections_num += 1
+                                    etiologies_weekly_new_infections_num[agent.virus_id] += 1
+                                    if agent.age < 3
+                                        age_groups_weekly_new_infections_num[1] += 1
+                                    elseif agent.age < 7
+                                        age_groups_weekly_new_infections_num[2] += 1
+                                    elseif agent.age < 15
+                                        age_groups_weekly_new_infections_num[3] += 1
+                                    else
+                                        age_groups_weekly_new_infections_num[4] += 1
+                                    end
+                                end
+                            end
+                        elseif agent.days_infected == agent.incubation_period + 2
+                            if agent.age < 8
+                                if rand_num < 576
+                                    agent.is_isolated = true
+                                    new_infections_num += 1
+                                    etiologies_weekly_new_infections_num[agent.virus_id] += 1
+                                    if agent.age < 3
+                                        age_groups_weekly_new_infections_num[1] += 1
+                                    elseif agent.age < 7
+                                        age_groups_weekly_new_infections_num[2] += 1
+                                    elseif agent.age < 15
+                                        age_groups_weekly_new_infections_num[3] += 1
+                                    else
+                                        age_groups_weekly_new_infections_num[4] += 1
+                                    end
+                                end
+                            elseif agent.age < 18
+                                if rand_num < 499
+                                    agent.is_isolated = true
+                                    new_infections_num += 1
+                                    etiologies_weekly_new_infections_num[agent.virus_id] += 1
+                                    if agent.age < 3
+                                        age_groups_weekly_new_infections_num[1] += 1
+                                    elseif agent.age < 7
+                                        age_groups_weekly_new_infections_num[2] += 1
+                                    elseif agent.age < 15
+                                        age_groups_weekly_new_infections_num[3] += 1
+                                    else
+                                        age_groups_weekly_new_infections_num[4] += 1
+                                    end
+                                end
+                            else
+                                if rand_num < 334
+                                    agent.is_isolated = true
+                                    new_infections_num += 1
+                                    etiologies_weekly_new_infections_num[agent.virus_id] += 1
+                                    if agent.age < 3
+                                        age_groups_weekly_new_infections_num[1] += 1
+                                    elseif agent.age < 7
+                                        age_groups_weekly_new_infections_num[2] += 1
+                                    elseif agent.age < 15
+                                        age_groups_weekly_new_infections_num[3] += 1
+                                    else
+                                        age_groups_weekly_new_infections_num[4] += 1
+                                    end
+                                end
+                            end
+                        elseif agent.days_infected == agent.incubation_period + 3
+                            if agent.age < 8
+                                if rand_num < 325
+                                    agent.is_isolated = true
+                                    new_infections_num += 1
+                                    etiologies_weekly_new_infections_num[agent.virus_id] += 1
+                                    if agent.age < 3
+                                        age_groups_weekly_new_infections_num[1] += 1
+                                    elseif agent.age < 7
+                                        age_groups_weekly_new_infections_num[2] += 1
+                                    elseif agent.age < 15
+                                        age_groups_weekly_new_infections_num[3] += 1
+                                    else
+                                        age_groups_weekly_new_infections_num[4] += 1
+                                    end
+                                end
+                            elseif agent.age < 18
+                                if rand_num < 376
+                                    agent.is_isolated = true
+                                    new_infections_num += 1
+                                    etiologies_weekly_new_infections_num[agent.virus_id] += 1
+                                    if agent.age < 3
+                                        age_groups_weekly_new_infections_num[1] += 1
+                                    elseif agent.age < 7
+                                        age_groups_weekly_new_infections_num[2] += 1
+                                    elseif agent.age < 15
+                                        age_groups_weekly_new_infections_num[3] += 1
+                                    else
+                                        age_groups_weekly_new_infections_num[4] += 1
+                                    end
+                                end
+                            else
+                                if rand_num < 168
+                                    agent.is_isolated = true
+                                    new_infections_num += 1
+                                    etiologies_weekly_new_infections_num[agent.virus_id] += 1
+                                    if agent.age < 3
+                                        age_groups_weekly_new_infections_num[1] += 1
+                                    elseif agent.age < 7
+                                        age_groups_weekly_new_infections_num[2] += 1
+                                    elseif agent.age < 15
+                                        age_groups_weekly_new_infections_num[3] += 1
+                                    else
+                                        age_groups_weekly_new_infections_num[4] += 1
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    
+                    agent.viral_load = find_agent_viral_load(
+                        agent.age,
+                        viral_loads[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
+                        agent.is_asymptomatic && agent.days_infected > 0)
+    
+                    if agent.supporter_id != 0 && !agent.is_asymptomatic
+                        if agent.days_infected > 0
+                            if agent.is_isolated || agent.collective_id == 0
+                                all_agents[agent.supporter_id].on_parent_leave = true
+                            end
+                        end
                     end
                 end
-            else
-                agent.days_infected += 1
-
-                if !agent.is_asymptomatic && !agent.is_isolated && agent.collective_id != 0 && !agent.on_parent_leave
-                    rand_num = rand(1:1000)
-                    if agent.days_infected == agent.incubation_period + 1
-                        if agent.age < 8
-                            if rand_num < 305
-                                agent.is_isolated = true
-                                new_infections_num += 1
-                            end
-                        elseif agent.age < 18
-                            if rand_num < 204
-                                agent.is_isolated = true
-                                new_infections_num += 1
-                            end
-                        else
-                            if rand_num < 101
-                                agent.is_isolated = true
-                                new_infections_num += 1
-                            end
-                        end
-                    elseif agent.days_infected == agent.incubation_period + 2
-                        if agent.age < 8
-                            if rand_num < 576
-                                agent.is_isolated = true
-                                new_infections_num += 1
-                            end
-                        elseif agent.age < 18
-                            if rand_num < 499
-                                agent.is_isolated = true
-                                new_infections_num += 1
-                            end
-                        else
-                            if rand_num < 334
-                                agent.is_isolated = true
-                                new_infections_num += 1
-                            end
-                        end
-                    elseif agent.days_infected == agent.incubation_period + 3
-                        if agent.age < 8
-                            if rand_num < 325
-                                agent.is_isolated = true
-                                new_infections_num += 1
-                            end
-                        elseif agent.age < 18
-                            if rand_num < 376
-                                agent.is_isolated = true
-                                new_infections_num += 1
-                            end
-                        else
-                            if rand_num < 168
-                                agent.is_isolated = true
-                                new_infections_num += 1
-                            end
-                        end
-                    end
+            elseif agent.was_infected_on_current_step
+                agent.incubation_period = get_period_from_erlang(
+                    viruses[agent.virus_id].mean_incubation_period,
+                    viruses[agent.virus_id].incubation_period_variance,
+                    viruses[agent.virus_id].min_incubation_period,
+                    viruses[agent.virus_id].max_incubation_period)
+                if agent.age < 16
+                    agent.infection_period = get_period_from_erlang(
+                        viruses[agent.virus_id].mean_infection_period_child,
+                        viruses[agent.virus_id].infection_period_variance_child,
+                        viruses[agent.virus_id].min_infection_period_child,
+                        viruses[agent.virus_id].max_infection_period_child)
+                else
+                    agent.infection_period = get_period_from_erlang(
+                        viruses[agent.virus_id].mean_infection_period_adult,
+                        viruses[agent.virus_id].infection_period_variance_adult,
+                        viruses[agent.virus_id].min_infection_period_adult,
+                        viruses[agent.virus_id].max_infection_period_adult)
                 end
-                
+                agent.days_infected = 1 - agent.incubation_period
+                if rand(1:100) <= viruses[agent.virus_id].asymptomatic_probab
+                    agent.is_asymptomatic = true
+                end
                 agent.viral_load = find_agent_viral_load(
                     agent.age,
                     viral_loads[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
                     agent.is_asymptomatic && agent.days_infected > 0)
-
-                if agent.supporter_id != 0 && !agent.is_asymptomatic
-                    if agent.days_infected > 0
-                        if agent.is_isolated || agent.collective_id == 0
-                            all_agents[agent.supporter_id].on_parent_leave = true
-                        end
-                    end
-                end
-                
+                agent.was_infected_on_current_step = false
             end
-
-            #         agent.isStayingHomeWhenInfected = agent.findIfShouldStayAtHome()
-            #         if (agent.isStayingHomeWhenInfected) {
-            #             // Выявление
-            #             newCasesDayStats[1] += 1
-            #             when (agent.age) {
-            #                 in (0..2) -> {
-            #                     ageGroupsWeekStats[ageGroupsWeekStats.size - 1][0] += 1
-            #                     ageGroupsDayStats[0] += 1
-            #                 }
-            #                 in (3..6) -> {
-            #                     ageGroupsWeekStats[ageGroupsWeekStats.size - 1][1] += 1
-            #                     ageGroupsDayStats[1] += 1
-            #                 }
-            #                 in (7..14) -> {
-            #                     ageGroupsWeekStats[ageGroupsWeekStats.size - 1][2] += 1
-            #                     ageGroupsDayStats[2] += 1
-            #                 }
-            #                 else -> {
-            #                     ageGroupsWeekStats[ageGroupsWeekStats.size - 1][3] += 1
-            #                     ageGroupsDayStats[3] += 1
-            #                 }
-            #             }
-
-            #             when (agent.infectionType) {
-            #                 1 -> etiologyDayStats[0] += 1
-            #                 2 -> etiologyDayStats[1] += 1
-            #                 3 -> etiologyDayStats[2] += 1
-            #                 4 -> etiologyDayStats[3] += 1
-            #                 5 -> etiologyDayStats[4] += 1
-            #                 6 -> etiologyDayStats[5] += 1
-            #                 7 -> etiologyDayStats[6] += 1
-            #             }
-
-            i -= 1
-        end
-
-        for agent_id in newly_infected_agent_ids
-            agent = all_agents[agent_id]
-            agent.incubation_period = get_period_from_erlang(
-                viruses[agent.virus_id].mean_incubation_period,
-                viruses[agent.virus_id].incubation_period_variance,
-                viruses[agent.virus_id].min_incubation_period,
-                viruses[agent.virus_id].max_incubation_period)
-            if agent.age < 16
-                agent.infection_period = get_period_from_erlang(
-                    viruses[agent.virus_id].mean_infection_period_child,
-                    viruses[agent.virus_id].infection_period_variance_child,
-                    viruses[agent.virus_id].min_infection_period_child,
-                    viruses[agent.virus_id].max_infection_period_child)
-            else
-                agent.infection_period = get_period_from_erlang(
-                    viruses[agent.virus_id].mean_infection_period_adult,
-                    viruses[agent.virus_id].infection_period_variance_adult,
-                    viruses[agent.virus_id].min_infection_period_adult,
-                    viruses[agent.virus_id].max_infection_period_adult)
-            end
-            agent.days_infected = 1 - agent.incubation_period
-            if rand(1:100) <= viruses[agent.virus_id].asymptomatic_probab
-                agent.is_asymptomatic = true
-            end
-            agent.viral_load = find_agent_viral_load(
-                agent.age,
-                viral_loads[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
-                agent.is_asymptomatic && agent.days_infected > 0)
-
-            # new_infections_num += 1
-            etiologies_weekly_new_infections_num[agent.virus_id] += 1
         end
 
         weekly_new_infections_num += new_infections_num
 
         # Обновление даты
         if week_day == 7
-
-            # incidence[week_num] = weekly_new_infections_num * incidence_multiplier
             incidence[week_num] = weekly_new_infections_num
             weekly_new_infections_num = 0
-
             for i = 1:size(etiologies_weekly_new_infections_num, 1)
-                etiologies_incidence[i][week_num] = etiologies_weekly_new_infections_num[i]
+                etiologies_incidence[i, week_num] = etiologies_weekly_new_infections_num[i]
                 etiologies_weekly_new_infections_num[i] = 0
+            end
+            for i = 1:size(age_groups_weekly_new_infections_num, 1)
+                age_groups_incidence[i, week_num] = age_groups_weekly_new_infections_num[i]
+                age_groups_weekly_new_infections_num[i] = 0
             end
 
             week_day = 1
@@ -2761,12 +2674,6 @@ function run_simulation(
             end
         else
             week_day += 1
-        end
-
-        if year_day == 365
-            year_day == 1
-        else
-            year_day += 1
         end
 
         if (month in Int[1, 3, 5, 7, 8, 10] && day == 31) ||
@@ -2780,26 +2687,38 @@ function run_simulation(
         else
             day += 1
         end
-
-        append!(infected_agent_ids, newly_infected_agent_ids)
     end
 
+    num_of_agents = MPI.Allreduce(size(all_agents, 1), MPI.SUM, comm)
+    multiplier = 1000 / num_of_agents
     incidence_data = MPI.Reduce(incidence, MPI.SUM, 0, comm)
+    etiologies_data = MPI.Reduce(etiologies_incidence, MPI.SUM, 0, comm)
+    age_groups_data = MPI.Reduce(age_groups_incidence, MPI.SUM, 0, comm)
     if comm_rank == 0
-        incidence_plot = plot(1:52, incidence_data, title = "Incidence", lw = 3, legend = false)
+        incidence_plot = plot(1:52, incidence_data .* multiplier, title = "Incidence", lw = 3, legend = false)
         xlabel!("Week")
         ylabel!("Incidence")
         savefig(incidence_plot, joinpath(@__DIR__, "..", "output", "incidence.pdf"))
 
-        # etilogies_incidence_plot = plot(
-        #     1:52,
-        #     [etiologies_incidence[i] for i = 1:7],
-        #     title = "Etiologies",
-        #     lw = 3,
-        #     label = [1 2 3 4 5 6 7])
-        # xlabel!("Week")
-        # ylabel!("Incidence")
-        # savefig(etilogies_incidence_plot, joinpath(@__DIR__, "..", "output", "etiologies.pdf"))
+        etiologies_incidence_plot = plot(
+            1:52,
+            [etiologies_data[i, :] .* multiplier for i = 1:size(etiologies_weekly_new_infections_num, 1)],
+            title = "Incidence by etiology",
+            lw = 3,
+            label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
+        xlabel!("Week")
+        ylabel!("Incidence")
+        savefig(etiologies_incidence_plot, joinpath(@__DIR__, "..", "output", "etiologies.pdf"))
+
+        age_groups_incidence_plot = plot(
+            1:52,
+            [age_groups_data[i, :] .* multiplier for i = 1:size(age_groups_weekly_new_infections_num, 1)],
+            title = "Incidence by age",
+            lw = 3,
+            label = ["0-2" "3-6" "7-14" "15+"])
+        xlabel!("Week")
+        ylabel!("Incidence")
+        savefig(age_groups_incidence_plot, joinpath(@__DIR__, "..", "output", "age_groups.pdf"))
     end
 end
 
@@ -2844,7 +2763,6 @@ function main()
     end
 
     # Коллективы
-
     collectives = Collective[
         Collective(1, 5.88, 2.52, [Group[], Group[], Group[], Group[], Group[], Group[]]),
         Collective(2, 4.783, 2.67, [Group[], Group[], Group[], Group[], Group[], Group[],
@@ -2852,26 +2770,93 @@ function main()
         Collective(3, 2.1, 3.0, [Group[], Group[], Group[], Group[], Group[], Group[]]),
         Collective(4, 3.0, 3.0, [Group[]])]
 
-    # temp_influences = Array{Float64,1}(undef, 365)
+    # Параметры
+    duration_parameter = 7.05
+    temperature_parameters = Float64[-0.8, -0.8, -0.05, -0.64, -0.2, -0.05, -0.8]
+    susceptibility_parameters = Float64[2.61, 2.61, 3.17, 5.11, 4.69, 3.89, 3.77]
+    # susceptibility_parameters = Float64[2.11, 2.11, 3.77, 5.11, 4.69, 3.89, 3.77]
+    immunity_durations = Int[366, 366, 60, 60, 366, 366, 366]
 
-    # for step in 1:365
-    #     temp_influences[i] = temperature_parameters[infected_agent.virus_id] * current_temp + 1.0
-    # end
+    # Температура воздуха, начиная с 1 января
+    temperature = [-5.8, -5.9, -5.9, -5.9,
+        -6.0, -6.0, -6.1, -6.1, -6.2, -6.2, -6.2, -6.3,
+        -6.3, -6.4, -6.5, -6.5, -6.6, -6.6, -6.7, -6.7,
+        -6.8, -6.8, -6.9, -6.9, -7.0, -7.0, -7.0, -7.1, -7.1,
+        -7.1, -7.1, -7.2, -7.2, -7.2, -7.2, -7.2, -7.2, -7.1,
+        -7.1, -7.1, -7.0, -7.0, -6.9, -6.8, -6.8, -6.7, -6.6,
+        -6.5, -6.4, -6.3, -6.1, -6.0, -5.9, -5.7, -5.6, -5.4,
+        -5.2, -5.0, -4.8, -4.7, -4.5, -4.2, -4.0, -3.8,
+        -3.6, -3.4, -3.1, -2.9, -2.7, -2.4, -2.2, -1.9, -1.7,
+        -1.4, -1.2, -0.9, -0.6, -0.4, -0.1, 0.2, 0.4,
+        0.7, 1.0, 1.2, 1.5, 1.8, 2.0, 2.3, 2.5, 2.8,
+        3.1, 3.3, 3.6, 3.9, 4.1, 4.4, 4.6, 4.9, 5.1,
+        5.4, 5.6, 5.9, 6.1, 6.4, 6.6, 6.9, 7.1, 7.4,
+        7.6, 7.8, 8.1, 8.3, 8.5, 8.8, 9.0, 9.2, 9.4,
+        9.7, 9.9, 10.1, 10.3, 10.5, 10.7, 11.0, 11.2,
+        11.4, 11.6, 11.8, 12.0, 12.1, 12.3, 12.5, 12.7,
+        12.9, 13.1, 13.2, 13.4, 13.6, 13.7, 13.9, 14.0,
+        14.2, 14.3, 14.5, 14.6, 14.8, 14.9, 15.0, 15.2,
+        15.3, 15.4, 15.5, 15.6, 15.8, 15.9, 16.0, 16.1,
+        16.2, 16.3, 16.4, 16.5, 16.6, 16.7, 16.8, 16.9,
+        17.0, 17.1, 17.2, 17.2, 17.3, 17.4, 17.5, 17.6,
+        17.7, 17.8, 17.9, 17.9, 18.0, 18.1, 18.2, 18.3,
+        18.4, 18.4, 18.5, 18.6, 18.7, 18.7, 18.8, 18.9,
+        18.9, 19.0, 19.1, 19.1, 19.2, 19.2, 19.3, 19.3,
+        19.3, 19.4, 19.4, 19.4, 19.4, 19.4, 19.4, 19.4,
+        19.4, 19.4, 19.3, 19.3, 19.3, 19.2, 19.1, 19.1,
+        19.0, 18.9, 18.8, 18.7, 18.6, 18.5, 18.4, 18.3,
+        18.2, 18.0, 17.9, 17.7, 17.6, 17.4, 17.2, 17.1,
+        16.9, 16.7, 16.5, 16.3, 16.1, 15.9, 15.7, 15.5,
+        15.3, 15.1, 14.9, 14.7, 14.5, 14.3, 14.1, 13.9,
+        13.7, 13.5, 13.3, 13.1, 12.8, 12.6, 12.4, 12.2,
+        12.1, 11.9, 11.7, 11.5, 11.3, 11.1, 10.9, 10.7,
+        10.6, 10.4, 10.2, 10.0, 9.9, 9.7, 9.5, 9.4,
+        9.2, 9.0, 8.9, 8.7, 8.5, 8.3, 8.2, 8.0,
+        7.8, 7.7, 7.5, 7.3, 7.1, 6.9, 6.8, 6.6,
+        6.4, 6.2, 6.0, 5.8, 5.6, 5.4, 5.2, 4.9,
+        4.7, 4.5, 4.3, 4.0, 3.8, 3.6, 3.3, 3.1,
+        2.9, 2.6, 2.4, 2.1, 1.9, 1.6, 1.4, 1.1,
+        0.9, 0.7, 0.4, 0.2, -0.1, -0.3, -0.5, -0.8,
+        -1.0, -1.2, -1.5, -1.7, -1.9, -2.1, -2.3, -2.5,
+        -2.7, -2.9, -3.0, -3.2, -3.4, -3.5, -3.7, -3.8,
+        -4.0, -4.1, -4.2, -4.3, -4.4, -4.5, -4.6, -4.7,
+        -4.8, -4.9, -5.0, -5.0, -5.1, -5.2, -5.2, -5.3,
+        -5.3, -5.4, -5.4, -5.4, -5.5, -5.5, -5.5, -5.6,
+        -5.6, -5.6, -5.7, -5.7, -5.7, -5.7, -5.8, -5.8]
+
+    # Минимальная температура воздуха
+    min_temp = -7.2
+    # Max - Min температура
+    max_min_temp = 26.6
+
+    temp_influences = Array{Float64,2}(undef, 7, 365)
+    year_day = 213
+    for step in 1:365
+        current_temp = (temperature[year_day] - min_temp) / max_min_temp
+        for v in 1:7
+            temp_influences[v, step] = temperature_parameters[v] * current_temp + 1.0
+        end
+        if year_day == 365
+            year_day == 1
+        else
+            year_day += 1
+        end
+    end
 
     # Набор агентов
     all_agents = Agent[]
-    # Набор id инфицированных агентов
-    infected_agent_ids = Int[]
 
     @time create_population(
-        comm_rank, comm_size, all_agents, infected_agent_ids, viruses, viral_loads, collectives)
+        comm_rank, comm_size, all_agents, viruses, viral_loads, collectives)
     MPI.Barrier(comm)
 
     if comm_rank == 0
         println("Simulation...")
     end
     @time run_simulation(
-        comm_rank, comm, all_agents, infected_agent_ids, viruses, viral_loads, collectives)
+        comm_rank, comm, all_agents, viruses, viral_loads,
+        collectives, temp_influences, duration_parameter,
+        susceptibility_parameters, immunity_durations)
     MPI.Barrier(comm)
 end
 

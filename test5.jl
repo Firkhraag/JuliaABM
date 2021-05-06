@@ -1,10 +1,110 @@
-N = 2000
-k = 1
-s = 1.0
+using Random
 
-zipf_law = k^(-s) / sum((1:N).^(-s))
+function sample_from_zipf_distribution(s::Float64, N::Int)
+    cumulative = 0.0
+    rand_num = rand(Float64)
+    num = 0
+    multiplier = 1 / sum((1:N).^(-s))
+    for i = 1:N
+        cumulative += i^(-s) * multiplier
+        if rand_num < cumulative
+            return i
+        end
+    end
+    return N
+end
 
-println(zipf_law)
+@time for i = 1:1000 sample_from_zipf_distribution(1.065, 2000) end
+@time for i = 1:1000 rand(1:2000) end
+
+# struct Agent
+#     id::Int
+#     work_conn_ids::Vector{Int}
+
+#     function Agent(id::Int, work_conn_ids::Vector{Int})
+#         new(id, work_conn_ids)
+#     end
+# end
+
+# struct Group
+#     agent_ids::Vector{Int}
+
+#     function Group(agent_ids::Vector{Int})
+#         new(agent_ids)
+#     end
+# end
+
+
+# all_agents = Agent[Agent(1, Int[]), Agent(2, Int[]), Agent(3, Int[]), Agent(4, Int[]), Agent(5, Int[]), Agent(6, Int[]), Agent(7, Int[])]
+# group = Group(Int[1, 2, 3, 4, 5, 6, 7])
+
+# # Создание графа Барабаши-Альберта
+# # На вход подаются группа с набором агентов (group) и число минимальных связей, которые должен иметь агент (m)
+# function generate_barabasi_albert_network(all_agents::Vector{Agent}, group::Group, m::Int)
+#     # Связный граф с m вершинами
+#     for i = 1:m
+#         for j = 1:m
+#             if i != j
+#                 push!(all_agents[group.agent_ids[i]].work_conn_ids, all_agents[group.agent_ids[j]].id)
+#             end
+#         end
+#     end
+#     # Сумма связей всех вершин
+#     degree_sum = m * (m - 1)
+#     # Добавление новых вершин
+#     for i = (m + 1):size(group.agent_ids, 1)
+#         println("I: $i")
+#         agent = all_agents[group.agent_ids[i]]
+#         degree_sum_temp = degree_sum
+#         for k = 1:m
+#             println("K: $k")
+#             println("degree_sum_temp: $degree_sum_temp")
+#             cumulative = 0.0
+#             rand_num = rand(Float64)
+#             for j = 1:(i-1)
+#                 println("J: $j")
+#                 if j in agent.work_conn_ids
+#                     continue
+#                 end
+#                 agent2 = all_agents[group.agent_ids[j]]
+#                 cumulative += size(agent2.work_conn_ids, 1) / degree_sum_temp
+#                 println(cumulative)
+#                 if rand_num < cumulative
+#                     degree_sum_temp -= size(agent2.work_conn_ids, 1)
+#                     push!(agent.work_conn_ids, agent2.id)
+#                     push!(agent2.work_conn_ids, agent.id)
+#                     break
+#                 end
+#             end
+#         end
+#         degree_sum += 2m
+
+#         # added_conn = 0
+#         # # Новая вершина должна иметь m связей
+#         # while (added_conn < m)
+#         #     for j = 1:i
+#         #         agent2 = all_agents[group.agent_ids[j]]
+#         #         p = size(agent2.work_conn_ids, 1) / degree_sum
+#         #         if rand(Float64) < p
+#         #             push!(agent.work_conn_ids, agent2.id)
+#         #             push!(agent2.work_conn_ids, agent.id)
+#         #             added_conn += 1
+#         #             if added_conn == m
+#         #                 break
+#         #             end
+#         #         end
+#         #     end
+#         # end
+#         # degree_sum += m
+#     end
+# end
+
+# generate_barabasi_albert_network(all_agents, group, 3)
+# for a in all_agents
+#     println(size(a.work_conn_ids, 1))
+# end
+
+
 
 # struct Group
 #     c::Int
