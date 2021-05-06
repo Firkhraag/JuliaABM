@@ -30,7 +30,7 @@ mutable struct Agent
     # Id вируса
     virus_id::Int
     # Был заражен на текущем шаге
-    was_infected_on_current_step::Bool
+    is_newly_infected::Bool
     # Набор дней после приобретения типоспецифического иммунитета
     immunity_days::Vector{Int}
     # Продолжительность инкубационного периода

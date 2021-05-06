@@ -1455,9 +1455,9 @@ function create_population(
     workplace_group_size = get_workplace_group_size()
 
     agent_id = 1
-    # for index in processes[(comm_rank + 1):comm_size:107]
+    for index in processes[(comm_rank + 1):comm_size:107]
     # for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-    for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    # for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     # for index in [1]
         index_for_1_people::Int = (index - 1) * 5 + 1
         index_for_2_people::Int = index_for_1_people + 1
@@ -2138,7 +2138,7 @@ function make_contact(
 
     if rand_num < infection_probability
         agent.virus_id = infected_agent.virus_id
-        agent.was_infected_on_current_step = true
+        agent.is_newly_infected = true
     end
 end
 
@@ -2152,37 +2152,37 @@ function infect_randomly(
     if rand_num < etiologies[week_num][1]
         if agent.immunity_days[1] == 0
             agent.virus_id = viruses[1].id
-            agent.was_infected_on_current_step = true
+            agent.is_newly_infected = true
         end
     elseif rand_num < etiologies[week_num][2]
         if agent.immunity_days[2] == 0
             agent.virus_id = viruses[2].id
-            agent.was_infected_on_current_step = true
+            agent.is_newly_infected = true
         end
     elseif rand_num < etiologies[week_num][3]
         if agent.immunity_days[3] == 0
             agent.virus_id = viruses[3].id
-            agent.was_infected_on_current_step = true
+            agent.is_newly_infected = true
         end
     elseif rand_num < etiologies[week_num][4]
         if agent.immunity_days[4] == 0
             agent.virus_id = viruses[4].id
-            agent.was_infected_on_current_step = true
+            agent.is_newly_infected = true
         end
     elseif rand_num < etiologies[week_num][5]
         if agent.immunity_days[5] == 0
             agent.virus_id = viruses[5].id
-            agent.was_infected_on_current_step = true
+            agent.is_newly_infected = true
         end
     elseif rand_num < etiologies[week_num][6]
         if agent.immunity_days[6] == 0
             agent.virus_id = viruses[6].id
-            agent.was_infected_on_current_step = true
+            agent.is_newly_infected = true
         end
     else
         if agent.immunity_days[7] == 0
             agent.virus_id = viruses[7].id
-            agent.was_infected_on_current_step = true
+            agent.is_newly_infected = true
         end
     end
 end
@@ -2334,7 +2334,7 @@ function run_simulation(
         end
         
         for agent in all_agents
-            if agent.virus_id != 0 && !agent.was_infected_on_current_step && agent.viral_load > 0.0001
+            if agent.virus_id != 0 && !agent.is_newly_infected && agent.viral_load > 0.0001
                 for agent2_id in agent.household.agent_ids
                     agent2 = all_agents[agent2_id]
                     # Проверка восприимчивости агента к вирусу
@@ -2441,7 +2441,7 @@ function run_simulation(
                 end
             end
 
-            if agent.virus_id != 0 && !agent.was_infected_on_current_step
+            if agent.virus_id != 0 && !agent.is_newly_infected
                 if agent.days_infected == agent.infection_period
                     agent.immunity_days[agent.virus_id] = 1
                     agent.days_immune = 1
@@ -2620,7 +2620,7 @@ function run_simulation(
                         end
                     end
                 end
-            elseif agent.was_infected_on_current_step
+            elseif agent.is_newly_infected
                 agent.incubation_period = get_period_from_erlang(
                     viruses[agent.virus_id].mean_incubation_period,
                     viruses[agent.virus_id].incubation_period_variance,
@@ -2647,7 +2647,7 @@ function run_simulation(
                     agent.age,
                     viral_loads[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
                     agent.is_asymptomatic && agent.days_infected > 0)
-                agent.was_infected_on_current_step = false
+                agent.is_newly_infected = false
             end
         end
 
