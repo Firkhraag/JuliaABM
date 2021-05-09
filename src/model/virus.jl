@@ -41,7 +41,7 @@ struct Virus
     mean_viral_load::Float64
 
     # Вероятность бессимптомного протекания болезни
-    asymptomatic_probab::Int
+    asymptomatic_probab::Float64
 
     function Virus(
         id::Int,
@@ -58,7 +58,7 @@ struct Virus
         min_infection_period_child::Int,
         max_infection_period_child::Int,
         mean_viral_load::Float64,
-        asymptomatic_probab::Int
+        asymptomatic_probab::Float64
     )
         new(
             id,

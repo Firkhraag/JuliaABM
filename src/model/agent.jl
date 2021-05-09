@@ -67,15 +67,15 @@ mutable struct Agent
         # Социальный статус
         collective_id = 0
         if age < 3
-            if rand(1:100) < 24
+            if rand(Float64) < 0.23
                 collective_id = 1
             end
         elseif age < 6
-            if rand(1:100) < 84
+            if rand(Float64) < 0.83
                 collective_id = 1
             end
         elseif age == 6
-            if rand(1:100) < 76
+            if rand(Float64) < 0.75
                 collective_id = 1
             else
                 collective_id = 2
@@ -83,80 +83,80 @@ mutable struct Agent
         elseif age < 18
             collective_id = 2
         elseif age == 18
-            rand_num = rand(1:100)
-            if rand_num < 51
+            rand_num = rand(Float64)
+            if rand_num < 0.5
                 collective_id = 2
-            elseif rand_num < 76
+            elseif rand_num < 0.75
                 collective_id = 3
-            elseif rand_num < 86
+            elseif rand_num < 0.85
                 collective_id = 4
             end
         elseif age < 23
-            rand_num = rand(1:100)
-            if rand_num < 34
+            rand_num = rand(Float64)
+            if rand_num < 0.33
                 collective_id = 3
-            elseif rand_num < 67
+            elseif rand_num < 0.66
                 collective_id = 4
             end
         elseif age < 25
-            rand_num = rand(1:100)
-            if rand_num < 83
+            rand_num = rand(Float64)
+            if rand_num < 0.82
                 collective_id = 4
-            elseif rand_num < 89
+            elseif rand_num < 0.88
                 collective_id = 3
             end
         elseif age < 30
-            rand_num = rand(1:100)
+            rand_num = rand(Float64)
             if is_male
-                if rand_num < 83
+                if rand_num < 0.82
                     collective_id = 4
                 end
             else
-                if rand_num < 75
+                if rand_num < 0.74
                     collective_id = 4
                 end
             end
         elseif age < 40
-            rand_num = rand(1:100)
+            rand_num = rand(Float64)
             if is_male
-                if rand_num < 96
+                if rand_num < 0.95
                     collective_id = 4
                 end
             else
-                if rand_num < 86
+                if rand_num < 0.85
                     collective_id = 4
                 end
             end
         elseif age < 50
-            rand_num = rand(1:100)
+            rand_num = rand(Float64)
             if is_male
-                if rand_num < 95
+                if rand_num < 0.94
                     collective_id = 4
                 end
             else
-                if rand_num < 90
+                if rand_num < 0.89
                     collective_id = 4
                 end
             end
         elseif age < 60
-            rand_num = rand(1:100)
+            rand_num = rand(Float64)
             if is_male
-                if rand_num < 89
+                if rand_num < 0.88
                     collective_id = 4
                 end
             else
-                if rand_num < 71
+                if rand_num < 0.7
                     collective_id = 4
                 end
             end
         elseif age < 65
-            rand_num = rand(1:100)
+            rand_num = rand(Float64)
             if is_male
-                if rand_num < 52
+                if rand_num < 0.51
                     collective_id = 4
                 end
             else
-                if rand_num < 30
+                if rand_num < 0.29
                     collective_id = 4
                 end
             end
@@ -252,19 +252,19 @@ mutable struct Agent
         # Болен
         is_infected = false
         if age < 3
-            if rand(1:1000) < 17
+            if rand(Float64) < 0.016
                 is_infected = true
             end
         elseif age < 7
-            if rand(1:100) == 1
+            if rand(Float64) < 0.01
                 is_infected = true
             end
         elseif age < 15
-            if rand(1:1000) < 8
+            if rand(Float64) < 0.007
                 is_infected = true
             end
         else
-            if rand(1:1000) < 4
+            if rand(Float64) < 0.003
                 is_infected = true
             end
         end
@@ -274,44 +274,44 @@ mutable struct Agent
 
         if !is_infected
             if age < 3
-                if rand(1:100) < 64
-                    rand_num = rand(1:100)
-                    if rand_num < 61
+                if rand(Float64) < 0.63
+                    rand_num = rand(Float64)
+                    if rand_num < 0.6
                         immunity_days[3] = rand(1:60)
-                    elseif rand_num < 81
+                    elseif rand_num < 0.8
                         immunity_days[5] = rand(1:60)
                     else
                         immunity_days[6] = rand(1:60)
                     end
                 end
             elseif age < 7
-                if rand(1:100) < 45
-                    rand_num = rand(1:100)
-                    if rand_num < 61
+                if rand(Float64) < 0.44
+                    rand_num = rand(Float64)
+                    if rand_num < 0.6
                         immunity_days[3] = rand(1:60)
-                    elseif rand_num < 81
+                    elseif rand_num < 0.8
                         immunity_days[5] = rand(1:60)
                     else
                         immunity_days[6] = rand(1:60)
                     end
                 end
             elseif age < 15
-                if rand(1:1000) < 38
-                    rand_num = rand(1:100)
-                    if rand_num < 61
+                if rand(Float64) < 0.37
+                    rand_num = rand(Float64)
+                    if rand_num < 0.6
                         immunity_days[3] = rand(1:60)
-                    elseif rand_num < 81
+                    elseif rand_num < 0.8
                         immunity_days[5] = rand(1:60)
                     else
                         immunity_days[6] = rand(1:60)
                     end
                 end
             else
-                if rand(1:1000) < 21
-                    rand_num = rand(1:100)
-                    if rand_num < 61
+                if rand(Float64) < 0.2
+                    rand_num = rand(Float64)
+                    if rand_num < 0.6
                         immunity_days[3] = rand(1:60)
-                    elseif rand_num < 81
+                    elseif rand_num < 0.8
                         immunity_days[5] = rand(1:60)
                     else
                         immunity_days[6] = rand(1:60)
@@ -330,10 +330,10 @@ mutable struct Agent
         viral_load = 0.0
         if is_infected
             # Тип инфекции
-            rand_num = rand(1:100)
-            if rand_num < 61
+            rand_num = rand(Float64)
+            if rand_num < 0.6
                 virus_id = viruses[3].id
-            elseif rand_num < 81
+            elseif rand_num < 0.8
                 virus_id = viruses[5].id
             else
                 virus_id = viruses[6].id
@@ -364,55 +364,55 @@ mutable struct Agent
             days_infected = rand((1 - incubation_period):infection_period)
             # days_infected = rand(1:(infection_period + incubation_period))
 
-            if rand(1:100) <= viruses[virus_id].asymptomatic_probab
+            if rand(Float64) < viruses[virus_id].asymptomatic_probab
                 # Асимптомный
                 is_asymptomatic = true
             else
                 # Самоизоляция
                 if days_infected >= 1
-                    rand_num = rand(1:1000)
+                    rand_num = rand(Float64)
                     if age < 8
-                        if rand_num < 305
+                        if rand_num < 0.305
                             is_isolated = true
                         end
                     elseif age < 18
-                        if rand_num < 204
+                        if rand_num < 0.204
                             is_isolated = true
                         end
                     else
-                        if rand_num < 101
+                        if rand_num < 0.101
                             is_isolated = true
                         end
                     end
                 end
                 if days_infected >= 2 && !is_isolated
-                    rand_num = rand(1:1000)
+                    rand_num = rand(Float64)
                     if age < 8
-                        if rand_num < 576
+                        if rand_num < 0.576
                             is_isolated = true
                         end
                     elseif age < 18
-                        if rand_num < 499
+                        if rand_num < 0.499
                             is_isolated = true
                         end
                     else
-                        if rand_num < 334
+                        if rand_num < 0.334
                             is_isolated = true
                         end
                     end
                 end
                 if days_infected >= 3 && !is_isolated
-                    rand_num = rand(1:1000)
+                    rand_num = rand(Float64)
                     if age < 8
-                        if rand_num < 325
+                        if rand_num < 0.325
                             is_isolated = true
                         end
                     elseif age < 18
-                        if rand_num < 376
+                        if rand_num < 0.376
                             is_isolated = true
                         end
                     else
-                        if rand_num < 168
+                        if rand_num < 0.168
                             is_isolated = true
                         end
                     end

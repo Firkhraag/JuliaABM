@@ -2,4 +2,4 @@
 .DS_Store
 output/*
 
-sys_project.so
+*.so

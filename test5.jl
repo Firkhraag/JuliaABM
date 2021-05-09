@@ -17,9 +17,15 @@
 
 # sample_from_zipf_distribution(1.065, 100)
 
-a = zeros(Float64, 2, 3, 4)
-# println(a[2][3][4])
-println(a[2, 3, 4])
+# a = zeros(Float64, 2, 3, 4)
+# # println(a[2][3][4])
+# println(a[2, 3, 4])
+
+using DelimitedFiles
+
+A = [1 2 3; 4 5 6]
+
+writedlm("test.csv", A, ',')
 
 # @time for i = 1:1000 sample_from_zipf_distribution(1.065, 2000) end
 # @time for i = 1:1000 rand(1:2000) end

@@ -5,7 +5,10 @@ struct Group
     # Id коллектива
     collective_id::Int
 
-    function Group(agent_ids::Vector{Int} = Int[], collective_id::Int = 0)
+    function Group(
+        agent_ids::Vector{Int} = Int[],
+        collective_id::Int = 0
+    )
         new(agent_ids, collective_id)
     end
 end
@@ -27,34 +30,37 @@ struct Collective
     groups::Vector{Vector{Group}}
 
     function Collective(
-        id::Int, mean_time_spent::Float64, time_spent_sd::Float64, groups::Vector{Vector{Group}}
+        id::Int,
+        mean_time_spent::Float64,
+        time_spent_sd::Float64,
+        groups::Vector{Vector{Group}}
     )
         new(id, mean_time_spent, time_spent_sd, groups)
     end
 end
 
 function get_kindergarten_group_size(group_num::Int)
-    rand_num = rand(1:100)
+    rand_num = rand(Float64)
     if group_num == 1
-        if rand_num <= 20
+        if rand_num < 0.2
             return 9
-        elseif rand_num <= 80
+        elseif rand_num < 0.8
             return 10
         else
             return 11
         end
     elseif group_num == 2 || group_num == 3
-        if rand_num <= 20
+        if rand_num < 0.2
             return 14
-        elseif rand_num <= 80
+        elseif rand_num < 0.8
             return 15
         else
             return 16
         end
     else
-        if rand_num <= 20
+        if rand_num < 0.2
             return 19
-        elseif rand_num <= 80
+        elseif rand_num < 0.8
             return 20
         else
             return 21
@@ -63,10 +69,10 @@ function get_kindergarten_group_size(group_num::Int)
 end
 
 function get_school_group_size(group_num::Int)
-    rand_num = rand(1:100)
-    if rand_num <= 20
+    rand_num = rand(Float64)
+    if rand_num < 0.2
         return 24
-    elseif rand_num <= 80
+    elseif rand_num < 0.8
         return 25
     else
         return 26
@@ -74,43 +80,43 @@ function get_school_group_size(group_num::Int)
 end
 
 function get_university_group_size(group_num::Int)
-    rand_num = rand(1:100)
+    rand_num = rand(Float64)
     if group_num == 1
-        if rand_num <= 20
+        if rand_num < 0.2
             return 14
-        elseif rand_num <= 80
+        elseif rand_num < 0.8
             return 15
         else
             return 16
         end
     elseif group_num == 2 || group_num == 3
-        if rand_num <= 20
+        if rand_num < 0.2
             return 13
-        elseif rand_num <= 80
+        elseif rand_num < 0.8
             return 14
         else
             return 15
         end
     elseif group_num == 4
-        if rand_num <= 20
+        if rand_num < 0.2
             return 12
-        elseif rand_num <= 80
+        elseif rand_num < 0.8
             return 13
         else
             return 14
         end
     elseif group_num == 5
-        if rand_num <= 20
+        if rand_num < 0.2
             return 10
-        elseif rand_num <= 80
+        elseif rand_num < 0.8
             return 11
         else
             return 12
         end
     else
-        if rand_num <= 20
+        if rand_num < 0.2
             return 9
-        elseif rand_num <= 80
+        elseif rand_num < 0.8
             return 10
         else
             return 11
@@ -118,7 +124,9 @@ function get_university_group_size(group_num::Int)
     end
 end
 
-function sample_from_zipf_distribution(s::Float64, N::Int)
+function sample_from_zipf_distribution(
+    s::Float64, N::Int
+)::Int
     cumulative = 0.0
     rand_num = rand(Float64)
     multiplier = 1 / sum((1:N).^(-s))
@@ -131,6 +139,8 @@ function sample_from_zipf_distribution(s::Float64, N::Int)
     return N
 end
 
-function get_workplace_group_size()::Int
-    return sample_from_zipf_distribution(1.059, 2000) + 5
+function get_workplace_group_size(
+    min_workplace_size::Int, max_workplace_size::Int
+)::Int
+    return sample_from_zipf_distribution(1.059, max_workplace_size) + min_workplace_size
 end
