@@ -133,5 +133,4 @@ end
 
 function get_workplace_group_size()::Int
     return sample_from_zipf_distribution(1.059, 2000) + 5
-    # return rand(6:2005)
 end

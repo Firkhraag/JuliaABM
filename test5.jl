@@ -1,21 +1,28 @@
-using Random
+# using Random
 
-function sample_from_zipf_distribution(s::Float64, N::Int)
-    cumulative = 0.0
-    rand_num = rand(Float64)
-    num = 0
-    multiplier = 1 / sum((1:N).^(-s))
-    for i = 1:N
-        cumulative += i^(-s) * multiplier
-        if rand_num < cumulative
-            return i
-        end
-    end
-    return N
-end
+# function sample_from_zipf_distribution(s::Float64, N::Int)
+#     cumulative = 0.0
+#     rand_num = rand(Float64)
+#     num = 0
+#     multiplier = 1 / sum((1:N).^(-s))
+#     for i = 1:N
+#         cumulative += i^(-s) * multiplier
+#         println(i^(-s) * multiplier)
+#         # if rand_num < cumulative
+#         #     return i
+#         # end
+#     end
+#     return N
+# end
 
-@time for i = 1:1000 sample_from_zipf_distribution(1.065, 2000) end
-@time for i = 1:1000 rand(1:2000) end
+# sample_from_zipf_distribution(1.065, 100)
+
+a = zeros(Float64, 2, 3, 4)
+# println(a[2][3][4])
+println(a[2, 3, 4])
+
+# @time for i = 1:1000 sample_from_zipf_distribution(1.065, 2000) end
+# @time for i = 1:1000 rand(1:2000) end
 
 # struct Agent
 #     id::Int

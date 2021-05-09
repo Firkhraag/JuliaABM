@@ -1455,9 +1455,9 @@ function create_population(
     workplace_group_size = get_workplace_group_size()
 
     agent_id = 1
-    for index in processes[(comm_rank + 1):comm_size:107]
-    # for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-    # for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    # for index in processes[(comm_rank + 1):comm_size:107]
+    for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    # for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     # for index in [1]
         index_for_1_people::Int = (index - 1) * 5 + 1
         index_for_2_people::Int = index_for_1_people + 1
@@ -1522,9 +1522,6 @@ function create_population(
             add_agents_to_collectives(
                 all_agents, agents, collectives, kindergarten_group_sizes,
                 school_group_sizes, university_group_sizes, workplace_group_size)
-            if (size(all_agents, 1) != all_agents[size(all_agents, 1)].id)
-                exit(0)
-            end
         end
         for i in 1:districts[index, 7]
             # PWOP4P2C
@@ -2095,9 +2092,13 @@ function get_contact_duration(mean::Float64, sd::Float64)
     return rand(truncated(Normal(mean, sd), 0.0, Inf))
 end
 
+function get_contact_duration_gamma(shape::Float64, scale::Float64)
+    return rand(truncated(Gamma(shape, scale), 0.0, Inf))
+end
+
 function make_contact(
     infected_agent::Agent,
-    agent::Agent,
+    susceptible_agent::Agent,
     contact_duration::Float64,
     step::Int,
     duration_parameter::Float64,
@@ -2111,7 +2112,7 @@ function make_contact(
     temperature_influence = temp_influences[infected_agent.virus_id, step]
 
     # Влияние восприимчивости агента на вероятность инфицирования
-    susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus_id] * agent.ig_level))
+    susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus_id] * susceptible_agent.ig_level))
 
     # Влияние силы инфекции на вероятность инфицирования
     infectivity_influence = infected_agent.viral_load
@@ -2137,8 +2138,8 @@ function make_contact(
     # println("Rand: $(rand(Float64)), inf: $(infection_probability)")
 
     if rand_num < infection_probability
-        agent.virus_id = infected_agent.virus_id
-        agent.is_newly_infected = true
+        susceptible_agent.virus_id = infected_agent.virus_id
+        susceptible_agent.is_newly_infected = true
     end
 end
 
@@ -2275,6 +2276,23 @@ function run_simulation(
     age_groups_weekly_new_infections_num = Int[0, 0, 0, 0]
     collectives_weekly_new_infections_num = Int[0, 0, 0, 0, 0]
 
+    # daily_new_cases = zeros(Int, 7, 11, 365)
+    # daily_new_recoveries = zeros(Int, 7, 11, 365)
+
+    daily_new_cases_age_groups = zeros(Int, 7, 365)
+    daily_new_recoveries_age_groups = zeros(Int, 7, 365)
+
+    daily_new_cases_viruses_asymptomatic = zeros(Int, 7, 365)
+    daily_new_cases_viruses = zeros(Int, 7, 365)
+    daily_new_recoveries_viruses = zeros(Int, 7, 365)
+
+    daily_new_cases_collectives = zeros(Int, 4, 365)
+    daily_new_recoveries_collectives = zeros(Int, 4, 365)
+
+    immunity_viruses = zeros(Int, 7, 365)
+
+    infected_inside_collective = zeros(Int, 5, 365)
+
     for step = 1:max_step
         # Выходные, праздники
         is_holiday = false
@@ -2338,10 +2356,36 @@ function run_simulation(
                 for agent2_id in agent.household.agent_ids
                     agent2 = all_agents[agent2_id]
                     # Проверка восприимчивости агента к вирусу
-                    if agent2.virus_id == 0 && agent.days_immune == 0 &&
-                            agent.immunity_days[agent.virus_id] == 0
+                    if agent2.virus_id == 0 && agent2.days_immune == 0 &&
+                            agent2.immunity_days[agent.virus_id] == 0
                         agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0
                         agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0
+                        # if is_holiday || (agent_at_home && agent2_at_home)
+                        #     make_contact(
+                        #         agent, agent2, get_contact_duration(12.5, 5.5),
+                        #         step, duration_parameter, susceptibility_parameters, temp_influences)
+                        # elseif ((agent.collective_id == 4 && !agent_at_home) ||
+                        #     (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
+                        #     make_contact(
+                        #         agent, agent2, get_contact_duration(4.5, 2.25),
+                        #         step, duration_parameter, susceptibility_parameters, temp_influences)
+                        # elseif ((agent.collective_id == 2 && !agent_at_home) ||
+                        #     (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
+                        #     make_contact(
+                        #         agent, agent2, get_contact_duration(6.1, 2.46),
+                        #         step, duration_parameter, susceptibility_parameters, temp_influences)
+                        # elseif ((agent.collective_id == 1 && !agent_at_home) ||
+                        #     (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
+                        #     make_contact(
+                        #         agent, agent2, get_contact_duration(7.0, 2.65),
+                        #         step, duration_parameter, susceptibility_parameters, temp_influences)
+                        # elseif ((agent.collective_id == 3 && !agent_at_home) ||
+                        #     (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
+                        #     make_contact(
+                        #         agent, agent2, get_contact_duration(10.0, 3.69),
+                        #         step, duration_parameter, susceptibility_parameters, temp_influences)
+                        # end
+
                         if is_holiday || (agent_at_home && agent2_at_home)
                             make_contact(
                                 agent, agent2, get_contact_duration(12.5, 5.5),
@@ -2367,6 +2411,9 @@ function run_simulation(
                                 agent, agent2, get_contact_duration(7.0, 3.69),
                                 step, duration_parameter, susceptibility_parameters, temp_influences)
                         end
+                        if agent2.virus_id != 0
+                            infected_inside_collective[5, step] += 1
+                        end
                     end
                 end
                 if !is_holiday && agent.group_num != 0 && !agent.is_isolated && !agent.on_parent_leave &&
@@ -2374,28 +2421,31 @@ function run_simulation(
                         (agent.collective_id == 2 && !is_school_holiday) ||
                         (agent.collective_id == 3 && !is_university_holiday) ||
                         (agent.collective_id == 4 && !is_work_holiday))
-                    group = collectives[agent.collective_id].groups[agent.group_num][agent.group_id]
                     if agent.collective_id == 4
                         for agent2_id in agent.work_conn_ids
                             agent2 = all_agents[agent2_id]
                             # Проверка восприимчивости агента к вирусу
-                            if agent2.virus_id == 0 && agent.days_immune == 0 &&
-                                    agent.immunity_days[agent.virus_id] == 0 &&
+                            if agent2.virus_id == 0 && agent2.days_immune == 0 &&
+                                    agent2.immunity_days[agent.virus_id] == 0 &&
                                         !agent2.is_isolated && !agent2.on_parent_leave
                                     make_contact(
                                         agent, agent2, get_contact_duration(
-                                            collectives[group.collective_id].mean_time_spent,
-                                            collectives[group.collective_id].time_spent_sd),
+                                            collectives[4].mean_time_spent,
+                                            collectives[4].time_spent_sd),
                                         step, duration_parameter,
                                         susceptibility_parameters, temp_influences)
+                                    if agent2.virus_id != 0
+                                        infected_inside_collective[agent.collective_id, step] += 1
+                                    end
                             end
                         end
                     else
+                        group = collectives[agent.collective_id].groups[agent.group_num][agent.group_id]
                         for agent2_id in group.agent_ids
                             agent2 = all_agents[agent2_id]
                             # Проверка восприимчивости агента к вирусу
-                            if agent2.virus_id == 0 && agent.days_immune == 0 &&
-                                    agent.immunity_days[agent.virus_id] == 0 &&
+                            if agent2.virus_id == 0 && agent2.days_immune == 0 &&
+                                    agent2.immunity_days[agent.virus_id] == 0 &&
                                         !agent2.is_isolated && !agent2.on_parent_leave
                                     make_contact(
                                         agent, agent2, get_contact_duration(
@@ -2403,6 +2453,9 @@ function run_simulation(
                                             collectives[group.collective_id].time_spent_sd),
                                         step, duration_parameter,
                                         susceptibility_parameters, temp_influences)
+                                        if agent2.virus_id != 0
+                                            infected_inside_collective[agent.collective_id, step] += 1
+                                        end
                             end
                         end
                     end
@@ -2437,12 +2490,34 @@ function run_simulation(
                         agent.immunity_days[k] = 0
                     else
                         agent.immunity_days[k] += 1
+                        immunity_viruses[k, step] += 1
                     end
                 end
             end
 
             if agent.virus_id != 0 && !agent.is_newly_infected
                 if agent.days_infected == agent.infection_period
+
+                    daily_new_recoveries_viruses[agent.virus_id, step] += 1
+                    if agent.age < 3
+                        daily_new_recoveries_age_groups[1, step] += 1
+                    elseif agent.age < 7
+                        daily_new_recoveries_age_groups[2, step] += 1
+                    elseif agent.age < 15
+                        daily_new_recoveries_age_groups[3, step] += 1
+                    elseif agent.age < 18
+                        daily_new_recoveries_age_groups[4, step] += 1
+                    elseif agent.age < 25
+                        daily_new_recoveries_age_groups[5, step] += 1
+                    elseif agent.age < 65
+                        daily_new_recoveries_age_groups[6, step] += 1
+                    else
+                        daily_new_recoveries_age_groups[7, step] += 1
+                    end
+                    if agent.collective_id != 0
+                        daily_new_recoveries_collectives[agent.collective_id, step] += 1
+                    end
+
                     agent.immunity_days[agent.virus_id] = 1
                     agent.days_immune = 1
                     agent.virus_id = 0
@@ -2452,7 +2527,7 @@ function run_simulation(
                         is_support_still_needed = false
                         for dependant_id in all_agents[agent.supporter_id].dependant_ids
                             dependant = all_agents[dependant_id]
-                            if dependant.virus_id != 0 && (dependant.collective_id == 0 || dependant.is_isolated)
+                            if dependant.virus_id != 0 && !dependant.is_asymptomatic && (dependant.collective_id == 0 || dependant.is_isolated)
                                 is_support_still_needed = true
                             end
                         end
@@ -2464,8 +2539,8 @@ function run_simulation(
                     agent.days_infected += 1
     
                     if !agent.is_asymptomatic && !agent.is_isolated && agent.collective_id != 0 && !agent.on_parent_leave
-                        rand_num = rand(1:1000)
-                        if agent.days_infected == agent.incubation_period + 1
+                        if agent.days_infected == 1
+                            rand_num = rand(1:1000)
                             if agent.age < 8
                                 if rand_num < 305
                                     agent.is_isolated = true
@@ -2510,7 +2585,8 @@ function run_simulation(
                                     end
                                 end
                             end
-                        elseif agent.days_infected == agent.incubation_period + 2
+                        elseif agent.days_infected == 2
+                            rand_num = rand(1:1000)
                             if agent.age < 8
                                 if rand_num < 576
                                     agent.is_isolated = true
@@ -2557,7 +2633,8 @@ function run_simulation(
                                     end
                                 end
                             end
-                        elseif agent.days_infected == agent.incubation_period + 3
+                        elseif agent.days_infected == 3
+                            rand_num = rand(1:1000)
                             if agent.age < 8
                                 if rand_num < 325
                                     agent.is_isolated = true
@@ -2612,15 +2689,32 @@ function run_simulation(
                         viral_loads[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
                         agent.is_asymptomatic && agent.days_infected > 0)
     
-                    if agent.supporter_id != 0 && !agent.is_asymptomatic
-                        if agent.days_infected > 0
-                            if agent.is_isolated || agent.collective_id == 0
-                                all_agents[agent.supporter_id].on_parent_leave = true
-                            end
-                        end
+                    if agent.supporter_id != 0 && !agent.is_asymptomatic && agent.days_infected > 0 && (agent.is_isolated || agent.collective_id == 0)
+                        all_agents[agent.supporter_id].on_parent_leave = true
                     end
                 end
             elseif agent.is_newly_infected
+
+                daily_new_cases_viruses[agent.virus_id, step] += 1
+                if agent.age < 3
+                    daily_new_cases_age_groups[1, step] += 1
+                elseif agent.age < 7
+                    daily_new_cases_age_groups[2, step] += 1
+                elseif agent.age < 15
+                    daily_new_cases_age_groups[3, step] += 1
+                elseif agent.age < 18
+                    daily_new_cases_age_groups[4, step] += 1
+                elseif agent.age < 25
+                    daily_new_cases_age_groups[5, step] += 1
+                elseif agent.age < 65
+                    daily_new_cases_age_groups[6, step] += 1
+                else
+                    daily_new_cases_age_groups[7, step] += 1
+                end
+                if agent.collective_id != 0
+                    daily_new_cases_collectives[agent.collective_id, step] += 1
+                end
+
                 agent.incubation_period = get_period_from_erlang(
                     viruses[agent.virus_id].mean_incubation_period,
                     viruses[agent.virus_id].incubation_period_variance,
@@ -2641,7 +2735,10 @@ function run_simulation(
                 end
                 agent.days_infected = 1 - agent.incubation_period
                 if rand(1:100) <= viruses[agent.virus_id].asymptomatic_probab
+                    daily_new_cases_viruses_asymptomatic[agent.virus_id, step] += 1
                     agent.is_asymptomatic = true
+                else
+                    agent.is_asymptomatic = false
                 end
                 agent.viral_load = find_agent_viral_load(
                     agent.age,
@@ -2681,9 +2778,15 @@ function run_simulation(
             (month == 2 && day == 28)
             day = 1
             month += 1
+            if comm_rank == 0
+                println("Month: $month")
+            end
         elseif (month == 12 && day == 31)
             day = 1
             month = 1
+            if comm_rank == 0
+                println("Month: $month")
+            end
         else
             day += 1
         end
@@ -2694,6 +2797,20 @@ function run_simulation(
     incidence_data = MPI.Reduce(incidence, MPI.SUM, 0, comm)
     etiologies_data = MPI.Reduce(etiologies_incidence, MPI.SUM, 0, comm)
     age_groups_data = MPI.Reduce(age_groups_incidence, MPI.SUM, 0, comm)
+
+    daily_new_cases_age_groups_all = MPI.Reduce(daily_new_cases_age_groups, MPI.SUM, 0, comm)
+    daily_new_recoveries_age_groups_all = MPI.Reduce(daily_new_recoveries_age_groups, MPI.SUM, 0, comm)
+
+    daily_new_cases_viruses_asymptomatic_all = MPI.Reduce(daily_new_cases_viruses_asymptomatic, MPI.SUM, 0, comm)
+    daily_new_cases_viruses_all = MPI.Reduce(daily_new_cases_viruses, MPI.SUM, 0, comm)
+    daily_new_recoveries_viruses_all = MPI.Reduce(daily_new_recoveries_viruses, MPI.SUM, 0, comm)
+
+    daily_new_cases_collectives_all = MPI.Reduce(daily_new_cases_collectives, MPI.SUM, 0, comm)
+    daily_new_recoveries_collectives_all = MPI.Reduce(daily_new_recoveries_collectives, MPI.SUM, 0, comm)
+
+    immunity_viruses_all = MPI.Reduce(immunity_viruses, MPI.SUM, 0, comm)
+    infected_inside_collective_all = MPI.Reduce(infected_inside_collective, MPI.SUM, 0, comm)
+
     if comm_rank == 0
         incidence_plot = plot(1:52, incidence_data .* multiplier, title = "Incidence", lw = 3, legend = false)
         xlabel!("Week")
@@ -2719,6 +2836,107 @@ function run_simulation(
         xlabel!("Week")
         ylabel!("Incidence")
         savefig(age_groups_incidence_plot, joinpath(@__DIR__, "..", "output", "age_groups.pdf"))
+
+        # ----------------------
+        daily_new_cases_age_groups_all_plot = plot(
+            1:365,
+            [daily_new_cases_age_groups_all[i, :] for i = 1:7],
+            title = "Daily new cases",
+            lw = 3,
+            label = ["0-2" "3-6" "7-14" "15-17" "18-24" "25-64" "65+"])
+        xlabel!("Day")
+        ylabel!("Incidence")
+        savefig(daily_new_cases_age_groups_all_plot, joinpath(@__DIR__, "..", "output", "daily_new_cases_age_groups.pdf"))
+
+        daily_new_recoveries_age_groups_all_plot = plot(
+            1:365,
+            [daily_new_recoveries_age_groups_all[i, :] for i = 1:7],
+            title = "Daily new recoveries",
+            lw = 3,
+            label = ["0-2" "3-6" "7-14" "15-17" "18-24" "25-64" "65+"])
+        xlabel!("Day")
+        ylabel!("Incidence")
+        savefig(daily_new_recoveries_age_groups_all_plot, joinpath(@__DIR__, "..", "output", "daily_new_recoveries_age_groups.pdf"))
+    
+        daily_new_cases_viruses_all_plot = plot(
+            1:365,
+            [daily_new_cases_viruses_all[i, :] for i = 1:7],
+            title = "Daily new cases",
+            lw = 3,
+            label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
+        xlabel!("Day")
+        ylabel!("Incidence")
+        savefig(daily_new_cases_viruses_all_plot, joinpath(@__DIR__, "..", "output", "daily_new_cases_viruses.pdf"))
+
+        daily_new_cases_viruses_asymptomatic_all_plot = plot(
+            1:365,
+            [daily_new_cases_viruses_asymptomatic_all[i, :] for i = 1:7],
+            title = "Daily new cases",
+            lw = 3,
+            label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
+        xlabel!("Day")
+        ylabel!("Incidence")
+        savefig(daily_new_cases_viruses_asymptomatic_all_plot, joinpath(@__DIR__, "..", "output", "daily_new_cases_viruses_asymptomatic.pdf"))
+
+        daily_new_cases_all_plot = plot(
+            1:365,
+            daily_new_cases_viruses_all[1, :] + daily_new_cases_viruses_all[2, :] + daily_new_cases_viruses_all[3, :] + daily_new_cases_viruses_all[4, :] + daily_new_cases_viruses_all[5, :] + daily_new_cases_viruses_all[6, :] + daily_new_cases_viruses_all[7, :],
+            title = "Daily new cases",
+            lw = 3,
+            legend = false)
+        xlabel!("Day")
+        ylabel!("Incidence")
+        savefig(daily_new_cases_all_plot, joinpath(@__DIR__, "..", "output", "daily_new_cases_all.pdf"))
+
+        daily_new_recoveries_viruses_all_plot = plot(
+            1:365,
+            [daily_new_recoveries_viruses_all[i, :] for i = 1:7],
+            title = "Daily new recoveries",
+            lw = 3,
+            label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
+        xlabel!("Day")
+        ylabel!("Incidence")
+        savefig(daily_new_recoveries_viruses_all_plot, joinpath(@__DIR__, "..", "output", "daily_new_recoveries_viruses.pdf"))
+    
+        daily_new_cases_collectives_all_plot = plot(
+            1:365,
+            [daily_new_cases_collectives_all[i, :] for i = 1:4],
+            title = "Daily new cases",
+            lw = 3,
+            label = ["Kinder" "School" "Uni" "Work"])
+        xlabel!("Day")
+        ylabel!("Incidence")
+        savefig(daily_new_cases_collectives_all_plot, joinpath(@__DIR__, "..", "output", "daily_new_cases_collectives.pdf"))
+
+        daily_new_recoveries_collectives_all_plot = plot(
+            1:365,
+            [daily_new_recoveries_collectives_all[i, :] for i = 1:4],
+            title = "Daily new recoveries",
+            lw = 3,
+            label = ["Kinder" "School" "Uni" "Work"])
+        xlabel!("Day")
+        ylabel!("Incidence")
+        savefig(daily_new_recoveries_collectives_all_plot, joinpath(@__DIR__, "..", "output", "daily_new_recoveries_collectives.pdf"))
+    
+        immunity_viruses_all_plot = plot(
+            1:365,
+            [immunity_viruses_all[i, :] for i = 1:7],
+            title = "Immunity",
+            lw = 3,
+            label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
+        xlabel!("Day")
+        ylabel!("Incidence")
+        savefig(immunity_viruses_all_plot, joinpath(@__DIR__, "..", "output", "immunity_viruses.pdf"))
+
+        infected_inside_collective_all_plot = plot(
+            1:365,
+            [infected_inside_collective_all[i, :] for i = 1:5],
+            title = "Virus transmissions inside collectives",
+            lw = 3,
+            label = ["Kinder" "School" "Uni" "Work" "Home"])
+        xlabel!("Day")
+        ylabel!("Incidence")
+        savefig(infected_inside_collective_all_plot, joinpath(@__DIR__, "..", "output", "infected_inside_collective.pdf"))
     end
 end
 
@@ -2769,13 +2987,25 @@ function main()
             Group[], Group[], Group[], Group[], Group[]]),
         Collective(3, 2.1, 3.0, [Group[], Group[], Group[], Group[], Group[], Group[]]),
         Collective(4, 3.0, 3.0, [Group[]])]
+    # collectives = Collective[
+    #     # http://ecs.force.com/mbdata/MBQuest2RTanw?rep=KK3Q1806#:~:text=6%20hours%20per%20day%20for%20kindergarten%20and%20elementary%20students.&text=437.5%20hours%20per%20year%20for%20half%2Dday%20kindergarten.
+    #     Collective(1, 5.5, 1.0, [Group[], Group[], Group[], Group[], Group[], Group[]]),
+    #     # https://nces.ed.gov/surveys/sass/tables/sass0708_035_s1s.asp
+    #     # Mixing patterns between age groups in social networks
+    #     Collective(2, 6.64, 1.0, [Group[], Group[], Group[], Group[], Group[], Group[],
+    #         Group[], Group[], Group[], Group[], Group[]]),
+    #     # 
+    #     Collective(3, 2.0, 0.5, [Group[], Group[], Group[], Group[], Group[], Group[]]),
+    #     # American Time Use Survey Summary. Bls.gov. 2017-06-27. Retrieved 2018-06-06
+    #     Collective(4, 7.9, 1.0, [Group[]])]
 
     # Параметры
     duration_parameter = 7.05
-    temperature_parameters = Float64[-0.8, -0.8, -0.05, -0.64, -0.2, -0.05, -0.8]
+    temperature_parameters = Float64[-0.8, -0.8, -0.05, -0.64, -0.2, -0.05, -0.8]   
+    # temperature_parameters = Float64[-0.8, -0.8, -0.1, -0.64, -0.2, -0.1, -0.8]   
     susceptibility_parameters = Float64[2.61, 2.61, 3.17, 5.11, 4.69, 3.89, 3.77]
-    # susceptibility_parameters = Float64[2.11, 2.11, 3.77, 5.11, 4.69, 3.89, 3.77]
-    immunity_durations = Int[366, 366, 60, 60, 366, 366, 366]
+    # susceptibility_parameters = Float64[2.1, 2.1, 3.77, 4.89, 4.69, 3.89, 3.77]
+    immunity_durations = Int[366, 366, 60, 60, 90, 90, 366]
 
     # Температура воздуха, начиная с 1 января
     temperature = [-5.8, -5.9, -5.9, -5.9,
@@ -2849,6 +3079,97 @@ function main()
     @time create_population(
         comm_rank, comm_size, all_agents, viruses, viral_loads, collectives)
     MPI.Barrier(comm)
+
+    # println("Stats...")
+    # age_groups_nums = Int[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    # collective_nums = Int[0, 0, 0, 0]
+    # household_nums = Int[0, 0, 0, 0, 0, 0]
+    # mean_ig_level = 0.0
+    # num_of_infected = 0
+    # mean_num_of_work_conn = 0.0
+    # size_work_conn = 0
+    # mean_size_work_groups = size(collectives[4].groups[1], 1)
+    # mean_size_work_group = 0
+    # for agent in all_agents
+    #     if agent.age < 3
+    #         age_groups_nums[1] += 1
+    #     elseif agent.age < 7
+    #         age_groups_nums[2] += 1
+    #     elseif agent.age < 16
+    #         age_groups_nums[3] += 1
+    #     elseif agent.age < 18
+    #         age_groups_nums[4] += 1
+    #     elseif agent.age < 25
+    #         age_groups_nums[5] += 1
+    #     elseif agent.age < 35
+    #         age_groups_nums[6] += 1
+    #     elseif agent.age < 45
+    #         age_groups_nums[7] += 1
+    #     elseif agent.age < 55
+    #         age_groups_nums[8] += 1
+    #     elseif agent.age < 65
+    #         age_groups_nums[9] += 1
+    #     elseif agent.age < 75
+    #         age_groups_nums[10] += 1
+    #     else
+    #         age_groups_nums[11] += 1
+    #     end
+
+    #     if agent.collective_id == 1
+    #         collective_nums[1] += 1
+    #     elseif agent.collective_id == 2
+    #         collective_nums[2] += 1
+    #     elseif agent.collective_id == 3
+    #         collective_nums[3] += 1
+    #     elseif agent.collective_id == 4
+    #         collective_nums[4] += 1
+    #     end
+
+    #     household_nums[size(agent.household.agent_ids, 1)] += 1
+
+    #     mean_ig_level += agent.ig_level
+    #     if size(agent.work_conn_ids, 1) != 0
+    #         mean_num_of_work_conn += size(agent.work_conn_ids, 1)
+    #         size_work_conn += 1
+    #     end
+
+    #     if agent.virus_id != 0
+    #         num_of_infected += 1
+    #     end
+    # end
+    # for group in collectives[4].groups[1]
+    #     mean_size_work_group += size(group.agent_ids, 1)
+    # end
+    # for i = 1:6
+    #     household_nums[i] /= i
+    # end
+
+    # age_groups_all = MPI.Reduce(age_groups_nums, MPI.SUM, 0, comm)
+
+    # collective_nums_all = MPI.Reduce(collective_nums, MPI.SUM, 0, comm)
+
+    # household_nums_all = MPI.Reduce(household_nums, MPI.SUM, 0, comm)
+
+    # mean_ig_level_all = MPI.Reduce(mean_ig_level, MPI.SUM, 0, comm)
+    # size_all = MPI.Reduce(size(all_agents, 1), MPI.SUM, 0, comm)
+
+    # num_of_infected_all = MPI.Reduce(num_of_infected, MPI.SUM, 0, comm)
+
+    # mean_num_of_work_conn_all = MPI.Reduce(mean_num_of_work_conn, MPI.SUM, 0, comm)
+    # size_work_con_all = MPI.Reduce(size_work_conn, MPI.SUM, 0, comm)
+
+    # mean_size_work_groups_all = MPI.Reduce(mean_size_work_groups, MPI.SUM, 0, comm)
+    # mean_size_work_group_all = MPI.Reduce(mean_size_work_group, MPI.SUM, 0, comm)
+
+    # println("Age groups: $(age_groups_all)")
+    # println("Collectives: $(collective_nums_all)")
+    # println("Households: $(household_nums_all)")
+    # println("Ig level: $(mean_ig_level_all / size_all)")
+    # println("Infected: $(num_of_infected_all)")
+    # println("Work conn: $(mean_num_of_work_conn_all / size_work_con_all)")
+    # println("Work groups: $(mean_size_work_groups_all)")
+    # println("Work group agents: $(mean_size_work_group_all / mean_size_work_groups_all)")
+    # MPI.Barrier(comm)
 
     if comm_rank == 0
         println("Simulation...")

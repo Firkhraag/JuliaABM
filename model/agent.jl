@@ -50,7 +50,6 @@ mutable struct Agent
     # Домохозяйство
     household::Group
 
-
     function Agent(
         id::Int,
         viruses::Vector{Virus},
