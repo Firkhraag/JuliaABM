@@ -191,6 +191,22 @@ function plot_infected_inside_collective()
         infected_inside_collective_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "infected_inside_collective.pdf"))
 end
 
+function plot_registered_new_cases()
+    registered_new_cases_data = readdlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "registered_new_cases_data.csv"), ',', Int)
+
+    registered_new_cases_plot = plot(
+        1:365,
+        registered_new_cases_data,
+        title = "Registered new cases",
+        lw = 3,
+        legend = false)
+    xlabel!("Day")
+    ylabel!("Num of people")
+    savefig(
+        registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "registered_new_cases.pdf"))
+end
+
 plot_incidence()
 plot_etiology()
 plot_age_groups()
@@ -207,3 +223,5 @@ plot_daily_new_recoveries_collectives()
 
 plot_immunity_viruses()
 plot_infected_inside_collective()
+
+plot_registered_new_cases()

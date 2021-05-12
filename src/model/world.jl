@@ -283,7 +283,7 @@ function check_parent_leave(no_one_at_home::Bool, adult::Agent, child::Agent)
         push!(adult.dependant_ids, child.id)
         child.supporter_id = adult.id
         if child.age < 3 && child.collective_id == 0
-            adult.collective_id == 0
+            adult.collective_id = 0
         end
     end
 end
@@ -482,7 +482,7 @@ function create_parents_with_children(
             agent_id += 1
             no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
             if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
-                agent_other3.collective_id == 0 || agent_other4.collective_id
+                agent_other3.collective_id == 0 || agent_other4.collective_id == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent_female, child)
@@ -720,7 +720,7 @@ function create_parent_with_children(
             agent_id += 1
             no_one_at_home = parent.collective_id != 0
             if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
-                agent_other3.collective_id == 0 || agent_other4.collective_id
+                agent_other3.collective_id == 0 || agent_other4.collective_id == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, parent, child)
@@ -1204,7 +1204,10 @@ function create_population(
 
     agent_id = 1
     # for index in district_nums[(comm_rank + 1):comm_size:107]
-    for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    for index in district_nums[(comm_rank + 1):comm_size:60]
+    # for index in district_nums[(comm_rank + 1):comm_size:56]
+    # for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    # for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
     # for index in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     # for index in [1]
         index_for_1_people::Int = (index - 1) * 5 + 1
@@ -2081,6 +2084,7 @@ function run_simulation(
     collectives_weekly_new_infections_num = Int[0, 0, 0, 0, 0]
 
     # daily_new_cases = zeros(Int, 7, 11, 365)
+    new_infections_num = zeros(Int, 365)
     # daily_new_recoveries = zeros(Int, 7, 11, 365)
 
     daily_new_cases_age_groups = zeros(Int, 7, 365)
@@ -2098,6 +2102,11 @@ function run_simulation(
     infected_inside_collective = zeros(Int, 5, 365)
 
     for step = 1:max_step
+
+        if comm_rank == 0
+            println("Step: $step")
+        end
+
         # Выходные, праздники
         is_holiday = false
         if (week_day == 7)
@@ -2258,9 +2267,9 @@ function run_simulation(
                                                 collectives[group.collective_id].time_spent_sd),
                                             step, duration_parameter,
                                             susceptibility_parameters, temp_influences)
-                                            if agent2.virus_id != 0
-                                                infected_inside_collective[agent.collective_id, step] += 1
-                                            end
+                                    if agent2.virus_id != 0
+                                        infected_inside_collective[agent.collective_id, step] += 1
+                                    end
                                 end
                             end
                         end
@@ -2279,7 +2288,7 @@ function run_simulation(
             end
         end
 
-        new_infections_num = 0
+        # new_infections_num = 0
         for agent in all_agents
             if agent.days_immune != 0
                 if agent.days_immune == 14
@@ -2350,7 +2359,7 @@ function run_simulation(
                             if agent.age < 8
                                 if rand_num < 0.305
                                     agent.is_isolated = true
-                                    new_infections_num += 1
+                                    new_infections_num[step] += 1
                                     etiology_weekly_new_infections_num[agent.virus_id] += 1
                                     if agent.age < 3
                                         age_groups_weekly_new_infections_num[1] += 1
@@ -2363,7 +2372,7 @@ function run_simulation(
                             elseif agent.age < 18
                                 if rand_num < 0.204
                                     agent.is_isolated = true
-                                    new_infections_num += 1
+                                    new_infections_num[step] += 1
                                     etiology_weekly_new_infections_num[agent.virus_id] += 1
                                     if agent.age < 3
                                         age_groups_weekly_new_infections_num[1] += 1
@@ -2378,7 +2387,7 @@ function run_simulation(
                             else
                                 if rand_num < 0.101
                                     agent.is_isolated = true
-                                    new_infections_num += 1
+                                    new_infections_num[step] += 1
                                     etiology_weekly_new_infections_num[agent.virus_id] += 1
                                     if agent.age < 3
                                         age_groups_weekly_new_infections_num[1] += 1
@@ -2396,7 +2405,7 @@ function run_simulation(
                             if agent.age < 8
                                 if rand_num < 0.576
                                     agent.is_isolated = true
-                                    new_infections_num += 1
+                                    new_infections_num[step] += 1
                                     etiology_weekly_new_infections_num[agent.virus_id] += 1
                                     if agent.age < 3
                                         age_groups_weekly_new_infections_num[1] += 1
@@ -2411,7 +2420,7 @@ function run_simulation(
                             elseif agent.age < 18
                                 if rand_num < 0.499
                                     agent.is_isolated = true
-                                    new_infections_num += 1
+                                    new_infections_num[step] += 1
                                     etiology_weekly_new_infections_num[agent.virus_id] += 1
                                     if agent.age < 3
                                         age_groups_weekly_new_infections_num[1] += 1
@@ -2426,7 +2435,7 @@ function run_simulation(
                             else
                                 if rand_num < 0.334
                                     agent.is_isolated = true
-                                    new_infections_num += 1
+                                    new_infections_num[step] += 1
                                     etiology_weekly_new_infections_num[agent.virus_id] += 1
                                     if agent.age < 3
                                         age_groups_weekly_new_infections_num[1] += 1
@@ -2444,7 +2453,7 @@ function run_simulation(
                             if agent.age < 8
                                 if rand_num < 0.325
                                     agent.is_isolated = true
-                                    new_infections_num += 1
+                                    new_infections_num[step] += 1
                                     etiology_weekly_new_infections_num[agent.virus_id] += 1
                                     if agent.age < 3
                                         age_groups_weekly_new_infections_num[1] += 1
@@ -2459,7 +2468,7 @@ function run_simulation(
                             elseif agent.age < 18
                                 if rand_num < 0.376
                                     agent.is_isolated = true
-                                    new_infections_num += 1
+                                    new_infections_num[step] += 1
                                     etiology_weekly_new_infections_num[agent.virus_id] += 1
                                     if agent.age < 3
                                         age_groups_weekly_new_infections_num[1] += 1
@@ -2474,7 +2483,7 @@ function run_simulation(
                             else
                                 if rand_num < 0.168
                                     agent.is_isolated = true
-                                    new_infections_num += 1
+                                    new_infections_num[step] += 1
                                     etiology_weekly_new_infections_num[agent.virus_id] += 1
                                     if agent.age < 3
                                         age_groups_weekly_new_infections_num[1] += 1
@@ -2554,7 +2563,7 @@ function run_simulation(
             end
         end
 
-        weekly_new_infections_num += new_infections_num
+        weekly_new_infections_num += new_infections_num[step]
 
         # Обновление даты
         if week_day == 7
@@ -2591,7 +2600,7 @@ function run_simulation(
             day = 1
             month = 1
             if comm_rank == 0
-                println("Month: $month")
+                println("Month: 1")
             end
         else
             day += 1
@@ -2642,6 +2651,8 @@ function run_simulation(
             joinpath(@__DIR__, "..", "..", "output", "tables", "immunity_viruses_data.csv"), immunity_viruses_data, ',')
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"), infected_inside_collective_data, ',')
+        writedlm(
+            joinpath(@__DIR__, "..", "..", "output", "tables", "registered_new_cases_data.csv"), new_infections_num, ',')
     end
 end
 
@@ -2665,6 +2676,14 @@ function main()
         Virus(5, 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 0.3),
         Virus(6, 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.7, 0.3),
         Virus(7, 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 0.3)]
+    # viruses = Virus[
+    #     Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.01),
+    #     Virus(2, 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 0.01),
+    #     Virus(3, 1.9, 0.175, 1, 7, 10.1, 4.93, 3, 12, 11.4, 6.25, 4, 14, 3.5, 0.9),
+    #     Virus(4, 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 0.9),
+    #     Virus(5, 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 0.9),
+    #     Virus(6, 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.7, 0.9),
+    #     Virus(7, 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 0.9)]
 
     viral_loads = Array{Float64,4}(undef, 7, 7, 13, 21)
 
@@ -2728,7 +2747,7 @@ function main()
             temp_influences[v, step] = temperature_parameters[v] * current_temp + 1.0
         end
         if year_day == 365
-            year_day == 1
+            year_day = 1
         else
             year_day += 1
         end
