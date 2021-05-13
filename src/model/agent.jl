@@ -1,6 +1,3 @@
-include("virus.jl")
-include("collective.jl")
-
 # Агент
 mutable struct Agent
     # Идентификатор
@@ -167,7 +164,7 @@ mutable struct Agent
         ig_g = 0.0
         ig_a = 0.0
         ig_m = 0.0
-        max_ig_level = 3138.0
+        # max_ig_level = 3138.0
         min_ig_level = 238.87
         max_min_ig_level_diff = 2899.13
         if age == 0
