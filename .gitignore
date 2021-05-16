@@ -2,3 +2,4 @@
 .DS_Store
 
 *.so
+test[0-9]*.jl

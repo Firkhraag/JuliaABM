@@ -4,8 +4,8 @@ using Random
 
 include("../model/virus.jl")
 include("../model/collective.jl")
-include("../model/agent.jl")
 
+include("agent.jl")
 include("initialization.jl")
 
 include("../data/district_households.jl")
@@ -54,6 +54,7 @@ function main()
     district_nums = get_district_nums()
 
     num_threads = nthreads()
+    println("Partition...")
     @time @threads for thread_id in 1:num_threads
         local agents = Agent[]
         create_population(
