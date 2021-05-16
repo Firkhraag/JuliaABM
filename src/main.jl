@@ -1,7 +1,7 @@
-using DelimitedFiles
+using Base.Threads
 using Distributions
 using Random
-using MPI
+using DelimitedFiles
 
 include("model/virus.jl")
 include("model/collective.jl")
@@ -16,16 +16,70 @@ include("data/district_nums.jl")
 include("data/temperature.jl")
 include("data/etiology.jl")
 
-function main()
-    MPI.Init()
-
-    comm = MPI.COMM_WORLD
-    comm_size = MPI.Comm_size(comm)
-    comm_rank = MPI.Comm_rank(comm)
-
-    if comm_rank == 0
-        println("Initialization...")
+function sample_from_zipf_distribution(
+    s::Float64, N::Int
+)::Int
+    cumulative = 0.0
+    rand_num = rand(Float64)
+    multiplier = 1 / sum((1:N).^(-s))
+    for i = 1:N
+        cumulative += i^(-s) * multiplier
+        if rand_num < cumulative
+            return i
+        end
     end
+    return N
+end
+
+# Создание графа Барабаши-Альберта
+# На вход подаются группа с набором агентов (group) и число минимальных связей, которые должен иметь агент (m)
+function generate_barabasi_albert_network(agents::Vector{Agent}, group_ids::Vector{Int}, m::Int)
+    # Связный граф с m вершинами
+    for i = 1:m
+        for j = 1:m
+            if i != j
+                push!(agents[group_ids[i]].collective_conn_ids, agents[group_ids[j]].id)
+            end
+        end
+    end
+    # Сумма связей всех вершин
+    degree_sum = m * (m - 1)
+    # Добавление новых вершин
+    for i = (m + 1):size(group_ids, 1)
+        agent = agents[group_ids[i]]
+        degree_sum_temp = degree_sum
+        for _ = 1:m
+            cumulative = 0.0
+            rand_num = rand(Float64)
+            for j = 1:(i-1)
+                if group_ids[j] in agent.collective_conn_ids
+                    continue
+                end
+                agent2 = agents[group_ids[j]]
+                cumulative += size(agent2.collective_conn_ids, 1) / degree_sum_temp
+                if rand_num < cumulative
+                    degree_sum_temp -= size(agent2.collective_conn_ids, 1)
+                    push!(agent.collective_conn_ids, agent2.id)
+                    push!(agent2.collective_conn_ids, agent.id)
+                    break
+                end
+            end
+        end
+        degree_sum += 2m
+    end
+end
+
+function main()
+    println("Initialization...")
+
+    num_threads = nthreads()
+
+    num_people = 9897284
+    # 6 threads
+    start_agent_ids = Int[1, 1669514, 3297338, 4919969, 6552869, 8229576]
+    end_agent_ids = Int[1669513, 3297337, 4919968, 6552868, 8229575, 9897284]
+    # start_agent_ids = Int[1, 2536385, 5090846, 7523313]
+    # end_agent_ids = Int[2536384, 5090845, 7523312, 9897284]
 
     # Параметры
     duration_parameter = 7.05
@@ -33,9 +87,7 @@ function main()
     # temperature_parameters = Float64[-0.8, -0.8, -0.1, -0.64, -0.2, -0.1, -0.8]   
     susceptibility_parameters = Float64[2.61, 2.61, 3.17, 5.11, 4.69, 3.89, 3.77]
     # susceptibility_parameters = Float64[2.1, 2.1, 3.77, 4.89, 4.69, 3.89, 3.77]
-    immunity_durations = Int[366, 366, 60, 60, 90, 90, 366]
-    
-    # Вирусы
+
     viruses = Virus[
         Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.16),
         Virus(2, 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 0.16),
@@ -44,17 +96,8 @@ function main()
         Virus(5, 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 0.3),
         Virus(6, 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.7, 0.3),
         Virus(7, 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 0.3)]
-    # viruses = Virus[
-    #     Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.01),
-    #     Virus(2, 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 0.01),
-    #     Virus(3, 1.9, 0.175, 1, 7, 10.1, 4.93, 3, 12, 11.4, 6.25, 4, 14, 3.5, 0.9),
-    #     Virus(4, 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 0.9),
-    #     Virus(5, 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 0.9),
-    #     Virus(6, 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.7, 0.9),
-    #     Virus(7, 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 0.9)]
 
     viral_loads = Array{Float64,4}(undef, 7, 7, 13, 21)
-
     for days_infected in -6:14
         days_infected_index = days_infected + 7
         for infection_period in 2:14
@@ -71,25 +114,6 @@ function main()
             end
         end
     end
-
-    # Коллективы
-    collectives = Collective[
-        Collective(1, 5.88, 2.52, [Group[], Group[], Group[], Group[], Group[], Group[]]),
-        Collective(2, 4.783, 2.67, [Group[], Group[], Group[], Group[], Group[], Group[],
-            Group[], Group[], Group[], Group[], Group[]]),
-        Collective(3, 2.1, 3.0, [Group[], Group[], Group[], Group[], Group[], Group[]]),
-        Collective(4, 3.0, 3.0, [Group[]])]
-    # collectives = Collective[
-    #     # http://ecs.force.com/mbdata/MBQuest2RTanw?rep=KK3Q1806#:~:text=6%20hours%20per%20day%20for%20kindergarten%20and%20elementary%20students.&text=437.5%20hours%20per%20year%20for%20half%2Dday%20kindergarten.
-    #     Collective(1, 5.5, 1.0, [Group[], Group[], Group[], Group[], Group[], Group[]]),
-    #     # https://nces.ed.gov/surveys/sass/tables/sass0708_035_s1s.asp
-    #     # Mixing patterns between age groups in social networks
-    #     Collective(2, 6.64, 1.0, [Group[], Group[], Group[], Group[], Group[], Group[],
-    #         Group[], Group[], Group[], Group[], Group[]]),
-    #     # 
-    #     Collective(3, 2.0, 0.5, [Group[], Group[], Group[], Group[], Group[], Group[]]),
-    #     # American Time Use Survey Summary. Bls.gov. 2017-06-27. Retrieved 2018-06-06
-    #     Collective(4, 7.9, 1.0, [Group[]])]
 
     # Температура воздуха, начиная с 1 января
     temperature = get_air_temperature()
@@ -122,35 +146,126 @@ function main()
 
     # Вероятность случайного инфицирования
     etiology = get_random_infection_probabilities()
-    
-    # Компиляция
-    test_collectives = Collective[
-        Collective(1, 5.88, 2.52, [Group[], Group[], Group[], Group[], Group[], Group[]]),
-        Collective(2, 4.783, 2.67, [Group[], Group[], Group[], Group[], Group[], Group[],
-            Group[], Group[], Group[], Group[], Group[]]),
-        Collective(3, 2.1, 3.0, [Group[], Group[], Group[], Group[], Group[], Group[]]),
-        Collective(4, 3.0, 3.0, [Group[]])]
-    test_agents = Agent[]
-    create_population(
-        comm_rank, comm_size, test_agents, viruses, viral_loads, test_collectives,
-        district_households, district_people, district_people_households, collect(1:comm_size))
-    MPI.Barrier(comm)
-    run_simulation(
-        comm_rank, comm, test_agents, viruses, viral_loads,
-        test_collectives, temp_influences, duration_parameter,
-        susceptibility_parameters, immunity_durations, etiology, true)
-    MPI.Barrier(comm)
 
-    # Набор агентов
-    all_agents = Agent[]
     # Номера районов для MPI процессов
     district_nums = get_district_nums()
-    # district_nums = collect(1:80)
 
-    @time create_population(
-        comm_rank, comm_size, all_agents, viruses, viral_loads, collectives,
-        district_households, district_people, district_people_households, district_nums)
-    MPI.Barrier(comm)
+    agents = Array{Agent, 1}(undef, num_people)
+    num_of_people_in_kindergarten_threads = zeros(Int, 6, num_threads)
+    num_of_people_in_school_threads = zeros(Int, 11, num_threads)
+    num_of_people_in_university_threads = zeros(Int, 6, num_threads)
+    num_of_people_in_workplace_threads = zeros(Int, num_threads)
+
+    @time @threads for thread_id in 1:num_threads
+        create_population(
+            thread_id, num_threads, start_agent_ids[thread_id], agents, viruses, viral_loads,
+            district_households, district_people, district_people_households, district_nums,
+            num_of_people_in_kindergarten_threads, num_of_people_in_school_threads,
+            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+    end
+
+    num_of_people_in_kindergarten = sum(num_of_people_in_kindergarten_threads, dims=2)
+    num_of_people_in_school = sum(num_of_people_in_school_threads, dims=2)
+    num_of_people_in_university = sum(num_of_people_in_university_threads, dims=2)
+    num_of_people_in_workplace = sum(num_of_people_in_workplace_threads)
+
+    kindergarten_group_nums = zeros(Int, 6, num_threads)
+    kindergarten_group_nums[1] = ceil(Int, num_of_people_in_kindergarten[1] / 10)
+    kindergarten_group_nums[2:3] = ceil.(Int, num_of_people_in_kindergarten[2:3] ./ 15)
+    kindergarten_group_nums[4:6] = ceil.(Int, num_of_people_in_kindergarten[4:6] ./ 20)
+
+    school_group_nums = ceil.(Int, num_of_people_in_school ./ 25)
+
+    university_group_nums = zeros(Int, 6, num_threads)
+    university_group_nums[1] = ceil(Int, num_of_people_in_university[1] / 15)
+    university_group_nums[2:3] = ceil.(Int, num_of_people_in_university[2:3] ./ 14)
+    university_group_nums[4] = ceil.(Int, num_of_people_in_university[4] ./ 13)
+    university_group_nums[5] = ceil.(Int, num_of_people_in_university[5] ./ 11)
+    university_group_nums[6] = ceil.(Int, num_of_people_in_university[6] ./ 10)
+
+    workplace_group_nums = ceil(Int, num_of_people_in_workplace / 8)
+
+    kindergarten_groups = [[Int[] for _ in 1:kindergarten_group_nums[j]] for j = 1:6]
+    school_groups = [[Int[] for _ in 1:school_group_nums[j]] for j = 1:11]
+    university_groups = [[Int[] for _ in 1:university_group_nums[j]] for j = 1:6]
+    workplace_groups = [[Int[] for _ in 1:workplace_group_nums]]
+
+    kindergarten_group_ids = [collect(1:kindergarten_group_nums[i]) for i = 1:6]
+    school_group_ids = [collect(1:school_group_nums[i]) for i = 1:11]
+    university_group_ids = [collect(1:university_group_nums[i]) for i = 1:6]
+
+    @time for agent in agents
+        if agent.collective_id == 1
+            # agent.group_id = rand(1:kindergarten_group_nums[agent.group_num])
+
+            random_num = rand(1:size(kindergarten_group_ids[agent.group_num], 1))
+            agent.group_id = kindergarten_group_ids[agent.group_num][random_num]
+            deleteat!(kindergarten_group_ids[agent.group_num], random_num)
+            if size(kindergarten_group_ids[agent.group_num], 1) == 0
+                kindergarten_group_ids[agent.group_num] = collect(1:kindergarten_group_nums[agent.group_num])
+            end
+
+            push!(kindergarten_groups[agent.group_num][agent.group_id], agent.id)
+        elseif agent.collective_id == 2
+            # agent.group_id = rand(1:school_group_nums[agent.group_num])
+            
+            random_num = rand(1:size(school_group_ids[agent.group_num], 1))
+            agent.group_id = school_group_ids[agent.group_num][random_num]
+            deleteat!(school_group_ids[agent.group_num], random_num)
+            if size(school_group_ids[agent.group_num], 1) == 0
+                school_group_ids[agent.group_num] = collect(1:school_group_nums[agent.group_num])
+            end
+
+            push!(school_groups[agent.group_num][agent.group_id], agent.id)
+        elseif agent.collective_id == 3
+            # agent.group_id = rand(1:university_group_nums[agent.group_num])
+
+            random_num = rand(1:size(university_group_ids[agent.group_num], 1))
+            agent.group_id = university_group_ids[agent.group_num][random_num]
+            deleteat!(university_group_ids[agent.group_num], random_num)
+            if size(university_group_ids[agent.group_num], 1) == 0
+                university_group_ids[agent.group_num] = collect(1:university_group_nums[agent.group_num])
+            end
+
+            push!(university_groups[agent.group_num][agent.group_id], agent.id)
+        elseif agent.collective_id == 4
+            agent.group_id = rand(1:workplace_group_nums)
+            push!(workplace_groups[agent.group_num][agent.group_id], agent.id)
+        end
+    end
+
+    @time @threads for thread_id in 1:num_threads
+        for agent_id in start_agent_ids[thread_id]:end_agent_ids[thread_id]
+            agent = agents[agent_id]
+            if agent.collective_id == 1
+                agent.collective_conn_ids = kindergarten_groups[agent.group_num][agent.group_id]
+            elseif agent.collective_id == 2
+                agent.collective_conn_ids = school_groups[agent.group_num][agent.group_id]
+            elseif agent.collective_id == 3
+                agent.collective_conn_ids = university_groups[agent.group_num][agent.group_id]
+            elseif agent.collective_id == 4
+                agent.collective_conn_ids = workplace_groups[agent.group_num][agent.group_id]
+            end
+        end
+    end
+
+    # @time for agent in agents
+    #     if agent.collective_id == 1
+    #         agent.collective_conn_ids = kindergarten_groups[agent.group_num][agent.group_id]
+    #     elseif agent.collective_id == 2
+    #         agent.collective_conn_ids = school_groups[agent.group_num][agent.group_id]
+    #     elseif agent.collective_id == 3
+    #         agent.collective_conn_ids = university_groups[agent.group_num][agent.group_id]
+    #     elseif agent.collective_id == 4
+    #         agent.collective_conn_ids = workplace_groups[agent.group_num][agent.group_id]
+    #     end
+    # end
+
+    println("Simulation...")
+    @time run_simulation(
+        num_threads, start_agent_ids, end_agent_ids, agents, viruses, viral_loads,
+        temp_influences, duration_parameter,
+        susceptibility_parameters, etiology)
 
     # println("Stats...")
     # age_groups_nums = Int[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -162,7 +277,7 @@ function main()
     # size_work_conn = 0
     # mean_size_work_groups = size(collectives[4].groups[1], 1)
     # mean_size_work_group = 0
-    # for agent in all_agents
+    # for agent in agents
     #     if agent.age < 3
     #         age_groups_nums[1] += 1
     #     elseif agent.age < 7
@@ -197,11 +312,11 @@ function main()
     #         collective_nums[4] += 1
     #     end
 
-    #     household_nums[size(agent.household.agent_ids, 1)] += 1
+    #     household_nums[size(agent.household_conn_ids, 1)] += 1
 
     #     mean_ig_level += agent.ig_level
-    #     if size(agent.work_conn_ids, 1) != 0
-    #         mean_num_of_work_conn += size(agent.work_conn_ids, 1)
+    #     if size(agent.collective_conn_ids, 1) != 0
+    #         mean_num_of_work_conn += size(agent.collective_conn_ids, 1)
     #         size_work_conn += 1
     #     end
 
@@ -209,48 +324,21 @@ function main()
     #         num_of_infected += 1
     #     end
     # end
-    # for group in collectives[4].groups[1]
-    #     mean_size_work_group += size(group.agent_ids, 1)
+    # for group_ids in collectives[4].groups[1]
+    #     mean_size_work_group += size(group_ids, 1)
     # end
     # for i = 1:6
     #     household_nums[i] /= i
     # end
 
-    # age_groups_all = MPI.Reduce(age_groups_nums, MPI.SUM, 0, comm)
-
-    # collective_nums_all = MPI.Reduce(collective_nums, MPI.SUM, 0, comm)
-
-    # household_nums_all = MPI.Reduce(household_nums, MPI.SUM, 0, comm)
-
-    # mean_ig_level_all = MPI.Reduce(mean_ig_level, MPI.SUM, 0, comm)
-    # size_all = MPI.Reduce(size(all_agents, 1), MPI.SUM, 0, comm)
-
-    # num_of_infected_all = MPI.Reduce(num_of_infected, MPI.SUM, 0, comm)
-
-    # mean_num_of_work_conn_all = MPI.Reduce(mean_num_of_work_conn, MPI.SUM, 0, comm)
-    # size_work_con_all = MPI.Reduce(size_work_conn, MPI.SUM, 0, comm)
-
-    # mean_size_work_groups_all = MPI.Reduce(mean_size_work_groups, MPI.SUM, 0, comm)
-    # mean_size_work_group_all = MPI.Reduce(mean_size_work_group, MPI.SUM, 0, comm)
-
-    # println("Age groups: $(age_groups_all)")
-    # println("Collectives: $(collective_nums_all)")
-    # println("Households: $(household_nums_all)")
-    # println("Ig level: $(mean_ig_level_all / size_all)")
-    # println("Infected: $(num_of_infected_all)")
-    # println("Work conn: $(mean_num_of_work_conn_all / size_work_con_all)")
-    # println("Work groups: $(mean_size_work_groups_all)")
-    # println("Work group agents: $(mean_size_work_group_all / mean_size_work_groups_all)")
-    # MPI.Barrier(comm)
-
-    if comm_rank == 0
-        println("Simulation...")
-    end
-    @time run_simulation(
-        comm_rank, comm, all_agents, viruses, viral_loads,
-        collectives, temp_influences, duration_parameter,
-        susceptibility_parameters, immunity_durations, etiology, false)
-    MPI.Barrier(comm)
+    # println("Age groups: $(age_groups_nums)")
+    # println("Collectives: $(collective_nums)")
+    # println("Households: $(household_nums)")
+    # println("Ig level: $(mean_ig_level / size(agents, 1))")
+    # println("Infected: $(num_of_infected)")
+    # println("Work conn: $(mean_num_of_work_conn / size_work_conn)")
+    # println("Work groups: $(mean_size_work_groups)")
+    # println("Work group agents: $(mean_size_work_group / mean_size_work_groups)")
 end
 
 main()

@@ -1,13 +1,3 @@
-# Группа
-struct Group
-    # Агенты
-    agent_ids::Vector{Int}
-
-    function Group(agent_ids::Vector{Int} = Int[])
-        new(agent_ids)
-    end
-end
-
 # Kindergarten => 1
 # School => 2
 # University   => 3
@@ -22,13 +12,13 @@ struct Collective
     # Среднеквадратическое отклонение времени проводимого агентами
     time_spent_sd::Float64
     # Группы
-    groups::Vector{Vector{Group}}
+    groups::Vector{Vector{Vector{Int64}}}
 
     function Collective(
         id::Int,
         mean_time_spent::Float64,
         time_spent_sd::Float64,
-        groups::Vector{Vector{Group}}
+        groups::Vector{Vector{Vector{Int64}}}
     )
         new(id, mean_time_spent, time_spent_sd, groups)
     end

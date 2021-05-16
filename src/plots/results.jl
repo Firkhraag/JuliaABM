@@ -209,19 +209,19 @@ end
 
 plot_incidence()
 plot_etiology()
-plot_age_groups()
+# plot_age_groups()
 
-plot_daily_new_cases_age_groups()
-plot_daily_new_recoveries_age_groups()
+# plot_daily_new_cases_age_groups()
+# plot_daily_new_recoveries_age_groups()
 
-plot_daily_new_cases_viruses_asymptomatic()
+# plot_daily_new_cases_viruses_asymptomatic()
 plot_daily_new_cases_viruses()
-plot_daily_new_recoveries_viruses()
+# plot_daily_new_recoveries_viruses()
 
-plot_daily_new_cases_collectives()
-plot_daily_new_recoveries_collectives()
+# plot_daily_new_cases_collectives()
+# plot_daily_new_recoveries_collectives()
 
-plot_immunity_viruses()
-plot_infected_inside_collective()
+# plot_immunity_viruses()
+# plot_infected_inside_collective()
 
-plot_registered_new_cases()
+# plot_registered_new_cases()

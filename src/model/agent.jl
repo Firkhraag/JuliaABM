@@ -8,6 +8,8 @@ mutable struct Agent
     infant_age::Int
     # Пол
     is_male::Bool
+    # Связи в домохозяйстве
+    household_conn_ids::Vector{Int}
     # Id коллектива
     collective_id::Int
     # Номер группы
@@ -15,7 +17,7 @@ mutable struct Agent
     # Id группы
     group_id::Int
     # Связи в коллективе
-    work_conn_ids::Vector{Int}
+    collective_conn_ids::Vector{Int}
     # Id детей за которыми нужен уход в случае болезни
     dependant_ids::Vector{Int}
     # Id того, кто будет ухаживать в случае болезни
@@ -28,8 +30,15 @@ mutable struct Agent
     virus_id::Int
     # Был заражен на текущем шаге
     is_newly_infected::Bool
-    # Набор дней после приобретения типоспецифического иммунитета
-    immunity_days::Vector{Int}
+    # Набор дней после приобретения непродолжительных типоспецифических иммунитетов
+    RV_days_immune::Int
+    RSV_days_immune::Int
+    AdV_days_immune::Int
+    PIV_days_immune::Int
+    # Набор годовых типоспецифических иммунитетов
+    FluA_immunity::Bool
+    FluB_immunity::Bool
+    CoV_immunity::Bool
     # Продолжительность инкубационного периода
     incubation_period::Int
     # Продолжительность периода болезни
@@ -44,16 +53,19 @@ mutable struct Agent
     is_isolated::Bool
     # Вирусная нагрузка
     viral_load::Float64
-    # Домохозяйство
-    household::Group
 
     function Agent(
         id::Int,
         viruses::Vector{Virus},
         viral_loads::Array{Float64, 4},
-        household::Group,
+        household_conn_ids::Vector{Int},
         is_male::Bool,
-        age::Int
+        age::Int,
+        thread_id::Int,
+        num_of_people_in_kindergarten_threads::Matrix{Int},
+        num_of_people_in_school_threads::Matrix{Int},
+        num_of_people_in_university_threads::Matrix{Int},
+        num_of_people_in_workplace_threads::Vector{Int}
     )
         # Возраст новорожденного
         infant_age = 0
@@ -63,39 +75,30 @@ mutable struct Agent
 
         # Социальный статус
         collective_id = 0
-        if age < 3
-            if rand(Float64) < 0.23
+        if age == 0
+            collective_id = 0
+        elseif age == 1
+            if rand(Float64) < 0.2
                 collective_id = 1
             end
-        elseif age < 6
+        elseif age == 2
+            if rand(Float64) < 0.33
+                collective_id = 1
+            end
+        elseif age < 7
             if rand(Float64) < 0.83
                 collective_id = 1
             end
-        elseif age == 6
-            if rand(Float64) < 0.75
-                collective_id = 1
-            else
-                collective_id = 2
-            end
         elseif age < 18
             collective_id = 2
-        elseif age == 18
-            rand_num = rand(Float64)
-            if rand_num < 0.5
-                collective_id = 2
-            elseif rand_num < 0.75
-                collective_id = 3
-            elseif rand_num < 0.85
-                collective_id = 4
-            end
-        elseif age < 23
+        elseif age < 22
             rand_num = rand(Float64)
             if rand_num < 0.33
                 collective_id = 3
             elseif rand_num < 0.66
                 collective_id = 4
             end
-        elseif age < 25
+        elseif age < 24
             rand_num = rand(Float64)
             if rand_num < 0.82
                 collective_id = 4
@@ -157,6 +160,27 @@ mutable struct Agent
                     collective_id = 4
                 end
             end
+        end
+
+        group_num = 0
+        if collective_id == 1
+            group_num = age
+        elseif collective_id == 2
+            group_num = age - 6
+        elseif collective_id == 3
+            group_num = age - 17
+        elseif collective_id == 4
+            group_num = 1
+        end
+
+        if collective_id == 1
+            num_of_people_in_kindergarten_threads[group_num, thread_id] += 1
+        elseif collective_id == 2
+            num_of_people_in_school_threads[group_num, thread_id] += 1
+        elseif collective_id == 3
+            num_of_people_in_university_threads[group_num, thread_id] += 1
+        elseif collective_id == 4
+            num_of_people_in_workplace_threads[thread_id] += 1
         end
 
         # Уровень иммуноглобулина
@@ -267,51 +291,55 @@ mutable struct Agent
         end
 
         # Набор дней после приобретения типоспецифического иммунитета кроме гриппа
-        immunity_days = Int[0, 0, 0, 0, 0, 0, 0]
+        # immunity_days = Int[0, 0, 0, 0, 0, 0, 0]
+        RV_days_immune = 0
+        RSV_days_immune = 0
+        AdV_days_immune = 0
+        PIV_days_immune = 0
 
         if !is_infected
             if age < 3
                 if rand(Float64) < 0.63
                     rand_num = rand(Float64)
                     if rand_num < 0.6
-                        immunity_days[3] = rand(1:60)
+                        RV_days_immune = rand(1:60)
                     elseif rand_num < 0.8
-                        immunity_days[5] = rand(1:60)
+                        AdV_days_immune = rand(1:60)
                     else
-                        immunity_days[6] = rand(1:60)
+                        PIV_days_immune = rand(1:60)
                     end
                 end
             elseif age < 7
                 if rand(Float64) < 0.44
                     rand_num = rand(Float64)
                     if rand_num < 0.6
-                        immunity_days[3] = rand(1:60)
+                        RV_days_immune = rand(1:60)
                     elseif rand_num < 0.8
-                        immunity_days[5] = rand(1:60)
+                        AdV_days_immune = rand(1:60)
                     else
-                        immunity_days[6] = rand(1:60)
+                        PIV_days_immune = rand(1:60)
                     end
                 end
             elseif age < 15
                 if rand(Float64) < 0.37
                     rand_num = rand(Float64)
                     if rand_num < 0.6
-                        immunity_days[3] = rand(1:60)
+                        RV_days_immune = rand(1:60)
                     elseif rand_num < 0.8
-                        immunity_days[5] = rand(1:60)
+                        AdV_days_immune = rand(1:60)
                     else
-                        immunity_days[6] = rand(1:60)
+                        PIV_days_immune = rand(1:60)
                     end
                 end
             else
                 if rand(Float64) < 0.2
                     rand_num = rand(Float64)
                     if rand_num < 0.6
-                        immunity_days[3] = rand(1:60)
+                        RV_days_immune = rand(1:60)
                     elseif rand_num < 0.8
-                        immunity_days[5] = rand(1:60)
+                        AdV_days_immune = rand(1:60)
                     else
-                        immunity_days[6] = rand(1:60)
+                        PIV_days_immune = rand(1:60)
                     end
                 end
             end
@@ -425,12 +453,14 @@ mutable struct Agent
         days_immune = 0
 
         new(
-            id, age, infant_age, is_male, collective_id, 0, 0,
+            id, age, infant_age, is_male, household_conn_ids,
+            collective_id, group_num, 0,
             Int[], Int[], 0, false, ig_level,
-            virus_id, false, immunity_days, incubation_period,
-            infection_period, days_infected,
-            days_immune, is_asymptomatic, is_isolated,
-            viral_load, household)
+            virus_id, false, RV_days_immune,
+            RSV_days_immune, AdV_days_immune, PIV_days_immune,
+            false, false, false,
+            incubation_period, infection_period, days_infected,
+            days_immune, is_asymptomatic, is_isolated, viral_load)
     end
 end
 
