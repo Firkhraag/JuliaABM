@@ -78,13 +78,18 @@ function main()
     num_threads = nthreads()
 
     num_people = 9897284
-    # # 6 threads
-    # start_agent_ids = Int[1, 1669514, 3297338, 4919969, 6552869, 8229576]
-    # end_agent_ids = Int[1669513, 3297337, 4919968, 6552868, 8229575, 9897284]
+    # 6 threads
+    start_agent_ids = Int[1, 1669514, 3297338, 4919969, 6552869, 8229576]
+    end_agent_ids = Int[1669513, 3297337, 4919968, 6552868, 8229575, 9897284]
+    # # 4 threads
     # start_agent_ids = Int[1, 2536385, 5090846, 7523313]
     # end_agent_ids = Int[2536384, 5090845, 7523312, 9897284]
-    start_agent_ids = Int[1, 1404541, 2813967, 4198700, 5582666, 6980559, 8427071]
-    end_agent_ids = Int[1404540, 2813966, 4198699, 5582665, 6980558, 8427070, 9897284]
+    # # 7 threads
+    # start_agent_ids = Int[1, 1404541, 2813967, 4198700, 5582666, 6980559, 8427071]
+    # end_agent_ids = Int[1404540, 2813966, 4198699, 5582665, 6980558, 8427070, 9897284]
+    # # 8 threads
+    # start_agent_ids = Int[1, 1214204, 2437939, 3664273, 4875259, 6090590, 7316432, 8589989]
+    # end_agent_ids = Int[1214203, 2437938, 3664272, 4875258, 6090589, 7316431, 8589988, 9897284]
 
     # Параметры
     duration_parameter = 7.05
@@ -231,24 +236,35 @@ function main()
     end
 
     num_groups = size(workplace_groups, 1)
-    # # 6 процессов
-    # ranges = [
-    #     1:num_groups ÷ 6,
-    #     num_groups ÷ 6 + 1:num_groups ÷ 3,
-    #     num_groups ÷ 3 + 1:num_groups ÷ 2,
-    #     num_groups ÷ 2 + 1:2num_groups ÷ 3,
-    #     2num_groups ÷ 3 + 1:5num_groups ÷ 6,
-    #     5num_groups ÷ 6 + 1:num_groups]
-
-    # 7 процессов
+    # 6 процессов
     ranges = [
-        1:num_groups ÷ 7,
-        num_groups ÷ 7 + 1:2num_groups ÷ 7,
-        2num_groups ÷ 7 + 1:3num_groups ÷ 7,
-        3num_groups ÷ 7 + 1:4num_groups ÷ 7,
-        4num_groups ÷ 7 + 1:5num_groups ÷ 7,
-        5num_groups ÷ 7 + 1:6num_groups ÷ 7,
-        6num_groups ÷ 7 + 1:num_groups]
+        1:num_groups ÷ 6,
+        num_groups ÷ 6 + 1:num_groups ÷ 3,
+        num_groups ÷ 3 + 1:num_groups ÷ 2,
+        num_groups ÷ 2 + 1:2num_groups ÷ 3,
+        2num_groups ÷ 3 + 1:5num_groups ÷ 6,
+        5num_groups ÷ 6 + 1:num_groups]
+
+    # # 7 процессов
+    # ranges = [
+    #     1:num_groups ÷ 7,
+    #     num_groups ÷ 7 + 1:2num_groups ÷ 7,
+    #     2num_groups ÷ 7 + 1:3num_groups ÷ 7,
+    #     3num_groups ÷ 7 + 1:4num_groups ÷ 7,
+    #     4num_groups ÷ 7 + 1:5num_groups ÷ 7,
+    #     5num_groups ÷ 7 + 1:6num_groups ÷ 7,
+    #     6num_groups ÷ 7 + 1:num_groups]
+
+    # # 8 процессов
+    # ranges = [
+    #     1:num_groups ÷ 8,
+    #     num_groups ÷ 8 + 1:2num_groups ÷ 8,
+    #     2num_groups ÷ 8 + 1:3num_groups ÷ 8,
+    #     3num_groups ÷ 8 + 1:4num_groups ÷ 8,
+    #     4num_groups ÷ 8 + 1:5num_groups ÷ 8,
+    #     5num_groups ÷ 8 + 1:6num_groups ÷ 8,
+    #     6num_groups ÷ 8 + 1:7num_groups ÷ 8,
+    #     7num_groups ÷ 8 + 1:num_groups]
     
     @time @threads for thread_id in 1:num_threads
         for group_id in ranges[thread_id]
