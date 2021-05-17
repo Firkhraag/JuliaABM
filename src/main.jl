@@ -78,11 +78,13 @@ function main()
     num_threads = nthreads()
 
     num_people = 9897284
-    # 6 threads
-    start_agent_ids = Int[1, 1669514, 3297338, 4919969, 6552869, 8229576]
-    end_agent_ids = Int[1669513, 3297337, 4919968, 6552868, 8229575, 9897284]
+    # # 6 threads
+    # start_agent_ids = Int[1, 1669514, 3297338, 4919969, 6552869, 8229576]
+    # end_agent_ids = Int[1669513, 3297337, 4919968, 6552868, 8229575, 9897284]
     # start_agent_ids = Int[1, 2536385, 5090846, 7523313]
     # end_agent_ids = Int[2536384, 5090845, 7523312, 9897284]
+    start_agent_ids = Int[1, 1404541, 2813967, 4198700, 5582666, 6980559, 8427071]
+    end_agent_ids = Int[1404540, 2813966, 4198699, 5582665, 6980558, 8427070, 9897284]
 
     # Параметры
     duration_parameter = 7.05
@@ -154,32 +156,25 @@ function main()
     district_nums = get_district_nums()
 
     agents = Array{Agent, 1}(undef, num_people)
-    num_of_people_in_kindergarten_threads = zeros(Int, 6, num_threads)
     num_of_people_in_school_threads = zeros(Int, 11, num_threads)
     num_of_people_in_university_threads = zeros(Int, 6, num_threads)
     num_of_people_in_workplace_threads = zeros(Int, num_threads)
 
     @time @threads for thread_id in 1:num_threads
         create_population(
-            thread_id, num_threads, start_agent_ids[thread_id], agents, viruses, viral_loads,
-            district_households, district_people, district_people_households, district_nums,
-            num_of_people_in_kindergarten_threads, num_of_people_in_school_threads,
+            thread_id, num_threads, start_agent_ids[thread_id],
+            agents, viruses, viral_loads, district_households, district_people,
+            district_people_households, district_nums, num_of_people_in_school_threads,
             num_of_people_in_university_threads, num_of_people_in_workplace_threads)
     end
 
-    num_of_people_in_kindergarten = sum(num_of_people_in_kindergarten_threads, dims=2)
     num_of_people_in_school = sum(num_of_people_in_school_threads, dims=2)
     num_of_people_in_university = sum(num_of_people_in_university_threads, dims=2)
     num_of_people_in_workplace = sum(num_of_people_in_workplace_threads)
 
-    kindergarten_group_nums = zeros(Int, 6, num_threads)
-    kindergarten_group_nums[1] = ceil(Int, num_of_people_in_kindergarten[1] / 10)
-    kindergarten_group_nums[2:3] = ceil.(Int, num_of_people_in_kindergarten[2:3] ./ 15)
-    kindergarten_group_nums[4:6] = ceil.(Int, num_of_people_in_kindergarten[4:6] ./ 20)
-
     school_group_nums = ceil.(Int, num_of_people_in_school ./ 25)
 
-    university_group_nums = zeros(Int, 6, num_threads)
+    university_group_nums = Array{Int, 1}(undef, 6)
     university_group_nums[1] = ceil(Int, num_of_people_in_university[1] / 15)
     university_group_nums[2:3] = ceil.(Int, num_of_people_in_university[2:3] ./ 14)
     university_group_nums[4] = ceil.(Int, num_of_people_in_university[4] ./ 13)
@@ -197,88 +192,63 @@ function main()
         num_of_people_in_workplace -= num_people
     end
 
-    kindergarten_groups = [[Int[] for _ in 1:kindergarten_group_nums[j]] for j = 1:6]
     school_groups = [[Int[] for _ in 1:school_group_nums[j]] for j = 1:11]
     university_groups = [[Int[] for _ in 1:university_group_nums[j]] for j = 1:6]
     workplace_groups = [Int[] for _ in 1:size(workplaces_num_people, 1)]
 
-    kindergarten_group_ids = [collect(1:kindergarten_group_nums[i]) for i = 1:6]
     school_group_ids = [collect(1:school_group_nums[i]) for i = 1:11]
     university_group_ids = [collect(1:university_group_nums[i]) for i = 1:6]
     workplace_group_ids = collect(1:size(workplaces_num_people, 1))
 
     @time for agent in agents
-        if agent.collective_id == 1
-            # agent.group_id = rand(1:kindergarten_group_nums[agent.group_num])
-
-            random_num = rand(1:size(kindergarten_group_ids[agent.group_num], 1))
-            agent.group_id = kindergarten_group_ids[agent.group_num][random_num]
-            deleteat!(kindergarten_group_ids[agent.group_num], random_num)
-            if size(kindergarten_group_ids[agent.group_num], 1) == 0
-                kindergarten_group_ids[agent.group_num] = collect(1:kindergarten_group_nums[agent.group_num])
-            end
-
-            push!(kindergarten_groups[agent.group_num][agent.group_id], agent.id)
-        elseif agent.collective_id == 2
-            # agent.group_id = rand(1:school_group_nums[agent.group_num])
-            
+        if agent.collective_id == 2
             random_num = rand(1:size(school_group_ids[agent.group_num], 1))
             agent.group_id = school_group_ids[agent.group_num][random_num]
             deleteat!(school_group_ids[agent.group_num], random_num)
             if size(school_group_ids[agent.group_num], 1) == 0
                 school_group_ids[agent.group_num] = collect(1:school_group_nums[agent.group_num])
             end
-
             push!(school_groups[agent.group_num][agent.group_id], agent.id)
+            agent.collective_conn_ids = school_groups[agent.group_num][agent.group_id]
         elseif agent.collective_id == 3
-            # agent.group_id = rand(1:university_group_nums[agent.group_num])
-
             random_num = rand(1:size(university_group_ids[agent.group_num], 1))
             agent.group_id = university_group_ids[agent.group_num][random_num]
             deleteat!(university_group_ids[agent.group_num], random_num)
             if size(university_group_ids[agent.group_num], 1) == 0
                 university_group_ids[agent.group_num] = collect(1:university_group_nums[agent.group_num])
             end
-
             push!(university_groups[agent.group_num][agent.group_id], agent.id)
+            agent.collective_conn_ids = university_groups[agent.group_num][agent.group_id]
         elseif agent.collective_id == 4
-            # agent.group_id = rand(1:workplace_group_nums)
-
             random_num = rand(1:size(workplace_group_ids, 1))
             agent.group_id = workplace_group_ids[random_num]
             deleteat!(workplace_group_ids, random_num)
             if size(workplace_group_ids, 1) == 0
                 workplace_group_ids = collect(1:size(workplaces_num_people, 1))
             end
-
             push!(workplace_groups[agent.group_id], agent.id)
         end
     end
 
-    @time @threads for thread_id in 1:num_threads
-        for agent_id in start_agent_ids[thread_id]:end_agent_ids[thread_id]
-            agent = agents[agent_id]
-            if agent.collective_id == 1
-                agent.collective_conn_ids = kindergarten_groups[agent.group_num][agent.group_id]
-            elseif agent.collective_id == 2
-                agent.collective_conn_ids = school_groups[agent.group_num][agent.group_id]
-            elseif agent.collective_id == 3
-                agent.collective_conn_ids = university_groups[agent.group_num][agent.group_id]
-            # elseif agent.collective_id == 4
-            #     agent.collective_conn_ids = workplace_groups[agent.group_num][agent.group_id]
-            end
-        end
-    end
-
     num_groups = size(workplace_groups, 1)
-    # 6 процессов
+    # # 6 процессов
+    # ranges = [
+    #     1:num_groups ÷ 6,
+    #     num_groups ÷ 6 + 1:num_groups ÷ 3,
+    #     num_groups ÷ 3 + 1:num_groups ÷ 2,
+    #     num_groups ÷ 2 + 1:2num_groups ÷ 3,
+    #     2num_groups ÷ 3 + 1:5num_groups ÷ 6,
+    #     5num_groups ÷ 6 + 1:num_groups]
+
+    # 7 процессов
     ranges = [
-        1:num_groups ÷ 6,
-        num_groups ÷ 6 + 1:num_groups ÷ 3,
-        num_groups ÷ 3 + 1:num_groups ÷ 2,
-        num_groups ÷ 2 + 1:2num_groups ÷ 3,
-        2num_groups ÷ 3 + 1:5num_groups ÷ 6,
-        5num_groups ÷ 6 + 1:num_groups]
+        1:num_groups ÷ 7,
+        num_groups ÷ 7 + 1:2num_groups ÷ 7,
+        2num_groups ÷ 7 + 1:3num_groups ÷ 7,
+        3num_groups ÷ 7 + 1:4num_groups ÷ 7,
+        4num_groups ÷ 7 + 1:5num_groups ÷ 7,
+        5num_groups ÷ 7 + 1:6num_groups ÷ 7,
+        6num_groups ÷ 7 + 1:num_groups]
     
     @time @threads for thread_id in 1:num_threads
         for group_id in ranges[thread_id]
@@ -286,37 +256,23 @@ function main()
         end
     end
 
-    # i = 0
-    # c = 0
-    # for a in agents
-    #     if a.collective_id == 4
-    #         i += 1
-    #         c += size(a.collective_conn_ids, 1)
-    #     end
-    # end
-    # println(c / i)
-
-    # @time @threads for group_ids in workplace_groups
-    #     generate_barabasi_albert_network(agents, group_ids, 6)
-    # end
-
-    # @time for agent in agents
-    #     if agent.collective_id == 1
-    #         agent.collective_conn_ids = kindergarten_groups[agent.group_num][agent.group_id]
-    #     elseif agent.collective_id == 2
-    #         agent.collective_conn_ids = school_groups[agent.group_num][agent.group_id]
-    #     elseif agent.collective_id == 3
-    #         agent.collective_conn_ids = university_groups[agent.group_num][agent.group_id]
-    #     elseif agent.collective_id == 4
-    #         agent.collective_conn_ids = workplace_groups[agent.group_num][agent.group_id]
-    #     end
-    # end
-
     println("Simulation...")
+
+    # Single run
     @time run_simulation(
         num_threads, start_agent_ids, end_agent_ids, agents, viruses, viral_loads,
         temp_influences, duration_parameter,
         susceptibility_parameters, etiology)
+
+    # Multiple runs
+    # copied_agents = copy(agents)
+    # for i = 1:10
+    #     run_simulation(
+    #         num_threads, start_agent_ids, end_agent_ids, agents, viruses, viral_loads,
+    #         temp_influences, duration_parameter,
+    #         susceptibility_parameters, etiology)
+    #     agents = copy(copied_agents)
+    # end
 
     # println("Stats...")
     # age_groups_nums = Int[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -324,10 +280,14 @@ function main()
     # household_nums = Int[0, 0, 0, 0, 0, 0]
     # mean_ig_level = 0.0
     # num_of_infected = 0
+    # mean_num_of_kinder_conn = 0.0
+    # mean_num_of_school_conn = 0.0
+    # mean_num_of_univer_conn = 0.0
     # mean_num_of_work_conn = 0.0
+    # size_kinder_conn = 0
+    # size_school_conn = 0
+    # size_univer_conn = 0
     # size_work_conn = 0
-    # mean_size_work_groups = size(collectives[4].groups[1], 1)
-    # mean_size_work_group = 0
     # for agent in agents
     #     if agent.age < 3
     #         age_groups_nums[1] += 1
@@ -355,28 +315,29 @@ function main()
 
     #     if agent.collective_id == 1
     #         collective_nums[1] += 1
+    #         mean_num_of_kinder_conn += size(agent.collective_conn_ids, 1)
+    #         size_kinder_conn += 1
     #     elseif agent.collective_id == 2
     #         collective_nums[2] += 1
+    #         mean_num_of_school_conn += size(agent.collective_conn_ids, 1)
+    #         size_school_conn += 1
     #     elseif agent.collective_id == 3
     #         collective_nums[3] += 1
+    #         mean_num_of_univer_conn += size(agent.collective_conn_ids, 1)
+    #         size_univer_conn += 1
     #     elseif agent.collective_id == 4
     #         collective_nums[4] += 1
+    #         mean_num_of_work_conn += size(agent.collective_conn_ids, 1)
+    #         size_work_conn += 1
     #     end
 
     #     household_nums[size(agent.household_conn_ids, 1)] += 1
 
     #     mean_ig_level += agent.ig_level
-    #     if size(agent.collective_conn_ids, 1) != 0
-    #         mean_num_of_work_conn += size(agent.collective_conn_ids, 1)
-    #         size_work_conn += 1
-    #     end
 
     #     if agent.virus_id != 0
     #         num_of_infected += 1
     #     end
-    # end
-    # for group_ids in collectives[4].groups[1]
-    #     mean_size_work_group += size(group_ids, 1)
     # end
     # for i = 1:6
     #     household_nums[i] /= i
@@ -387,9 +348,10 @@ function main()
     # println("Households: $(household_nums)")
     # println("Ig level: $(mean_ig_level / size(agents, 1))")
     # println("Infected: $(num_of_infected)")
+    # println("Kinder conn: $(mean_num_of_kinder_conn / size_kinder_conn)")
+    # println("School conn: $(mean_num_of_school_conn / size_school_conn)")
+    # println("Univer conn: $(mean_num_of_univer_conn / size_univer_conn)")
     # println("Work conn: $(mean_num_of_work_conn / size_work_conn)")
-    # println("Work groups: $(mean_size_work_groups)")
-    # println("Work group agents: $(mean_size_work_group / mean_size_work_groups)")
 end
 
 main()

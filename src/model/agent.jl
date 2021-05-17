@@ -62,7 +62,7 @@ mutable struct Agent
         is_male::Bool,
         age::Int,
         thread_id::Int,
-        num_of_people_in_kindergarten_threads::Matrix{Int},
+        num_of_people_in_kindergarten::Vector{Int},
         num_of_people_in_school_threads::Matrix{Int},
         num_of_people_in_university_threads::Matrix{Int},
         num_of_people_in_workplace_threads::Vector{Int}
@@ -174,7 +174,7 @@ mutable struct Agent
         end
 
         if collective_id == 1
-            num_of_people_in_kindergarten_threads[group_num, thread_id] += 1
+            num_of_people_in_kindergarten[group_num] += 1
         elseif collective_id == 2
             num_of_people_in_school_threads[group_num, thread_id] += 1
         elseif collective_id == 3
