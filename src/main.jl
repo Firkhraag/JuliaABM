@@ -17,23 +17,26 @@ include("data/temperature.jl")
 include("data/etiology.jl")
 
 function sample_from_zipf_distribution(
-    s::Float64, N::Int
+    parameter::Float64, max_size::Int
 )::Int
     cumulative = 0.0
     rand_num = rand(Float64)
-    multiplier = 1 / sum((1:N).^(-s))
-    for i = 1:N
-        cumulative += i^(-s) * multiplier
+    multiplier = 1 / sum((1:max_size).^(-parameter))
+    for i = 1:max_size
+        cumulative += i^(-parameter) * multiplier
         if rand_num < cumulative
             return i
         end
     end
-    return N
+    return max_size
 end
 
 # Создание графа Барабаши-Альберта
 # На вход подаются группа с набором агентов (group) и число минимальных связей, которые должен иметь агент (m)
 function generate_barabasi_albert_network(agents::Vector{Agent}, group_ids::Vector{Int}, m::Int)
+    if size(group_ids, 1) < m
+        m = size(group_ids, 1)
+    end
     # Связный граф с m вершинами
     for i = 1:m
         for j = 1:m
@@ -183,16 +186,26 @@ function main()
     university_group_nums[5] = ceil.(Int, num_of_people_in_university[5] ./ 11)
     university_group_nums[6] = ceil.(Int, num_of_people_in_university[6] ./ 10)
 
-    workplace_group_nums = ceil(Int, num_of_people_in_workplace / 8)
+    workplaces_num_people = Int[]
+    while num_of_people_in_workplace > 0
+        num_people = sample_from_zipf_distribution(1.056, 1995) + 5
+        if num_of_people_in_workplace - num_people > 0
+            append!(workplaces_num_people, num_people)
+        else
+            append!(workplaces_num_people, num_of_people_in_workplace)
+        end
+        num_of_people_in_workplace -= num_people
+    end
 
     kindergarten_groups = [[Int[] for _ in 1:kindergarten_group_nums[j]] for j = 1:6]
     school_groups = [[Int[] for _ in 1:school_group_nums[j]] for j = 1:11]
     university_groups = [[Int[] for _ in 1:university_group_nums[j]] for j = 1:6]
-    workplace_groups = [[Int[] for _ in 1:workplace_group_nums]]
+    workplace_groups = [Int[] for _ in 1:size(workplaces_num_people, 1)]
 
     kindergarten_group_ids = [collect(1:kindergarten_group_nums[i]) for i = 1:6]
     school_group_ids = [collect(1:school_group_nums[i]) for i = 1:11]
     university_group_ids = [collect(1:university_group_nums[i]) for i = 1:6]
+    workplace_group_ids = collect(1:size(workplaces_num_people, 1))
 
     @time for agent in agents
         if agent.collective_id == 1
@@ -229,8 +242,16 @@ function main()
 
             push!(university_groups[agent.group_num][agent.group_id], agent.id)
         elseif agent.collective_id == 4
-            agent.group_id = rand(1:workplace_group_nums)
-            push!(workplace_groups[agent.group_num][agent.group_id], agent.id)
+            # agent.group_id = rand(1:workplace_group_nums)
+
+            random_num = rand(1:size(workplace_group_ids, 1))
+            agent.group_id = workplace_group_ids[random_num]
+            deleteat!(workplace_group_ids, random_num)
+            if size(workplace_group_ids, 1) == 0
+                workplace_group_ids = collect(1:size(workplaces_num_people, 1))
+            end
+
+            push!(workplace_groups[agent.group_id], agent.id)
         end
     end
 
@@ -243,11 +264,41 @@ function main()
                 agent.collective_conn_ids = school_groups[agent.group_num][agent.group_id]
             elseif agent.collective_id == 3
                 agent.collective_conn_ids = university_groups[agent.group_num][agent.group_id]
-            elseif agent.collective_id == 4
-                agent.collective_conn_ids = workplace_groups[agent.group_num][agent.group_id]
+            # elseif agent.collective_id == 4
+            #     agent.collective_conn_ids = workplace_groups[agent.group_num][agent.group_id]
             end
         end
     end
+
+    num_groups = size(workplace_groups, 1)
+    # 6 процессов
+    ranges = [
+        1:num_groups ÷ 6,
+        num_groups ÷ 6 + 1:num_groups ÷ 3,
+        num_groups ÷ 3 + 1:num_groups ÷ 2,
+        num_groups ÷ 2 + 1:2num_groups ÷ 3,
+        2num_groups ÷ 3 + 1:5num_groups ÷ 6,
+        5num_groups ÷ 6 + 1:num_groups]
+    
+    @time @threads for thread_id in 1:num_threads
+        for group_id in ranges[thread_id]
+            generate_barabasi_albert_network(agents, workplace_groups[group_id], 6)
+        end
+    end
+
+    # i = 0
+    # c = 0
+    # for a in agents
+    #     if a.collective_id == 4
+    #         i += 1
+    #         c += size(a.collective_conn_ids, 1)
+    #     end
+    # end
+    # println(c / i)
+
+    # @time @threads for group_ids in workplace_groups
+    #     generate_barabasi_albert_network(agents, group_ids, 6)
+    # end
 
     # @time for agent in agents
     #     if agent.collective_id == 1
