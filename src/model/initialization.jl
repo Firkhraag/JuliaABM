@@ -1288,862 +1288,862 @@ function create_population(
             agent_id += 1
             all_agents[agent.id] = agent
         end
-        # for _ in 1:district_households[index, 2]
-        #     # PWOP2P0C
-        #     new_agent_id = agent_id + 1
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_2_people, 0, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 3]
-        #     # PWOP3P0C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 0, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 4]
-        #     # PWOP3P1C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 1, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 5]
-        #     # PWOP4P0C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 0, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 6]
-        #     # PWOP4P1C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 1, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 7]
-        #     # PWOP4P2C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 2, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 8]
-        #     # PWOP5P0C
-        #     new_agent_id = agent_id + 4
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 0, 3, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 9]
-        #     # PWOP5P1C
-        #     new_agent_id = agent_id + 4
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 1, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 10]
-        #     # PWOP5P2C
-        #     new_agent_id = agent_id + 4
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 2, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 11]
-        #     # PWOP5P3C
-        #     new_agent_id = agent_id + 4
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 3, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 12]
-        #     # PWOP6P0C
-        #     new_agent_id = agent_id + 5
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 0, 4, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 13]
-        #     # PWOP6P1C
-        #     new_agent_id = agent_id + 5
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 1, 3, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 14]
-        #     # PWOP6P2C
-        #     new_agent_id = agent_id + 5
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 2, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 15]
-        #     # PWOP6P3C
-        #     new_agent_id = agent_id + 5
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 3, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 16]
-        #     # 2PWOP4P0C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 0, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id += 2
-        #     agents2 = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 0, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     append!(agents, agents2)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 17]
-        #     # 2PWOP5P0C
-        #     new_agent_id = agent_id + 4
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 0, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id += 3
-        #     agents2 = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 0, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     append!(agents, agents2)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 18]
-        #     # 2PWOP5P1C
-        #     new_agent_id = agent_id + 4
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 1, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id += 3
-        #     agents2 = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 0, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     append!(agents, agents2)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 19]
-        #     # 2PWOP6P0C
-        #     new_agent_id = agent_id + 5
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 0, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id += 3
-        #     agents2 = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 0, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     append!(agents, agents2)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 20]
-        #     # 2PWOP6P1C
-        #     new_agent_id = agent_id + 5
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 1, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id += 3
-        #     agents2 = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 0, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     append!(agents, agents2)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 21]
-        #     # 2PWOP6P2C
-        #     new_agent_id = agent_id + 5
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 1, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id += 3
-        #     agents2 = create_parents_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 1, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     append!(agents, agents2)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 22]
-        #     # SMWC2P0C
-        #     new_agent_id = agent_id + 1
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_2_people, 0, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 23]
-        #     # SMWC2P1C
-        #     new_agent_id = agent_id + 1
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_2_people, 1, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 24]
-        #     # SMWC3P0C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 0, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 25]
-        #     # SMWC3P1C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 1, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 26]
-        #     # SMWC3P2C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 2, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 27]
-        #     # SMWC4P0C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 0, 3, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 28]
-        #     # SMWC4P1C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 1, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 29]
-        #     # SMWC4P2C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 2, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 30]
-        #     # SMWC4P3C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 3, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 31]
-        #     # SFWC2P0C
-        #     new_agent_id = agent_id + 1
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_2_people, 0, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 32]
-        #     # SFWC2P1C
-        #     new_agent_id = agent_id + 1
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_2_people, 1, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 33]
-        #     # SFWC3P0C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 0, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 34]
-        #     # SFWC3P1C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 1, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 35]
-        #     # SFWC3P2C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 2, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 36]
-        #     # SPWCWP3P0C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 0, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 37]
-        #     # SPWCWP3P1C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 1, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 38]
-        #     # SPWCWP4P0C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 0, 3, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 39]
-        #     # SPWCWP4P1C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 1, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 40]
-        #     # SPWCWP4P2C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 2, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
+        for _ in 1:district_households[index, 2]
+            # PWOP2P0C
+            new_agent_id = agent_id + 1
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_2_people, 0, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 3]
+            # PWOP3P0C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 0, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 4]
+            # PWOP3P1C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 1, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 5]
+            # PWOP4P0C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 0, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 6]
+            # PWOP4P1C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 1, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 7]
+            # PWOP4P2C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 2, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 8]
+            # PWOP5P0C
+            new_agent_id = agent_id + 4
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 0, 3, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 9]
+            # PWOP5P1C
+            new_agent_id = agent_id + 4
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 1, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 10]
+            # PWOP5P2C
+            new_agent_id = agent_id + 4
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 2, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 11]
+            # PWOP5P3C
+            new_agent_id = agent_id + 4
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 3, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 12]
+            # PWOP6P0C
+            new_agent_id = agent_id + 5
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 0, 4, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 13]
+            # PWOP6P1C
+            new_agent_id = agent_id + 5
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 1, 3, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 14]
+            # PWOP6P2C
+            new_agent_id = agent_id + 5
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 2, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 15]
+            # PWOP6P3C
+            new_agent_id = agent_id + 5
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 3, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 16]
+            # 2PWOP4P0C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 0, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id += 2
+            agents2 = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 0, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            append!(agents, agents2)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 17]
+            # 2PWOP5P0C
+            new_agent_id = agent_id + 4
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 0, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id += 3
+            agents2 = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 0, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            append!(agents, agents2)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 18]
+            # 2PWOP5P1C
+            new_agent_id = agent_id + 4
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 1, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id += 3
+            agents2 = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 0, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            append!(agents, agents2)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 19]
+            # 2PWOP6P0C
+            new_agent_id = agent_id + 5
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 0, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id += 3
+            agents2 = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 0, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            append!(agents, agents2)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 20]
+            # 2PWOP6P1C
+            new_agent_id = agent_id + 5
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 1, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id += 3
+            agents2 = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 0, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            append!(agents, agents2)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 21]
+            # 2PWOP6P2C
+            new_agent_id = agent_id + 5
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 1, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id += 3
+            agents2 = create_parents_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 1, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            append!(agents, agents2)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 22]
+            # SMWC2P0C
+            new_agent_id = agent_id + 1
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_2_people, 0, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 23]
+            # SMWC2P1C
+            new_agent_id = agent_id + 1
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_2_people, 1, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 24]
+            # SMWC3P0C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 0, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 25]
+            # SMWC3P1C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 1, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 26]
+            # SMWC3P2C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 2, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 27]
+            # SMWC4P0C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 0, 3, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 28]
+            # SMWC4P1C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 1, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 29]
+            # SMWC4P2C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 2, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 30]
+            # SMWC4P3C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 3, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 31]
+            # SFWC2P0C
+            new_agent_id = agent_id + 1
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_2_people, 0, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 32]
+            # SFWC2P1C
+            new_agent_id = agent_id + 1
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_2_people, 1, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 33]
+            # SFWC3P0C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 0, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 34]
+            # SFWC3P1C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 1, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 35]
+            # SFWC3P2C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 2, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 36]
+            # SPWCWP3P0C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 0, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 37]
+            # SPWCWP3P1C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 1, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 38]
+            # SPWCWP4P0C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 0, 3, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 39]
+            # SPWCWP4P1C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 1, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 40]
+            # SPWCWP4P2C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 2, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
 
-        # for _ in 1:district_households[index, 41]
-        #     # SPWCWPWOP3P0C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 0, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 42]
-        #     # SPWCWPWOP3P1C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 1, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 43]
-        #     # SPWCWPWOP4P0C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 0, 3, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 44]
-        #     # SPWCWPWOP4P1C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 1, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 45]
-        #     # SPWCWPWOP4P2C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 2, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 46]
-        #     # SPWCWPWOP5P0C
-        #     new_agent_id = agent_id + 4
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 0, 4, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 47]
-        #     # SPWCWPWOP5P1C
-        #     new_agent_id = agent_id + 4
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 1, 3, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 48]
-        #     # SPWCWPWOP5P2C
-        #     new_agent_id = agent_id + 4
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_parent_with_children(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 2, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
+        for _ in 1:district_households[index, 41]
+            # SPWCWPWOP3P0C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 0, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 42]
+            # SPWCWPWOP3P1C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 1, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 43]
+            # SPWCWPWOP4P0C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 0, 3, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 44]
+            # SPWCWPWOP4P1C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 1, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 45]
+            # SPWCWPWOP4P2C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 2, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 46]
+            # SPWCWPWOP5P0C
+            new_agent_id = agent_id + 4
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 0, 4, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 47]
+            # SPWCWPWOP5P1C
+            new_agent_id = agent_id + 4
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 1, 3, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 48]
+            # SPWCWPWOP5P2C
+            new_agent_id = agent_id + 4
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_parent_with_children(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 2, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
 
-        # for _ in 1:district_households[index, 49]
-        #     # O2P0C
-        #     new_agent_id = agent_id + 1
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_others(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_2_people, 0, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 50]
-        #     # O2P1C
-        #     new_agent_id = agent_id + 1
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_others(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_2_people, 1, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 51]
-        #     # O3P0C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_others(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 0, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 52]
-        #     # O3P1C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_others(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 1, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 53]
-        #     # O3P2C
-        #     new_agent_id = agent_id + 2
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_others(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_3_people, 2, 0, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 54]
-        #     # O4P0C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_others(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 0, 3, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 55]
-        #     # O4P1C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_others(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 1, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 56]
-        #     # O4P2C
-        #     new_agent_id = agent_id + 3
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_others(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_4_people, 2, 1, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 57]
-        #     # O5P0C
-        #     new_agent_id = agent_id + 4
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_others(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 0, 4, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 58]
-        #     # O5P1C
-        #     new_agent_id = agent_id + 4
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_others(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 1, 3, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
-        # for _ in 1:district_households[index, 59]
-        #     # O5P2C
-        #     new_agent_id = agent_id + 4
-        #     household_conn_ids = collect(Int, agent_id:new_agent_id)
-        #     agents = create_others(
-        #         agent_id, viruses, infectivities, household_conn_ids, district_people,
-        #         district_people_households, index_for_5_people, 2, 2, index,
-        #         thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        #         num_of_people_in_university_threads, num_of_people_in_workplace_threads)
-        #     agent_id = new_agent_id + 1
-        #     for agent in agents
-        #         all_agents[agent.id] = agent
-        #     end
-        # end
+        for _ in 1:district_households[index, 49]
+            # O2P0C
+            new_agent_id = agent_id + 1
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_others(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_2_people, 0, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 50]
+            # O2P1C
+            new_agent_id = agent_id + 1
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_others(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_2_people, 1, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 51]
+            # O3P0C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_others(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 0, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 52]
+            # O3P1C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_others(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 1, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 53]
+            # O3P2C
+            new_agent_id = agent_id + 2
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_others(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_3_people, 2, 0, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 54]
+            # O4P0C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_others(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 0, 3, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 55]
+            # O4P1C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_others(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 1, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 56]
+            # O4P2C
+            new_agent_id = agent_id + 3
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_others(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_4_people, 2, 1, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 57]
+            # O5P0C
+            new_agent_id = agent_id + 4
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_others(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 0, 4, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 58]
+            # O5P1C
+            new_agent_id = agent_id + 4
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_others(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 1, 3, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
+        for _ in 1:district_households[index, 59]
+            # O5P2C
+            new_agent_id = agent_id + 4
+            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            agents = create_others(
+                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                district_people_households, index_for_5_people, 2, 2, index,
+                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
+                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+            end
+        end
         district_end_agent_id = agent_id - 1
 
         kindergarten_group_nums = Array{Int, 1}(undef, 6)
