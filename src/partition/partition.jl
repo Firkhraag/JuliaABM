@@ -2,17 +2,9 @@ using Base.Threads
 using Distributions
 using Random
 
-include("../model/virus.jl")
-include("../model/collective.jl")
-
 include("initialization.jl")
-
 include("../data/district_households.jl")
-include("../data/district_people.jl")
-include("../data/district_people_households.jl")
 include("../data/district_nums.jl")
-include("../data/temperature.jl")
-include("../data/etiology.jl")
 
 function main()
     district_nums = get_district_nums()

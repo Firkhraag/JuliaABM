@@ -3,7 +3,8 @@ using Plots
 include("../data/temperature.jl")
 
 function plot_duration_influence()
-    duration_parameter = 7.05
+    # duration_parameter = 7.05
+    duration_parameter = 6.8
     duration_influence(x) = 1 / (1 + exp(-x + duration_parameter))
 
     duration_range = range(0, stop=24, length=100)
@@ -106,9 +107,9 @@ function plot_infectivity_influence()
     savefig(infectivity_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "infectivity_influence.pdf"))
 end
 
-# plot_duration_influence()
+plot_duration_influence()
 # plot_temperature_influence()
 # # plot_infectivity_influence()
 # plot_susceptibility_influence()
 
-plot_temperature_influence_year()
+# plot_temperature_influence_year()

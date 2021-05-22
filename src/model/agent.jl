@@ -51,13 +51,13 @@ mutable struct Agent
     is_asymptomatic::Bool
     # На больничном
     is_isolated::Bool
-    # Вирусная нагрузка
-    viral_load::Float64
+    # Инфекционность
+    infectivity::Float64
 
     function Agent(
         id::Int,
         viruses::Vector{Virus},
-        viral_loads::Array{Float64, 4},
+        infectivities::Array{Float64, 4},
         household_conn_ids::Vector{Int},
         is_male::Bool,
         age::Int,
@@ -268,6 +268,7 @@ mutable struct Agent
                 ig_m = rand(truncated(Normal(116, 39.3), 24, 208))
             end
         end
+        
         ig_level = (ig_g + ig_a + ig_m - min_ig_level) / max_min_ig_level_diff
 
         # Болен
@@ -352,7 +353,7 @@ mutable struct Agent
         days_infected = 0
         is_asymptomatic = false
         is_isolated = false
-        viral_load = 0.0
+        infectivity = 0.0
         if is_infected
             # Тип инфекции
             rand_num = rand(Float64)
@@ -445,8 +446,8 @@ mutable struct Agent
             end
 
             # Вирусная нагрузкаx
-            viral_load = find_agent_viral_load(
-                age, viral_loads[virus_id, incubation_period, infection_period - 1, days_infected + 7],
+            infectivity = find_agent_infectivity(
+                age, infectivities[virus_id, incubation_period, infection_period - 1, days_infected + 7],
                 is_asymptomatic && days_infected > 0)
         end
 
@@ -460,7 +461,7 @@ mutable struct Agent
             RSV_days_immune, AdV_days_immune, PIV_days_immune,
             false, false, false,
             incubation_period, infection_period, days_infected,
-            days_immune, is_asymptomatic, is_isolated, viral_load)
+            days_immune, is_asymptomatic, is_isolated, infectivity)
     end
 end
 
@@ -477,28 +478,28 @@ function get_period_from_erlang(
 end
 
 # Получить вирусную нагрузку
-function find_agent_viral_load(
+function find_agent_infectivity(
     age::Int,
-    viral_load_value::Float64,
-    is_viral_load_halved::Bool,
+    infectivity_value::Float64,
+    is_infectivity_halved::Bool,
 )::Float64
     if age < 3
-        if is_viral_load_halved
-            return viral_load_value * 0.5
+        if is_infectivity_halved
+            return infectivity_value * 0.5
         else
-            return viral_load_value
+            return infectivity_value
         end
     elseif age < 16
-        if is_viral_load_halved
-            return viral_load_value * 0.375
+        if is_infectivity_halved
+            return infectivity_value * 0.375
         else
-            return viral_load_value * 0.75
+            return infectivity_value * 0.75
         end
     else
-        if is_viral_load_halved
-            return viral_load_value * 0.25
+        if is_infectivity_halved
+            return infectivity_value * 0.25
         else
-            return viral_load_value * 0.5
+            return infectivity_value * 0.5
         end
     end
 end
