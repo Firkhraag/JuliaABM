@@ -97,48 +97,10 @@ function main()
     # temperature_parameters = Float64[-0.8, -0.8, -0.1, -0.64, -0.2, -0.1, -0.8]
     # susceptibility_parameters = Float64[2.61, 2.61, 3.17, 5.11, 4.69, 3.89, 3.77]
 
-    # 9.498273408375e9
-    # duration_parameter = 7.05
-    # temperature_parameters = Float64[-0.85, -0.85, -0.05, -0.4, -0.2, -0.05, -0.7]
-    # susceptibility_parameters = Float64[3.1, 3.1, 3.37, 4.29, 4.69, 3.89, 3.77]
-
-    # 9.130457694375e9
-    # duration_parameter = 7.04
-    # temperature_parameters = Float64[-0.89, -0.87, -0.09, -0.33, -0.24, -0.04, -0.71]
-    # susceptibility_parameters = Float64[3.09, 3.08, 3.4, 4.27, 4.66, 3.88, 3.7]
-
-    # 8.915680668375e9
-    # duration_parameter = 7.06
-    # temperature_parameters = Float64[-0.88, -0.92, -0.08, -0.35, -0.25, -0.06, -0.68]
-    # susceptibility_parameters = Float64[3.13, 3.12, 3.33, 4.22, 4.65, 3.87, 3.71]
-
-    # 8.748040327375e9
-    # duration_parameter = 7.01
-    # temperature_parameters = Float64[-0.91, -0.93, -0.13, -0.33, -0.25, -0.07, -0.67]
-    # susceptibility_parameters = Float64[3.17, 3.1, 3.36, 4.21, 4.7, 3.92, 3.76]
-
-    # duration_parameter = 6.94
-    # temperature_parameters = Float64[-0.91, -0.93, -0.13, -0.33, -0.25, -0.07, -0.67]
-    # susceptibility_parameters = Float64[3.18, 3.11, 3.37, 4.22, 4.71, 3.93, 3.77]
-
-    # RSS: 9.300468706875e9 9.442429776875e9
-    # duration_parameter = 7.01
-    # temperature_parameters = Float64[-0.91, -0.93, -0.13, -0.33, -0.25, -0.07, -0.67]
-    # susceptibility_parameters = Float64[3.27, 3.2, 3.36, 4.21, 4.7, 3.92, 3.76]
-
-    # # RSS: 9.421687267875e9
-    # duration_parameter = 6.8
-    # temperature_parameters = Float64[-0.91, -0.93, -0.13, -0.33, -0.25, -0.07, -0.67]
-    # susceptibility_parameters = Float64[3.67, 3.6, 3.76, 4.61, 5.1, 4.32, 4.16]
-
-    # RSS: 9.421687267875e9
-    # duration_parameter = 6.7
-    # temperature_parameters = Float64[-0.91, -0.93, -0.13, -0.33, -0.25, -0.07, -0.67]
-    # susceptibility_parameters = Float64[3.87, 3.8, 3.96, 4.81, 5.3, 4.52, 4.36]
-
-    duration_parameter = 7.05
-    temperature_parameters = Float64[-0.8, -0.8, -0.1, -0.64, -0.2, -0.1, -0.8]
-    susceptibility_parameters = Float64[2.61, 2.61, 3.17, 5.11, 4.69, 3.89, 3.77]
+    # RSS: 4.669133556375e9
+    duration_parameter = 6.75
+    temperature_parameters = Float64[-0.9, -0.8, -0.05, -0.35, -0.05, -0.05, -0.85]
+    susceptibility_parameters = Float64[3.05, 3.1, 3.47, 4.9, 4.7, 4.02, 3.88]
 
     viruses = Virus[
         Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.16),

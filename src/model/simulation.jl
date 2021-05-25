@@ -1,5 +1,5 @@
 function get_contact_duration_normal(mean::Float64, sd::Float64)
-    return rand(truncated(Normal(mean, sd), 0.0, Inf))
+    return rand(truncated(Normal(mean, sd), 0.0, 24.0))
 end
 
 function get_contact_duration_gamma(shape::Float64, scale::Float64)
@@ -114,31 +114,11 @@ function simulate_contacts(
 
                         agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0
                         agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0
-                        # if is_holiday || (agent_at_home && agent2_at_home)
-                        #     make_contact(
-                        #         agent, agent2, get_contact_duration_normal(12.5, 5.5),
-                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences)
-                        # elseif ((agent.collective_id == 4 && !agent_at_home) ||
-                        #     (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
-                        #     make_contact(
-                        #         agent, agent2, get_contact_duration_normal(4.5, 2.25),
-                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences)
-                        # elseif ((agent.collective_id == 2 && !agent_at_home) ||
-                        #     (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
-                        #     make_contact(
-                        #         agent, agent2, get_contact_duration_normal(6.1, 2.46),
-                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences)
-                        # elseif ((agent.collective_id == 1 && !agent_at_home) ||
-                        #     (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
-                        #     make_contact(
-                        #         agent, agent2, get_contact_duration_normal(7.0, 2.65),
-                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences)
-                        # elseif ((agent.collective_id == 3 && !agent_at_home) ||
-                        #     (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
-                        #     make_contact(
-                        #         agent, agent2, get_contact_duration_normal(10.0, 3.69),
-                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences)
-                        # end
+
+                        # http://ecs.force.com/mbdata/MBQuest2RTanw?rep=KK3Q1806#:~:text=6%20hours%20per%20day%20for%20kindergarten%20and%20elementary%20students.&text=437.5%20hours%20per%20year%20for%20half%2Dday%20kindergarten.
+                        # https://nces.ed.gov/surveys/sass/tables/sass0708_035_s1s.asp
+                        # Mixing patterns between age groups in social networks
+                        # American Time Use Survey Summary. Bls.gov. 2017-06-27. Retrieved 2018-06-06
 
                         if is_holiday || (agent_at_home && agent2_at_home)
                             make_contact(
@@ -147,22 +127,22 @@ function simulate_contacts(
                         elseif ((agent.collective_id == 1 && !agent_at_home) ||
                             (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
                             make_contact(
-                                agent, agent2, get_contact_duration_normal(5.0, 2.05),
+                                agent, agent2, get_contact_duration_normal(4.5, 2.25),
                                 current_step, duration_parameter, susceptibility_parameters, temp_influences)
                         elseif ((agent.collective_id == 4 && !agent_at_home) ||
                             (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
                             make_contact(
-                                agent, agent2, get_contact_duration_normal(5.5, 2.25),
+                                agent, agent2, get_contact_duration_normal(6.1, 2.46),
                                 current_step, duration_parameter, susceptibility_parameters, temp_influences)
                         elseif ((agent.collective_id == 2 && !agent_at_home) ||
                             (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
                             make_contact(
-                                agent, agent2, get_contact_duration_normal(6.0, 2.46),
+                                agent, agent2, get_contact_duration_normal(7.0, 2.65),
                                 current_step, duration_parameter, susceptibility_parameters, temp_influences)
                         elseif ((agent.collective_id == 3 && !agent_at_home) ||
                             (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
                             make_contact(
-                                agent, agent2, get_contact_duration_normal(7.0, 3.69),
+                                agent, agent2, get_contact_duration_normal(10.0, 3.69),
                                 current_step, duration_parameter, susceptibility_parameters, temp_influences)
                         end
                         if agent2.is_newly_infected
@@ -185,52 +165,25 @@ function simulate_contacts(
                             (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
                             if agent.collective_id == 1
                                 make_contact(
-                                    agent, agent2, get_contact_duration_normal(5.88, 2.52),
+                                    agent, agent2, get_contact_duration_normal(4.5, 2.66),
                                     current_step, duration_parameter,
                                     susceptibility_parameters, temp_influences)
                             elseif agent.collective_id == 2
                                 make_contact(
-                                    agent, agent2, get_contact_duration_normal(4.783, 2.67),
+                                    agent, agent2, get_contact_duration_normal(3.783, 2.67),
                                     current_step, duration_parameter,
                                     susceptibility_parameters, temp_influences)
                             elseif agent.collective_id == 3
                                 make_contact(
-                                    agent, agent2, get_contact_duration_gamma(1.0, 2.1),
+                                    agent, agent2, get_contact_duration_normal(2.5, 1.62),
                                     current_step, duration_parameter,
                                     susceptibility_parameters, temp_influences)
                             else
                                 make_contact(
-                                    agent, agent2, get_contact_duration_gamma(1.0, 3.0),
+                                    agent, agent2, get_contact_duration_normal(3.07, 2.5),
                                     current_step, duration_parameter,
                                     susceptibility_parameters, temp_influences)
                             end
-
-                            # http://ecs.force.com/mbdata/MBQuest2RTanw?rep=KK3Q1806#:~:text=6%20hours%20per%20day%20for%20kindergarten%20and%20elementary%20students.&text=437.5%20hours%20per%20year%20for%20half%2Dday%20kindergarten.
-                            # https://nces.ed.gov/surveys/sass/tables/sass0708_035_s1s.asp
-                            # Mixing patterns between age groups in social networks
-                            # American Time Use Survey Summary. Bls.gov. 2017-06-27. Retrieved 2018-06-06
-
-                            # if agent.collective_id == 1
-                            #     make_contact(
-                            #         agent, agent2, get_contact_duration(5.5, 1.0),
-                            #         current_step, duration_parameter,
-                            #         susceptibility_parameters, temp_influences)
-                            # elseif agent.collective_id == 2
-                            #     make_contact(
-                            #         agent, agent2, get_contact_duration(6.64, 1.25),
-                            #         current_step, duration_parameter,
-                            #         susceptibility_parameters, temp_influences)
-                            # elseif agent.collective_id == 3
-                            #     make_contact(
-                            #         agent, agent2, get_contact_duration(2.0, 0.5),
-                            #         current_step, duration_parameter,
-                            #         susceptibility_parameters, temp_influences)
-                            # else
-                            #     make_contact(
-                            #         agent, agent2, get_contact_duration(7.9, 0.5),
-                            #         current_step, duration_parameter,
-                            #         susceptibility_parameters, temp_influences)
-                            # end
 
                             if agent2.is_newly_infected
                                 infected_inside_collective[current_step, agent2.collective_id, thread_id] += 1

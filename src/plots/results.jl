@@ -204,7 +204,7 @@ function plot_infected_inside_collective()
 
     infected_inside_collective_plot = plot(
         1:365,
-        [infected_inside_collective_data[i, :] for i = 1:5],
+        [infected_inside_collective_data[:, i] for i = 1:5],
         title = "Virus transmissions inside collectives",
         lw = 3,
         label = ["Kinder" "School" "Uni" "Work" "Home"])
