@@ -231,10 +231,10 @@ function plot_registered_new_cases()
 end
 
 plot_incidence()
-# plot_incidence_etiology()
+plot_incidence_etiology()
 plot_incidence_age_groups()
 
-# plot_daily_new_cases_viruses()
+plot_daily_new_cases_viruses()
 plot_infected_inside_collective()
 
 # plot_daily_new_cases_age_groups()

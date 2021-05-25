@@ -4,14 +4,15 @@ include("../data/temperature.jl")
 
 function plot_duration_influence()
     # duration_parameter = 7.05
-    duration_parameter = 6.8
+    duration_parameter = 6.75
     duration_influence(x) = 1 / (1 + exp(-x + duration_parameter))
 
+    scalefontsizes(1.2)
     duration_range = range(0, stop=24, length=100)
     duration_plot = plot(
-        duration_range, duration_influence.(duration_range), title = "Duration influence", lw = 3, legend = false)
+        duration_range, duration_influence.(duration_range), lw = 3, legend = false, color = "green", fontfamily = "Times")
     xlabel!("Hour")
-    ylabel!("Influence")
+    ylabel!("Contact duration influence")
     savefig(duration_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "duration_influence.pdf"))
 end
 
@@ -32,7 +33,7 @@ function plot_temperature_influence()
 end
 
 function plot_temperature_influence_year()
-    temperature_parameters = Float64[-0.8, -0.8, -0.05, -0.64, -0.2, -0.05, -0.8]
+    temperature_parameters = Float64[-0.9, -0.8, -0.05, -0.35, -0.05, -0.05, -0.85]
     temp_influence(x, v) = temperature_parameters[v] * x + 1.0
 
     temperature = get_air_temperature()
@@ -40,10 +41,10 @@ function plot_temperature_influence_year()
     max_min_temp = maximum(temperature) - minimum(temperature)
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
-    for step in 1:365
+    for s in 1:365
         current_temp = (temperature[year_day] - min_temp) / max_min_temp
         for v in 1:7
-            temp_influences[v, step] = temperature_parameters[v] * current_temp + 1.0
+            temp_influences[v, s] = temperature_parameters[v] * current_temp + 1.0
         end
         if year_day == 365
             year_day = 1
@@ -52,13 +53,17 @@ function plot_temperature_influence_year()
         end
     end
 
+    scalefontsizes(1.2)
+    ticks = range(1, stop = 365, length = 13)
+    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     temperature_plot = plot(
         1:365,
         [temp_influences[i, :] for i = 1:7],
-        title = "Temperature influence",
+        xticks = (ticks, ticklabels),
+        legend=:bottom,
         lw = 3,
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
-    xlabel!("Day")
+    xlabel!("Month")
     ylabel!("Influence")
     savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "temperature_influence_year.pdf"))
 end
@@ -108,8 +113,10 @@ function plot_infectivity_influence()
 end
 
 plot_duration_influence()
+
 # plot_temperature_influence()
+plot_temperature_influence_year()
+
 # # plot_infectivity_influence()
 # plot_susceptibility_influence()
 
-# plot_temperature_influence_year()

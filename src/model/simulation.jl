@@ -97,7 +97,8 @@ function simulate_contacts(
     is_work_holiday::Bool,
     week_num::Int,
     current_step::Int,
-    infected_inside_collective::Matrix{Int}
+    infected_inside_collective::Array{Int, 3},
+    thread_id::Int
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -165,7 +166,7 @@ function simulate_contacts(
                                 current_step, duration_parameter, susceptibility_parameters, temp_influences)
                         end
                         if agent2.is_newly_infected
-                            infected_inside_collective[5, current_step] += 1
+                            infected_inside_collective[current_step, 5, thread_id] += 1
                         end
                     end
                 end
@@ -232,7 +233,7 @@ function simulate_contacts(
                             # end
 
                             if agent2.is_newly_infected
-                                infected_inside_collective[agent2.collective_id, current_step] += 1
+                                infected_inside_collective[current_step, agent2.collective_id, thread_id] += 1
                             end
                         end
                     end
@@ -262,9 +263,9 @@ function update_agent_states(
     agents::Vector{Agent},
     infectivities::Array{Float64, 4},
     current_step::Int,
-    daily_new_cases_viruses::Matrix{Int},
-    confirmed_daily_new_cases_viruses::Matrix{Int},
-    confirmed_daily_new_cases_age_groups::Matrix{Int}
+    confirmed_daily_new_cases_viruses::Array{Int, 3},
+    confirmed_daily_new_cases_age_groups::Array{Int, 3},
+    thread_id::Int
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -391,15 +392,29 @@ function update_agent_states(
                         end
                     end
                     if agent.is_isolated
-                        confirmed_daily_new_cases_viruses[agent.virus_id, current_step] += 1
+                        confirmed_daily_new_cases_viruses[current_step, agent.virus_id, thread_id] += 1
                         if agent.age < 3
-                            confirmed_daily_new_cases_age_groups[1, current_step] += 1
+                            confirmed_daily_new_cases_age_groups[current_step, 1, thread_id] += 1
                         elseif agent.age < 7
-                            confirmed_daily_new_cases_age_groups[2, current_step] += 1
+                            confirmed_daily_new_cases_age_groups[current_step, 2, thread_id] += 1
                         elseif agent.age < 15
-                            confirmed_daily_new_cases_age_groups[3, current_step] += 1
+                            confirmed_daily_new_cases_age_groups[current_step, 3, thread_id] += 1
                         else
-                            confirmed_daily_new_cases_age_groups[4, current_step] += 1
+                            confirmed_daily_new_cases_age_groups[current_step, 4, thread_id] += 1
+                        end
+                    end
+                elseif agent.days_infected == 2 && agent.collective_id == 0 && !agent.is_asymptomatic
+                    if agent.age < 3
+                        if rand(Float64) < 0.66
+                            confirmed_daily_new_cases_age_groups[current_step, 1, thread_id] += 1
+                        end
+                    elseif agent.age < 7
+                        if rand(Float64) < 0.5
+                            confirmed_daily_new_cases_age_groups[current_step, 2, thread_id] += 1
+                        end
+                    else
+                        if rand(Float64) < 0.33
+                            confirmed_daily_new_cases_age_groups[current_step, 4, thread_id] += 1
                         end
                     end
                 end
@@ -414,8 +429,6 @@ function update_agent_states(
                 end
             end
         elseif agent.is_newly_infected
-            daily_new_cases_viruses[agent.virus_id, current_step] += 1
-
             if agent.virus_id == 1
                 agent.incubation_period = get_period_from_erlang(
                     1.4, 0.09, 1, 7)
@@ -519,7 +532,6 @@ function run_simulation(
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
     etiology::Matrix{Float64},
-    incidence_data_mean::Vector{Float64},
     incidence_data_mean_0::Vector{Float64},
     incidence_data_mean_3::Vector{Float64},
     incidence_data_mean_7::Vector{Float64},
@@ -534,18 +546,16 @@ function run_simulation(
     # Номер недели
     week_num = 1
 
+    num_viruses = 7
+
     incidence = Array{Int, 1}(undef, 52)
     etiology_incidence = Array{Int, 2}(undef, 7, 52)
     age_group_incidence = Array{Int, 2}(undef, 4, 52)
-    # incidence = zeros(Int, 52)
-    # etiology_incidence = zeros(Int, 7, 52)
-    # age_group_incidence = zeros(Int, 4, 52)
 
-    daily_new_cases_viruses = zeros(Int, 7, 365)
-    confirmed_daily_new_cases_viruses = zeros(Int, 7, 365)
-    confirmed_daily_new_cases_age_groups = zeros(Int, 7, 365)
+    confirmed_daily_new_cases_viruses = zeros(Int, 365, num_viruses, num_threads)
+    confirmed_daily_new_cases_age_groups = zeros(Int, 365, 4, num_threads)
 
-    infected_inside_collective = zeros(Int, 5, 365)
+    infected_inside_collective = zeros(Int, 365, 5, num_threads)
 
     # DEBUG
     max_step = 365
@@ -625,7 +635,8 @@ function run_simulation(
                 is_work_holiday,
                 week_num,
                 current_step,
-                infected_inside_collective)
+                infected_inside_collective,
+                thread_id)
         end
         
         @threads for thread_id in 1:num_threads
@@ -635,20 +646,20 @@ function run_simulation(
                 agents,
                 infectivities,
                 current_step,
-                daily_new_cases_viruses,
                 confirmed_daily_new_cases_viruses,
-                confirmed_daily_new_cases_age_groups)
+                confirmed_daily_new_cases_age_groups,
+                thread_id)
         end
 
         # Обновление даты
         if week_day == 7
 
-            incidence[week_num] = sum(confirmed_daily_new_cases_viruses[:, current_step - 6:current_step])
+            incidence[week_num] = sum(confirmed_daily_new_cases_viruses[current_step - 6:current_step, :, :])
             for i = 1:7
-                etiology_incidence[i, week_num] = sum(confirmed_daily_new_cases_viruses[i, current_step - 6:current_step])
+                etiology_incidence[i, week_num] = sum(confirmed_daily_new_cases_viruses[current_step - 6:current_step, i, :])
             end
             for i = 1:4
-                age_group_incidence[i, week_num] = sum(confirmed_daily_new_cases_age_groups[i, current_step - 6:current_step])
+                age_group_incidence[i, week_num] = sum(confirmed_daily_new_cases_age_groups[current_step - 6:current_step, i, :])
             end
 
             week_day = 1
@@ -683,9 +694,8 @@ function run_simulation(
     writedlm(
         joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), age_group_incidence ./ 9897, ',')
     writedlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "daily_new_cases_viruses_data.csv"), daily_new_cases_viruses, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"), infected_inside_collective, ',')
+        joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"),
+        sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
 
     RSS1 = sum((age_group_incidence[1, :] - incidence_data_mean_0).^2)
     RSS2 = sum((age_group_incidence[2, :] - incidence_data_mean_3).^2)

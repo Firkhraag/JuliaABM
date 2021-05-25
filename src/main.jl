@@ -314,9 +314,6 @@ function main()
         end
     end
 
-    incidence_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu.csv"), ',', Int, '\n')
-    incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :]
-    
     incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
     incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
     incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
@@ -333,7 +330,7 @@ function main()
     @time RSS = run_simulation(
         num_threads, start_agent_ids, end_agent_ids, agents, infectivities,
         temp_influences, duration_parameter,
-        susceptibility_parameters, etiology, incidence_data_mean,
+        susceptibility_parameters, etiology,
         incidence_data_mean_0, incidence_data_mean_3,
         incidence_data_mean_7, incidence_data_mean_15)
     println("RSS: ", RSS)
