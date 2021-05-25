@@ -18,6 +18,7 @@ mutable struct Agent
     group_id::Int
     # Связи в коллективе
     collective_conn_ids::Vector{Int}
+    collective_cross_conn_ids::Vector{Int}
     # Id детей за которыми нужен уход в случае болезни
     dependant_ids::Vector{Int}
     # Id того, кто будет ухаживать в случае болезни
@@ -456,7 +457,7 @@ mutable struct Agent
         new(
             id, age, infant_age, is_male, household_conn_ids,
             collective_id, group_num, 0,
-            Int[], Int[], 0, false, ig_level,
+            Int[], Int[], Int[], 0, false, ig_level,
             virus_id, false, RV_days_immune,
             RSV_days_immune, AdV_days_immune, PIV_days_immune,
             false, false, false,

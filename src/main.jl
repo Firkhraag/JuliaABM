@@ -81,15 +81,6 @@ function main()
     # 6 threads
     start_agent_ids = Int[1, 1669514, 3297338, 4919969, 6552869, 8229576]
     end_agent_ids = Int[1669513, 3297337, 4919968, 6552868, 8229575, 9897284]
-    # # 4 threads
-    # start_agent_ids = Int[1, 2536385, 5090846, 7523313]
-    # end_agent_ids = Int[2536384, 5090845, 7523312, 9897284]
-    # # 7 threads
-    # start_agent_ids = Int[1, 1404541, 2813967, 4198700, 5582666, 6980559, 8427071]
-    # end_agent_ids = Int[1404540, 2813966, 4198699, 5582665, 6980558, 8427070, 9897284]
-    # # 8 threads
-    # start_agent_ids = Int[1, 1214204, 2437939, 3664273, 4875259, 6090590, 7316432, 8589989]
-    # end_agent_ids = Int[1214203, 2437938, 3664272, 4875258, 6090589, 7316431, 8589988, 9897284]
 
     # Параметры
     # Default
@@ -97,7 +88,7 @@ function main()
     # temperature_parameters = Float64[-0.8, -0.8, -0.1, -0.64, -0.2, -0.1, -0.8]
     # susceptibility_parameters = Float64[2.61, 2.61, 3.17, 5.11, 4.69, 3.89, 3.77]
 
-    # RSS: 4.669133556375e9
+    # RSS: 5.424520207875e9
     duration_parameter = 6.75
     temperature_parameters = Float64[-0.9, -0.8, -0.05, -0.35, -0.05, -0.05, -0.85]
     susceptibility_parameters = Float64[3.05, 3.1, 3.47, 4.9, 4.7, 4.02, 3.88]
@@ -239,6 +230,37 @@ function main()
         end
     end
 
+    @time @threads for i = 1:6
+        for j = 1:4:size(university_groups[i], 1)
+            if size(university_groups[i], 1) - j >= 4
+                group1 = university_groups[i][j]
+                group2 = university_groups[i][j + 1]
+                group3 = university_groups[i][j + 2]
+                group4 = university_groups[i][j + 3]
+                connections_for_group1 = vcat(group2, group3, group4)
+                connections_for_group2 = vcat(group1, group3, group4)
+                connections_for_group3 = vcat(group2, group1, group4)
+                connections_for_group4 = vcat(group2, group3, group1)
+                for agent_id in group1
+                    agent = agents[agent_id]
+                    agent.collective_cross_conn_ids = connections_for_group1
+                end
+                for agent_id in group2
+                    agent = agents[agent_id]
+                    agent.collective_cross_conn_ids = connections_for_group2
+                end
+                for agent_id in group3
+                    agent = agents[agent_id]
+                    agent.collective_cross_conn_ids = connections_for_group3
+                end
+                for agent_id in group4
+                    agent = agents[agent_id]
+                    agent.collective_cross_conn_ids = connections_for_group4
+                end
+            end
+        end
+    end
+
     num_groups = size(workplace_groups, 1)
     # 6 процессов
     ranges = [
@@ -248,27 +270,6 @@ function main()
         num_groups ÷ 2 + 1:2num_groups ÷ 3,
         2num_groups ÷ 3 + 1:5num_groups ÷ 6,
         5num_groups ÷ 6 + 1:num_groups]
-
-    # # 7 процессов
-    # ranges = [
-    #     1:num_groups ÷ 7,
-    #     num_groups ÷ 7 + 1:2num_groups ÷ 7,
-    #     2num_groups ÷ 7 + 1:3num_groups ÷ 7,
-    #     3num_groups ÷ 7 + 1:4num_groups ÷ 7,
-    #     4num_groups ÷ 7 + 1:5num_groups ÷ 7,
-    #     5num_groups ÷ 7 + 1:6num_groups ÷ 7,
-    #     6num_groups ÷ 7 + 1:num_groups]
-
-    # # 8 процессов
-    # ranges = [
-    #     1:num_groups ÷ 8,
-    #     num_groups ÷ 8 + 1:2num_groups ÷ 8,
-    #     2num_groups ÷ 8 + 1:3num_groups ÷ 8,
-    #     3num_groups ÷ 8 + 1:4num_groups ÷ 8,
-    #     4num_groups ÷ 8 + 1:5num_groups ÷ 8,
-    #     5num_groups ÷ 8 + 1:6num_groups ÷ 8,
-    #     6num_groups ÷ 8 + 1:7num_groups ÷ 8,
-    #     7num_groups ÷ 8 + 1:num_groups]
     
     @time @threads for thread_id in 1:num_threads
         for group_id in ranges[thread_id]

@@ -186,7 +186,29 @@ function simulate_contacts(
                             end
 
                             if agent2.is_newly_infected
-                                infected_inside_collective[current_step, agent2.collective_id, thread_id] += 1
+                                infected_inside_collective[current_step, agent.collective_id, thread_id] += 1
+                            end
+                        end
+                    end
+                end
+
+                if agent.collective_id == 3
+                    for agent2_id in agent.collective_cross_conn_ids
+                        agent2 = agents[agent2_id]
+                        if agent2.virus_id == 0 && agent2.days_immune == 0 && !agent2.is_isolated && !agent2.on_parent_leave
+                            if (agent.virus_id != 1 || !agent2.FluA_immunity) && (agent.virus_id != 2 || !agent2.FluB_immunity) &&
+                                (agent.virus_id != 7 || !agent2.CoV_immunity) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
+                                (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
+                                (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
+                                
+                                make_contact(
+                                    agent, agent2, get_contact_duration_gamma(1.0, 1.6),
+                                    current_step, duration_parameter,
+                                    susceptibility_parameters, temp_influences)
+    
+                                if agent2.is_newly_infected
+                                    infected_inside_collective[current_step, 3, thread_id] += 1
+                                end
                             end
                         end
                     end
@@ -223,7 +245,7 @@ function update_agent_states(
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
         if agent.days_immune != 0
-            if agent.days_immune == 14
+            if agent.days_immune == 7
                 # Переход из резистентного состояния в восприимчивое
                 agent.days_immune = 0
             else
