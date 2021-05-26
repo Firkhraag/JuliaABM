@@ -291,7 +291,6 @@ mutable struct Agent
         end
 
         # Набор дней после приобретения типоспецифического иммунитета кроме гриппа
-        # immunity_days = Int[0, 0, 0, 0, 0, 0, 0]
         RV_days_immune = 0
         RSV_days_immune = 0
         AdV_days_immune = 0
