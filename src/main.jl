@@ -39,10 +39,9 @@ function generate_barabasi_albert_network(agents::Vector{Agent}, group_ids::Vect
     end
     # Связный граф с m вершинами
     for i = 1:m
-        for j = 1:m
-            if i != j
-                push!(agents[group_ids[i]].collective_conn_ids, agents[group_ids[j]].id)
-            end
+        for j = (i + 1):m
+            push!(agents[group_ids[i]].collective_conn_ids, group_ids[j])
+            push!(agents[group_ids[j]].collective_conn_ids, group_ids[i])
         end
     end
     # Сумма связей всех вершин
@@ -83,12 +82,7 @@ function main()
     end_agent_ids = Int[1669513, 3297337, 4919968, 6552868, 8229575, 9897284]
 
     # Параметры
-    # Default
-    # duration_parameter = 7.05
-    # temperature_parameters = Float64[-0.8, -0.8, -0.1, -0.64, -0.2, -0.1, -0.8]
-    # susceptibility_parameters = Float64[2.61, 2.61, 3.17, 5.11, 4.69, 3.89, 3.77]
-
-    # RSS: 5.424520207875e9
+    # RSS: 5.081978631875e9
     duration_parameter = 6.75
     temperature_parameters = Float64[-0.9, -0.8, -0.05, -0.35, -0.05, -0.05, -0.85]
     susceptibility_parameters = Float64[3.05, 3.1, 3.47, 4.9, 4.7, 4.02, 3.88]
@@ -182,6 +176,8 @@ function main()
     university_group_nums[6] = ceil.(Int, num_of_people_in_university[6] ./ 10)
 
     workplaces_num_people = Int[]
+    workplace_num_people = num_of_people_in_workplace
+
     while num_of_people_in_workplace > 0
         num_people = sample_from_zipf_distribution(1.056, 1995) + 5
         if num_of_people_in_workplace - num_people > 0
@@ -191,6 +187,8 @@ function main()
         end
         num_of_people_in_workplace -= num_people
     end
+
+    workplace_weights = workplaces_num_people ./ workplace_num_people
 
     school_groups = [[Int[] for _ in 1:school_group_nums[j]] for j = 1:11]
     university_groups = [[Int[] for _ in 1:university_group_nums[j]] for j = 1:6]
@@ -203,30 +201,32 @@ function main()
     @time for agent in agents
         if agent.collective_id == 2
             random_num = rand(1:size(school_group_ids[agent.group_num], 1))
-            agent.group_id = school_group_ids[agent.group_num][random_num]
+            group_id = school_group_ids[agent.group_num][random_num]
             deleteat!(school_group_ids[agent.group_num], random_num)
             if size(school_group_ids[agent.group_num], 1) == 0
                 school_group_ids[agent.group_num] = collect(1:school_group_nums[agent.group_num])
             end
-            push!(school_groups[agent.group_num][agent.group_id], agent.id)
-            agent.collective_conn_ids = school_groups[agent.group_num][agent.group_id]
+            push!(school_groups[agent.group_num][group_id], agent.id)
+            agent.collective_conn_ids = school_groups[agent.group_num][group_id]
         elseif agent.collective_id == 3
             random_num = rand(1:size(university_group_ids[agent.group_num], 1))
-            agent.group_id = university_group_ids[agent.group_num][random_num]
+            group_id = university_group_ids[agent.group_num][random_num]
             deleteat!(university_group_ids[agent.group_num], random_num)
             if size(university_group_ids[agent.group_num], 1) == 0
                 university_group_ids[agent.group_num] = collect(1:university_group_nums[agent.group_num])
             end
-            push!(university_groups[agent.group_num][agent.group_id], agent.id)
-            agent.collective_conn_ids = university_groups[agent.group_num][agent.group_id]
+            push!(university_groups[agent.group_num][group_id], agent.id)
+            agent.collective_conn_ids = university_groups[agent.group_num][group_id]
         elseif agent.collective_id == 4
-            random_num = rand(1:size(workplace_group_ids, 1))
-            agent.group_id = workplace_group_ids[random_num]
-            deleteat!(workplace_group_ids, random_num)
-            if size(workplace_group_ids, 1) == 0
-                workplace_group_ids = collect(1:size(workplaces_num_people, 1))
+            random_num = rand(Float64)
+            cumulative = 0.0
+            for i in 1:size(workplaces_num_people, 1)
+                cumulative += workplace_weights[i]
+                if random_num < cumulative
+                    push!(workplace_groups[i], agent.id)
+                    break
+                end
             end
-            push!(workplace_groups[agent.group_id], agent.id)
         end
     end
 

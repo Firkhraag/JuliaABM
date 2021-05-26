@@ -2157,13 +2157,13 @@ function create_population(
         for agent in all_agents[district_start_agent_id:district_end_agent_id]
             if agent.collective_id == 1
                 random_num = rand(1:size(kindergarten_group_ids[agent.group_num], 1))
-                agent.group_id = kindergarten_group_ids[agent.group_num][random_num]
+                group_id = kindergarten_group_ids[agent.group_num][random_num]
                 deleteat!(kindergarten_group_ids[agent.group_num], random_num)
                 if size(kindergarten_group_ids[agent.group_num], 1) == 0
                     kindergarten_group_ids[agent.group_num] = collect(1:kindergarten_group_nums[agent.group_num])
                 end
-                push!(kindergarten_groups[agent.group_num][agent.group_id], agent.id)
-                agent.collective_conn_ids = kindergarten_groups[agent.group_num][agent.group_id]
+                push!(kindergarten_groups[agent.group_num][group_id], agent.id)
+                agent.collective_conn_ids = kindergarten_groups[agent.group_num][group_id]
             end
         end
     end

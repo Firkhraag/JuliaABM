@@ -14,8 +14,6 @@ mutable struct Agent
     collective_id::Int
     # Номер группы
     group_num::Int
-    # Id группы
-    group_id::Int
     # Связи в коллективе
     collective_conn_ids::Vector{Int}
     collective_cross_conn_ids::Vector{Int}
@@ -456,7 +454,7 @@ mutable struct Agent
 
         new(
             id, age, infant_age, is_male, household_conn_ids,
-            collective_id, group_num, 0,
+            collective_id, group_num,
             Int[], Int[], Int[], 0, false, ig_level,
             virus_id, false, RV_days_immune,
             RSV_days_immune, AdV_days_immune, PIV_days_immune,
