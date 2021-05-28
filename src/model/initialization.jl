@@ -8,334 +8,335 @@ function create_agent(
     district_people_households::Matrix{Int},
     district_household_index::Int,
     thread_id::Int,
+    thread_rng::Vector{MersenneTwister},
     num_of_people_in_kindergarten::Vector{Int},
-    num_of_people_in_school_threads::Matrix{Int},
-    num_of_people_in_university_threads::Matrix{Int},
-    num_of_people_in_workplace_threads::Vector{Int},
+    num_of_people_in_school::Vector{Int},
+    num_of_people_in_university::Vector{Int},
+    num_of_people_in_workplace::Vector{Int},
     is_male::Union{Bool, Nothing} = nothing,
     is_child::Bool = false,
     parent_age::Union{Int, Nothing} = nothing,
     is_older::Bool = false,
     is_parent_of_parent::Bool = false
 ):: Agent
-    age_rand_num = rand(1:100)
-    sex_random_num = rand(1:100)
+    age_rand_num = rand(thread_rng[thread_id], 1:100)
+    sex_random_num = rand(thread_rng[thread_id], 1:100)
     if is_child
         if parent_age < 23
             # M0–4
             return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                sex_random_num <= district_people[index, 1], rand(0:(parent_age - 18)),
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                sex_random_num <= district_people[index, 1], rand(thread_rng[thread_id], 0:(parent_age - 18)),
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
         elseif parent_age < 28
             # T0-4_0–9
             if (age_rand_num <= district_people[index, 19])
                 # M0–4
                 Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 1], rand(0:4),
-                    thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                    num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    sex_random_num <= district_people[index, 1], rand(thread_rng[thread_id], 0:4),
+                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                    num_of_people_in_university, num_of_people_in_workplace)
             else
                 # M5–9
                 Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 2], rand(5:(parent_age - 18)),
-                    thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                    num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    sex_random_num <= district_people[index, 2], rand(thread_rng[thread_id], 5:(parent_age - 18)),
+                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                    num_of_people_in_university, num_of_people_in_workplace)
             end
         elseif parent_age < 33
             # T0-4_0–14
             if (age_rand_num <= district_people[index, 20])
                 # M0–4
                 Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 1], rand(0:4),
-                    thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                    num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    sex_random_num <= district_people[index, 1], rand(thread_rng[thread_id], 0:4),
+                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                    num_of_people_in_university, num_of_people_in_workplace)
             # T0-9_0–14
             elseif (age_rand_num <= district_people[index, 21])
                 # M5–9
                 Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 2], rand(5:9),
-                    thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                    num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    sex_random_num <= district_people[index, 2], rand(thread_rng[thread_id], 5:9),
+                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                    num_of_people_in_university, num_of_people_in_workplace)
             else
                 # M10–14
                 Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 3], rand(10:(parent_age - 18)),
-                    thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                    num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    sex_random_num <= district_people[index, 3], rand(thread_rng[thread_id], 10:(parent_age - 18)),
+                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                    num_of_people_in_university, num_of_people_in_workplace)
             end
         elseif parent_age < 35
-            age_group_rand_num = rand(1:100)
+            age_group_rand_num = rand(thread_rng[thread_id], 1:100)
             if age_group_rand_num <= district_people_households[1, district_household_index]
                 # T0-4_0–14
                 if (age_rand_num <= district_people[index, 20])
                     # M0–4
                     Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 1], rand(0:4),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 1], rand(thread_rng[thread_id], 0:4),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 # T0-9_0–14
                 elseif (age_rand_num <= district_people[index, 21])
                     # M5–9
                     Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 2], rand(5:9),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 2], rand(thread_rng[thread_id], 5:9),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M10–14
                     Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 3], rand(10:14),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 3], rand(thread_rng[thread_id], 10:14),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             else
                 # M15–19
                 return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 4], rand(15:(parent_age - 18)),
-                    thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                    num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    sex_random_num <= district_people[index, 4], rand(thread_rng[thread_id], 15:(parent_age - 18)),
+                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                    num_of_people_in_university, num_of_people_in_workplace)
             end
         else
-            age_group_rand_num = rand(1:100)
+            age_group_rand_num = rand(thread_rng[thread_id], 1:100)
             if age_group_rand_num <= district_people_households[1, district_household_index]
                 # T0-4_0–14
                 if (age_rand_num <= district_people[index, 20])
                     # M0–4
                     Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 1], rand(0:4),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 1], rand(thread_rng[thread_id], 0:4),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 # T0-9_0–14
                 elseif (age_rand_num <= district_people[index, 21])
                     # M5–9
                     Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 2], rand(5:9),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 2], rand(thread_rng[thread_id], 5:9),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M10–14
                     Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 3], rand(10:14),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 3], rand(thread_rng[thread_id], 10:14),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             else
                 # M15–19
                 return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 4], rand(15:17),
-                    thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                    num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    sex_random_num <= district_people[index, 4], rand(thread_rng[thread_id], 15:17),
+                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                    num_of_people_in_university, num_of_people_in_workplace)
             end
         end
     else
-        age_group_rand_num = rand(1:100)
+        age_group_rand_num = rand(thread_rng[thread_id], 1:100)
         if is_older
-            age_group_rand_num = rand((district_people_households[3, district_household_index] + 1):100)
+            age_group_rand_num = rand(thread_rng[thread_id], (district_people_households[3, district_household_index] + 1):100)
         elseif parent_age !== nothing
             if parent_age < 45
                 age_group_rand_num = 1
             elseif parent_age < 55
-                age_group_rand_num = rand(1:district_people_households[3, district_household_index])
+                age_group_rand_num = rand(thread_rng[thread_id], 1:district_people_households[3, district_household_index])
             elseif parent_age < 65
-                age_group_rand_num = rand(1:district_people_households[4, district_household_index])
+                age_group_rand_num = rand(thread_rng[thread_id], 1:district_people_households[4, district_household_index])
             else
-                age_group_rand_num = rand(1:district_people_households[5, district_household_index])
+                age_group_rand_num = rand(thread_rng[thread_id], 1:district_people_households[5, district_household_index])
             end
         elseif is_parent_of_parent
             if parent_age < 25
-                age_group_rand_num = rand((district_people_households[3, district_household_index] + 1):100)
+                age_group_rand_num = rand(thread_rng[thread_id], (district_people_households[3, district_household_index] + 1):100)
             elseif parent_age < 35
-                age_group_rand_num = rand((district_people_households[4, district_household_index] + 1):100)
+                age_group_rand_num = rand(thread_rng[thread_id], (district_people_households[4, district_household_index] + 1):100)
             elseif parent_age < 45
-                age_group_rand_num = rand((district_people_households[5, district_household_index] + 1):100)
+                age_group_rand_num = rand(thread_rng[thread_id], (district_people_households[5, district_household_index] + 1):100)
             else
                 age_group_rand_num = 100
             end
         end
         if age_group_rand_num <= district_people_households[2, district_household_index]
             if is_male !== nothing
-                return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(18:24),
-                    thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                    num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 18:24),
+                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                    num_of_people_in_university, num_of_people_in_workplace)
             else
                 # M20–24
                 return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 5], rand(18:24),
-                    thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                    num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    sex_random_num <= district_people[index, 5], rand(thread_rng[thread_id], 18:24),
+                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                    num_of_people_in_university, num_of_people_in_workplace)
             end
         elseif age_group_rand_num <= district_people_households[3, district_household_index]
             # T25-29_25–34
             if age_rand_num <= district_people[index, 22]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(25:29),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 25:29),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M25–29
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 6], rand(25:29),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 6], rand(thread_rng[thread_id], 25:29),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(30:34),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 30:34),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M30–34
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 7], rand(30:34),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 7], rand(thread_rng[thread_id], 30:34),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             end
         elseif age_group_rand_num <= district_people_households[4, district_household_index]
             # T35-39_35–44
             if age_rand_num <= district_people[index, 23]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(35:39),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 35:39),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M35–39
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 8], rand(35:39),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 8], rand(thread_rng[thread_id], 35:39),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(40:44),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 40:44),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M40–44
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 9], rand(40:44),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 9], rand(thread_rng[thread_id], 40:44),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             end
         elseif age_group_rand_num <= district_people_households[5, district_household_index]
             # T45-49_45–54
             if age_rand_num <= district_people[index, 24]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(45:49),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 45:49),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M45–49
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 10], rand(45:49),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 10], rand(thread_rng[thread_id], 45:49),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(50:54),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 50:54),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M50–54
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 11], rand(50:54),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 11], rand(thread_rng[thread_id], 50:54),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             end
         elseif age_group_rand_num <= district_people_households[6, district_household_index]
             # T55-59_55–64
             if age_rand_num <= district_people[index, 25]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(55:59),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 55:59),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M55–59
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 12], rand(55:59),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 12], rand(thread_rng[thread_id], 55:59),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(60:64),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 60:64),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M60–64
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 13], rand(60:64),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 13], rand(thread_rng[thread_id], 60:64),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             end
         else
             # T65-69_65–89
             if age_rand_num <= district_people[index, 26]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(65:69),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 65:69),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M65–69
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 14], rand(65:69),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 14], rand(thread_rng[thread_id], 65:69),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             # T65-74_65–89
             elseif age_rand_num <= district_people[index, 27]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(70:74),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 70:74),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M70–74
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 15], rand(70:74),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 15], rand(thread_rng[thread_id], 70:74),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             # T65-79_65–89
             elseif age_rand_num <= district_people[index, 28]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(75:79),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 75:79),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M75–79
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 16], rand(75:79),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 16], rand(thread_rng[thread_id], 75:79),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             # T65-84_65–89
             elseif age_rand_num <= district_people[index, 29]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(80:84),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 80:84),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M80–84
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 17], rand(80:84),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 17], rand(thread_rng[thread_id], 80:84),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(85:89),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 85:89),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 else
                     # M85–89
                     return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 18], rand(85:89),
-                        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                        sex_random_num <= district_people[index, 18], rand(thread_rng[thread_id], 85:89),
+                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                        num_of_people_in_university, num_of_people_in_workplace)
                 end
             end
         end
@@ -349,33 +350,34 @@ function create_spouse(
     household_conn_ids::Vector{Int},
     partner_age::Int,
     thread_id::Int,
+    thread_rng::Vector{MersenneTwister},
     num_of_people_in_kindergarten::Vector{Int},
-    num_of_people_in_school_threads::Matrix{Int},
-    num_of_people_in_university_threads::Matrix{Int},
-    num_of_people_in_workplace_threads::Vector{Int}
+    num_of_people_in_school::Vector{Int},
+    num_of_people_in_university::Vector{Int},
+    num_of_people_in_workplace::Vector{Int}
 )
-    rand_num = rand(Float64)
+    rand_num = rand(thread_rng[thread_id], Float64)
     difference = 0
     if rand_num < 0.03
-        difference = rand(-20:-15)
+        difference = rand(thread_rng[thread_id], -20:-15)
     elseif rand_num < 0.08
-        difference = rand(-14:-10)
+        difference = rand(thread_rng[thread_id], -14:-10)
     elseif rand_num < 0.2
-        difference = rand(-9:-6)
+        difference = rand(thread_rng[thread_id], -9:-6)
     elseif rand_num < 0.33
-        difference = rand(-5:-4)
+        difference = rand(thread_rng[thread_id], -5:-4)
     elseif rand_num < 0.53
-        difference = rand(-3:-2)
+        difference = rand(thread_rng[thread_id], -3:-2)
     elseif rand_num < 0.86
-        difference = rand(-1:1)
+        difference = rand(thread_rng[thread_id], -1:1)
     elseif rand_num < 0.93
-        difference = rand(2:3)
+        difference = rand(thread_rng[thread_id], 2:3)
     elseif rand_num < 0.96
-        difference = rand(4:5)
+        difference = rand(thread_rng[thread_id], 4:5)
     elseif rand_num < 0.98
-        difference = rand(6:9)
+        difference = rand(thread_rng[thread_id], 6:9)
     else
-        difference = rand(10:14)
+        difference = rand(thread_rng[thread_id], 10:14)
     end
 
     spouse_age = partner_age + difference
@@ -385,8 +387,8 @@ function create_spouse(
         spouse_age = 89
     end
     return Agent(agent_id, viruses, infectivities, household_conn_ids, false, spouse_age,
-        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+        num_of_people_in_university, num_of_people_in_workplace)
 end
 
 function check_parent_leave(no_one_at_home::Bool, adult::Agent, child::Agent)
@@ -411,22 +413,23 @@ function create_parents_with_children(
     num_of_other_people::Int,
     index::Int,
     thread_id::Int,
+    thread_rng::Vector{MersenneTwister},
     num_of_people_in_kindergarten::Vector{Int},
-    num_of_people_in_school_threads::Matrix{Int},
-    num_of_people_in_university_threads::Matrix{Int},
-    num_of_people_in_workplace_threads::Vector{Int}
+    num_of_people_in_school::Vector{Int},
+    num_of_people_in_university::Vector{Int},
+    num_of_people_in_workplace::Vector{Int}
 )::Vector{Agent}
     agent_male = create_agent(agent_id,
         viruses, infectivities, household_conn_ids, index,
         district_people, district_people_households,
         district_household_index,
-        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
+        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+        num_of_people_in_university, num_of_people_in_workplace, true)
     agent_id += 1
     agent_female = create_spouse(
         agent_id, viruses, infectivities, household_conn_ids, agent_male.age,
-        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+        num_of_people_in_university, num_of_people_in_workplace)
     agent_id += 1
     if num_of_other_people == 0
         if num_of_children > 0
@@ -434,8 +437,8 @@ function create_parents_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             agent_id += 1
             no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
             check_parent_leave(no_one_at_home, agent_female, child)
@@ -446,8 +449,8 @@ function create_parents_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -457,8 +460,8 @@ function create_parents_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, child, child2, child3]
         end
@@ -467,16 +470,16 @@ function create_parents_with_children(
         agent_other = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(agent_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             agent_id += 1
             no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
             if agent_other.collective_id == 0
@@ -490,8 +493,8 @@ function create_parents_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -501,8 +504,8 @@ function create_parents_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, child, child2, child3]
         end
@@ -511,22 +514,22 @@ function create_parents_with_children(
         agent_other = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         agent_other2 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(agent_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             agent_id += 1
             no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
             if agent_other.collective_id == 0 || agent_other2.collective_id == 0
@@ -540,8 +543,8 @@ function create_parents_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -551,8 +554,8 @@ function create_parents_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, agent_other2, child, child2, child3]
         end
@@ -561,28 +564,28 @@ function create_parents_with_children(
         agent_other = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         agent_other2 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         agent_other3 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(agent_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             agent_id += 1
             no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
             if agent_other.collective_id == 0 || agent_other2.collective_id == 0 || agent_other3.collective_id == 0
@@ -596,8 +599,8 @@ function create_parents_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -607,8 +610,8 @@ function create_parents_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
@@ -617,34 +620,34 @@ function create_parents_with_children(
         agent_other = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         agent_other2 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         agent_other3 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         agent_other4 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(agent_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             agent_id += 1
             no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
             if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
@@ -659,8 +662,8 @@ function create_parents_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -670,8 +673,8 @@ function create_parents_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, agent_female.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
@@ -691,10 +694,11 @@ function create_parent_with_children(
     num_of_other_people::Int,
     index::Int,
     thread_id::Int,
+    thread_rng::Vector{MersenneTwister},
     num_of_people_in_kindergarten::Vector{Int},
-    num_of_people_in_school_threads::Matrix{Int},
-    num_of_people_in_university_threads::Matrix{Int},
-    num_of_people_in_workplace_threads::Vector{Int},
+    num_of_people_in_school::Vector{Int},
+    num_of_people_in_university::Vector{Int},
+    num_of_people_in_workplace::Vector{Int},
     is_male_parent::Union{Bool, Nothing},
     with_parent_of_parent::Bool = false,
 )::Vector{Agent}
@@ -702,8 +706,8 @@ function create_parent_with_children(
         viruses, infectivities, household_conn_ids, index,
         district_people, district_people_households,
         district_household_index,
-        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        num_of_people_in_university_threads, num_of_people_in_workplace_threads, is_male_parent,
+        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+        num_of_people_in_university, num_of_people_in_workplace, is_male_parent,
         false, nothing, num_of_other_people > 0)
     agent_id += 1
     if num_of_other_people == 0
@@ -711,8 +715,8 @@ function create_parent_with_children(
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
         agent_id += 1
         no_one_at_home = parent.collective_id != 0
         check_parent_leave(no_one_at_home, parent, child)
@@ -723,8 +727,8 @@ function create_parent_with_children(
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
         agent_id += 1
         check_parent_leave(no_one_at_home, parent, child2)
         if num_of_children == 2
@@ -734,8 +738,8 @@ function create_parent_with_children(
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
         check_parent_leave(no_one_at_home, parent, child3)
         return Agent[parent, child, child2, child3]
     elseif num_of_other_people == 1
@@ -743,8 +747,8 @@ function create_parent_with_children(
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, false,
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing, false,
             parent.age, false, with_parent_of_parent)
         agent_id += 1
         if num_of_children > 0
@@ -752,8 +756,8 @@ function create_parent_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
             agent_id += 1
             no_one_at_home = parent.collective_id != 0
             if agent_other.collective_id == 0
@@ -767,8 +771,8 @@ function create_parent_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
@@ -778,8 +782,8 @@ function create_parent_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, child, child2, child3]
         end
@@ -789,16 +793,16 @@ function create_parent_with_children(
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, false,
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing, false,
             parent.age, false, with_parent_of_parent)
         agent_id += 1
         agent_other2 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing,
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing,
             false, parent.age)
         agent_id += 1
         if num_of_children > 0
@@ -806,8 +810,8 @@ function create_parent_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
             agent_id += 1
             no_one_at_home = parent.collective_id != 0
             if agent_other.collective_id == 0 || agent_other2.collective_id == 0
@@ -821,8 +825,8 @@ function create_parent_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
@@ -832,8 +836,8 @@ function create_parent_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, agent_other2, child, child2, child3]
         end
@@ -843,24 +847,24 @@ function create_parent_with_children(
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, false,
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing, false,
             parent.age, false, with_parent_of_parent)
         agent_id += 1
         agent_other2 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing,
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing,
             false, parent.age)
         agent_id += 1
         agent_other3 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing,
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing,
             false, parent.age)
         agent_id += 1
         if num_of_children > 0
@@ -868,8 +872,8 @@ function create_parent_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
             agent_id += 1
             no_one_at_home = parent.collective_id != 0
             if agent_other.collective_id == 0 || agent_other2.collective_id == 0 || agent_other3.collective_id == 0
@@ -883,8 +887,8 @@ function create_parent_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
@@ -894,8 +898,8 @@ function create_parent_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
@@ -905,32 +909,32 @@ function create_parent_with_children(
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, false,
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing, false,
             parent.age, false, with_parent_of_parent)
         agent_id += 1
         agent_other2 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing,
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing,
             false, parent.age)
         agent_id += 1
         agent_other3 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing,
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing,
             false, parent.age)
         agent_id += 1
         agent_other4 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing,
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace, nothing,
             false, parent.age)
         agent_id += 1
         if num_of_children > 0
@@ -938,8 +942,8 @@ function create_parent_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
             agent_id += 1
             no_one_at_home = parent.collective_id != 0
             if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
@@ -954,8 +958,8 @@ function create_parent_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
@@ -965,8 +969,8 @@ function create_parent_with_children(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, parent.age)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
@@ -986,16 +990,17 @@ function create_others(
     num_of_other_people::Int,
     index::Int,
     thread_id::Int,
+    thread_rng::Vector{MersenneTwister},
     num_of_people_in_kindergarten::Vector{Int},
-    num_of_people_in_school_threads::Matrix{Int},
-    num_of_people_in_university_threads::Matrix{Int},
-    num_of_people_in_workplace_threads::Vector{Int}
+    num_of_people_in_school::Vector{Int},
+    num_of_people_in_university::Vector{Int},
+    num_of_people_in_workplace::Vector{Int}
 )::Vector{Agent}
     agent = create_agent(agent_id,
         viruses, infectivities, household_conn_ids, index,
         district_people, district_people_households, district_household_index,
-        thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-        num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+        num_of_people_in_university, num_of_people_in_workplace)
     agent_id += 1
     if num_of_other_people == 0
         if num_of_children > 0
@@ -1003,8 +1008,8 @@ function create_others(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             agent_id += 1
             no_one_at_home = agent.collective_id != 0
             check_parent_leave(no_one_at_home, agent, child)
@@ -1015,8 +1020,8 @@ function create_others(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
@@ -1026,8 +1031,8 @@ function create_others(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, child, child2, child3]
         end
@@ -1036,16 +1041,16 @@ function create_others(
         agent_other = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(agent_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             agent_id += 1
             no_one_at_home = agent.collective_id != 0
             if agent_other.collective_id == 0
@@ -1059,8 +1064,8 @@ function create_others(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
@@ -1070,8 +1075,8 @@ function create_others(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, agent_other, child, child2, child3]
         end
@@ -1080,22 +1085,22 @@ function create_others(
         agent_other = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         agent_other2 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(agent_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             agent_id += 1
             no_one_at_home = agent.collective_id != 0
             if agent_other.collective_id == 0 || agent_other2.collective_id == 0
@@ -1109,8 +1114,8 @@ function create_others(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
@@ -1120,8 +1125,8 @@ function create_others(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, agent_other, agent_other2, child, child2, child3]
         end
@@ -1130,28 +1135,28 @@ function create_others(
         agent_other = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         agent_other2 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         agent_other3 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(agent_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             agent_id += 1
             no_one_at_home = agent.collective_id != 0
             if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
@@ -1166,8 +1171,8 @@ function create_others(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
@@ -1177,8 +1182,8 @@ function create_others(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
@@ -1187,34 +1192,34 @@ function create_others(
         agent_other = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         agent_other2 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         agent_other3 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         agent_other4 = create_agent(agent_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            num_of_people_in_university, num_of_people_in_workplace)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(agent_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             agent_id += 1
             no_one_at_home = agent.collective_id != 0
             if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
@@ -1229,8 +1234,8 @@ function create_others(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
@@ -1240,8 +1245,8 @@ function create_others(
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true, 35)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
@@ -1249,24 +1254,190 @@ function create_others(
     end
 end
 
+function sample_from_zipf_distribution(
+    parameter::Float64, max_size::Int, rng::MersenneTwister
+)::Int
+    cumulative = 0.0
+    rand_num = rand(rng, Float64)
+    multiplier = 1 / sum((1:max_size).^(-parameter))
+    for i = 1:max_size
+        cumulative += i^(-parameter) * multiplier
+        if rand_num < cumulative
+            return i
+        end
+    end
+    return max_size
+end
+
+# Создание графа Барабаши-Альберта
+# На вход подаются группа с набором агентов (group) и число минимальных связей, которые должен иметь агент (m)
+function generate_barabasi_albert_network(agents::Vector{Agent}, group_ids::Vector{Int}, m::Int, rng::MersenneTwister)
+    if size(group_ids, 1) < m
+        m = size(group_ids, 1)
+    end
+    # Связный граф с m вершинами
+    for i = 1:m
+        for j = (i + 1):m
+            push!(agents[group_ids[i]].collective_conn_ids, group_ids[j])
+            push!(agents[group_ids[j]].collective_conn_ids, group_ids[i])
+        end
+    end
+    # Сумма связей всех вершин
+    degree_sum = m * (m - 1)
+    # Добавление новых вершин
+    for i = (m + 1):size(group_ids, 1)
+        agent = agents[group_ids[i]]
+        degree_sum_temp = degree_sum
+        for _ = 1:m
+            cumulative = 0.0
+            rand_num = rand(rng, Float64)
+            for j = 1:(i-1)
+                if group_ids[j] in agent.collective_conn_ids
+                    continue
+                end
+                agent2 = agents[group_ids[j]]
+                cumulative += size(agent2.collective_conn_ids, 1) / degree_sum_temp
+                if rand_num < cumulative
+                    degree_sum_temp -= size(agent2.collective_conn_ids, 1)
+                    push!(agent.collective_conn_ids, agent2.id)
+                    push!(agent2.collective_conn_ids, agent.id)
+                    break
+                end
+            end
+        end
+        degree_sum += 2m
+    end
+end
+
+function set_connections(
+    agents::Vector{Agent},
+    start_agent_id::Int,
+    end_agent_id::Int,
+    num_of_people_in_school::Vector{Int},
+    num_of_people_in_university::Vector{Int},
+    num_of_people_in_workplace::Vector{Int},
+    rng::MersenneTwister
+)
+    school_group_nums = ceil.(Int, num_of_people_in_school ./ 25)
+
+    university_group_nums = Array{Int, 1}(undef, 6)
+    university_group_nums[1] = ceil(Int, num_of_people_in_university[1] / 15)
+    university_group_nums[2:3] = ceil.(Int, num_of_people_in_university[2:3] ./ 14)
+    university_group_nums[4] = ceil.(Int, num_of_people_in_university[4] ./ 13)
+    university_group_nums[5] = ceil.(Int, num_of_people_in_university[5] ./ 11)
+    university_group_nums[6] = ceil.(Int, num_of_people_in_university[6] ./ 10)
+
+    workplaces_num_people = Int[]
+    workplace_num_people = num_of_people_in_workplace[1]
+
+    while num_of_people_in_workplace[1] > 0
+        num_people = sample_from_zipf_distribution(1.056, 1995, rng) + 5
+        if num_of_people_in_workplace[1] - num_people > 0
+            append!(workplaces_num_people, num_people)
+        else
+            append!(workplaces_num_people, num_of_people_in_workplace[1])
+        end
+        num_of_people_in_workplace[1] -= num_people
+    end
+
+    workplace_weights = workplaces_num_people ./ workplace_num_people
+
+    school_groups = [[Int[] for _ in 1:school_group_nums[j]] for j = 1:11]
+    university_groups = [[Int[] for _ in 1:university_group_nums[j]] for j = 1:6]
+    workplace_groups = [Int[] for _ in 1:size(workplaces_num_people, 1)]
+
+    school_group_ids = [collect(1:school_group_nums[i]) for i = 1:11]
+    university_group_ids = [collect(1:university_group_nums[i]) for i = 1:6]
+
+    for agent_id = start_agent_id:end_agent_id
+        agent = agents[agent_id]
+        if agent.collective_id == 2
+            random_num = rand(rng, 1:size(school_group_ids[agent.group_num], 1))
+            group_id = school_group_ids[agent.group_num][random_num]
+            deleteat!(school_group_ids[agent.group_num], random_num)
+            if size(school_group_ids[agent.group_num], 1) == 0
+                school_group_ids[agent.group_num] = collect(1:school_group_nums[agent.group_num])
+            end
+            push!(school_groups[agent.group_num][group_id], agent.id)
+            agent.collective_conn_ids = school_groups[agent.group_num][group_id]
+        elseif agent.collective_id == 3
+            random_num = rand(rng, 1:size(university_group_ids[agent.group_num], 1))
+            group_id = university_group_ids[agent.group_num][random_num]
+            deleteat!(university_group_ids[agent.group_num], random_num)
+            if size(university_group_ids[agent.group_num], 1) == 0
+                university_group_ids[agent.group_num] = collect(1:university_group_nums[agent.group_num])
+            end
+            push!(university_groups[agent.group_num][group_id], agent.id)
+            agent.collective_conn_ids = university_groups[agent.group_num][group_id]
+        elseif agent.collective_id == 4
+            random_num = rand(rng, Float64)
+            cumulative = 0.0
+            for i in 1:size(workplaces_num_people, 1)
+                cumulative += workplace_weights[i]
+                if random_num < cumulative
+                    push!(workplace_groups[i], agent.id)
+                    break
+                end
+            end
+        end
+    end
+
+    for i = 1:6
+        for j = 1:4:size(university_groups[i], 1)
+            if size(university_groups[i], 1) - j >= 4
+                group1 = university_groups[i][j]
+                group2 = university_groups[i][j + 1]
+                group3 = university_groups[i][j + 2]
+                group4 = university_groups[i][j + 3]
+                connections_for_group1 = vcat(group2, group3, group4)
+                connections_for_group2 = vcat(group1, group3, group4)
+                connections_for_group3 = vcat(group2, group1, group4)
+                connections_for_group4 = vcat(group2, group3, group1)
+                for agent_id in group1
+                    agent = agents[agent_id]
+                    agent.collective_cross_conn_ids = connections_for_group1
+                end
+                for agent_id in group2
+                    agent = agents[agent_id]
+                    agent.collective_cross_conn_ids = connections_for_group2
+                end
+                for agent_id in group3
+                    agent = agents[agent_id]
+                    agent.collective_cross_conn_ids = connections_for_group3
+                end
+                for agent_id in group4
+                    agent = agents[agent_id]
+                    agent.collective_cross_conn_ids = connections_for_group4
+                end
+            end
+        end
+    end
+
+    for workplace_group in workplace_groups
+        generate_barabasi_albert_network(agents, workplace_group, 6, rng)
+    end
+end
+
 function create_population(
     thread_id::Int,
     num_threads::Int,
+    thread_rng::Vector{MersenneTwister},
     start_agent_id::Int,
+    end_agent_id::Int,
     all_agents::Vector{Agent},
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
     district_households::Matrix{Int},
     district_people::Matrix{Int},
     district_people_households::Matrix{Int},
-    district_nums::Vector{Int},
-    num_of_people_in_school_threads::Matrix{Int},
-    num_of_people_in_university_threads::Matrix{Int},
-    num_of_people_in_workplace_threads::Vector{Int}
+    district_nums::Vector{Int}
 )
+    num_of_people_in_school = zeros(Int, 11)
+    num_of_people_in_university = zeros(Int, 6)
+    num_of_people_in_workplace = zeros(Int, 1)
+
     agent_id = start_agent_id
     for index in district_nums[thread_id:num_threads:size(district_nums, 1)]
-        # println("Index: $index, agent_id: $agent_id")
         index_for_1_people::Int = (index - 1) * 5 + 1
         index_for_2_people::Int = index_for_1_people + 1
         index_for_3_people::Int = index_for_2_people + 1
@@ -1283,8 +1454,8 @@ function create_population(
             agent = create_agent(
                 agent_id, viruses, infectivities, household_conn_ids, index, district_people,
                     district_people_households, index_for_1_people,
-                    thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                    num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                    num_of_people_in_university, num_of_people_in_workplace)
             agent_id += 1
             all_agents[agent.id] = agent
         end
@@ -1295,8 +1466,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_2_people, 0, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1309,8 +1480,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 0, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1323,8 +1494,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 1, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1337,8 +1508,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 0, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1351,8 +1522,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 1, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1365,8 +1536,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 2, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1379,8 +1550,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 0, 3, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1393,8 +1564,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 1, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1407,8 +1578,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 2, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1421,8 +1592,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 3, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1435,8 +1606,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 0, 4, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1449,8 +1620,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 1, 3, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1463,8 +1634,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 2, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1477,8 +1648,8 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 3, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1491,14 +1662,14 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 0, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id += 2
             agents2 = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 0, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             for agent in agents
@@ -1512,14 +1683,14 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 0, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id += 3
             agents2 = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 0, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             for agent in agents
@@ -1533,14 +1704,14 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 1, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id += 3
             agents2 = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 0, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             for agent in agents
@@ -1554,14 +1725,14 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 0, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id += 3
             agents2 = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 0, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             for agent in agents
@@ -1575,14 +1746,14 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 1, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id += 3
             agents2 = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 0, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             for agent in agents
@@ -1596,14 +1767,14 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 1, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id += 3
             agents2 = create_parents_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 1, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             for agent in agents
@@ -1617,8 +1788,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_2_people, 0, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1631,8 +1802,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_2_people, 1, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1645,8 +1816,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1659,8 +1830,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1673,8 +1844,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 2, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1687,8 +1858,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1701,8 +1872,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1715,8 +1886,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1729,8 +1900,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 3, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, false)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1743,8 +1914,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_2_people, 0, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1757,8 +1928,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_2_people, 1, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1771,8 +1942,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1785,8 +1956,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1799,8 +1970,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 2, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1813,8 +1984,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1827,8 +1998,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1841,8 +2012,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1855,8 +2026,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1869,8 +2040,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1884,8 +2055,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1898,8 +2069,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1912,8 +2083,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1926,8 +2097,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1940,8 +2111,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1954,8 +2125,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 0, 4, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1968,8 +2139,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 1, 3, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1982,8 +2153,8 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 2, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads, nothing, true)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -1997,8 +2168,8 @@ function create_population(
             agents = create_others(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_2_people, 0, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2011,8 +2182,8 @@ function create_population(
             agents = create_others(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_2_people, 1, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2025,8 +2196,8 @@ function create_population(
             agents = create_others(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2039,8 +2210,8 @@ function create_population(
             agents = create_others(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2053,8 +2224,8 @@ function create_population(
             agents = create_others(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_3_people, 2, 0, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2067,8 +2238,8 @@ function create_population(
             agents = create_others(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2081,8 +2252,8 @@ function create_population(
             agents = create_others(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2095,8 +2266,8 @@ function create_population(
             agents = create_others(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2109,8 +2280,8 @@ function create_population(
             agents = create_others(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 0, 4, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2123,8 +2294,8 @@ function create_population(
             agents = create_others(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 1, 3, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2137,8 +2308,8 @@ function create_population(
             agents = create_others(
                 agent_id, viruses, infectivities, household_conn_ids, district_people,
                 district_people_households, index_for_5_people, 2, 2, index,
-                thread_id, num_of_people_in_kindergarten, num_of_people_in_school_threads,
-                num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+                num_of_people_in_university, num_of_people_in_workplace)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2156,7 +2327,7 @@ function create_population(
 
         for agent in all_agents[district_start_agent_id:district_end_agent_id]
             if agent.collective_id == 1
-                random_num = rand(1:size(kindergarten_group_ids[agent.group_num], 1))
+                random_num = rand(thread_rng[thread_id], 1:size(kindergarten_group_ids[agent.group_num], 1))
                 group_id = kindergarten_group_ids[agent.group_num][random_num]
                 deleteat!(kindergarten_group_ids[agent.group_num], random_num)
                 if size(kindergarten_group_ids[agent.group_num], 1) == 0
@@ -2167,4 +2338,13 @@ function create_population(
             end
         end
     end
+
+    set_connections(
+        all_agents,
+        start_agent_id,
+        end_agent_id,
+        num_of_people_in_school,
+        num_of_people_in_university,
+        num_of_people_in_workplace,
+        thread_rng[thread_id])
 end

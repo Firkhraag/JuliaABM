@@ -17,183 +17,6 @@ include("data/district_nums.jl")
 include("data/temperature.jl")
 include("data/etiology.jl")
 
-function sample_from_zipf_distribution(
-    parameter::Float64, max_size::Int
-)::Int
-    cumulative = 0.0
-    rand_num = rand(Float64)
-    multiplier = 1 / sum((1:max_size).^(-parameter))
-    for i = 1:max_size
-        cumulative += i^(-parameter) * multiplier
-        if rand_num < cumulative
-            return i
-        end
-    end
-    return max_size
-end
-
-# Создание графа Барабаши-Альберта
-# На вход подаются группа с набором агентов (group) и число минимальных связей, которые должен иметь агент (m)
-function generate_barabasi_albert_network(agents::Vector{Agent}, group_ids::Vector{Int}, m::Int)
-    if size(group_ids, 1) < m
-        m = size(group_ids, 1)
-    end
-    # Связный граф с m вершинами
-    for i = 1:m
-        for j = (i + 1):m
-            push!(agents[group_ids[i]].collective_conn_ids, group_ids[j])
-            push!(agents[group_ids[j]].collective_conn_ids, group_ids[i])
-        end
-    end
-    # Сумма связей всех вершин
-    degree_sum = m * (m - 1)
-    # Добавление новых вершин
-    for i = (m + 1):size(group_ids, 1)
-        agent = agents[group_ids[i]]
-        degree_sum_temp = degree_sum
-        for _ = 1:m
-            cumulative = 0.0
-            rand_num = rand(Float64)
-            for j = 1:(i-1)
-                if group_ids[j] in agent.collective_conn_ids
-                    continue
-                end
-                agent2 = agents[group_ids[j]]
-                cumulative += size(agent2.collective_conn_ids, 1) / degree_sum_temp
-                if rand_num < cumulative
-                    degree_sum_temp -= size(agent2.collective_conn_ids, 1)
-                    push!(agent.collective_conn_ids, agent2.id)
-                    push!(agent2.collective_conn_ids, agent.id)
-                    break
-                end
-            end
-        end
-        degree_sum += 2m
-    end
-end
-
-function set_connections(
-    agents::Vector{Agent},
-    num_threads::Int,
-    num_of_people_in_school_threads::Matrix{Int},
-    num_of_people_in_university_threads::Matrix{Int},
-    num_of_people_in_workplace_threads::Vector{Int}
-)
-    num_of_people_in_school = sum(num_of_people_in_school_threads, dims=2)
-    num_of_people_in_university = sum(num_of_people_in_university_threads, dims=2)
-    num_of_people_in_workplace = sum(num_of_people_in_workplace_threads)
-
-    school_group_nums = ceil.(Int, num_of_people_in_school ./ 25)
-
-    university_group_nums = Array{Int, 1}(undef, 6)
-    university_group_nums[1] = ceil(Int, num_of_people_in_university[1] / 15)
-    university_group_nums[2:3] = ceil.(Int, num_of_people_in_university[2:3] ./ 14)
-    university_group_nums[4] = ceil.(Int, num_of_people_in_university[4] ./ 13)
-    university_group_nums[5] = ceil.(Int, num_of_people_in_university[5] ./ 11)
-    university_group_nums[6] = ceil.(Int, num_of_people_in_university[6] ./ 10)
-
-    workplaces_num_people = Int[]
-    workplace_num_people = num_of_people_in_workplace
-
-    while num_of_people_in_workplace > 0
-        num_people = sample_from_zipf_distribution(1.056, 1995) + 5
-        if num_of_people_in_workplace - num_people > 0
-            append!(workplaces_num_people, num_people)
-        else
-            append!(workplaces_num_people, num_of_people_in_workplace)
-        end
-        num_of_people_in_workplace -= num_people
-    end
-
-    workplace_weights = workplaces_num_people ./ workplace_num_people
-
-    school_groups = [[Int[] for _ in 1:school_group_nums[j]] for j = 1:11]
-    university_groups = [[Int[] for _ in 1:university_group_nums[j]] for j = 1:6]
-    workplace_groups = [Int[] for _ in 1:size(workplaces_num_people, 1)]
-
-    school_group_ids = [collect(1:school_group_nums[i]) for i = 1:11]
-    university_group_ids = [collect(1:university_group_nums[i]) for i = 1:6]
-
-    @time for agent in agents
-        if agent.collective_id == 2
-            random_num = rand(1:size(school_group_ids[agent.group_num], 1))
-            group_id = school_group_ids[agent.group_num][random_num]
-            deleteat!(school_group_ids[agent.group_num], random_num)
-            if size(school_group_ids[agent.group_num], 1) == 0
-                school_group_ids[agent.group_num] = collect(1:school_group_nums[agent.group_num])
-            end
-            push!(school_groups[agent.group_num][group_id], agent.id)
-            agent.collective_conn_ids = school_groups[agent.group_num][group_id]
-        elseif agent.collective_id == 3
-            random_num = rand(1:size(university_group_ids[agent.group_num], 1))
-            group_id = university_group_ids[agent.group_num][random_num]
-            deleteat!(university_group_ids[agent.group_num], random_num)
-            if size(university_group_ids[agent.group_num], 1) == 0
-                university_group_ids[agent.group_num] = collect(1:university_group_nums[agent.group_num])
-            end
-            push!(university_groups[agent.group_num][group_id], agent.id)
-            agent.collective_conn_ids = university_groups[agent.group_num][group_id]
-        elseif agent.collective_id == 4
-            random_num = rand(Float64)
-            cumulative = 0.0
-            for i in 1:size(workplaces_num_people, 1)
-                cumulative += workplace_weights[i]
-                if random_num < cumulative
-                    push!(workplace_groups[i], agent.id)
-                    break
-                end
-            end
-        end
-    end
-
-    @time @threads for i = 1:6
-        for j = 1:4:size(university_groups[i], 1)
-            if size(university_groups[i], 1) - j >= 4
-                group1 = university_groups[i][j]
-                group2 = university_groups[i][j + 1]
-                group3 = university_groups[i][j + 2]
-                group4 = university_groups[i][j + 3]
-                connections_for_group1 = vcat(group2, group3, group4)
-                connections_for_group2 = vcat(group1, group3, group4)
-                connections_for_group3 = vcat(group2, group1, group4)
-                connections_for_group4 = vcat(group2, group3, group1)
-                for agent_id in group1
-                    agent = agents[agent_id]
-                    agent.collective_cross_conn_ids = connections_for_group1
-                end
-                for agent_id in group2
-                    agent = agents[agent_id]
-                    agent.collective_cross_conn_ids = connections_for_group2
-                end
-                for agent_id in group3
-                    agent = agents[agent_id]
-                    agent.collective_cross_conn_ids = connections_for_group3
-                end
-                for agent_id in group4
-                    agent = agents[agent_id]
-                    agent.collective_cross_conn_ids = connections_for_group4
-                end
-            end
-        end
-    end
-
-    num_groups = size(workplace_groups, 1)
-    # 6 процессов
-    ranges = [
-        1:num_groups ÷ 6,
-        num_groups ÷ 6 + 1:num_groups ÷ 3,
-        num_groups ÷ 3 + 1:num_groups ÷ 2,
-        num_groups ÷ 2 + 1:2num_groups ÷ 3,
-        2num_groups ÷ 3 + 1:5num_groups ÷ 6,
-        5num_groups ÷ 6 + 1:num_groups]
-    
-    @time @threads for thread_id in 1:num_threads
-        for group_id in ranges[thread_id]
-            generate_barabasi_albert_network(agents, workplace_groups[group_id], 6)
-        end
-    end
-end
-
 function get_stats(agents::Vector{Agent})
     println("Stats...")
     age_groups_nums = Int[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -281,6 +104,7 @@ end
 function multiple_simulations(
     agents::Vector{Agent},
     num_threads::Int,
+    thread_rng::Vector{MersenneTwister},
     num_runs::Int,
     start_agent_ids::Vector{Int},
     end_agent_ids::Vector{Int},
@@ -332,7 +156,7 @@ function multiple_simulations(
         end
 
         @time RSS = run_simulation(
-            num_threads, start_agent_ids, end_agent_ids, agents, infectivities,
+            num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
             temp_influences, duration_parameter,
             susceptibility_parameters, etiology,
             incidence_data_mean_0, incidence_data_mean_3,
@@ -441,20 +265,23 @@ function multiple_simulations(
                     viruses[agent.virus_id].mean_incubation_period,
                     viruses[agent.virus_id].incubation_period_variance,
                     viruses[agent.virus_id].min_incubation_period,
-                    viruses[agent.virus_id].max_incubation_period)
+                    viruses[agent.virus_id].max_incubation_period,
+                    thread_rng[1])
                 # Период болезни
                 if agent.age < 16
                     agent.infection_period = get_period_from_erlang(
                         viruses[agent.virus_id].mean_infection_period_child,
                         viruses[agent.virus_id].infection_period_variance_child,
                         viruses[agent.virus_id].min_infection_period_child,
-                        viruses[agent.virus_id].max_infection_period_child)
+                        viruses[agent.virus_id].max_infection_period_child,
+                        thread_rng[1])
                 else
                     agent.infection_period = get_period_from_erlang(
                         viruses[agent.virus_id].mean_infection_period_adult,
                         viruses[agent.virus_id].infection_period_variance_adult,
                         viruses[agent.virus_id].min_infection_period_adult,
-                        viruses[agent.virus_id].max_infection_period_adult)
+                        viruses[agent.virus_id].max_infection_period_adult,
+                        thread_rng[1])
                 end
     
                 # Дней с момента инфицирования
@@ -532,8 +359,11 @@ function main()
 
     num_people = 9897284
     # 6 threads
-    start_agent_ids = Int[1, 1669514, 3297338, 4919969, 6552869, 8229576]
-    end_agent_ids = Int[1669513, 3297337, 4919968, 6552868, 8229575, 9897284]
+    # start_agent_ids = Int[1, 1669514, 3297338, 4919969, 6552869, 8229576]
+    # end_agent_ids = Int[1669513, 3297337, 4919968, 6552868, 8229575, 9897284]
+    # 4 threads
+    start_agent_ids = Int[1, 2442913, 4892801, 7392381]
+    end_agent_ids = Int[2442912, 4892800, 7392380, 9897284]
 
     viruses = Virus[
         Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.16),
@@ -584,24 +414,15 @@ function main()
     max_min_temp = 26.6
 
     agents = Array{Agent, 1}(undef, num_people)
-    num_of_people_in_school_threads = zeros(Int, 11, num_threads)
-    num_of_people_in_university_threads = zeros(Int, 6, num_threads)
-    num_of_people_in_workplace_threads = zeros(Int, num_threads)
+
+    thread_rng = [MersenneTwister(i) for i = 1:num_threads]
 
     @time @threads for thread_id in 1:num_threads
         create_population(
-            thread_id, num_threads, start_agent_ids[thread_id],
+            thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
             agents, viruses, infectivities, district_households, district_people,
-            district_people_households, district_nums, num_of_people_in_school_threads,
-            num_of_people_in_university_threads, num_of_people_in_workplace_threads)
+            district_people_households, district_nums)
     end
-
-    # set_connections(
-    #     agents,
-    #     num_threads,
-    #     num_of_people_in_school_threads,
-    #     num_of_people_in_university_threads,
-    #     num_of_people_in_workplace_threads)
 
     # get_stats(agents)
 
@@ -617,41 +438,41 @@ function main()
 
     println("Simulation...")
 
-    # # Single run
-    # # Параметры (RSS: 5.081978631875e9)
-    # duration_parameter = 6.75
-    # temperature_parameters = Float64[-0.9, -0.8, -0.05, -0.35, -0.05, -0.05, -0.85]
-    # susceptibility_parameters = Float64[3.05, 3.1, 3.47, 4.9, 4.7, 4.02, 3.88]
+    # Single run
+    # Параметры (RSS: 5.081978631875e9)
+    duration_parameter = 6.75
+    temperature_parameters = Float64[-0.9, -0.8, -0.05, -0.35, -0.05, -0.05, -0.85]
+    susceptibility_parameters = Float64[3.05, 3.1, 3.47, 4.9, 4.7, 4.02, 3.88]
 
-    # temp_influences = Array{Float64,2}(undef, 7, 365)
-    # year_day = 213
-    # for i in 1:365
-    #     current_temp = (temperature[year_day] - min_temp) / max_min_temp
-    #     for v in 1:7
-    #         temp_influences[v, i] = temperature_parameters[v] * current_temp + 1.0
-    #     end
-    #     if year_day == 365
-    #         year_day = 1
-    #     else
-    #         year_day += 1
-    #     end
-    # end
+    temp_influences = Array{Float64,2}(undef, 7, 365)
+    year_day = 213
+    for i in 1:365
+        current_temp = (temperature[year_day] - min_temp) / max_min_temp
+        for v in 1:7
+            temp_influences[v, i] = temperature_parameters[v] * current_temp + 1.0
+        end
+        if year_day == 365
+            year_day = 1
+        else
+            year_day += 1
+        end
+    end
 
-    # @time RSS = run_simulation(
-    #     num_threads, start_agent_ids, end_agent_ids, agents, infectivities,
-    #     temp_influences, duration_parameter,
-    #     susceptibility_parameters, etiology,
-    #     incidence_data_mean_0, incidence_data_mean_3,
-    #     incidence_data_mean_7, incidence_data_mean_15)
-    # println("RSS: ", RSS)
+    @time RSS = run_simulation(
+        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+        temp_influences, duration_parameter,
+        susceptibility_parameters, etiology,
+        incidence_data_mean_0, incidence_data_mean_3,
+        incidence_data_mean_7, incidence_data_mean_15)
+    println("RSS: ", RSS)
 
     # Multiple runs
-    num_runs = 2
-    multiple_simulations(agents, num_threads, num_runs,
-        start_agent_ids, end_agent_ids, infectivities,
-        etiology, incidence_data_mean_0,
-        incidence_data_mean_3, incidence_data_mean_7, incidence_data_mean_15,
-        temperature, min_temp, max_min_temp, viruses)
+    # num_runs = 2
+    # multiple_simulations(agents, num_threads, thread_rng, num_runs,
+    #     start_agent_ids, end_agent_ids, infectivities,
+    #     etiology, incidence_data_mean_0,
+    #     incidence_data_mean_3, incidence_data_mean_7, incidence_data_mean_15,
+    #     temperature, min_temp, max_min_temp, viruses)
 
 end
 
