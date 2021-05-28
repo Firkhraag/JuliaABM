@@ -7,23 +7,35 @@ function plot_incidence()
     incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
     incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :] ./ 9897
 
-    incidence_plot = plot(1:52, [incidence incidence_data_mean], title = "Incidence", lw = 3, label = ["model" "data"])
+    ticks = range(1, stop = 52, length = 13)
+    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    incidence_plot = plot(
+        1:52,
+        [incidence incidence_data_mean],
+        lw = 3,
+        xticks = (ticks, ticklabels),
+        fontfamily = "Times",
+        label = ["model" "data"])
     xlabel!("Week")
-    ylabel!("Incidence")
+    ylabel!("Cases per 1000 people")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence.pdf"))
 end
 
 function plot_incidence_etiology()
     etiology = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), ',', Float64)
 
+    ticks = range(1, stop = 52, length = 13)
+    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     etiology_incidence_plot = plot(
         1:52,
         [etiology[i, :] for i = 1:7],
-        title = "Incidence by etiology",
         lw = 3,
+        fontfamily = "Times",
+        xticks = (ticks, ticklabels),
+        color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
     xlabel!("Week")
-    ylabel!("Incidence")
+    ylabel!("Cases per 1000 people")
     savefig(etiology_incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "etiology.pdf"))
 end
 
@@ -40,24 +52,50 @@ function plot_incidence_age_groups()
     incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1] ./ 9897
     incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1] ./ 9897
 
-    incidence_plot = plot(1:52, [age_groups[1, :] incidence_data_mean_0], title = "0–2 age group incidence", lw = 3, label = ["model" "data"])
+    ticks = range(1, stop = 52, length = 13)
+    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    incidence_plot = plot(
+        1:52,
+        [age_groups[1, :] incidence_data_mean_0],
+        lw = 3,
+        xticks = (ticks, ticklabels),
+        fontfamily = "Times",
+        label = ["model" "data"])
     xlabel!("Week")
-    ylabel!("Incidence")
+    ylabel!("Cases per 1000 people")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence0-2.pdf"))
 
-    incidence_plot = plot(1:52, [age_groups[2, :] incidence_data_mean_3], title = "3–6 age group incidence", lw = 3, label = ["model" "data"])
+    incidence_plot = plot(
+        1:52,
+        [age_groups[2, :] incidence_data_mean_3],
+        lw = 3,
+        fontfamily = "Times",
+        xticks = (ticks, ticklabels),
+        label = ["model" "data"])
     xlabel!("Week")
-    ylabel!("Incidence")
+    ylabel!("Cases per 1000 people")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence3-6.pdf"))
 
-    incidence_plot = plot(1:52, [age_groups[3, :] incidence_data_mean_7], title = "7–14 age group incidence", lw = 3, label = ["model" "data"])
+    incidence_plot = plot(
+        1:52,
+        [age_groups[3, :] incidence_data_mean_7],
+        lw = 3,
+        fontfamily = "Times",
+        xticks = (ticks, ticklabels),
+        label = ["model" "data"])
     xlabel!("Week")
-    ylabel!("Incidence")
+    ylabel!("Cases per 1000 people")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence7-14.pdf"))
 
-    incidence_plot = plot(1:52, [age_groups[4, :] incidence_data_mean_15], title = "15+ age group incidence", lw = 3, label = ["model" "data"])
+    incidence_plot = plot(
+        1:52,
+        [age_groups[4, :] incidence_data_mean_15],
+        lw = 3,
+        fontfamily = "Times",
+        xticks = (ticks, ticklabels),
+        label = ["model" "data"])
     xlabel!("Week")
-    ylabel!("Incidence")
+    ylabel!("Cases per 1000 people")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence15+.pdf"))
 end
 
@@ -68,8 +106,8 @@ function plot_daily_new_cases_age_groups()
     daily_new_cases_age_groups_plot = plot(
         1:365,
         [daily_new_cases_age_groups_data[i, :] for i = 1:7],
-        title = "Daily new cases",
         lw = 3,
+        fontfamily = "Times",
         label = ["0-2" "3-6" "7-14" "15-17" "18-24" "25-64" "65+"])
     xlabel!("Day")
     ylabel!("Num of people")
@@ -84,8 +122,8 @@ function plot_daily_new_recoveries_age_groups()
     daily_new_recoveries_age_groups_plot = plot(
         1:365,
         [daily_new_recoveries_age_groups_data[i, :] for i = 1:7],
-        title = "Daily new recoveries",
         lw = 3,
+        fontfamily = "Times",
         label = ["0-2" "3-6" "7-14" "15-17" "18-24" "25-64" "65+"])
     xlabel!("Day")
     ylabel!("Num of people")
@@ -100,8 +138,8 @@ function plot_daily_new_cases_viruses_asymptomatic()
     daily_new_cases_viruses_asymptomatic_plot = plot(
         1:365,
         [daily_new_cases_viruses_asymptomatic_data[i, :] for i = 1:7],
-        title = "Daily new cases",
         lw = 3,
+        fontfamily = "Times",
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
     xlabel!("Day")
     ylabel!("Num of people")
@@ -116,8 +154,8 @@ function plot_daily_new_cases_viruses()
     daily_new_cases_viruses_plot = plot(
         1:365,
         [daily_new_cases_viruses_data[i, :] for i = 1:7],
-        title = "Daily new cases",
         lw = 3,
+        fontfamily = "Times",
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
     xlabel!("Day")
     ylabel!("Num of people")
@@ -127,8 +165,8 @@ function plot_daily_new_cases_viruses()
     daily_new_cases_plot = plot(
         1:365,
         daily_new_cases_viruses_data[1, :] + daily_new_cases_viruses_data[2, :] + daily_new_cases_viruses_data[3, :] + daily_new_cases_viruses_data[4, :] + daily_new_cases_viruses_data[5, :] + daily_new_cases_viruses_data[6, :] + daily_new_cases_viruses_data[7, :],
-        title = "Daily new cases",
         lw = 3,
+        fontfamily = "Times",
         legend = false)
     xlabel!("Day")
     ylabel!("Num of people")
@@ -142,8 +180,8 @@ function plot_daily_new_recoveries_viruses()
     daily_new_recoveries_viruses_plot = plot(
         1:365,
         [daily_new_recoveries_viruses_data[i, :] for i = 1:7],
-        title = "Daily new recoveries",
         lw = 3,
+        fontfamily = "Times",
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
     xlabel!("Day")
     ylabel!("Num of people")
@@ -157,8 +195,8 @@ function plot_daily_new_cases_collectives()
 
     daily_new_cases_collectives_plot = plot(
         1:365,
+        fontfamily = "Times",
         [daily_new_cases_collectives_data[i, :] for i = 1:4],
-        title = "Daily new cases",
         lw = 3,
         label = ["Kinder" "School" "Uni" "Work"])
     xlabel!("Day")
@@ -174,8 +212,8 @@ function plot_daily_new_recoveries_collectives()
     daily_new_recoveries_collectives_plot = plot(
         1:365,
         [daily_new_recoveries_collectives_data[i, :] for i = 1:4],
-        title = "Daily new recoveries",
         lw = 3,
+        fontfamily = "Times",
         label = ["Kinder" "School" "Uni" "Work"])
     xlabel!("Day")
     ylabel!("Num of people")
@@ -190,8 +228,8 @@ function plot_immunity_viruses()
     immunity_viruses_plot = plot(
         1:365,
         [immunity_viruses_data[i, :] for i = 1:7],
-        title = "Immunity",
         lw = 3,
+        fontfamily = "Times",
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
     xlabel!("Day")
     ylabel!("Num of people")
@@ -205,8 +243,8 @@ function plot_infected_inside_collective()
     infected_inside_collective_plot = plot(
         1:365,
         [infected_inside_collective_data[:, i] for i = 1:5],
-        title = "Virus transmissions inside collectives",
         lw = 3,
+        fontfamily = "Times",
         label = ["Kinder" "School" "Uni" "Work" "Home"])
     xlabel!("Day")
     ylabel!("Num of people")
@@ -221,14 +259,16 @@ function plot_registered_new_cases()
     registered_new_cases_plot = plot(
         1:365,
         registered_new_cases_data,
-        title = "Registered new cases",
         lw = 3,
+        fontfamily = "Times",
         legend = false)
     xlabel!("Day")
     ylabel!("Num of people")
     savefig(
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "registered_new_cases.pdf"))
 end
+
+scalefontsizes(1.2)
 
 plot_incidence()
 plot_incidence_etiology()

@@ -10,7 +10,6 @@ function plot_temperature()
     append!(temperature_data_rearranged, temperature_data[213:end])
     append!(temperature_data_rearranged, temperature_data[1:212])
 
-    scalefontsizes(1.2)
     ticks = range(1, stop = 365, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     temperature_plot = plot(1:365, temperature_data_rearranged,
@@ -24,7 +23,6 @@ function plot_incidence()
     incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
     incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :] ./ 9897
 
-    scalefontsizes(1.2)
     ticks = range(1, stop = 52, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     incidence_plot = plot(1:52, incidence_data_mean, 
@@ -65,6 +63,23 @@ function plot_incidence_age_groups()
     ylabel!("Incidence")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "incidence15+.pdf"))
 end
+
+function plot_temperature()
+    temperature_data = get_air_temperature()
+    temperature_data_rearranged = Float64[]
+    append!(temperature_data_rearranged, temperature_data[213:end])
+    append!(temperature_data_rearranged, temperature_data[1:212])
+
+    ticks = range(1, stop = 365, length = 13)
+    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    temperature_plot = plot(1:365, temperature_data_rearranged,
+        lw = 3, legend = false, color = "orange", xticks = (ticks, ticklabels), fontfamily = "Times")
+    xlabel!("Month")
+    ylabel!("Temperature, °C")
+    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "temperature.pdf"))
+end
+
+scalefontsizes(1.2)
 
 plot_temperature()
 # plot_incidence()
