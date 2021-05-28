@@ -1,21 +1,24 @@
 using DelimitedFiles
 using Plots
+using Statistics
 
 function plot_incidence()
-    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), ',', Float64)
+    incidence = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), ',', Float64)
+    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
+    incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :] ./ 9897
 
-    incidence_plot = plot(1:52, incidence_data, title = "Incidence", lw = 3, legend = false)
+    incidence_plot = plot(1:52, [incidence incidence_data_mean], title = "Incidence", lw = 3, label = ["model" "data"])
     xlabel!("Week")
     ylabel!("Incidence")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence.pdf"))
 end
 
-function plot_etiology()
-    etiology_data = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), ',', Float64)
+function plot_incidence_etiology()
+    etiology = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), ',', Float64)
 
     etiology_incidence_plot = plot(
         1:52,
-        [etiology_data[i, :] for i = 1:7],
+        [etiology[i, :] for i = 1:7],
         title = "Incidence by etiology",
         lw = 3,
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
@@ -24,18 +27,38 @@ function plot_etiology()
     savefig(etiology_incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "etiology.pdf"))
 end
 
-function plot_age_groups()
-    age_groups_data = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), ',', Float64)
+function plot_incidence_age_groups()
+    age_groups = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), ',', Float64)
 
-    age_groups_incidence_plot = plot(
-        1:52,
-        [age_groups_data[i, :] for i = 1:4],
-        title = "Incidence by age",
-        lw = 3,
-        label = ["0-2" "3-6" "7-14" "15+"])
+    incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
+    incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
+    incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
+    incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
+
+    incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1] ./ 9897
+    incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1] ./ 9897
+    incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1] ./ 9897
+    incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1] ./ 9897
+
+    incidence_plot = plot(1:52, [age_groups[1, :] incidence_data_mean_0], title = "0–2 age group incidence", lw = 3, label = ["model" "data"])
     xlabel!("Week")
     ylabel!("Incidence")
-    savefig(age_groups_incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "age_groups.pdf"))
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence0-2.pdf"))
+
+    incidence_plot = plot(1:52, [age_groups[2, :] incidence_data_mean_3], title = "3–6 age group incidence", lw = 3, label = ["model" "data"])
+    xlabel!("Week")
+    ylabel!("Incidence")
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence3-6.pdf"))
+
+    incidence_plot = plot(1:52, [age_groups[3, :] incidence_data_mean_7], title = "7–14 age group incidence", lw = 3, label = ["model" "data"])
+    xlabel!("Week")
+    ylabel!("Incidence")
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence7-14.pdf"))
+
+    incidence_plot = plot(1:52, [age_groups[4, :] incidence_data_mean_15], title = "15+ age group incidence", lw = 3, label = ["model" "data"])
+    xlabel!("Week")
+    ylabel!("Incidence")
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence15+.pdf"))
 end
 
 function plot_daily_new_cases_age_groups()
@@ -181,7 +204,7 @@ function plot_infected_inside_collective()
 
     infected_inside_collective_plot = plot(
         1:365,
-        [infected_inside_collective_data[i, :] for i = 1:5],
+        [infected_inside_collective_data[:, i] for i = 1:5],
         title = "Virus transmissions inside collectives",
         lw = 3,
         label = ["Kinder" "School" "Uni" "Work" "Home"])
@@ -208,20 +231,21 @@ function plot_registered_new_cases()
 end
 
 plot_incidence()
-plot_etiology()
-# plot_age_groups()
+plot_incidence_etiology()
+plot_incidence_age_groups()
+
+plot_daily_new_cases_viruses()
+plot_infected_inside_collective()
 
 # plot_daily_new_cases_age_groups()
 # plot_daily_new_recoveries_age_groups()
 
 # plot_daily_new_cases_viruses_asymptomatic()
-plot_daily_new_cases_viruses()
 # plot_daily_new_recoveries_viruses()
 
 # plot_daily_new_cases_collectives()
 # plot_daily_new_recoveries_collectives()
 
 # plot_immunity_viruses()
-# plot_infected_inside_collective()
 
 # plot_registered_new_cases()

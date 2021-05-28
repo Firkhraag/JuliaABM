@@ -81,7 +81,7 @@ struct Virus
 end
 
 # Найти значение вирусной нагрузки
-function get_viral_load(
+function get_infectivity(
     days_infected::Int,
     incubation_period::Int,
     infection_period::Int,
