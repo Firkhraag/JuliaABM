@@ -192,6 +192,10 @@ function multiple_simulations(
             agent.RSV_days_immune = 0
             agent.AdV_days_immune = 0
             agent.PIV_days_immune = 0
+
+            agent.FluA_immunity = false
+            agent.FluB_immunity = false
+            agent.CoV_immunity = false
     
             if !is_infected
                 if agent.age < 3
@@ -371,7 +375,7 @@ function main()
         Virus(3, 1.9, 0.175, 1, 7, 10.1, 4.93, 3, 12, 11.4, 6.25, 4, 14, 3.5, 0.3),
         Virus(4, 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 0.3),
         Virus(5, 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 0.3),
-        Virus(6, 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.7, 0.3),
+        Virus(6, 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.8, 0.3),
         Virus(7, 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 0.3)]
 
     infectivities = Array{Float64,4}(undef, 7, 7, 13, 21)
@@ -381,7 +385,7 @@ function main()
             infection_period_index = infection_period - 1
             for incubation_period in 1:7
                 min_days_infected = 1 - incubation_period
-                mean_infectivities = [4.6, 4.7, 3.5, 6.0, 4.1, 4.7, 4.93]
+                mean_infectivities = [4.6, 4.7, 3.5, 6.0, 4.1, 4.8, 4.93]
                 for i in 1:7
                     if (days_infected >= min_days_infected) && (days_infected <= infection_period)
                         infectivities[i, incubation_period, infection_period_index, days_infected_index] = get_infectivity(
