@@ -123,24 +123,50 @@ function simulate_contacts(
                         # Mixing patterns between age groups in social networks
                         # American Time Use Survey Summary. Bls.gov. 2017-06-27. Retrieved 2018-06-06
 
+                        # if is_holiday || (agent_at_home && agent2_at_home)
+                        #     make_contact(
+                        #         agent, agent2, get_contact_duration_normal(12.5, 5.5, rng),
+                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
+                        # elseif ((agent.collective_id == 1 && !agent_at_home) ||
+                        #     (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
+                        #     make_contact(
+                        #         agent, agent2, get_contact_duration_normal(4.5, 2.25, rng),
+                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
+                        # elseif ((agent.collective_id == 4 && !agent_at_home) ||
+                        #     (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
+                        #     make_contact(
+                        #         agent, agent2, get_contact_duration_normal(6.1, 2.46, rng),
+                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
+                        # elseif ((agent.collective_id == 2 && !agent_at_home) ||
+                        #     (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
+                        #     make_contact(
+                        #         agent, agent2, get_contact_duration_normal(7.0, 2.65, rng),
+                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
+                        # elseif ((agent.collective_id == 3 && !agent_at_home) ||
+                        #     (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
+                        #     make_contact(
+                        #         agent, agent2, get_contact_duration_normal(10.0, 3.69, rng),
+                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
+                        # end
+
                         if is_holiday || (agent_at_home && agent2_at_home)
                             make_contact(
                                 agent, agent2, get_contact_duration_normal(12.5, 5.5, rng),
                                 current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
-                        elseif ((agent.collective_id == 1 && !agent_at_home) ||
-                            (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
-                            make_contact(
-                                agent, agent2, get_contact_duration_normal(4.5, 2.25, rng),
-                                current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
                         elseif ((agent.collective_id == 4 && !agent_at_home) ||
                             (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
                             make_contact(
-                                agent, agent2, get_contact_duration_normal(6.1, 2.46, rng),
+                                agent, agent2, get_contact_duration_normal(4.5, 2.0, rng),
                                 current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
                         elseif ((agent.collective_id == 2 && !agent_at_home) ||
                             (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
                             make_contact(
-                                agent, agent2, get_contact_duration_normal(7.0, 2.65, rng),
+                                agent, agent2, get_contact_duration_normal(5.86, 2.65, rng),
+                                current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
+                        elseif ((agent.collective_id == 1 && !agent_at_home) ||
+                            (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
+                            make_contact(
+                                agent, agent2, get_contact_duration_normal(6.5, 2.46, rng),
                                 current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
                         elseif ((agent.collective_id == 3 && !agent_at_home) ||
                             (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
@@ -148,6 +174,7 @@ function simulate_contacts(
                                 agent, agent2, get_contact_duration_normal(10.0, 3.69, rng),
                                 current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
                         end
+
                         if agent2.is_newly_infected
                             infected_inside_collective[current_step, 5, thread_id] += 1
                         end
@@ -659,25 +686,25 @@ function run_simulation(
             (month == 2 && day == 28)
             day = 1
             month += 1
-            println("Month: ", month)
+            # println("Month: ", month)
         elseif (month == 12 && day == 31)
             day = 1
             month = 1
-            println("Month: 1")
+            # println("Month: 1")
         else
             day += 1
         end
     end
 
-    writedlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), incidence ./ 9897, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), etiology_incidence ./ 9897, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), age_group_incidence ./ 9897, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"),
-        sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), incidence ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), etiology_incidence ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), age_group_incidence ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"),
+    #     sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
 
     RSS1 = sum((age_group_incidence[1, :] - incidence_data_mean_0).^2)
     RSS2 = sum((age_group_incidence[2, :] - incidence_data_mean_3).^2)

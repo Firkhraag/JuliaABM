@@ -121,14 +121,14 @@ function multiple_simulations(
 )
     latin_hypercube_plan, _ = LHCoptim(num_runs, 15, 1000)
     points = scaleLHC(latin_hypercube_plan,[
-        (6.5, 7.0), # duration
-        (2.5, 3.5), # susceptibility1
-        (2.5, 3.5), # susceptibility2
-        (3.0, 4.0), # susceptibility3
-        (4.5, 5.5), # susceptibility4
-        (4.5, 5.5), # susceptibility5
-        (3.5, 4.5), # susceptibility6
-        (3.5, 4.5), # susceptibility7
+        (6.5, 6.8), # duration
+        (2.7, 3.3), # susceptibility1
+        (2.7, 3.3), # susceptibility2
+        (3.2, 3.8), # susceptibility3
+        (4.6, 5.4), # susceptibility4
+        (4.6, 5.4), # susceptibility5
+        (3.6, 4.4), # susceptibility6
+        (3.6, 4.4), # susceptibility7
         (-0.95, -0.85), # temp1
         (-0.85, -0.75), # temp2
         (-0.11, -0.01), # temp3
@@ -136,6 +136,26 @@ function multiple_simulations(
         (-0.11, -0.01), # temp5
         (-0.11, -0.01), # temp6
         (-0.9, -0.8)]) # temp7
+
+    # points = scaleLHC(latin_hypercube_plan,[
+    #     (6.2, 6.7), # duration
+    #     (3.1, 3.6), # susceptibility1
+    #     (3.5, 4.0), # susceptibility2
+    #     (3.0, 4.0), # susceptibility3
+    #     (4.6, 5.4), # susceptibility4
+    #     (4.0, 4.5), # susceptibility5
+    #     (4.0, 4.5), # susceptibility6
+    #     (4.0, 4.5), # susceptibility7
+    #     (-0.8, -0.9), # temp1
+    #     (-0.7, -0.8), # temp2
+    #     (-0.11, -0.01), # temp3
+    #     (-0.5, -0.4), # temp4
+    #     (-0.11, -0.01), # temp5
+    #     (-0.11, -0.01), # temp6
+    #     (-0.9, -0.8)]) # temp7
+
+    RSS_min = 4.3770455548375e10
+    
     for i = 1:num_runs
         duration_parameter = points[i, 1]
         susceptibility_parameters = points[i, 2:8]
@@ -161,10 +181,18 @@ function multiple_simulations(
             susceptibility_parameters, etiology,
             incidence_data_mean_0, incidence_data_mean_3,
             incidence_data_mean_7, incidence_data_mean_15)
-        println("RSS: ", RSS)
-        println("duration_parameter ", duration_parameter)
-        println("susceptibility_parameters ", susceptibility_parameters)
-        println("temperature_parameters ", temperature_parameters)
+
+        if RSS < RSS_min
+            RSS_min = RSS
+        end
+
+        open("output/output.txt", "a") do io
+            println(io, "RSS: ", RSS)
+            println(io, "duration_parameter ", duration_parameter)
+            println(io, "susceptibility_parameters ", susceptibility_parameters)
+            println(io, "temperature_parameters ", temperature_parameters)
+            println(io)
+        end
 
         for agent in agents
             agent.on_parent_leave = false
@@ -354,6 +382,7 @@ function multiple_simulations(
             end
         end
     end
+    println("RSS_min: ", RSS_min)
 end
 
 function main()
@@ -443,10 +472,26 @@ function main()
     println("Simulation...")
 
     # Single run
-    # Параметры (RSS: 5.081978631875e9)
-    duration_parameter = 6.75
-    temperature_parameters = Float64[-0.9, -0.8, -0.05, -0.35, -0.05, -0.05, -0.85]
-    susceptibility_parameters = Float64[3.05, 3.1, 3.47, 4.9, 4.7, 4.02, 3.88]
+    # Параметры (RSS: 5.081978631875e9) 7.145395508875e9
+    # duration_parameter = 6.75
+    # temperature_parameters = Float64[-0.9, -0.8, -0.05, -0.35, -0.05, -0.05, -0.85]
+    # susceptibility_parameters = Float64[3.05, 3.1, 3.47, 4.9, 4.7, 4.02, 3.88]
+
+    # RSS: 4.874078926875e9   7.043697269875e9
+    # duration_parameter = 6.590361445783133
+    # temperature_parameters = Float64[-0.86285140562249, -0.7556224899598394, -0.024457831325301202, -0.43975903614457834, -0.06060240963855421, -0.039317269076305214, -0.846987951807229]
+    # susceptibility_parameters = Float64[3.3907630522088355, 3.3714859437751006, 3.7670682730923692, 5.077510040160643, 4.26425702811245, 4.347389558232932, 4.383534136546185]
+
+    # RSS 5.422644491375e9 5.431303046875e9
+    # duration_parameter = 6.533333333333333
+    # susceptibility_parameters = [3.317171717171717, 3.51010101010101, 3.595959595959596, 4.858585858585858, 4.111111111111111, 4.484848484848484, 4.404040404040404]
+    # temperature_parameters = [-0.8252525252525253, -0.7565656565656566, -0.08373737373737374, -0.44646464646464645, -0.03424242424242424, -0.014040404040404048, -0.88989898989899]
+
+    # 5.599750365375e9
+    duration_parameter = 6.570469798657718
+    susceptibility_parameters = [3.1308724832214763, 3.2798657718120805, 3.3691275167785237, 4.906040268456376, 4.664429530201342, 4.024161073825503, 3.6214765100671142]
+    temperature_parameters = [-0.8983221476510067, -0.786241610738255, -0.10932885906040268, -0.3422818791946309, -0.10261744966442952, -0.0710738255033557, -0.8053691275167786]
+
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -471,7 +516,7 @@ function main()
     println("RSS: ", RSS)
 
     # Multiple runs
-    # num_runs = 2
+    # num_runs = 150
     # multiple_simulations(agents, num_threads, thread_rng, num_runs,
     #     start_agent_ids, end_agent_ids, infectivities,
     #     etiology, incidence_data_mean_0,
