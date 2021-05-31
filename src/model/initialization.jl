@@ -1331,7 +1331,7 @@ function set_connections(
     workplace_num_people = num_of_people_in_workplace[1]
 
     while num_of_people_in_workplace[1] > 0
-        num_people = sample_from_zipf_distribution(1.056, 1995, rng) + 5
+        num_people = sample_from_zipf_distribution(1.059, 1995, rng) + 5
         if num_of_people_in_workplace[1] - num_people > 0
             append!(workplaces_num_people, num_people)
         else
