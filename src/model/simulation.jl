@@ -542,7 +542,8 @@ function run_simulation(
     incidence_data_mean_0::Vector{Float64},
     incidence_data_mean_3::Vector{Float64},
     incidence_data_mean_7::Vector{Float64},
-    incidence_data_mean_15::Vector{Float64}
+    incidence_data_mean_15::Vector{Float64},
+    is_single_run::Bool
 )::Float64
     # День месяца
     day = 1
@@ -696,15 +697,17 @@ function run_simulation(
         end
     end
 
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), incidence ./ 9897, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), etiology_incidence ./ 9897, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), age_group_incidence ./ 9897, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"),
-    #     sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
+    if (is_single_run)
+        writedlm(
+            joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), incidence ./ 9897, ',')
+        writedlm(
+            joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), etiology_incidence ./ 9897, ',')
+        writedlm(
+            joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), age_group_incidence ./ 9897, ',')
+        writedlm(
+            joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"),
+            sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
+    end
 
     RSS1 = sum((age_group_incidence[1, :] - incidence_data_mean_0).^2)
     RSS2 = sum((age_group_incidence[2, :] - incidence_data_mean_3).^2)

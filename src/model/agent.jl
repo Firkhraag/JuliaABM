@@ -390,7 +390,6 @@ mutable struct Agent
 
             # Дней с момента инфицирования
             days_infected = rand(thread_rng[thread_id], (1 - incubation_period):infection_period)
-            # days_infected = rand(thread_rng[thread_id], 1:(infection_period + incubation_period))
 
             if rand(thread_rng[thread_id], Float64) < viruses[virus_id].asymptomatic_probab
                 # Асимптомный
