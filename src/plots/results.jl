@@ -295,12 +295,12 @@ end
 
 scalefontsizes(1.2)
 
-# plot_incidence()
+plot_incidence()
 plot_incidence_etiology()
-# plot_incidence_age_groups()
+plot_incidence_age_groups()
 
-# plot_daily_new_cases_viruses()
-# plot_infected_inside_collective()
+plot_daily_new_cases_viruses()
+plot_infected_inside_collective()
 
 # plot_daily_new_cases_age_groups()
 # plot_daily_new_recoveries_age_groups()

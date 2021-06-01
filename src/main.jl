@@ -524,9 +524,15 @@ function main()
 
     # Single run
     # RSS: 5.503521007375e9
-    duration_parameter = 6.6
-    susceptibility_parameters = [3.278, 2.937, 3.3, 4.828, 4.37, 4.23, 3.95]
-    temperature_parameters = [-0.86, -0.766, -0.078, -0.34, -0.12, -0.053, -0.542]
+    # duration_parameter = 6.6
+    # susceptibility_parameters = [3.278, 2.937, 3.3, 4.828, 4.37, 4.23, 3.95]
+    # temperature_parameters = [-0.86, -0.766, -0.078, -0.34, -0.12, -0.053, -0.542]
+
+    # RSS: 5.511083717375e9
+    duration_parameter = 6.57964824120603
+    susceptibility_parameters = [3.109748743718593, 2.893969849246231, 3.393467336683417, 4.886180904522613, 4.2974874371859295, 4.399849246231155, 4.015326633165829]
+    temperature_parameters = [-0.8532663316582915, -0.7467336683417085, -0.08678391959798995, -0.31758793969849247, -0.13989949748743719, -0.0435678391959799, -0.5221105527638191]
+
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
