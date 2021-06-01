@@ -701,7 +701,7 @@ function run_simulation(
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), incidence ./ 9897, ',')
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), etiology_incidence ./ 9897, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), etiology_incidence, ',')
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), age_group_incidence ./ 9897, ',')
         writedlm(

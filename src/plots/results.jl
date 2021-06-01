@@ -24,6 +24,11 @@ end
 function plot_incidence_etiology()
     etiology = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), ',', Float64)
 
+    etiology_sum = sum(etiology, dims = 1)
+    for i = 1:7
+        etiology[i, :] = etiology[i, :] ./ etiology_sum[1, :]
+    end
+
     ticks = range(1, stop = 52, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     etiology_incidence_plot = plot(
@@ -32,11 +37,12 @@ function plot_incidence_etiology()
         lw = 3,
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
+        legend=(0.5, 0.95),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
-    xlabel!("Week")
-    ylabel!("Cases per 1000 people")
-    savefig(etiology_incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "etiology.pdf"))
+    xlabel!("Month")
+    ylabel!("Ratio")
+    savefig(etiology_incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "model_etiology.pdf"))
 end
 
 function plot_incidence_age_groups()
@@ -238,16 +244,35 @@ end
 
 function plot_infected_inside_collective()
     infected_inside_collective_data = readdlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"), ',', Int)
+        joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"), ',', Float64)
 
+    collective_sizes = readdlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "collective_sizes.csv"), ',', Int)
+
+    infected_inside_collective = Array{Float64, 2}(undef, 52, 5)
+    for i = 1:52
+        for j = 1:5
+            infected_inside_collective[i, j] = sum(infected_inside_collective_data[(i - 1) * 7 + 1:(i - 1) * 7 + 7, j])
+        end
+    end
+
+    infected_inside_collective[:, 1] ./= collective_sizes[1]
+    infected_inside_collective[:, 2] ./= collective_sizes[2]
+    infected_inside_collective[:, 3] ./= collective_sizes[3]
+    infected_inside_collective[:, 4] ./= collective_sizes[4]
+    infected_inside_collective[:, 5] ./= 9897284
+
+    ticks = range(1, stop = 52, length = 13)
+    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     infected_inside_collective_plot = plot(
-        1:365,
-        [infected_inside_collective_data[:, i] for i = 1:5],
+        1:52,
+        [infected_inside_collective[:, i] for i = 1:5],
         lw = 3,
+        xticks = (ticks, ticklabels),
         fontfamily = "Times",
-        label = ["Kinder" "School" "Uni" "Work" "Home"])
-    xlabel!("Day")
-    ylabel!("Num of people")
+        label = ["Kindergarten" "School" "University" "Workplace" "Household"])
+    xlabel!("Month")
+    ylabel!("Ratio")
     savefig(
         infected_inside_collective_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "infected_inside_collective.pdf"))
 end
@@ -270,12 +295,12 @@ end
 
 scalefontsizes(1.2)
 
-plot_incidence()
+# plot_incidence()
 plot_incidence_etiology()
-plot_incidence_age_groups()
+# plot_incidence_age_groups()
 
-plot_daily_new_cases_viruses()
-plot_infected_inside_collective()
+# plot_daily_new_cases_viruses()
+# plot_infected_inside_collective()
 
 # plot_daily_new_cases_age_groups()
 # plot_daily_new_recoveries_age_groups()
