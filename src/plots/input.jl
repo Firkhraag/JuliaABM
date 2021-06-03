@@ -3,6 +3,7 @@ using Plots
 using Statistics
 
 include("../data/temperature.jl")
+include("../data/etiology.jl")
 
 function plot_temperature()
     temperature_data = get_air_temperature()
@@ -10,7 +11,6 @@ function plot_temperature()
     append!(temperature_data_rearranged, temperature_data[213:end])
     append!(temperature_data_rearranged, temperature_data[1:212])
 
-    scalefontsizes(1.2)
     ticks = range(1, stop = 365, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     temperature_plot = plot(1:365, temperature_data_rearranged,
@@ -24,7 +24,6 @@ function plot_incidence()
     incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
     incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :] ./ 9897
 
-    scalefontsizes(1.2)
     ticks = range(1, stop = 52, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     incidence_plot = plot(1:52, incidence_data_mean, 
@@ -66,6 +65,49 @@ function plot_incidence_age_groups()
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "incidence15+.pdf"))
 end
 
-plot_temperature()
+function plot_temperature()
+    temperature_data = get_air_temperature()
+    temperature_data_rearranged = Float64[]
+    append!(temperature_data_rearranged, temperature_data[213:end])
+    append!(temperature_data_rearranged, temperature_data[1:212])
+
+    ticks = range(1, stop = 365, length = 13)
+    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    temperature_plot = plot(1:365, temperature_data_rearranged,
+        lw = 3, legend = false, color = "orange", xticks = (ticks, ticklabels), fontfamily = "Times")
+    xlabel!("Month")
+    ylabel!("Temperature, °C")
+    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "temperature.pdf"))
+end
+
+function plot_etiology()
+    etiology_data = get_random_infection_probabilities()
+    etiology_data[:, 2] = etiology_data[:, 2] .- etiology_data[:, 1]
+    etiology_data[:, 3] = etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1]
+    etiology_data[:, 4] = etiology_data[:, 4] .- etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1]
+    etiology_data[:, 5] = etiology_data[:, 5] .- etiology_data[:, 4] .- etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1]
+    etiology_data[:, 6] = etiology_data[:, 6] .- etiology_data[:, 5] .- etiology_data[:, 4] .- etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1]
+    etiology_data = [etiology_data (1 .- etiology_data[:, 6] .- etiology_data[:, 5] .- etiology_data[:, 4] .- etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1])]
+
+    ticks = range(1, stop = 52, length = 13)
+    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    etiology_plot = plot(
+        1:52,
+        [etiology_data[:, i] for i in 1:7],
+        legend=(0.5, 0.95),
+        fontfamily = "Times",
+        lw = 3,
+        color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
+        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
+        xticks = (ticks, ticklabels))
+    xlabel!("Month")
+    ylabel!("Ratio of viruses")
+    savefig(etiology_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "etiology.pdf"))
+end
+
+scalefontsizes(1.2)
+
+# plot_temperature()
 # plot_incidence()
 # plot_incidence_age_groups()
+plot_etiology()
