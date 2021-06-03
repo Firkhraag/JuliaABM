@@ -664,9 +664,14 @@ function run_simulation(
             sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
     end
 
-    RSS1 = sum((age_group_incidence[1, :] - incidence_data_mean_0).^2)
-    RSS2 = sum((age_group_incidence[2, :] - incidence_data_mean_3).^2)
-    RSS3 = sum((age_group_incidence[3, :] - incidence_data_mean_7).^2)
-    RSS4 = sum((age_group_incidence[4, :] - incidence_data_mean_15).^2)
-    return RSS1 + RSS2 + RSS3 + RSS4
+    max_value1 = maximum(age_group_incidence[1, :])
+    max_value2 = maximum(age_group_incidence[2, :])
+    max_value3 = maximum(age_group_incidence[3, :])
+    max_value4 = maximum(age_group_incidence[4, :])
+
+    S1 = sum(abs.(age_group_incidence[1, :] - incidence_data_mean_0) ./ max_value1)
+    S2 = sum(abs.(age_group_incidence[2, :] - incidence_data_mean_3) ./ max_value2)
+    S3 = sum(abs.(age_group_incidence[3, :] - incidence_data_mean_7) ./ max_value3)
+    S4 = sum(abs.(age_group_incidence[4, :] - incidence_data_mean_15) ./ max_value4)
+    return S1 + S2 + S3 + S4
 end
