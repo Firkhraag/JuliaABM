@@ -33,7 +33,6 @@ function make_contact(
         temperature_influence * duration_influence
 
     if rand(rng, Float64) < infection_probability
-        # println("Virus: $(infected_agent.virus_id); Dur: $duration_influence; Temp: $temperature_influence; Susc: $susceptibility_influence; Inf: $infectivity_influence; Prob: $infection_probability")
         susceptible_agent.virus_id = infected_agent.virus_id
         susceptible_agent.is_newly_infected = true
     end
@@ -269,7 +268,6 @@ function update_agent_states(
     end_agent_id::Int,
     agents::Vector{Agent},
     infectivities::Array{Float64, 4},
-    viruses::Vector{Virus},
     current_step::Int,
     confirmed_daily_new_cases_viruses::Array{Int, 3},
     confirmed_daily_new_cases_age_groups::Array{Int, 3}
@@ -287,28 +285,28 @@ function update_agent_states(
 
         # Продолжительности типоспецифического иммунитета
         if agent.RV_days_immune != 0
-            if agent.RV_days_immune == viruses[3].immunity_duration
+            if agent.RV_days_immune == 60
                 agent.RV_days_immune = 0
             else
                 agent.RV_days_immune += 1
             end
         end
         if agent.RSV_days_immune != 0
-            if agent.RSV_days_immune == viruses[4].immunity_duration
+            if agent.RSV_days_immune == 60
                 agent.RSV_days_immune = 0
             else
                 agent.RSV_days_immune += 1
             end
         end
         if agent.AdV_days_immune != 0
-            if agent.AdV_days_immune == viruses[5].immunity_duration
+            if agent.AdV_days_immune == 90
                 agent.AdV_days_immune = 0
             else
                 agent.AdV_days_immune += 1
             end
         end
         if agent.PIV_days_immune != 0
-            if agent.PIV_days_immune == viruses[6].immunity_duration
+            if agent.PIV_days_immune == 90
                 agent.PIV_days_immune = 0
             else
                 agent.PIV_days_immune += 1
@@ -436,40 +434,128 @@ function update_agent_states(
                 end
             end
         elseif agent.is_newly_infected
-            agent.incubation_period = get_period_from_erlang(
-                viruses[agent.virus_id].mean_incubation_period,
-                viruses[agent.virus_id].incubation_period_variance,
-                viruses[agent.virus_id].min_incubation_period,
-                viruses[agent.virus_id].max_incubation_period,
-                rng)
+            # agent.incubation_period = get_period_from_erlang(
+            #     viruses[agent.virus_id].mean_incubation_period,
+            #     viruses[agent.virus_id].incubation_period_variance,
+            #     viruses[agent.virus_id].min_incubation_period,
+            #     viruses[agent.virus_id].max_incubation_period,
+            #     rng)
+            
+            # if agent.age < 16
+            #     agent.infection_period = get_period_from_erlang(
+            #         viruses[agent.virus_id].mean_infection_period_child,
+            #         viruses[agent.virus_id].infection_period_variance_child,
+            #         viruses[agent.virus_id].min_infection_period_child,
+            #         viruses[agent.virus_id].max_infection_period_child,
+            #         rng)
+            # else
+            #     agent.infection_period = get_period_from_erlang(
+            #         viruses[agent.virus_id].mean_infection_period_adult,
+            #         viruses[agent.virus_id].infection_period_variance_adult,
+            #         viruses[agent.virus_id].min_infection_period_adult,
+            #         viruses[agent.virus_id].max_infection_period_adult,
+            #         rng)
+            # end
+            if agent.virus_id == 1
+                agent.incubation_period = get_period_from_erlang(
+                    1.4, 0.09, 1, 7, rng)
+            elseif agent.virus_id == 2
+                agent.incubation_period = get_period_from_erlang(
+                    1.0, 0.048, 1, 7, rng)
+            elseif agent.virus_id == 3
+                agent.incubation_period = get_period_from_erlang(
+                    1.9, 0.175, 1, 7, rng)
+            elseif agent.virus_id == 4
+                agent.incubation_period = get_period_from_erlang(
+                    4.4, 0.937, 1, 7, rng)
+            elseif agent.virus_id == 5
+                agent.incubation_period = get_period_from_erlang(
+                    5.6, 1.51, 1, 7, rng)
+            elseif agent.virus_id == 6
+                agent.incubation_period = get_period_from_erlang(
+                    2.6, 0.327, 1, 7, rng)
+            else
+                agent.incubation_period = get_period_from_erlang(
+                    3.2, 0.496, 1, 7, rng)
+            end
             
             if agent.age < 16
-                agent.infection_period = get_period_from_erlang(
-                    viruses[agent.virus_id].mean_infection_period_child,
-                    viruses[agent.virus_id].infection_period_variance_child,
-                    viruses[agent.virus_id].min_infection_period_child,
-                    viruses[agent.virus_id].max_infection_period_child,
-                    rng)
+                if agent.virus_id == 1
+                    agent.infection_period = get_period_from_erlang(
+                        8.8, 3.748, 4, 14, rng)
+                elseif agent.virus_id == 2
+                    agent.infection_period = get_period_from_erlang(
+                        7.8, 2.94, 4, 14, rng)
+                elseif agent.virus_id == 3
+                    agent.infection_period = get_period_from_erlang(
+                        11.4, 6.25, 4, 14, rng)
+                elseif agent.virus_id == 4
+                    agent.infection_period = get_period_from_erlang(
+                        9.3, 4.0, 4, 14, rng)
+                elseif agent.virus_id == 5
+                    agent.infection_period = get_period_from_erlang(
+                        9.0, 3.92, 4, 14, rng)
+                elseif agent.virus_id == 6
+                    agent.infection_period = get_period_from_erlang(
+                        8.0, 3.1, 4, 14, rng)
+                else
+                    agent.infection_period = get_period_from_erlang(
+                        8.0, 3.1, 4, 14, rng)
+                end
             else
-                agent.infection_period = get_period_from_erlang(
-                    viruses[agent.virus_id].mean_infection_period_adult,
-                    viruses[agent.virus_id].infection_period_variance_adult,
-                    viruses[agent.virus_id].min_infection_period_adult,
-                    viruses[agent.virus_id].max_infection_period_adult,
-                    rng)
+                if agent.virus_id == 1
+                    agent.infection_period = get_period_from_erlang(
+                        4.8, 1.12, 3, 12, rng)
+                elseif agent.virus_id == 2
+                    agent.infection_period = get_period_from_erlang(
+                        3.7, 0.66, 3, 12, rng)
+                elseif agent.virus_id == 3
+                    agent.infection_period = get_period_from_erlang(
+                        10.1, 4.93, 3, 12, rng)
+                elseif agent.virus_id == 4
+                    agent.infection_period = get_period_from_erlang(
+                        7.4, 2.66, 3, 12, rng)
+                elseif agent.virus_id == 5
+                    agent.infection_period = get_period_from_erlang(
+                        8.0, 3.1, 3, 12, rng)
+                elseif agent.virus_id == 6
+                    agent.infection_period = get_period_from_erlang(
+                        7.0, 2.37, 3, 12, rng)
+                else
+                    agent.infection_period = get_period_from_erlang(
+                        7.0, 2.37, 3, 12, rng)
+                end
             end
             agent.days_infected = 1 - agent.incubation_period
 
-            asymp_prob = 0.0
-            if agent.age < 16
-                asymp_prob = viruses[agent.virus_id].asymptomatic_probab_child
+            if agent.virus_id == 1 || agent.virus_id == 2
+                if agent.age < 16
+                    if rand(rng, Float64) < 0.27
+                        agent.is_asymptomatic = true
+                    else
+                        agent.is_asymptomatic = false
+                    end
+                else
+                    if rand(rng, Float64) < 0.16
+                        agent.is_asymptomatic = true
+                    else
+                        agent.is_asymptomatic = false
+                    end
+                end
             else
-                asymp_prob = viruses[agent.virus_id].asymptomatic_probab_adult
-            end
-            if rand(rng, Float64) < asymp_prob
-                agent.is_asymptomatic = true
-            else
-                agent.is_asymptomatic = false
+                if agent.age < 16
+                    if rand(rng, Float64) < 0.5
+                        agent.is_asymptomatic = true
+                    else
+                        agent.is_asymptomatic = false
+                    end
+                else
+                    if rand(rng, Float64) < 0.3
+                        agent.is_asymptomatic = true
+                    else
+                        agent.is_asymptomatic = false
+                    end
+                end
             end
             
             agent.infectivity = find_agent_infectivity(
@@ -492,13 +578,12 @@ function run_simulation(
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
     etiology::Matrix{Float64},
-    viruses::Vector{Virus},
     incidence_data_mean_0::Vector{Float64},
     incidence_data_mean_3::Vector{Float64},
     incidence_data_mean_7::Vector{Float64},
     incidence_data_mean_15::Vector{Float64},
     is_single_run::Bool
-)::Float64
+)::Tuple{Float64, Matrix{Float64}}
     # День месяца
     day = 1
     # Месяц
@@ -610,7 +695,6 @@ function run_simulation(
                 end_agent_ids[thread_id],
                 agents,
                 infectivities,
-                viruses,
                 current_step,
                 confirmed_daily_new_cases_viruses,
                 confirmed_daily_new_cases_age_groups)
@@ -673,5 +757,5 @@ function run_simulation(
     S2 = sum(abs.(age_group_incidence[2, :] - incidence_data_mean_3) ./ max_value2)
     S3 = sum(abs.(age_group_incidence[3, :] - incidence_data_mean_7) ./ max_value3)
     S4 = sum(abs.(age_group_incidence[4, :] - incidence_data_mean_15) ./ max_value4)
-    return S1 + S2 + S3 + S4
+    return (S1 + S2 + S3 + S4), etiology_incidence
 end

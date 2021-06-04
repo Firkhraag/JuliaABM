@@ -237,7 +237,14 @@ function reset_population(
                 # Дней с момента инфицирования
                 agent.days_infected = rand(thread_rng[thread_id], (1 - agent.incubation_period):agent.infection_period)
 
-                if rand(thread_rng[thread_id], Float64) < viruses[agent.virus_id].asymptomatic_probab
+                asymp_prob = 0.0
+                if agent.age < 16
+                    asymp_prob = viruses[agent.virus_id].asymptomatic_probab_child
+                else
+                    asymp_prob = viruses[agent.virus_id].asymptomatic_probab_adult
+                end
+
+                if rand(thread_rng[thread_id], Float64) < asymp_prob
                     # Асимптомный
                     agent.is_asymptomatic = true
                 else
@@ -310,6 +317,7 @@ function multiple_simulations(
     end_agent_ids::Vector{Int},
     infectivities::Array{Float64, 4},
     etiology::Matrix{Float64},
+    etiology_data::Matrix{Float64},
     incidence_data_mean_0::Vector{Float64},
     incidence_data_mean_3::Vector{Float64},
     incidence_data_mean_7::Vector{Float64},
@@ -322,9 +330,9 @@ function multiple_simulations(
     latin_hypercube_plan, _ = LHCoptim(num_runs, 15, 1000)
 
 
-    duration_parameter_default = 6.6097989949748746
-    susceptibility_parameters_default = [3.0, 2.7769346733668343, 3.3753768844221104, 4.800100502512563, 4.262361809045227, 4.467889447236181, 4.046733668341708]
-    temperature_parameters_default = [-0.7686934673366835, -0.6054773869346734, -0.07341708542713568, -0.3022110552763819, -0.12346733668341708, -0.05336683417085428, -0.5589447236180904]
+    duration_parameter_default = 6.517852686250043
+    susceptibility_parameters_default = [2.9308724832214765, 2.7252568210178407, 3.3545715152945936, 4.808825334727328, 4.279140332535159, 4.388023675424101, 4.130626285791372]
+    temperature_parameters_default = [-0.7952035344507775, -0.620578058075613, -0.068115072004316885, -0.3307345452092678, -0.09427270581093386, -0.068735961687632798, -0.5586091531482917]
 
     points = scaleLHC(latin_hypercube_plan,[
         (duration_parameter_default - 0.1, duration_parameter_default + 0.1),
@@ -345,16 +353,6 @@ function multiple_simulations(
 
     S_min = 100.0
 
-    etiology_data = copy(etiology)
-    etiology_data[:, 2] = etiology_data[:, 2] .- etiology_data[:, 1]
-    etiology_data[:, 3] = etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1]
-    etiology_data[:, 4] = etiology_data[:, 4] .- etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1]
-    etiology_data[:, 5] = etiology_data[:, 5] .- etiology_data[:, 4] .- etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1]
-    etiology_data[:, 6] = etiology_data[:, 6] .- etiology_data[:, 5] .- etiology_data[:, 4] .- etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1]
-    etiology_data = [etiology_data (1 .- etiology_data[:, 6] .- etiology_data[:, 5] .- etiology_data[:, 4] .- etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1])]
-    etiology_data = transpose(etiology_data)
-
-    
     for i = 1:num_runs
         println(i)
 
@@ -376,20 +374,18 @@ function multiple_simulations(
             end
         end
 
-        @time S = run_simulation(
+        @time S, etiology_model = run_simulation(
             num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
             temp_influences, duration_parameter,
             susceptibility_parameters, etiology,
             incidence_data_mean_0, incidence_data_mean_3,
             incidence_data_mean_7, incidence_data_mean_15, false)
 
-        etiology_model = readdlm(joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"), ',', Float64)
         etiology_sum = sum(etiology_model, dims = 1)
         for i = 1:7
             etiology_model[i, :] = etiology_model[i, :] ./ etiology_sum[1, :]
         end
-        max_value = maximum(etiology_model)
-        S += sum(abs.(etiology_data .- etiology_model) ./ max_value)
+        S += sum(abs.(etiology_data .- etiology_model)) / maximum(etiology_model)
 
         if S < S_min
             S_min = S
@@ -466,6 +462,8 @@ end
 
 function main()
     println("Initialization...")
+
+    etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
 
     num_threads = nthreads()
 
@@ -551,74 +549,64 @@ function main()
     println("Simulation...")
 
     # Single run
-    # S: 72.94117757339632
-    # duration_parameter = 6.6097989949748746
-    # susceptibility_parameters = [3.0, 2.7769346733668343, 3.3753768844221104, 4.800100502512563, 4.262361809045227, 4.467889447236181, 4.046733668341708]
-    # temperature_parameters = [-0.7686934673366835, -0.6054773869346734, -0.07341708542713568, -0.3022110552763819, -0.12346733668341708, -0.05336683417085428, -0.5589447236180904]
+    # S = 62.85 63.07
+    duration_parameter = 6.436644632558768
+    susceptibility_parameters = [2.8348993288590605, 2.8198876935010624, 3.333766146167077, 4.8296307038548445, 4.259677245286837, 4.305473339853632, 4.187673265657144]
+    temperature_parameters = [-0.7841297089474218, -0.6437324204917203, -0.0973097028768001, -0.3377815250750396, -0.12682304138140368, -0.08048092813058583, -0.5676695558328555]
 
-    # temp_influences = Array{Float64,2}(undef, 7, 365)
-    # year_day = 213
-    # for i in 1:365
-    #     current_temp = (temperature[year_day] - min_temp) / max_min_temp
-    #     for v in 1:7
-    #         temp_influences[v, i] = temperature_parameters[v] * current_temp + 1.0
-    #     end
-    #     if year_day == 365
-    #         year_day = 1
-    #     else
-    #         year_day += 1
-    #     end
-    # end
 
-    # collective_nums = Int[0, 0, 0, 0]
-    # for agent in agents
-    #     if agent.collective_id == 1
-    #         collective_nums[1] += 1
-    #     elseif agent.collective_id == 2
-    #         collective_nums[2] += 1
-    #     elseif agent.collective_id == 3
-    #         collective_nums[3] += 1
-    #     elseif agent.collective_id == 4
-    #         collective_nums[4] += 1
-    #     end
-    # end
+    temp_influences = Array{Float64,2}(undef, 7, 365)
+    year_day = 213
+    for i in 1:365
+        current_temp = (temperature[year_day] - min_temp) / max_min_temp
+        for v in 1:7
+            temp_influences[v, i] = temperature_parameters[v] * current_temp + 1.0
+        end
+        if year_day == 365
+            year_day = 1
+        else
+            year_day += 1
+        end
+    end
 
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
+    collective_nums = Int[0, 0, 0, 0]
+    for agent in agents
+        if agent.collective_id == 1
+            collective_nums[1] += 1
+        elseif agent.collective_id == 2
+            collective_nums[2] += 1
+        elseif agent.collective_id == 3
+            collective_nums[3] += 1
+        elseif agent.collective_id == 4
+            collective_nums[4] += 1
+        end
+    end
 
-    # @time S = run_simulation(
-    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-    #     temp_influences, duration_parameter,
-    #     susceptibility_parameters, etiology, viruses,
-    #     incidence_data_mean_0, incidence_data_mean_3,
-    #     incidence_data_mean_7, incidence_data_mean_15, true)
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
 
-    # etiology[:, 2] = etiology[:, 2] .- etiology[:, 1]
-    # etiology[:, 3] = etiology[:, 3] .- etiology[:, 2] .- etiology[:, 1]
-    # etiology[:, 4] = etiology[:, 4] .- etiology[:, 3] .- etiology[:, 2] .- etiology[:, 1]
-    # etiology[:, 5] = etiology[:, 5] .- etiology[:, 4] .- etiology[:, 3] .- etiology[:, 2] .- etiology[:, 1]
-    # etiology[:, 6] = etiology[:, 6] .- etiology[:, 5] .- etiology[:, 4] .- etiology[:, 3] .- etiology[:, 2] .- etiology[:, 1]
-    # etiology = [etiology (1 .- etiology[:, 6] .- etiology[:, 5] .- etiology[:, 4] .- etiology[:, 3] .- etiology[:, 2] .- etiology[:, 1])]
-    # etiology = transpose(etiology)
+    @time S, etiology_model = run_simulation(
+        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+        temp_influences, duration_parameter,
+        susceptibility_parameters, etiology,
+        incidence_data_mean_0, incidence_data_mean_3,
+        incidence_data_mean_7, incidence_data_mean_15, true)
 
-    # etiology_model = readdlm(joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"), ',', Float64)
-    # etiology_sum = sum(etiology_model, dims = 1)
-    # for i = 1:7
-    #     etiology_model[i, :] = etiology_model[i, :] ./ etiology_sum[1, :]
-    # end
+    etiology_sum = sum(etiology_model, dims = 1)[1, :]
+    for i = 1:7
+        etiology_model[i, :] = etiology_model[i, :] ./ etiology_sum
+    end
+    S += sum(abs.(etiology_data .- etiology_model)) / maximum(etiology_model)
 
-    # max_value = maximum(etiology_model)
-    # S += sum(abs.(etiology .- etiology_model) ./ max_value)
-
-    # println("S: ", S)
+    println("S: ", S)
 
     # Multiple runs
-    num_runs = 150
-    multiple_simulations(agents, num_threads, thread_rng, num_runs,
-        start_agent_ids, end_agent_ids, infectivities,
-        etiology, incidence_data_mean_0,
-        incidence_data_mean_3, incidence_data_mean_7, incidence_data_mean_15,
-        temperature, min_temp, max_min_temp, viruses)
+    # num_runs = 150
+    # multiple_simulations(agents, num_threads, thread_rng, num_runs,
+    #     start_agent_ids, end_agent_ids, infectivities,
+    #     etiology, etiology_data, incidence_data_mean_0,
+    #     incidence_data_mean_3, incidence_data_mean_7, incidence_data_mean_15,
+    #     temperature, min_temp, max_min_temp, viruses)
 
 end
 
