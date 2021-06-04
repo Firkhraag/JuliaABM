@@ -530,7 +530,7 @@ function update_agent_states(
 
             if agent.virus_id == 1 || agent.virus_id == 2
                 if agent.age < 16
-                    if rand(rng, Float64) < 0.27
+                    if rand(rng, Float64) < 0.3
                         agent.is_asymptomatic = true
                     else
                         agent.is_asymptomatic = false

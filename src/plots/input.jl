@@ -94,7 +94,7 @@ function plot_etiology()
     etiology_plot = plot(
         1:52,
         [etiology_data[:, i] for i in 1:7],
-        legend=(0.5, 0.95),
+        # legend=(0.5, 0.95),
         fontfamily = "Times",
         lw = 3,
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
