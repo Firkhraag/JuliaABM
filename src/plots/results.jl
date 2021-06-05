@@ -37,7 +37,7 @@ function plot_incidence_etiology()
         lw = 3,
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
-        legend=(0.5, 0.95),
+        legend=(0.8, 1.0),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
     xlabel!("Month")

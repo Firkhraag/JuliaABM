@@ -349,7 +349,7 @@ function update_agent_states(
             else
                 agent.days_infected += 1
 
-                if !agent.is_asymptomatic && !agent.is_isolated && agent.collective_id != 0 && !agent.on_parent_leave
+                if !agent.is_asymptomatic && !agent.is_isolated && !agent.on_parent_leave
                     if agent.days_infected == 1
                         rand_num = rand(rng, Float64)
                         if agent.age < 8
@@ -405,20 +405,6 @@ function update_agent_states(
                         elseif agent.age < 15
                             confirmed_daily_new_cases_age_groups[current_step, 3, thread_id] += 1
                         else
-                            confirmed_daily_new_cases_age_groups[current_step, 4, thread_id] += 1
-                        end
-                    end
-                elseif agent.days_infected == 2 && agent.collective_id == 0 && !agent.is_asymptomatic
-                    if agent.age < 3
-                        if rand(rng, Float64) < 0.66
-                            confirmed_daily_new_cases_age_groups[current_step, 1, thread_id] += 1
-                        end
-                    elseif agent.age < 7
-                        if rand(rng, Float64) < 0.5
-                            confirmed_daily_new_cases_age_groups[current_step, 2, thread_id] += 1
-                        end
-                    else
-                        if rand(rng, Float64) < 0.33
                             confirmed_daily_new_cases_age_groups[current_step, 4, thread_id] += 1
                         end
                     end
@@ -530,7 +516,7 @@ function update_agent_states(
 
             if agent.virus_id == 1 || agent.virus_id == 2
                 if agent.age < 16
-                    if rand(rng, Float64) < 0.3
+                    if rand(rng, Float64) < 0.32
                         agent.is_asymptomatic = true
                     else
                         agent.is_asymptomatic = false
@@ -583,7 +569,7 @@ function run_simulation(
     incidence_data_mean_7::Vector{Float64},
     incidence_data_mean_15::Vector{Float64},
     is_single_run::Bool
-)::Tuple{Float64, Matrix{Float64}}
+)::Tuple{Float64, Matrix{Float64}, Vector{Int}}
     # День месяца
     day = 1
     # Месяц
@@ -736,6 +722,7 @@ function run_simulation(
         end
     end
 
+
     if (is_single_run)
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), incidence ./ 9897, ',')
@@ -748,14 +735,10 @@ function run_simulation(
             sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
     end
 
-    max_value1 = maximum(age_group_incidence[1, :])
-    max_value2 = maximum(age_group_incidence[2, :])
-    max_value3 = maximum(age_group_incidence[3, :])
-    max_value4 = maximum(age_group_incidence[4, :])
+    S1 = sum((age_group_incidence[1, :] - incidence_data_mean_0).^2)
+    S2 = sum((age_group_incidence[2, :] - incidence_data_mean_3).^2)
+    S3 = sum((age_group_incidence[3, :] - incidence_data_mean_7).^2)
+    S4 = sum((age_group_incidence[4, :] - incidence_data_mean_15).^2)
 
-    S1 = sum(abs.(age_group_incidence[1, :] - incidence_data_mean_0) ./ max_value1)
-    S2 = sum(abs.(age_group_incidence[2, :] - incidence_data_mean_3) ./ max_value2)
-    S3 = sum(abs.(age_group_incidence[3, :] - incidence_data_mean_7) ./ max_value3)
-    S4 = sum(abs.(age_group_incidence[4, :] - incidence_data_mean_15) ./ max_value4)
-    return (S1 + S2 + S3 + S4), etiology_incidence
+    return (S1 + S2 + S3 + S4), etiology_incidence, incidence
 end
