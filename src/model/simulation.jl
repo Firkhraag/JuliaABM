@@ -564,6 +564,7 @@ function run_simulation(
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
     etiology::Matrix{Float64},
+    incidence_data_mean::Vector{Float64},
     incidence_data_mean_0::Vector{Float64},
     incidence_data_mean_3::Vector{Float64},
     incidence_data_mean_7::Vector{Float64},
@@ -735,10 +736,25 @@ function run_simulation(
             sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
     end
 
-    S1 = sum((age_group_incidence[1, :] - incidence_data_mean_0).^2)
-    S2 = sum((age_group_incidence[2, :] - incidence_data_mean_3).^2)
-    S3 = sum((age_group_incidence[3, :] - incidence_data_mean_7).^2)
-    S4 = sum((age_group_incidence[4, :] - incidence_data_mean_15).^2)
+    # S = 1 / 3 * sum((incidence - incidence_data_mean).^2)
 
-    return (S1 + S2 + S3 + S4), etiology_incidence, incidence
+    # S1 = 1 / 12 * sum((age_group_incidence[1, :] - incidence_data_mean_0).^2)
+    # S2 = 1 / 12 * sum((age_group_incidence[2, :] - incidence_data_mean_3).^2)
+    # S3 = 1 / 12 * sum((age_group_incidence[3, :] - incidence_data_mean_7).^2)
+    # S4 = 1 / 12 * sum((age_group_incidence[4, :] - incidence_data_mean_15).^2)
+
+    S = 1 / 3 * sum(abs.(incidence - incidence_data_mean))
+
+    S1 = 1 / 12 * sum(abs.(age_group_incidence[1, :] - incidence_data_mean_0))
+    S2 = 1 / 12 * sum(abs.(age_group_incidence[2, :] - incidence_data_mean_3))
+    S3 = 1 / 12 * sum(abs.(age_group_incidence[3, :] - incidence_data_mean_7))
+    S4 = 1 / 12 * sum(abs.(age_group_incidence[4, :] - incidence_data_mean_15))
+
+    println(S)
+    println(S1)
+    println(S2)
+    println(S3)
+    println(S4)
+
+    return (S + S1 + S2 + S3 + S4), etiology_incidence, incidence
 end

@@ -318,6 +318,7 @@ function multiple_simulations(
     infectivities::Array{Float64, 4},
     etiology::Matrix{Float64},
     etiology_data::Matrix{Float64},
+    incidence_data_mean::Vector{Float64},
     incidence_data_mean_0::Vector{Float64},
     incidence_data_mean_3::Vector{Float64},
     incidence_data_mean_7::Vector{Float64},
@@ -330,10 +331,10 @@ function multiple_simulations(
     latin_hypercube_plan, _ = LHCoptim(num_runs, 15, 1000)
 
     # Add _default
-    duration_parameter_default = 6.594309933505913
-    susceptibility_parameters_default = [3.133254657124004, 3.0128338663012036, 3.3371605502258768, 4.902049642150145, 4.350910613674433, 4.3545500228414795, 4.084279985787523]
-    temperature_parameters_default = [-0.8854652048119385, -0.7110019795949444, -0.11063093243997765, -0.35305365209887823, -0.10854829704075934, -0.04844271864372367, -0.5565209887822953]
-
+    duration_parameter_default = 6.7215826607786395
+    susceptibility_parameters_default = [3.246385970255317, 2.9845510380183753, 3.274534287599614, 4.98689812699863, 4.466062128825948, 4.300004568296025, 4.007512309019846]
+    temperature_parameters_default = [-0.9410207603674942, -0.7110019795949444, -0.143964265773311, -0.34093243997766615, -0.18026546875793104, -0.058543728744733764, -0.5605613928226993]
+    
     points = scaleLHC(latin_hypercube_plan, [
         (duration_parameter_default - 0.1, duration_parameter_default + 0.1),
         (susceptibility_parameters_default[1] - 0.1, susceptibility_parameters_default[1] + 0.1),
@@ -377,14 +378,15 @@ function multiple_simulations(
         @time S, etiology_model, incidence = run_simulation(
             num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
             temp_influences, duration_parameter,
-            susceptibility_parameters, etiology,
+            susceptibility_parameters, etiology, incidence_data_mean,
             incidence_data_mean_0, incidence_data_mean_3,
             incidence_data_mean_7, incidence_data_mean_15, false)
 
         etiology_sum = sum(etiology_model, dims = 1)[1, :]
         for i = 1:7
             etiology_model[i, :] = etiology_model[i, :] ./ etiology_sum
-            S += 1 / 7 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence).^ 2)
+            # S += 1 / 21 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence).^ 2)
+            S += 1 / 21 * sum(abs.(etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence))
         end
 
         if S < S_min
@@ -536,15 +538,17 @@ function main()
 
     # get_stats(agents)
 
+    incidence_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu.csv"), ',', Int, '\n')
     incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
     incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
     incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
     incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1] ./ 9897 
-    incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1] ./ 9897
-    incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1] ./ 9897
-    incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1] ./ 9897
+    incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :]
+    incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1]
+    incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1]
+    incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1]
+    incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1]
 
     println("Simulation...")
 
@@ -581,6 +585,20 @@ function main()
     # duration_parameter = 6.594309933505913
     # susceptibility_parameters = [3.133254657124004, 3.0128338663012036, 3.3371605502258768, 4.902049642150145, 4.350910613674433, 4.3545500228414795, 4.084279985787523]
     # temperature_parameters = [-0.8854652048119385, -0.7110019795949444, -0.11063093243997765, -0.35305365209887823, -0.10854829704075934, -0.04844271864372367, -0.5565209887822953]
+
+    # duration_parameter = 6.676128115324095
+    # susceptibility_parameters = [3.1706283944977414, 2.95929851276585, 3.3098878229531494, 4.929322369422873, 4.3802035429673625, 4.3717217400131965, 3.9964011979087353]
+    # temperature_parameters = [-0.9243540937008274, -0.6983757169686817, -0.12931780112684635, -0.30911425815948435, -0.13228567077813308, -0.07521039541140043, -0.6034906857519923]
+
+    # duration_parameter = 6.7215826607786395
+    # susceptibility_parameters = [3.246385970255317, 2.9845510380183753, 3.274534287599614, 4.98689812699863, 4.466062128825948, 4.300004568296025, 4.007512309019846]
+    # temperature_parameters = [-0.9410207603674942, -0.7110019795949444, -0.143964265773311, -0.34093243997766615, -0.18026546875793104, -0.058543728744733764, -0.5605613928226993]
+    
+    # S: 258093.39417082418
+    # duration_parameter = 6.813501852697831
+    # susceptibility_parameters = [3.342345566214913, 2.955258108725446, 3.3462514593167856, 4.9636658037663075, 4.513536876300695, 4.3575803258717825, 3.9357951373026747]
+    # temperature_parameters = [-0.9344551038018376, -0.7599918785848434, -0.1343683061773514, -0.3293162783615045, -0.17369981219227448, -0.019654839855844874, -0.6004603827216892]
+
 
     duration_parameter = 6.676128115324095
     susceptibility_parameters = [3.1706283944977414, 2.95929851276585, 3.3098878229531494, 4.929322369422873, 4.3802035429673625, 4.3717217400131965, 3.9964011979087353]
@@ -620,14 +638,15 @@ function main()
     @time S, etiology_model, incidence = run_simulation(
         num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
         temp_influences, duration_parameter,
-        susceptibility_parameters, etiology,
+        susceptibility_parameters, etiology, incidence_data_mean,
         incidence_data_mean_0, incidence_data_mean_3,
         incidence_data_mean_7, incidence_data_mean_15, true)
 
     etiology_sum = sum(etiology_model, dims = 1)[1, :]
     for i = 1:7
         etiology_model[i, :] = etiology_model[i, :] ./ etiology_sum
-        S += 1 / 7 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence).^ 2)
+        # S += 1 / 21 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence).^ 2)
+        S += 1 / 21 * sum(abs.(etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence))
     end
 
     println("S: ", S)
@@ -636,7 +655,7 @@ function main()
     # num_runs = 100
     # multiple_simulations(agents, num_threads, thread_rng, num_runs,
     #     start_agent_ids, end_agent_ids, infectivities,
-    #     etiology, etiology_data, incidence_data_mean_0,
+    #     etiology, etiology_data, incidence_data_mean, incidence_data_mean_0,
     #     incidence_data_mean_3, incidence_data_mean_7, incidence_data_mean_15,
     #     temperature, min_temp, max_min_temp, viruses)
 
