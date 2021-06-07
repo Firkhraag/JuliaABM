@@ -123,3 +123,17 @@ function get_random_infection_probabilities()::Matrix{Float64}
         0.008437975 0.012656962 0.506329114 0.594936709 0.734177215 0.987341772;
         0.010255385 0.015383077 0.369230769 0.461538462 0.784615385 0.984615385]
 end
+
+function save_virus_ratio_to_file()
+    etiology_data = get_random_infection_probabilities()
+    etiology_data[:, 2] = etiology_data[:, 2] .- etiology_data[:, 1]
+    etiology_data[:, 3] = etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1]
+    etiology_data[:, 4] = etiology_data[:, 4] .- etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1]
+    etiology_data[:, 5] = etiology_data[:, 5] .- etiology_data[:, 4] .- etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1]
+    etiology_data[:, 6] = etiology_data[:, 6] .- etiology_data[:, 5] .- etiology_data[:, 4] .- etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1]
+    etiology_data = [etiology_data (1 .- etiology_data[:, 6] .- etiology_data[:, 5] .- etiology_data[:, 4] .- etiology_data[:, 3] .- etiology_data[:, 2] .- etiology_data[:, 1])]
+    etiology_data = transpose(etiology_data)
+
+    writedlm(
+        joinpath(@__DIR__, "..", "..", "input", "tables", "etiology_ratio.csv"), etiology_data, ',')
+end

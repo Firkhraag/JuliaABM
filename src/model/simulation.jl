@@ -120,33 +120,7 @@ function simulate_contacts(
                         # http://ecs.force.com/mbdata/MBQuest2RTanw?rep=KK3Q1806#:~:text=6%20hours%20per%20day%20for%20kindergarten%20and%20elementary%20students.&text=437.5%20hours%20per%20year%20for%20half%2Dday%20kindergarten.
                         # https://nces.ed.gov/surveys/sass/tables/sass0708_035_s1s.asp
                         # Mixing patterns between age groups in social networks
-                        # American Time Use Survey Summary. Bls.gov. 2017-06-27. Retrieved 2018-06-06
-
-                        # if is_holiday || (agent_at_home && agent2_at_home)
-                        #     make_contact(
-                        #         agent, agent2, get_contact_duration_normal(12.5, 5.5, rng),
-                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
-                        # elseif ((agent.collective_id == 1 && !agent_at_home) ||
-                        #     (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
-                        #     make_contact(
-                        #         agent, agent2, get_contact_duration_normal(4.5, 2.25, rng),
-                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
-                        # elseif ((agent.collective_id == 4 && !agent_at_home) ||
-                        #     (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
-                        #     make_contact(
-                        #         agent, agent2, get_contact_duration_normal(6.1, 2.46, rng),
-                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
-                        # elseif ((agent.collective_id == 2 && !agent_at_home) ||
-                        #     (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
-                        #     make_contact(
-                        #         agent, agent2, get_contact_duration_normal(7.0, 2.65, rng),
-                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
-                        # elseif ((agent.collective_id == 3 && !agent_at_home) ||
-                        #     (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
-                        #     make_contact(
-                        #         agent, agent2, get_contact_duration_normal(10.0, 3.69, rng),
-                        #         current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
-                        # end
+                        # American Time Use Survey Summary. Bls.gov. 2017-06-27. Retrieved 2018-06-06s
 
                         if is_holiday || (agent_at_home && agent2_at_home)
                             make_contact(
@@ -420,6 +394,7 @@ function update_agent_states(
                 end
             end
         elseif agent.is_newly_infected
+            # Slower
             # agent.incubation_period = get_period_from_erlang(
             #     viruses[agent.virus_id].mean_incubation_period,
             #     viruses[agent.virus_id].incubation_period_variance,
@@ -713,11 +688,9 @@ function run_simulation(
             (month == 2 && day == 28)
             day = 1
             month += 1
-            # println("Month: ", month)
         elseif (month == 12 && day == 31)
             day = 1
             month = 1
-            # println("Month: 1")
         else
             day += 1
         end
@@ -736,19 +709,10 @@ function run_simulation(
             sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
     end
 
-    # S = 1 / 3 * sum((incidence - incidence_data_mean).^2)
-
     S1 = 1 / 8 * sum((age_group_incidence[1, :] - incidence_data_mean_0).^2)
     S2 = 1 / 8 * sum((age_group_incidence[2, :] - incidence_data_mean_3).^2)
     S3 = 1 / 8 * sum((age_group_incidence[3, :] - incidence_data_mean_7).^2)
     S4 = 1 / 8 * sum((age_group_incidence[4, :] - incidence_data_mean_15).^2)
-
-    # S = 1 / 3 * sum(abs.(incidence - incidence_data_mean))
-
-    # S1 = 1 / 12 * sum(abs.(age_group_incidence[1, :] - incidence_data_mean_0))
-    # S2 = 1 / 12 * sum(abs.(age_group_incidence[2, :] - incidence_data_mean_3))
-    # S3 = 1 / 12 * sum(abs.(age_group_incidence[3, :] - incidence_data_mean_7))
-    # S4 = 1 / 12 * sum(abs.(age_group_incidence[4, :] - incidence_data_mean_15))
 
     # println(S)
     println(S1)
@@ -756,6 +720,5 @@ function run_simulation(
     println(S3)
     println(S4)
 
-    # return (S + S1 + S2 + S3 + S4), etiology_incidence, incidence
     return (S1 + S2 + S3 + S4), etiology_incidence, incidence
 end
