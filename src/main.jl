@@ -108,27 +108,34 @@ function reset_population(
     start_agent_ids::Vector{Int},
     end_agent_ids::Vector{Int},
     infectivities::Array{Float64, 4},
-    viruses::Vector{Virus}
+    viruses::Vector{Virus},
+    agent_id_for_r0::Int,
 )
     @threads for thread_id in 1:num_threads
         for agent_id in start_agent_ids[thread_id]:end_agent_ids[thread_id]
             agent = agents[agent_id]
             agent.on_parent_leave = false
             is_infected = false
-            if agent.age < 3
-                if rand(thread_rng[thread_id], Float64) < 0.016
-                    is_infected = true
-                end
-            elseif agent.age < 7
-                if rand(thread_rng[thread_id], Float64) < 0.01
-                    is_infected = true
-                end
-            elseif agent.age < 15
-                if rand(thread_rng[thread_id], Float64) < 0.007
-                    is_infected = true
+            if (agent_id_for_r0 == -1)
+                if agent.age < 3
+                    if rand(thread_rng[thread_id], Float64) < 0.016
+                        is_infected = true
+                    end
+                elseif agent.age < 7
+                    if rand(thread_rng[thread_id], Float64) < 0.01
+                        is_infected = true
+                    end
+                elseif agent.age < 15
+                    if rand(thread_rng[thread_id], Float64) < 0.007
+                        is_infected = true
+                    end
+                else
+                    if rand(thread_rng[thread_id], Float64) < 0.003
+                        is_infected = true
+                    end
                 end
             else
-                if rand(thread_rng[thread_id], Float64) < 0.003
+                if agent.id == agent_id_for_r0
                     is_infected = true
                 end
             end
@@ -143,49 +150,51 @@ function reset_population(
             agent.FluB_immunity = false
             agent.CoV_immunity = false
 
-            if !is_infected
-                if agent.age < 3
-                    if rand(thread_rng[thread_id], Float64) < 0.63
-                        rand_num = rand(thread_rng[thread_id], Float64)
-                        if rand_num < 0.6
-                            agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        elseif rand_num < 0.8
-                            agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        else
-                            agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
+            if (agent_id_for_r0 == -1)
+                if !is_infected
+                    if agent.age < 3
+                        if rand(thread_rng[thread_id], Float64) < 0.63
+                            rand_num = rand(thread_rng[thread_id], Float64)
+                            if rand_num < 0.6
+                                agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
+                            elseif rand_num < 0.8
+                                agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
+                            else
+                                agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
+                            end
                         end
-                    end
-                elseif agent.age < 7
-                    if rand(thread_rng[thread_id], Float64) < 0.44
-                        rand_num = rand(thread_rng[thread_id], Float64)
-                        if rand_num < 0.6
-                            agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        elseif rand_num < 0.8
-                            agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        else
-                            agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
+                    elseif agent.age < 7
+                        if rand(thread_rng[thread_id], Float64) < 0.44
+                            rand_num = rand(thread_rng[thread_id], Float64)
+                            if rand_num < 0.6
+                                agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
+                            elseif rand_num < 0.8
+                                agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
+                            else
+                                agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
+                            end
                         end
-                    end
-                elseif agent.age < 15
-                    if rand(thread_rng[thread_id], Float64) < 0.37
-                        rand_num = rand(thread_rng[thread_id], Float64)
-                        if rand_num < 0.6
-                            agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        elseif rand_num < 0.8
-                            agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        else
-                            agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
+                    elseif agent.age < 15
+                        if rand(thread_rng[thread_id], Float64) < 0.37
+                            rand_num = rand(thread_rng[thread_id], Float64)
+                            if rand_num < 0.6
+                                agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
+                            elseif rand_num < 0.8
+                                agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
+                            else
+                                agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
+                            end
                         end
-                    end
-                else
-                    if rand(thread_rng[thread_id], Float64) < 0.2
-                        rand_num = rand(thread_rng[thread_id], Float64)
-                        if rand_num < 0.6
-                            agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        elseif rand_num < 0.8
-                            agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        else
-                            agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
+                    else
+                        if rand(thread_rng[thread_id], Float64) < 0.2
+                            rand_num = rand(thread_rng[thread_id], Float64)
+                            if rand_num < 0.6
+                                agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
+                            elseif rand_num < 0.8
+                                agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
+                            else
+                                agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
+                            end
                         end
                     end
                 end
@@ -409,57 +418,61 @@ function multiple_simulations(
             start_agent_ids,
             end_agent_ids,
             infectivities,
-            viruses
+            viruses,
+            -1
         )
     end
     println("S_min: ", S_min)
 end
 
-# function R0_simulations(
-#     agents::Vector{Agent},
-#     num_threads::Int,
-#     thread_rng::Vector{MersenneTwister},
-#     num_runs::Int,
-#     start_agent_ids::Vector{Int},
-#     end_agent_ids::Vector{Int},
-#     infectivities::Array{Float64, 4},
-#     etiology::Matrix{Float64},
-#     incidence_data_mean_0::Vector{Float64},
-#     incidence_data_mean_3::Vector{Float64},
-#     incidence_data_mean_7::Vector{Float64},
-#     incidence_data_mean_15::Vector{Float64},
-#     temperature::Vector{Float64},
-#     min_temp::Float64,
-#     max_min_temp::Float64,
-#     viruses::Vector{Virus},
-#     duration_parameter::Float64,
-#     susceptibility_parameters::Vector{Float64},
-#     temperature_parameters::Vector{Float64},
-#     temp_influences::Array{Float64,2}
-# )
-#     for i = 1:12
-#         for j = 1:7
-#             for k = 1:num_runs
-#                 run_simulation_R0(
-#                     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-#                     temp_influences, duration_parameter,
-#                     susceptibility_parameters, etiology,
-#                     incidence_data_mean_0, incidence_data_mean_3,
-#                     incidence_data_mean_7, incidence_data_mean_15, false)
+function R0_simulations(
+    agents::Vector{Agent},
+    num_threads::Int,
+    thread_rng::Vector{MersenneTwister},
+    num_runs::Int,
+    start_agent_ids::Vector{Int},
+    end_agent_ids::Vector{Int},
+    infectivities::Array{Float64, 4},
+    etiology::Matrix{Float64},
+    incidence_data_mean_0::Vector{Float64},
+    incidence_data_mean_3::Vector{Float64},
+    incidence_data_mean_7::Vector{Float64},
+    incidence_data_mean_15::Vector{Float64},
+    temperature::Vector{Float64},
+    min_temp::Float64,
+    max_min_temp::Float64,
+    viruses::Vector{Virus},
+    duration_parameter::Float64,
+    susceptibility_parameters::Vector{Float64},
+    temperature_parameters::Vector{Float64},
+    temp_influences::Array{Float64,2}
+)
+    @threads for i = 1:12
+        for j = 1:7
+            for k = 1:num_runs
+                infected_agent_id = rand(1:size(agents)[1])
 
-#                 reset_population(
-#                     agents,
-#                     num_threads,
-#                     thread_rng,
-#                     start_agent_ids,
-#                     end_agent_ids,
-#                     infectivities,
-#                     viruses
-#                 )
-#             end
-#         end
-#     end
-# end
+                reset_population(
+                    agents,
+                    num_threads,
+                    thread_rng,
+                    start_agent_ids,
+                    end_agent_ids,
+                    infectivities,
+                    viruses,
+                    infected_agent_id
+                )
+
+                run_simulation_R0(
+                    num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+                    temp_influences, duration_parameter,
+                    susceptibility_parameters, etiology,
+                    incidence_data_mean_0, incidence_data_mean_3,
+                    incidence_data_mean_7, incidence_data_mean_15)
+            end
+        end
+    end
+end
 
 function main()
     println("Initialization...")
