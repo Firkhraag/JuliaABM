@@ -9,6 +9,7 @@ include("model/collective.jl")
 include("model/agent.jl")
 include("model/initialization.jl")
 include("model/simulation.jl")
+include("model/r0.jl")
 
 include("data/district_households.jl")
 include("data/district_people.jl")
@@ -110,6 +111,7 @@ function reset_population(
     infectivities::Array{Float64, 4},
     viruses::Vector{Virus},
     agent_id_for_r0::Int,
+    virus_id_for_r0::Int
 )
     @threads for thread_id in 1:num_threads
         for agent_id in start_agent_ids[thread_id]:end_agent_ids[thread_id]
@@ -210,13 +212,17 @@ function reset_population(
             agent.infectivity = 0.0
             if is_infected
                 # Тип инфекции
-                rand_num = rand(thread_rng[thread_id], Float64)
-                if rand_num < 0.6
-                    agent.virus_id = viruses[3].id
-                elseif rand_num < 0.8
-                    agent.virus_id = viruses[5].id
+                if virus_id_for_r0 == -1
+                    rand_num = rand(thread_rng[thread_id], Float64)
+                    if rand_num < 0.6
+                        agent.virus_id = viruses[3].id
+                    elseif rand_num < 0.8
+                        agent.virus_id = viruses[5].id
+                    else
+                        agent.virus_id = viruses[6].id
+                    end
                 else
-                    agent.virus_id = viruses[6].id
+                    agent.virus_id = virus_id_for_r0
                 end
 
                 # Инкубационный период
@@ -419,13 +425,14 @@ function multiple_simulations(
             end_agent_ids,
             infectivities,
             viruses,
+            -1,
             -1
         )
     end
     println("S_min: ", S_min)
 end
 
-function R0_simulations(
+function find_R0(
     agents::Vector{Agent},
     num_threads::Int,
     thread_rng::Vector{MersenneTwister},
@@ -433,23 +440,15 @@ function R0_simulations(
     start_agent_ids::Vector{Int},
     end_agent_ids::Vector{Int},
     infectivities::Array{Float64, 4},
-    etiology::Matrix{Float64},
-    incidence_data_mean_0::Vector{Float64},
-    incidence_data_mean_3::Vector{Float64},
-    incidence_data_mean_7::Vector{Float64},
-    incidence_data_mean_15::Vector{Float64},
-    temperature::Vector{Float64},
-    min_temp::Float64,
-    max_min_temp::Float64,
     viruses::Vector{Virus},
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
-    temperature_parameters::Vector{Float64},
     temp_influences::Array{Float64,2}
 )
-    @threads for i = 1:12
-        for j = 1:7
-            for k = 1:num_runs
+    R0 = zeros(Float64, 7, 12)
+    for month_num in 1:12
+        for virus_num = 1:7
+            for _ = 1:num_runs
                 infected_agent_id = rand(1:size(agents)[1])
 
                 reset_population(
@@ -460,24 +459,23 @@ function R0_simulations(
                     end_agent_ids,
                     infectivities,
                     viruses,
-                    infected_agent_id
+                    infected_agent_id,
+                    virus_num
                 )
 
-                run_simulation_R0(
-                    num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+                R0[virus_num, month_num] += run_simulation_R0(
+                    month_num, infected_agent_id, agents, infectivities,
                     temp_influences, duration_parameter,
-                    susceptibility_parameters, etiology,
-                    incidence_data_mean_0, incidence_data_mean_3,
-                    incidence_data_mean_7, incidence_data_mean_15)
+                    susceptibility_parameters)
             end
+            R0[virus_num, month_num] ./= num_runs
         end
     end
+    writedlm(joinpath(@__DIR__, "..", "output", "tables", "r0.csv"), R0, ',')
 end
 
 function main()
     println("Initialization...")
-
-    etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
 
     num_threads = nthreads()
 
@@ -550,18 +548,6 @@ function main()
 
     # get_stats(agents)
 
-    incidence_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu.csv"), ',', Int, '\n')
-    incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
-    incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
-    incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
-    incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
-
-    incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :]
-    incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1]
-    incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1]
-    incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1]
-    incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1]
-
     println("Simulation...")
 
     # Single run
@@ -584,36 +570,50 @@ function main()
         end
     end
 
-    collective_nums = Int[0, 0, 0, 0]
-    for agent in agents
-        if agent.collective_id == 1
-            collective_nums[1] += 1
-        elseif agent.collective_id == 2
-            collective_nums[2] += 1
-        elseif agent.collective_id == 3
-            collective_nums[3] += 1
-        elseif agent.collective_id == 4
-            collective_nums[4] += 1
-        end
-    end
+    # etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
 
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
+    # incidence_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu.csv"), ',', Int, '\n')
+    # incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
+    # incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
+    # incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
+    # incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    @time S, etiology_model, incidence = run_simulation(
-        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-        temp_influences, duration_parameter,
-        susceptibility_parameters, etiology, incidence_data_mean,
-        incidence_data_mean_0, incidence_data_mean_3,
-        incidence_data_mean_7, incidence_data_mean_15, true)
+    # incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :]
+    # incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1]
+    # incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1]
+    # incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1]
+    # incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1]
 
-    etiology_sum = sum(etiology_model, dims = 1)[1, :]
-    for i = 1:7
-        etiology_model[i, :] = etiology_model[i, :] ./ etiology_sum
-        S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence).^ 2)
-    end
+    # collective_nums = Int[0, 0, 0, 0]
+    # for agent in agents
+    #     if agent.collective_id == 1
+    #         collective_nums[1] += 1
+    #     elseif agent.collective_id == 2
+    #         collective_nums[2] += 1
+    #     elseif agent.collective_id == 3
+    #         collective_nums[3] += 1
+    #     elseif agent.collective_id == 4
+    #         collective_nums[4] += 1
+    #     end
+    # end
 
-    println("S: ", S)
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
+
+    # @time S, etiology_model, incidence = run_simulation(
+    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+    #     temp_influences, duration_parameter,
+    #     susceptibility_parameters, etiology, incidence_data_mean,
+    #     incidence_data_mean_0, incidence_data_mean_3,
+    #     incidence_data_mean_7, incidence_data_mean_15, true)
+
+    # etiology_sum = sum(etiology_model, dims = 1)[1, :]
+    # for i = 1:7
+    #     etiology_model[i, :] = etiology_model[i, :] ./ etiology_sum
+    #     S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence).^ 2)
+    # end
+
+    # println("S: ", S)
 
     # Multiple runs
     # num_runs = 100
@@ -623,6 +623,12 @@ function main()
     #     incidence_data_mean_3, incidence_data_mean_7, incidence_data_mean_15,
     #     temperature, min_temp, max_min_temp, viruses)
 
+    # R0
+    num_runs = 1
+
+    find_R0(agents, num_threads, thread_rng, num_runs, start_agent_ids,
+        end_agent_ids, infectivities, viruses, duration_parameter,
+        susceptibility_parameters, temp_influences)
 end
 
 main()
