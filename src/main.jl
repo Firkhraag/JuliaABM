@@ -463,12 +463,12 @@ function find_R0(
                     virus_num
                 )
 
-                R0[virus_num, month_num] += run_simulation_R0(
+                R0[virus_num, month_num] += run_simulation_r0(
                     month_num, infected_agent_id, agents, infectivities,
                     temp_influences, duration_parameter,
                     susceptibility_parameters)
             end
-            R0[virus_num, month_num] ./= num_runs
+            R0[virus_num, month_num] /= num_runs
         end
     end
     writedlm(joinpath(@__DIR__, "..", "output", "tables", "r0.csv"), R0, ',')

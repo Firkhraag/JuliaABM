@@ -167,7 +167,7 @@ function update_agent_states_r0(
 
         if !agent.is_asymptomatic && !agent.is_isolated && !agent.on_parent_leave
             if agent.days_infected == 1
-                rand_num = rand(rng, Float64)
+                rand_num = rand(Float64)
                 if agent.age < 8
                     if rand_num < 0.305
                         agent.is_isolated = true
@@ -182,7 +182,7 @@ function update_agent_states_r0(
                     end
                 end
             elseif agent.days_infected == 2
-                rand_num = rand(rng, Float64)
+                rand_num = rand(Float64)
                 if agent.age < 8
                     if rand_num < 0.576
                         agent.is_isolated = true
@@ -197,7 +197,7 @@ function update_agent_states_r0(
                     end
                 end
             elseif agent.days_infected == 3
-                rand_num = rand(rng, Float64)
+                rand_num = rand(Float64)
                 if agent.age < 8
                     if rand_num < 0.325
                         agent.is_isolated = true
@@ -226,7 +226,7 @@ function update_agent_states_r0(
     return true
 end
 
-function run_r0_simulation(
+function run_simulation_r0(
     month_num::Int,
     infected_agent_id::Int,
     agents::Vector{Agent},
@@ -238,6 +238,32 @@ function run_r0_simulation(
     # Месяц
     month = month_num
 
+    current_step = 0
+    if month == 9
+        current_step = 31
+    elseif month == 10
+        current_step = 61
+    elseif month == 11
+        current_step = 92
+    elseif month == 12
+        current_step = 122
+    elseif month == 1
+        current_step = 153
+    elseif month == 2
+        current_step = 184
+    elseif month == 3
+        current_step = 212
+    elseif month == 4
+        current_step = 243
+    elseif month == 5
+        current_step = 273
+    elseif month == 6
+        current_step = 304
+    elseif month == 7
+        current_step = 334
+    end
+
+
     # День месяца
     day = 1
     if month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12
@@ -247,6 +273,8 @@ function run_r0_simulation(
     else
         day = rand(1:28)
     end
+
+    current_step += day
 
     # День недели
     week_day = rand(1:7)
