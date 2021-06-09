@@ -41,7 +41,11 @@ struct Virus
     mean_viral_load::Float64
 
     # Вероятность бессимптомного протекания болезни
-    asymptomatic_probab::Float64
+    asymptomatic_probab_child::Float64
+    asymptomatic_probab_adult::Float64
+
+    # Продолжительность иммунитета
+    immunity_duration::Int
 
     function Virus(
         id::Int,
@@ -58,7 +62,9 @@ struct Virus
         min_infection_period_child::Int,
         max_infection_period_child::Int,
         mean_viral_load::Float64,
-        asymptomatic_probab::Float64
+        asymptomatic_probab_child::Float64,
+        asymptomatic_probab_adult::Float64,
+        immunity_duration::Int
     )
         new(
             id,
@@ -75,7 +81,9 @@ struct Virus
             min_infection_period_child,
             max_infection_period_child,
             mean_viral_load,
-            asymptomatic_probab
+            asymptomatic_probab_child,
+            asymptomatic_probab_adult,
+            immunity_duration
         )
     end
 end
