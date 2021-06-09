@@ -446,7 +446,8 @@ function find_R0(
     temp_influences::Array{Float64,2}
 )
     R0 = zeros(Float64, 7, 12)
-    for month_num in 1:12
+    @time for month_num in 1:12
+        println("Month", month_num)
         for virus_num = 1:7
             for _ = 1:num_runs
                 infected_agent_id = rand(1:size(agents)[1])
@@ -624,7 +625,7 @@ function main()
     #     temperature, min_temp, max_min_temp, viruses)
 
     # R0
-    num_runs = 1
+    num_runs = 10
 
     find_R0(agents, num_threads, thread_rng, num_runs, start_agent_ids,
         end_agent_ids, infectivities, viruses, duration_parameter,
