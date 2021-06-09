@@ -110,34 +110,26 @@ function reset_population(
     end_agent_ids::Vector{Int},
     infectivities::Array{Float64, 4},
     viruses::Vector{Virus},
-    agent_id_for_r0::Int,
-    virus_id_for_r0::Int
 )
     @threads for thread_id in 1:num_threads
         for agent_id in start_agent_ids[thread_id]:end_agent_ids[thread_id]
             agent = agents[agent_id]
             agent.on_parent_leave = false
             is_infected = false
-            if (agent_id_for_r0 == -1)
-                if agent.age < 3
-                    if rand(thread_rng[thread_id], Float64) < 0.016
-                        is_infected = true
-                    end
-                elseif agent.age < 7
-                    if rand(thread_rng[thread_id], Float64) < 0.01
-                        is_infected = true
-                    end
-                elseif agent.age < 15
-                    if rand(thread_rng[thread_id], Float64) < 0.007
-                        is_infected = true
-                    end
-                else
-                    if rand(thread_rng[thread_id], Float64) < 0.003
-                        is_infected = true
-                    end
+            if agent.age < 3
+                if rand(thread_rng[thread_id], Float64) < 0.016
+                    is_infected = true
+                end
+            elseif agent.age < 7
+                if rand(thread_rng[thread_id], Float64) < 0.01
+                    is_infected = true
+                end
+            elseif agent.age < 15
+                if rand(thread_rng[thread_id], Float64) < 0.007
+                    is_infected = true
                 end
             else
-                if agent.id == agent_id_for_r0
+                if rand(thread_rng[thread_id], Float64) < 0.003
                     is_infected = true
                 end
             end
@@ -152,51 +144,49 @@ function reset_population(
             agent.FluB_immunity = false
             agent.CoV_immunity = false
 
-            if (agent_id_for_r0 == -1)
-                if !is_infected
-                    if agent.age < 3
-                        if rand(thread_rng[thread_id], Float64) < 0.63
-                            rand_num = rand(thread_rng[thread_id], Float64)
-                            if rand_num < 0.6
-                                agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            elseif rand_num < 0.8
-                                agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            else
-                                agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            end
+            if !is_infected
+                if agent.age < 3
+                    if rand(thread_rng[thread_id], Float64) < 0.63
+                        rand_num = rand(thread_rng[thread_id], Float64)
+                        if rand_num < 0.6
+                            agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
+                        elseif rand_num < 0.8
+                            agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
+                        else
+                            agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
                         end
-                    elseif agent.age < 7
-                        if rand(thread_rng[thread_id], Float64) < 0.44
-                            rand_num = rand(thread_rng[thread_id], Float64)
-                            if rand_num < 0.6
-                                agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            elseif rand_num < 0.8
-                                agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            else
-                                agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            end
+                    end
+                elseif agent.age < 7
+                    if rand(thread_rng[thread_id], Float64) < 0.44
+                        rand_num = rand(thread_rng[thread_id], Float64)
+                        if rand_num < 0.6
+                            agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
+                        elseif rand_num < 0.8
+                            agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
+                        else
+                            agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
                         end
-                    elseif agent.age < 15
-                        if rand(thread_rng[thread_id], Float64) < 0.37
-                            rand_num = rand(thread_rng[thread_id], Float64)
-                            if rand_num < 0.6
-                                agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            elseif rand_num < 0.8
-                                agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            else
-                                agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            end
+                    end
+                elseif agent.age < 15
+                    if rand(thread_rng[thread_id], Float64) < 0.37
+                        rand_num = rand(thread_rng[thread_id], Float64)
+                        if rand_num < 0.6
+                            agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
+                        elseif rand_num < 0.8
+                            agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
+                        else
+                            agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
                         end
-                    else
-                        if rand(thread_rng[thread_id], Float64) < 0.2
-                            rand_num = rand(thread_rng[thread_id], Float64)
-                            if rand_num < 0.6
-                                agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            elseif rand_num < 0.8
-                                agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            else
-                                agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            end
+                    end
+                else
+                    if rand(thread_rng[thread_id], Float64) < 0.2
+                        rand_num = rand(thread_rng[thread_id], Float64)
+                        if rand_num < 0.6
+                            agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
+                        elseif rand_num < 0.8
+                            agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
+                        else
+                            agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
                         end
                     end
                 end
@@ -212,17 +202,13 @@ function reset_population(
             agent.infectivity = 0.0
             if is_infected
                 # Тип инфекции
-                if virus_id_for_r0 == -1
-                    rand_num = rand(thread_rng[thread_id], Float64)
-                    if rand_num < 0.6
-                        agent.virus_id = viruses[3].id
-                    elseif rand_num < 0.8
-                        agent.virus_id = viruses[5].id
-                    else
-                        agent.virus_id = viruses[6].id
-                    end
+                rand_num = rand(thread_rng[thread_id], Float64)
+                if rand_num < 0.6
+                    agent.virus_id = viruses[3].id
+                elseif rand_num < 0.8
+                    agent.virus_id = viruses[5].id
                 else
-                    agent.virus_id = virus_id_for_r0
+                    agent.virus_id = viruses[6].id
                 end
 
                 # Инкубационный период
@@ -424,52 +410,83 @@ function multiple_simulations(
             start_agent_ids,
             end_agent_ids,
             infectivities,
-            viruses,
-            -1,
-            -1
-        )
+            viruses)
     end
     println("S_min: ", S_min)
 end
 
 function find_R0(
     agents::Vector{Agent},
-    num_threads::Int,
     thread_rng::Vector{MersenneTwister},
     num_runs::Int,
-    start_agent_ids::Vector{Int},
-    end_agent_ids::Vector{Int},
     infectivities::Array{Float64, 4},
     viruses::Vector{Virus},
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
-    temp_influences::Array{Float64,2}
+    temp_influences::Array{Float64,2},
+    months_threads::Vector{UnitRange{Int}}
 )
     R0 = zeros(Float64, 7, 12)
-    @time for month_num in 1:12
-        println("Month", month_num)
-        for virus_num = 1:7
-            for _ = 1:num_runs
-                infected_agent_id = rand(1:size(agents)[1])
+    @threads for thread_id in 1:num_threads
+        r = months_threads[thread_id]
+        for month_num in r
+            println("Month", month_num)
+            for virus_num = 1:7
+                for _ = 1:num_runs
+                    infected_agent_id = rand(1:size(agents)[1])
+                    agent = agents[infected_agent_id]
 
-                reset_population(
-                    agents,
-                    num_threads,
-                    thread_rng,
-                    start_agent_ids,
-                    end_agent_ids,
-                    infectivities,
-                    viruses,
-                    infected_agent_id,
-                    virus_num
-                )
+                    agent.virus_id = virus_num
+                    # Инкубационный период
+                    agent.incubation_period = get_period_from_erlang(
+                        viruses[agent.virus_id].mean_incubation_period,
+                        viruses[agent.virus_id].incubation_period_variance,
+                        viruses[agent.virus_id].min_incubation_period,
+                        viruses[agent.virus_id].max_incubation_period,
+                        thread_rng[1])
+                    # Период болезни
+                    if agent.age < 16
+                        agent.infection_period = get_period_from_erlang(
+                            viruses[agent.virus_id].mean_infection_period_child,
+                            viruses[agent.virus_id].infection_period_variance_child,
+                            viruses[agent.virus_id].min_infection_period_child,
+                            viruses[agent.virus_id].max_infection_period_child,
+                            thread_rng[1])
+                    else
+                        agent.infection_period = get_period_from_erlang(
+                            viruses[agent.virus_id].mean_infection_period_adult,
+                            viruses[agent.virus_id].infection_period_variance_adult,
+                            viruses[agent.virus_id].min_infection_period_adult,
+                            viruses[agent.virus_id].max_infection_period_adult,
+                            thread_rng[1])
+                    end
 
-                R0[virus_num, month_num] += run_simulation_r0(
-                    month_num, infected_agent_id, agents, infectivities,
-                    temp_influences, duration_parameter,
-                    susceptibility_parameters)
+                    # Дней с момента инфицирования
+                    agent.days_infected =  1 - agent.incubation_period
+
+                    asymp_prob = 0.0
+                    if agent.age < 16
+                        asymp_prob = viruses[agent.virus_id].asymptomatic_probab_child
+                    else
+                        asymp_prob = viruses[agent.virus_id].asymptomatic_probab_adult
+                    end
+
+                    if rand(thread_rng[thread_id], Float64) < asymp_prob
+                        agent.is_asymptomatic = true
+                    end
+
+                    # Вирусная нагрузкаx
+                    agent.infectivity = find_agent_infectivity(
+                        agent.age, infectivities[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
+                        agent.is_asymptomatic && agent.days_infected > 0)
+
+                    R0[virus_num, month_num] += run_simulation_r0(
+                        month_num, infected_agent_id, agents, infectivities,
+                        temp_influences, duration_parameter,
+                        susceptibility_parameters, thread_rng[thread_id])
+                end
+                R0[virus_num, month_num] /= num_runs
             end
-            R0[virus_num, month_num] /= num_runs
         end
     end
     writedlm(joinpath(@__DIR__, "..", "output", "tables", "r0.csv"), R0, ',')
@@ -626,10 +643,11 @@ function main()
 
     # R0
     num_runs = 10
+    months_threads = UnitRange{Int}[1:3, 4:6, 7:9, 10:12]
 
-    find_R0(agents, num_threads, thread_rng, num_runs, start_agent_ids,
-        end_agent_ids, infectivities, viruses, duration_parameter,
-        susceptibility_parameters, temp_influences)
+    find_R0(agents, thread_rng, num_runs, infectivities,
+        viruses, duration_parameter, susceptibility_parameters,
+        temp_influences, months_threads)
 end
 
 main()
