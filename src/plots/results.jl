@@ -295,6 +295,28 @@ function plot_registered_new_cases()
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "registered_new_cases.pdf"))
 end
 
+function plot_r0()
+    r0 = readdlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "r0.csv"), ',', Float64)
+
+    r0 = cat(r0[:, 8:12], r0[:, 1:7], dims=2)
+
+    ticks = range(1, stop = 12, length = 13)
+    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    registered_new_cases_plot = plot(
+        1:12,
+        [r0[i, :] for i = 1:7],
+        lw = 3,
+        fontfamily = "Times",
+        xticks = (ticks, ticklabels),
+        color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
+        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
+    xlabel!("Month")
+    ylabel!("R0")
+    savefig(
+        registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "r0.pdf"))
+end
+
 # function RSS()
 #     incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
 #     incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
@@ -342,12 +364,14 @@ scalefontsizes(1.2)
 
 # RSS()
 
-plot_incidence()
-plot_incidence_etiology()
-plot_incidence_age_groups()
+# plot_incidence()
+# plot_incidence_etiology()
+# plot_incidence_age_groups()
 
-plot_daily_new_cases_viruses()
-plot_infected_inside_collective()
+# plot_daily_new_cases_viruses()
+# plot_infected_inside_collective()
+
+plot_r0()
 
 # plot_daily_new_cases_age_groups()
 # plot_daily_new_recoveries_age_groups()

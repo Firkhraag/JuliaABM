@@ -419,6 +419,8 @@ function find_R0(
     agents::Vector{Agent},
     num_threads::Int,
     thread_rng::Vector{MersenneTwister},
+    start_agent_ids::Vector{Int},
+    end_agent_ids::Vector{Int},
     num_runs::Int,
     infectivities::Array{Float64, 4},
     viruses::Vector{Virus},
@@ -431,10 +433,9 @@ function find_R0(
     @time @threads for thread_id in 1:num_threads
         r = months_threads[thread_id]
         for month_num in r
-            # println("Month", month_num)
             for virus_num = 1:7
                 for _ = 1:num_runs
-                    infected_agent_id = rand(1:size(agents)[1])
+                    infected_agent_id = rand(start_agent_ids[thread_id]:end_agent_ids[thread_id])
                     agent = agents[infected_agent_id]
 
                     agent.virus_id = virus_num
@@ -444,7 +445,7 @@ function find_R0(
                         viruses[agent.virus_id].incubation_period_variance,
                         viruses[agent.virus_id].min_incubation_period,
                         viruses[agent.virus_id].max_incubation_period,
-                        thread_rng[1])
+                        thread_rng[thread_id])
                     # Период болезни
                     if agent.age < 16
                         agent.infection_period = get_period_from_erlang(
@@ -452,14 +453,14 @@ function find_R0(
                             viruses[agent.virus_id].infection_period_variance_child,
                             viruses[agent.virus_id].min_infection_period_child,
                             viruses[agent.virus_id].max_infection_period_child,
-                            thread_rng[1])
+                            thread_rng[thread_id])
                     else
                         agent.infection_period = get_period_from_erlang(
                             viruses[agent.virus_id].mean_infection_period_adult,
                             viruses[agent.virus_id].infection_period_variance_adult,
                             viruses[agent.virus_id].min_infection_period_adult,
                             viruses[agent.virus_id].max_infection_period_adult,
-                            thread_rng[1])
+                            thread_rng[thread_id])
                     end
 
                     # Дней с момента инфицирования
@@ -556,7 +557,10 @@ function main()
 
     agents = Array{Agent, 1}(undef, num_people)
 
+    # With set seed
     thread_rng = [MersenneTwister(i) for i = 1:num_threads]
+    # With random seed
+    # thread_rng = [MersenneTwister(rand(1:1000000)) for i = 1:num_threads]
 
     @time @threads for thread_id in 1:num_threads
         create_population(
@@ -643,10 +647,10 @@ function main()
     #     temperature, min_temp, max_min_temp, viruses)
 
     # R0
-    num_runs = 10
+    num_runs = 200000
     months_threads = [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
 
-    find_R0(agents, num_threads, thread_rng, num_runs, infectivities,
+    find_R0(agents, num_threads, thread_rng, start_agent_ids, end_agent_ids, num_runs, infectivities,
         viruses, duration_parameter, susceptibility_parameters,
         temp_influences, months_threads)
 end

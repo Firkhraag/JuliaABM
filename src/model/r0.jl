@@ -97,35 +97,30 @@ function simulate_contacts_r0(
             for agent2_id in agent.collective_conn_ids
                 agent2 = agents[agent2_id]
                 if !(agent2.id in infected_agent_ids)
-                    if (agent.virus_id != 1 || !agent2.FluA_immunity) && (agent.virus_id != 2 || !agent2.FluB_immunity) &&
-                        (agent.virus_id != 7 || !agent2.CoV_immunity) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
-                        (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
-                        (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
-                        if agent.collective_id == 1
-                            make_contact_r0(
-                                agent, agent2, get_contact_duration_normal(4.5, 2.66, rng),
-                                current_step, duration_parameter,
-                                susceptibility_parameters, temp_influences,
-                                num_people_infected, infected_agent_ids, rng)
-                        elseif agent.collective_id == 2
-                            make_contact_r0(
-                                agent, agent2, get_contact_duration_normal(3.783, 2.67, rng),
-                                current_step, duration_parameter,
-                                susceptibility_parameters, temp_influences,
-                                num_people_infected, infected_agent_ids, rng)
-                        elseif agent.collective_id == 3
-                            make_contact_r0(
-                                agent, agent2, get_contact_duration_normal(2.5, 1.62, rng),
-                                current_step, duration_parameter,
-                                susceptibility_parameters, temp_influences,
-                                num_people_infected, infected_agent_ids, rng)
-                        else
-                            make_contact_r0(
-                                agent, agent2, get_contact_duration_normal(3.07, 2.5, rng),
-                                current_step, duration_parameter,
-                                susceptibility_parameters, temp_influences,
-                                num_people_infected, infected_agent_ids, rng)
-                        end
+                    if agent.collective_id == 1
+                        make_contact_r0(
+                            agent, agent2, get_contact_duration_normal(4.5, 2.66, rng),
+                            current_step, duration_parameter,
+                            susceptibility_parameters, temp_influences,
+                            num_people_infected, infected_agent_ids, rng)
+                    elseif agent.collective_id == 2
+                        make_contact_r0(
+                            agent, agent2, get_contact_duration_normal(3.783, 2.67, rng),
+                            current_step, duration_parameter,
+                            susceptibility_parameters, temp_influences,
+                            num_people_infected, infected_agent_ids, rng)
+                    elseif agent.collective_id == 3
+                        make_contact_r0(
+                            agent, agent2, get_contact_duration_normal(2.5, 1.62, rng),
+                            current_step, duration_parameter,
+                            susceptibility_parameters, temp_influences,
+                            num_people_infected, infected_agent_ids, rng)
+                    else
+                        make_contact_r0(
+                            agent, agent2, get_contact_duration_normal(3.07, 2.5, rng),
+                            current_step, duration_parameter,
+                            susceptibility_parameters, temp_influences,
+                            num_people_infected, infected_agent_ids, rng)
                     end
                 end
             end
@@ -156,15 +151,6 @@ function update_agent_states_r0(
     if agent.days_infected == agent.infection_period
         agent.virus_id = 0
         agent.is_isolated = false
-        if agent.supporter_id != 0
-            is_support_still_needed = false
-            for dependant_id in agents[agent.supporter_id].dependant_ids
-                dependant = agents[dependant_id]
-                if dependant.virus_id != 0 && !dependant.is_asymptomatic && (dependant.collective_id == 0 || dependant.is_isolated)
-                    is_support_still_needed = true
-                end
-            end
-        end
         return false
     else
         agent.days_infected += 1
