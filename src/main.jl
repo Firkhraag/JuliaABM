@@ -417,6 +417,7 @@ end
 
 function find_R0(
     agents::Vector{Agent},
+    num_threads::Int,
     thread_rng::Vector{MersenneTwister},
     num_runs::Int,
     infectivities::Array{Float64, 4},
@@ -424,13 +425,13 @@ function find_R0(
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
     temp_influences::Array{Float64,2},
-    months_threads::Vector{UnitRange{Int}}
+    months_threads::Vector{Vector{Int}}
 )
     R0 = zeros(Float64, 7, 12)
-    @threads for thread_id in 1:num_threads
+    @time @threads for thread_id in 1:num_threads
         r = months_threads[thread_id]
         for month_num in r
-            println("Month", month_num)
+            # println("Month", month_num)
             for virus_num = 1:7
                 for _ = 1:num_runs
                     infected_agent_id = rand(1:size(agents)[1])
@@ -643,9 +644,9 @@ function main()
 
     # R0
     num_runs = 10
-    months_threads = UnitRange{Int}[1:3, 4:6, 7:9, 10:12]
+    months_threads = [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
 
-    find_R0(agents, thread_rng, num_runs, infectivities,
+    find_R0(agents, num_threads, thread_rng, num_runs, infectivities,
         viruses, duration_parameter, susceptibility_parameters,
         temp_influences, months_threads)
 end
