@@ -1,9 +1,13 @@
 using DelimitedFiles
 using Plots
 using Statistics
+using StatsPlots
+using CategoricalArrays
 
 include("../data/temperature.jl")
 include("../data/etiology.jl")
+
+default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
 
 function plot_temperature()
     temperature_data = get_air_temperature()
@@ -13,8 +17,14 @@ function plot_temperature()
 
     ticks = range(1, stop = 365, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
-    temperature_plot = plot(1:365, temperature_data_rearranged,
-        lw = 3, legend = false, color = "orange", xticks = (ticks, ticklabels), fontfamily = "Times")
+    temperature_plot = plot(
+        1:365,
+        temperature_data_rearranged,
+        lw = 3,
+        legend = false,
+        color = "orange",
+        xticks = (ticks, ticklabels),
+        fontfamily = "Times")
     xlabel!("Month")
     ylabel!("Temperature, °C")
     savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "temperature.pdf"))
@@ -71,10 +81,18 @@ function plot_temperature()
     append!(temperature_data_rearranged, temperature_data[213:end])
     append!(temperature_data_rearranged, temperature_data[1:212])
 
+    yticks = [-5.0, 0.0, 5.0, 10.0, 15.0, 20.0]
+    yticklabels = ["-5", "0", "5", "10", "15", "20"]
+
     ticks = range(1, stop = 365, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     temperature_plot = plot(1:365, temperature_data_rearranged,
-        lw = 3, legend = false, color = "orange", xticks = (ticks, ticklabels), fontfamily = "Times")
+        lw = 3,
+        legend = false,
+        color = "orange",
+        xticks = (ticks, ticklabels),
+        fontfamily = "Times",
+        yticks = (yticks, yticklabels))
     xlabel!("Month")
     ylabel!("Temperature, °C")
     savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "temperature.pdf"))
@@ -94,20 +112,91 @@ function plot_etiology()
     etiology_plot = plot(
         1:52,
         [etiology_data[:, i] for i in 1:7],
-        # legend=(0.5, 0.95),
+        legend=(0.85, 0.97),
         fontfamily = "Times",
         lw = 3,
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
-        xticks = (ticks, ticklabels))
+        xticks = (ticks, ticklabels),
+        ylim=(0,0.85))
     xlabel!("Month")
     ylabel!("Ratio of viruses")
     savefig(etiology_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "etiology.pdf"))
 end
 
-scalefontsizes(1.2)
+function plot_incubation_periods()
+    labels = CategoricalArray(["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"])
+    levels!(labels, ["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"])
 
-# plot_temperature()
+    mean = [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2]
+    legend = repeat(["0-15"], inner = 7)
+    std = [0.3, 0.22, 0.42, 0.968, 1.229, 0.572, 0.704]
+
+    incubation_periods_plot = groupedbar(
+        labels,
+        mean,
+        yerr = std,
+        group = legend,
+        fontfamily = "Times",
+        color=:dodgerblue,
+        legend = false)
+    xlabel!("Virus")
+    ylabel!("Incubation period duration, days")
+    savefig(incubation_periods_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "incubation_periods.pdf"))
+end
+
+function plot_infection_periods()
+    labels = CategoricalArray(repeat(["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"], outer = 3))
+    levels!(labels, ["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"])
+
+    yticks = [0.0, 3.0, 6.0, 9.0, 12.0]
+    yticklabels = ["0", "3", "6", "9", "12"]
+
+    mean = [4.8, 3.7, 10.1, 7.4, 8.0, 7.0, 7.0, 8.8, 7.8, 11.4, 9.3, 9.0, 8.0, 8.0]
+    legend = repeat(["0-15", "16+"], inner = 7)
+    std = [1.058, 0.8124, 2.22, 1.63, 1.76, 1.54, 1.54, 1.936, 1.715, 2.5, 2.0, 1.98, 1.76, 1.76]
+
+    infection_periods_plot = groupedbar(
+        labels,
+        mean,
+        yerr = std,
+        group = legend,
+        fontfamily = "Times",
+        yticks = (yticks, yticklabels))
+    xlabel!("Virus")
+    ylabel!("Infection period duration, days")
+    savefig(infection_periods_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "infection_periods.pdf"))
+end
+
+function plot_mean_viral_loads()
+    labels = CategoricalArray(repeat(["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"], outer = 3))
+    levels!(labels, ["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"])
+
+    mean = [4.6, 4.7, 3.5, 6.0, 4.1, 4.8, 4.93, 3.45, 3.525, 2.625, 4.5, 3.075, 3.6, 3.6975, 2.3, 2.35, 1.75, 3.0, 2.05, 2.4, 2.465]
+
+    legend = CategoricalArray(repeat(["0-2", "3-15", "16+"], inner = 7))
+    levels!(legend, ["0-2", "3-15", "16+"])
+
+    yticks = [0.0, 2.0, 4.0, 6.0]
+    yticklabels = ["0", "2", "4", "6"]
+
+    viral_loads_plot = groupedbar(
+        labels,
+        mean,
+        group = legend,
+        ylabel = "Scores",
+        fontfamily = "Times",
+        yticks = (yticks, yticklabels),
+        ylim = (0,7.0))
+    xlabel!("Virus")
+    ylabel!("Viral load, log(cp/ml)")
+    savefig(viral_loads_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "viral_loads.pdf"))
+end
+
+plot_temperature()
 # plot_incidence()
 # plot_incidence_age_groups()
-plot_etiology()
+# plot_etiology()
+# plot_incubation_periods()
+# plot_infection_periods()
+# plot_mean_viral_loads()

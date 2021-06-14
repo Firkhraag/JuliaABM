@@ -4,6 +4,8 @@ using Statistics
 
 include("../data/etiology.jl")
 
+default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
+
 function plot_incidence()
     incidence = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), ',', Float64)
     incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
@@ -20,7 +22,7 @@ function plot_incidence()
         label = ["model" "data"])
     xlabel!("Week")
     ylabel!("Cases per 1000 people")
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence.pdf"))
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "model_incidence.pdf"))
 end
 
 function plot_incidence_etiology()
@@ -317,56 +319,9 @@ function plot_r0()
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "r0.pdf"))
 end
 
-# function RSS()
-#     incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
-#     incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
-#     incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
-#     incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
-#     incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
-
-#     incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :]
-#     incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1]
-#     incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1]
-#     incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1]
-#     incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1]
-
-#     incidence = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), ',', Float64)
-#     etiology_incidence = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), ',', Float64)
-#     age_group_incidence = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), ',', Float64)
-
-#     S = 1 / 3 * sum((incidence - incidence_data_mean).^2)
-
-#     S1 = 1 / 12 * sum((age_group_incidence[1, :] - incidence_data_mean_0).^2)
-#     S2 = 1 / 12 * sum((age_group_incidence[2, :] - incidence_data_mean_3).^2)
-#     S3 = 1 / 12 * sum((age_group_incidence[3, :] - incidence_data_mean_7).^2)
-#     S4 = 1 / 12 * sum((age_group_incidence[4, :] - incidence_data_mean_15).^2)
-
-#     println("S: ", S)
-#     println("S1: ", S1)
-#     println("S2: ", S2)
-#     println("S3: ", S3)
-#     println("S4: ", S4)
-
-#     S += S1 + S2 + S3 + S4
-
-#     etiology_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
-
-#     etiology_sum = sum(etiology_incidence, dims = 1)[1, :]
-#     for i = 1:7
-#         etiology_incidence[i, :] = etiology_incidence[i, :] ./ etiology_sum
-#         S += 1 / 21 * sum((etiology_data[i, :] .* incidence .- etiology_incidence[i, :] .* incidence).^ 2)
-#         # S += 1 / 21 * sum(abs.(etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence))
-#     end
-#     println(S)
-# end
-
-scalefontsizes(1.2)
-
-# RSS()
-
-# plot_incidence()
-# plot_incidence_etiology()
-# plot_incidence_age_groups()
+plot_incidence()
+plot_incidence_etiology()
+plot_incidence_age_groups()
 
 # plot_daily_new_cases_viruses()
 # plot_infected_inside_collective()
