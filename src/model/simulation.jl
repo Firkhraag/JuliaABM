@@ -714,7 +714,6 @@ function run_simulation(
     S3 = 1 / 8 * sum((age_group_incidence[3, :] - incidence_data_mean_7).^2)
     S4 = 1 / 8 * sum((age_group_incidence[4, :] - incidence_data_mean_15).^2)
 
-    # println(S)
     println(S1)
     println(S2)
     println(S3)

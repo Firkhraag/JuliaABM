@@ -10,6 +10,7 @@ include("model/agent.jl")
 include("model/initialization.jl")
 include("model/simulation.jl")
 include("model/r0.jl")
+include("model/contacts.jl")
 
 include("data/district_households.jl")
 include("data/district_people.jl")
@@ -647,12 +648,18 @@ function main()
     #     temperature, min_temp, max_min_temp, viruses)
 
     # R0
-    num_runs = 200000
-    months_threads = [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
+    # num_runs = 200000
+    # months_threads = [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
 
-    find_R0(agents, num_threads, thread_rng, start_agent_ids, end_agent_ids, num_runs, infectivities,
-        viruses, duration_parameter, susceptibility_parameters,
-        temp_influences, months_threads)
+    # find_R0(agents, num_threads, thread_rng, start_agent_ids, end_agent_ids, num_runs, infectivities,
+    #     viruses, duration_parameter, susceptibility_parameters,
+    #     temp_influences, months_threads)
+
+    # Contacts evaluation
+    run_simulation_evaluation(
+        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+        temp_influences, duration_parameter,
+        susceptibility_parameters, etiology)
 end
 
 main()
