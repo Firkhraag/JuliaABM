@@ -3,7 +3,7 @@ function get_contact_duration_normal(mean::Float64, sd::Float64, rng::MersenneTw
 end
 
 function get_contact_duration_gamma(shape::Float64, scale::Float64, rng::MersenneTwister)
-    return rand(rng, Gamma(shape, scale))
+    return rand(rng, truncated(Gamma(shape, scale), 0.0, 24.0))
 end
 
 function make_contact(

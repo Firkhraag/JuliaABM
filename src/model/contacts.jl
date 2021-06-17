@@ -554,8 +554,8 @@ function run_simulation_evaluation(
         end
     end
 
-    contact_matrix_by_age_threads ./= (2 * 365)
-    contact_duration_matrix_by_age_threads ./= (2 * 365)
+    contact_matrix_by_age_threads ./= 365
+    contact_duration_matrix_by_age_threads ./= 365
 
     agent_counts = zeros(90)
     for a in agents
