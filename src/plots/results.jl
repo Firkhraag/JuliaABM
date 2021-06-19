@@ -20,7 +20,7 @@ function plot_incidence()
         xticks = (ticks, ticklabels),
         fontfamily = "Times",
         label = ["model" "data"])
-    xlabel!("Week")
+    xlabel!("Month")
     ylabel!("Cases per 1000 people")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "model_incidence.pdf"))
 end
@@ -71,7 +71,7 @@ function plot_incidence_age_groups()
         xticks = (ticks, ticklabels),
         fontfamily = "Times",
         label = ["model" "data"])
-    xlabel!("Week")
+    xlabel!("Month")
     ylabel!("Cases per 1000 people")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence0-2.pdf"))
 
@@ -82,7 +82,7 @@ function plot_incidence_age_groups()
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
         label = ["model" "data"])
-    xlabel!("Week")
+    xlabel!("Month")
     ylabel!("Cases per 1000 people")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence3-6.pdf"))
 
@@ -93,7 +93,7 @@ function plot_incidence_age_groups()
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
         label = ["model" "data"])
-    xlabel!("Week")
+    xlabel!("Month")
     ylabel!("Cases per 1000 people")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence7-14.pdf"))
 
@@ -104,7 +104,7 @@ function plot_incidence_age_groups()
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
         label = ["model" "data"])
-    xlabel!("Week")
+    xlabel!("Month")
     ylabel!("Cases per 1000 people")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence15+.pdf"))
 end
@@ -319,47 +319,14 @@ function plot_r0()
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "r0.pdf"))
 end
 
-function plot_contacts()
-    contact_counts = readdlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts.csv"), ',', Float64)
+plot_incidence()
+plot_incidence_etiology()
+plot_incidence_age_groups()
 
-    # x = 0:89
-    # y = 0:89
-    # z = sin.(x') .+ cos.(y)
-    contacts_count_plot = heatmap(contact_counts)
-    xlabel!("Month")
-    ylabel!("R0")
-    savefig(
-        contacts_count_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "contacts_count.pdf"))
+plot_daily_new_cases_viruses()
+plot_infected_inside_collective()
 
-
-    # r0 = cat(r0[:, 8:12], r0[:, 1:7], dims=2)
-
-    # ticks = range(1, stop = 12, length = 13)
-    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
-    # registered_new_cases_plot = plot(
-    #     1:12,
-    #     [r0[i, :] for i = 1:7],
-    #     lw = 3,
-    #     fontfamily = "Times",
-    #     xticks = (ticks, ticklabels),
-    #     color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
-    #     label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
-    # xlabel!("Month")
-    # ylabel!("R0")
-    # savefig(
-    #     registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "r0.pdf"))
-end
-
-# plot_incidence()
-# plot_incidence_etiology()
-# plot_incidence_age_groups()
-
-# plot_daily_new_cases_viruses()
-# plot_infected_inside_collective()
-
-# plot_r0()
-plot_contacts()
+plot_r0()
 
 # plot_daily_new_cases_age_groups()
 # plot_daily_new_recoveries_age_groups()

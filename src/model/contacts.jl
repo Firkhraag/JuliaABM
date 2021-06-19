@@ -388,6 +388,125 @@ function simulate_contacts_evaluation(
     end
 end
 
+function simulate_contacts_test(
+    thread_id::Int,
+    rng::MersenneTwister,
+    start_agent_id::Int,
+    end_agent_id::Int,
+    agents::Vector{Agent},
+    temp_influences::Array{Float64, 2},
+    duration_parameter::Float64,
+    susceptibility_parameters::Vector{Float64},
+    etiology::Matrix{Float64},
+    is_holiday::Bool,
+    is_kindergarten_holiday::Bool,
+    is_school_holiday::Bool,
+    is_university_holiday::Bool,
+    is_work_holiday::Bool,
+    week_num::Int,
+    current_step::Int,
+    infected_inside_collective::Array{Int, 3},
+    contact_matrix_by_age_threads::Array{Float64, 3},
+    contact_duration_matrix_by_age_threads::Array{Float64, 3}
+)
+    for agent_id = start_agent_id:end_agent_id
+        agent = agents[agent_id]
+        for agent2_id in agent.household_conn_ids
+            agent2 = agents[agent2_id]
+            
+            agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0
+            agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0
+
+            if is_holiday || (agent_at_home && agent2_at_home)
+
+                dur = get_contact_duration_normal(12.5, 5.5, rng)
+                if dur > 0.001
+                    contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                    contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                end
+            elseif ((agent.collective_id == 4 && !agent_at_home) ||
+                (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
+
+                dur = get_contact_duration_normal(4.5, 2.0, rng)
+                if dur > 0.001
+                    contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                    contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                end
+            elseif ((agent.collective_id == 2 && !agent_at_home) ||
+                (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
+
+                dur = get_contact_duration_normal(5.86, 2.65, rng)
+                if dur > 0.001
+                    contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                    contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                end
+            elseif ((agent.collective_id == 1 && !agent_at_home) ||
+                (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
+
+                dur = get_contact_duration_normal(6.5, 2.46, rng)
+                if dur > 0.001
+                    contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                    contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                end
+            elseif ((agent.collective_id == 3 && !agent_at_home) ||
+                (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
+
+                dur = get_contact_duration_normal(10.0, 3.69, rng)
+                if dur > 0.001
+                    contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                    contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                end
+            end
+        end
+        if !is_holiday && agent.group_num != 0 && !agent.is_isolated && !agent.on_parent_leave &&
+            ((agent.collective_id == 1 && !is_kindergarten_holiday) ||
+                (agent.collective_id == 2 && !is_school_holiday) ||
+                (agent.collective_id == 3 && !is_university_holiday) ||
+                (agent.collective_id == 4 && !is_work_holiday))
+            for agent2_id in agent.collective_conn_ids
+                agent2 = agents[agent2_id]
+                
+                if agent.collective_id == 1
+                    dur = get_contact_duration_normal(4.5, 2.66, rng)
+                    if dur > 0.001
+                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                    end
+                elseif agent.collective_id == 2
+                    dur = get_contact_duration_normal(3.783, 2.67, rng)
+                    if dur > 0.001
+                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                    end
+                elseif agent.collective_id == 3
+                    dur = get_contact_duration_normal(2.5, 1.62, rng)
+                    if dur > 0.001
+                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                    end
+                else
+                    dur = get_contact_duration_normal(3.07, 2.5, rng)
+                    if dur > 0.001
+                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                    end
+                end
+            end
+
+            if agent.collective_id == 3
+                for agent2_id in agent.collective_cross_conn_ids
+                    agent2 = agents[agent2_id]
+                    dur = get_contact_duration_gamma(1.0, 1.6, rng)
+                    if dur > 0.001
+                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                    end
+                end
+            end
+        end
+    end
+end
+
 function run_simulation_evaluation(
     num_threads::Int,
     thread_rng::Vector{MersenneTwister},
