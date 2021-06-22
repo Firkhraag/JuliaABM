@@ -16,6 +16,7 @@ function simulate_contacts_evaluation(
     week_num::Int,
     current_step::Int,
     infected_inside_collective::Array{Int, 3},
+    contacts_inside_collective::Array{Int, 3},
     contact_matrix_by_age_threads::Array{Float64, 3},
     contact_duration_matrix_by_age_threads::Array{Float64, 3}
 )
@@ -32,8 +33,12 @@ function simulate_contacts_evaluation(
                     (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
                     (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
 
-                    agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0
-                    agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0
+                    agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0 ||
+                        (agent.collective_id == 4 && is_work_holiday) || (agent.collective_id == 3 && is_university_holiday) ||
+                        (agent.collective_id == 2 && is_school_holiday) || (agent.collective_id == 1 && is_kindergarten_holiday)
+                    agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0 ||
+                        (agent2.collective_id == 4 && is_work_holiday) || (agent2.collective_id == 3 && is_university_holiday) ||
+                        (agent2.collective_id == 2 && is_school_holiday) || (agent2.collective_id == 1 && is_kindergarten_holiday)
 
                     # http://ecs.force.com/mbdata/MBQuest2RTanw?rep=KK3Q1806#:~:text=6%20hours%20per%20day%20for%20kindergarten%20and%20elementary%20students.&text=437.5%20hours%20per%20year%20for%20half%2Dday%20kindergarten.
                     # https://nces.ed.gov/surveys/sass/tables/sass0708_035_s1s.asp
@@ -43,10 +48,10 @@ function simulate_contacts_evaluation(
                     if is_holiday || (agent_at_home && agent2_at_home)
 
                         dur = get_contact_duration_normal(12.5, 5.5, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                         make_contact(
                             agent, agent2, dur,
                             current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
@@ -54,10 +59,10 @@ function simulate_contacts_evaluation(
                         (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
 
                         dur = get_contact_duration_normal(4.5, 2.0, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                         make_contact(
                             agent, agent2, dur,
                             current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
@@ -65,10 +70,10 @@ function simulate_contacts_evaluation(
                         (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
 
                         dur = get_contact_duration_normal(5.86, 2.65, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                         make_contact(
                             agent, agent2, dur,
                             current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
@@ -76,10 +81,10 @@ function simulate_contacts_evaluation(
                         (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
 
                         dur = get_contact_duration_normal(6.5, 2.46, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                         make_contact(
                             agent, agent2, dur,
                             current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
@@ -87,63 +92,71 @@ function simulate_contacts_evaluation(
                         (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
 
                         dur = get_contact_duration_normal(10.0, 3.69, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                         make_contact(
                             agent, agent2, dur,
                             current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
                     end
+
+                    contacts_inside_collective[current_step, 5, thread_id] += 1
 
                     if agent2.is_newly_infected
                         infected_inside_collective[current_step, 5, thread_id] += 1
                     end
                 else
                     # Other case
-                    agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0
-                    agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0
+                    agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0 ||
+                        (agent.collective_id == 4 && is_work_holiday) || (agent.collective_id == 3 && is_university_holiday) ||
+                        (agent.collective_id == 2 && is_school_holiday) || (agent.collective_id == 1 && is_kindergarten_holiday)
+                    agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0 ||
+                        (agent2.collective_id == 4 && is_work_holiday) || (agent2.collective_id == 3 && is_university_holiday) ||
+                        (agent2.collective_id == 2 && is_school_holiday) || (agent2.collective_id == 1 && is_kindergarten_holiday)
 
                     if is_holiday || (agent_at_home && agent2_at_home)
 
                         dur = get_contact_duration_normal(12.5, 5.5, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                     elseif ((agent.collective_id == 4 && !agent_at_home) ||
                         (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
 
                         dur = get_contact_duration_normal(4.5, 2.0, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                     elseif ((agent.collective_id == 2 && !agent_at_home) ||
                         (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
 
                         dur = get_contact_duration_normal(5.86, 2.65, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                     elseif ((agent.collective_id == 1 && !agent_at_home) ||
                         (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
 
                         dur = get_contact_duration_normal(6.5, 2.46, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                     elseif ((agent.collective_id == 3 && !agent_at_home) ||
                         (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
 
                         dur = get_contact_duration_normal(10.0, 3.69, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                     end
+
+                    contacts_inside_collective[current_step, 5, thread_id] += 1
                 end
             end
             if !is_holiday && agent.group_num != 0 && !agent.is_isolated && !agent.on_parent_leave &&
@@ -162,10 +175,10 @@ function simulate_contacts_evaluation(
                         if agent.collective_id == 1
 
                             dur = get_contact_duration_normal(4.5, 2.66, rng)
-                            if dur > 0.001
+                            # if dur > 0.001
                                 contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            end
+                            # end
                             make_contact(
                                 agent, agent2, dur,
                                 current_step, duration_parameter,
@@ -173,10 +186,10 @@ function simulate_contacts_evaluation(
                         elseif agent.collective_id == 2
 
                             dur = get_contact_duration_normal(3.783, 2.67, rng)
-                            if dur > 0.001
+                            # if dur > 0.001
                                 contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            end
+                            # end
                             make_contact(
                                 agent, agent2, dur,
                                 current_step, duration_parameter,
@@ -184,10 +197,10 @@ function simulate_contacts_evaluation(
                         elseif agent.collective_id == 3
 
                             dur = get_contact_duration_normal(2.5, 1.62, rng)
-                            if dur > 0.001
+                            # if dur > 0.001
                                 contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            end
+                            # end
                             make_contact(
                                 agent, agent2, dur,
                                 current_step, duration_parameter,
@@ -195,15 +208,17 @@ function simulate_contacts_evaluation(
                         else
 
                             dur = get_contact_duration_normal(3.07, 2.5, rng)
-                            if dur > 0.001
+                            # if dur > 0.001
                                 contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            end
+                            # end
                             make_contact(
                                 agent, agent2, dur,
                                 current_step, duration_parameter,
                                 susceptibility_parameters, temp_influences, rng)
                         end
+
+                        contacts_inside_collective[current_step, agent.collective_id, thread_id] += 1
 
                         if agent2.is_newly_infected
                             infected_inside_collective[current_step, agent.collective_id, thread_id] += 1
@@ -212,29 +227,31 @@ function simulate_contacts_evaluation(
                         # Other cases
                         if agent.collective_id == 1
                             dur = get_contact_duration_normal(4.5, 2.66, rng)
-                            if dur > 0.001
+                            # if dur > 0.001
                                 contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            end
+                            # end
                         elseif agent.collective_id == 2
                             dur = get_contact_duration_normal(3.783, 2.67, rng)
-                            if dur > 0.001
+                            # if dur > 0.001
                                 contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            end
+                            # end
                         elseif agent.collective_id == 3
                             dur = get_contact_duration_normal(2.5, 1.62, rng)
-                            if dur > 0.001
+                            # if dur > 0.001
                                 contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            end
+                            # end
                         else
                             dur = get_contact_duration_normal(3.07, 2.5, rng)
-                            if dur > 0.001
+                            # if dur > 0.001
                                 contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            end
+                            # end
                         end
+
+                        contacts_inside_collective[current_step, agent.collective_id, thread_id] += 1
                     end
                 end
 
@@ -248,14 +265,16 @@ function simulate_contacts_evaluation(
                             (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
                                 
                             dur = get_contact_duration_gamma(1.0, 1.6, rng)
-                            if dur > 0.001
+                            # if dur > 0.001
                                 contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            end
+                            # end
                             make_contact(
                                 agent, agent2, dur,
                                 current_step, duration_parameter,
                                 susceptibility_parameters, temp_influences, rng)
+
+                            contacts_inside_collective[current_step, 3, thread_id] += 1
 
                             if agent2.is_newly_infected
                                 infected_inside_collective[current_step, 3, thread_id] += 1
@@ -263,65 +282,70 @@ function simulate_contacts_evaluation(
                         else
                             # Other
                             dur = get_contact_duration_gamma(1.0, 1.6, rng)
-                            if dur > 0.001
+                            # if dur > 0.001
                                 contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            end
+
+                                contacts_inside_collective[current_step, 3, thread_id] += 1
+                            # end
                         end
                     end
                 end
             end
         else
             # OTHER
-
-            # contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-
             for agent2_id in agent.household_conn_ids
                 agent2 = agents[agent2_id]
                 
-                agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0
-                agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0
+                agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0 ||
+                    (agent.collective_id == 4 && is_work_holiday) || (agent.collective_id == 3 && is_university_holiday) ||
+                    (agent.collective_id == 2 && is_school_holiday) || (agent.collective_id == 1 && is_kindergarten_holiday)
+                agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0 ||
+                    (agent2.collective_id == 4 && is_work_holiday) || (agent2.collective_id == 3 && is_university_holiday) ||
+                    (agent2.collective_id == 2 && is_school_holiday) || (agent2.collective_id == 1 && is_kindergarten_holiday)
 
                 if is_holiday || (agent_at_home && agent2_at_home)
 
                     dur = get_contact_duration_normal(12.5, 5.5, rng)
-                    if dur > 0.001
+                    # if dur > 0.001
                         contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                         contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                    end
+                    # end
                 elseif ((agent.collective_id == 4 && !agent_at_home) ||
                     (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
 
                     dur = get_contact_duration_normal(4.5, 2.0, rng)
-                    if dur > 0.001
+                    # if dur > 0.001
                         contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                         contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                    end
+                    # end
                 elseif ((agent.collective_id == 2 && !agent_at_home) ||
                     (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
 
                     dur = get_contact_duration_normal(5.86, 2.65, rng)
-                    if dur > 0.001
+                    # if dur > 0.001
                         contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                         contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                    end
+                    # end
                 elseif ((agent.collective_id == 1 && !agent_at_home) ||
                     (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
 
                     dur = get_contact_duration_normal(6.5, 2.46, rng)
-                    if dur > 0.001
+                    # if dur > 0.001
                         contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                         contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                    end
+                    # end
                 elseif ((agent.collective_id == 3 && !agent_at_home) ||
                     (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
 
                     dur = get_contact_duration_normal(10.0, 3.69, rng)
-                    if dur > 0.001
+                    # if dur > 0.001
                         contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                         contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                    end
+                    # end
                 end
+
+                contacts_inside_collective[current_step, 5, thread_id] += 1
             end
             if !is_holiday && agent.group_num != 0 && !agent.is_isolated && !agent.on_parent_leave &&
                 ((agent.collective_id == 1 && !is_kindergarten_holiday) ||
@@ -333,39 +357,42 @@ function simulate_contacts_evaluation(
                     
                     if agent.collective_id == 1
                         dur = get_contact_duration_normal(4.5, 2.66, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                     elseif agent.collective_id == 2
                         dur = get_contact_duration_normal(3.783, 2.67, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                     elseif agent.collective_id == 3
                         dur = get_contact_duration_normal(2.5, 1.62, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                     else
                         dur = get_contact_duration_normal(3.07, 2.5, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
                     end
+
+                    contacts_inside_collective[current_step, agent.collective_id, thread_id] += 1
                 end
 
                 if agent.collective_id == 3
                     for agent2_id in agent.collective_cross_conn_ids
                         agent2 = agents[agent2_id]
                         dur = get_contact_duration_gamma(1.0, 1.6, rng)
-                        if dur > 0.001
+                        # if dur > 0.001
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                        end
+                        # end
+                        contacts_inside_collective[current_step, 3, thread_id] += 1
                     end
                 end
             end
@@ -382,125 +409,6 @@ function simulate_contacts_evaluation(
             else
                 if rand(rng, Float64) < 0.0001
                     infect_randomly(agent, week_num, etiology, rng)
-                end
-            end
-        end
-    end
-end
-
-function simulate_contacts_test(
-    thread_id::Int,
-    rng::MersenneTwister,
-    start_agent_id::Int,
-    end_agent_id::Int,
-    agents::Vector{Agent},
-    temp_influences::Array{Float64, 2},
-    duration_parameter::Float64,
-    susceptibility_parameters::Vector{Float64},
-    etiology::Matrix{Float64},
-    is_holiday::Bool,
-    is_kindergarten_holiday::Bool,
-    is_school_holiday::Bool,
-    is_university_holiday::Bool,
-    is_work_holiday::Bool,
-    week_num::Int,
-    current_step::Int,
-    infected_inside_collective::Array{Int, 3},
-    contact_matrix_by_age_threads::Array{Float64, 3},
-    contact_duration_matrix_by_age_threads::Array{Float64, 3}
-)
-    for agent_id = start_agent_id:end_agent_id
-        agent = agents[agent_id]
-        for agent2_id in agent.household_conn_ids
-            agent2 = agents[agent2_id]
-            
-            agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0
-            agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0
-
-            if is_holiday || (agent_at_home && agent2_at_home)
-
-                dur = get_contact_duration_normal(12.5, 5.5, rng)
-                if dur > 0.001
-                    contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                    contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                end
-            elseif ((agent.collective_id == 4 && !agent_at_home) ||
-                (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
-
-                dur = get_contact_duration_normal(4.5, 2.0, rng)
-                if dur > 0.001
-                    contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                    contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                end
-            elseif ((agent.collective_id == 2 && !agent_at_home) ||
-                (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
-
-                dur = get_contact_duration_normal(5.86, 2.65, rng)
-                if dur > 0.001
-                    contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                    contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                end
-            elseif ((agent.collective_id == 1 && !agent_at_home) ||
-                (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
-
-                dur = get_contact_duration_normal(6.5, 2.46, rng)
-                if dur > 0.001
-                    contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                    contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                end
-            elseif ((agent.collective_id == 3 && !agent_at_home) ||
-                (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
-
-                dur = get_contact_duration_normal(10.0, 3.69, rng)
-                if dur > 0.001
-                    contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                    contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                end
-            end
-        end
-        if !is_holiday && agent.group_num != 0 && !agent.is_isolated && !agent.on_parent_leave &&
-            ((agent.collective_id == 1 && !is_kindergarten_holiday) ||
-                (agent.collective_id == 2 && !is_school_holiday) ||
-                (agent.collective_id == 3 && !is_university_holiday) ||
-                (agent.collective_id == 4 && !is_work_holiday))
-            for agent2_id in agent.collective_conn_ids
-                agent2 = agents[agent2_id]
-                
-                if agent.collective_id == 1
-                    dur = get_contact_duration_normal(4.5, 2.66, rng)
-                    if dur > 0.001
-                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                    end
-                elseif agent.collective_id == 2
-                    dur = get_contact_duration_normal(3.783, 2.67, rng)
-                    if dur > 0.001
-                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                    end
-                elseif agent.collective_id == 3
-                    dur = get_contact_duration_normal(2.5, 1.62, rng)
-                    if dur > 0.001
-                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                    end
-                else
-                    dur = get_contact_duration_normal(3.07, 2.5, rng)
-                    if dur > 0.001
-                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                    end
-                end
-            end
-
-            if agent.collective_id == 3
-                for agent2_id in agent.collective_cross_conn_ids
-                    agent2 = agents[agent2_id]
-                    dur = get_contact_duration_gamma(1.0, 1.6, rng)
-                    if dur > 0.001
-                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                    end
                 end
             end
         end
@@ -538,11 +446,13 @@ function run_simulation_evaluation(
     confirmed_daily_new_cases_age_groups = zeros(Int, 365, 4, num_threads)
 
     infected_inside_collective = zeros(Int, 365, 5, num_threads)
+    contacts_inside_collective = zeros(Int, 365, 5, num_threads)
 
     contact_matrix_by_age_threads = zeros(Float64, num_threads, 90, 90)
     contact_duration_matrix_by_age_threads = zeros(Float64, num_threads, 90, 90)
 
-    for current_step = 1:365
+    days_run = 365
+    for current_step = 1:days_run
         println(current_step)
         # Выходные, праздники
         is_holiday = false
@@ -622,6 +532,7 @@ function run_simulation_evaluation(
                 week_num,
                 current_step,
                 infected_inside_collective,
+                contacts_inside_collective,
                 contact_matrix_by_age_threads,
                 contact_duration_matrix_by_age_threads)
         end
@@ -673,8 +584,10 @@ function run_simulation_evaluation(
         end
     end
 
-    contact_matrix_by_age_threads ./= 365
-    contact_duration_matrix_by_age_threads ./= 365
+    contact_matrix_by_age = sum(contact_matrix_by_age_threads, dims=1)[1, :, :]
+    contact_duration_matrix_by_age = sum(contact_duration_matrix_by_age_threads, dims=1)[1, :, :]
+
+    contact_duration_matrix_by_age ./= contact_matrix_by_age
 
     agent_counts = zeros(90)
     for a in agents
@@ -682,13 +595,25 @@ function run_simulation_evaluation(
     end
 
     for i = 1:90
-        contact_matrix_by_age_threads[:, i, :] ./= agent_counts[i]
-        contact_duration_matrix_by_age_threads[:, i, :] ./= agent_counts[i]
+        contact_matrix_by_age[i, :] ./= agent_counts[i]
     end
 
-    writedlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts.csv"), sum(contact_matrix_by_age_threads, dims=1)[1, :, :], ',')
+    contact_matrix_by_age ./= days_run
 
     writedlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations.csv"), sum(contact_duration_matrix_by_age_threads, dims=1)[1, :, :], ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_contacts.csv"), incidence ./ 9897, ',')
+
+    writedlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"),
+        sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
+
+    writedlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "contacts_inside_collective_data.csv"),
+        sum(contacts_inside_collective, dims = 3)[:, :, 1], ',')
+
+    writedlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts.csv"), contact_matrix_by_age, ',')
+
+    writedlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations.csv"), contact_duration_matrix_by_age, ',')
 end

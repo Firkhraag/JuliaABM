@@ -246,6 +246,72 @@ function plot_immunity_viruses()
     savefig(immunity_viruses_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "immunity_viruses.pdf"))
 end
 
+# function plot_contacts_inside_collective()
+#     contacts_inside_collective_data = readdlm(
+#         joinpath(@__DIR__, "..", "..", "output", "tables", "contacts_inside_collective_data.csv"), ',', Float64)
+
+#     collective_sizes = readdlm(
+#         joinpath(@__DIR__, "..", "..", "output", "tables", "collective_sizes.csv"), ',', Int)
+
+
+#     contacts_inside_collective_data[:, 1] ./= collective_sizes[1]
+#     contacts_inside_collective_data[:, 2] ./= collective_sizes[2]
+#     contacts_inside_collective_data[:, 3] ./= collective_sizes[3]
+#     contacts_inside_collective_data[:, 4] ./= collective_sizes[4]
+#     contacts_inside_collective_data[:, 5] ./= 9897284
+
+#     ticks = range(1, stop = 365, length = 13)
+#     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+#     contacts_inside_collective_plot = plot(
+#         1:365,
+#         [contacts_inside_collective_data[:, i] for i = 1:5],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         fontfamily = "Times",
+#         label = ["Kindergarten" "School" "University" "Workplace" "Household"])
+#     xlabel!("Month")
+#     ylabel!("Num of contacts")
+#     savefig(
+#         contacts_inside_collective_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "contacts_inside_collective.pdf"))
+# end
+
+function plot_contacts_inside_collective()
+    contacts_inside_collective_data = readdlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "contacts_inside_collective_data.csv"), ',', Float64)
+
+    collective_sizes = readdlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "collective_sizes.csv"), ',', Int)
+
+    contacts_inside_collective = Array{Float64, 2}(undef, 52, 5)
+    for i = 1:52
+        for j = 1:5
+            contacts_inside_collective[i, j] = sum(contacts_inside_collective_data[(i - 1) * 7 + 1:(i - 1) * 7 + 7, j])
+        end
+    end
+
+    contacts_inside_collective[:, 1] ./= collective_sizes[1]
+    contacts_inside_collective[:, 2] ./= collective_sizes[2]
+    contacts_inside_collective[:, 3] ./= collective_sizes[3]
+    contacts_inside_collective[:, 4] ./= collective_sizes[4]
+    contacts_inside_collective[:, 5] ./= 9897284
+
+    ticks = range(1, stop = 52, length = 13)
+    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    contacts_inside_collective_plot = plot(
+        1:52,
+        [contacts_inside_collective[:, i] ./ 7 for i = 1:5],
+        lw = 3,
+        xticks = (ticks, ticklabels),
+        fontfamily = "Times",
+        title="Weekly average number of contacts",
+        ylim=(0,49),
+        label = ["Kindergarten" "School" "University" "Workplace" "Household"])
+    xlabel!("Month")
+    ylabel!("Num of contacts")
+    savefig(
+        contacts_inside_collective_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "contacts_inside_collective.pdf"))
+end
+
 function plot_infected_inside_collective()
     infected_inside_collective_data = readdlm(
         joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"), ',', Float64)
@@ -274,6 +340,7 @@ function plot_infected_inside_collective()
         lw = 3,
         xticks = (ticks, ticklabels),
         fontfamily = "Times",
+        title="Weekly ratio of infected inside collectives",
         label = ["Kindergarten" "School" "University" "Workplace" "Household"])
     xlabel!("Month")
     ylabel!("Ratio")
@@ -319,14 +386,15 @@ function plot_r0()
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "r0.pdf"))
 end
 
-plot_incidence()
-plot_incidence_etiology()
-plot_incidence_age_groups()
+# plot_incidence()
+# plot_incidence_etiology()
+# plot_incidence_age_groups()
 
-plot_daily_new_cases_viruses()
+# plot_daily_new_cases_viruses()
+plot_contacts_inside_collective()
 plot_infected_inside_collective()
 
-plot_r0()
+# plot_r0()
 
 # plot_daily_new_cases_age_groups()
 # plot_daily_new_recoveries_age_groups()

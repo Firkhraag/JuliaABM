@@ -114,8 +114,12 @@ function simulate_contacts(
                         (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
                         (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
 
-                        agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0
-                        agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0
+                        agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0 ||
+                            (agent.collective_id == 4 && is_work_holiday) || (agent.collective_id == 3 && is_university_holiday) ||
+                            (agent.collective_id == 2 && is_school_holiday) || (agent.collective_id == 1 && is_kindergarten_holiday)
+                        agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0 ||
+                            (agent2.collective_id == 4 && is_work_holiday) || (agent2.collective_id == 3 && is_university_holiday) ||
+                            (agent2.collective_id == 2 && is_school_holiday) || (agent2.collective_id == 1 && is_kindergarten_holiday)
 
                         # http://ecs.force.com/mbdata/MBQuest2RTanw?rep=KK3Q1806#:~:text=6%20hours%20per%20day%20for%20kindergarten%20and%20elementary%20students.&text=437.5%20hours%20per%20year%20for%20half%2Dday%20kindergarten.
                         # https://nces.ed.gov/surveys/sass/tables/sass0708_035_s1s.asp

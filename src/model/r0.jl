@@ -54,8 +54,13 @@ function simulate_contacts_r0(
             agent2 = agents[agent2_id]
             # Проверка восприимчивости агента к вирусу
             if !(agent2.id in infected_agent_ids)
-                agent_at_home = agent.is_isolated || agent.collective_id == 0
-                agent2_at_home = agent2.collective_id == 0
+
+                agent_at_home = agent.is_isolated || agent.collective_id == 0 ||
+                    (agent.collective_id == 4 && is_work_holiday) || (agent.collective_id == 3 && is_university_holiday) ||
+                    (agent.collective_id == 2 && is_school_holiday) || (agent.collective_id == 1 && is_kindergarten_holiday)
+                agent2_at_home = agent2.collective_id == 0 ||
+                    (agent2.collective_id == 4 && is_work_holiday) || (agent2.collective_id == 3 && is_university_holiday) ||
+                    (agent2.collective_id == 2 && is_school_holiday) || (agent2.collective_id == 1 && is_kindergarten_holiday)
 
                 if is_holiday || (agent_at_home && agent2_at_home)
                     make_contact_r0(
