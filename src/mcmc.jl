@@ -128,7 +128,7 @@ function main()
     incidence_data_7_sd = sqrt.(incidence_data_mean_7)
     incidence_data_15_sd = sqrt.(incidence_data_mean_15)
 
-    etiology_incidence_data_mean = incidence_data_mean .* etiology_data[i, :]
+    etiology_incidence_data_mean_1 = incidence_data_mean .* etiology_data[1, :]
     etiology_incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1]
     etiology_incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1]
     etiology_incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1]
