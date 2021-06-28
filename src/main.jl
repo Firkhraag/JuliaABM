@@ -333,9 +333,9 @@ function multiple_simulations(
     latin_hypercube_plan, _ = LHCoptim(num_runs, 15, 1000)
 
     # Add _default
-    duration_parameter_default = 6.57057255976854
-    susceptibility_parameters_default = [2.9216384955078425, 2.7032379067052434, 3.3785746916400186, 5.066090046190548, 4.422627785391605, 4.2303075985990555, 3.919633521141057]
-    temperature_parameters_default = [-0.9127379320846658, -0.6913050098979746, -0.12830770011674536, -0.32224557129079745, -0.11309375158621385, -0.05712958733059234, -0.7297533120146187]
+    duration_parameter_default = 6.699865489061469
+    susceptibility_parameters_default = [2.9741637480330954, 2.7941469976143343, 3.53008984315517, 5.130736510837012, 4.471112633876454, 4.096974265265722, 4.129734531242066]
+    temperature_parameters_default = [-0.947687427034161, -0.72665854525151, -0.058004669813715063, -0.33133648038170654, -0.14238668087914313, -0.055816456017461034, -0.7176320998934066]
 
     points = scaleLHC(latin_hypercube_plan, [
         (duration_parameter_default - 0.1, duration_parameter_default + 0.1),
@@ -575,10 +575,10 @@ function main()
     println("Simulation...")
 
     # Single run
-    # S: 7.535e8
-    duration_parameter = 6.616027105223085
-    susceptibility_parameters = [2.9165879904573373, 2.756773260240597, 3.3654433785087052, 5.038817318917821, 4.36707222983605, 4.188893457184914, 4.019633521141057]
-    temperature_parameters = [-0.9735460128927466, -0.6867595553525201, -0.09547941728846254, -0.3651748642200904, -0.14491193340439568, -0.04581645601746104, -0.6807634130247197]
+    # S: 7.046992092814672e8
+    duration_parameter = 6.749360438556418
+    susceptibility_parameters = [2.9125475864169337, 2.7244500279173645, 3.4927161057814327, 5.0994233795238815, 4.39737526013908, 4.079802548094005, 4.179229480737016]
+    temperature_parameters = [-0.987586416933151, -0.679688848281813, -0.06255012435916961, -0.3581041571493833, -0.18531597380843606, -0.06743261763362265, -0.6817735140348207]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -594,36 +594,38 @@ function main()
         end
     end
 
-    # etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
+    # Runs
+    etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
 
-    # incidence_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu.csv"), ',', Int, '\n')
-    # incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
-    # incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
-    # incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
-    # incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
+    incidence_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu.csv"), ',', Int, '\n')
+    incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
+    incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
+    incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
+    incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    # incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :]
-    # incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1]
-    # incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1]
-    # incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1]
-    # incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1]
+    incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :]
+    incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1]
+    incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1]
+    incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1]
+    incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1]
 
-    # collective_nums = Int[0, 0, 0, 0]
-    # for agent in agents
-    #     if agent.collective_id == 1
-    #         collective_nums[1] += 1
-    #     elseif agent.collective_id == 2
-    #         collective_nums[2] += 1
-    #     elseif agent.collective_id == 3
-    #         collective_nums[3] += 1
-    #     elseif agent.collective_id == 4
-    #         collective_nums[4] += 1
-    #     end
-    # end
+    collective_nums = Int[0, 0, 0, 0]
+    for agent in agents
+        if agent.collective_id == 1
+            collective_nums[1] += 1
+        elseif agent.collective_id == 2
+            collective_nums[2] += 1
+        elseif agent.collective_id == 3
+            collective_nums[3] += 1
+        elseif agent.collective_id == 4
+            collective_nums[4] += 1
+        end
+    end
 
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
 
+    # Single run
     # @time S, etiology_model, incidence = run_simulation(
     #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
     #     temp_influences, duration_parameter,
@@ -640,12 +642,12 @@ function main()
     # println("S: ", S)
 
     # Multiple runs
-    # num_runs = 100
-    # multiple_simulations(agents, num_threads, thread_rng, num_runs,
-    #     start_agent_ids, end_agent_ids, infectivities,
-    #     etiology, etiology_data, incidence_data_mean, incidence_data_mean_0,
-    #     incidence_data_mean_3, incidence_data_mean_7, incidence_data_mean_15,
-    #     temperature, min_temp, max_min_temp, viruses)
+    num_runs = 100
+    multiple_simulations(agents, num_threads, thread_rng, num_runs,
+        start_agent_ids, end_agent_ids, infectivities,
+        etiology, etiology_data, incidence_data_mean, incidence_data_mean_0,
+        incidence_data_mean_3, incidence_data_mean_7, incidence_data_mean_15,
+        temperature, min_temp, max_min_temp, viruses)
 
     # R0
     # num_runs = 200000
@@ -656,10 +658,10 @@ function main()
     #     temp_influences, months_threads)
 
     # Contacts evaluation
-    run_simulation_evaluation(
-        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-        temp_influences, duration_parameter,
-        susceptibility_parameters, etiology)
+    # run_simulation_evaluation(
+    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+    #     temp_influences, duration_parameter,
+    #     susceptibility_parameters, etiology)
 end
 
 main()
