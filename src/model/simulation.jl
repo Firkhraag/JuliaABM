@@ -545,11 +545,11 @@ function run_simulation_mcmc(
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
     etiology::Matrix{Float64},
-    incidence_data_mean::Vector{Float64},
-    incidence_data_mean_0::Vector{Float64},
-    incidence_data_mean_3::Vector{Float64},
-    incidence_data_mean_7::Vector{Float64},
-    incidence_data_mean_15::Vector{Float64},
+    infected_data_mean::Vector{Float64},
+    infected_data_mean_0::Vector{Float64},
+    infected_data_mean_3::Vector{Float64},
+    infected_data_mean_7::Vector{Float64},
+    infected_data_mean_15::Vector{Float64},
     is_single_run::Bool
 )::Tuple{Float64, Matrix{Float64}, Vector{Int}}
     # День месяца
@@ -705,7 +705,7 @@ function run_simulation_mcmc(
 
     if (is_single_run)
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), incidence ./ 9897, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "infected_data.csv"), incidence ./ 9897, ',')
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), etiology_incidence, ',')
         writedlm(
@@ -715,10 +715,10 @@ function run_simulation_mcmc(
             sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
     end
 
-    S1 = 1 / 8 * sum((age_group_incidence[1, :] - incidence_data_mean_0).^2)
-    S2 = 1 / 8 * sum((age_group_incidence[2, :] - incidence_data_mean_3).^2)
-    S3 = 1 / 8 * sum((age_group_incidence[3, :] - incidence_data_mean_7).^2)
-    S4 = 1 / 8 * sum((age_group_incidence[4, :] - incidence_data_mean_15).^2)
+    S1 = 1 / 8 * sum((age_group_incidence[1, :] - infected_data_mean_0).^2)
+    S2 = 1 / 8 * sum((age_group_incidence[2, :] - infected_data_mean_3).^2)
+    S3 = 1 / 8 * sum((age_group_incidence[3, :] - infected_data_mean_7).^2)
+    S4 = 1 / 8 * sum((age_group_incidence[4, :] - infected_data_mean_15).^2)
 
     println(S1)
     println(S2)
@@ -739,11 +739,11 @@ function run_simulation(
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
     etiology::Matrix{Float64},
-    incidence_data_mean::Vector{Float64},
-    incidence_data_mean_0::Vector{Float64},
-    incidence_data_mean_3::Vector{Float64},
-    incidence_data_mean_7::Vector{Float64},
-    incidence_data_mean_15::Vector{Float64},
+    infected_data_mean::Vector{Float64},
+    infected_data_mean_0::Vector{Float64},
+    infected_data_mean_3::Vector{Float64},
+    infected_data_mean_7::Vector{Float64},
+    infected_data_mean_15::Vector{Float64},
     is_single_run::Bool
 )::Tuple{Float64, Matrix{Float64}, Vector{Int}}
     # День месяца
@@ -899,7 +899,7 @@ function run_simulation(
 
     if (is_single_run)
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), incidence ./ 9897, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "infected_data.csv"), incidence ./ 9897, ',')
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), etiology_incidence, ',')
         writedlm(
@@ -909,15 +909,12 @@ function run_simulation(
             sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
     end
 
-    S1 = 1 / 8 * sum((age_group_incidence[1, :] - incidence_data_mean_0).^2)
-    S2 = 1 / 8 * sum((age_group_incidence[2, :] - incidence_data_mean_3).^2)
-    S3 = 1 / 8 * sum((age_group_incidence[3, :] - incidence_data_mean_7).^2)
-    S4 = 1 / 8 * sum((age_group_incidence[4, :] - incidence_data_mean_15).^2)
+    S1 = 1 / 8 * sum((age_group_incidence[1, :] - infected_data_mean_0).^2)
+    S2 = 1 / 8 * sum((age_group_incidence[2, :] - infected_data_mean_3).^2)
+    S3 = 1 / 8 * sum((age_group_incidence[3, :] - infected_data_mean_7).^2)
+    S4 = 1 / 8 * sum((age_group_incidence[4, :] - infected_data_mean_15).^2)
 
-    println(S1)
-    println(S2)
-    println(S3)
-    println(S4)
+    println("Run: ", S1 + S2 + S3 + S4)
 
     return age_group_incidence, etiology_incidence
 end

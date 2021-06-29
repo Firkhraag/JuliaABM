@@ -320,11 +320,11 @@ function multiple_simulations(
     infectivities::Array{Float64, 4},
     etiology::Matrix{Float64},
     etiology_data::Matrix{Float64},
-    incidence_data_mean::Vector{Float64},
-    incidence_data_mean_0::Vector{Float64},
-    incidence_data_mean_3::Vector{Float64},
-    incidence_data_mean_7::Vector{Float64},
-    incidence_data_mean_15::Vector{Float64},
+    infected_data_mean::Vector{Float64},
+    infected_data_mean_0::Vector{Float64},
+    infected_data_mean_3::Vector{Float64},
+    infected_data_mean_7::Vector{Float64},
+    infected_data_mean_15::Vector{Float64},
     temperature::Vector{Float64},
     min_temp::Float64,
     max_min_temp::Float64,
@@ -380,9 +380,9 @@ function multiple_simulations(
         @time S, etiology_model, incidence = run_simulation(
             num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
             temp_influences, duration_parameter,
-            susceptibility_parameters, etiology, incidence_data_mean,
-            incidence_data_mean_0, incidence_data_mean_3,
-            incidence_data_mean_7, incidence_data_mean_15, false)
+            susceptibility_parameters, etiology, infected_data_mean,
+            infected_data_mean_0, infected_data_mean_3,
+            infected_data_mean_7, infected_data_mean_15, false)
 
         etiology_sum = sum(etiology_model, dims = 1)[1, :]
         for i = 1:7
@@ -597,17 +597,17 @@ function main()
     # Runs
     etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
 
-    incidence_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu.csv"), ',', Int, '\n')
-    incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
-    incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
-    incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
-    incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
+    infected_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu.csv"), ',', Int, '\n')
+    infected_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
+    infected_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
+    infected_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
+    infected_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :]
-    incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1]
-    incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1]
-    incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1]
-    incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1]
+    infected_data_mean = mean(infected_data[42:45, 2:53], dims = 1)[1, :]
+    infected_data_mean_0 = mean(infected_data_0[2:53, 24:27], dims = 2)[:, 1]
+    infected_data_mean_3 = mean(infected_data_3[2:53, 24:27], dims = 2)[:, 1]
+    infected_data_mean_7 = mean(infected_data_7[2:53, 24:27], dims = 2)[:, 1]
+    infected_data_mean_15 = mean(infected_data_15[2:53, 24:27], dims = 2)[:, 1]
 
     collective_nums = Int[0, 0, 0, 0]
     for agent in agents
@@ -629,9 +629,9 @@ function main()
     # @time S, etiology_model, incidence = run_simulation(
     #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
     #     temp_influences, duration_parameter,
-    #     susceptibility_parameters, etiology, incidence_data_mean,
-    #     incidence_data_mean_0, incidence_data_mean_3,
-    #     incidence_data_mean_7, incidence_data_mean_15, true)
+    #     susceptibility_parameters, etiology, infected_data_mean,
+    #     infected_data_mean_0, infected_data_mean_3,
+    #     infected_data_mean_7, infected_data_mean_15, true)
 
     # etiology_sum = sum(etiology_model, dims = 1)[1, :]
     # for i = 1:7
@@ -645,8 +645,8 @@ function main()
     num_runs = 100
     multiple_simulations(agents, num_threads, thread_rng, num_runs,
         start_agent_ids, end_agent_ids, infectivities,
-        etiology, etiology_data, incidence_data_mean, incidence_data_mean_0,
-        incidence_data_mean_3, incidence_data_mean_7, incidence_data_mean_15,
+        etiology, etiology_data, infected_data_mean, infected_data_mean_0,
+        infected_data_mean_3, infected_data_mean_7, infected_data_mean_15,
         temperature, min_temp, max_min_temp, viruses)
 
     # R0
