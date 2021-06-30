@@ -180,7 +180,7 @@ function main()
     intervals_min = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
     intervals_max = [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 
-    deltas = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+    deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -207,19 +207,30 @@ function main()
         S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_incidence[i, :]).^ 2)
     end
 
-    prob_prev = 1
+    prob_prev_age_groups = ones(Float64, 4, 52)
+    prob_prev_etiology = ones(Float64, 7, 52)
     for i in 1:52
         for j in 1:4
-            prob_prev *= f(age_group_incidence[j, i], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
+            prob_prev_age_groups[j, i] *= f(age_group_incidence[j, i], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
         end
         for j in 1:7
-            prob_prev *= f(etiology_incidence[j, i], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
+            prob_prev_etiology[j, i] *= f(etiology_incidence[j, i], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
         end
     end
 
     open("mcmc/output.txt", "a") do io
         println(io, "n = 0")
-        println(io, "Prob: ", prob_prev)
+        println(io, "Prob age 1: ", prob_prev_age_groups[1, :])
+        println(io, "Prob age 2: ", prob_prev_age_groups[2, :])
+        println(io, "Prob age 3: ", prob_prev_age_groups[3, :])
+        println(io, "Prob age 4: ", prob_prev_age_groups[4, :])
+        println(io, "Prob etiology 1: ", prob_prev_etiology[1, :])
+        println(io, "Prob etiology 2: ", prob_prev_etiology[2, :])
+        println(io, "Prob etiology 3: ", prob_prev_etiology[3, :])
+        println(io, "Prob etiology 4: ", prob_prev_etiology[4, :])
+        println(io, "Prob etiology 5: ", prob_prev_etiology[5, :])
+        println(io, "Prob etiology 6: ", prob_prev_etiology[6, :])
+        println(io, "Prob etiology 7: ", prob_prev_etiology[7, :])
         println(io, "S: ", S)
         println(io)
     end
@@ -310,21 +321,41 @@ function main()
             S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_incidence[i, :]).^ 2)
         end
 
-        prob = 1
+        prob_age_groups = ones(Float64, 4, 52)
+        prob_etiology = ones(Float64, 7, 52)
         for i in 1:52
             for j in 1:4
-                prob *= f(age_group_incidence[j, i], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
+                prob_age_groups[j, i] *= f(age_group_incidence[j, i], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
             end
             for j in 1:7
-                prob *= f(etiology_incidence[j, i], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
+                prob_etiology[j, i] *= f(etiology_incidence[j, i], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
             end
         end
 
-        accept_prob = min(1, prob / prob_prev)
+        accept_prob = 1.0
+        for i in 1:52
+            for j in 1:4
+                accept_prob *= prob_age_groups[j, i] / prob_prev_age_groups[j, i]
+            end
+            for j in 1:7
+                accept_prob *= prob_etiology[j, i] / prob_prev_etiology[j, i]
+            end
+        end
+        accept_prob = min(1.0, accept_prob)
 
         open("mcmc/output.txt", "a") do io
             println(io, "n = ", n)
-            println(io, "Prob: ", prob)
+            println(io, "Prob age 1: ", prob_prev_age_groups[1, :])
+            println(io, "Prob age 2: ", prob_prev_age_groups[2, :])
+            println(io, "Prob age 3: ", prob_prev_age_groups[3, :])
+            println(io, "Prob age 4: ", prob_prev_age_groups[4, :])
+            println(io, "Prob etiology 1: ", prob_prev_etiology[1, :])
+            println(io, "Prob etiology 2: ", prob_prev_etiology[2, :])
+            println(io, "Prob etiology 3: ", prob_prev_etiology[3, :])
+            println(io, "Prob etiology 4: ", prob_prev_etiology[4, :])
+            println(io, "Prob etiology 5: ", prob_prev_etiology[5, :])
+            println(io, "Prob etiology 6: ", prob_prev_etiology[6, :])
+            println(io, "Prob etiology 7: ", prob_prev_etiology[7, :])
             println(io, "Accept prob: ", accept_prob)
             println(io, "S: ", S)
             println(io, "Dur: ", duration_parameter_candidate)
@@ -366,7 +397,9 @@ function main()
             push!(temperature_parameter_6_array, temperature_parameter_6_candidate)
             push!(temperature_parameter_7_array, temperature_parameter_7_candidate)
 
-            prob_prev = prob
+            prob_prev_age_groups = copy(prob_age_groups)
+            prob_prev_etiology = copy(prob_etiology)
+
             accept_num += 1
             local_rejected_num = 0
         else
