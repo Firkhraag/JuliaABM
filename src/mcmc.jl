@@ -19,6 +19,8 @@ include("data/district_nums.jl")
 include("data/temperature.jl")
 include("data/etiology.jl")
 
+include("util/reset.jl")
+
 function f(x, mu, sigma)
     dist = Normal(mu, sigma)
     return cdf(dist, x + 0.5) - cdf(dist, x - 0.5)
@@ -356,13 +358,13 @@ function main()
             push!(susceptibility_parameter_6_array, susceptibility_parameter_6_candidate)
             push!(susceptibility_parameter_7_array, susceptibility_parameter_7_candidate)
 
-            push!(temperature_parameters_1_array, temperature_parameter_1_candidate)
-            push!(temperature_parameters_2_array, temperature_parameter_2_candidate)
-            push!(temperature_parameters_3_array, temperature_parameter_3_candidate)
-            push!(temperature_parameters_4_array, temperature_parameter_4_candidate)
-            push!(temperature_parameters_5_array, temperature_parameter_5_candidate)
-            push!(temperature_parameters_6_array, temperature_parameter_6_candidate)
-            push!(temperature_parameters_7_array, temperature_parameter_7_candidate)
+            push!(temperature_parameter_1_array, temperature_parameter_1_candidate)
+            push!(temperature_parameter_2_array, temperature_parameter_2_candidate)
+            push!(temperature_parameter_3_array, temperature_parameter_3_candidate)
+            push!(temperature_parameter_4_array, temperature_parameter_4_candidate)
+            push!(temperature_parameter_5_array, temperature_parameter_5_candidate)
+            push!(temperature_parameter_6_array, temperature_parameter_6_candidate)
+            push!(temperature_parameter_7_array, temperature_parameter_7_candidate)
 
             prob_prev = prob
             accept_num += 1
@@ -378,13 +380,13 @@ function main()
             push!(susceptibility_parameter_6_array, susceptibility_parameter_6_array[size(susceptibility_parameter_6_array)[1]])
             push!(susceptibility_parameter_7_array, susceptibility_parameter_7_array[size(susceptibility_parameter_7_array)[1]])
 
-            push!(temperature_parameters_1_array, temperature_parameters_1_array[size(temperature_parameters_1_array)[1]])
-            push!(temperature_parameters_2_array, temperature_parameters_2_array[size(temperature_parameters_2_array)[1]])
-            push!(temperature_parameters_3_array, temperature_parameters_3_array[size(temperature_parameters_3_array)[1]])
-            push!(temperature_parameters_4_array, temperature_parameters_4_array[size(temperature_parameters_4_array)[1]])
-            push!(temperature_parameters_5_array, temperature_parameters_5_array[size(temperature_parameters_5_array)[1]])
-            push!(temperature_parameters_6_array, temperature_parameters_6_array[size(temperature_parameters_6_array)[1]])
-            push!(temperature_parameters_7_array, temperature_parameters_7_array[size(temperature_parameters_7_array)[1]])
+            push!(temperature_parameter_1_array, temperature_parameter_1_array[size(temperature_parameter_1_array)[1]])
+            push!(temperature_parameter_2_array, temperature_parameter_2_array[size(temperature_parameter_2_array)[1]])
+            push!(temperature_parameter_3_array, temperature_parameter_3_array[size(temperature_parameter_3_array)[1]])
+            push!(temperature_parameter_4_array, temperature_parameter_4_array[size(temperature_parameter_4_array)[1]])
+            push!(temperature_parameter_5_array, temperature_parameter_5_array[size(temperature_parameter_5_array)[1]])
+            push!(temperature_parameter_6_array, temperature_parameter_6_array[size(temperature_parameter_6_array)[1]])
+            push!(temperature_parameter_7_array, temperature_parameter_7_array[size(temperature_parameter_7_array)[1]])
             
             local_rejected_num += 1
         end
@@ -407,19 +409,28 @@ function main()
             @__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_7_array.csv"), susceptibility_parameter_7_array, ',')
 
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_1_array.csv"), temperature_parameters_1_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameter_1_array.csv"), temperature_parameter_1_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_2_array.csv"), temperature_parameters_2_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameter_2_array.csv"), temperature_parameter_2_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_3_array.csv"), temperature_parameters_3_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameter_3_array.csv"), temperature_parameter_3_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_4_array.csv"), temperature_parameters_4_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameter_4_array.csv"), temperature_parameter_4_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_5_array.csv"), temperature_parameters_5_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameter_5_array.csv"), temperature_parameter_5_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_6_array.csv"), temperature_parameters_6_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameter_6_array.csv"), temperature_parameter_6_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_7_array.csv"), temperature_parameters_7_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameter_7_array.csv"), temperature_parameter_7_array, ',')
+
+        reset_population(
+            agents,
+            num_threads,
+            thread_rng,
+            start_agent_ids,
+            end_agent_ids,
+            infectivities,
+            viruses)
     end
 
     burnin = 1000
