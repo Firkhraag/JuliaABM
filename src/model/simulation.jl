@@ -534,7 +534,7 @@ function update_agent_states(
     end
 end
 
-function run_simulation_mcmc(
+function run_simulation(
     num_threads::Int,
     thread_rng::Vector{MersenneTwister},
     start_agent_ids::Vector{Int},
@@ -551,7 +551,7 @@ function run_simulation_mcmc(
     infected_data_mean_7::Vector{Float64},
     infected_data_mean_15::Vector{Float64},
     is_single_run::Bool
-)::Tuple{Float64, Matrix{Float64}, Vector{Int}}
+)::Tuple{Float64, Matrix{Int}, Vector{Int}}
     # День месяца
     day = 1
     # Месяц
@@ -728,7 +728,7 @@ function run_simulation_mcmc(
     return (S1 + S2 + S3 + S4), etiology_incidence, incidence
 end
 
-function run_simulation(
+function run_simulation_mcmc(
     num_threads::Int,
     thread_rng::Vector{MersenneTwister},
     start_agent_ids::Vector{Int},
@@ -745,7 +745,7 @@ function run_simulation(
     infected_data_mean_7::Vector{Float64},
     infected_data_mean_15::Vector{Float64},
     is_single_run::Bool
-)::Tuple{Float64, Matrix{Float64}, Vector{Int}}
+)::Tuple{Matrix{Int}, Matrix{Int}}
     # День месяца
     day = 1
     # Месяц

@@ -98,10 +98,10 @@ function main()
     infected_data_mean_15 = mean(infected_data_15[2:53, 24:27], dims = 2)[:, 1]
 
     num_infected_age_groups_mean = cat(
-        infected_data_mean_0,
-        infected_data_mean_3,
-        infected_data_mean_7,
-        infected_data_mean_15,
+        reshape(infected_data_mean_0, (1, length(infected_data_mean_0))),
+        reshape(infected_data_mean_3, (1, length(infected_data_mean_3))),
+        reshape(infected_data_mean_7, (1, length(infected_data_mean_7))),
+        reshape(infected_data_mean_15, (1, length(infected_data_mean_15))),
         dims = 1)
 
     num_infected_age_groups_sd = sqrt.(num_infected_age_groups_mean)
@@ -115,13 +115,13 @@ function main()
     etiology_infected_data_mean_7 = infected_data_mean .* etiology_data[7, :]
 
     num_infected_etiology_mean = cat(
-        etiology_infected_data_mean_1,
-        etiology_infected_data_mean_2,
-        etiology_infected_data_mean_3,
-        etiology_infected_data_mean_4,
-        etiology_infected_data_mean_5,
-        etiology_infected_data_mean_6,
-        etiology_infected_data_mean_7,
+        reshape(etiology_infected_data_mean_1, (1, length(etiology_infected_data_mean_1))),
+        reshape(etiology_infected_data_mean_2, (1, length(etiology_infected_data_mean_2))),
+        reshape(etiology_infected_data_mean_3, (1, length(etiology_infected_data_mean_3))),
+        reshape(etiology_infected_data_mean_4, (1, length(etiology_infected_data_mean_4))),
+        reshape(etiology_infected_data_mean_5, (1, length(etiology_infected_data_mean_5))),
+        reshape(etiology_infected_data_mean_6, (1, length(etiology_infected_data_mean_6))),
+        reshape(etiology_infected_data_mean_7, (1, length(etiology_infected_data_mean_7))),
         dims = 1)
     num_infected_etiology_sd = sqrt.(num_infected_etiology_mean)
 
@@ -204,10 +204,10 @@ function main()
     prob_prev = 1
     for i in 1:52
         for j in 1:4
-            prob_prev *= f(age_group_incidence[i, j], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
+            prob_prev *= f(age_group_incidence[j, i], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
         end
         for j in 1:7
-            prob_prev *= f(age_group_incidence[i, j], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
+            prob_prev *= f(etiology_incidence[j, i], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
         end
     end
 
@@ -314,10 +314,10 @@ function main()
         prob = 1
         for i in 1:52
             for j in 1:4
-                prob *= f(age_group_incidence[i, j], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
+                prob *= f(age_group_incidence[j, i], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
             end
             for j in 1:7
-                prob *= f(age_group_incidence[i, j], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
+                prob *= f(etiology_incidence[j, i], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
             end
         end
 
