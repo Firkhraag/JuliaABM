@@ -194,12 +194,16 @@ function main()
         end
     end
 
-    @time age_group_incidence, etiology_incidence = run_simulation_mcmc(
+    @time S, age_group_incidence, etiology_incidence, incidence = run_simulation(
         num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
         temp_influences, duration_parameter,
         susceptibility_parameters, etiology, infected_data_mean,
         infected_data_mean_0, infected_data_mean_3,
         infected_data_mean_7, infected_data_mean_15, true)
+
+    for i = 1:7
+        S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_incidence[i, :]).^ 2)
+    end
 
     prob_prev = 1
     for i in 1:52
@@ -211,9 +215,16 @@ function main()
         end
     end
 
+    open("mcmc/output.txt", "a") do io
+        println(io, "n = 0")
+        println(io, "Prob: ", prob_prev)
+        println(io, "S: ", S)
+        println(io)
+    end
+
     # N = 1e5
-    N = 1e1
-    for _ in 1:N
+    N = 2
+    for n in 1:N
         duration_parameter_candidate = exp(rand(Normal(log(duration_parameter_array[size(duration_parameter_array)[1]]), deltas[1])))
 
         susceptibility_parameter_1_candidate = exp(rand(Normal(log(susceptibility_parameter_1_array[size(susceptibility_parameter_1_array)[1]]), deltas[2])))
@@ -251,24 +262,6 @@ function main()
         x = temperature_parameter_7_array[size(temperature_parameter_7_array)[1]]
         y = rand(Normal(log(x / (1 - x)), deltas[15]))
         temperature_parameter_7_candidate = exp(y) / (1 + exp(y))
-
-        println("Dur", duration_parameter_candidate)
-
-        println("Suscept", susceptibility_parameter_1_candidate)
-        println("Suscept", susceptibility_parameter_2_candidate)
-        println("Suscept", susceptibility_parameter_3_candidate)
-        println("Suscept", susceptibility_parameter_4_candidate)
-        println("Suscept", susceptibility_parameter_5_candidate)
-        println("Suscept", susceptibility_parameter_6_candidate)
-        println("Suscept", susceptibility_parameter_7_candidate)
-
-        println("Temp", temperature_parameter_1_candidate)
-        println("Temp", temperature_parameter_2_candidate)
-        println("Temp", temperature_parameter_3_candidate)
-        println("Temp", temperature_parameter_4_candidate)
-        println("Temp", temperature_parameter_5_candidate)
-        println("Temp", temperature_parameter_6_candidate)
-        println("Temp", temperature_parameter_7_candidate)
         
         duration_parameter = duration_parameter_candidate
         susceptibility_parameters = [
@@ -304,12 +297,16 @@ function main()
             end
         end
 
-        @time age_group_incidence, etiology_incidence = run_simulation_mcmc(
+        @time S, age_group_incidence, etiology_incidence, incidence = run_simulation(
             num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
             temp_influences, duration_parameter,
             susceptibility_parameters, etiology, infected_data_mean,
             infected_data_mean_0, infected_data_mean_3,
             infected_data_mean_7, infected_data_mean_15, true)
+
+        for i = 1:7
+            S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_incidence[i, :]).^ 2)
+        end
 
         prob = 1
         for i in 1:52
@@ -322,6 +319,30 @@ function main()
         end
 
         accept_prob = min(1, prob / prob_prev)
+
+        open("mcmc/output.txt", "a") do io
+            println(io, "n = ", n)
+            println(io, "Prob: ", prob)
+            println(io, "Accept prob: ", accept_prob)
+            println(io, "S: ", S)
+            println(io, "Dur: ", duration_parameter_candidate)
+            println(io, "Suscept: ", susceptibility_parameter_1_candidate)
+            println(io, "Suscept: ", susceptibility_parameter_2_candidate)
+            println(io, "Suscept: ", susceptibility_parameter_3_candidate)
+            println(io, "Suscept: ", susceptibility_parameter_4_candidate)
+            println(io, "Suscept: ", susceptibility_parameter_5_candidate)
+            println(io, "Suscept: ", susceptibility_parameter_6_candidate)
+            println(io, "Suscept: ", susceptibility_parameter_7_candidate)
+            println(io, "Temp: ", temperature_parameter_1_candidate)
+            println(io, "Temp: ", temperature_parameter_2_candidate)
+            println(io, "Temp: ", temperature_parameter_3_candidate)
+            println(io, "Temp: ", temperature_parameter_4_candidate)
+            println(io, "Temp: ", temperature_parameter_5_candidate)
+            println(io, "Temp: ", temperature_parameter_6_candidate)
+            println(io, "Temp: ", temperature_parameter_7_candidate)
+            println(io)
+        end
+
         if rand(Float64) < accept_prob || local_rejected_num > 10
             push!(samples, candidate)
 
@@ -368,37 +389,37 @@ function main()
             local_rejected_num += 1
         end
 
-        writedlm(joinpath(@__DIR__, "..", "mcmc", "duration_parameter_array.csv"), duration_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), duration_parameter_array, ',')
 
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "susceptibility_parameter_1_array.csv"), susceptibility_parameter_1_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_1_array.csv"), susceptibility_parameter_1_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "susceptibility_parameter_2_array.csv"), susceptibility_parameter_2_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_2_array.csv"), susceptibility_parameter_2_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "susceptibility_parameter_3_array.csv"), susceptibility_parameter_3_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_3_array.csv"), susceptibility_parameter_3_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "susceptibility_parameter_4_array.csv"), susceptibility_parameter_4_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_4_array.csv"), susceptibility_parameter_4_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "susceptibility_parameter_5_array.csv"), susceptibility_parameter_5_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_5_array.csv"), susceptibility_parameter_5_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "susceptibility_parameter_6_array.csv"), susceptibility_parameter_6_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_6_array.csv"), susceptibility_parameter_6_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "susceptibility_parameter_7_array.csv"), susceptibility_parameter_7_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_7_array.csv"), susceptibility_parameter_7_array, ',')
 
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "temperature_parameters_1_array.csv"), temperature_parameters_1_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_1_array.csv"), temperature_parameters_1_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "temperature_parameters_2_array.csv"), temperature_parameters_2_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_2_array.csv"), temperature_parameters_2_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "temperature_parameters_3_array.csv"), temperature_parameters_3_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_3_array.csv"), temperature_parameters_3_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "temperature_parameters_4_array.csv"), temperature_parameters_4_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_4_array.csv"), temperature_parameters_4_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "temperature_parameters_5_array.csv"), temperature_parameters_5_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_5_array.csv"), temperature_parameters_5_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "temperature_parameters_6_array.csv"), temperature_parameters_6_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_6_array.csv"), temperature_parameters_6_array, ',')
         writedlm(joinpath(
-            @__DIR__, "..", "mcmc", "temperature_parameters_7_array.csv"), temperature_parameters_7_array, ',')
+            @__DIR__, "..", "mcmc", "tables", "temperature_parameters_7_array.csv"), temperature_parameters_7_array, ',')
     end
 
     burnin = 1000

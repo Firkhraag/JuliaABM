@@ -377,17 +377,15 @@ function multiple_simulations(
             end
         end
 
-        @time S, etiology_model, incidence = run_simulation(
+        @time S, _, etiology_model, incidence = run_simulation(
             num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
             temp_influences, duration_parameter,
             susceptibility_parameters, etiology, infected_data_mean,
             infected_data_mean_0, infected_data_mean_3,
             infected_data_mean_7, infected_data_mean_15, false)
 
-        etiology_sum = sum(etiology_model, dims = 1)[1, :]
         for i = 1:7
-            etiology_model[i, :] = etiology_model[i, :] ./ etiology_sum
-            S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence).^ 2)
+            S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :]).^ 2)
         end
 
         if S < S_min
@@ -626,17 +624,15 @@ function main()
         joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
 
     # Single run
-    # @time S, etiology_model, incidence = run_simulation(
+    # @time S, _, etiology_model, incidence = run_simulation(
     #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
     #     temp_influences, duration_parameter,
     #     susceptibility_parameters, etiology, infected_data_mean,
     #     infected_data_mean_0, infected_data_mean_3,
     #     infected_data_mean_7, infected_data_mean_15, true)
 
-    # etiology_sum = sum(etiology_model, dims = 1)[1, :]
     # for i = 1:7
-    #     etiology_model[i, :] = etiology_model[i, :] ./ etiology_sum
-    #     S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence).^ 2)
+    #     S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :]).^ 2)
     # end
 
     # println("S: ", S)
