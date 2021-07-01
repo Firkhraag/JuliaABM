@@ -26,6 +26,10 @@ function f(x, mu, sigma)
     return cdf(dist, x + 0.5) - cdf(dist, x - 0.5)
 end
 
+function log_g(x, mu, sigma)
+    -log(sqrt(2 * pi) * sigma) - 0.5 * ((x - mu) / sigma)^2
+end
+
 function main()
 
     println("Initialization...")
@@ -207,14 +211,14 @@ function main()
         S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_incidence[i, :]).^ 2)
     end
 
-    prob_prev_age_groups = ones(Float64, 4, 52)
-    prob_prev_etiology = ones(Float64, 7, 52)
+    prob_prev_age_groups = zeros(Float64, 4, 52)
+    prob_prev_etiology = zeros(Float64, 7, 52)
     for i in 1:52
         for j in 1:4
-            prob_prev_age_groups[j, i] *= f(age_group_incidence[j, i], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
+            prob_prev_age_groups[j, i] = log_g(age_group_incidence[j, i], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
         end
         for j in 1:7
-            prob_prev_etiology[j, i] *= f(etiology_incidence[j, i], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
+            prob_prev_etiology[j, i] = log_g(etiology_incidence[j, i], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
         end
     end
 
@@ -321,27 +325,27 @@ function main()
             S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_incidence[i, :]).^ 2)
         end
 
-        prob_age_groups = ones(Float64, 4, 52)
-        prob_etiology = ones(Float64, 7, 52)
+        prob_age_groups = zeros(Float64, 4, 52)
+        prob_etiology = zeros(Float64, 7, 52)
         for i in 1:52
             for j in 1:4
-                prob_age_groups[j, i] *= f(age_group_incidence[j, i], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
+                prob_age_groups[j, i] = log_g(age_group_incidence[j, i], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
             end
             for j in 1:7
-                prob_etiology[j, i] *= f(etiology_incidence[j, i], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
+                prob_etiology[j, i] = log_g(etiology_incidence[j, i], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
             end
         end
 
-        accept_prob = 1.0
+        accept_prob = 0.0
         for i in 1:52
             for j in 1:4
-                accept_prob *= prob_age_groups[j, i] / prob_prev_age_groups[j, i]
+                accept_prob += prob_age_groups[j, i] - prob_prev_age_groups[j, i]
             end
             for j in 1:7
-                accept_prob *= prob_etiology[j, i] / prob_prev_etiology[j, i]
+                accept_prob += prob_etiology[j, i] - prob_prev_etiology[j, i]
             end
         end
-        accept_prob = min(1.0, accept_prob)
+        accept_prob = min(1.0, exp(accept_prob))
 
         open("mcmc/output.txt", "a") do io
             println(io, "n = ", n)
