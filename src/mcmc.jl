@@ -140,23 +140,41 @@ function main()
             district_people_households, district_nums)
     end
 
-    duration_parameter_array = [6.749360438556418]
+    # duration_parameter_array = [6.749360438556418]
 
-    susceptibility_parameter_1_array = [2.9125475864169337]
-    susceptibility_parameter_2_array = [2.7244500279173645]
-    susceptibility_parameter_3_array = [3.4927161057814327]
-    susceptibility_parameter_4_array = [5.0994233795238815]
-    susceptibility_parameter_5_array = [4.39737526013908]
-    susceptibility_parameter_6_array = [4.079802548094005]
-    susceptibility_parameter_7_array = [4.179229480737016]
+    # susceptibility_parameter_1_array = [2.9125475864169337]
+    # susceptibility_parameter_2_array = [2.7244500279173645]
+    # susceptibility_parameter_3_array = [3.4927161057814327]
+    # susceptibility_parameter_4_array = [5.0994233795238815]
+    # susceptibility_parameter_5_array = [4.39737526013908]
+    # susceptibility_parameter_6_array = [4.079802548094005]
+    # susceptibility_parameter_7_array = [4.179229480737016]
 
-    temperature_parameter_1_array = [0.987586416933151]
-    temperature_parameter_2_array = [0.679688848281813]
-    temperature_parameter_3_array = [0.06255012435916961]
-    temperature_parameter_4_array = [0.3581041571493833]
-    temperature_parameter_5_array = [0.18531597380843606]
-    temperature_parameter_6_array = [0.06743261763362265]
-    temperature_parameter_7_array = [0.6817735140348207]
+    # temperature_parameter_1_array = [0.987586416933151]
+    # temperature_parameter_2_array = [0.679688848281813]
+    # temperature_parameter_3_array = [0.06255012435916961]
+    # temperature_parameter_4_array = [0.3581041571493833]
+    # temperature_parameter_5_array = [0.18531597380843606]
+    # temperature_parameter_6_array = [0.06743261763362265]
+    # temperature_parameter_7_array = [0.6817735140348207]
+
+    duration_parameter_array = [7.0]
+
+    susceptibility_parameter_1_array = [5.0]
+    susceptibility_parameter_2_array = [5.0]
+    susceptibility_parameter_3_array = [5.0]
+    susceptibility_parameter_4_array = [5.0]
+    susceptibility_parameter_5_array = [5.0]
+    susceptibility_parameter_6_array = [5.0]
+    susceptibility_parameter_7_array = [5.0]
+
+    temperature_parameter_1_array = [0.5]
+    temperature_parameter_2_array = [0.5]
+    temperature_parameter_3_array = [0.5]
+    temperature_parameter_4_array = [0.5]
+    temperature_parameter_5_array = [0.5]
+    temperature_parameter_6_array = [0.5]
+    temperature_parameter_7_array = [0.5]
 
     duration_parameter = duration_parameter_array[1]
     susceptibility_parameters = [
@@ -181,8 +199,8 @@ function main()
     accept_num = 0
     local_rejected_num = 0
 
-    intervals_min = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
-    intervals_max = [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    # intervals_min = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
+    # intervals_max = [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 
     deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
 
@@ -240,7 +258,7 @@ function main()
     end
 
     # N = 1e5
-    N = 2
+    N = 10000
     for n in 1:N
         duration_parameter_candidate = exp(rand(Normal(log(duration_parameter_array[size(duration_parameter_array)[1]]), deltas[1])))
 
@@ -345,22 +363,23 @@ function main()
                 accept_prob += prob_etiology[j, i] - prob_prev_etiology[j, i]
             end
         end
-        accept_prob = min(1.0, exp(accept_prob))
+        accept_prob_final = min(1.0, exp(accept_prob))
 
         open("mcmc/output.txt", "a") do io
             println(io, "n = ", n)
-            println(io, "Prob age 1: ", prob_prev_age_groups[1, :])
-            println(io, "Prob age 2: ", prob_prev_age_groups[2, :])
-            println(io, "Prob age 3: ", prob_prev_age_groups[3, :])
-            println(io, "Prob age 4: ", prob_prev_age_groups[4, :])
-            println(io, "Prob etiology 1: ", prob_prev_etiology[1, :])
-            println(io, "Prob etiology 2: ", prob_prev_etiology[2, :])
-            println(io, "Prob etiology 3: ", prob_prev_etiology[3, :])
-            println(io, "Prob etiology 4: ", prob_prev_etiology[4, :])
-            println(io, "Prob etiology 5: ", prob_prev_etiology[5, :])
-            println(io, "Prob etiology 6: ", prob_prev_etiology[6, :])
-            println(io, "Prob etiology 7: ", prob_prev_etiology[7, :])
-            println(io, "Accept prob: ", accept_prob)
+            println(io, "Prob age 1: ", prob_age_groups[1, :])
+            println(io, "Prob age 2: ", prob_age_groups[2, :])
+            println(io, "Prob age 3: ", prob_age_groups[3, :])
+            println(io, "Prob age 4: ", prob_age_groups[4, :])
+            println(io, "Prob etiology 1: ", prob_etiology[1, :])
+            println(io, "Prob etiology 2: ", prob_etiology[2, :])
+            println(io, "Prob etiology 3: ", prob_etiology[3, :])
+            println(io, "Prob etiology 4: ", prob_etiology[4, :])
+            println(io, "Prob etiology 5: ", prob_etiology[5, :])
+            println(io, "Prob etiology 6: ", prob_etiology[6, :])
+            println(io, "Prob etiology 7: ", prob_etiology[7, :])
+            println(io, "Accept prob exp: ", accept_prob)
+            println(io, "Accept prob: ", accept_prob_final)
             println(io, "S: ", S)
             println(io, "Dur: ", duration_parameter_candidate)
             println(io, "Suscept: ", susceptibility_parameter_1_candidate)
@@ -380,9 +399,7 @@ function main()
             println(io)
         end
 
-        if rand(Float64) < accept_prob || local_rejected_num > 10
-            push!(samples, candidate)
-
+        if rand(Float64) < accept_prob_final || local_rejected_num > 10
             push!(duration_parameter_array, duration_parameter_candidate)
 
             push!(susceptibility_parameter_1_array, susceptibility_parameter_1_candidate)
@@ -471,8 +488,8 @@ function main()
     end
 
     burnin = 1000
-    # retained_duration_parameter_array = duration_parameter_array[burnin + 1:size(duration_parameter_array)[1]]
-    # retained_duration_parameter_array = retained_duration_parameter_array[1:5:size(duration_parameter_array)[1]]
+    retained_duration_parameter_array = duration_parameter_array[burnin + 1:size(duration_parameter_array)[1]]
+    retained_duration_parameter_array = retained_duration_parameter_array[1:6:size(duration_parameter_array)[1]]
     println("Accept rate:", accept_num / N)
 
     println("Duration")
