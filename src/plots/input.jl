@@ -193,8 +193,28 @@ function plot_mean_viral_loads()
     savefig(viral_loads_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "viral_loads.pdf"))
 end
 
-plot_temperature()
-# plot_incidence()
+function plot_monthly_incidence()
+    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
+    incidence_data = incidence_data[35:45, 2:53]
+
+    println(mean(incidence_data[:, 1]))
+    println(std(incidence_data[:, 1]))
+
+    # incidence_plot = histogram(incidence_data[:, 1], bins=:scott, weights=repeat(1:5, outer=2))
+    incidence_plot = histogram(incidence_data[:, 1], bins=6)
+
+    # # ticks = range(1, stop = 52, length = 13)
+    # # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    # incidence_plot = plot(1:11, [incidence_data[i, 1] for i in 1:11], 
+    #     lw = 3, legend = false, color = "red", fontfamily = "Times")
+    xlabel!("Year")
+    ylabel!("Num of cases per 1000 people")
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "monthly_incidence.pdf"))
+end
+
+# plot_monthly_incidence()
+# plot_temperature()
+plot_incidence()
 # plot_incidence_age_groups()
 # plot_etiology()
 # plot_incubation_periods()

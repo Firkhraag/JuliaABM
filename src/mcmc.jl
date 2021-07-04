@@ -97,11 +97,17 @@ function main()
     infected_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    infected_data_mean = mean(infected_data[42:45, 2:53], dims = 1)[1, :]
-    infected_data_mean_0 = mean(infected_data_0[2:53, 24:27], dims = 2)[:, 1]
-    infected_data_mean_3 = mean(infected_data_3[2:53, 24:27], dims = 2)[:, 1]
-    infected_data_mean_7 = mean(infected_data_7[2:53, 24:27], dims = 2)[:, 1]
-    infected_data_mean_15 = mean(infected_data_15[2:53, 24:27], dims = 2)[:, 1]
+    infected_data_mean = mean(infected_data[35:45, 2:53], dims = 1)[1, :]
+    infected_data_mean_0 = mean(infected_data_0[2:53, 17:27], dims = 2)[:, 1]
+    infected_data_mean_3 = mean(infected_data_3[2:53, 17:27], dims = 2)[:, 1]
+    infected_data_mean_7 = mean(infected_data_7[2:53, 17:27], dims = 2)[:, 1]
+    infected_data_mean_15 = mean(infected_data_15[2:53, 17:27], dims = 2)[:, 1]
+
+    infected_data_sd = std(infected_data[35:45, 2:53], dims = 1)[1, :]
+    infected_data_sd_0 = std(infected_data_0[2:53, 17:27], dims = 2)[:, 1]
+    infected_data_sd_3 = std(infected_data_3[2:53, 17:27], dims = 2)[:, 1]
+    infected_data_sd_7 = std(infected_data_7[2:53, 17:27], dims = 2)[:, 1]
+    infected_data_sd_15 = std(infected_data_15[2:53, 17:27], dims = 2)[:, 1]
 
     num_infected_age_groups_mean = cat(
         reshape(infected_data_mean_0, (1, length(infected_data_mean_0))),
@@ -110,7 +116,12 @@ function main()
         reshape(infected_data_mean_15, (1, length(infected_data_mean_15))),
         dims = 1)
 
-    num_infected_age_groups_sd = sqrt.(num_infected_age_groups_mean)
+    num_infected_age_groups_sd = cat(
+        reshape(infected_data_sd_0, (1, length(infected_data_sd_0))),
+        reshape(infected_data_sd_3, (1, length(infected_data_sd_3))),
+        reshape(infected_data_sd_7, (1, length(infected_data_sd_7))),
+        reshape(infected_data_sd_15, (1, length(infected_data_sd_15))),
+        dims = 1)
 
     etiology_infected_data_mean_1 = infected_data_mean .* etiology_data[1, :]
     etiology_infected_data_mean_2 = infected_data_mean .* etiology_data[2, :]
@@ -129,7 +140,24 @@ function main()
         reshape(etiology_infected_data_mean_6, (1, length(etiology_infected_data_mean_6))),
         reshape(etiology_infected_data_mean_7, (1, length(etiology_infected_data_mean_7))),
         dims = 1)
-    num_infected_etiology_sd = sqrt.(num_infected_etiology_mean)
+
+    etiology_infected_data_sd_1 = std(etiology_data[1, :]' .* infected_data[35:45, 2:53], dims = 1)[1, :]
+    etiology_infected_data_sd_2 = std(etiology_data[2, :]' .* infected_data[35:45, 2:53], dims = 1)[1, :]
+    etiology_infected_data_sd_3 = std(etiology_data[3, :]' .* infected_data[35:45, 2:53], dims = 1)[1, :]
+    etiology_infected_data_sd_4 = std(etiology_data[4, :]' .* infected_data[35:45, 2:53], dims = 1)[1, :]
+    etiology_infected_data_sd_5 = std(etiology_data[5, :]' .* infected_data[35:45, 2:53], dims = 1)[1, :]
+    etiology_infected_data_sd_6 = std(etiology_data[6, :]' .* infected_data[35:45, 2:53], dims = 1)[1, :]
+    etiology_infected_data_sd_7 = std(etiology_data[7, :]' .* infected_data[35:45, 2:53], dims = 1)[1, :]
+
+    num_infected_etiology_sd = cat(
+        reshape(etiology_infected_data_sd_1, (1, length(etiology_infected_data_sd_1))),
+        reshape(etiology_infected_data_sd_2, (1, length(etiology_infected_data_sd_2))),
+        reshape(etiology_infected_data_sd_3, (1, length(etiology_infected_data_sd_3))),
+        reshape(etiology_infected_data_sd_4, (1, length(etiology_infected_data_sd_4))),
+        reshape(etiology_infected_data_sd_5, (1, length(etiology_infected_data_sd_5))),
+        reshape(etiology_infected_data_sd_6, (1, length(etiology_infected_data_sd_6))),
+        reshape(etiology_infected_data_sd_7, (1, length(etiology_infected_data_sd_7))),
+        dims = 1)
 
     agents = Array{Agent, 1}(undef, num_people)
     thread_rng = [MersenneTwister(i) for i = 1:num_threads]
