@@ -242,23 +242,23 @@ function main()
     # temperature_parameter_6_array = [0.5]
     # temperature_parameter_7_array = [0.5]
 
-    duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n')
+    duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     
-    susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n')
-    susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n')
-    susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_3_array.csv"), ',', Float64, '\n')
-    susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_4_array.csv"), ',', Float64, '\n')
-    susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_5_array.csv"), ',', Float64, '\n')
-    susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n')
-    susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n')
+    susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_3_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_4_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_5_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
 
-    temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_1_array.csv"), ',', Float64, '\n')
-    temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_2_array.csv"), ',', Float64, '\n')
-    temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_3_array.csv"), ',', Float64, '\n')
-    temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_4_array.csv"), ',', Float64, '\n')
-    temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_5_array.csv"), ',', Float64, '\n')
-    temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_6_array.csv"), ',', Float64, '\n')
-    temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_7_array.csv"), ',', Float64, '\n')
+    temperature_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_1_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_2_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_3_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_4_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_5_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_6_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_7_array.csv"), ',', Float64, '\n'))
 
     duration_parameter = duration_parameter_array[size(duration_parameter_array)[1]]
     susceptibility_parameters = [
@@ -306,12 +306,14 @@ function main()
     #     infected_data_mean_0, infected_data_mean_3,
     #     infected_data_mean_7, infected_data_mean_15, true)
 
+    # TRUE HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @time num_infected_age_groups_viruses = run_simulation(
         num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
         temp_influences, duration_parameter,
-        susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, false)
+        susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, true)
 
-    S = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+    S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+    S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
     prob_prev_age_groups_viruses = zeros(Float64, 7, 4, 52)
     for i in 1:52
@@ -337,11 +339,12 @@ function main()
 
     open("mcmc/output.txt", "a") do io
         println(io, "n = ", n - 1)
-        println(io, "S: ", S)
+        println(io, "S_abs: ", S_abs)
+        println(io, "S_square: ", S_square)
         println(io)
     end
 
-    N = 1
+    N = 10000
     while n <= N
         duration_parameter_candidate = exp(rand(Normal(log(duration_parameter_array[size(duration_parameter_array)[1]]), deltas[1])))
 
@@ -420,7 +423,8 @@ function main()
             temp_influences, duration_parameter,
             susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, false)
 
-        S = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+        S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+        S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
         prob_age_groups_viruses = zeros(Float64, 7, 4, 52)
         for i in 1:52
@@ -486,7 +490,8 @@ function main()
             println(io, "n = ", n)
             println(io, "Accept prob exp: ", accept_prob)
             println(io, "Accept prob: ", accept_prob_final)
-            println(io, "S: ", S)
+            println(io, "S_abs: ", S_abs)
+            println(io, "S_square: ", S_square)
             println(io, "Dur: ", duration_parameter_candidate)
             println(io, "Suscept: ", susceptibility_parameter_1_candidate)
             println(io, "Suscept: ", susceptibility_parameter_2_candidate)

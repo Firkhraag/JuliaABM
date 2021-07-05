@@ -28,16 +28,11 @@ end
 function plot_incidence_etiology()
     etiology = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), ',', Float64)
 
-    etiology_sum = sum(etiology, dims = 1)
-    for i = 1:7
-        etiology[i, :] = etiology[i, :] ./ etiology_sum[1, :]
-    end
-
     ticks = range(1, stop = 52, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     etiology_incidence_plot = plot(
         1:52,
-        [etiology[i, :] for i = 1:7],
+        [etiology[:, i] for i = 1:7],
         lw = 3,
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
@@ -66,7 +61,7 @@ function plot_incidence_age_groups()
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     incidence_plot = plot(
         1:52,
-        [age_groups[1, :] infected_data_mean_0],
+        [age_groups[:, 1] infected_data_mean_0],
         lw = 3,
         xticks = (ticks, ticklabels),
         fontfamily = "Times",
@@ -77,7 +72,7 @@ function plot_incidence_age_groups()
 
     incidence_plot = plot(
         1:52,
-        [age_groups[2, :] infected_data_mean_3],
+        [age_groups[:, 2] infected_data_mean_3],
         lw = 3,
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
@@ -88,7 +83,7 @@ function plot_incidence_age_groups()
 
     incidence_plot = plot(
         1:52,
-        [age_groups[3, :] infected_data_mean_7],
+        [age_groups[:, 3] infected_data_mean_7],
         lw = 3,
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
@@ -99,7 +94,7 @@ function plot_incidence_age_groups()
 
     incidence_plot = plot(
         1:52,
-        [age_groups[4, :] infected_data_mean_15],
+        [age_groups[:, 4] infected_data_mean_15],
         lw = 3,
         fontfamily = "Times",
         xticks = (ticks, ticklabels),

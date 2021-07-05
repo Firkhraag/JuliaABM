@@ -249,9 +249,7 @@ function update_agent_states(
     agents::Vector{Agent},
     infectivities::Array{Float64, 4},
     current_step::Int,
-    confirmed_daily_new_cases_viruses::Array{Int, 3},
-    confirmed_daily_new_cases_age_groups::Array{Int, 3},
-    confirmed_daily_new_cases_age_groups_viruses::Array{Int, 4}
+    confirmed_daily_new_cases_age_groups_viruses::Array{Float64, 4}
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -378,18 +376,13 @@ function update_agent_states(
                         end
                     end
                     if agent.is_isolated
-                        confirmed_daily_new_cases_viruses[current_step, agent.virus_id, thread_id] += 1
                         if agent.age < 3
-                            confirmed_daily_new_cases_age_groups[current_step, 1, thread_id] += 1
                             confirmed_daily_new_cases_age_groups_viruses[current_step, 1, agent.virus_id, thread_id] += 1
                         elseif agent.age < 7
-                            confirmed_daily_new_cases_age_groups[current_step, 2, thread_id] += 1
                             confirmed_daily_new_cases_age_groups_viruses[current_step, 2, agent.virus_id, thread_id] += 1
                         elseif agent.age < 15
-                            confirmed_daily_new_cases_age_groups[current_step, 3, thread_id] += 1
                             confirmed_daily_new_cases_age_groups_viruses[current_step, 3, agent.virus_id, thread_id] += 1
                         else
-                            confirmed_daily_new_cases_age_groups[current_step, 4, thread_id] += 1
                             confirmed_daily_new_cases_age_groups_viruses[current_step, 4, agent.virus_id, thread_id] += 1
                         end
                     end
@@ -564,15 +557,8 @@ function run_simulation(
 
     num_viruses = 7
 
-    incidence = Array{Int, 1}(undef, 52)
-    etiology_incidence = Array{Int, 2}(undef, 7, 52)
-    age_groups_infected = Array{Int, 2}(undef, 4, 52)
     num_infected_age_groups_viruses = Array{Int, 3}(undef, 52, 7, 4)
-
-    confirmed_daily_new_cases_viruses = zeros(Int, 365, num_viruses, num_threads)
-    confirmed_daily_new_cases_age_groups = zeros(Int, 365, 4, num_threads)
-    confirmed_daily_new_cases_age_groups_viruses = Array{Int, 4}(undef, 365, 4, 7, num_threads)
-
+    confirmed_daily_new_cases_age_groups_viruses = zeros(365, 4, 7, num_threads)
     infected_inside_collective = zeros(Int, 365, 5, num_threads)
 
     # DEBUG
@@ -667,22 +653,11 @@ function run_simulation(
                 agents,
                 infectivities,
                 current_step,
-                confirmed_daily_new_cases_viruses,
-                confirmed_daily_new_cases_age_groups,
                 confirmed_daily_new_cases_age_groups_viruses)
         end
 
         # Обновление даты
         if week_day == 7
-
-            incidence[week_num] = sum(confirmed_daily_new_cases_viruses[current_step - 6:current_step, :, :])
-            for i = 1:7
-                etiology_incidence[i, week_num] = sum(confirmed_daily_new_cases_viruses[current_step - 6:current_step, i, :])
-            end
-            for i = 1:4
-                age_groups_infected[i, week_num] = sum(confirmed_daily_new_cases_age_groups[current_step - 6:current_step, i, :])
-            end
-
             for i = 1:4
                 for j = 1:7
                     num_infected_age_groups_viruses[week_num, j, i] = sum(confirmed_daily_new_cases_age_groups_viruses[current_step - 6:current_step, i, j, :])
@@ -715,11 +690,11 @@ function run_simulation(
 
     if (is_single_run)
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "infected_data.csv"), incidence ./ 9897, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "infected_data.csv"), sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), etiology_incidence, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 9897, ',')
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), age_groups_infected ./ 9897, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 9897, ',')
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"),
             sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
