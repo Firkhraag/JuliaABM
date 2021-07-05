@@ -7,15 +7,15 @@ include("../data/etiology.jl")
 default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
 
 function plot_incidence()
-    incidence = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_data.csv"), ',', Float64)
-    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
-    incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :] ./ 9897
+    incidence = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "infected_data.csv"), ',', Float64)
+    infected_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
+    infected_data_mean = mean(infected_data[39:45, 2:53], dims = 1)[1, :] ./ 9897
 
     ticks = range(1, stop = 52, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     incidence_plot = plot(
         1:52,
-        [incidence incidence_data_mean],
+        [incidence infected_data_mean],
         lw = 3,
         xticks = (ticks, ticklabels),
         fontfamily = "Times",
@@ -52,21 +52,21 @@ end
 function plot_incidence_age_groups()
     age_groups = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), ',', Float64)
 
-    incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
-    incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
-    incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
-    incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
+    infected_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
+    infected_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
+    infected_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
+    infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1] ./ 9897
-    incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1] ./ 9897
-    incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1] ./ 9897
-    incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1] ./ 9897
+    infected_data_mean_0 = mean(infected_data_0[2:53, 22:27], dims = 2)[:, 1] ./ 9897
+    infected_data_mean_3 = mean(infected_data_3[2:53, 22:27], dims = 2)[:, 1] ./ 9897
+    infected_data_mean_7 = mean(infected_data_7[2:53, 22:27], dims = 2)[:, 1] ./ 9897
+    infected_data_mean_15 = mean(infected_data_15[2:53, 22:27], dims = 2)[:, 1] ./ 9897
 
     ticks = range(1, stop = 52, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     incidence_plot = plot(
         1:52,
-        [age_groups[1, :] incidence_data_mean_0],
+        [age_groups[1, :] infected_data_mean_0],
         lw = 3,
         xticks = (ticks, ticklabels),
         fontfamily = "Times",
@@ -77,7 +77,7 @@ function plot_incidence_age_groups()
 
     incidence_plot = plot(
         1:52,
-        [age_groups[2, :] incidence_data_mean_3],
+        [age_groups[2, :] infected_data_mean_3],
         lw = 3,
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
@@ -88,7 +88,7 @@ function plot_incidence_age_groups()
 
     incidence_plot = plot(
         1:52,
-        [age_groups[3, :] incidence_data_mean_7],
+        [age_groups[3, :] infected_data_mean_7],
         lw = 3,
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
@@ -99,7 +99,7 @@ function plot_incidence_age_groups()
 
     incidence_plot = plot(
         1:52,
-        [age_groups[4, :] incidence_data_mean_15],
+        [age_groups[4, :] infected_data_mean_15],
         lw = 3,
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
@@ -386,13 +386,13 @@ function plot_r0()
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "r0.pdf"))
 end
 
-# plot_incidence()
-# plot_incidence_etiology()
-# plot_incidence_age_groups()
+plot_incidence()
+plot_incidence_etiology()
+plot_incidence_age_groups()
 
 # plot_daily_new_cases_viruses()
-plot_contacts_inside_collective()
-plot_infected_inside_collective()
+# plot_contacts_inside_collective()
+# plot_infected_inside_collective()
 
 # plot_r0()
 

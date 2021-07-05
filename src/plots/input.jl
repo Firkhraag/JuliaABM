@@ -32,7 +32,7 @@ end
 
 function plot_incidence()
     incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
-    incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :] ./ 9897
+    incidence_data_mean = mean(incidence_data[39:45, 2:53], dims = 1)[1, :] ./ 9897
 
     ticks = range(1, stop = 52, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
@@ -49,10 +49,10 @@ function plot_incidence_age_groups()
     incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
     incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1] ./ 9897
-    incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1] ./ 9897
-    incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1] ./ 9897
-    incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1] ./ 9897
+    incidence_data_mean_0 = mean(incidence_data_0[2:53, 21:27], dims = 2)[:, 1] ./ 9897
+    incidence_data_mean_3 = mean(incidence_data_3[2:53, 21:27], dims = 2)[:, 1] ./ 9897
+    incidence_data_mean_7 = mean(incidence_data_7[2:53, 21:27], dims = 2)[:, 1] ./ 9897
+    incidence_data_mean_15 = mean(incidence_data_15[2:53, 21:27], dims = 2)[:, 1] ./ 9897
 
     incidence_plot = plot(1:52, incidence_data_mean_0, title = "Incidence", lw = 3, legend = false)
     xlabel!("Week")
@@ -215,7 +215,7 @@ end
 # plot_monthly_incidence()
 # plot_temperature()
 plot_incidence()
-# plot_incidence_age_groups()
+plot_incidence_age_groups()
 # plot_etiology()
 # plot_incubation_periods()
 # plot_infection_periods()

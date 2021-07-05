@@ -369,9 +369,49 @@ function main()
 
     # Single run
     # S: 7.046992092814672e8
-    duration_parameter = 6.749360438556418
-    susceptibility_parameters = [2.9125475864169337, 2.7244500279173645, 3.4927161057814327, 5.0994233795238815, 4.39737526013908, 4.079802548094005, 4.179229480737016]
-    temperature_parameters = [-0.987586416933151, -0.679688848281813, -0.06255012435916961, -0.3581041571493833, -0.18531597380843606, -0.06743261763362265, -0.6817735140348207]
+    # duration_parameter = 6.749360438556418
+    # susceptibility_parameters = [2.9125475864169337, 2.7244500279173645, 3.4927161057814327, 5.0994233795238815, 4.39737526013908, 4.079802548094005, 4.179229480737016]
+    # temperature_parameters = [-0.987586416933151, -0.679688848281813, -0.06255012435916961, -0.3581041571493833, -0.18531597380843606, -0.06743261763362265, -0.6817735140348207]
+
+    burnin = 400
+    step = 5
+
+    duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n')
+    duration_parameter = mean(duration_parameter_array[burnin:step:size(duration_parameter_array)[1]])
+    
+    susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n')
+    susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n')
+    susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_3_array.csv"), ',', Float64, '\n')
+    susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_4_array.csv"), ',', Float64, '\n')
+    susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_5_array.csv"), ',', Float64, '\n')
+    susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n')
+    susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n')
+    susceptibility_parameters = [
+        mean(susceptibility_parameter_1_array[burnin:step:size(susceptibility_parameter_1_array)[1]])
+        mean(susceptibility_parameter_2_array[burnin:step:size(susceptibility_parameter_2_array)[1]])
+        mean(susceptibility_parameter_3_array[burnin:step:size(susceptibility_parameter_3_array)[1]])
+        mean(susceptibility_parameter_4_array[burnin:step:size(susceptibility_parameter_4_array)[1]])
+        mean(susceptibility_parameter_5_array[burnin:step:size(susceptibility_parameter_5_array)[1]])
+        mean(susceptibility_parameter_6_array[burnin:step:size(susceptibility_parameter_6_array)[1]])
+        mean(susceptibility_parameter_7_array[burnin:step:size(susceptibility_parameter_7_array)[1]])
+    ]
+
+    temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_1_array.csv"), ',', Float64, '\n')
+    temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_2_array.csv"), ',', Float64, '\n')
+    temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_3_array.csv"), ',', Float64, '\n')
+    temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_4_array.csv"), ',', Float64, '\n')
+    temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_5_array.csv"), ',', Float64, '\n')
+    temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_6_array.csv"), ',', Float64, '\n')
+    temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_7_array.csv"), ',', Float64, '\n')
+    temperature_parameters = [
+        mean(temperature_parameter_1_array[burnin:step:size(temperature_parameter_1_array)[1]])
+        mean(temperature_parameter_2_array[burnin:step:size(temperature_parameter_2_array)[1]])
+        mean(temperature_parameter_3_array[burnin:step:size(temperature_parameter_3_array)[1]])
+        mean(temperature_parameter_4_array[burnin:step:size(temperature_parameter_4_array)[1]])
+        mean(temperature_parameter_5_array[burnin:step:size(temperature_parameter_5_array)[1]])
+        mean(temperature_parameter_6_array[burnin:step:size(temperature_parameter_6_array)[1]])
+        mean(temperature_parameter_7_array[burnin:step:size(temperature_parameter_7_array)[1]])
+    ]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -396,11 +436,12 @@ function main()
     infected_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    infected_data_mean = mean(infected_data[42:45, 2:53], dims = 1)[1, :]
-    infected_data_mean_0 = mean(infected_data_0[2:53, 24:27], dims = 2)[:, 1]
-    infected_data_mean_3 = mean(infected_data_3[2:53, 24:27], dims = 2)[:, 1]
-    infected_data_mean_7 = mean(infected_data_7[2:53, 24:27], dims = 2)[:, 1]
-    infected_data_mean_15 = mean(infected_data_15[2:53, 24:27], dims = 2)[:, 1]
+    # Before was 4 years, now - 7
+    infected_data_mean = mean(infected_data[39:45, 2:53], dims = 1)[1, :]
+    infected_data_mean_0 = mean(infected_data_0[2:53, 21:27], dims = 2)[:, 1]
+    infected_data_mean_3 = mean(infected_data_3[2:53, 21:27], dims = 2)[:, 1]
+    infected_data_mean_7 = mean(infected_data_7[2:53, 21:27], dims = 2)[:, 1]
+    infected_data_mean_15 = mean(infected_data_15[2:53, 21:27], dims = 2)[:, 1]
 
     collective_nums = Int[0, 0, 0, 0]
     for agent in agents
