@@ -91,13 +91,10 @@ function main()
 
     etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
 
-    infected_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu.csv"), ',', Int, '\n')
     infected_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
     infected_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
     infected_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
-
-    infected_data = infected_data[39:45, 2:53]
 
     infected_data_0 = infected_data_0[2:53, 21:27]
     infected_data_0_1 = etiology_data[1, :]' .* infected_data_0'
@@ -206,42 +203,6 @@ function main()
             district_people_households, district_nums)
     end
 
-    # duration_parameter_array = [6.749360438556418]
-
-    # susceptibility_parameter_1_array = [2.9125475864169337]
-    # susceptibility_parameter_2_array = [2.7244500279173645]
-    # susceptibility_parameter_3_array = [3.4927161057814327]
-    # susceptibility_parameter_4_array = [5.0994233795238815]
-    # susceptibility_parameter_5_array = [4.39737526013908]
-    # susceptibility_parameter_6_array = [4.079802548094005]
-    # susceptibility_parameter_7_array = [4.179229480737016]
-
-    # temperature_parameter_1_array = [0.987586416933151]
-    # temperature_parameter_2_array = [0.679688848281813]
-    # temperature_parameter_3_array = [0.06255012435916961]
-    # temperature_parameter_4_array = [0.3581041571493833]
-    # temperature_parameter_5_array = [0.18531597380843606]
-    # temperature_parameter_6_array = [0.06743261763362265]
-    # temperature_parameter_7_array = [0.6817735140348207]
-
-    # duration_parameter_array = [7.0]
-
-    # susceptibility_parameter_1_array = [5.0]
-    # susceptibility_parameter_2_array = [5.0]
-    # susceptibility_parameter_3_array = [5.0]
-    # susceptibility_parameter_4_array = [5.0]
-    # susceptibility_parameter_5_array = [5.0]
-    # susceptibility_parameter_6_array = [5.0]
-    # susceptibility_parameter_7_array = [5.0]
-
-    # temperature_parameter_1_array = [0.5]
-    # temperature_parameter_2_array = [0.5]
-    # temperature_parameter_3_array = [0.5]
-    # temperature_parameter_4_array = [0.5]
-    # temperature_parameter_5_array = [0.5]
-    # temperature_parameter_6_array = [0.5]
-    # temperature_parameter_7_array = [0.5]
-
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     
     susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
@@ -283,7 +244,7 @@ function main()
     accept_num = 0
     local_rejected_num = 0
 
-    deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+    deltas = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -299,18 +260,10 @@ function main()
         end
     end
 
-    # @time S, age_group_incidence, etiology_incidence, incidence = run_simulation(
-    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-    #     temp_influences, duration_parameter,
-    #     susceptibility_parameters, etiology, infected_data_mean,
-    #     infected_data_mean_0, infected_data_mean_3,
-    #     infected_data_mean_7, infected_data_mean_15, true)
-
-    # TRUE HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @time num_infected_age_groups_viruses = run_simulation(
         num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
         temp_influences, duration_parameter,
-        susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, true)
+        susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, false)
 
     S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
     S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
@@ -324,16 +277,7 @@ function main()
         end
     end
 
-    # prob_prev_age_groups = zeros(Float64, 4, 52)
-    # prob_prev_etiology = zeros(Float64, 7, 52)
-    # for i in 1:52
-    #     for j in 1:4
-    #         prob_prev_age_groups[j, i] = log_g(age_group_incidence[j, i], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
-    #     end
-    #     for j in 1:7
-    #         prob_prev_etiology[j, i] = log_g(etiology_incidence[j, i], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
-    #     end
-    # end
+    prev_nums = copy(num_infected_age_groups_viruses)
 
     n = size(duration_parameter_array)[1]
 
@@ -344,7 +288,7 @@ function main()
         println(io)
     end
 
-    N = 10000
+    N = 1000
     while n <= N
         duration_parameter_candidate = exp(rand(Normal(log(duration_parameter_array[size(duration_parameter_array)[1]]), deltas[1])))
 
@@ -435,37 +379,6 @@ function main()
             end
         end
 
-        # @time S, age_group_incidence, etiology_incidence, incidence = run_simulation(
-        #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-        #     temp_influences, duration_parameter,
-        #     susceptibility_parameters, etiology, infected_data_mean,
-        #     infected_data_mean_0, infected_data_mean_3,
-        #     infected_data_mean_7, infected_data_mean_15, true)
-
-        # for i = 1:7
-        #     S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_incidence[i, :]).^ 2)
-        # end
-
-        # prob_age_groups_viruses = zeros(Float64, 7, 4, 52)
-        # for i in 1:52
-        #     for j in 1:4
-        #         for k in 1:7
-        #             prob_age_groups_viruses[k, j, i] = log_g(age_group_incidence[j, i] * etiology_data[k, i], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
-        #         end
-        #     end
-        # end
-
-        # prob_age_groups = zeros(Float64, 4, 52)
-        # prob_etiology = zeros(Float64, 7, 52)
-        # for i in 1:52
-        #     for j in 1:4
-        #         prob_age_groups[j, i] = log_g(age_group_incidence[j, i], num_infected_age_groups_mean[j, i], num_infected_age_groups_sd[j, i])
-        #     end
-        #     for j in 1:7
-        #         prob_etiology[j, i] = log_g(etiology_incidence[j, i], num_infected_etiology_mean[j, i], num_infected_etiology_sd[j, i])
-        #     end
-        # end
-
         accept_prob = 0.0
         for i in 1:52
             for j in 1:4
@@ -475,16 +388,6 @@ function main()
             end
         end
         accept_prob_final = min(1.0, exp(accept_prob))
-        # accept_prob = 0.0
-        # for i in 1:52
-        #     for j in 1:4
-        #         accept_prob += prob_age_groups[j, i] - prob_prev_age_groups[j, i]
-        #     end
-        #     for j in 1:7
-        #         accept_prob += prob_etiology[j, i] - prob_prev_etiology[j, i]
-        #     end
-        # end
-        # accept_prob_final = min(1.0, exp(accept_prob))
 
         open("mcmc/output.txt", "a") do io
             println(io, "n = ", n)
@@ -493,20 +396,22 @@ function main()
             println(io, "S_abs: ", S_abs)
             println(io, "S_square: ", S_square)
             println(io, "Dur: ", duration_parameter_candidate)
-            println(io, "Suscept: ", susceptibility_parameter_1_candidate)
-            println(io, "Suscept: ", susceptibility_parameter_2_candidate)
-            println(io, "Suscept: ", susceptibility_parameter_3_candidate)
-            println(io, "Suscept: ", susceptibility_parameter_4_candidate)
-            println(io, "Suscept: ", susceptibility_parameter_5_candidate)
-            println(io, "Suscept: ", susceptibility_parameter_6_candidate)
-            println(io, "Suscept: ", susceptibility_parameter_7_candidate)
-            println(io, "Temp: ", temperature_parameter_1_candidate)
-            println(io, "Temp: ", temperature_parameter_2_candidate)
-            println(io, "Temp: ", temperature_parameter_3_candidate)
-            println(io, "Temp: ", temperature_parameter_4_candidate)
-            println(io, "Temp: ", temperature_parameter_5_candidate)
-            println(io, "Temp: ", temperature_parameter_6_candidate)
-            println(io, "Temp: ", temperature_parameter_7_candidate)
+            println(io, "Suscept: ", [
+                susceptibility_parameter_1_candidate,
+                susceptibility_parameter_2_candidate,
+                susceptibility_parameter_3_candidate,
+                susceptibility_parameter_4_candidate,
+                susceptibility_parameter_5_candidate,
+                susceptibility_parameter_6_candidate,
+                susceptibility_parameter_7_candidate])
+            println(io, "Temp: ", [
+                temperature_parameter_1_candidate,
+                temperature_parameter_2_candidate,
+                temperature_parameter_3_candidate,
+                temperature_parameter_4_candidate,
+                temperature_parameter_5_candidate,
+                temperature_parameter_6_candidate,
+                temperature_parameter_7_candidate])
             println(io)
         end
 
