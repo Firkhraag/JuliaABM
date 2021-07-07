@@ -244,7 +244,7 @@ function main()
     accept_num = 0
     local_rejected_num = 0
 
-    deltas = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    deltas = [0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -277,17 +277,14 @@ function main()
         end
     end
 
-    prev_nums = copy(num_infected_age_groups_viruses)
-
-    n = size(duration_parameter_array)[1]
-
     open("mcmc/output.txt", "a") do io
-        println(io, "n = ", n - 1)
+        println(io, "n = ", 0)
         println(io, "S_abs: ", S_abs)
         println(io, "S_square: ", S_square)
         println(io)
     end
 
+    n = 1
     N = 1000
     while n <= N
         duration_parameter_candidate = exp(rand(Normal(log(duration_parameter_array[size(duration_parameter_array)[1]]), deltas[1])))
@@ -503,8 +500,8 @@ function main()
             infectivities,
             viruses)
         
-        n += 1
         println("Accept rate:", accept_num / n)
+        n += 1
     end
 end
 
