@@ -378,7 +378,7 @@ function main()
     temperature_parameters = [-0.987586416933151, -0.679688848281813, -0.06255012435916961, -0.3581041571493833, -0.18531597380843606, -0.06743261763362265, -0.6817735140348207]
 
     burnin = 100
-    step = 5
+    step = 4
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     duration_parameter = mean(duration_parameter_array[burnin:step:size(duration_parameter_array)[1]])
@@ -432,6 +432,8 @@ function main()
     end
 
     # Runs
+    etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
+    
     infected_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
     infected_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
     infected_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
