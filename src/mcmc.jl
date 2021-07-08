@@ -42,7 +42,7 @@ function main()
     end_agent_ids = Int[2442912, 4892800, 7392380, 9897284]
 
     viruses = Virus[
-        Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.32, 0.16, 365),
+        Virus(1, 1.4, 0.09, 1, 7, 2.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.32, 0.16, 365),
         Virus(2, 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 0.32, 0.16, 365),
         Virus(3, 1.9, 0.175, 1, 7, 10.1, 4.93, 3, 12, 11.4, 6.25, 4, 14, 3.5, 0.5, 0.3, 60),
         Virus(4, 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 0.5, 0.3, 60),
@@ -244,7 +244,7 @@ function main()
     accept_num = 0
     local_rejected_num = 0
 
-    deltas = [0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -268,9 +268,9 @@ function main()
     S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
     S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
-    prob_prev_age_groups_viruses = zeros(Float64, 7, 4, 52)
+    prob_prev_age_groups_viruses = zeros(Float64, 7, 2, 52)
     for i in 1:52
-        for j in 1:4
+        for j in 1:2
             for k in 1:7
                 prob_prev_age_groups_viruses[k, j, i] = log_g(num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
             end
@@ -367,9 +367,9 @@ function main()
         S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
         S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
-        prob_age_groups_viruses = zeros(Float64, 7, 4, 52)
+        prob_age_groups_viruses = zeros(Float64, 7, 2, 52)
         for i in 1:52
-            for j in 1:4
+            for j in 1:2
                 for k in 1:7
                     prob_age_groups_viruses[k, j, i] = log_g(num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
                 end
@@ -378,7 +378,7 @@ function main()
 
         accept_prob = 0.0
         for i in 1:52
-            for j in 1:4
+            for j in 1:2
                 for k in 1:7
                     accept_prob += prob_age_groups_viruses[k, j, i] - prob_prev_age_groups_viruses[k, j, i]
                 end
