@@ -328,7 +328,7 @@ function update_agent_states(
             else
                 agent.days_infected += 1
 
-                if !agent.is_asymptomatic && !agent.is_isolated && !agent.on_parent_leave
+                if !agent.is_asymptomatic && !agent.is_isolated
                     if agent.days_infected == 1
                         rand_num = rand(rng, Float64)
                         if agent.age < 8

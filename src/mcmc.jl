@@ -268,9 +268,9 @@ function main()
     S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
     S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
-    prob_prev_age_groups_viruses = zeros(Float64, 7, 2, 52)
+    prob_prev_age_groups_viruses = zeros(Float64, 7, 4, 52)
     for i in 1:52
-        for j in 1:2
+        for j in 1:4
             for k in 1:7
                 prob_prev_age_groups_viruses[k, j, i] = log_g(num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
             end
@@ -367,9 +367,9 @@ function main()
         S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
         S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
-        prob_age_groups_viruses = zeros(Float64, 7, 2, 52)
+        prob_age_groups_viruses = zeros(Float64, 7, 4, 52)
         for i in 1:52
-            for j in 1:2
+            for j in 1:4
                 for k in 1:7
                     prob_age_groups_viruses[k, j, i] = log_g(num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
                 end
@@ -378,7 +378,7 @@ function main()
 
         accept_prob = 0.0
         for i in 1:52
-            for j in 1:2
+            for j in 1:4
                 for k in 1:7
                     accept_prob += prob_age_groups_viruses[k, j, i] - prob_prev_age_groups_viruses[k, j, i]
                 end
