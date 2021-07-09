@@ -431,7 +431,7 @@ function main()
             push!(temperature_parameter_6_array, temperature_parameter_6_candidate)
             push!(temperature_parameter_7_array, temperature_parameter_7_candidate)
 
-            prob_age_groups_viruses = copy(prob_prev_age_groups_viruses)
+            prob_prev_age_groups_viruses = copy(prob_age_groups_viruses)
 
             accept_num += 1
             local_rejected_num = 0
@@ -500,7 +500,7 @@ function main()
             infectivities,
             viruses)
         
-        println("Accept rate:", accept_num / n)
+        println("Accept rate: ", accept_num / n)
         n += 1
     end
 end
