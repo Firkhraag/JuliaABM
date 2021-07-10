@@ -377,7 +377,7 @@ function main()
     susceptibility_parameters = [2.9125475864169337, 2.7244500279173645, 3.4927161057814327, 5.0994233795238815, 4.39737526013908, 4.079802548094005, 4.179229480737016]
     temperature_parameters = [-0.987586416933151, -0.679688848281813, -0.06255012435916961, -0.3581041571493833, -0.18531597380843606, -0.06743261763362265, -0.6817735140348207]
 
-    burnin = 1000
+    burnin = 100
     step = 5
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))

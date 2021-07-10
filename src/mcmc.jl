@@ -244,7 +244,7 @@ function main()
     accept_num = 0
     local_rejected_num = 0
 
-    deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    deltas = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213

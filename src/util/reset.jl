@@ -113,7 +113,7 @@ function reset_population(
                     viruses[agent.virus_id].incubation_period_variance,
                     viruses[agent.virus_id].min_incubation_period,
                     viruses[agent.virus_id].max_incubation_period,
-                    thread_rng[1])
+                    thread_rng[thread_id])
                 # Период болезни
                 if agent.age < 16
                     agent.infection_period = get_period_from_erlang(
@@ -121,14 +121,14 @@ function reset_population(
                         viruses[agent.virus_id].infection_period_variance_child,
                         viruses[agent.virus_id].min_infection_period_child,
                         viruses[agent.virus_id].max_infection_period_child,
-                        thread_rng[1])
+                        thread_rng[thread_id])
                 else
                     agent.infection_period = get_period_from_erlang(
                         viruses[agent.virus_id].mean_infection_period_adult,
                         viruses[agent.virus_id].infection_period_variance_adult,
                         viruses[agent.virus_id].min_infection_period_adult,
                         viruses[agent.virus_id].max_infection_period_adult,
-                        thread_rng[1])
+                        thread_rng[thread_id])
                 end
 
                 # Дней с момента инфицирования
