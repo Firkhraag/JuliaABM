@@ -105,110 +105,6 @@ function get_stats(agents::Vector{Agent})
     println("Work conn: $(mean_num_of_work_conn / size_work_conn)")
 end
 
-function multiple_simulations(
-    agents::Vector{Agent},
-    num_threads::Int,
-    thread_rng::Vector{MersenneTwister},
-    num_runs::Int,
-    start_agent_ids::Vector{Int},
-    end_agent_ids::Vector{Int},
-    infectivities::Array{Float64, 4},
-    etiology::Matrix{Float64},
-    etiology_data::Matrix{Float64},
-    infected_data_mean::Vector{Float64},
-    infected_data_mean_0::Vector{Float64},
-    infected_data_mean_3::Vector{Float64},
-    infected_data_mean_7::Vector{Float64},
-    infected_data_mean_15::Vector{Float64},
-    temperature::Vector{Float64},
-    min_temp::Float64,
-    max_min_temp::Float64,
-    viruses::Vector{Virus}
-)
-    latin_hypercube_plan, _ = LHCoptim(num_runs, 15, 1000)
-
-    # Add _default
-    duration_parameter_default = 6.699865489061469
-    susceptibility_parameters_default = [2.9741637480330954, 2.7941469976143343, 3.53008984315517, 5.130736510837012, 4.471112633876454, 4.096974265265722, 4.129734531242066]
-    temperature_parameters_default = [-0.947687427034161, -0.72665854525151, -0.058004669813715063, -0.33133648038170654, -0.14238668087914313, -0.055816456017461034, -0.7176320998934066]
-
-    points = scaleLHC(latin_hypercube_plan, [
-        (duration_parameter_default - 0.1, duration_parameter_default + 0.1),
-        (susceptibility_parameters_default[1] - 0.1, susceptibility_parameters_default[1] + 0.1),
-        (susceptibility_parameters_default[2] - 0.1, susceptibility_parameters_default[2] + 0.1),
-        (susceptibility_parameters_default[3] - 0.1, susceptibility_parameters_default[3] + 0.1),
-        (susceptibility_parameters_default[4] - 0.1, susceptibility_parameters_default[4] + 0.1),
-        (susceptibility_parameters_default[5] - 0.1, susceptibility_parameters_default[5] + 0.1),
-        (susceptibility_parameters_default[6] - 0.1, susceptibility_parameters_default[6] + 0.1),
-        (susceptibility_parameters_default[7] - 0.1, susceptibility_parameters_default[7] + 0.1),
-        (temperature_parameters_default[1] - 0.05, temperature_parameters_default[1] + 0.05),
-        (temperature_parameters_default[2] - 0.05, temperature_parameters_default[2] + 0.05),
-        (temperature_parameters_default[3] - 0.05, temperature_parameters_default[3] + 0.05),
-        (temperature_parameters_default[4] - 0.05, temperature_parameters_default[4] + 0.05),
-        (temperature_parameters_default[5] - 0.05, temperature_parameters_default[5] + 0.05),
-        (temperature_parameters_default[6] - 0.05, temperature_parameters_default[6] + 0.05),
-        (temperature_parameters_default[7] - 0.05, temperature_parameters_default[7] + 0.05)])
-
-    S_min = 4.6e9
-
-    for i = 1:num_runs
-        println(i)
-
-        duration_parameter = points[i, 1]
-        susceptibility_parameters = points[i, 2:8]
-        temperature_parameters = points[i, 9:15]
-
-        temp_influences = Array{Float64,2}(undef, 7, 365)
-        year_day = 213
-        for i in 1:365
-            current_temp = (temperature[year_day] - min_temp) / max_min_temp
-            for v in 1:7
-                temp_influences[v, i] = temperature_parameters[v] * current_temp + 1.0
-            end
-            if year_day == 365
-                year_day = 1
-            else
-                year_day += 1
-            end
-        end
-
-        @time S, _, etiology_model, incidence = run_simulation(
-            num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-            temp_influences, duration_parameter,
-            susceptibility_parameters, etiology, infected_data_mean,
-            infected_data_mean_0, infected_data_mean_3,
-            infected_data_mean_7, infected_data_mean_15, false)
-
-        for i = 1:7
-            S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :]).^ 2)
-        end
-
-        if S < S_min
-            S_min = S
-        end
-
-        println("S = ", S)
-
-        open("output/output.txt", "a") do io
-            println(io, "S: ", S)
-            println(io, "duration_parameter = ", duration_parameter)
-            println(io, "susceptibility_parameters = ", susceptibility_parameters)
-            println(io, "temperature_parameters = ", temperature_parameters)
-            println(io)
-        end
-
-        reset_population(
-            agents,
-            num_threads,
-            thread_rng,
-            start_agent_ids,
-            end_agent_ids,
-            infectivities,
-            viruses)
-    end
-    println("S_min: ", S_min)
-end
-
 function find_R0(
     agents::Vector{Agent},
     num_threads::Int,
@@ -368,17 +264,8 @@ function main()
     println("Simulation...")
 
     # Single run
-    # S: 7.046992092814672e8
-    # duration_parameter = 6.749360438556418
-    # susceptibility_parameters = [2.9125475864169337, 2.7244500279173645, 3.4927161057814327, 5.0994233795238815, 4.39737526013908, 4.079802548094005, 4.179229480737016]
-    # temperature_parameters = [-0.987586416933151, -0.679688848281813, -0.06255012435916961, -0.3581041571493833, -0.18531597380843606, -0.06743261763362265, -0.6817735140348207]
-
-    duration_parameter = 6.749360438556418
-    susceptibility_parameters = [2.9125475864169337, 2.7244500279173645, 3.4927161057814327, 5.0994233795238815, 4.39737526013908, 4.079802548094005, 4.179229480737016]
-    temperature_parameters = [-0.987586416933151, -0.679688848281813, -0.06255012435916961, -0.3581041571493833, -0.18531597380843606, -0.06743261763362265, -0.6817735140348207]
-
-    burnin = 100
-    step = 5
+    burnin = 400
+    step = 7
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     duration_parameter = mean(duration_parameter_array[burnin:step:size(duration_parameter_array)[1]])
@@ -551,14 +438,6 @@ function main()
 
     println("S: ", S_abs)
     println("S: ", S_square)
-
-    # Multiple runs
-    # num_runs = 100
-    # multiple_simulations(agents, num_threads, thread_rng, num_runs,
-    #     start_agent_ids, end_agent_ids, infectivities,
-    #     etiology, etiology_data, infected_data_mean, infected_data_mean_0,
-    #     infected_data_mean_3, infected_data_mean_7, infected_data_mean_15,
-    #     temperature, min_temp, max_min_temp, viruses)
 
     # R0
     # num_runs = 200000
