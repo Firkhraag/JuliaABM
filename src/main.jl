@@ -264,7 +264,7 @@ function main()
     println("Simulation...")
 
     # Single run
-    burnin = 400
+    burnin = 500
     step = 7
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
