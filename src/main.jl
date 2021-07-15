@@ -265,7 +265,7 @@ function main()
 
     # Single run
     burnin = 500
-    step = 7
+    step = 6
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     duration_parameter = mean(duration_parameter_array[burnin:step:size(duration_parameter_array)[1]])
