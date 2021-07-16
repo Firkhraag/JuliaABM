@@ -214,9 +214,9 @@ end
 
 # plot_monthly_incidence()
 # plot_temperature()
-plot_incidence()
-plot_incidence_age_groups()
-# plot_etiology()
+# plot_incidence()
+# plot_incidence_age_groups()
+plot_etiology()
 # plot_incubation_periods()
 # plot_infection_periods()
 # plot_mean_viral_loads()

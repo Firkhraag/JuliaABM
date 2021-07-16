@@ -28,15 +28,24 @@ end
 function plot_incidence_etiology()
     etiology = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), ',', Float64)
 
+    etiology_sum = sum(etiology, dims = 2)
+    for i = 1:7
+        etiology[:, i] = etiology[:, i] ./ etiology_sum[:, 1]
+    end
+
     ticks = range(1, stop = 52, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    yticks = [0.0, 0.2, 0.4, 0.6, 0.8]
+    yticklabels = ["0.0", "0.2", "0.4", "0.6", "0.8"]
     etiology_incidence_plot = plot(
         1:52,
         [etiology[:, i] for i = 1:7],
         lw = 3,
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
-        legend=(0.8, 1.0),
+        yticks = (yticks, yticklabels),
+        legend = (0.8, 1.0),
+        ylim = (0.0, 0.8),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
     xlabel!("Month")
@@ -298,8 +307,8 @@ function plot_contacts_inside_collective()
         lw = 3,
         xticks = (ticks, ticklabels),
         fontfamily = "Times",
-        title="Weekly average number of contacts",
-        ylim=(0,49),
+        title = "Weekly average number of contacts",
+        ylim = (0, 49),
         label = ["Kindergarten" "School" "University" "Workplace" "Household"])
     xlabel!("Month")
     ylabel!("Num of contacts")
@@ -335,7 +344,7 @@ function plot_infected_inside_collective()
         lw = 3,
         xticks = (ticks, ticklabels),
         fontfamily = "Times",
-        title="Weekly ratio of infected inside collectives",
+        title = "Weekly ratio of infected inside collectives",
         label = ["Kindergarten" "School" "University" "Workplace" "Household"])
     xlabel!("Month")
     ylabel!("Ratio")
@@ -381,9 +390,9 @@ function plot_r0()
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "r0.pdf"))
 end
 
-plot_incidence()
+# plot_incidence()
 plot_incidence_etiology()
-plot_incidence_age_groups()
+# plot_incidence_age_groups()
 
 # plot_daily_new_cases_viruses()
 # plot_contacts_inside_collective()
