@@ -1,6 +1,5 @@
 using Base.Threads
 using Distributions
-using LatinHypercubeSampling
 using Random
 using DelimitedFiles
 
@@ -427,8 +426,8 @@ function main()
         for m in multipliers
             temperature_parameters_new = copy(temperature_parameters)
             temperature_parameters_new[i] *= m
-            if temperature_parameters_new[i] > 1
-                temperature_parameters_new[i] = 1.0
+            if temperature_parameters_new[i] < -1
+                temperature_parameters_new[i] = -1.0
             end
             temp_influences = Array{Float64,2}(undef, 7, 365)
             year_day = 213

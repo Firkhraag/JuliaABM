@@ -8,7 +8,7 @@ using CategoricalArrays
 include("../data/temperature.jl")
 include("../data/etiology.jl")
 
-default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
+default(legendfontsize = 10, guidefont = (16, :black), tickfont = (10, :black))
 
 function plot_temperature()
     temperature_data = get_air_temperature()
@@ -124,8 +124,6 @@ function plot_etiology()
         ylim = (0, 0.85),
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Ratio}")
-    xlabel!("Month")
-    ylabel!("Ratio of viruses")
     savefig(etiology_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "etiology.pdf"))
 end
 
@@ -187,7 +185,6 @@ function plot_mean_viral_loads()
         labels,
         mean,
         group = legend,
-        ylabel = "Scores",
         yticks = (yticks, yticklabels),
         ylim = (0, 7.0),
         xlabel = L"\textrm{\sffamily Virus}",
@@ -217,10 +214,10 @@ function plot_monthly_incidence()
 end
 
 # plot_monthly_incidence()
-# plot_temperature()p[l;0-]
+# plot_temperature()
 # plot_incidence()
 # plot_incidence_age_groups()
 plot_etiology()
-# plot_incubation_periods()
-# plot_infection_periods()
+plot_incubation_periods()
+plot_infection_periods()
 # plot_mean_viral_loads()

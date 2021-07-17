@@ -5,7 +5,7 @@ using LaTeXStrings
 
 include("../data/etiology.jl")
 
-default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
+default(legendfontsize = 10, guidefont = (16, :black), tickfont = (10, :black))
 
 function plot_incidence()
     incidence = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "infected_data.csv"), ',', Float64)
@@ -43,7 +43,7 @@ function plot_incidence_etiology()
         lw = 3,
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
-        legend = (0.8, 1.0),
+        legend = (0.85, 0.97),
         ylim = (0.0, 0.8),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
@@ -373,9 +373,9 @@ function plot_r0()
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "r0.pdf"))
 end
 
-# plot_incidence()
+plot_incidence()
 plot_incidence_etiology()
-# plot_incidence_age_groups()
+plot_incidence_age_groups()
 
 # plot_daily_new_cases_viruses()
 # plot_contacts_inside_collective()

@@ -6,7 +6,7 @@ using LaTeXStrings
 include("../data/etiology.jl")
 include("../util/burnin.jl")
 
-default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
+default(legendfontsize = 12, guidefont = (18, :black), tickfont = (12, :black))
 
 function plot_incidences()
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
