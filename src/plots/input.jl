@@ -2,6 +2,7 @@ using DelimitedFiles
 using Plots
 using Statistics
 using StatsPlots
+using LaTeXStrings
 using CategoricalArrays
 
 include("../data/temperature.jl")
@@ -24,9 +25,8 @@ function plot_temperature()
         legend = false,
         color = "orange",
         xticks = (ticks, ticklabels),
-        fontfamily = "Times")
-    xlabel!("Month")
-    ylabel!("Temperature, °C")
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily Temperature, °C}")
     savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "temperature.pdf"))
 end
 
@@ -36,10 +36,15 @@ function plot_incidence()
 
     ticks = range(1, stop = 52, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
-    incidence_plot = plot(1:52, incidence_data_mean, 
-        lw = 3, legend = false, color = "red", xticks = (ticks, ticklabels), fontfamily = "Times")
-    xlabel!("Month")
-    ylabel!("Num of cases per 1000 people")
+    incidence_plot = plot(
+        1:52,
+        incidence_data_mean, 
+        lw = 3,
+        legend = false,
+        color = "red",
+        xticks = (ticks, ticklabels),
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily Num of cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "incidence.pdf"))
 end
 
@@ -91,10 +96,9 @@ function plot_temperature()
         legend = false,
         color = "orange",
         xticks = (ticks, ticklabels),
-        fontfamily = "Times",
-        yticks = (yticks, yticklabels))
-    xlabel!("Month")
-    ylabel!("Temperature, °C")
+        yticks = (yticks, yticklabels),
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily Temperature, °C}")
     savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "temperature.pdf"))
 end
 
@@ -112,13 +116,14 @@ function plot_etiology()
     etiology_plot = plot(
         1:52,
         [etiology_data[:, i] for i in 1:7],
-        legend=(0.85, 0.97),
-        fontfamily = "Times",
+        legend = (0.85, 0.97),
         lw = 3,
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
         xticks = (ticks, ticklabels),
-        ylim=(0,0.85))
+        ylim = (0, 0.85),
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily Ratio}")
     xlabel!("Month")
     ylabel!("Ratio of viruses")
     savefig(etiology_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "etiology.pdf"))
@@ -137,11 +142,10 @@ function plot_incubation_periods()
         mean,
         yerr = std,
         group = legend,
-        fontfamily = "Times",
         color=:dodgerblue,
-        legend = false)
-    xlabel!("Virus")
-    ylabel!("Incubation period duration, days")
+        legend = false,
+        xlabel = L"\textrm{\sffamily Virus}",
+        ylabel = L"\textrm{\sffamily Incubation period duration, days}")
     savefig(incubation_periods_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "incubation_periods.pdf"))
 end
 
@@ -152,7 +156,7 @@ function plot_infection_periods()
     yticks = [0.0, 3.0, 6.0, 9.0, 12.0]
     yticklabels = ["0", "3", "6", "9", "12"]
 
-    mean = [4.8, 3.7, 10.1, 7.4, 8.0, 7.0, 7.0, 8.8, 7.8, 11.4, 9.3, 9.0, 8.0, 8.0]
+    mean = [4.8, 3.7, 10.1, 7.4, 8.0, 7.0, 6.5, 8.8, 7.8, 11.4, 9.3, 9.0, 8.0, 7.5]
     legend = repeat(["0-15", "16+"], inner = 7)
     std = [1.058, 0.8124, 2.22, 1.63, 1.76, 1.54, 1.54, 1.936, 1.715, 2.5, 2.0, 1.98, 1.76, 1.76]
 
@@ -161,10 +165,9 @@ function plot_infection_periods()
         mean,
         yerr = std,
         group = legend,
-        fontfamily = "Times",
-        yticks = (yticks, yticklabels))
-    xlabel!("Virus")
-    ylabel!("Infection period duration, days")
+        yticks = (yticks, yticklabels),
+        xlabel = L"\textrm{\sffamily Virus}",
+        ylabel = L"\textrm{\sffamily Infection period duration, days}")
     savefig(infection_periods_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "infection_periods.pdf"))
 end
 
@@ -185,11 +188,10 @@ function plot_mean_viral_loads()
         mean,
         group = legend,
         ylabel = "Scores",
-        fontfamily = "Times",
         yticks = (yticks, yticklabels),
-        ylim = (0,7.0))
-    xlabel!("Virus")
-    ylabel!("Viral load, log(cp/ml)")
+        ylim = (0, 7.0),
+        xlabel = L"\textrm{\sffamily Virus}",
+        ylabel = L"\textrm{\sffamily Viral load, log(cp/ml)}")
     savefig(viral_loads_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "viral_loads.pdf"))
 end
 
@@ -201,19 +203,21 @@ function plot_monthly_incidence()
     println(std(incidence_data[:, 1]))
 
     # incidence_plot = histogram(incidence_data[:, 1], bins=:scott, weights=repeat(1:5, outer=2))
-    incidence_plot = histogram(incidence_data[:, 1], bins=6)
+    incidence_plot = histogram(
+        incidence_data[:, 1],
+        bins=6,
+        xlabel = L"\textrm{\sffamily Year}",
+        ylabel = L"\textrm{\sffamily Num of cases per 1000 people}")
 
     # # ticks = range(1, stop = 52, length = 13)
     # # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     # incidence_plot = plot(1:11, [incidence_data[i, 1] for i in 1:11], 
     #     lw = 3, legend = false, color = "red", fontfamily = "Times")
-    xlabel!("Year")
-    ylabel!("Num of cases per 1000 people")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "monthly_incidence.pdf"))
 end
 
 # plot_monthly_incidence()
-# plot_temperature()
+# plot_temperature()p[l;0-]
 # plot_incidence()
 # plot_incidence_age_groups()
 plot_etiology()

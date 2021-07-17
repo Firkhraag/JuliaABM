@@ -19,91 +19,9 @@ include("data/district_nums.jl")
 include("data/temperature.jl")
 include("data/etiology.jl")
 
+include("util/burnin.jl")
 include("util/reset.jl")
-
-function get_stats(agents::Vector{Agent})
-    println("Stats...")
-    age_groups_nums = Int[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    collective_nums = Int[0, 0, 0, 0]
-    household_nums = Int[0, 0, 0, 0, 0, 0]
-    mean_ig_level = 0.0
-    num_of_infected = 0
-    mean_num_of_kinder_conn = 0
-    mean_num_of_school_conn = 0
-    mean_num_of_univer_conn = 0
-    mean_num_of_univer_cross_conn = 0
-    mean_num_of_work_conn = 0
-    size_kinder_conn = 0
-    size_school_conn = 0
-    size_univer_conn = 0
-    size_work_conn = 0
-    for agent in agents
-        if agent.age < 3
-            age_groups_nums[1] += 1
-        elseif agent.age < 7
-            age_groups_nums[2] += 1
-        elseif agent.age < 16
-            age_groups_nums[3] += 1
-        elseif agent.age < 18
-            age_groups_nums[4] += 1
-        elseif agent.age < 25
-            age_groups_nums[5] += 1
-        elseif agent.age < 35
-            age_groups_nums[6] += 1
-        elseif agent.age < 45
-            age_groups_nums[7] += 1
-        elseif agent.age < 55
-            age_groups_nums[8] += 1
-        elseif agent.age < 65
-            age_groups_nums[9] += 1
-        elseif agent.age < 75
-            age_groups_nums[10] += 1
-        else
-            age_groups_nums[11] += 1
-        end
-
-        if agent.collective_id == 1
-            collective_nums[1] += 1
-            mean_num_of_kinder_conn += size(agent.collective_conn_ids, 1)
-            size_kinder_conn += 1
-        elseif agent.collective_id == 2
-            collective_nums[2] += 1
-            mean_num_of_school_conn += size(agent.collective_conn_ids, 1)
-            size_school_conn += 1
-        elseif agent.collective_id == 3
-            collective_nums[3] += 1
-            mean_num_of_univer_conn += size(agent.collective_conn_ids, 1)
-            mean_num_of_univer_cross_conn += size(agent.collective_cross_conn_ids, 1)
-            size_univer_conn += 1
-        elseif agent.collective_id == 4
-            collective_nums[4] += 1
-            mean_num_of_work_conn += size(agent.collective_conn_ids, 1)
-            size_work_conn += 1
-        end
-
-        household_nums[size(agent.household_conn_ids, 1)] += 1
-
-        mean_ig_level += agent.ig_level
-
-        if agent.virus_id != 0
-            num_of_infected += 1
-        end
-    end
-    for i = 1:6
-        household_nums[i] /= i
-    end
-
-    println("Age groups: $(age_groups_nums)")
-    println("Collectives: $(collective_nums)")
-    println("Households: $(household_nums)")
-    println("Ig level: $(mean_ig_level / size(agents, 1))")
-    println("Infected: $(num_of_infected)")
-    println("Kinder conn: $(mean_num_of_kinder_conn / size_kinder_conn)")
-    println("School conn: $(mean_num_of_school_conn / size_school_conn)")
-    println("Univer conn: $(mean_num_of_univer_conn / size_univer_conn)")
-    println("Univer cross conn: $(mean_num_of_univer_cross_conn / size_univer_conn)")
-    println("Work conn: $(mean_num_of_work_conn / size_work_conn)")
-end
+include("util/stats.jl")
 
 function find_R0(
     agents::Vector{Agent},
@@ -204,7 +122,7 @@ function main()
         Virus(4, 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 0.5, 0.3, 60),
         Virus(5, 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 0.5, 0.3, 90),
         Virus(6, 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.8, 0.5, 0.3, 90),
-        Virus(7, 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 0.5, 0.3, 365)]
+        Virus(7, 3.2, 0.496, 1, 7, 6.5, 2.37, 3, 12, 7.5, 3.1, 4, 14, 4.93, 0.5, 0.3, 365)]
 
     infectivities = Array{Float64,4}(undef, 7, 7, 13, 21)
     for days_infected in -6:14
@@ -262,10 +180,6 @@ function main()
     # get_stats(agents)
 
     println("Simulation...")
-
-    # Single run
-    burnin = 500
-    step = 6
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     duration_parameter = mean(duration_parameter_array[burnin:step:size(duration_parameter_array)[1]])
@@ -427,17 +341,131 @@ function main()
     writedlm(
         joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
 
-    # Single run
-    @time num_infected_age_groups_viruses = run_simulation(
-        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-        temp_influences, duration_parameter,
-        susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, true)
+    # # Single run
+    # @time num_infected_age_groups_viruses = run_simulation(
+    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+    #     temp_influences, duration_parameter,
+    #     susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, true)
 
-    S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
-    S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
+    #     num_infected_age_groups_viruses ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
+    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 9897, ',')
 
-    println("S: ", S_abs)
-    println("S: ", S_square)
+    # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+    # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+
+    # println("S: ", S_abs)
+    # println("S: ", S_square)
+
+    # Multiple runs
+    multipliers = [0.8, 0.9, 1.1, 1.2]
+
+    # k = -2
+    # for m in multipliers
+    #     duration_parameter_new = duration_parameter * m
+    #     @time num_infected_age_groups_viruses = run_simulation(
+    #         num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+    #         temp_influences, duration_parameter_new,
+    #         susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, false)
+    #     writedlm(
+    #         joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_d_$k.csv"),
+    #         sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    #     reset_population(
+    #         agents,
+    #         num_threads,
+    #         thread_rng,
+    #         start_agent_ids,
+    #         end_agent_ids,
+    #         infectivities,
+    #         viruses)
+    #     if k == -1
+    #         k = 1
+    #     else
+    #         k += 1
+    #     end
+    # end
+
+    # for i in 1:7
+    #     k = -2
+    #     for m in multipliers
+    #         susceptibility_parameters_new = copy(susceptibility_parameters)
+    #         susceptibility_parameters_new[i] *= m
+    #         @time num_infected_age_groups_viruses = run_simulation(
+    #             num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+    #             temp_influences, duration_parameter,
+    #             susceptibility_parameters_new, etiology, num_infected_age_groups_viruses_mean, false)
+    #         writedlm(
+    #             joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_s$(i)_$k.csv"),
+    #             sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    #         reset_population(
+    #             agents,
+    #             num_threads,
+    #             thread_rng,
+    #             start_agent_ids,
+    #             end_agent_ids,
+    #             infectivities,
+    #             viruses)
+    #         if k == -1
+    #             k = 1
+    #         else
+    #             k += 1
+    #         end
+    #     end
+    # end
+
+    for i in 1:1
+        k = -2
+        for m in multipliers
+            temperature_parameters_new = copy(temperature_parameters)
+            temperature_parameters_new[i] *= m
+            if temperature_parameters_new[i] > 1
+                temperature_parameters_new[i] = 1.0
+            end
+            temp_influences = Array{Float64,2}(undef, 7, 365)
+            year_day = 213
+            for i in 1:365
+                current_temp = (temperature[year_day] - min_temp) / max_min_temp
+                for v in 1:7
+                    temp_influences[v, i] = temperature_parameters_new[v] * current_temp + 1.0
+                end
+                if year_day == 365
+                    year_day = 1
+                else
+                    year_day += 1
+                end
+            end
+            
+            @time num_infected_age_groups_viruses = run_simulation(
+                num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+                temp_influences, duration_parameter,
+                susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, false)
+            writedlm(
+                joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_t$(i)_$k.csv"),
+                sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+            reset_population(
+                agents,
+                num_threads,
+                thread_rng,
+                start_agent_ids,
+                end_agent_ids,
+                infectivities,
+                viruses)
+            if k == -1
+                k = 1
+            else
+                k += 1
+            end
+        end
+    end
 
     # R0
     # num_runs = 200000

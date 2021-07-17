@@ -178,7 +178,6 @@ end
 #         ),
 #         xticks = (ticks, ticklabels),
 #         lw = 3,
-#         fontfamily = "Times",
 #         color = "red",
 #         legend = false)
 #     xlabel!("Day")

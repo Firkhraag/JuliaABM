@@ -690,14 +690,6 @@ function run_simulation(
 
     if (is_single_run)
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_viruses_data.csv"), num_infected_age_groups_viruses ./ 9897, ',')
-        writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "infected_data.csv"), sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
-        writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "etiology_data.csv"), sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 9897, ',')
-        writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "age_groups_data.csv"), sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 9897, ',')
-        writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"),
             sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
     end

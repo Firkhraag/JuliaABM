@@ -1,6 +1,7 @@
 using DelimitedFiles
 using Plots
 using Statistics
+using LaTeXStrings
 
 include("../data/etiology.jl")
 
@@ -18,10 +19,9 @@ function plot_incidence()
         [incidence infected_data_mean],
         lw = 3,
         xticks = (ticks, ticklabels),
-        fontfamily = "Times",
-        label = ["model" "data"])
-    xlabel!("Month")
-    ylabel!("Cases per 1000 people")
+        label = ["model" "data"],
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "model_incidence.pdf"))
 end
 
@@ -41,15 +41,14 @@ function plot_incidence_etiology()
         1:52,
         [etiology[:, i] for i = 1:7],
         lw = 3,
-        fontfamily = "Times",
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         legend = (0.8, 1.0),
         ylim = (0.0, 0.8),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
-        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
-    xlabel!("Month")
-    ylabel!("Ratio")
+        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily Ratio}")
     savefig(etiology_incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "model_etiology.pdf"))
 end
 
@@ -73,43 +72,39 @@ function plot_incidence_age_groups()
         [age_groups[:, 1] infected_data_mean_0],
         lw = 3,
         xticks = (ticks, ticklabels),
-        fontfamily = "Times",
-        label = ["model" "data"])
-    xlabel!("Month")
-    ylabel!("Cases per 1000 people")
+        label = ["model" "data"],
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence0-2.pdf"))
 
     incidence_plot = plot(
         1:52,
         [age_groups[:, 2] infected_data_mean_3],
         lw = 3,
-        fontfamily = "Times",
         xticks = (ticks, ticklabels),
-        label = ["model" "data"])
-    xlabel!("Month")
-    ylabel!("Cases per 1000 people")
+        label = ["model" "data"],
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence3-6.pdf"))
 
     incidence_plot = plot(
         1:52,
         [age_groups[:, 3] infected_data_mean_7],
         lw = 3,
-        fontfamily = "Times",
         xticks = (ticks, ticklabels),
-        label = ["model" "data"])
-    xlabel!("Month")
-    ylabel!("Cases per 1000 people")
+        label = ["model" "data"],
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence7-14.pdf"))
 
     incidence_plot = plot(
         1:52,
         [age_groups[:, 4] infected_data_mean_15],
         lw = 3,
-        fontfamily = "Times",
         xticks = (ticks, ticklabels),
-        label = ["model" "data"])
-    xlabel!("Month")
-    ylabel!("Cases per 1000 people")
+        label = ["model" "data"],
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "incidence15+.pdf"))
 end
 
@@ -121,10 +116,9 @@ function plot_daily_new_cases_age_groups()
         1:365,
         [daily_new_cases_age_groups_data[i, :] for i = 1:7],
         lw = 3,
-        fontfamily = "Times",
-        label = ["0-2" "3-6" "7-14" "15-17" "18-24" "25-64" "65+"])
-    xlabel!("Day")
-    ylabel!("Num of people")
+        label = ["0-2" "3-6" "7-14" "15-17" "18-24" "25-64" "65+"],
+        xlabel = L"\textrm{\sffamily Day}",
+        ylabel = L"\textrm{\sffamily Num of people}")
     savefig(
         daily_new_cases_age_groups_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "daily_new_cases_age_groups.pdf"))
 end
@@ -137,10 +131,9 @@ function plot_daily_new_recoveries_age_groups()
         1:365,
         [daily_new_recoveries_age_groups_data[i, :] for i = 1:7],
         lw = 3,
-        fontfamily = "Times",
-        label = ["0-2" "3-6" "7-14" "15-17" "18-24" "25-64" "65+"])
-    xlabel!("Day")
-    ylabel!("Num of people")
+        label = ["0-2" "3-6" "7-14" "15-17" "18-24" "25-64" "65+"],
+        xlabel = L"\textrm{\sffamily Day}",
+        ylabel = L"\textrm{\sffamily Num of people}")
     savefig(
         daily_new_recoveries_age_groups_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "daily_new_recoveries_age_groups.pdf"))
 end
@@ -153,10 +146,9 @@ function plot_daily_new_cases_viruses_asymptomatic()
         1:365,
         [daily_new_cases_viruses_asymptomatic_data[i, :] for i = 1:7],
         lw = 3,
-        fontfamily = "Times",
-        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
-    xlabel!("Day")
-    ylabel!("Num of people")
+        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
+        xlabel = L"\textrm{\sffamily Day}",
+        ylabel = L"\textrm{\sffamily Num of people}")
     savefig(
         daily_new_cases_viruses_asymptomatic_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "daily_new_cases_viruses_asymptomatic.pdf"))
 end
@@ -169,10 +161,9 @@ function plot_daily_new_cases_viruses()
         1:365,
         [daily_new_cases_viruses_data[i, :] for i = 1:7],
         lw = 3,
-        fontfamily = "Times",
-        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
-    xlabel!("Day")
-    ylabel!("Num of people")
+        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
+        xlabel = L"\textrm{\sffamily Day}",
+        ylabel = L"\textrm{\sffamily Num of people}")
     savefig(
         daily_new_cases_viruses_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "daily_new_cases_viruses.pdf"))
 
@@ -180,10 +171,9 @@ function plot_daily_new_cases_viruses()
         1:365,
         daily_new_cases_viruses_data[1, :] + daily_new_cases_viruses_data[2, :] + daily_new_cases_viruses_data[3, :] + daily_new_cases_viruses_data[4, :] + daily_new_cases_viruses_data[5, :] + daily_new_cases_viruses_data[6, :] + daily_new_cases_viruses_data[7, :],
         lw = 3,
-        fontfamily = "Times",
-        legend = false)
-    xlabel!("Day")
-    ylabel!("Num of people")
+        legend = false,
+        xlabel = L"\textrm{\sffamily Day}",
+        ylabel = L"\textrm{\sffamily Num of people}")
     savefig(daily_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "daily_new_cases_data.pdf"))
 end
 
@@ -195,10 +185,9 @@ function plot_daily_new_recoveries_viruses()
         1:365,
         [daily_new_recoveries_viruses_data[i, :] for i = 1:7],
         lw = 3,
-        fontfamily = "Times",
-        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
-    xlabel!("Day")
-    ylabel!("Num of people")
+        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
+        xlabel = L"\textrm{\sffamily Day}",
+        ylabel = L"\textrm{\sffamily Num of people}")
     savefig(
         daily_new_recoveries_viruses_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "daily_new_recoveries_viruses.pdf"))
 end
@@ -209,12 +198,11 @@ function plot_daily_new_cases_collectives()
 
     daily_new_cases_collectives_plot = plot(
         1:365,
-        fontfamily = "Times",
         [daily_new_cases_collectives_data[i, :] for i = 1:4],
         lw = 3,
-        label = ["Kinder" "School" "Uni" "Work"])
-    xlabel!("Day")
-    ylabel!("Num of people")
+        label = ["Kinder" "School" "Uni" "Work"],
+        xlabel = L"\textrm{\sffamily Day}",
+        ylabel = L"\textrm{\sffamily Num of people}")
     savefig(
         daily_new_cases_collectives_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "daily_new_cases_collectives.pdf"))
 end
@@ -227,10 +215,9 @@ function plot_daily_new_recoveries_collectives()
         1:365,
         [daily_new_recoveries_collectives_data[i, :] for i = 1:4],
         lw = 3,
-        fontfamily = "Times",
-        label = ["Kinder" "School" "Uni" "Work"])
-    xlabel!("Day")
-    ylabel!("Num of people")
+        label = ["Kinder" "School" "Uni" "Work"],
+        xlabel = L"\textrm{\sffamily Day}",
+        ylabel = L"\textrm{\sffamily Num of people}")
     savefig(
         daily_new_recoveries_collectives_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "daily_new_recoveries_collectives.pdf"))
 end
@@ -243,10 +230,9 @@ function plot_immunity_viruses()
         1:365,
         [immunity_viruses_data[i, :] for i = 1:7],
         lw = 3,
-        fontfamily = "Times",
-        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
-    xlabel!("Day")
-    ylabel!("Num of people")
+        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
+        xlabel = L"\textrm{\sffamily Day}",
+        ylabel = L"\textrm{\sffamily Num of people}")
     savefig(immunity_viruses_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "immunity_viruses.pdf"))
 end
 
@@ -271,7 +257,6 @@ end
 #         [contacts_inside_collective_data[:, i] for i = 1:5],
 #         lw = 3,
 #         xticks = (ticks, ticklabels),
-#         fontfamily = "Times",
 #         label = ["Kindergarten" "School" "University" "Workplace" "Household"])
 #     xlabel!("Month")
 #     ylabel!("Num of contacts")
@@ -306,12 +291,11 @@ function plot_contacts_inside_collective()
         [contacts_inside_collective[:, i] ./ 7 for i = 1:5],
         lw = 3,
         xticks = (ticks, ticklabels),
-        fontfamily = "Times",
         title = "Weekly average number of contacts",
         ylim = (0, 49),
-        label = ["Kindergarten" "School" "University" "Workplace" "Household"])
-    xlabel!("Month")
-    ylabel!("Num of contacts")
+        label = ["Kindergarten" "School" "University" "Workplace" "Household"],
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily Num of contacts}")
     savefig(
         contacts_inside_collective_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "contacts_inside_collective.pdf"))
 end
@@ -343,11 +327,10 @@ function plot_infected_inside_collective()
         [infected_inside_collective[:, i] for i = 1:5],
         lw = 3,
         xticks = (ticks, ticklabels),
-        fontfamily = "Times",
         title = "Weekly ratio of infected inside collectives",
-        label = ["Kindergarten" "School" "University" "Workplace" "Household"])
-    xlabel!("Month")
-    ylabel!("Ratio")
+        label = ["Kindergarten" "School" "University" "Workplace" "Household"],
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily Ratio}")
     savefig(
         infected_inside_collective_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "infected_inside_collective.pdf"))
 end
@@ -360,10 +343,9 @@ function plot_registered_new_cases()
         1:365,
         registered_new_cases_data,
         lw = 3,
-        fontfamily = "Times",
-        legend = false)
-    xlabel!("Day")
-    ylabel!("Num of people")
+        legend = false,
+        xlabel = L"\textrm{\sffamily Day}",
+        ylabel = L"\textrm{\sffamily Num of people}")
     savefig(
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "registered_new_cases.pdf"))
 end
@@ -380,10 +362,11 @@ function plot_r0()
         1:12,
         [r0[i, :] for i = 1:7],
         lw = 3,
-        fontfamily = "Times",
         xticks = (ticks, ticklabels),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
-        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"])
+        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
+        xlabel = L"\textrm{\sffamily Month}",
+        ylabel = L"\textrm{\sffamily R0}")
     xlabel!("Month")
     ylabel!("R0")
     savefig(
