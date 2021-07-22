@@ -20,6 +20,7 @@ include("data/temperature.jl")
 include("data/etiology.jl")
 
 include("util/reset.jl")
+include("util/burnin.jl")
 
 function f(x, mu, sigma)
     dist = Normal(mu, sigma)
