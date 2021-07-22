@@ -191,12 +191,12 @@ function main()
     susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
     susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
     susceptibility_parameters = [
-        mean(susceptibility_parameter_1_array[burnin:step:size(susceptibility_parameter_1_array)[1]])
-        mean(susceptibility_parameter_2_array[burnin:step:size(susceptibility_parameter_2_array)[1]])
-        mean(susceptibility_parameter_3_array[burnin:step:size(susceptibility_parameter_3_array)[1]])
-        mean(susceptibility_parameter_4_array[burnin:step:size(susceptibility_parameter_4_array)[1]])
-        mean(susceptibility_parameter_5_array[burnin:step:size(susceptibility_parameter_5_array)[1]])
-        mean(susceptibility_parameter_6_array[burnin:step:size(susceptibility_parameter_6_array)[1]])
+        mean(susceptibility_parameter_1_array[burnin:step:size(susceptibility_parameter_1_array)[1]]),
+        mean(susceptibility_parameter_2_array[burnin:step:size(susceptibility_parameter_2_array)[1]]),
+        mean(susceptibility_parameter_3_array[burnin:step:size(susceptibility_parameter_3_array)[1]]),
+        mean(susceptibility_parameter_4_array[burnin:step:size(susceptibility_parameter_4_array)[1]]),
+        mean(susceptibility_parameter_5_array[burnin:step:size(susceptibility_parameter_5_array)[1]]),
+        mean(susceptibility_parameter_6_array[burnin:step:size(susceptibility_parameter_6_array)[1]]),
         mean(susceptibility_parameter_7_array[burnin:step:size(susceptibility_parameter_7_array)[1]])
     ]
 
@@ -208,14 +208,28 @@ function main()
     temperature_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_6_array.csv"), ',', Float64, '\n'))
     temperature_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_7_array.csv"), ',', Float64, '\n'))
     temperature_parameters = -[
-        mean(temperature_parameter_1_array[burnin:step:size(temperature_parameter_1_array)[1]])
-        mean(temperature_parameter_2_array[burnin:step:size(temperature_parameter_2_array)[1]])
-        mean(temperature_parameter_3_array[burnin:step:size(temperature_parameter_3_array)[1]])
-        mean(temperature_parameter_4_array[burnin:step:size(temperature_parameter_4_array)[1]])
-        mean(temperature_parameter_5_array[burnin:step:size(temperature_parameter_5_array)[1]])
-        mean(temperature_parameter_6_array[burnin:step:size(temperature_parameter_6_array)[1]])
+        mean(temperature_parameter_1_array[burnin:step:size(temperature_parameter_1_array)[1]]),
+        mean(temperature_parameter_2_array[burnin:step:size(temperature_parameter_2_array)[1]]),
+        mean(temperature_parameter_3_array[burnin:step:size(temperature_parameter_3_array)[1]]),
+        mean(temperature_parameter_4_array[burnin:step:size(temperature_parameter_4_array)[1]]),
+        mean(temperature_parameter_5_array[burnin:step:size(temperature_parameter_5_array)[1]]),
+        mean(temperature_parameter_6_array[burnin:step:size(temperature_parameter_6_array)[1]]),
         mean(temperature_parameter_7_array[burnin:step:size(temperature_parameter_7_array)[1]])
     ]
+
+    # S: 1.5609713310907537e6
+    # S: 6.660922492635571e9
+
+    # S: 1.5953172148233703e6
+    # S: 6.431209942279789e9
+
+    # S: 1.2953279500692247e6
+    # S: 3.4619526901411457e9
+    # duration_parameter = 4.8456828887893995
+    # susceptibility_parameters = [4.57683184214597, 4.557202109466729, 5.1183928057801085, 6.6659652968136704, 6.181578964757821, 6.487931893831405, 6.487635560996315]
+    # temperature_parameters = -[0.9896714926253887, 0.9163020517490925, 0.10963744579444952, 0.5064387039339572, 0.07073461016318885, 0.09389507910289954, 0.7371728172482206]
+
+    susceptibility_parameters = [4.84, 4.94, 5.14, 6.78, 6.46, 6.43, 6.37]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -340,33 +354,34 @@ function main()
     writedlm(
         joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
 
-    # # Single run
-    # @time num_infected_age_groups_viruses = run_simulation(
-    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-    #     temp_influences, duration_parameter,
-    #     susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, true)
+    # Single run
+    @time num_infected_age_groups_viruses = run_simulation(
+        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+        temp_influences, duration_parameter,
+        susceptibility_parameters, etiology, true)
 
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
-    #     num_infected_age_groups_viruses ./ 9897, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
-    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
-    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 9897, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
-    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 9897, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
+        num_infected_age_groups_viruses ./ 9897, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
+        sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
+        sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 9897, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
+        sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 9897, ',')
 
-    # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
-    # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+    S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+    S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
-    # println("S: ", S_abs)
-    # println("S: ", S_square)
+    println("S: ", S_abs)
+    println("S: ", S_square)
 
     # Multiple runs
-    multipliers = [0.8, 0.9, 1.1, 1.2]
+    # multipliers = [0.8, 0.9, 1.1, 1.2]
+    # multipliers = [0.5, 1.0]
 
     # k = -2
     # for m in multipliers
@@ -421,50 +436,50 @@ function main()
     #     end
     # end
 
-    for i in 1:1
-        k = -2
-        for m in multipliers
-            temperature_parameters_new = copy(temperature_parameters)
-            temperature_parameters_new[i] *= m
-            if temperature_parameters_new[i] < -1
-                temperature_parameters_new[i] = -1.0
-            end
-            temp_influences = Array{Float64,2}(undef, 7, 365)
-            year_day = 213
-            for i in 1:365
-                current_temp = (temperature[year_day] - min_temp) / max_min_temp
-                for v in 1:7
-                    temp_influences[v, i] = temperature_parameters_new[v] * current_temp + 1.0
-                end
-                if year_day == 365
-                    year_day = 1
-                else
-                    year_day += 1
-                end
-            end
+    # for i in 1:7
+    #     k = -2
+    #     for m in multipliers
+    #         temperature_parameters_new = copy(temperature_parameters)
+    #         temperature_parameters_new[i] *= m
+    #         if temperature_parameters_new[i] < -1
+    #             temperature_parameters_new[i] = -1.0
+    #         end
+    #         temp_influences = Array{Float64,2}(undef, 7, 365)
+    #         year_day = 213
+    #         for i in 1:365
+    #             current_temp = (temperature[year_day] - min_temp) / max_min_temp
+    #             for v in 1:7
+    #                 temp_influences[v, i] = temperature_parameters_new[v] * current_temp + 1.0
+    #             end
+    #             if year_day == 365
+    #                 year_day = 1
+    #             else
+    #                 year_day += 1
+    #             end
+    #         end
             
-            @time num_infected_age_groups_viruses = run_simulation(
-                num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-                temp_influences, duration_parameter,
-                susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, false)
-            writedlm(
-                joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_t$(i)_$k.csv"),
-                sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
-            reset_population(
-                agents,
-                num_threads,
-                thread_rng,
-                start_agent_ids,
-                end_agent_ids,
-                infectivities,
-                viruses)
-            if k == -1
-                k = 1
-            else
-                k += 1
-            end
-        end
-    end
+    #         @time num_infected_age_groups_viruses = run_simulation(
+    #             num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+    #             temp_influences, duration_parameter,
+    #             susceptibility_parameters, etiology, false)
+    #         writedlm(
+    #             joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_t$(i)_$k.csv"),
+    #             sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    #         reset_population(
+    #             agents,
+    #             num_threads,
+    #             thread_rng,
+    #             start_agent_ids,
+    #             end_agent_ids,
+    #             infectivities,
+    #             viruses)
+    #         if k == -1
+    #             k = 1
+    #         else
+    #             k += 1
+    #         end
+    #     end
+    # end
 
     # R0
     # num_runs = 200000

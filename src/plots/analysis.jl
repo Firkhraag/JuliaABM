@@ -224,7 +224,8 @@ function plot_incidences()
 
     incidence_plot = plot(
         1:52,
-        [t1_minus_2 t1_minus_1 incidence t1_1 t1_2],
+        # [t1_minus_2 t1_minus_1 incidence t1_1 t1_2],
+        [t1_minus_2 t1_minus_1],
         lw = 3,
         xticks = (ticks, ticklabels),
         label = ["$(round(temperature_parameters[1] * 0.8, digits = 2)) (0.8)" "$(round(temperature_parameters[1] * 0.9, digits = 2)) (0.9)" "$(round(temperature_parameters[1], digits = 2)) (1.0)" "$(round(min(1.0, temperature_parameters[1] * 1.1), digits = 2)) (1.1)" "$(round(min(1.0, temperature_parameters[1] * 1.2), digits = 2)) (1.2)"],

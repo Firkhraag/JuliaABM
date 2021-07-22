@@ -30,8 +30,15 @@ function log_g(x, mu, sigma)
     -log(sqrt(2 * pi) * sigma) - 0.5 * ((x - mu) / sigma)^2
 end
 
-function main()
+function log_e_left(x, mu)
+    log(mu) - mu * x - log(1 - exp(-mu))
+end
 
+function log_e_right(x, mu)
+    log(mu) + mu * (x - 1) - log(1 - exp(-mu))
+end
+
+function main()
     println("Initialization...")
 
     num_threads = nthreads()
@@ -96,103 +103,136 @@ function main()
     infected_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    infected_data_0 = infected_data_0[2:53, 21:27]
-    infected_data_0_1 = etiology_data[1, :]' .* infected_data_0'
-    infected_data_0_2 = etiology_data[2, :]' .* infected_data_0'
-    infected_data_0_3 = etiology_data[3, :]' .* infected_data_0'
-    infected_data_0_4 = etiology_data[4, :]' .* infected_data_0'
-    infected_data_0_5 = etiology_data[5, :]' .* infected_data_0'
-    infected_data_0_6 = etiology_data[6, :]' .* infected_data_0'
-    infected_data_0_7 = etiology_data[7, :]' .* infected_data_0'
-    infected_data_0_viruses = cat(
-        infected_data_0_1,
-        infected_data_0_2,
-        infected_data_0_3,
-        infected_data_0_4,
-        infected_data_0_5,
-        infected_data_0_6,
-        infected_data_0_7,
-        dims = 3)
+    infected_data_0_mean = mean(infected_data_0[2:53, 21:27], dims = 2)[:, 1]
+    infected_data_3_mean = mean(infected_data_3[2:53, 21:27], dims = 2)[:, 1]
+    infected_data_7_mean = mean(infected_data_7[2:53, 21:27], dims = 2)[:, 1]
+    infected_data_15_mean = mean(infected_data_15[2:53, 21:27], dims = 2)[:, 1]
 
-    infected_data_3 = infected_data_3[2:53, 21:27]
-    infected_data_3_1 = etiology_data[1, :]' .* infected_data_3'
-    infected_data_3_2 = etiology_data[2, :]' .* infected_data_3'
-    infected_data_3_3 = etiology_data[3, :]' .* infected_data_3'
-    infected_data_3_4 = etiology_data[4, :]' .* infected_data_3'
-    infected_data_3_5 = etiology_data[5, :]' .* infected_data_3'
-    infected_data_3_6 = etiology_data[6, :]' .* infected_data_3'
-    infected_data_3_7 = etiology_data[7, :]' .* infected_data_3'
-    infected_data_3_viruses = cat(
-        infected_data_3_1,
-        infected_data_3_2,
-        infected_data_3_3,
-        infected_data_3_4,
-        infected_data_3_5,
-        infected_data_3_6,
-        infected_data_3_7,
-        dims = 3)
-
-    infected_data_7 = infected_data_7[2:53, 21:27]
-    infected_data_7_1 = etiology_data[1, :]' .* infected_data_7'
-    infected_data_7_2 = etiology_data[2, :]' .* infected_data_7'
-    infected_data_7_3 = etiology_data[3, :]' .* infected_data_7'
-    infected_data_7_4 = etiology_data[4, :]' .* infected_data_7'
-    infected_data_7_5 = etiology_data[5, :]' .* infected_data_7'
-    infected_data_7_6 = etiology_data[6, :]' .* infected_data_7'
-    infected_data_7_7 = etiology_data[7, :]' .* infected_data_7'
-    infected_data_7_viruses = cat(
-        infected_data_7_1,
-        infected_data_7_2,
-        infected_data_7_3,
-        infected_data_7_4,
-        infected_data_7_5,
-        infected_data_7_6,
-        infected_data_7_7,
-        dims = 3)
-
-    infected_data_15 = infected_data_15[2:53, 21:27]
-    infected_data_15_1 = etiology_data[1, :]' .* infected_data_15'
-    infected_data_15_2 = etiology_data[2, :]' .* infected_data_15'
-    infected_data_15_3 = etiology_data[3, :]' .* infected_data_15'
-    infected_data_15_4 = etiology_data[4, :]' .* infected_data_15'
-    infected_data_15_5 = etiology_data[5, :]' .* infected_data_15'
-    infected_data_15_6 = etiology_data[6, :]' .* infected_data_15'
-    infected_data_15_7 = etiology_data[7, :]' .* infected_data_15'
-    infected_data_15_viruses = cat(
-        infected_data_15_1,
-        infected_data_15_2,
-        infected_data_15_3,
-        infected_data_15_4,
-        infected_data_15_5,
-        infected_data_15_6,
-        infected_data_15_7,
-        dims = 3)
-
-    infected_data_0_viruses_mean = mean(infected_data_0_viruses, dims = 1)[1, :, :]
-    infected_data_3_viruses_mean = mean(infected_data_3_viruses, dims = 1)[1, :, :]
-    infected_data_7_viruses_mean = mean(infected_data_7_viruses, dims = 1)[1, :, :]
-    infected_data_15_viruses_mean = mean(infected_data_15_viruses, dims = 1)[1, :, :]
-
-    num_infected_age_groups_viruses_mean = cat(
-        infected_data_0_viruses_mean,
-        infected_data_3_viruses_mean,
-        infected_data_7_viruses_mean,
-        infected_data_15_viruses_mean,
-        dims = 3,
+    num_infected_age_groups_mean = cat(
+        infected_data_0_mean,
+        infected_data_3_mean,
+        infected_data_7_mean,
+        infected_data_15_mean,
+        dims = 2,
     )
 
-    infected_data_0_viruses_sd = std(infected_data_0_viruses, dims = 1)[1, :, :]
-    infected_data_3_viruses_sd = std(infected_data_3_viruses, dims = 1)[1, :, :]
-    infected_data_7_viruses_sd = std(infected_data_7_viruses, dims = 1)[1, :, :]
-    infected_data_15_viruses_sd = std(infected_data_15_viruses, dims = 1)[1, :, :]
+    infected_data_0_sd = std(infected_data_0[2:53, 21:27], dims = 2)[:, 1]
+    infected_data_3_sd = std(infected_data_3[2:53, 21:27], dims = 2)[:, 1]
+    infected_data_7_sd = std(infected_data_7[2:53, 21:27], dims = 2)[:, 1]
+    infected_data_15_sd = std(infected_data_15[2:53, 21:27], dims = 2)[:, 1]
 
-    num_infected_age_groups_viruses_sd = cat(
-        infected_data_0_viruses_sd,
-        infected_data_3_viruses_sd,
-        infected_data_7_viruses_sd,
-        infected_data_15_viruses_sd,
-        dims = 3,
+    num_infected_age_groups_sd = cat(
+        infected_data_0_sd,
+        infected_data_3_sd,
+        infected_data_7_sd,
+        infected_data_15_sd,
+        dims = 2,
     )
+
+    # etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
+
+    # infected_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
+    # infected_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
+    # infected_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
+    # infected_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
+
+    # infected_data_0 = infected_data_0[2:53, 21:27]
+    # infected_data_0_1 = etiology_data[1, :]' .* infected_data_0'
+    # infected_data_0_2 = etiology_data[2, :]' .* infected_data_0'
+    # infected_data_0_3 = etiology_data[3, :]' .* infected_data_0'
+    # infected_data_0_4 = etiology_data[4, :]' .* infected_data_0'
+    # infected_data_0_5 = etiology_data[5, :]' .* infected_data_0'
+    # infected_data_0_6 = etiology_data[6, :]' .* infected_data_0'
+    # infected_data_0_7 = etiology_data[7, :]' .* infected_data_0'
+    # infected_data_0_viruses = cat(
+    #     infected_data_0_1,
+    #     infected_data_0_2,
+    #     infected_data_0_3,
+    #     infected_data_0_4,
+    #     infected_data_0_5,
+    #     infected_data_0_6,
+    #     infected_data_0_7,
+    #     dims = 3)
+
+    # infected_data_3 = infected_data_3[2:53, 21:27]
+    # infected_data_3_1 = etiology_data[1, :]' .* infected_data_3'
+    # infected_data_3_2 = etiology_data[2, :]' .* infected_data_3'
+    # infected_data_3_3 = etiology_data[3, :]' .* infected_data_3'
+    # infected_data_3_4 = etiology_data[4, :]' .* infected_data_3'
+    # infected_data_3_5 = etiology_data[5, :]' .* infected_data_3'
+    # infected_data_3_6 = etiology_data[6, :]' .* infected_data_3'
+    # infected_data_3_7 = etiology_data[7, :]' .* infected_data_3'
+    # infected_data_3_viruses = cat(
+    #     infected_data_3_1,
+    #     infected_data_3_2,
+    #     infected_data_3_3,
+    #     infected_data_3_4,
+    #     infected_data_3_5,
+    #     infected_data_3_6,
+    #     infected_data_3_7,
+    #     dims = 3)
+
+    # infected_data_7 = infected_data_7[2:53, 21:27]
+    # infected_data_7_1 = etiology_data[1, :]' .* infected_data_7'
+    # infected_data_7_2 = etiology_data[2, :]' .* infected_data_7'
+    # infected_data_7_3 = etiology_data[3, :]' .* infected_data_7'
+    # infected_data_7_4 = etiology_data[4, :]' .* infected_data_7'
+    # infected_data_7_5 = etiology_data[5, :]' .* infected_data_7'
+    # infected_data_7_6 = etiology_data[6, :]' .* infected_data_7'
+    # infected_data_7_7 = etiology_data[7, :]' .* infected_data_7'
+    # infected_data_7_viruses = cat(
+    #     infected_data_7_1,
+    #     infected_data_7_2,
+    #     infected_data_7_3,
+    #     infected_data_7_4,
+    #     infected_data_7_5,
+    #     infected_data_7_6,
+    #     infected_data_7_7,
+    #     dims = 3)
+
+    # infected_data_15 = infected_data_15[2:53, 21:27]
+    # infected_data_15_1 = etiology_data[1, :]' .* infected_data_15'
+    # infected_data_15_2 = etiology_data[2, :]' .* infected_data_15'
+    # infected_data_15_3 = etiology_data[3, :]' .* infected_data_15'
+    # infected_data_15_4 = etiology_data[4, :]' .* infected_data_15'
+    # infected_data_15_5 = etiology_data[5, :]' .* infected_data_15'
+    # infected_data_15_6 = etiology_data[6, :]' .* infected_data_15'
+    # infected_data_15_7 = etiology_data[7, :]' .* infected_data_15'
+    # infected_data_15_viruses = cat(
+    #     infected_data_15_1,
+    #     infected_data_15_2,
+    #     infected_data_15_3,
+    #     infected_data_15_4,
+    #     infected_data_15_5,
+    #     infected_data_15_6,
+    #     infected_data_15_7,
+    #     dims = 3)
+
+    # infected_data_0_viruses_mean = mean(infected_data_0_viruses, dims = 1)[1, :, :]
+    # infected_data_3_viruses_mean = mean(infected_data_3_viruses, dims = 1)[1, :, :]
+    # infected_data_7_viruses_mean = mean(infected_data_7_viruses, dims = 1)[1, :, :]
+    # infected_data_15_viruses_mean = mean(infected_data_15_viruses, dims = 1)[1, :, :]
+
+    # num_infected_age_groups_viruses_mean = cat(
+    #     infected_data_0_viruses_mean,
+    #     infected_data_3_viruses_mean,
+    #     infected_data_7_viruses_mean,
+    #     infected_data_15_viruses_mean,
+    #     dims = 3,
+    # )
+
+    # infected_data_0_viruses_sd = std(infected_data_0_viruses, dims = 1)[1, :, :]
+    # infected_data_3_viruses_sd = std(infected_data_3_viruses, dims = 1)[1, :, :]
+    # infected_data_7_viruses_sd = std(infected_data_7_viruses, dims = 1)[1, :, :]
+    # infected_data_15_viruses_sd = std(infected_data_15_viruses, dims = 1)[1, :, :]
+
+    # num_infected_age_groups_viruses_sd = cat(
+    #     infected_data_0_viruses_sd,
+    #     infected_data_3_viruses_sd,
+    #     infected_data_7_viruses_sd,
+    #     infected_data_15_viruses_sd,
+    #     dims = 3,
+    # )
 
     agents = Array{Agent, 1}(undef, num_people)
     thread_rng = [MersenneTwister(i) for i = 1:num_threads]
@@ -241,10 +281,40 @@ function main()
         temperature_parameter_7_array[size(temperature_parameter_7_array)[1]],
     ]
 
+    # susceptibility_parameters_prior_means = [4.67683184214597, 4.657202109466729, 5.1183928057801085, 6.9159652968136704, 6.181578964757821, 6.487931893831405, 6.487635560996315]
+    # susceptibility_parameters_prior_means = [4.57683184214597, 4.557202109466729, 5.1183928057801085, 6.6659652968136704, 6.181578964757821, 6.487931893831405, 6.487635560996315]
+    # susceptibility_parameters_prior_means = [4.84, 4.94, 5.14, 6.78, 6.46, 6.43, 6.37]
+
+    susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_3_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_4_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_5_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameters_prior_means = [
+        mean(susceptibility_parameter_1_array[burnin:step:size(susceptibility_parameter_1_array)[1]]),
+        mean(susceptibility_parameter_2_array[burnin:step:size(susceptibility_parameter_2_array)[1]]),
+        mean(susceptibility_parameter_3_array[burnin:step:size(susceptibility_parameter_3_array)[1]]),
+        mean(susceptibility_parameter_4_array[burnin:step:size(susceptibility_parameter_4_array)[1]]),
+        mean(susceptibility_parameter_5_array[burnin:step:size(susceptibility_parameter_5_array)[1]]),
+        mean(susceptibility_parameter_6_array[burnin:step:size(susceptibility_parameter_6_array)[1]]),
+        mean(susceptibility_parameter_7_array[burnin:step:size(susceptibility_parameter_7_array)[1]])
+    ]
+    susceptibility_parameters_prior_sds = [
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.2
+    ]
+
     accept_num = 0
     local_rejected_num = 0
 
-    deltas = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    deltas = [0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -263,19 +333,36 @@ function main()
     @time num_infected_age_groups_viruses = run_simulation(
         num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
         temp_influences, duration_parameter,
-        susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, false)
+        susceptibility_parameters, etiology, false)
 
-    S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
-    S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
-
-    prob_prev_age_groups_viruses = zeros(Float64, 7, 4, 52)
+    num_infected_age_groups = sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :]
+    S_abs = sum(abs.(num_infected_age_groups - num_infected_age_groups_mean))
+    S_square = sum((num_infected_age_groups - num_infected_age_groups_mean).^2)
+    
+    num_infected_age_groups = sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :]
+    prob_prev_prior = log_e_left(temperature_parameters[3], 10.0) + log_e_left(temperature_parameters[5], 10.0) + log_e_left(temperature_parameters[6], 10.0) +
+        log_e_right(temperature_parameters[1], 10.0) + log_e_right(temperature_parameters[2], 10.0) + log_e_right(temperature_parameters[7], 10.0)
+    for i = 1:7
+        prob_prev_prior += log_g(susceptibility_parameters[i], susceptibility_parameters_prior_means[i], susceptibility_parameters_prior_sds[i])
+    end
+    prob_prev_age_groups = zeros(Float64, 4, 52)
     for i in 1:52
         for j in 1:4
-            for k in 1:7
-                prob_prev_age_groups_viruses[k, j, i] = log_g(num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
-            end
+            prob_prev_age_groups[j, i] = log_g(num_infected_age_groups[i, j], num_infected_age_groups_mean[i, j], num_infected_age_groups_sd[i, j])
         end
     end
+
+    # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+    # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+
+    # prob_prev_age_groups_viruses = zeros(Float64, 7, 4, 52)
+    # for i in 1:52
+    #     for j in 1:4
+    #         for k in 1:7
+    #             prob_prev_age_groups_viruses[k, j, i] = log_g(num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
+    #         end
+    #     end
+    # end
 
     open("mcmc/output.txt", "a") do io
         println(io, "n = ", 0)
@@ -362,29 +449,54 @@ function main()
         @time num_infected_age_groups_viruses = run_simulation(
             num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
             temp_influences, duration_parameter,
-            susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, false)
+            susceptibility_parameters, etiology, false)
 
-        S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
-        S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+        num_infected_age_groups = sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :]
+        S_abs = sum(abs.(num_infected_age_groups - num_infected_age_groups_mean))
+        S_square = sum((num_infected_age_groups - num_infected_age_groups_mean).^2)
 
-        prob_age_groups_viruses = zeros(Float64, 7, 4, 52)
+        prob_prior = log_e_left(temperature_parameters[3], 10.0) + log_e_left(temperature_parameters[5], 10.0) + log_e_left(temperature_parameters[6], 10.0) +
+            log_e_right(temperature_parameters[1], 10.0) + log_e_right(temperature_parameters[2], 10.0) + log_e_right(temperature_parameters[7], 10.0)
+        for i = 1:7
+            prob_prior += log_g(susceptibility_parameters[i], susceptibility_parameters_prior_means[i], susceptibility_parameters_prior_sds[i])
+        end
+        prob_age_groups = zeros(Float64, 4, 52)
         for i in 1:52
             for j in 1:4
-                for k in 1:7
-                    prob_age_groups_viruses[k, j, i] = log_g(num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
-                end
+                prob_age_groups[j, i] = log_g(num_infected_age_groups[i, j], num_infected_age_groups_mean[i, j], num_infected_age_groups_sd[i, j])
             end
         end
 
         accept_prob = 0.0
         for i in 1:52
             for j in 1:4
-                for k in 1:7
-                    accept_prob += prob_age_groups_viruses[k, j, i] - prob_prev_age_groups_viruses[k, j, i]
-                end
+                accept_prob += prob_age_groups[j, i] - prob_prev_age_groups[j, i]
             end
         end
+        accept_prob += prob_prior - prob_prev_prior
         accept_prob_final = min(1.0, exp(accept_prob))
+
+        # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+        # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+
+        # prob_age_groups_viruses = zeros(Float64, 7, 4, 52)
+        # for i in 1:52
+        #     for j in 1:4
+        #         for k in 1:7
+        #             prob_age_groups_viruses[k, j, i] = log_g(num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
+        #         end
+        #     end
+        # end
+
+        # accept_prob = 0.0
+        # for i in 1:52
+        #     for j in 1:4
+        #         for k in 1:7
+        #             accept_prob += prob_age_groups_viruses[k, j, i] - prob_prev_age_groups_viruses[k, j, i]
+        #         end
+        #     end
+        # end
+        # accept_prob_final = min(1.0, exp(accept_prob))
 
         open("mcmc/output.txt", "a") do io
             println(io, "n = ", n)
@@ -431,7 +543,10 @@ function main()
             push!(temperature_parameter_6_array, temperature_parameter_6_candidate)
             push!(temperature_parameter_7_array, temperature_parameter_7_candidate)
 
-            prob_prev_age_groups_viruses = copy(prob_age_groups_viruses)
+            prob_prev_age_groups = copy(prob_age_groups)
+            prob_prev_prior = prob_prior
+
+            # prob_prev_age_groups_viruses = copy(prob_age_groups_viruses)
 
             accept_num += 1
             local_rejected_num = 0
@@ -457,7 +572,7 @@ function main()
             local_rejected_num += 1
         end
 
-        if n % 10 == 0
+        if n % 2 == 0
             writedlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), duration_parameter_array, ',')
 
             writedlm(joinpath(

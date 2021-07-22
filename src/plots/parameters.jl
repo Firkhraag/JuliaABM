@@ -187,5 +187,5 @@ function print_parameters()
     println("t7: ", round(m15, digits = 2), " (", round(max(0.0, m15 - z * std15 / denominator), digits = 2), "--", round(min(1.0, m15 + z * std15 / denominator), digits = 2), ")")
 end
 
-plot_parameters()
+# plot_parameters()
 print_parameters()
