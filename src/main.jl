@@ -1,6 +1,5 @@
 using Base.Threads
 using Distributions
-using LatinHypercubeSampling
 using Random
 using DelimitedFiles
 
@@ -10,6 +9,7 @@ include("model/agent.jl")
 include("model/initialization.jl")
 include("model/simulation.jl")
 include("model/r0.jl")
+include("model/contacts.jl")
 
 include("data/district_households.jl")
 include("data/district_people.jl")
@@ -18,458 +18,84 @@ include("data/district_nums.jl")
 include("data/temperature.jl")
 include("data/etiology.jl")
 
-function get_stats(agents::Vector{Agent})
-    println("Stats...")
-    age_groups_nums = Int[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    collective_nums = Int[0, 0, 0, 0]
-    household_nums = Int[0, 0, 0, 0, 0, 0]
-    mean_ig_level = 0.0
-    num_of_infected = 0
-    mean_num_of_kinder_conn = 0
-    mean_num_of_school_conn = 0
-    mean_num_of_univer_conn = 0
-    mean_num_of_univer_cross_conn = 0
-    mean_num_of_work_conn = 0
-    size_kinder_conn = 0
-    size_school_conn = 0
-    size_univer_conn = 0
-    size_work_conn = 0
-    for agent in agents
-        if agent.age < 3
-            age_groups_nums[1] += 1
-        elseif agent.age < 7
-            age_groups_nums[2] += 1
-        elseif agent.age < 16
-            age_groups_nums[3] += 1
-        elseif agent.age < 18
-            age_groups_nums[4] += 1
-        elseif agent.age < 25
-            age_groups_nums[5] += 1
-        elseif agent.age < 35
-            age_groups_nums[6] += 1
-        elseif agent.age < 45
-            age_groups_nums[7] += 1
-        elseif agent.age < 55
-            age_groups_nums[8] += 1
-        elseif agent.age < 65
-            age_groups_nums[9] += 1
-        elseif agent.age < 75
-            age_groups_nums[10] += 1
-        else
-            age_groups_nums[11] += 1
-        end
-
-        if agent.collective_id == 1
-            collective_nums[1] += 1
-            mean_num_of_kinder_conn += size(agent.collective_conn_ids, 1)
-            size_kinder_conn += 1
-        elseif agent.collective_id == 2
-            collective_nums[2] += 1
-            mean_num_of_school_conn += size(agent.collective_conn_ids, 1)
-            size_school_conn += 1
-        elseif agent.collective_id == 3
-            collective_nums[3] += 1
-            mean_num_of_univer_conn += size(agent.collective_conn_ids, 1)
-            mean_num_of_univer_cross_conn += size(agent.collective_cross_conn_ids, 1)
-            size_univer_conn += 1
-        elseif agent.collective_id == 4
-            collective_nums[4] += 1
-            mean_num_of_work_conn += size(agent.collective_conn_ids, 1)
-            size_work_conn += 1
-        end
-
-        household_nums[size(agent.household_conn_ids, 1)] += 1
-
-        mean_ig_level += agent.ig_level
-
-        if agent.virus_id != 0
-            num_of_infected += 1
-        end
-    end
-    for i = 1:6
-        household_nums[i] /= i
-    end
-
-    println("Age groups: $(age_groups_nums)")
-    println("Collectives: $(collective_nums)")
-    println("Households: $(household_nums)")
-    println("Ig level: $(mean_ig_level / size(agents, 1))")
-    println("Infected: $(num_of_infected)")
-    println("Kinder conn: $(mean_num_of_kinder_conn / size_kinder_conn)")
-    println("School conn: $(mean_num_of_school_conn / size_school_conn)")
-    println("Univer conn: $(mean_num_of_univer_conn / size_univer_conn)")
-    println("Univer cross conn: $(mean_num_of_univer_cross_conn / size_univer_conn)")
-    println("Work conn: $(mean_num_of_work_conn / size_work_conn)")
-end
-
-function reset_population(
-    agents::Vector{Agent},
-    num_threads::Int,
-    thread_rng::Vector{MersenneTwister},
-    start_agent_ids::Vector{Int},
-    end_agent_ids::Vector{Int},
-    infectivities::Array{Float64, 4},
-    viruses::Vector{Virus},
-    agent_id_for_r0::Int,
-    virus_id_for_r0::Int
-)
-    @threads for thread_id in 1:num_threads
-        for agent_id in start_agent_ids[thread_id]:end_agent_ids[thread_id]
-            agent = agents[agent_id]
-            agent.on_parent_leave = false
-            is_infected = false
-            if (agent_id_for_r0 == -1)
-                if agent.age < 3
-                    if rand(thread_rng[thread_id], Float64) < 0.016
-                        is_infected = true
-                    end
-                elseif agent.age < 7
-                    if rand(thread_rng[thread_id], Float64) < 0.01
-                        is_infected = true
-                    end
-                elseif agent.age < 15
-                    if rand(thread_rng[thread_id], Float64) < 0.007
-                        is_infected = true
-                    end
-                else
-                    if rand(thread_rng[thread_id], Float64) < 0.003
-                        is_infected = true
-                    end
-                end
-            else
-                if agent.id == agent_id_for_r0
-                    is_infected = true
-                end
-            end
-
-            # Набор дней после приобретения типоспецифического иммунитета кроме гриппа
-            agent.RV_days_immune = 0
-            agent.RSV_days_immune = 0
-            agent.AdV_days_immune = 0
-            agent.PIV_days_immune = 0
-
-            agent.FluA_immunity = false
-            agent.FluB_immunity = false
-            agent.CoV_immunity = false
-
-            if (agent_id_for_r0 == -1)
-                if !is_infected
-                    if agent.age < 3
-                        if rand(thread_rng[thread_id], Float64) < 0.63
-                            rand_num = rand(thread_rng[thread_id], Float64)
-                            if rand_num < 0.6
-                                agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            elseif rand_num < 0.8
-                                agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            else
-                                agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            end
-                        end
-                    elseif agent.age < 7
-                        if rand(thread_rng[thread_id], Float64) < 0.44
-                            rand_num = rand(thread_rng[thread_id], Float64)
-                            if rand_num < 0.6
-                                agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            elseif rand_num < 0.8
-                                agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            else
-                                agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            end
-                        end
-                    elseif agent.age < 15
-                        if rand(thread_rng[thread_id], Float64) < 0.37
-                            rand_num = rand(thread_rng[thread_id], Float64)
-                            if rand_num < 0.6
-                                agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            elseif rand_num < 0.8
-                                agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            else
-                                agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            end
-                        end
-                    else
-                        if rand(thread_rng[thread_id], Float64) < 0.2
-                            rand_num = rand(thread_rng[thread_id], Float64)
-                            if rand_num < 0.6
-                                agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            elseif rand_num < 0.8
-                                agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            else
-                                agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
-                            end
-                        end
-                    end
-                end
-            end
-
-            # Информация при болезни
-            agent.virus_id = 0
-            agent.incubation_period = 0
-            agent.infection_period = 0
-            agent.days_infected = 0
-            agent.is_asymptomatic = false
-            agent.is_isolated = false
-            agent.infectivity = 0.0
-            if is_infected
-                # Тип инфекции
-                if virus_id_for_r0 == -1
-                    rand_num = rand(thread_rng[thread_id], Float64)
-                    if rand_num < 0.6
-                        agent.virus_id = viruses[3].id
-                    elseif rand_num < 0.8
-                        agent.virus_id = viruses[5].id
-                    else
-                        agent.virus_id = viruses[6].id
-                    end
-                else
-                    agent.virus_id = virus_id_for_r0
-                end
-
-                # Инкубационный период
-                agent.incubation_period = get_period_from_erlang(
-                    viruses[agent.virus_id].mean_incubation_period,
-                    viruses[agent.virus_id].incubation_period_variance,
-                    viruses[agent.virus_id].min_incubation_period,
-                    viruses[agent.virus_id].max_incubation_period,
-                    thread_rng[1])
-                # Период болезни
-                if agent.age < 16
-                    agent.infection_period = get_period_from_erlang(
-                        viruses[agent.virus_id].mean_infection_period_child,
-                        viruses[agent.virus_id].infection_period_variance_child,
-                        viruses[agent.virus_id].min_infection_period_child,
-                        viruses[agent.virus_id].max_infection_period_child,
-                        thread_rng[1])
-                else
-                    agent.infection_period = get_period_from_erlang(
-                        viruses[agent.virus_id].mean_infection_period_adult,
-                        viruses[agent.virus_id].infection_period_variance_adult,
-                        viruses[agent.virus_id].min_infection_period_adult,
-                        viruses[agent.virus_id].max_infection_period_adult,
-                        thread_rng[1])
-                end
-
-                # Дней с момента инфицирования
-                agent.days_infected = rand(thread_rng[thread_id], (1 - agent.incubation_period):agent.infection_period)
-
-                asymp_prob = 0.0
-                if agent.age < 16
-                    asymp_prob = viruses[agent.virus_id].asymptomatic_probab_child
-                else
-                    asymp_prob = viruses[agent.virus_id].asymptomatic_probab_adult
-                end
-
-                if rand(thread_rng[thread_id], Float64) < asymp_prob
-                    # Асимптомный
-                    agent.is_asymptomatic = true
-                else
-                    # Самоизоляция
-                    if agent.days_infected >= 1
-                        rand_num = rand(thread_rng[thread_id], Float64)
-                        if agent.age < 8
-                            if rand_num < 0.305
-                                agent.is_isolated = true
-                            end
-                        elseif agent.age < 18
-                            if rand_num < 0.204
-                                agent.is_isolated = true
-                            end
-                        else
-                            if rand_num < 0.101
-                                agent.is_isolated = true
-                            end
-                        end
-                    end
-                    if agent.days_infected >= 2 && !agent.is_isolated
-                        rand_num = rand(thread_rng[thread_id], Float64)
-                        if agent.age < 8
-                            if rand_num < 0.576
-                                agent.is_isolated = true
-                            end
-                        elseif agent.age < 18
-                            if rand_num < 0.499
-                                agent.is_isolated = true
-                            end
-                        else
-                            if rand_num < 0.334
-                                agent.is_isolated = true
-                            end
-                        end
-                    end
-                    if agent.days_infected >= 3 && !agent.is_isolated
-                        rand_num = rand(thread_rng[thread_id], Float64)
-                        if agent.age < 8
-                            if rand_num < 0.325
-                                agent.is_isolated = true
-                            end
-                        elseif agent.age < 18
-                            if rand_num < 0.376
-                                agent.is_isolated = true
-                            end
-                        else
-                            if rand_num < 0.168
-                                agent.is_isolated = true
-                            end
-                        end
-                    end
-                end
-
-                # Вирусная нагрузкаx
-                agent.infectivity = find_agent_infectivity(
-                    agent.age, infectivities[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
-                    agent.is_asymptomatic && agent.days_infected > 0)
-            end
-        end
-    end
-end
-
-function multiple_simulations(
-    agents::Vector{Agent},
-    num_threads::Int,
-    thread_rng::Vector{MersenneTwister},
-    num_runs::Int,
-    start_agent_ids::Vector{Int},
-    end_agent_ids::Vector{Int},
-    infectivities::Array{Float64, 4},
-    etiology::Matrix{Float64},
-    etiology_data::Matrix{Float64},
-    incidence_data_mean::Vector{Float64},
-    incidence_data_mean_0::Vector{Float64},
-    incidence_data_mean_3::Vector{Float64},
-    incidence_data_mean_7::Vector{Float64},
-    incidence_data_mean_15::Vector{Float64},
-    temperature::Vector{Float64},
-    min_temp::Float64,
-    max_min_temp::Float64,
-    viruses::Vector{Virus}
-)
-    latin_hypercube_plan, _ = LHCoptim(num_runs, 15, 1000)
-
-    # Add _default
-    duration_parameter_default = 6.57057255976854
-    susceptibility_parameters_default = [2.9216384955078425, 2.7032379067052434, 3.3785746916400186, 5.066090046190548, 4.422627785391605, 4.2303075985990555, 3.919633521141057]
-    temperature_parameters_default = [-0.9127379320846658, -0.6913050098979746, -0.12830770011674536, -0.32224557129079745, -0.11309375158621385, -0.05712958733059234, -0.7297533120146187]
-
-    points = scaleLHC(latin_hypercube_plan, [
-        (duration_parameter_default - 0.1, duration_parameter_default + 0.1),
-        (susceptibility_parameters_default[1] - 0.1, susceptibility_parameters_default[1] + 0.1),
-        (susceptibility_parameters_default[2] - 0.1, susceptibility_parameters_default[2] + 0.1),
-        (susceptibility_parameters_default[3] - 0.1, susceptibility_parameters_default[3] + 0.1),
-        (susceptibility_parameters_default[4] - 0.1, susceptibility_parameters_default[4] + 0.1),
-        (susceptibility_parameters_default[5] - 0.1, susceptibility_parameters_default[5] + 0.1),
-        (susceptibility_parameters_default[6] - 0.1, susceptibility_parameters_default[6] + 0.1),
-        (susceptibility_parameters_default[7] - 0.1, susceptibility_parameters_default[7] + 0.1),
-        (temperature_parameters_default[1] - 0.05, temperature_parameters_default[1] + 0.05),
-        (temperature_parameters_default[2] - 0.05, temperature_parameters_default[2] + 0.05),
-        (temperature_parameters_default[3] - 0.05, temperature_parameters_default[3] + 0.05),
-        (temperature_parameters_default[4] - 0.05, temperature_parameters_default[4] + 0.05),
-        (temperature_parameters_default[5] - 0.05, temperature_parameters_default[5] + 0.05),
-        (temperature_parameters_default[6] - 0.05, temperature_parameters_default[6] + 0.05),
-        (temperature_parameters_default[7] - 0.05, temperature_parameters_default[7] + 0.05)])
-
-    S_min = 4.6e9
-
-    for i = 1:num_runs
-        println(i)
-
-        duration_parameter = points[i, 1]
-        susceptibility_parameters = points[i, 2:8]
-        temperature_parameters = points[i, 9:15]
-
-        temp_influences = Array{Float64,2}(undef, 7, 365)
-        year_day = 213
-        for i in 1:365
-            current_temp = (temperature[year_day] - min_temp) / max_min_temp
-            for v in 1:7
-                temp_influences[v, i] = temperature_parameters[v] * current_temp + 1.0
-            end
-            if year_day == 365
-                year_day = 1
-            else
-                year_day += 1
-            end
-        end
-
-        @time S, etiology_model, incidence = run_simulation(
-            num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-            temp_influences, duration_parameter,
-            susceptibility_parameters, etiology, incidence_data_mean,
-            incidence_data_mean_0, incidence_data_mean_3,
-            incidence_data_mean_7, incidence_data_mean_15, false)
-
-        etiology_sum = sum(etiology_model, dims = 1)[1, :]
-        for i = 1:7
-            etiology_model[i, :] = etiology_model[i, :] ./ etiology_sum
-            S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence).^ 2)
-        end
-
-        if S < S_min
-            S_min = S
-        end
-
-        println("S = ", S)
-
-        open("output/output.txt", "a") do io
-            println(io, "S: ", S)
-            println(io, "duration_parameter = ", duration_parameter)
-            println(io, "susceptibility_parameters = ", susceptibility_parameters)
-            println(io, "temperature_parameters = ", temperature_parameters)
-            println(io)
-        end
-
-        reset_population(
-            agents,
-            num_threads,
-            thread_rng,
-            start_agent_ids,
-            end_agent_ids,
-            infectivities,
-            viruses,
-            -1,
-            -1
-        )
-    end
-    println("S_min: ", S_min)
-end
+include("util/burnin.jl")
+include("util/reset.jl")
+include("util/stats.jl")
 
 function find_R0(
     agents::Vector{Agent},
     num_threads::Int,
     thread_rng::Vector{MersenneTwister},
-    num_runs::Int,
     start_agent_ids::Vector{Int},
     end_agent_ids::Vector{Int},
+    num_runs::Int,
     infectivities::Array{Float64, 4},
     viruses::Vector{Virus},
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
-    temp_influences::Array{Float64,2}
+    temp_influences::Array{Float64,2},
+    months_threads::Vector{Vector{Int}}
 )
     R0 = zeros(Float64, 7, 12)
-    @time for month_num in 1:12
-        println("Month", month_num)
-        for virus_num = 1:7
-            for _ = 1:num_runs
-                infected_agent_id = rand(1:size(agents)[1])
+    @time @threads for thread_id in 1:num_threads
+        r = months_threads[thread_id]
+        for month_num in r
+            for virus_num = 1:7
+                for _ = 1:num_runs
+                    infected_agent_id = rand(start_agent_ids[thread_id]:end_agent_ids[thread_id])
+                    agent = agents[infected_agent_id]
 
-                reset_population(
-                    agents,
-                    num_threads,
-                    thread_rng,
-                    start_agent_ids,
-                    end_agent_ids,
-                    infectivities,
-                    viruses,
-                    infected_agent_id,
-                    virus_num
-                )
+                    agent.virus_id = virus_num
+                    # Инкубационный период
+                    agent.incubation_period = get_period_from_erlang(
+                        viruses[agent.virus_id].mean_incubation_period,
+                        viruses[agent.virus_id].incubation_period_variance,
+                        viruses[agent.virus_id].min_incubation_period,
+                        viruses[agent.virus_id].max_incubation_period,
+                        thread_rng[thread_id])
+                    # Период болезни
+                    if agent.age < 16
+                        agent.infection_period = get_period_from_erlang(
+                            viruses[agent.virus_id].mean_infection_period_child,
+                            viruses[agent.virus_id].infection_period_variance_child,
+                            viruses[agent.virus_id].min_infection_period_child,
+                            viruses[agent.virus_id].max_infection_period_child,
+                            thread_rng[thread_id])
+                    else
+                        agent.infection_period = get_period_from_erlang(
+                            viruses[agent.virus_id].mean_infection_period_adult,
+                            viruses[agent.virus_id].infection_period_variance_adult,
+                            viruses[agent.virus_id].min_infection_period_adult,
+                            viruses[agent.virus_id].max_infection_period_adult,
+                            thread_rng[thread_id])
+                    end
 
-                R0[virus_num, month_num] += run_simulation_r0(
-                    month_num, infected_agent_id, agents, infectivities,
-                    temp_influences, duration_parameter,
-                    susceptibility_parameters)
+                    # Дней с момента инфицирования
+                    agent.days_infected =  1 - agent.incubation_period
+
+                    asymp_prob = 0.0
+                    if agent.age < 16
+                        asymp_prob = viruses[agent.virus_id].asymptomatic_probab_child
+                    else
+                        asymp_prob = viruses[agent.virus_id].asymptomatic_probab_adult
+                    end
+
+                    if rand(thread_rng[thread_id], Float64) < asymp_prob
+                        agent.is_asymptomatic = true
+                    end
+
+                    # Вирусная нагрузкаx
+                    agent.infectivity = find_agent_infectivity(
+                        agent.age, infectivities[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
+                        agent.is_asymptomatic && agent.days_infected > 0)
+
+                    R0[virus_num, month_num] += run_simulation_r0(
+                        month_num, infected_agent_id, agents, infectivities,
+                        temp_influences, duration_parameter,
+                        susceptibility_parameters, thread_rng[thread_id])
+                end
+                R0[virus_num, month_num] /= num_runs
             end
-            R0[virus_num, month_num] /= num_runs
         end
     end
     writedlm(joinpath(@__DIR__, "..", "output", "tables", "r0.csv"), R0, ',')
@@ -495,7 +121,7 @@ function main()
         Virus(4, 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 0.5, 0.3, 60),
         Virus(5, 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 0.5, 0.3, 90),
         Virus(6, 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.8, 0.5, 0.3, 90),
-        Virus(7, 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 0.5, 0.3, 365)]
+        Virus(7, 3.2, 0.496, 1, 7, 6.5, 2.37, 3, 12, 7.5, 3.1, 4, 14, 4.93, 0.5, 0.3, 365)]
 
     infectivities = Array{Float64,4}(undef, 7, 7, 13, 21)
     for days_infected in -6:14
@@ -538,7 +164,10 @@ function main()
 
     agents = Array{Agent, 1}(undef, num_people)
 
+    # With set seed
     thread_rng = [MersenneTwister(i) for i = 1:num_threads]
+    # With random seed
+    # thread_rng = [MersenneTwister(rand(1:1000000)) for i = 1:num_threads]
 
     @time @threads for thread_id in 1:num_threads
         create_population(
@@ -551,11 +180,42 @@ function main()
 
     println("Simulation...")
 
-    # Single run
-    # S: 7.535e8
-    duration_parameter = 6.616027105223085
-    susceptibility_parameters = [2.9165879904573373, 2.756773260240597, 3.3654433785087052, 5.038817318917821, 4.36707222983605, 4.188893457184914, 4.019633521141057]
-    temperature_parameters = [-0.9735460128927466, -0.6867595553525201, -0.09547941728846254, -0.3651748642200904, -0.14491193340439568, -0.04581645601746104, -0.6807634130247197]
+    duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
+    duration_parameter = mean(duration_parameter_array[burnin:step:size(duration_parameter_array)[1]])
+    
+    susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_3_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_4_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_5_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameters = [
+        mean(susceptibility_parameter_1_array[burnin:step:size(susceptibility_parameter_1_array)[1]])
+        mean(susceptibility_parameter_2_array[burnin:step:size(susceptibility_parameter_2_array)[1]])
+        mean(susceptibility_parameter_3_array[burnin:step:size(susceptibility_parameter_3_array)[1]])
+        mean(susceptibility_parameter_4_array[burnin:step:size(susceptibility_parameter_4_array)[1]])
+        mean(susceptibility_parameter_5_array[burnin:step:size(susceptibility_parameter_5_array)[1]])
+        mean(susceptibility_parameter_6_array[burnin:step:size(susceptibility_parameter_6_array)[1]])
+        mean(susceptibility_parameter_7_array[burnin:step:size(susceptibility_parameter_7_array)[1]])
+    ]
+
+    temperature_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_1_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_2_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_3_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_4_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_5_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_6_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "temperature_parameter_7_array.csv"), ',', Float64, '\n'))
+    temperature_parameters = -[
+        mean(temperature_parameter_1_array[burnin:step:size(temperature_parameter_1_array)[1]])
+        mean(temperature_parameter_2_array[burnin:step:size(temperature_parameter_2_array)[1]])
+        mean(temperature_parameter_3_array[burnin:step:size(temperature_parameter_3_array)[1]])
+        mean(temperature_parameter_4_array[burnin:step:size(temperature_parameter_4_array)[1]])
+        mean(temperature_parameter_5_array[burnin:step:size(temperature_parameter_5_array)[1]])
+        mean(temperature_parameter_6_array[burnin:step:size(temperature_parameter_6_array)[1]])
+        mean(temperature_parameter_7_array[burnin:step:size(temperature_parameter_7_array)[1]])
+    ]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -571,65 +231,254 @@ function main()
         end
     end
 
-    # etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
+    # Runs
+    etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
+    
+    infected_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
+    infected_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
+    infected_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
+    infected_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    # incidence_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu.csv"), ',', Int, '\n')
-    # incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
-    # incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
-    # incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
-    # incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
+    infected_data_0 = infected_data_0[2:53, 21:27]
+    infected_data_0_1 = etiology_data[1, :]' .* infected_data_0'
+    infected_data_0_2 = etiology_data[2, :]' .* infected_data_0'
+    infected_data_0_3 = etiology_data[3, :]' .* infected_data_0'
+    infected_data_0_4 = etiology_data[4, :]' .* infected_data_0'
+    infected_data_0_5 = etiology_data[5, :]' .* infected_data_0'
+    infected_data_0_6 = etiology_data[6, :]' .* infected_data_0'
+    infected_data_0_7 = etiology_data[7, :]' .* infected_data_0'
+    infected_data_0_viruses = cat(
+        infected_data_0_1,
+        infected_data_0_2,
+        infected_data_0_3,
+        infected_data_0_4,
+        infected_data_0_5,
+        infected_data_0_6,
+        infected_data_0_7,
+        dims = 3)
 
-    # incidence_data_mean = mean(incidence_data[42:45, 2:53], dims = 1)[1, :]
-    # incidence_data_mean_0 = mean(incidence_data_0[2:53, 24:27], dims = 2)[:, 1]
-    # incidence_data_mean_3 = mean(incidence_data_3[2:53, 24:27], dims = 2)[:, 1]
-    # incidence_data_mean_7 = mean(incidence_data_7[2:53, 24:27], dims = 2)[:, 1]
-    # incidence_data_mean_15 = mean(incidence_data_15[2:53, 24:27], dims = 2)[:, 1]
+    infected_data_3 = infected_data_3[2:53, 21:27]
+    infected_data_3_1 = etiology_data[1, :]' .* infected_data_3'
+    infected_data_3_2 = etiology_data[2, :]' .* infected_data_3'
+    infected_data_3_3 = etiology_data[3, :]' .* infected_data_3'
+    infected_data_3_4 = etiology_data[4, :]' .* infected_data_3'
+    infected_data_3_5 = etiology_data[5, :]' .* infected_data_3'
+    infected_data_3_6 = etiology_data[6, :]' .* infected_data_3'
+    infected_data_3_7 = etiology_data[7, :]' .* infected_data_3'
+    infected_data_3_viruses = cat(
+        infected_data_3_1,
+        infected_data_3_2,
+        infected_data_3_3,
+        infected_data_3_4,
+        infected_data_3_5,
+        infected_data_3_6,
+        infected_data_3_7,
+        dims = 3)
 
-    # collective_nums = Int[0, 0, 0, 0]
-    # for agent in agents
-    #     if agent.collective_id == 1
-    #         collective_nums[1] += 1
-    #     elseif agent.collective_id == 2
-    #         collective_nums[2] += 1
-    #     elseif agent.collective_id == 3
-    #         collective_nums[3] += 1
-    #     elseif agent.collective_id == 4
-    #         collective_nums[4] += 1
+    infected_data_7 = infected_data_7[2:53, 21:27]
+    infected_data_7_1 = etiology_data[1, :]' .* infected_data_7'
+    infected_data_7_2 = etiology_data[2, :]' .* infected_data_7'
+    infected_data_7_3 = etiology_data[3, :]' .* infected_data_7'
+    infected_data_7_4 = etiology_data[4, :]' .* infected_data_7'
+    infected_data_7_5 = etiology_data[5, :]' .* infected_data_7'
+    infected_data_7_6 = etiology_data[6, :]' .* infected_data_7'
+    infected_data_7_7 = etiology_data[7, :]' .* infected_data_7'
+    infected_data_7_viruses = cat(
+        infected_data_7_1,
+        infected_data_7_2,
+        infected_data_7_3,
+        infected_data_7_4,
+        infected_data_7_5,
+        infected_data_7_6,
+        infected_data_7_7,
+        dims = 3)
+
+    infected_data_15 = infected_data_15[2:53, 21:27]
+    infected_data_15_1 = etiology_data[1, :]' .* infected_data_15'
+    infected_data_15_2 = etiology_data[2, :]' .* infected_data_15'
+    infected_data_15_3 = etiology_data[3, :]' .* infected_data_15'
+    infected_data_15_4 = etiology_data[4, :]' .* infected_data_15'
+    infected_data_15_5 = etiology_data[5, :]' .* infected_data_15'
+    infected_data_15_6 = etiology_data[6, :]' .* infected_data_15'
+    infected_data_15_7 = etiology_data[7, :]' .* infected_data_15'
+    infected_data_15_viruses = cat(
+        infected_data_15_1,
+        infected_data_15_2,
+        infected_data_15_3,
+        infected_data_15_4,
+        infected_data_15_5,
+        infected_data_15_6,
+        infected_data_15_7,
+        dims = 3)
+
+    infected_data_0_viruses_mean = mean(infected_data_0_viruses, dims = 1)[1, :, :]
+    infected_data_3_viruses_mean = mean(infected_data_3_viruses, dims = 1)[1, :, :]
+    infected_data_7_viruses_mean = mean(infected_data_7_viruses, dims = 1)[1, :, :]
+    infected_data_15_viruses_mean = mean(infected_data_15_viruses, dims = 1)[1, :, :]
+
+    num_infected_age_groups_viruses_mean = cat(
+        infected_data_0_viruses_mean,
+        infected_data_3_viruses_mean,
+        infected_data_7_viruses_mean,
+        infected_data_15_viruses_mean,
+        dims = 3,
+    )
+
+    collective_nums = Int[0, 0, 0, 0]
+    for agent in agents
+        if agent.collective_id == 1
+            collective_nums[1] += 1
+        elseif agent.collective_id == 2
+            collective_nums[2] += 1
+        elseif agent.collective_id == 3
+            collective_nums[3] += 1
+        elseif agent.collective_id == 4
+            collective_nums[4] += 1
+        end
+    end
+
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
+
+    # # Single run
+    # @time num_infected_age_groups_viruses = run_simulation(
+    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+    #     temp_influences, duration_parameter,
+    #     susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, true)
+
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
+    #     num_infected_age_groups_viruses ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
+    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 9897, ',')
+
+    # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+    # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+
+    # println("S: ", S_abs)
+    # println("S: ", S_square)
+
+    # Multiple runs
+    multipliers = [0.8, 0.9, 1.1, 1.2]
+
+    # k = -2
+    # for m in multipliers
+    #     duration_parameter_new = duration_parameter * m
+    #     @time num_infected_age_groups_viruses = run_simulation(
+    #         num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+    #         temp_influences, duration_parameter_new,
+    #         susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, false)
+    #     writedlm(
+    #         joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_d_$k.csv"),
+    #         sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    #     reset_population(
+    #         agents,
+    #         num_threads,
+    #         thread_rng,
+    #         start_agent_ids,
+    #         end_agent_ids,
+    #         infectivities,
+    #         viruses)
+    #     if k == -1
+    #         k = 1
+    #     else
+    #         k += 1
     #     end
     # end
 
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
-
-    # @time S, etiology_model, incidence = run_simulation(
-    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-    #     temp_influences, duration_parameter,
-    #     susceptibility_parameters, etiology, incidence_data_mean,
-    #     incidence_data_mean_0, incidence_data_mean_3,
-    #     incidence_data_mean_7, incidence_data_mean_15, true)
-
-    # etiology_sum = sum(etiology_model, dims = 1)[1, :]
-    # for i = 1:7
-    #     etiology_model[i, :] = etiology_model[i, :] ./ etiology_sum
-    #     S += 1 / 14 * sum((etiology_data[i, :] .* incidence .- etiology_model[i, :] .* incidence).^ 2)
+    # for i in 1:7
+    #     k = -2
+    #     for m in multipliers
+    #         susceptibility_parameters_new = copy(susceptibility_parameters)
+    #         susceptibility_parameters_new[i] *= m
+    #         @time num_infected_age_groups_viruses = run_simulation(
+    #             num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+    #             temp_influences, duration_parameter,
+    #             susceptibility_parameters_new, etiology, num_infected_age_groups_viruses_mean, false)
+    #         writedlm(
+    #             joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_s$(i)_$k.csv"),
+    #             sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    #         reset_population(
+    #             agents,
+    #             num_threads,
+    #             thread_rng,
+    #             start_agent_ids,
+    #             end_agent_ids,
+    #             infectivities,
+    #             viruses)
+    #         if k == -1
+    #             k = 1
+    #         else
+    #             k += 1
+    #         end
+    #     end
     # end
 
-    # println("S: ", S)
-
-    # Multiple runs
-    # num_runs = 100
-    # multiple_simulations(agents, num_threads, thread_rng, num_runs,
-    #     start_agent_ids, end_agent_ids, infectivities,
-    #     etiology, etiology_data, incidence_data_mean, incidence_data_mean_0,
-    #     incidence_data_mean_3, incidence_data_mean_7, incidence_data_mean_15,
-    #     temperature, min_temp, max_min_temp, viruses)
+    for i in 1:1
+        k = -2
+        for m in multipliers
+            temperature_parameters_new = copy(temperature_parameters)
+            temperature_parameters_new[i] *= m
+            if temperature_parameters_new[i] < -1
+                temperature_parameters_new[i] = -1.0
+            end
+            temp_influences = Array{Float64,2}(undef, 7, 365)
+            year_day = 213
+            for i in 1:365
+                current_temp = (temperature[year_day] - min_temp) / max_min_temp
+                for v in 1:7
+                    temp_influences[v, i] = temperature_parameters_new[v] * current_temp + 1.0
+                end
+                if year_day == 365
+                    year_day = 1
+                else
+                    year_day += 1
+                end
+            end
+            
+            @time num_infected_age_groups_viruses = run_simulation(
+                num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+                temp_influences, duration_parameter,
+                susceptibility_parameters, etiology, num_infected_age_groups_viruses_mean, false)
+            writedlm(
+                joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_t$(i)_$k.csv"),
+                sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+            reset_population(
+                agents,
+                num_threads,
+                thread_rng,
+                start_agent_ids,
+                end_agent_ids,
+                infectivities,
+                viruses)
+            if k == -1
+                k = 1
+            else
+                k += 1
+            end
+        end
+    end
 
     # R0
-    num_runs = 10
+    # num_runs = 200000
+    # months_threads = [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
 
-    find_R0(agents, num_threads, thread_rng, num_runs, start_agent_ids,
-        end_agent_ids, infectivities, viruses, duration_parameter,
-        susceptibility_parameters, temp_influences)
+    # find_R0(agents, num_threads, thread_rng, start_agent_ids, end_agent_ids, num_runs, infectivities,
+    #     viruses, duration_parameter, susceptibility_parameters,
+    #     temp_influences, months_threads)
+
+    # Contacts evaluation
+    # run_simulation_evaluation(
+    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+    #     temp_influences, duration_parameter,
+    #     susceptibility_parameters, etiology)
 end
 
 main()

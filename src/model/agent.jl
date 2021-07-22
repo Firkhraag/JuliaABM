@@ -483,7 +483,9 @@ function get_period_from_erlang(
 )::Int
     shape::Int = mean * mean ÷ variance
     scale::Float64 = mean / shape
-    return round(rand(rng, truncated(Erlang(shape, scale), low, upper)))
+    return round(
+        rand(rng, truncated(
+            Erlang(shape, scale), low, upper)))
 end
 
 # Получить вирусную нагрузку
