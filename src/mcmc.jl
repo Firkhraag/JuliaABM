@@ -285,6 +285,7 @@ function main()
     # susceptibility_parameters_prior_means = [4.67683184214597, 4.657202109466729, 5.1183928057801085, 6.9159652968136704, 6.181578964757821, 6.487931893831405, 6.487635560996315]
     # susceptibility_parameters_prior_means = [4.57683184214597, 4.557202109466729, 5.1183928057801085, 6.6659652968136704, 6.181578964757821, 6.487931893831405, 6.487635560996315]
     # susceptibility_parameters_prior_means = [4.84, 4.94, 5.14, 6.78, 6.46, 6.43, 6.37]
+    susceptibility_parameters_prior_means = [4.76, 4.83, 5.01, 6.51, 6.59, 6.02, 6.43]
 
     susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
     susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
