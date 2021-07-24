@@ -285,38 +285,32 @@ function main()
     # susceptibility_parameters_prior_means = [4.67683184214597, 4.657202109466729, 5.1183928057801085, 6.9159652968136704, 6.181578964757821, 6.487931893831405, 6.487635560996315]
     # susceptibility_parameters_prior_means = [4.57683184214597, 4.557202109466729, 5.1183928057801085, 6.6659652968136704, 6.181578964757821, 6.487931893831405, 6.487635560996315]
     # susceptibility_parameters_prior_means = [4.84, 4.94, 5.14, 6.78, 6.46, 6.43, 6.37]
-    susceptibility_parameters_prior_means = [4.76, 4.83, 5.01, 6.51, 6.59, 6.02, 6.43]
+    duration_parameter_prior_mean = 4.708649537853532
+    susceptibility_parameters_prior_means = [4.791077491179754, 4.801204516560952, 5.277449916720067, 7.005768331227963, 6.87462448433526, 6.161149335090182, 6.232429844021741]
+    temperature_parameters_prior_means = [-0.9813131313131312, -0.6699003080680871, -0.03232323232323232, -0.37724434921845895, -0.12687954242389426, -0.13323867452062765, -0.6061108567674399]
 
-    susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_3_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_4_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_5_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameters_prior_means = [
-        mean(susceptibility_parameter_1_array[burnin:step:size(susceptibility_parameter_1_array)[1]]),
-        mean(susceptibility_parameter_2_array[burnin:step:size(susceptibility_parameter_2_array)[1]]),
-        mean(susceptibility_parameter_3_array[burnin:step:size(susceptibility_parameter_3_array)[1]]),
-        mean(susceptibility_parameter_4_array[burnin:step:size(susceptibility_parameter_4_array)[1]]),
-        mean(susceptibility_parameter_5_array[burnin:step:size(susceptibility_parameter_5_array)[1]]),
-        mean(susceptibility_parameter_6_array[burnin:step:size(susceptibility_parameter_6_array)[1]]),
-        mean(susceptibility_parameter_7_array[burnin:step:size(susceptibility_parameter_7_array)[1]])
-    ]
+    duration_parameter_prior_sd = 0.2
     susceptibility_parameters_prior_sds = [
-        0.2,
-        0.2,
-        0.2,
-        0.2,
-        0.2,
-        0.2,
-        0.2
-    ]
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1]
+    temperature_parameters_prior_sds = [
+        0.03,
+        0.03,
+        0.03,
+        0.03,
+        0.03,
+        0.03,
+        0.03]
 
     accept_num = 0
     local_rejected_num = 0
 
-    deltas = [0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    deltas = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -342,11 +336,16 @@ function main()
     S_square = sum((num_infected_age_groups - num_infected_age_groups_mean).^2)
     
     num_infected_age_groups = sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :]
-    prob_prev_prior = log_e_left(temperature_parameters[3], 10.0) + log_e_left(temperature_parameters[5], 10.0) + log_e_left(temperature_parameters[6], 10.0) +
-        log_e_right(temperature_parameters[1], 10.0) + log_e_right(temperature_parameters[2], 10.0) + log_e_right(temperature_parameters[7], 10.0)
+    prob_prev_prior = log_g(duration_parameter, duration_parameter_prior_mean, duration_parameter_prior_sd)
     for i = 1:7
         prob_prev_prior += log_g(susceptibility_parameters[i], susceptibility_parameters_prior_means[i], susceptibility_parameters_prior_sds[i])
+        prob_prev_prior += log_g(temperature_parameters[i], temperature_parameters_prior_means[i], temperature_parameters_prior_sds[i])
     end
+    # prob_prev_prior = log_e_left(temperature_parameters[3], 10.0) + log_e_left(temperature_parameters[5], 10.0) + log_e_left(temperature_parameters[6], 10.0) +
+    #     log_e_right(temperature_parameters[1], 10.0) + log_e_right(temperature_parameters[2], 10.0) + log_e_right(temperature_parameters[7], 10.0)
+    # for i = 1:7
+    #     prob_prev_prior += log_g(susceptibility_parameters[i], susceptibility_parameters_prior_means[i], susceptibility_parameters_prior_sds[i])
+    # end
     prob_prev_age_groups = zeros(Float64, 4, 52)
     for i in 1:52
         for j in 1:4
@@ -457,11 +456,16 @@ function main()
         S_abs = sum(abs.(num_infected_age_groups - num_infected_age_groups_mean))
         S_square = sum((num_infected_age_groups - num_infected_age_groups_mean).^2)
 
-        prob_prior = log_e_left(temperature_parameters[3], 10.0) + log_e_left(temperature_parameters[5], 10.0) + log_e_left(temperature_parameters[6], 10.0) +
-            log_e_right(temperature_parameters[1], 10.0) + log_e_right(temperature_parameters[2], 10.0) + log_e_right(temperature_parameters[7], 10.0)
+        prob_prior = log_g(duration_parameter, duration_parameter_prior_mean, duration_parameter_prior_sd)
         for i = 1:7
             prob_prior += log_g(susceptibility_parameters[i], susceptibility_parameters_prior_means[i], susceptibility_parameters_prior_sds[i])
+            prob_prior += log_g(temperature_parameters[i], temperature_parameters_prior_means[i], temperature_parameters_prior_sds[i])
         end
+        # prob_prior = log_e_left(temperature_parameters[3], 10.0) + log_e_left(temperature_parameters[5], 10.0) + log_e_left(temperature_parameters[6], 10.0) +
+        #     log_e_right(temperature_parameters[1], 10.0) + log_e_right(temperature_parameters[2], 10.0) + log_e_right(temperature_parameters[7], 10.0)
+        # for i = 1:7
+        #     prob_prior += log_g(susceptibility_parameters[i], susceptibility_parameters_prior_means[i], susceptibility_parameters_prior_sds[i])
+        # end
         prob_age_groups = zeros(Float64, 4, 52)
         for i in 1:52
             for j in 1:4
