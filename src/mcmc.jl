@@ -31,14 +31,6 @@ function log_g(x, mu, sigma)
     -log(sqrt(2 * pi) * sigma) - 0.5 * ((x - mu) / sigma)^2
 end
 
-function log_e_left(x, mu)
-    log(mu) - mu * x - log(1 - exp(-mu))
-end
-
-function log_e_right(x, mu)
-    log(mu) + mu * (x - 1) - log(1 - exp(-mu))
-end
-
 function main()
     println("Initialization...")
 
@@ -282,30 +274,22 @@ function main()
         temperature_parameter_7_array[size(temperature_parameter_7_array)[1]],
     ]
 
-    # susceptibility_parameters_prior_means = [4.67683184214597, 4.657202109466729, 5.1183928057801085, 6.9159652968136704, 6.181578964757821, 6.487931893831405, 6.487635560996315]
-    # susceptibility_parameters_prior_means = [4.57683184214597, 4.557202109466729, 5.1183928057801085, 6.6659652968136704, 6.181578964757821, 6.487931893831405, 6.487635560996315]
-    # susceptibility_parameters_prior_means = [4.84, 4.94, 5.14, 6.78, 6.46, 6.43, 6.37]
+    # susceptibility_parameters_prior_means = [0.68387609533, 0.68532162206, 0.75330066128, 1.0, 0.9812805904, 0.87943949097, 0.88961403651]
+    # temperature_parameters_prior_means = [1.0, 0.68265703035, 0.0329387545, 0.38442810676, 0.1292956737, 0.13577590095, 0.61765285455]
+
     duration_parameter_prior_mean = 4.708649537853532
     susceptibility_parameters_prior_means = [4.791077491179754, 4.801204516560952, 5.277449916720067, 7.005768331227963, 6.87462448433526, 6.161149335090182, 6.232429844021741]
     temperature_parameters_prior_means = [-0.9813131313131312, -0.6699003080680871, -0.03232323232323232, -0.37724434921845895, -0.12687954242389426, -0.13323867452062765, -0.6061108567674399]
 
     duration_parameter_prior_sd = 0.2
-    # susceptibility_parameters_prior_sds = [
-    #     0.1,
-    #     0.1,
-    #     0.1,
-    #     0.1,
-    #     0.1,
-    #     0.1,
-    #     0.1]
     susceptibility_parameters_prior_sds = [
-        0.08,
-        0.08,
-        0.08,
-        0.08,
-        0.08,
-        0.08,
-        0.08]
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1]
     temperature_parameters_prior_sds = [
         0.03,
         0.03,
@@ -349,29 +333,13 @@ function main()
         prob_prev_prior += log_g(susceptibility_parameters[i], susceptibility_parameters_prior_means[i], susceptibility_parameters_prior_sds[i])
         prob_prev_prior += log_g(temperature_parameters[i], temperature_parameters_prior_means[i], temperature_parameters_prior_sds[i])
     end
-    # prob_prev_prior = log_e_left(temperature_parameters[3], 10.0) + log_e_left(temperature_parameters[5], 10.0) + log_e_left(temperature_parameters[6], 10.0) +
-    #     log_e_right(temperature_parameters[1], 10.0) + log_e_right(temperature_parameters[2], 10.0) + log_e_right(temperature_parameters[7], 10.0)
-    # for i = 1:7
-    #     prob_prev_prior += log_g(susceptibility_parameters[i], susceptibility_parameters_prior_means[i], susceptibility_parameters_prior_sds[i])
-    # end
+
     prob_prev_age_groups = zeros(Float64, 4, 52)
     for i in 1:52
         for j in 1:4
             prob_prev_age_groups[j, i] = log_g(num_infected_age_groups[i, j], num_infected_age_groups_mean[i, j], num_infected_age_groups_sd[i, j])
         end
     end
-
-    # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
-    # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
-
-    # prob_prev_age_groups_viruses = zeros(Float64, 7, 4, 52)
-    # for i in 1:52
-    #     for j in 1:4
-    #         for k in 1:7
-    #             prob_prev_age_groups_viruses[k, j, i] = log_g(num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
-    #         end
-    #     end
-    # end
 
     open("mcmc/output.txt", "a") do io
         println(io, "n = ", 0)
@@ -469,11 +437,7 @@ function main()
             prob_prior += log_g(susceptibility_parameters[i], susceptibility_parameters_prior_means[i], susceptibility_parameters_prior_sds[i])
             prob_prior += log_g(temperature_parameters[i], temperature_parameters_prior_means[i], temperature_parameters_prior_sds[i])
         end
-        # prob_prior = log_e_left(temperature_parameters[3], 10.0) + log_e_left(temperature_parameters[5], 10.0) + log_e_left(temperature_parameters[6], 10.0) +
-        #     log_e_right(temperature_parameters[1], 10.0) + log_e_right(temperature_parameters[2], 10.0) + log_e_right(temperature_parameters[7], 10.0)
-        # for i = 1:7
-        #     prob_prior += log_g(susceptibility_parameters[i], susceptibility_parameters_prior_means[i], susceptibility_parameters_prior_sds[i])
-        # end
+
         prob_age_groups = zeros(Float64, 4, 52)
         for i in 1:52
             for j in 1:4
@@ -489,28 +453,6 @@ function main()
         end
         accept_prob += prob_prior - prob_prev_prior
         accept_prob_final = min(1.0, exp(accept_prob))
-
-        # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
-        # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
-
-        # prob_age_groups_viruses = zeros(Float64, 7, 4, 52)
-        # for i in 1:52
-        #     for j in 1:4
-        #         for k in 1:7
-        #             prob_age_groups_viruses[k, j, i] = log_g(num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
-        #         end
-        #     end
-        # end
-
-        # accept_prob = 0.0
-        # for i in 1:52
-        #     for j in 1:4
-        #         for k in 1:7
-        #             accept_prob += prob_age_groups_viruses[k, j, i] - prob_prev_age_groups_viruses[k, j, i]
-        #         end
-        #     end
-        # end
-        # accept_prob_final = min(1.0, exp(accept_prob))
 
         open("mcmc/output.txt", "a") do io
             println(io, "n = ", n)
@@ -559,8 +501,6 @@ function main()
 
             prob_prev_age_groups = copy(prob_age_groups)
             prob_prev_prior = prob_prior
-
-            # prob_prev_age_groups_viruses = copy(prob_age_groups_viruses)
 
             accept_num += 1
             local_rejected_num = 0
