@@ -290,14 +290,22 @@ function main()
     temperature_parameters_prior_means = [-0.9813131313131312, -0.6699003080680871, -0.03232323232323232, -0.37724434921845895, -0.12687954242389426, -0.13323867452062765, -0.6061108567674399]
 
     duration_parameter_prior_sd = 0.2
+    # susceptibility_parameters_prior_sds = [
+    #     0.1,
+    #     0.1,
+    #     0.1,
+    #     0.1,
+    #     0.1,
+    #     0.1,
+    #     0.1]
     susceptibility_parameters_prior_sds = [
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1]
+        0.08,
+        0.08,
+        0.08,
+        0.08,
+        0.08,
+        0.08,
+        0.08]
     temperature_parameters_prior_sds = [
         0.03,
         0.03,
