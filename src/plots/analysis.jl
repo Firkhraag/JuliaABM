@@ -232,7 +232,7 @@ function plot_incidences()
         [t1_minus_2 t1_minus_1 incidence t1_1 t1_2],
         lw = 3,
         xticks = (ticks, ticklabels),
-        label = ["$(round(temperature_parameters[1] * 0.8, digits = 2))" "$(round(temperature_parameters[1] * 0.9, digits = 2))" "$(round(temperature_parameters[1], digits = 2))" "$(round(min(1.0, temperature_parameters[1] * 1.1), digits = 2))" "$(round(min(1.0, temperature_parameters[1] * 1.2), digits = 2))"],
+        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[1], digits = 2))" "$(0.75), digits = 2))" "$(1.0)"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t1.pdf"))
@@ -242,7 +242,7 @@ function plot_incidences()
         [t2_minus_2 t2_minus_1 incidence t2_1 t2_2],
         lw = 3,
         xticks = (ticks, ticklabels),
-        label = ["$(round(temperature_parameters[2] * 0.8, digits = 2))" "$(round(temperature_parameters[2] * 0.9, digits = 2))" "$(round(temperature_parameters[2], digits = 2))" "$(round(min(1.0, temperature_parameters[2] * 1.1), digits = 2))" "$(round(min(1.0, temperature_parameters[2] * 1.2), digits = 2))"],
+        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[2], digits = 2))" "$(0.75), digits = 2))" "$(1.0)"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t2.pdf"))
@@ -252,7 +252,7 @@ function plot_incidences()
         [t3_minus_2 t3_minus_1 incidence t3_1 t3_2],
         lw = 3,
         xticks = (ticks, ticklabels),
-        label = ["$(round(temperature_parameters[3] * 0.8, digits = 2))" "$(round(temperature_parameters[3] * 0.9, digits = 2))" "$(round(temperature_parameters[3], digits = 2))" "$(round(min(1.0, temperature_parameters[3] * 1.1), digits = 2))" "$(round(min(1.0, temperature_parameters[3] * 1.2), digits = 2))"],
+        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[3], digits = 2))" "$(0.75)" "$(1.0)"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t3.pdf"))
@@ -262,7 +262,7 @@ function plot_incidences()
         [t4_minus_2 t4_minus_1 incidence t4_1 t4_2],
         lw = 3,
         xticks = (ticks, ticklabels),
-        label = ["$(round(temperature_parameters[4] * 0.8, digits = 2))" "$(round(temperature_parameters[4] * 0.9, digits = 2))" "$(round(temperature_parameters[4], digits = 2))" "$(round(min(1.0, temperature_parameters[4] * 1.1), digits = 2))" "$(round(min(1.0, temperature_parameters[4] * 1.2), digits = 2))"],
+        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[4], digits = 2))" "$(0.75)" "$(1.0)"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t4.pdf"))
@@ -272,7 +272,7 @@ function plot_incidences()
         [t5_minus_2 t5_minus_1 incidence t5_1 t5_2],
         lw = 3,
         xticks = (ticks, ticklabels),
-        label = ["$(round(temperature_parameters[5] * 0.8, digits = 2))" "$(round(temperature_parameters[5] * 0.9, digits = 2))" "$(round(temperature_parameters[5], digits = 2))" "$(round(min(1.0, temperature_parameters[5] * 1.1), digits = 2))" "$(round(min(1.0, temperature_parameters[5] * 1.2), digits = 2))"],
+        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[5], digits = 2))" "$(0.75)" "$(1.0)"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t5.pdf"))
@@ -282,7 +282,7 @@ function plot_incidences()
         [t6_minus_2 t6_minus_1 incidence t6_1 t6_2],
         lw = 3,
         xticks = (ticks, ticklabels),
-        label = ["$(round(temperature_parameters[6] * 0.8, digits = 2))" "$(round(temperature_parameters[6] * 0.9, digits = 2))" "$(round(temperature_parameters[6], digits = 2))" "$(round(min(1.0, temperature_parameters[6] * 1.1), digits = 2))" "$(round(min(1.0, temperature_parameters[6] * 1.2), digits = 2))"],
+        label = ["$(0.25))" "$(0.5)" "$(round(temperature_parameters[6], digits = 2))" "$(0.75)" "$(1.0)"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t6.pdf"))
@@ -292,7 +292,7 @@ function plot_incidences()
         [t7_minus_2 t7_minus_1 incidence t7_1 t7_2],
         lw = 3,
         xticks = (ticks, ticklabels),
-        label = ["$(round(temperature_parameters[7] * 0.8, digits = 2))" "$(round(temperature_parameters[7] * 0.9, digits = 2))" "$(round(temperature_parameters[7], digits = 2))" "$(round(min(1.0, temperature_parameters[7] * 1.1), digits = 2))" "$(round(min(1.0, temperature_parameters[7] * 1.2), digits = 2))"],
+        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[7], digits = 2))" "$(0.75)" "$(1.0)"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Cases per 1000 people}")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t7.pdf"))

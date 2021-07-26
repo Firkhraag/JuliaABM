@@ -516,9 +516,9 @@ function main()
     # ----------------------
     # Sensitivity analyses
     # ----------------------
-    # multipliers = [0.8, 0.9, 1.1, 1.2]
+    multipliers = [0.8, 0.9, 1.1, 1.2]
+    k = -2
 
-    # k = -2
     # for m in multipliers
     #     duration_parameter_new = duration_parameter * m
     #     @time num_infected_age_groups_viruses = run_simulation(
@@ -571,51 +571,51 @@ function main()
     #     end
     # end
 
-    # multipliers = [0.6, 0.8, 1.2, 1.4]
-    # for i in 1:7
-    #     k = -2
-    #     for m in multipliers
-    #         temperature_parameters_new = copy(temperature_parameters)
-    #         temperature_parameters_new[i] *= m
-    #         if temperature_parameters_new[i] < -1
-    #             temperature_parameters_new[i] = -1.0
-    #         end
-    #         temp_influences = Array{Float64,2}(undef, 7, 365)
-    #         year_day = 213
-    #         for i in 1:365
-    #             current_temp = (temperature[year_day] - min_temp) / max_min_temp
-    #             for v in 1:7
-    #                 temp_influences[v, i] = temperature_parameters_new[v] * current_temp + 1.0
-    #             end
-    #             if year_day == 365
-    #                 year_day = 1
-    #             else
-    #                 year_day += 1
-    #             end
-    #         end
+    values = [0.25, 0.5, 0.75, 1.0]
+    for i in 1:7
+        k = -2
+        for v in values
+            temperature_parameters_new = copy(temperature_parameters)
+            temperature_parameters_new[i] = v
+            if temperature_parameters_new[i] < -1
+                temperature_parameters_new[i] = -1.0
+            end
+            temp_influences = Array{Float64,2}(undef, 7, 365)
+            year_day = 213
+            for i in 1:365
+                current_temp = (temperature[year_day] - min_temp) / max_min_temp
+                for v in 1:7
+                    temp_influences[v, i] = temperature_parameters_new[v] * current_temp + 1.0
+                end
+                if year_day == 365
+                    year_day = 1
+                else
+                    year_day += 1
+                end
+            end
             
-    #         @time num_infected_age_groups_viruses = run_simulation(
-    #             num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-    #             temp_influences, duration_parameter,
-    #             susceptibility_parameters, etiology, false)
-    #         writedlm(
-    #             joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_t$(i)_$k.csv"),
-    #             sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
-    #         reset_population(
-    #             agents,
-    #             num_threads,
-    #             thread_rng,
-    #             start_agent_ids,
-    #             end_agent_ids,
-    #             infectivities,
-    #             viruses)
-    #         if k == -1
-    #             k = 1
-    #         else
-    #             k += 1
-    #         end
-    #     end
-    # end
+            @time num_infected_age_groups_viruses = run_simulation(
+                num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+                temp_influences, duration_parameter,
+                susceptibility_parameters, etiology, false)
+            writedlm(
+                joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_t$(i)_$k.csv"),
+                sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+            reset_population(
+                agents,
+                num_threads,
+                thread_rng,
+                start_agent_ids,
+                end_agent_ids,
+                infectivities,
+                viruses)
+            if k == -1
+                k = 1
+            else
+                k += 1
+            end
+        end
+    end
 
     # ----------------------
     # R0
