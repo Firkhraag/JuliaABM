@@ -571,7 +571,7 @@ function main()
     #     end
     # end
 
-    values = [0.25, 0.5, 0.75, 1.0]
+    values = -[0.25, 0.5, 0.75, 1.0]
     for i in 1:7
         k = -2
         for v in values
