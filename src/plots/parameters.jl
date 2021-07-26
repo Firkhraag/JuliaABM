@@ -5,7 +5,7 @@ using LaTeXStrings
 
 include("../util/burnin.jl")
 
-default(legendfontsize = 18, guidefont = (26, :black), tickfont = (18, :black))
+default(legendfontsize = 19, guidefont = (28, :black), tickfont = (19, :black))
 
 function plot_parameters()
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
@@ -26,51 +26,73 @@ function plot_parameters()
     temperature_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "mcmc", "tables", "temperature_parameter_6_array.csv"), ',', Float64, '\n'))
     temperature_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "mcmc", "tables", "temperature_parameter_7_array.csv"), ',', Float64, '\n'))
 
-    duration_parameter_plot = histogram(duration_parameter_array[burnin:step:length(duration_parameter_array)],
+    duration_parameter_plot = histogram(duration_parameter_array[burnin:step:length(duration_parameter_array)], margin = 3Plots.mm,
         legend = false, xlabel = L"d", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
 
-    ticks = range(2.9, stop = 3.5, length = 4)
-    ticklabels = ["2.9" "3.1" "3.3" "3.5"]
-    susceptibility_parameter_1_plot = histogram(susceptibility_parameter_1_array[burnin:step:length(susceptibility_parameter_1_array)],
-        legend = false, xlabel = L"s_1\textrm{\begin{sffamily} (FluA)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
+    # ticks = range(2.9, stop = 3.5, length = 4)
+    # ticklabels = ["2.9" "3.1" "3.3" "3.5"]
+    # susceptibility_parameter_1_plot = histogram(susceptibility_parameter_1_array[burnin:step:length(susceptibility_parameter_1_array)], margin = 3Plots.mm,
+    #     legend = false, xlabel = L"s_1\textrm{\begin{sffamily} (FluA)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
 
-    susceptibility_parameter_2_plot = histogram(susceptibility_parameter_2_array[burnin:step:length(susceptibility_parameter_2_array)],
+    susceptibility_parameter_1_plot = histogram(susceptibility_parameter_1_array[burnin:step:length(susceptibility_parameter_1_array)], margin = 3Plots.mm,
+        legend = false, xlabel = L"s_1\textrm{\begin{sffamily} (FluA)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
+
+
+    susceptibility_parameter_2_plot = histogram(susceptibility_parameter_2_array[burnin:step:length(susceptibility_parameter_2_array)], margin = 3Plots.mm,
         legend = false, xlabel = L"s_2\textrm{\begin{sffamily} (FluB)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
     
-    ticks = range(3.2, stop = 3.8, length = 4)
-    ticklabels = ["3.2" "3.4" "3.6" "3.8"]
-    susceptibility_parameter_3_plot = histogram(susceptibility_parameter_3_array[burnin:step:length(susceptibility_parameter_3_array)],
+    ticks = range(5.1, stop = 5.7, length = 4)
+    ticklabels = ["5.1" "5.3" "5.5" "5.7"]
+    susceptibility_parameter_3_plot = histogram(susceptibility_parameter_3_array[burnin:step:length(susceptibility_parameter_3_array)], margin = 3Plots.mm,
         legend = false, xlabel = L"s_3\textrm{\begin{sffamily} (RV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
-    
-    ticks = range(4.8, stop = 6.0, length = 4)
-    ticklabels = ["4.8" "5.2" "5.6" "6.0"]
-    susceptibility_parameter_4_plot = histogram(susceptibility_parameter_4_array[burnin:step:length(susceptibility_parameter_4_array)],
-        legend = false, xlabel = L"s_4\textrm{\begin{sffamily} (RSV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
-    
-    susceptibility_parameter_5_plot = histogram(susceptibility_parameter_5_array[burnin:step:length(susceptibility_parameter_5_array)],
-        legend = false, xlabel = L"s_5\textrm{\begin{sffamily} (AdV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
-    susceptibility_parameter_6_plot = histogram(susceptibility_parameter_6_array[burnin:step:length(susceptibility_parameter_6_array)],
-        legend = false, xlabel = L"s_6\textrm{\begin{sffamily} (PIV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
-    susceptibility_parameter_7_plot = histogram(susceptibility_parameter_7_array[burnin:step:length(susceptibility_parameter_7_array)],
-        legend = false, xlabel = L"s_7\textrm{\begin{sffamily} (CoV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
 
-    temperature_parameter_1_plot = histogram(temperature_parameter_1_array[burnin:step:length(temperature_parameter_1_array)],
-        legend = false, xlabel = L"t_1\textrm{\begin{sffamily} (FluA)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
-    temperature_parameter_2_plot = histogram(temperature_parameter_2_array[burnin:step:length(temperature_parameter_2_array)],
-        legend = false, xlabel = L"t_2\textrm{\begin{sffamily} (FluB)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
-    temperature_parameter_3_plot = histogram(temperature_parameter_3_array[burnin:step:length(temperature_parameter_3_array)],
-        legend = false, xlabel = L"t_3\textrm{\begin{sffamily} (RV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
-    temperature_parameter_4_plot = histogram(temperature_parameter_4_array[burnin:step:length(temperature_parameter_4_array)],
-        legend = false, xlabel = L"t_4\textrm{\begin{sffamily} (RSV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
-    temperature_parameter_5_plot = histogram(temperature_parameter_5_array[burnin:step:length(temperature_parameter_5_array)],
-        legend = false, xlabel = L"t_5\textrm{\begin{sffamily} (AdV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
+    ticks = range(6.4, stop = 7.3, length = 4)
+    ticklabels = ["6.4" "6.7" "7.0" "7.3"]
+    susceptibility_parameter_4_plot = histogram(susceptibility_parameter_4_array[burnin:step:length(susceptibility_parameter_4_array)], margin = 3Plots.mm,
+        legend = false, xlabel = L"s_4\textrm{\begin{sffamily} (RSV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
+
+    ticks = range(6.4, stop = 7.4, length = 6)
+    ticklabels = ["6.4" "6.6" "6.8" "7.0" "7.2" "7.4"]
+    susceptibility_parameter_5_plot = histogram(susceptibility_parameter_5_array[burnin:step:length(susceptibility_parameter_5_array)], margin = 3Plots.mm,
+        legend = false, xlabel = L"s_5\textrm{\begin{sffamily} (AdV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
     
-    ticks = range(0.0, stop = 0.1, length = 6)
-    ticklabels = ["0.0" "0.02" "0.04" "0.06" "0.08" "0.1"]
-    temperature_parameter_6_plot = histogram(temperature_parameter_6_array[burnin:step:length(temperature_parameter_6_array)],
+    ticks = range(5.6, stop = 6.6, length = 6)
+    ticklabels = ["5.6" "5.8" "6.0" "6.2" "6.4" "6.6"]
+    susceptibility_parameter_6_plot = histogram(susceptibility_parameter_6_array[burnin:step:length(susceptibility_parameter_6_array)], margin = 3Plots.mm,
+        legend = false, xlabel = L"s_6\textrm{\begin{sffamily} (PIV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
+
+    ticks = range(5.6, stop = 6.6, length = 6)
+    ticklabels = ["5.6" "5.8" "6.0" "6.2" "6.4" "6.6"]
+    susceptibility_parameter_7_plot = histogram(susceptibility_parameter_7_array[burnin:step:length(susceptibility_parameter_7_array)], margin = 3Plots.mm,
+        legend = false, xlabel = L"s_7\textrm{\begin{sffamily} (CoV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
+
+    ticks = range(0.94, stop = 1.0, length = 4)
+    ticklabels = ["0.94" "0.96" "0.98" "1.0"]
+    temperature_parameter_1_plot = histogram(temperature_parameter_1_array[burnin:step:length(temperature_parameter_1_array)], margin = 3Plots.mm,
+        legend = false, xlabel = L"t_1\textrm{\begin{sffamily} (FluA)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
+
+    temperature_parameter_2_plot = histogram(temperature_parameter_2_array[burnin:step:length(temperature_parameter_2_array)], margin = 3Plots.mm,
+        legend = false, xlabel = L"t_2\textrm{\begin{sffamily} (FluB)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
+
+    temperature_parameter_3_plot = histogram(temperature_parameter_3_array[burnin:step:length(temperature_parameter_3_array)], margin = 3Plots.mm,
+        legend = false, xlabel = L"t_3\textrm{\begin{sffamily} (RV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
+    
+    ticks = range(0.2, stop = 0.45, length = 6)
+    ticklabels = ["0.2" "0.25" "0.3" "0.35" "0.4" "0.45"]
+    temperature_parameter_4_plot = histogram(temperature_parameter_4_array[burnin:step:length(temperature_parameter_4_array)], margin = 3Plots.mm,
+        legend = false, xlabel = L"t_4\textrm{\begin{sffamily} (RSV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
+    
+    ticks = range(0.0, stop = 0.16, length = 5)
+    ticklabels = ["0.0" "0.04" "0.08" "0.12" "0.16"]
+    temperature_parameter_5_plot = histogram(temperature_parameter_5_array[burnin:step:length(temperature_parameter_5_array)], margin = 3Plots.mm,
+        legend = false, xlabel = L"t_5\textrm{\begin{sffamily} (AdV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
+    
+    ticks = range(0.0, stop = 0.12, length = 4)
+    ticklabels = ["0.0" "0.04" "0.08" "0.12"]
+    temperature_parameter_6_plot = histogram(temperature_parameter_6_array[burnin:step:length(temperature_parameter_6_array)], margin = 3Plots.mm,
         legend = false, xlabel = L"t_6\textrm{\begin{sffamily} (PIV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
 
-    temperature_parameter_7_plot = histogram(temperature_parameter_7_array[burnin:step:length(temperature_parameter_7_array)],
+    temperature_parameter_7_plot = histogram(temperature_parameter_7_array[burnin:step:length(temperature_parameter_7_array)], margin = 3Plots.mm,
         legend = false, xlabel = L"t_7\textrm{\begin{sffamily} (CoV)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7)
 
     savefig(duration_parameter_plot, joinpath(@__DIR__, "..", "..", "mcmc", "plots", "duration_parameter_plot.pdf"))
@@ -183,9 +205,9 @@ function print_parameters()
     println("t3: ", round(m11, digits = 2), " (", round(max(0.0, m11 - z * std11 / denominator), digits = 2), "--", round(min(1.0, m11 + z * std11 / denominator), digits = 2), ")")
     println("t4: ", round(m12, digits = 2), " (", round(max(0.0, m12 - z * std12 / denominator), digits = 2), "--", round(min(1.0, m12 + z * std12 / denominator), digits = 2), ")")
     println("t5: ", round(m13, digits = 2), " (", round(max(0.0, m13 - z * std13 / denominator), digits = 2), "--", round(min(1.0, m13 + z * std13 / denominator), digits = 2), ")")
-    println("t6: ", round(m14, digits=3), " (", round(max(0.0, m14 - z * std14 / denominator), digits=3), "--", round(min(1.0, m14 + z * std14 / denominator), digits=3), ")")
+    println("t6: ", round(m14, digits=3), " (", round(max(0.0, m14 - z * std14 / denominator), digits = 2), "--", round(min(1.0, m14 + z * std14 / denominator), digits = 2), ")")
     println("t7: ", round(m15, digits = 2), " (", round(max(0.0, m15 - z * std15 / denominator), digits = 2), "--", round(min(1.0, m15 + z * std15 / denominator), digits = 2), ")")
 end
 
-# plot_parameters()
+plot_parameters()
 print_parameters()

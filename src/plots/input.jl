@@ -8,7 +8,7 @@ using CategoricalArrays
 include("../data/temperature.jl")
 include("../data/etiology.jl")
 
-default(legendfontsize = 10, guidefont = (16, :black), tickfont = (10, :black))
+default(legendfontsize = 12, guidefont = (17, :black), tickfont = (12, :black))
 
 function plot_temperature()
     temperature_data = get_air_temperature()
@@ -141,6 +141,8 @@ function plot_incubation_periods()
         yerr = std,
         group = legend,
         color=:dodgerblue,
+        markerstrokecolor = :black,
+        markercolor = :black,
         legend = false,
         xlabel = L"\textrm{\sffamily Virus}",
         ylabel = L"\textrm{\sffamily Incubation period duration, days}")
@@ -164,6 +166,8 @@ function plot_infection_periods()
         yerr = std,
         group = legend,
         yticks = (yticks, yticklabels),
+        markerstrokecolor = :black,
+        markercolor = :black,
         xlabel = L"\textrm{\sffamily Virus}",
         ylabel = L"\textrm{\sffamily Infection period duration, days}")
     savefig(infection_periods_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "infection_periods.pdf"))

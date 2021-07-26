@@ -5,15 +5,17 @@ using LaTeXStrings
 
 include("../data/etiology.jl")
 
-default(legendfontsize = 10, guidefont = (16, :black), tickfont = (10, :black))
+default(legendfontsize = 14, guidefont = (20, :black), tickfont = (14, :black))
 
 function plot_incidence()
     incidence = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "infected_data.csv"), ',', Float64)
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
     infected_data_mean = mean(infected_data[39:45, 2:53], dims = 1)[1, :] ./ 9897
 
-    ticks = range(1, stop = 52, length = 13)
-    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    # ticks = range(1, stop = 52, length = 13)
+    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     incidence_plot = plot(
         1:52,
         [incidence infected_data_mean],
@@ -33,8 +35,10 @@ function plot_incidence_etiology()
         etiology[:, i] = etiology[:, i] ./ etiology_sum[:, 1]
     end
 
-    ticks = range(1, stop = 52, length = 13)
-    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    # ticks = range(1, stop = 52, length = 13)
+    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     yticks = [0.0, 0.2, 0.4, 0.6, 0.8]
     yticklabels = ["0.0", "0.2", "0.4", "0.6", "0.8"]
     etiology_incidence_plot = plot(
@@ -65,8 +69,10 @@ function plot_incidence_age_groups()
     infected_data_mean_7 = mean(infected_data_7[2:53, 22:27], dims = 2)[:, 1] ./ 9897
     infected_data_mean_15 = mean(infected_data_15[2:53, 22:27], dims = 2)[:, 1] ./ 9897
 
-    ticks = range(1, stop = 52, length = 13)
-    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    # ticks = range(1, stop = 52, length = 13)
+    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     incidence_plot = plot(
         1:52,
         [age_groups[:, 1] infected_data_mean_0],
@@ -227,8 +233,10 @@ function plot_r0()
 
     r0 = cat(r0[:, 8:12], r0[:, 1:7], dims=2)
 
-    ticks = range(1, stop = 12, length = 13)
-    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    # ticks = range(1, stop = 12, length = 13)
+    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     registered_new_cases_plot = plot(
         1:12,
         [r0[i, :] for i = 1:7],
@@ -250,7 +258,7 @@ plot_incidence_age_groups()
 
 # plot_daily_new_cases_viruses()
 
-# plot_r0()
+plot_r0()
 
 # plot_daily_new_cases_age_groups()
 # plot_daily_new_recoveries_age_groups()
