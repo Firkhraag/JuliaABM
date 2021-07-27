@@ -47,7 +47,7 @@ function plot_incidence_etiology()
         lw = 3,
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
-        legend = (0.85, 0.97),
+        legend = (0.5, 0.97),
         ylim = (0.0, 0.8),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
@@ -235,7 +235,7 @@ function plot_r0()
 
     # ticks = range(1, stop = 12, length = 13)
     # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
-    ticks = range(1, stop = 52, length = 7)
+    ticks = range(1, stop = 12, length = 7)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     registered_new_cases_plot = plot(
         1:12,
@@ -243,6 +243,7 @@ function plot_r0()
         lw = 3,
         xticks = (ticks, ticklabels),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
+        legend = (0.5, 0.6),
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily R0}")
