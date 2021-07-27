@@ -6,7 +6,7 @@ using LaTeXStrings
 include("../data/etiology.jl")
 include("../util/burnin.jl")
 
-default(legendfontsize = 16, guidefont = (24, :black), tickfont = (16, :black))
+default(titlefontsize = 24, legendfontsize = 16, guidefont = (24, :black), tickfont = (16, :black))
 
 function plot_incidences()
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
@@ -151,7 +151,8 @@ function plot_incidences()
         lw = 3,
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
-        title = "d",
+        legend = (0.85, 1.05),
+        ylims = (0, 17),
         label = ["$(round(duration_parameter * 0.8, digits = 2))" "$(round(duration_parameter * 0.9, digits = 2))" "$(round(duration_parameter, digits = 2))" "$(round(duration_parameter * 1.1, digits = 2))" "$(round(duration_parameter * 1.2, digits = 2))"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Cases per 1000 people}")
@@ -182,6 +183,7 @@ function plot_incidences()
         [s3_minus_2 s3_minus_1 incidence s3_1 s3_2],
         lw = 3,
         xticks = (ticks, ticklabels),
+        legend = (0.85, 0.98),
         label = ["$(round(susceptibility_parameters[3] * 0.8, digits = 2))" "$(round(susceptibility_parameters[3] * 0.9, digits = 2))" "$(round(susceptibility_parameters[3], digits = 2))" "$(round(susceptibility_parameters[3] * 1.1, digits = 2))" "$(round(susceptibility_parameters[3] * 1.2, digits = 2))"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Cases per 1000 people}")
@@ -192,6 +194,7 @@ function plot_incidences()
         [s4_minus_2 s4_minus_1 incidence s4_1 s4_2],
         lw = 3,
         xticks = (ticks, ticklabels),
+        legend = (0.85, 0.98),
         label = ["$(round(susceptibility_parameters[4] * 0.8, digits = 2))" "$(round(susceptibility_parameters[4] * 0.9, digits = 2))" "$(round(susceptibility_parameters[4], digits = 2))" "$(round(susceptibility_parameters[4] * 1.1, digits = 2))" "$(round(susceptibility_parameters[4] * 1.2, digits = 2))"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Cases per 1000 people}")
@@ -202,6 +205,8 @@ function plot_incidences()
         [s5_minus_2 s5_minus_1 incidence s5_1 s5_2],
         lw = 3,
         xticks = (ticks, ticklabels),
+        legend = (0.85, 1.05),
+        ylims = (0, 13),
         label = ["$(round(susceptibility_parameters[5] * 0.8, digits = 2))" "$(round(susceptibility_parameters[5] * 0.9, digits = 2))" "$(round(susceptibility_parameters[5], digits = 2))" "$(round(susceptibility_parameters[5] * 1.1, digits = 2))" "$(round(susceptibility_parameters[5] * 1.2, digits = 2))"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Cases per 1000 people}")
@@ -212,6 +217,7 @@ function plot_incidences()
         [s6_minus_2 s6_minus_1 incidence s6_1 s6_2],
         lw = 3,
         xticks = (ticks, ticklabels),
+        legend = (0.92, 0.98),
         label = ["$(round(susceptibility_parameters[6] * 0.8, digits = 2))" "$(round(susceptibility_parameters[6] * 0.9, digits = 2))" "$(round(susceptibility_parameters[6], digits = 2))" "$(round(susceptibility_parameters[6] * 1.1, digits = 2))" "$(round(susceptibility_parameters[6] * 1.2, digits = 2))"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily Cases per 1000 people}")
