@@ -1,2 +1,2 @@
-const burnin = 500
-const step = 6
+const burnin = 1
+const step = 5

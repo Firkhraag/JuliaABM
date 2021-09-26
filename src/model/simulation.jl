@@ -40,46 +40,21 @@ end
 
 function infect_randomly(
     agent::Agent,
-    week_num::Int,
+    current_step::Int,
     etiology::Matrix{Float64},
     rng::MersenneTwister
 )
-    rand_num = rand(rng, Float64)
-    if rand_num < etiology[week_num, 1]
-        if !agent.FluA_immunity
-            agent.virus_id = 1
-            agent.is_newly_infected = true
-        end
-    elseif rand_num < etiology[week_num, 2]
-        if !agent.FluB_immunity
-            agent.virus_id = 2
-            agent.is_newly_infected = true
-        end
-    elseif rand_num < etiology[week_num, 3]
-        if agent.RV_days_immune == 0
-            agent.virus_id = 3
-            agent.is_newly_infected = true
-        end
-    elseif rand_num < etiology[week_num, 4]
-        if agent.RSV_days_immune == 0
-            agent.virus_id = 4
-            agent.is_newly_infected = true
-        end
-    elseif rand_num < etiology[week_num, 5]
-        if agent.AdV_days_immune == 0
-            agent.virus_id = 5
-            agent.is_newly_infected = true
-        end
-    elseif rand_num < etiology[week_num, 6]
-        if agent.PIV_days_immune == 0
-            agent.virus_id = 6
-            agent.is_newly_infected = true
-        end
-    else
-        if !agent.CoV_immunity
-            agent.virus_id = 7
-            agent.is_newly_infected = true
-        end
+    rand_num = rand(rng, 1:7)
+    if (rand_num == 1 && agent.FluA_days_immune == 0) ||
+        (rand_num == 2 && agent.FluB_days_immune == 0) ||
+        (rand_num == 3 && agent.RV_days_immune == 0) ||
+        (rand_num == 4 && agent.RSV_days_immune == 0) ||
+        (rand_num == 5 && agent.AdV_days_immune == 0) ||
+        (rand_num == 6 && agent.PIV_days_immune == 0) ||
+        (rand_num == 7 && agent.CoV_days_immune == 0)
+
+        agent.virus_id = rand_num
+        agent.is_newly_infected = true
     end
 end
 
@@ -109,8 +84,8 @@ function simulate_contacts(
                 agent2 = agents[agent2_id]
                 # Проверка восприимчивости агента к вирусу
                 if agent2.virus_id == 0 && agent2.days_immune == 0
-                    if (agent.virus_id != 1 || !agent2.FluA_immunity) && (agent.virus_id != 2 || !agent2.FluB_immunity) &&
-                        (agent.virus_id != 7 || !agent2.CoV_immunity) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
+                    if (agent.virus_id != 1 || agent2.FluA_days_immune == 0) && (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
+                        (agent.virus_id != 7 || agent2.CoV_days_immune == 0) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
                         (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
                         (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
 
@@ -168,8 +143,8 @@ function simulate_contacts(
                 for agent2_id in agent.collective_conn_ids
                     agent2 = agents[agent2_id]
                     if agent2.virus_id == 0 && agent2.days_immune == 0 && !agent2.is_isolated && !agent2.on_parent_leave
-                        if (agent.virus_id != 1 || !agent2.FluA_immunity) && (agent.virus_id != 2 || !agent2.FluB_immunity) &&
-                            (agent.virus_id != 7 || !agent2.CoV_immunity) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
+                        if (agent.virus_id != 1 || agent2.FluA_days_immune == 0) && (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
+                            (agent.virus_id != 7 || agent2.CoV_days_immune == 0) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
                             (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
                             (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
                             if agent.collective_id == 1
@@ -205,8 +180,8 @@ function simulate_contacts(
                     for agent2_id in agent.collective_cross_conn_ids
                         agent2 = agents[agent2_id]
                         if agent2.virus_id == 0 && agent2.days_immune == 0 && !agent2.is_isolated && !agent2.on_parent_leave
-                            if (agent.virus_id != 1 || !agent2.FluA_immunity) && (agent.virus_id != 2 || !agent2.FluB_immunity) &&
-                                (agent.virus_id != 7 || !agent2.CoV_immunity) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
+                            if (agent.virus_id != 1 || agent2.FluA_days_immune == 0) && (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
+                                (agent.virus_id != 7 || agent2.CoV_days_immune == 0) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
                                 (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
                                 (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
                                 
@@ -226,15 +201,15 @@ function simulate_contacts(
         elseif agent.virus_id == 0 && agent.days_immune == 0
             if agent.age < 2
                 if rand(rng, Float64) < 0.0003
-                    infect_randomly(agent, week_num, etiology, rng)
+                    infect_randomly(agent, current_step, etiology, rng)
                 end
             elseif agent.age < 16
                 if rand(rng, Float64) < 0.0002
-                    infect_randomly(agent, week_num, etiology, rng)
+                    infect_randomly(agent, current_step, etiology, rng)
                 end
             else
                 if rand(rng, Float64) < 0.0001
-                    infect_randomly(agent, week_num, etiology, rng)
+                    infect_randomly(agent, current_step, etiology, rng)
                 end
             end
         end
@@ -263,6 +238,20 @@ function update_agent_states(
         end
 
         # Продолжительности типоспецифического иммунитета
+        if agent.FluA_days_immune != 0
+            if agent.FluA_days_immune == 270
+                agent.FluA_days_immune = 0
+            else
+                agent.FluA_days_immune += 1
+            end
+        end
+        if agent.FluB_days_immune != 0
+            if agent.FluB_days_immune == 270
+                agent.FluB_days_immune = 0
+            else
+                agent.FluB_days_immune += 1
+            end
+        end
         if agent.RV_days_immune != 0
             if agent.RV_days_immune == 60
                 agent.RV_days_immune = 0
@@ -291,13 +280,20 @@ function update_agent_states(
                 agent.PIV_days_immune += 1
             end
         end
+        if agent.CoV_days_immune != 0
+            if agent.CoV_days_immune == 270
+                agent.CoV_days_immune = 0
+            else
+                agent.CoV_days_immune += 1
+            end
+        end
 
         if agent.virus_id != 0 && !agent.is_newly_infected
             if agent.days_infected == agent.infection_period
                 if agent.virus_id == 1
-                    agent.FluA_immunity = true
+                    agent.FluA_days_immune = 1
                 elseif agent.virus_id == 2
-                    agent.FluB_immunity = true
+                    agent.FluB_days_immune = 1
                 elseif agent.virus_id == 3
                     agent.RV_days_immune = 1
                 elseif agent.virus_id == 4
@@ -307,7 +303,7 @@ function update_agent_states(
                 elseif agent.virus_id == 6
                     agent.PIV_days_immune = 1
                 else
-                    agent.CoV_immunity = true
+                    agent.CoV_days_immune = 1
                 end
                 agent.days_immune = 1
                 agent.virus_id = 0
@@ -543,7 +539,6 @@ function run_simulation(
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
     etiology::Matrix{Float64},
-    num_infected_age_groups_viruses_mean::Array{Float64, 3},
     is_single_run::Bool
 )::Array{Float64, 3}
     # День месяца

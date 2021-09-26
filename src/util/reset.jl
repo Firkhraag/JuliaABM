@@ -30,61 +30,253 @@ function reset_population(
                 end
             end
 
-            # Набор дней после приобретения типоспецифического иммунитета кроме гриппа
+            # Набор дней после приобретения типоспецифического иммунитета
+
+            agent.FluA_days_immune = 0
+            agent.FluB_days_immune = 0
             agent.RV_days_immune = 0
             agent.RSV_days_immune = 0
             agent.AdV_days_immune = 0
             agent.PIV_days_immune = 0
-
-            agent.FluA_immunity = false
-            agent.FluB_immunity = false
-            agent.CoV_immunity = false
+            agent.CoV_days_immune = 0
 
             if !is_infected
-                if agent.age < 3
-                    if rand(thread_rng[thread_id], Float64) < 0.63
-                        rand_num = rand(thread_rng[thread_id], Float64)
-                        if rand_num < 0.6
-                            agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        elseif rand_num < 0.8
-                            agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        else
-                            agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        end
-                    end
-                elseif agent.age < 7
-                    if rand(thread_rng[thread_id], Float64) < 0.44
-                        rand_num = rand(thread_rng[thread_id], Float64)
-                        if rand_num < 0.6
-                            agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        elseif rand_num < 0.8
-                            agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        else
-                            agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        end
-                    end
-                elseif agent.age < 15
-                    if rand(thread_rng[thread_id], Float64) < 0.37
-                        rand_num = rand(thread_rng[thread_id], Float64)
-                        if rand_num < 0.6
-                            agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        elseif rand_num < 0.8
-                            agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        else
-                            agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        end
-                    end
-                else
-                    if rand(thread_rng[thread_id], Float64) < 0.2
-                        rand_num = rand(thread_rng[thread_id], Float64)
-                        if rand_num < 0.6
-                            agent.RV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        elseif rand_num < 0.8
-                            agent.AdV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        else
-                            agent.PIV_days_immune = rand(thread_rng[thread_id], 1:60)
-                        end
-                    end
+                if rand(thread_rng[thread_id], Float64) < 0.000106497
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 211:217)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000141861
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 204:210)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000330201
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 197:203)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000805497
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 190:196)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001778317
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 183:189)
+                elseif rand(thread_rng[thread_id], Float64) < 0.003233707
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 176:182)
+                elseif rand(thread_rng[thread_id], Float64) < 0.005078104
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 169:175)
+                elseif rand(thread_rng[thread_id], Float64) < 0.007095888
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 162:168)
+                elseif rand(thread_rng[thread_id], Float64) < 0.008454683
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 155:161)
+                elseif rand(thread_rng[thread_id], Float64) < 0.00834273
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 148:154)
+                elseif rand(thread_rng[thread_id], Float64) < 0.006538951
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 141:147)
+                elseif rand(thread_rng[thread_id], Float64) < 0.004756795
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 134:140)
+                elseif rand(thread_rng[thread_id], Float64) < 0.002209558
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 127:133)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001100738
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 120:126)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000655956
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 113:119)
+                elseif rand(thread_rng[thread_id], Float64) < 0.00040679
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 106:112)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000258664
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 99:105)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000159442
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 92:98)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000101445
+                    agent.FluA_days_immune = rand(thread_rng[thread_id], 85:91)
+                end
+
+                if rand(thread_rng[thread_id], Float64) < 0.000131757
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 197:203)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000306962
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 190:196)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000520158
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 183:189)
+                elseif rand(thread_rng[thread_id], Float64) < 0.00087279
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 176:182)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001234718
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 169:175)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001443872
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 162:168)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001440032
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 155:161)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001264019
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 148:154)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001089219
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 141:147)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000956047
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 134:140)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000829948
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 127:133)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000487825
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 120:126)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000381328
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 113:119)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000366778
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 106:112)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000339699
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 99:105)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000300091
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 92:98)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000224715
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 85:91)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000172578
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 78:84)
+                elseif rand(thread_rng[thread_id], Float64) < 0.00015439
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 71:77)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000119228
+                    agent.FluB_days_immune = rand(thread_rng[thread_id], 64:70)
+                end
+
+                if rand(thread_rng[thread_id], Float64) < 0.000578761
+                    agent.RV_days_immune = rand(thread_rng[thread_id], 1:7)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000626452
+                    agent.RV_days_immune = rand(thread_rng[thread_id], 8:14)
+                elseif rand(thread_rng[thread_id], Float64) < 0.00064949
+                    agent.RV_days_immune = rand(thread_rng[thread_id], 15:21)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000844094
+                    agent.RV_days_immune = rand(thread_rng[thread_id], 22:28)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001069617
+                    agent.RV_days_immune = rand(thread_rng[thread_id], 29:35)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001199151
+                    agent.RV_days_immune = rand(thread_rng[thread_id], 36:42)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001422047
+                    agent.RV_days_immune = rand(thread_rng[thread_id], 43:49)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001906638
+                    agent.RV_days_immune = rand(thread_rng[thread_id], 50:56)
+                elseif rand(thread_rng[thread_id], Float64) < 0.002519551
+                    agent.RV_days_immune = rand(thread_rng[thread_id], 57:60)
+                end
+
+                if rand(thread_rng[thread_id], Float64) < 0.000177428
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 1:7)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000310397
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 8:14)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000509851
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 15:21)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000804082
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 22:28)
+                elseif rand(thread_rng[thread_id], Float64) < 0.00094857
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 29:35)
+                elseif rand(thread_rng[thread_id], Float64) < 0.00107083
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 36:42)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001356977
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 43:49)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001896332
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 50:56)
+                elseif rand(thread_rng[thread_id], Float64) < 0.002339295
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 57:63)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001476811
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 113:119)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001652218
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 106:112)
+                elseif rand(thread_rng[thread_id], Float64) < 0.001923613
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 99:105)
+                elseif rand(thread_rng[thread_id], Float64) < 0.002128322
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 92:98)
+                elseif rand(thread_rng[thread_id], Float64) < 0.002221885
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 85:91)
+                elseif rand(thread_rng[thread_id], Float64) < 0.002168536
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 78:84)
+                elseif rand(thread_rng[thread_id], Float64) < 0.002125695
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 71:77)
+                elseif rand(thread_rng[thread_id], Float64) < 0.002243912
+                    agent.RSV_days_immune = rand(thread_rng[thread_id], 64:70)
+                end
+
+                if rand(thread_rng[thread_id], Float64) < 0.000200061
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 1:7)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000212994
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 8:14)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000311205
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 15:21)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000499343
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 22:28)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000542791
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 29:35)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000606042
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 36:42)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000683237
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 43:49)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000843286
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 50:56)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000931393
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 57:63)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000857432
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 85:90)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000817824
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 78:84)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000790947
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 71:77)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000769728
+                    agent.AdV_days_immune = rand(thread_rng[thread_id], 64:70)
+                end
+
+                if rand(thread_rng[thread_id], Float64) < 0.00027281
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 1:7)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000271395
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 8:14)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000255633
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 15:21)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000338891
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 22:28)
+                elseif rand(thread_rng[thread_id], Float64) < 0.00036698
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 29:35)
+                elseif rand(thread_rng[thread_id], Float64) < 0.00036698
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 36:42)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000421138
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 43:49)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000546832
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 50:56)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000706275
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 57:63)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000647267
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 85:90)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000463979
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 78:84)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000503789
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 71:77)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000563403
+                    agent.PIV_days_immune = rand(thread_rng[thread_id], 64:70)
+                end
+
+                if rand(thread_rng[thread_id], Float64) < 0.000195211
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 211:217)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000146509
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 204:210)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000161261
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 197:203)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000208952
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 190:196)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000238052
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 183:189)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000289583
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 176:182)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000332424
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 169:175)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000384359
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 162:168)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000403557
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 155:161)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000391634
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 148:154)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000386178
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 141:147)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000337072
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 134:140)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000295847
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 127:133)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000186521
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 120:126)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000136001
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 113:119)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000130343
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 106:112)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000147924
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 99:105)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000157421
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 92:98)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000152774
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 85:91)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000127918
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 78:84)
+                elseif rand(thread_rng[thread_id], Float64) < 0.000105082
+                    agent.CoV_days_immune = rand(thread_rng[thread_id], 71:77)
                 end
             end
 

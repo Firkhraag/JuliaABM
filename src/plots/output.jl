@@ -5,15 +5,17 @@ using LaTeXStrings
 
 include("../data/etiology.jl")
 
-default(legendfontsize = 10, guidefont = (16, :black), tickfont = (10, :black))
+default(legendfontsize = 14, guidefont = (20, :black), tickfont = (14, :black))
 
 function plot_incidence()
     incidence = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "infected_data.csv"), ',', Float64)
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
     infected_data_mean = mean(infected_data[39:45, 2:53], dims = 1)[1, :] ./ 9897
 
-    ticks = range(1, stop = 52, length = 13)
-    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    # ticks = range(1, stop = 52, length = 13)
+    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     incidence_plot = plot(
         1:52,
         [incidence infected_data_mean],
@@ -33,8 +35,10 @@ function plot_incidence_etiology()
         etiology[:, i] = etiology[:, i] ./ etiology_sum[:, 1]
     end
 
-    ticks = range(1, stop = 52, length = 13)
-    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    # ticks = range(1, stop = 52, length = 13)
+    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     yticks = [0.0, 0.2, 0.4, 0.6, 0.8]
     yticklabels = ["0.0", "0.2", "0.4", "0.6", "0.8"]
     etiology_incidence_plot = plot(
@@ -43,7 +47,7 @@ function plot_incidence_etiology()
         lw = 3,
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
-        legend = (0.85, 0.97),
+        legend = (0.5, 0.97),
         ylim = (0.0, 0.8),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
@@ -65,8 +69,10 @@ function plot_incidence_age_groups()
     infected_data_mean_7 = mean(infected_data_7[2:53, 22:27], dims = 2)[:, 1] ./ 9897
     infected_data_mean_15 = mean(infected_data_15[2:53, 22:27], dims = 2)[:, 1] ./ 9897
 
-    ticks = range(1, stop = 52, length = 13)
-    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    # ticks = range(1, stop = 52, length = 13)
+    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     incidence_plot = plot(
         1:52,
         [age_groups[:, 1] infected_data_mean_0],
@@ -192,36 +198,6 @@ function plot_daily_new_recoveries_viruses()
         daily_new_recoveries_viruses_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "daily_new_recoveries_viruses.pdf"))
 end
 
-function plot_daily_new_cases_collectives()
-    daily_new_cases_collectives_data = readdlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "daily_new_cases_collectives_data.csv"), ',', Int)
-
-    daily_new_cases_collectives_plot = plot(
-        1:365,
-        [daily_new_cases_collectives_data[i, :] for i = 1:4],
-        lw = 3,
-        label = ["Kinder" "School" "Uni" "Work"],
-        xlabel = L"\textrm{\sffamily Day}",
-        ylabel = L"\textrm{\sffamily Num of people}")
-    savefig(
-        daily_new_cases_collectives_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "daily_new_cases_collectives.pdf"))
-end
-
-function plot_daily_new_recoveries_collectives()
-    daily_new_recoveries_collectives_data = readdlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "daily_new_recoveries_collectives_data.csv"), ',', Int)
-
-    daily_new_recoveries_collectives_plot = plot(
-        1:365,
-        [daily_new_recoveries_collectives_data[i, :] for i = 1:4],
-        lw = 3,
-        label = ["Kinder" "School" "Uni" "Work"],
-        xlabel = L"\textrm{\sffamily Day}",
-        ylabel = L"\textrm{\sffamily Num of people}")
-    savefig(
-        daily_new_recoveries_collectives_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "daily_new_recoveries_collectives.pdf"))
-end
-
 function plot_immunity_viruses()
     immunity_viruses_data = readdlm(
         joinpath(@__DIR__, "..", "..", "output", "tables", "immunity_viruses_data.csv"), ',', Int)
@@ -234,105 +210,6 @@ function plot_immunity_viruses()
         xlabel = L"\textrm{\sffamily Day}",
         ylabel = L"\textrm{\sffamily Num of people}")
     savefig(immunity_viruses_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "immunity_viruses.pdf"))
-end
-
-# function plot_contacts_inside_collective()
-#     contacts_inside_collective_data = readdlm(
-#         joinpath(@__DIR__, "..", "..", "output", "tables", "contacts_inside_collective_data.csv"), ',', Float64)
-
-#     collective_sizes = readdlm(
-#         joinpath(@__DIR__, "..", "..", "output", "tables", "collective_sizes.csv"), ',', Int)
-
-
-#     contacts_inside_collective_data[:, 1] ./= collective_sizes[1]
-#     contacts_inside_collective_data[:, 2] ./= collective_sizes[2]
-#     contacts_inside_collective_data[:, 3] ./= collective_sizes[3]
-#     contacts_inside_collective_data[:, 4] ./= collective_sizes[4]
-#     contacts_inside_collective_data[:, 5] ./= 9897284
-
-#     ticks = range(1, stop = 365, length = 13)
-#     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
-#     contacts_inside_collective_plot = plot(
-#         1:365,
-#         [contacts_inside_collective_data[:, i] for i = 1:5],
-#         lw = 3,
-#         xticks = (ticks, ticklabels),
-#         label = ["Kindergarten" "School" "University" "Workplace" "Household"])
-#     xlabel!("Month")
-#     ylabel!("Num of contacts")
-#     savefig(
-#         contacts_inside_collective_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "contacts_inside_collective.pdf"))
-# end
-
-function plot_contacts_inside_collective()
-    contacts_inside_collective_data = readdlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "contacts_inside_collective_data.csv"), ',', Float64)
-
-    collective_sizes = readdlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "collective_sizes.csv"), ',', Int)
-
-    contacts_inside_collective = Array{Float64, 2}(undef, 52, 5)
-    for i = 1:52
-        for j = 1:5
-            contacts_inside_collective[i, j] = sum(contacts_inside_collective_data[(i - 1) * 7 + 1:(i - 1) * 7 + 7, j])
-        end
-    end
-
-    contacts_inside_collective[:, 1] ./= collective_sizes[1]
-    contacts_inside_collective[:, 2] ./= collective_sizes[2]
-    contacts_inside_collective[:, 3] ./= collective_sizes[3]
-    contacts_inside_collective[:, 4] ./= collective_sizes[4]
-    contacts_inside_collective[:, 5] ./= 9897284
-
-    ticks = range(1, stop = 52, length = 13)
-    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
-    contacts_inside_collective_plot = plot(
-        1:52,
-        [contacts_inside_collective[:, i] ./ 7 for i = 1:5],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        title = "Weekly average number of contacts",
-        ylim = (0, 49),
-        label = ["Kindergarten" "School" "University" "Workplace" "Household"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Num of contacts}")
-    savefig(
-        contacts_inside_collective_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "contacts_inside_collective.pdf"))
-end
-
-function plot_infected_inside_collective()
-    infected_inside_collective_data = readdlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"), ',', Float64)
-
-    collective_sizes = readdlm(
-        joinpath(@__DIR__, "..", "..", "output", "tables", "collective_sizes.csv"), ',', Int)
-
-    infected_inside_collective = Array{Float64, 2}(undef, 52, 5)
-    for i = 1:52
-        for j = 1:5
-            infected_inside_collective[i, j] = sum(infected_inside_collective_data[(i - 1) * 7 + 1:(i - 1) * 7 + 7, j])
-        end
-    end
-
-    infected_inside_collective[:, 1] ./= collective_sizes[1]
-    infected_inside_collective[:, 2] ./= collective_sizes[2]
-    infected_inside_collective[:, 3] ./= collective_sizes[3]
-    infected_inside_collective[:, 4] ./= collective_sizes[4]
-    infected_inside_collective[:, 5] ./= 9897284
-
-    ticks = range(1, stop = 52, length = 13)
-    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
-    infected_inside_collective_plot = plot(
-        1:52,
-        [infected_inside_collective[:, i] for i = 1:5],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        title = "Weekly ratio of infected inside collectives",
-        label = ["Kindergarten" "School" "University" "Workplace" "Household"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Ratio}")
-    savefig(
-        infected_inside_collective_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "infected_inside_collective.pdf"))
 end
 
 function plot_registered_new_cases()
@@ -356,14 +233,17 @@ function plot_r0()
 
     r0 = cat(r0[:, 8:12], r0[:, 1:7], dims=2)
 
-    ticks = range(1, stop = 12, length = 13)
-    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    # ticks = range(1, stop = 12, length = 13)
+    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    ticks = range(1, stop = 12, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     registered_new_cases_plot = plot(
         1:12,
         [r0[i, :] for i = 1:7],
         lw = 3,
         xticks = (ticks, ticklabels),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
+        legend = (0.5, 0.6),
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
         xlabel = L"\textrm{\sffamily Month}",
         ylabel = L"\textrm{\sffamily R0}")
@@ -378,19 +258,14 @@ plot_incidence_etiology()
 plot_incidence_age_groups()
 
 # plot_daily_new_cases_viruses()
-# plot_contacts_inside_collective()
-# plot_infected_inside_collective()
 
-# plot_r0()
+plot_r0()
 
 # plot_daily_new_cases_age_groups()
 # plot_daily_new_recoveries_age_groups()
 
 # plot_daily_new_cases_viruses_asymptomatic()
 # plot_daily_new_recoveries_viruses()
-
-# plot_daily_new_cases_collectives()
-# plot_daily_new_recoveries_collectives()
 
 # plot_immunity_viruses()
 
