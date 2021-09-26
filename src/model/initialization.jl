@@ -1343,7 +1343,7 @@ function set_connections(
     kindergarten_groups_districts::Vector{Vector{Vector{Vector{Int64}}}},
     rng::MersenneTwister
 )
-    school_group_nums = ceil.(Int, num_of_people_in_school ./ 25)
+    school_group_nums = ceil.(Int, num_of_people_in_school ./ 24)
 
     university_group_nums = Array{Int, 1}(undef, 6)
     university_group_nums[1] = ceil(Int, num_of_people_in_university[1] / 15)

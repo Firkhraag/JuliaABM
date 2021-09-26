@@ -106,7 +106,7 @@ function run_simulation_evaluation(
     # День месяца
     day = 1
     # Месяц
-    month = 9
+    month = 8
 
     # День недели
     week_day = 1
