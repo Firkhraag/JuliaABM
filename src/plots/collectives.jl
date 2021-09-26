@@ -5,7 +5,7 @@ using LaTeXStrings
 
 include("../data/etiology.jl")
 
-default(legendfontsize = 10, guidefont = (16, :black), tickfont = (10, :black))
+default(legendfontsize = 14, guidefont = (20, :black), tickfont = (14, :black))
 
 function plot_contacts_inside_collective()
     contacts_inside_collective_data = readdlm(
@@ -69,17 +69,23 @@ function plot_infected_inside_collective()
     println(mean(infected_inside_collective[:, 4]))
     println(mean(infected_inside_collective[:, 5]))
 
-    ticks = range(1, stop = 52, length = 13)
-    ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    # ticks = range(1, stop = 52, length = 13)
+    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    yticks = [0.0, 0.025, 0.05, 0.075, 0.1]
+    yticklabels = ["0.0", "0.025", "0.05", "0.075", "0.1"]
     infected_inside_collective_plot = plot(
         1:52,
         [infected_inside_collective[:, i] for i = 1:5],
         lw = 3,
         xticks = (ticks, ticklabels),
-        title = "Weekly ratio of infected inside collectives",
+        yticks = (yticks, yticklabels),
+        ylims = (0.0, 0.125),
+        legend = (0.77, 0.95),
         label = ["Kindergarten" "School" "University" "Workplace" "Household"],
         xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Ratio}")
+        ylabel = L"\textrm{\sffamily Proportion}")
     savefig(
         infected_inside_collective_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "infected_inside_collective.pdf"))
 end
