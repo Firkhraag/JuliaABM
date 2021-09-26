@@ -445,29 +445,29 @@ function main()
     # ----------------------
     # Single run
     # ----------------------
-    @time num_infected_age_groups_viruses = run_simulation(
-        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-        temp_influences, duration_parameter,
-        susceptibility_parameters, etiology, true)
+    # @time num_infected_age_groups_viruses = run_simulation(
+    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
+    #     temp_influences, duration_parameter,
+    #     susceptibility_parameters, etiology, true)
 
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
-        num_infected_age_groups_viruses ./ 9897, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
-        sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
-        sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 9897, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
-        sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
+    #     num_infected_age_groups_viruses ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
+    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 9897, ',')
 
-    S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
-    S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+    # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+    # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
-    println("S: ", S_abs)
-    println("S: ", S_square)
+    # println("S: ", S_abs)
+    # println("S: ", S_square)
 
     # ----------------------
     # Prior search
@@ -606,10 +606,14 @@ function main()
     # ----------------------
     # Contacts evaluation
     # ----------------------
+
     # run_simulation_evaluation(
     #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
     #     temp_influences, duration_parameter,
     #     susceptibility_parameters, etiology)
+
+    run_simulation_evaluation(
+        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents)
 end
 
 main()

@@ -381,11 +381,34 @@ function create_spouse(
     end
 
     spouse_age = partner_age + difference
-    if spouse_age < 18
-        spouse_age = 18
-    elseif spouse_age > 89
-        spouse_age = 89
+
+    while spouse_age < 18 || spouse_age > 89
+        rand_num = rand(thread_rng[thread_id], Float64)
+        difference = 0
+        if rand_num < 0.03
+            difference = rand(thread_rng[thread_id], -20:-15)
+        elseif rand_num < 0.08
+            difference = rand(thread_rng[thread_id], -14:-10)
+        elseif rand_num < 0.2
+            difference = rand(thread_rng[thread_id], -9:-6)
+        elseif rand_num < 0.33
+            difference = rand(thread_rng[thread_id], -5:-4)
+        elseif rand_num < 0.53
+            difference = rand(thread_rng[thread_id], -3:-2)
+        elseif rand_num < 0.86
+            difference = rand(thread_rng[thread_id], -1:1)
+        elseif rand_num < 0.93
+            difference = rand(thread_rng[thread_id], 2:3)
+        elseif rand_num < 0.96
+            difference = rand(thread_rng[thread_id], 4:5)
+        elseif rand_num < 0.98
+            difference = rand(thread_rng[thread_id], 6:9)
+        else
+            difference = rand(thread_rng[thread_id], 10:14)
+        end
+        spouse_age = partner_age + difference
     end
+
     return Agent(agent_id, viruses, infectivities, household_conn_ids, false, spouse_age,
         thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
         num_of_people_in_university, num_of_people_in_workplace)
@@ -1316,6 +1339,8 @@ function set_connections(
     num_of_people_in_school::Vector{Int},
     num_of_people_in_university::Vector{Int},
     num_of_people_in_workplace::Vector{Int},
+    num_of_groups_in_kindergartens::Int,
+    kindergarten_groups_districts::Vector{Vector{Vector{Vector{Int64}}}},
     rng::MersenneTwister
 )
     school_group_nums = ceil.(Int, num_of_people_in_school ./ 25)
@@ -1328,7 +1353,13 @@ function set_connections(
     university_group_nums[6] = ceil.(Int, num_of_people_in_university[6] ./ 10)
 
     workplaces_num_people = Int[]
-    workplace_num_people = num_of_people_in_workplace[1]
+    workplace_num_people = num_of_people_in_workplace[1] - num_of_groups_in_kindergartens
+    for i = 1:11
+        workplace_num_people -= school_group_nums[i]
+    end
+    for i = 1:6
+        workplace_num_people -= university_group_nums[i]
+    end
 
     while num_of_people_in_workplace[1] > 0
         num_people = sample_from_zipf_distribution(1.059, 1995, rng) + 5
@@ -1369,14 +1400,59 @@ function set_connections(
             end
             push!(university_groups[agent.group_num][group_id], agent.id)
             agent.collective_conn_ids = university_groups[agent.group_num][group_id]
-        elseif agent.collective_id == 4
-            random_num = rand(rng, Float64)
-            cumulative = 0.0
-            for i in 1:size(workplaces_num_people, 1)
-                cumulative += workplace_weights[i]
-                if random_num < cumulative
-                    push!(workplace_groups[i], agent.id)
-                    break
+        end
+    end
+
+    kindergarten_district_num = 1
+    kindergarten_group_num = 1
+    kindergarten_group_id = 1
+    school_group_num = 1
+    school_group_id = 1
+    university_group_num = 1
+    university_group_id = 1
+    for agent_id = start_agent_id:end_agent_id
+        agent = agents[agent_id]
+        if agent.collective_id == 4
+            if kindergarten_district_num < length(kindergarten_groups_districts) + 1 && agent.age >= 18
+                agent.collective_id = 1
+                agent.is_teacher = true
+                push!(kindergarten_groups_districts[kindergarten_district_num][kindergarten_group_num][kindergarten_group_id], agent.id)
+                kindergarten_group_id += 1
+                if kindergarten_group_id > length(kindergarten_groups_districts[kindergarten_district_num][kindergarten_group_num])
+                    kindergarten_group_num += 1
+                    kindergarten_group_id = 1
+                    if kindergarten_group_num > 5
+                        kindergarten_district_num += 1
+                        kindergarten_group_num = 1
+                    end
+                end
+            elseif school_group_num < 12 && agent.age >= 20
+                agent.collective_id = 2
+                agent.is_teacher = true
+                push!(school_groups[school_group_num][school_group_id], agent.id)
+                school_group_id += 1
+                if school_group_id > length(school_groups[school_group_num])
+                    school_group_num += 1
+                    school_group_id = 1
+                end
+            elseif university_group_num < 7 && agent.age >= 25
+                agent.collective_id = 3
+                agent.is_teacher = true
+                push!(university_groups[university_group_num][university_group_id], agent.id)
+                university_group_id += 1
+                if university_group_id > length(university_groups[university_group_num])
+                    university_group_num += 1
+                    university_group_id = 1
+                end
+            else
+                random_num = rand(rng, Float64)
+                cumulative = 0.0
+                for i in 1:size(workplaces_num_people, 1)
+                    cumulative += workplace_weights[i]
+                    if random_num < cumulative
+                        push!(workplace_groups[i], agent.id)
+                        break
+                    end
                 end
             end
         end
@@ -1432,12 +1508,15 @@ function create_population(
     district_people_households::Matrix{Int},
     district_nums::Vector{Int}
 )
+    num_of_groups_in_kindergartens_districts = zeros(Int, length(district_nums[thread_id:num_threads:size(district_nums, 1)]))
+    kindergarten_groups_districts = Array{Vector{Vector{Vector{Int64}}}, 1}(undef, length(district_nums[thread_id:num_threads:size(district_nums, 1)]))
+
     num_of_people_in_school = zeros(Int, 11)
     num_of_people_in_university = zeros(Int, 6)
     num_of_people_in_workplace = zeros(Int, 1)
 
     agent_id = start_agent_id
-    for index in district_nums[thread_id:num_threads:size(district_nums, 1)]
+    for (i, index) in enumerate(district_nums[thread_id:num_threads:size(district_nums, 1)])
         index_for_1_people::Int = (index - 1) * 5 + 1
         index_for_2_people::Int = index_for_1_people + 1
         index_for_3_people::Int = index_for_2_people + 1
@@ -2318,12 +2397,18 @@ function create_population(
         district_end_agent_id = agent_id - 1
 
         kindergarten_group_nums = Array{Int, 1}(undef, 6)
-        kindergarten_group_nums[1] = ceil(Int, num_of_people_in_kindergarten[1] / 10)
-        kindergarten_group_nums[2:3] = ceil.(Int, num_of_people_in_kindergarten[2:3] ./ 15)
-        kindergarten_group_nums[4:6] = ceil.(Int, num_of_people_in_kindergarten[4:6] ./ 20)
+        kindergarten_group_nums[1] = ceil(Int, num_of_people_in_kindergarten[1] / 8)
+        kindergarten_group_nums[2:3] = ceil.(Int, num_of_people_in_kindergarten[2:3] ./ 12)
+        kindergarten_group_nums[4:5] = ceil.(Int, num_of_people_in_kindergarten[4:5] ./ 18)
 
-        kindergarten_groups = [[Int[] for _ in 1:kindergarten_group_nums[j]] for j = 1:6]
-        kindergarten_group_ids = [collect(1:kindergarten_group_nums[i]) for i = 1:6]
+        for i = 1:5
+            num_of_groups_in_kindergartens_districts[i] += kindergarten_group_nums[i]
+        end
+
+        kindergarten_groups = [[Int[] for _ in 1:kindergarten_group_nums[j]] for j = 1:5]
+        kindergarten_group_ids = [collect(1:kindergarten_group_nums[i]) for i = 1:5]
+
+        kindergarten_groups_districts[i] = kindergarten_groups
 
         for agent in all_agents[district_start_agent_id:district_end_agent_id]
             if agent.collective_id == 1
@@ -2346,5 +2431,7 @@ function create_population(
         num_of_people_in_school,
         num_of_people_in_university,
         num_of_people_in_workplace,
+        sum(num_of_groups_in_kindergartens_districts),
+        kindergarten_groups_districts,
         thread_rng[thread_id])
 end

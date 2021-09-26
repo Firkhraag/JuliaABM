@@ -1,6 +1,6 @@
 function get_stats(agents::Vector{Agent})
     println("Stats...")
-    age_groups_nums = Int[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    age_groups_nums = zeros(Int, 90)
     collective_nums = Int[0, 0, 0, 0]
     household_nums = Int[0, 0, 0, 0, 0, 0]
     mean_ig_level = 0.0
@@ -17,30 +17,21 @@ function get_stats(agents::Vector{Agent})
     size_school_conn = 0
     size_univer_conn = 0
     size_work_conn = 0
+
+    t1 = 0
+    t2 = 0
+    t3 = 0
     for agent in agents
-        if agent.age < 3
-            age_groups_nums[1] += 1
-        elseif agent.age < 7
-            age_groups_nums[2] += 1
-        elseif agent.age < 16
-            age_groups_nums[3] += 1
-        elseif agent.age < 18
-            age_groups_nums[4] += 1
-        elseif agent.age < 25
-            age_groups_nums[5] += 1
-        elseif agent.age < 35
-            age_groups_nums[6] += 1
-        elseif agent.age < 45
-            age_groups_nums[7] += 1
-        elseif agent.age < 55
-            age_groups_nums[8] += 1
-        elseif agent.age < 65
-            age_groups_nums[9] += 1
-        elseif agent.age < 75
-            age_groups_nums[10] += 1
-        else
-            age_groups_nums[11] += 1
+
+        if agent.age >= 18 && agent.collective_id == 1
+            t1 += 1
+        elseif agent.age >= 20 && agent.collective_id == 2
+            t2 += 1
+        elseif agent.age >= 25 && agent.collective_id == 3
+            t3 += 1
         end
+
+        age_groups_nums[agent.age + 1] += 1
 
         if agent.collective_id == 1
             collective_nums[1] += 1
@@ -82,7 +73,24 @@ function get_stats(agents::Vector{Agent})
         household_nums[i] /= i
     end
 
-    println("Age groups: $(age_groups_nums)")
+    # println("Age groups:")
+    # for i = 0:17
+    #     sum = 0
+    #     sum += age_groups_nums[5 * i + 1]
+    #     sum += age_groups_nums[5 * i + 2]
+    #     sum += age_groups_nums[5 * i + 3]
+    #     sum += age_groups_nums[5 * i + 4]
+    #     sum += age_groups_nums[5 * i + 5]
+    #     println("$(5 * i): $(sum)")
+    # end
+
+    println("Age groups:")
+    for i = 1:90
+        println("$(i - 1): $(age_groups_nums[i])")
+    end
+    println("Teachers 1: $(t1)")
+    println("Teachers 2: $(t2)")
+    println("Teachers 3: $(t3)")
     println("Collectives: $(collective_nums)")
     println("Households: $(household_nums)")
     println("Ig level: $(mean_ig_level / size(agents, 1))")
