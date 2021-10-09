@@ -155,8 +155,11 @@ function plot_incidences()
         ylims = (0, 17),
         margin = 2Plots.mm,
         label = ["$(round(duration_parameter * 0.8, digits = 2))" "$(round(duration_parameter * 0.9, digits = 2))" "$(round(duration_parameter, digits = 2))" "$(round(duration_parameter * 1.1, digits = 2))" "$(round(duration_parameter * 1.2, digits = 2))"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "d.pdf"))
 
     incidence_plot = plot(
@@ -166,8 +169,11 @@ function plot_incidences()
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         label = ["$(round(susceptibility_parameters[1] * 0.8, digits = 2))" "$(round(susceptibility_parameters[1] * 0.9, digits = 2))" "$(round(susceptibility_parameters[1], digits = 2))" "$(round(susceptibility_parameters[1] * 1.1, digits = 2))" "$(round(susceptibility_parameters[1] * 1.2, digits = 2))"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "s1.pdf"))
 
     incidence_plot = plot(
@@ -177,8 +183,11 @@ function plot_incidences()
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         label = ["$(round(susceptibility_parameters[2] * 0.8, digits = 2))" "$(round(susceptibility_parameters[2] * 0.9, digits = 2))" "$(round(susceptibility_parameters[2], digits = 2))" "$(round(susceptibility_parameters[2] * 1.1, digits = 2))" "$(round(susceptibility_parameters[2] * 1.2, digits = 2))"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "s2.pdf"))
 
     incidence_plot = plot(
@@ -189,8 +198,11 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(susceptibility_parameters[3] * 0.8, digits = 2))" "$(round(susceptibility_parameters[3] * 0.9, digits = 2))" "$(round(susceptibility_parameters[3], digits = 2))" "$(round(susceptibility_parameters[3] * 1.1, digits = 2))" "$(round(susceptibility_parameters[3] * 1.2, digits = 2))"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "s3.pdf"))
 
     incidence_plot = plot(
@@ -201,8 +213,11 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.85, 0.95),
         label = ["$(round(susceptibility_parameters[4] * 0.8, digits = 2))" "$(round(susceptibility_parameters[4] * 0.9, digits = 2))" "$(round(susceptibility_parameters[4], digits = 2))" "$(round(susceptibility_parameters[4] * 1.1, digits = 2))" "$(round(susceptibility_parameters[4] * 1.2, digits = 2))"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "s4.pdf"))
 
     incidence_plot = plot(
@@ -214,8 +229,11 @@ function plot_incidences()
         legend = (0.91, 1.0),
         ylims = (0, 13),
         label = ["$(round(susceptibility_parameters[5] * 0.8, digits = 2))" "$(round(susceptibility_parameters[5] * 0.9, digits = 2))" "$(round(susceptibility_parameters[5], digits = 2))" "$(round(susceptibility_parameters[5] * 1.1, digits = 2))" "$(round(susceptibility_parameters[5] * 1.2, digits = 2))"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "s5.pdf"))
 
     incidence_plot = plot(
@@ -226,8 +244,11 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.92, 0.98),
         label = ["$(round(susceptibility_parameters[6] * 0.8, digits = 2))" "$(round(susceptibility_parameters[6] * 0.9, digits = 2))" "$(round(susceptibility_parameters[6], digits = 2))" "$(round(susceptibility_parameters[6] * 1.1, digits = 2))" "$(round(susceptibility_parameters[6] * 1.2, digits = 2))"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "s6.pdf"))
 
     incidence_plot = plot(
@@ -238,8 +259,11 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(susceptibility_parameters[7] * 0.8, digits = 2))" "$(round(susceptibility_parameters[7] * 0.9, digits = 2))" "$(round(susceptibility_parameters[7], digits = 2))" "$(round(susceptibility_parameters[7] * 1.1, digits = 2))" "$(round(susceptibility_parameters[7] * 1.2, digits = 2))"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "s7.pdf"))
 
     incidence_plot = plot(
@@ -250,8 +274,11 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[1], digits = 2))" "$(0.75)" "$(1.0)"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t1.pdf"))
 
     incidence_plot = plot(
@@ -262,8 +289,11 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[2], digits = 2))" "$(0.75)" "$(1.0)"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t2.pdf"))
 
     incidence_plot = plot(
@@ -274,8 +304,11 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[3], digits = 2))" "$(0.75)" "$(1.0)"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t3.pdf"))
 
     incidence_plot = plot(
@@ -286,8 +319,11 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[4], digits = 2))" "$(0.75)" "$(1.0)"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t4.pdf"))
 
     incidence_plot = plot(
@@ -298,8 +334,11 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[5], digits = 2))" "$(0.75)" "$(1.0)"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t5.pdf"))
 
     incidence_plot = plot(
@@ -310,8 +349,11 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[6], digits = 2))" "$(0.75)" "$(1.0)"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t6.pdf"))
 
     incidence_plot = plot(
@@ -322,8 +364,11 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[7], digits = 2))" "$(0.75)" "$(1.0)"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Cases per 1000 people}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+        xlabel = "Month",
+        ylabel = "Cases per 1000 people",
+    )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "analysis", "plots", "t7.pdf"))
 end
 

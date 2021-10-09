@@ -57,6 +57,8 @@ mutable struct Agent
     # Учитель, воспитатель, профессор
     is_teacher::Bool
 
+    household_type::String
+
     function Agent(
         id::Int,
         viruses::Vector{Virus},
@@ -97,13 +99,13 @@ mutable struct Agent
             end
         # 6-7 Kindergarten - School
         elseif age == 6
-            if rand(thread_rng[thread_id], Float64) < 0.66
+            if rand(thread_rng[thread_id], Float64) < 0.7
                 collective_id = 1
             else
                 collective_id = 2
             end
         elseif age == 7
-            if rand(thread_rng[thread_id], Float64) < 0.66
+            if rand(thread_rng[thread_id], Float64) < 0.7
                 collective_id = 2
             else
                 collective_id = 1
@@ -112,37 +114,43 @@ mutable struct Agent
         elseif age < 16
             collective_id = 2
         # 16-17 School - [College (University)] - Work
-        elseif age < 18
-            if rand(thread_rng[thread_id], Float64) < 0.85
+        elseif age == 16
+            rand_num = rand(thread_rng[thread_id], Float64)
+            if rand_num < 0.9
                 collective_id = 2
             else
-                if rand(thread_rng[thread_id], Float64) < 0.66
-                    collective_id = 4
-                end
-                # if rand(thread_rng[thread_id], Float64) < 0.66
-                #     collective_id = 3
-                # else
-                #     if rand(thread_rng[thread_id], Float64) < 0.66
-                #         collective_id = 4
-                #     end
-                # end
+                collective_id = 4
+            end
+        elseif age == 17
+            rand_num = rand(thread_rng[thread_id], Float64)
+            if rand_num < 0.8
+                collective_id = 2
+            elseif rand_num < 0.9
+                collective_id = 4
+            end
+        elseif age == 18
+            rand_num = rand(thread_rng[thread_id], Float64)
+            if rand_num < 0.33
+                collective_id = 2
+            elseif rand_num < 0.55
+                collective_id = 4
+            elseif rand_num < 0.85
+                collective_id = 3
             end
         # 18-23 University - Work
         elseif age < 22
-            if rand(thread_rng[thread_id], Float64) < 0.66
+            rand_num = rand(thread_rng[thread_id], Float64)
+            if rand_num < 0.66
                 collective_id = 4
-            else
-                if rand(thread_rng[thread_id], Float64) < 0.66
-                    collective_id = 3
-                end
+            elseif rand_num < 0.9
+                collective_id = 3
             end
         elseif age < 24
-            if rand(thread_rng[thread_id], Float64) < 0.82
+            rand_num = rand(thread_rng[thread_id], Float64)
+            if rand_num < 0.75
                 collective_id = 4
-            else
-                if rand(thread_rng[thread_id], Float64) < 0.5
-                    collective_id = 3
-                end
+            elseif rand_num < 0.9
+                collective_id = 3
             end
         # 24+ Work
         elseif age < 30
@@ -197,6 +205,16 @@ mutable struct Agent
                 end
             else
                 if rand_num < 0.29
+                    collective_id = 4
+                end
+            end
+        elseif age < 70
+            if is_male
+                if rand(thread_rng[thread_id], Float64) < 0.25
+                    collective_id = 4
+                end
+            else
+                if rand(thread_rng[thread_id], Float64) < 0.15
                     collective_id = 4
                 end
             end
@@ -273,12 +291,12 @@ mutable struct Agent
             elseif age < 5
                 group_num = rand(thread_rng[thread_id], (age - 2):age)
             elseif age == 5
-                if rand(thread_rng[thread_id], Float64) < 0.7
-                    group_num = 5
-                else
-                    group_num = rand(thread_rng[thread_id], (age - 2):(age - 1))
-                end
-                # group_num = rand(thread_rng[thread_id], (age - 2):age)
+                # if rand(thread_rng[thread_id], Float64) < 0.7
+                #     group_num = 5
+                # else
+                #     group_num = rand(thread_rng[thread_id], (age - 2):(age - 1))
+                # end
+                group_num = rand(thread_rng[thread_id], (age - 1):age)
             else
                 group_num = 5
                 # # # group_num = rand(thread_rng[thread_id], 5:6)
@@ -297,25 +315,24 @@ mutable struct Agent
             if age == 6
                 group_num = 1
             elseif age == 7
-                if rand(thread_rng[thread_id], Float64) < 0.75
-                    group_num = 1
-                else
-                    group_num = 2
-                end
-                # group_num = rand(thread_rng[thread_id], 1:2)
+                # if rand(thread_rng[thread_id], Float64) < 0.75
+                #     group_num = 1
+                # else
+                #     group_num = 2
+                # end
+                group_num = rand(thread_rng[thread_id], 1:2)
             elseif age < 16
                 group_num = rand(thread_rng[thread_id], (age - 7):(age - 5))
             elseif age == 16
-                # group_num = 10
-                if rand(thread_rng[thread_id], Float64) < 0.8
-                    group_num = 10
-                else
-                    if rand(thread_rng[thread_id], Float64) < 0.25
-                        group_num = 9
-                    else
-                        group_num = 11
-                    end
-                end
+                # rand_num = rand(thread_rng[thread_id], Float64)
+                # if rand_num < 0.5
+                #     group_num = 9
+                # elseif rand_num < 0.8
+                #     group_num = 10
+                # else
+                #     group_num = 11
+                # end
+                group_num = rand(thread_rng[thread_id], 9:11)
             elseif age == 17
                 group_num = rand(thread_rng[thread_id], 10:11)
             else
@@ -841,7 +858,7 @@ mutable struct Agent
             virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
             RSV_days_immune, AdV_days_immune, PIV_days_immune, CoV_days_immune,
             incubation_period, infection_period, days_infected,
-            days_immune, is_asymptomatic, is_isolated, infectivity, attendance, false)
+            days_immune, is_asymptomatic, is_isolated, infectivity, attendance, false, "")
     end
 end
 

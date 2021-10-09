@@ -524,7 +524,7 @@ function run_simulation_evaluation(
             is_university_holiday = true
         end
 
-        # contacts_on_current_step = [Int[] for i=1:9897284]
+        # contacts_on_current_step = [Int[] for i=1:10072668]
 
         @threads for thread_id in 1:num_threads
             simulate_contacts_evaluation(
@@ -614,7 +614,7 @@ function run_simulation_evaluation(
     contact_matrix_by_age ./= days_run
 
     # writedlm(
-    #         joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_contacts.csv"), incidence ./ 9897, ',')
+    #         joinpath(@__DIR__, "..", "..", "output", "tables", "incidence_contacts.csv"), incidence ./ 10072, ',')
 
     # writedlm(
     #     joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"),

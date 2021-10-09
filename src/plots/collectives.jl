@@ -25,7 +25,7 @@ function plot_contacts_inside_collective()
     contacts_inside_collective[:, 2] ./= collective_sizes[2]
     contacts_inside_collective[:, 3] ./= collective_sizes[3]
     contacts_inside_collective[:, 4] ./= collective_sizes[4]
-    contacts_inside_collective[:, 5] ./= 9897284
+    contacts_inside_collective[:, 5] ./= 10072668
 
     ticks = range(1, stop = 52, length = 13)
     ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
@@ -37,8 +37,11 @@ function plot_contacts_inside_collective()
         title = "Weekly average number of contacts",
         ylim = (0, 49),
         label = ["Kindergarten" "School" "University" "Workplace" "Household"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Num of contacts}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Num of contacts}",
+        xlabel = "Month",
+        ylabel = "Num of contacts",
+    )
     savefig(
         contacts_inside_collective_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "contacts_inside_collective.pdf"))
 end
@@ -61,7 +64,7 @@ function plot_infected_inside_collective()
     infected_inside_collective[:, 2] ./= collective_sizes[2]
     infected_inside_collective[:, 3] ./= collective_sizes[3]
     infected_inside_collective[:, 4] ./= collective_sizes[4]
-    infected_inside_collective[:, 5] ./= 9897284
+    infected_inside_collective[:, 5] ./= 10072668
 
     println(mean(infected_inside_collective[:, 1]))
     println(mean(infected_inside_collective[:, 2]))
@@ -84,8 +87,11 @@ function plot_infected_inside_collective()
         ylims = (0.0, 0.125),
         legend = (0.77, 0.95),
         label = ["Kindergarten" "School" "University" "Workplace" "Household"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Proportion}")
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Proportion}",
+        xlabel = "Month",
+        ylabel = "Proportion",
+    )
     savefig(
         infected_inside_collective_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "infected_inside_collective.pdf"))
 end

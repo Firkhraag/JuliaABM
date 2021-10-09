@@ -342,7 +342,7 @@ function update_agent_states(
             end
         end
         if agent.CoV_days_immune != 0
-            if agent.CoV_days_immune == 270
+            if agent.CoV_days_immune == 120
                 agent.CoV_days_immune = 0
             else
                 agent.CoV_days_immune += 1

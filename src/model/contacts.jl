@@ -106,7 +106,8 @@ function run_simulation_evaluation(
     # День месяца
     day = 1
     # Месяц
-    month = 8
+    month = 9
+    # month = 8
 
     # День недели
     week_day = 1
@@ -227,7 +228,7 @@ function run_simulation_evaluation(
             joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_weekday_summer.csv"), contact_matrix_by_age, ',')
     elseif week_day == 1
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_weekend.csv"), contact_matrix_by_age, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_sunday.csv"), contact_matrix_by_age, ',')
     else
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_weekday.csv"), contact_matrix_by_age, ',')

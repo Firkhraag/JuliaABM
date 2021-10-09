@@ -36,10 +36,9 @@ function main()
 
     num_threads = nthreads()
 
-    num_people = 9897284
-    # 4 threads
-    start_agent_ids = Int[1, 2442913, 4892801, 7392381]
-    end_agent_ids = Int[2442912, 4892800, 7392380, 9897284]
+    num_people = 10072668
+    start_agent_ids = Int[1, 2483024, 4977885, 7516450]
+    end_agent_ids = Int[2483023, 4977884, 7516449, 10072668]
 
     viruses = Virus[
         Virus(1, 1.4, 0.09, 1, 7, 2.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.32, 0.16, 365),

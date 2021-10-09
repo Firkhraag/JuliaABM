@@ -11,11 +11,30 @@ function main()
     district_households = get_district_households()
 
     num_threads = nthreads()
-    println("Partition...")
-    @time @threads for thread_id in 1:num_threads
-        local num_people = create_population(thread_id, num_threads, district_nums, district_households)
-        println("Thread: $(thread_id), Size: $(num_people)")
+    num_people = Array{Int, 1}(undef, num_threads)
+    @threads for thread_id in 1:num_threads
+        num_people[thread_id] = get_num_of_people(thread_id, num_threads, district_nums, district_households)
     end
+
+    println("const num_people = $(sum(num_people))")
+
+    print("const start_agent_ids = Int[1, ")
+    sum_people = 1
+    for thread_id in 2:(num_threads - 1)
+        sum_people += num_people[thread_id - 1]
+        print("$(sum_people), ")
+    end
+    sum_people += num_people[num_threads - 1]
+    println("$(sum_people)]")
+
+    print("const end_agent_ids = Int[")
+    sum_people = 0
+    for thread_id in 1:(num_threads - 1)
+        sum_people += num_people[thread_id]
+        print("$(sum_people), ")
+    end
+    sum_people += num_people[num_threads]
+    println("$(sum_people)]")
 end
 
 main()

@@ -6,22 +6,46 @@ default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
 function main()
     contact_counts1 = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_weekday_summer.csv"), ',', Float64)
     contact_counts2 = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_weekday.csv"), ',', Float64)
-    contact_counts3 = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_weekend.csv"), ',', Float64)
+    contact_counts3 = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_sunday.csv"), ',', Float64)
+
+    contact_counts1 ./= 2
+    contact_counts2 ./= 2
+    contact_counts3 ./= 2
 
     xticks = [0, 20, 40, 60, 80]
     xticklabels = ["0", "20", "40", "60", "80"]
 
-    heatmap_plot1 = heatmap(contact_counts1, fontfamily = "Times", xticks = (xticks, xticklabels), title="Contacts on the weekday in summer", margin = 8Plots.mm)
-    heatmap_plot2 = heatmap(contact_counts2, fontfamily = "Times", xticks = (xticks, xticklabels), title="Contacts on the weekday", margin = 8Plots.mm)
-    heatmap_plot3 = heatmap(contact_counts3, fontfamily = "Times", xticks = (xticks, xticklabels), title="Contacts on the weekend", margin = 4Plots.mm)
+    heatmap_plot1 = heatmap(contact_counts1, fontfamily = "Times", xticks = (xticks, xticklabels), title="Contacts on the weekday in summer", margin = 6Plots.mm)
+    heatmap_plot2 = heatmap(contact_counts2, fontfamily = "Times", xticks = (xticks, xticklabels), title="Contacts on the weekday", margin = 6Plots.mm)
+    heatmap_plot3 = heatmap(contact_counts3, fontfamily = "Times", xticks = (xticks, xticklabels), title="Contacts on sunday", margin = 4Plots.mm)
 
     contact_counts1 = log.(contact_counts1)
     contact_counts2 = log.(contact_counts2)
     contact_counts3 = log.(contact_counts3)
 
-    contour_plot1 = contourf(contact_counts1, fontfamily = "Times", xticks = (xticks, xticklabels), title="Contacts on the weekday in summer", margin = 8Plots.mm, c = :jet1)
-    contour_plot2 = contourf(contact_counts2, fontfamily = "Times", xticks = (xticks, xticklabels), title="Contacts on the weekday", margin = 8Plots.mm, c = :jet1)
-    contour_plot3 = contourf(contact_counts3, fontfamily = "Times", xticks = (xticks, xticklabels), title="Contacts on the weekend", margin = 4Plots.mm, c = :jet1)
+    contour_plot1 = contourf(
+        contact_counts1,
+        fontfamily = "Times",
+        xticks = (xticks, xticklabels),
+        title="Contacts on the weekday in summer",
+        margin = 6Plots.mm,
+        c = :jet1)
+    contour_plot2 = contourf(
+        contact_counts2,
+        fontfamily = "Times",
+        xticks = (xticks, xticklabels),
+        title="Contacts on the weekday",
+        margin = 6Plots.mm,
+        # nlevels = 50,
+        # linewidth = 0,
+        c = :jet1)
+    contour_plot3 = contourf(
+        contact_counts3,
+        fontfamily = "Times",
+        xticks = (xticks, xticklabels),
+        title="Contacts on sunday",
+        margin = 4Plots.mm,
+        c = :jet1)
     
     xlabel!("Age, years")
     ylabel!("Age, years")
@@ -29,8 +53,8 @@ function main()
     savefig(contour_plot1, joinpath(@__DIR__, "..", "..", "output", "plots", "contact_counts_weekday_summer_contour.pdf"))
     savefig(heatmap_plot2, joinpath(@__DIR__, "..", "..", "output", "plots", "contact_counts_weekday.pdf"))
     savefig(contour_plot2, joinpath(@__DIR__, "..", "..", "output", "plots", "contact_counts_weekday_contour.pdf"))
-    savefig(heatmap_plot3, joinpath(@__DIR__, "..", "..", "output", "plots", "contact_counts_weekend.pdf"))
-    savefig(contour_plot3, joinpath(@__DIR__, "..", "..", "output", "plots", "contact_counts_weekend_contour.pdf"))
+    savefig(heatmap_plot3, joinpath(@__DIR__, "..", "..", "output", "plots", "contact_counts_sunday.pdf"))
+    savefig(contour_plot3, joinpath(@__DIR__, "..", "..", "output", "plots", "contact_counts_sunday_contour.pdf"))
 
 
 

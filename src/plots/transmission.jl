@@ -22,8 +22,12 @@ function plot_duration_influence()
         lw = 3,
         legend = false,
         color = "green",
-        xlabel = L"\textrm{\sffamily Hours}",
-        ylabel = L"\textrm{\sffamily Contact duration influence (} D_{ijc}\textrm{\sffamily )}")
+        grid = false,
+        # xlabel = L"\textrm{\sffamily Hours}",
+        # ylabel = L"\textrm{\sffamily Contact duration influence (} D_{ijc}\textrm{\sffamily )}",
+        xlabel = "Продолжительность, ч.",
+        ylabel = L"D_{ijc}",
+    )
     savefig(duration_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "duration_influence.pdf"))
 end
 
@@ -99,8 +103,12 @@ function plot_temperature_influence_year()
         lw = 3,
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
-        xlabel = L"\textrm{\sffamily Month}",
-        ylabel = L"\textrm{\sffamily Air temperature influence (} T_{mv}\textrm{\sffamily )}")
+        grid = false,
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Air temperature influence (} T_{mv}\textrm{\sffamily )}",
+        xlabel = "Месяц",
+        ylabel = L"T_{mv}",
+    )
     savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "temperature_influence_year.pdf"))
 end
 
@@ -172,8 +180,12 @@ function plot_susceptibility_influence_age()
         label = ["FluA" "FluB" "RV" "RSV/AdV" "PIV" "CoV"],
         yticks = (yticks, yticklabels),
         ylim=(0.0, 0.7),
-        xlabel = L"\textrm{\sffamily Age, years}",
-        ylabel = L"\textrm{\sffamily Agent susceptibility (} S_{jv}\textrm{\sffamily )}")
+        grid = false,
+        # xlabel = L"\textrm{\sffamily Age, years}",
+        # ylabel = L"\textrm{\sffamily Agent susceptibility (} S_{jv}\textrm{\sffamily )}",
+        xlabel = "Возраст, лет",
+        ylabel = L"S_{jv}",
+    )
     savefig(susceptibility_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "susceptibility_influence.pdf"))
 end
 
@@ -214,12 +226,16 @@ function plot_infectivity_influence()
         lw = 3,
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
-        xlabel = L"\textrm{\sffamily Day}",
-        ylabel = L"\textrm{\sffamily Agent infectivity (} I_{iv}\textrm{\sffamily )}")
+        grid = false,
+        # xlabel = L"\textrm{\sffamily Day}",
+        # ylabel = L"\textrm{\sffamily Agent infectivity (} I_{iv}\textrm{\sffamily )}",
+        xlabel = "День",
+        ylabel = L"I_{iv}",
+    )
     savefig(infectivity_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "infectivity_influence.pdf"))
 end
 
-plot_duration_influence()
-plot_temperature_influence_year()
+# plot_duration_influence()
+# plot_temperature_influence_year()
 plot_infectivity_influence()
 plot_susceptibility_influence_age()

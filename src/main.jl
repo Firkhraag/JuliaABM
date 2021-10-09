@@ -208,13 +208,9 @@ function main()
 
     num_threads = nthreads()
 
-    num_people = 9897284
-    # 6 threads
-    # start_agent_ids = Int[1, 1669514, 3297338, 4919969, 6552869, 8229576]
-    # end_agent_ids = Int[1669513, 3297337, 4919968, 6552868, 8229575, 9897284]
-    # 4 threads
-    start_agent_ids = Int[1, 2442913, 4892801, 7392381]
-    end_agent_ids = Int[2442912, 4892800, 7392380, 9897284]
+    num_people = 10072668
+    start_agent_ids = Int[1, 2483024, 4977885, 7516450]
+    end_agent_ids = Int[2483023, 4977884, 7516449, 10072668]
 
     viruses = Virus[
         Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.32, 0.16, 365),
@@ -279,6 +275,8 @@ function main()
     end
 
     # get_stats(agents)
+
+    # return
 
     println("Simulation...")
 
@@ -452,16 +450,16 @@ function main()
 
     # writedlm(
     #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
-    #     num_infected_age_groups_viruses ./ 9897, ',')
+    #     num_infected_age_groups_viruses ./ 10072, ',')
     # writedlm(
     #     joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
-    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
     # writedlm(
     #     joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
-    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 9897, ',')
+    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
     # writedlm(
     #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
-    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 9897, ',')
+    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
 
     # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
     # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
@@ -506,7 +504,7 @@ function main()
     #         susceptibility_parameters, etiology, false)
     #     writedlm(
     #         joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_d_$k.csv"),
-    #         sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    #         sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
     #     reset_population(
     #         agents,
     #         num_threads,
@@ -533,7 +531,7 @@ function main()
     #             susceptibility_parameters_new, etiology, false)
     #         writedlm(
     #             joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_s$(i)_$k.csv"),
-    #             sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    #             sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
     #         reset_population(
     #             agents,
     #             num_threads,
@@ -576,7 +574,7 @@ function main()
     #             susceptibility_parameters, etiology, false)
     #         writedlm(
     #             joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_t$(i)_$k.csv"),
-    #             sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    #             sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
     #         reset_population(
     #             agents,
     #             num_threads,
