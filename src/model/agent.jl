@@ -99,28 +99,20 @@ mutable struct Agent
             end
         # 6-7 Kindergarten - School
         elseif age == 6
-            if rand(thread_rng[thread_id], Float64) < 0.7
+            if rand(thread_rng[thread_id], Float64) < 0.66
                 collective_id = 1
             else
                 collective_id = 2
             end
         elseif age == 7
-            if rand(thread_rng[thread_id], Float64) < 0.7
+            if rand(thread_rng[thread_id], Float64) < 0.66
                 collective_id = 2
             else
                 collective_id = 1
             end
-        # 8-15 School
-        elseif age < 16
+        # 8-16 School
+        elseif age < 17
             collective_id = 2
-        # 16-17 School - [College (University)] - Work
-        elseif age == 16
-            rand_num = rand(thread_rng[thread_id], Float64)
-            if rand_num < 0.9
-                collective_id = 2
-            else
-                collective_id = 4
-            end
         elseif age == 17
             rand_num = rand(thread_rng[thread_id], Float64)
             if rand_num < 0.8
@@ -130,11 +122,11 @@ mutable struct Agent
             end
         elseif age == 18
             rand_num = rand(thread_rng[thread_id], Float64)
-            if rand_num < 0.33
+            if rand_num < 0.28
                 collective_id = 2
-            elseif rand_num < 0.55
+            elseif rand_num < 0.45
                 collective_id = 4
-            elseif rand_num < 0.85
+            elseif rand_num < 0.75
                 collective_id = 3
             end
         # 18-23 University - Work
@@ -220,17 +212,6 @@ mutable struct Agent
             end
         end
 
-        # group_num = 0
-        # if collective_id == 1
-        #     group_num = age
-        # elseif collective_id == 2
-        #     group_num = age - 6
-        # elseif collective_id == 3
-        #     group_num = age - 17
-        # elseif collective_id == 4
-        #     group_num = 1
-        # end
-
         # Mixing of different ages in a group
         # group_num = 0
         # if collective_id == 1
@@ -281,6 +262,7 @@ mutable struct Agent
         # elseif collective_id == 4
         #     group_num = 1
         # end
+
         group_num = 0
         if collective_id == 1
             group_num = age
@@ -291,50 +273,21 @@ mutable struct Agent
             elseif age < 5
                 group_num = rand(thread_rng[thread_id], (age - 2):age)
             elseif age == 5
-                # if rand(thread_rng[thread_id], Float64) < 0.7
-                #     group_num = 5
-                # else
-                #     group_num = rand(thread_rng[thread_id], (age - 2):(age - 1))
-                # end
                 group_num = rand(thread_rng[thread_id], (age - 1):age)
             else
                 group_num = 5
-                # # # group_num = rand(thread_rng[thread_id], 5:6)
-                # # if rand(thread_rng[thread_id], Float64) < 0.75
-                # #     group_num = 5
-                # # else
-                # #     group_num = 6
-                # # end
-                # if rand(thread_rng[thread_id], Float64) < 0.95
-                #     group_num = 5
-                # else
-                #     group_num = 6
-                # end
             end
         elseif collective_id == 2
             if age == 6
                 group_num = 1
             elseif age == 7
-                # if rand(thread_rng[thread_id], Float64) < 0.75
-                #     group_num = 1
-                # else
-                #     group_num = 2
-                # end
                 group_num = rand(thread_rng[thread_id], 1:2)
-            elseif age < 16
+            elseif age < 17
                 group_num = rand(thread_rng[thread_id], (age - 7):(age - 5))
-            elseif age == 16
-                # rand_num = rand(thread_rng[thread_id], Float64)
-                # if rand_num < 0.5
-                #     group_num = 9
-                # elseif rand_num < 0.8
-                #     group_num = 10
-                # else
-                #     group_num = 11
-                # end
-                group_num = rand(thread_rng[thread_id], 9:11)
+                # group_num = age - 6
             elseif age == 17
                 group_num = rand(thread_rng[thread_id], 10:11)
+                # group_num = age - 6
             else
                 group_num = 11
             end

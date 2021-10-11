@@ -61,7 +61,19 @@ function get_stats(agents::Vector{Agent})
     t1 = 0
     t2 = 0
     t3 = 0
+
+    n1 = 0
+    n2 = 0
+
     for agent in agents
+
+        if agent.collective_id == 2
+            if agent.group_num == 8
+                n1 += 1
+            elseif agent.group_num == 9
+                n2 += 1
+            end
+        end
 
         if agent.age >= 18 && agent.collective_id == 1
             t1 += 1
@@ -253,6 +265,9 @@ function get_stats(agents::Vector{Agent})
     # for i = 1:90
     #     println("$(i - 1): $(age_groups_nums[i])")
     # end
+
+    # println("N1: $(n1)")
+    # println("N2: $(n2)")
 
     println("Teachers 1: $(t1)")
     println("Teachers 2: $(t2)")

@@ -12,7 +12,17 @@ function simulate_contacts_evaluation(
     week_num::Int,
     current_step::Int,
     contact_matrix_by_age_threads::Array{Float64, 3},
-    contact_duration_matrix_by_age_threads::Array{Float64, 3}
+    contact_duration_matrix_by_age_threads::Array{Float64, 3},
+    contact_matrix_by_age_household_threads::Array{Float64, 3},
+    contact_matrix_by_age_kindergarten_threads::Array{Float64, 3},
+    contact_matrix_by_age_school_threads::Array{Float64, 3},
+    contact_matrix_by_age_university_threads::Array{Float64, 3},
+    contact_matrix_by_age_workplace_threads::Array{Float64, 3},
+    contact_duration_matrix_by_age_household_threads::Array{Float64, 3},
+    contact_duration_matrix_by_age_kindergarten_threads::Array{Float64, 3},
+    contact_duration_matrix_by_age_school_threads::Array{Float64, 3},
+    contact_duration_matrix_by_age_university_threads::Array{Float64, 3},
+    contact_duration_matrix_by_age_workplace_threads::Array{Float64, 3}
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -51,6 +61,10 @@ function simulate_contacts_evaluation(
                     println("Error")
                 end
                 if dur > 0.1
+                    contact_duration_matrix_by_age_household_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                    contact_matrix_by_age_household_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+
+                    contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
                     contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                 end
             end
@@ -77,6 +91,20 @@ function simulate_contacts_evaluation(
                     end
 
                     if dur > 0.1
+                        if agent.collective_id == 1
+                            contact_duration_matrix_by_age_kindergarten_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                            contact_matrix_by_age_kindergarten_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        elseif agent.collective_id == 2
+                            contact_duration_matrix_by_age_school_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                            contact_matrix_by_age_school_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        elseif agent.collective_id == 3
+                            contact_duration_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                            contact_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        else
+                            contact_duration_matrix_by_age_workplace_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                            contact_matrix_by_age_workplace_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        end
+                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
                         contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                     end
                 end
@@ -87,6 +115,9 @@ function simulate_contacts_evaluation(
                     if agent2.id != agent.id && agent2.attendance && !agent2.is_teacher && rand(rng, Float64) < 0.25
                         dur = get_contact_duration_gamma(1.2, 1.07, rng)
                         if dur > 0.1
+                            contact_duration_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                            contact_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                            contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
                             contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                         end
                     end
@@ -118,6 +149,18 @@ function run_simulation_evaluation(
 
     contact_matrix_by_age_threads = zeros(Float64, num_threads, 90, 90)
     contact_duration_matrix_by_age_threads = zeros(Float64, num_threads, 90, 90)
+
+    contact_matrix_by_age_household_threads = zeros(Float64, num_threads, 90, 90)
+    contact_matrix_by_age_kindergarten_threads = zeros(Float64, num_threads, 90, 90)
+    contact_matrix_by_age_school_threads = zeros(Float64, num_threads, 90, 90)
+    contact_matrix_by_age_university_threads = zeros(Float64, num_threads, 90, 90)
+    contact_matrix_by_age_workplace_threads = zeros(Float64, num_threads, 90, 90)
+
+    contact_duration_matrix_by_age_household_threads = zeros(Float64, num_threads, 90, 90)
+    contact_duration_matrix_by_age_kindergarten_threads = zeros(Float64, num_threads, 90, 90)
+    contact_duration_matrix_by_age_school_threads = zeros(Float64, num_threads, 90, 90)
+    contact_duration_matrix_by_age_university_threads = zeros(Float64, num_threads, 90, 90)
+    contact_duration_matrix_by_age_workplace_threads = zeros(Float64, num_threads, 90, 90)
 
     days_run = 1
     for current_step = 1:days_run
@@ -193,7 +236,18 @@ function run_simulation_evaluation(
                 week_num,
                 current_step,
                 contact_matrix_by_age_threads,
-                contact_duration_matrix_by_age_threads)
+                contact_duration_matrix_by_age_threads,
+                contact_matrix_by_age_household_threads,
+                contact_matrix_by_age_kindergarten_threads,
+                contact_matrix_by_age_school_threads,
+                contact_matrix_by_age_university_threads,
+                contact_matrix_by_age_workplace_threads,
+                contact_duration_matrix_by_age_household_threads,
+                contact_duration_matrix_by_age_kindergarten_threads,
+                contact_duration_matrix_by_age_school_threads,
+                contact_duration_matrix_by_age_university_threads,
+                contact_duration_matrix_by_age_workplace_threads,
+            )
         end
         
         # Обновление даты
@@ -222,7 +276,71 @@ function run_simulation_evaluation(
     end
 
     contact_matrix_by_age = sum(contact_matrix_by_age_threads, dims=1)[1, :, :]
+
+    contact_matrix_by_age_household = sum(contact_matrix_by_age_household_threads, dims=1)[1, :, :]
+    contact_matrix_by_age_kindergarten = sum(contact_matrix_by_age_kindergarten_threads, dims=1)[1, :, :]
+    contact_matrix_by_age_school = sum(contact_matrix_by_age_school_threads, dims=1)[1, :, :]
+    contact_matrix_by_age_university = sum(contact_matrix_by_age_university_threads, dims=1)[1, :, :]
+    contact_matrix_by_age_workplace = sum(contact_matrix_by_age_workplace_threads, dims=1)[1, :, :]
+
     println(sum(contact_matrix_by_age))
+
+    println(sum(contact_matrix_by_age_household))
+    println(sum(contact_matrix_by_age_kindergarten))
+    println(sum(contact_matrix_by_age_school))
+    println(sum(contact_matrix_by_age_university))
+    println(sum(contact_matrix_by_age_workplace))
+
+    contact_duration_matrix_by_age = sum(contact_duration_matrix_by_age_threads, dims=1)[1, :, :]
+    contact_duration_matrix_by_age ./= contact_matrix_by_age
+
+    contact_duration_matrix_by_age_household = sum(contact_duration_matrix_by_age_household_threads, dims=1)[1, :, :]
+    contact_duration_matrix_by_age_household ./= contact_matrix_by_age_household
+
+    contact_duration_matrix_by_age_kindergarten = sum(contact_duration_matrix_by_age_kindergarten_threads, dims=1)[1, :, :]
+    for i = 1:90
+        for j = 1:90
+            if contact_matrix_by_age_kindergarten[i, j] > 0.001
+                contact_duration_matrix_by_age_kindergarten[i, j] /= contact_matrix_by_age_kindergarten[i, j]
+            else
+                contact_duration_matrix_by_age_kindergarten[i, j] = 0.0
+            end
+        end
+    end
+
+    contact_duration_matrix_by_age_school = sum(contact_duration_matrix_by_age_school_threads, dims=1)[1, :, :]
+    for i = 1:90
+        for j = 1:90
+            if contact_matrix_by_age_school[i, j] > 0.001
+                contact_duration_matrix_by_age_school[i, j] /= contact_matrix_by_age_school[i, j]
+            else
+                contact_duration_matrix_by_age_school[i, j] = 0.0
+            end
+        end
+    end
+
+    contact_duration_matrix_by_age_university = sum(contact_duration_matrix_by_age_university_threads, dims=1)[1, :, :]
+    for i = 1:90
+        for j = 1:90
+            if contact_matrix_by_age_university[i, j] > 0.001
+                contact_duration_matrix_by_age_university[i, j] /= contact_matrix_by_age_university[i, j]
+            else
+                contact_duration_matrix_by_age_university[i, j] = 0.0
+            end
+        end
+    end
+
+    contact_duration_matrix_by_age_workplace = sum(contact_duration_matrix_by_age_workplace_threads, dims=1)[1, :, :]
+    for i = 1:90
+        for j = 1:90
+            if contact_matrix_by_age_workplace[i, j] > 0.001
+                contact_duration_matrix_by_age_workplace[i, j] /= contact_matrix_by_age_workplace[i, j]
+            else
+                contact_duration_matrix_by_age_workplace[i, j] = 0.0
+            end
+        end
+    end
+
     if month == 8
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_weekday_summer.csv"), contact_matrix_by_age, ',')
@@ -233,4 +351,22 @@ function run_simulation_evaluation(
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_weekday.csv"), contact_matrix_by_age, ',')
     end
+
+    writedlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations.csv"), contact_duration_matrix_by_age, ',')
+
+    writedlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations_household.csv"), contact_duration_matrix_by_age_household, ',')
+
+    writedlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations_kindergarten.csv"), contact_duration_matrix_by_age_kindergarten, ',')
+
+    writedlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations_school.csv"), contact_duration_matrix_by_age_school, ',')
+
+    writedlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations_university.csv"), contact_duration_matrix_by_age_university, ',')
+
+    writedlm(
+        joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations_workplace.csv"), contact_duration_matrix_by_age_workplace, ',')
 end

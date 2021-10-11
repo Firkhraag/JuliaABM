@@ -275,7 +275,6 @@ function main()
     end
 
     # get_stats(agents)
-
     # return
 
     println("Simulation...")

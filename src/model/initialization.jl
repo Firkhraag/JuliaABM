@@ -112,7 +112,7 @@ function create_agent(
                 #     thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
                 #     num_of_people_in_university, num_of_people_in_workplace)
             end
-        elseif parent_age < 50
+        elseif parent_age < 55
             age_group_rand_num = rand(thread_rng[thread_id], 1:100)
             if age_group_rand_num <= district_people_households[1, district_household_index]
                 # T0-4_0–14
@@ -143,14 +143,14 @@ function create_agent(
                     thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
                     num_of_people_in_university, num_of_people_in_workplace)
             end
-        elseif parent_age < 55
+        elseif parent_age < 60
             age_group_rand_num = rand(thread_rng[thread_id], 1:100)
             if age_group_rand_num <= district_people_households[1, district_household_index]
                 # T0-4_0–14
                 if (age_rand_num <= district_people[index, 20])
                     # M0–4
                     Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 1], rand(thread_rng[thread_id], (parent_age - 50):4),
+                        sex_random_num <= district_people[index, 1], rand(thread_rng[thread_id], (parent_age - 55):4),
                         thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
                         num_of_people_in_university, num_of_people_in_workplace)
                 # T0-9_0–14
@@ -174,14 +174,14 @@ function create_agent(
                     thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
                     num_of_people_in_university, num_of_people_in_workplace)
             end
-        elseif parent_age < 60
+        elseif parent_age < 65
             age_group_rand_num = rand(thread_rng[thread_id], 1:100)
             if age_group_rand_num <= district_people_households[1, district_household_index]
                 # T5-9_5–14
                 if rand(thread_rng[thread_id], Float64) < 0.5
                     # M5–9
                     Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 2], rand(thread_rng[thread_id], (parent_age - 50):9),
+                        sex_random_num <= district_people[index, 2], rand(thread_rng[thread_id], (parent_age - 55):9),
                         thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
                         num_of_people_in_university, num_of_people_in_workplace)
                 else
@@ -198,12 +198,12 @@ function create_agent(
                     thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
                     num_of_people_in_university, num_of_people_in_workplace)
             end
-        elseif parent_age < 65
+        elseif parent_age < 70
             age_group_rand_num = rand(thread_rng[thread_id], 1:100)
             if age_group_rand_num <= district_people_households[1, district_household_index]
                 # M10–14
                 Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 3], rand(thread_rng[thread_id], (parent_age - 50):14),
+                        sex_random_num <= district_people[index, 3], rand(thread_rng[thread_id], (parent_age - 55):14),
                         thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
                         num_of_people_in_university, num_of_people_in_workplace)
             else
@@ -213,12 +213,16 @@ function create_agent(
                     thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
                     num_of_people_in_university, num_of_people_in_workplace)
             end
-        elseif parent_age < 68
+        elseif parent_age < 73
             return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                sex_random_num <= district_people[index, 4], rand(thread_rng[thread_id], (parent_age - 50):17),
+                sex_random_num <= district_people[index, 4], rand(thread_rng[thread_id], (parent_age - 55):17),
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
                 num_of_people_in_university, num_of_people_in_workplace)
         else
+            # return Agent(agent_id, viruses, infectivities, household_conn_ids,
+            #         sex_random_num <= district_people[index, 4], rand(thread_rng[thread_id], 17),
+            #         thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
+            #         num_of_people_in_university, num_of_people_in_workplace)
             age_group_rand_num = rand(thread_rng[thread_id], 1:100)
             if age_group_rand_num <= district_people_households[1, district_household_index]
                 # T0-4_0–14
@@ -626,7 +630,7 @@ function create_parents_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -637,7 +641,7 @@ function create_parents_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age + 2)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, child, child2, child3]
         end
@@ -670,7 +674,7 @@ function create_parents_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -681,7 +685,7 @@ function create_parents_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age + 2)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, child, child2, child3]
         end
@@ -720,7 +724,7 @@ function create_parents_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -731,7 +735,7 @@ function create_parents_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age + 2)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, agent_other2, child, child2, child3]
         end
@@ -776,7 +780,7 @@ function create_parents_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -787,7 +791,7 @@ function create_parents_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age + 2)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
@@ -839,7 +843,7 @@ function create_parents_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -850,7 +854,7 @@ function create_parents_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age + 2)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
@@ -904,7 +908,8 @@ function create_parent_with_children(
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+            num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age + 1)
+
         agent_id += 1
         check_parent_leave(no_one_at_home, parent, child2)
         if num_of_children == 2
@@ -915,7 +920,7 @@ function create_parent_with_children(
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+            num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age + 2)
         check_parent_leave(no_one_at_home, parent, child3)
         return Agent[parent, child, child2, child3]
     elseif num_of_other_people == 1
@@ -948,7 +953,7 @@ function create_parent_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
@@ -959,7 +964,7 @@ function create_parent_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age + 2)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, child, child2, child3]
         end
@@ -1002,7 +1007,7 @@ function create_parent_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
@@ -1013,7 +1018,7 @@ function create_parent_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age + 2)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, agent_other2, child, child2, child3]
         end
@@ -1064,7 +1069,7 @@ function create_parent_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
@@ -1075,7 +1080,7 @@ function create_parent_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age + 2)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
@@ -1135,7 +1140,7 @@ function create_parent_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
@@ -1146,7 +1151,7 @@ function create_parent_with_children(
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age + 2)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
@@ -1611,8 +1616,10 @@ function set_connections(
         if agent.collective_id == 4
             if kindergarten_district_num < length(kindergarten_groups_districts) + 1 && agent.age >= 18
                 agent.collective_id = 1
+                agent.group_num = kindergarten_group_num
                 agent.is_teacher = true
                 push!(kindergarten_groups_districts[kindergarten_district_num][kindergarten_group_num][kindergarten_group_id], agent.id)
+                agent.collective_conn_ids = kindergarten_groups_districts[kindergarten_district_num][kindergarten_group_num][kindergarten_group_id]
                 kindergarten_group_id += 1
                 if kindergarten_group_id > length(kindergarten_groups_districts[kindergarten_district_num][kindergarten_group_num])
                     kindergarten_group_num += 1
@@ -1624,8 +1631,10 @@ function set_connections(
                 end
             elseif school_group_num < 12 && agent.age >= 20
                 agent.collective_id = 2
+                agent.group_num = school_group_num
                 agent.is_teacher = true
                 push!(school_groups[school_group_num][school_group_id], agent.id)
+                agent.collective_conn_ids = school_groups[school_group_num][school_group_id]
                 school_group_id += 1
                 if school_group_id > length(school_groups[school_group_num])
                     school_group_num += 1
@@ -1633,8 +1642,10 @@ function set_connections(
                 end
             elseif university_group_num < 7 && agent.age >= 25
                 agent.collective_id = 3
+                agent.group_num = university_group_num
                 agent.is_teacher = true
                 push!(university_groups[university_group_num][university_group_id], agent.id)
+                agent.collective_conn_ids = university_groups[university_group_num][university_group_id]
                 university_group_id += 1
                 if university_group_id > length(university_groups[university_group_num])
                     university_group_num += 1
