@@ -90,6 +90,7 @@ function plot_incidence_age_groups()
         xticks = (ticks, ticklabels),
         label = ["модель" "данные"],
         grid = false,
+        title = "а) 0-2 лет",
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = "Месяц",
@@ -104,6 +105,7 @@ function plot_incidence_age_groups()
         xticks = (ticks, ticklabels),
         label = ["модель" "данные"],
         grid = false,
+        title = "б) 3-6 лет",
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = "Месяц",
@@ -118,6 +120,7 @@ function plot_incidence_age_groups()
         xticks = (ticks, ticklabels),
         label = ["модель" "данные"],
         grid = false,
+        title = "в) 7-14 лет",
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = "Месяц",
@@ -132,6 +135,7 @@ function plot_incidence_age_groups()
         xticks = (ticks, ticklabels),
         label = ["модель" "данные"],
         grid = false,
+        title = "г) 15+ лет",
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = "Месяц",
@@ -305,13 +309,13 @@ function plot_r0()
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "r0.pdf"))
 end
 
-# plot_incidence()
+plot_incidence()
 # plot_incidence_etiology()
-# plot_incidence_age_groups()
+plot_incidence_age_groups()
 
 # plot_daily_new_cases_viruses()
 
-plot_r0()
+# plot_r0()
 
 # plot_daily_new_cases_age_groups()
 # plot_daily_new_recoveries_age_groups()

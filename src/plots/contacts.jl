@@ -20,19 +20,25 @@ function main()
         fontfamily = "Times",
         xticks = (xticks, xticklabels),
         title="Contacts on the weekday in summer",
-        margin = 6Plots.mm)
+        margin = 6Plots.mm,
+        c = :jet,
+    )
     heatmap_plot2 = heatmap(
         contact_counts2,
         fontfamily = "Times",
         xticks = (xticks, xticklabels),
         title="Contacts on the weekday",
-        margin = 6Plots.mm)
+        margin = 6Plots.mm,
+        c = :jet,
+    )
     heatmap_plot3 = heatmap(
         contact_counts3,
         fontfamily = "Times",
         xticks = (xticks, xticklabels),
         title="Contacts on sunday",
-        margin = 4Plots.mm)
+        margin = 4Plots.mm,
+        c = :jet,
+    )
 
     contact_counts1 = log.(contact_counts1)
     contact_counts2 = log.(contact_counts2)
@@ -45,7 +51,8 @@ function main()
         title="Contacts on the weekday in summer",
         margin = 6Plots.mm,
         linewidth = 0,
-        c = :jet)
+        c = :jet
+    )
     contour_plot2 = contourf(
         contact_counts2,
         fontfamily = "Times",
@@ -53,7 +60,8 @@ function main()
         title="Contacts on the weekday",
         margin = 6Plots.mm,
         linewidth = 0,
-        c = :jet)
+        c = :jet
+    )
     contour_plot3 = contourf(
         contact_counts3,
         fontfamily = "Times",
@@ -61,7 +69,8 @@ function main()
         title="Contacts on sunday",
         margin = 4Plots.mm,
         linewidth = 0,
-        c = :jet)
+        c = :jet
+    )
     
     xlabel!("Age, years")
     ylabel!("Age, years")

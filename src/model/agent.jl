@@ -14,6 +14,9 @@ mutable struct Agent
     collective_id::Int
     # Номер группы
     group_num::Int
+    household_id::Int
+    school_id::Int
+    workplace_id::Int
     # Связи в коллективе
     collective_conn_ids::Vector{Int}
     collective_cross_conn_ids::Vector{Int}
@@ -57,8 +60,6 @@ mutable struct Agent
     # Учитель, воспитатель, профессор
     is_teacher::Bool
 
-    household_type::String
-
     function Agent(
         id::Int,
         viruses::Vector{Virus},
@@ -68,10 +69,6 @@ mutable struct Agent
         age::Int,
         thread_id::Int,
         thread_rng::Vector{MersenneTwister},
-        num_of_people_in_kindergarten::Vector{Int},
-        num_of_people_in_school::Vector{Int},
-        num_of_people_in_university::Vector{Int},
-        num_of_people_in_workplace::Vector{Int}
     )
         # Возраст новорожденного
         infant_age = 0
@@ -303,16 +300,6 @@ mutable struct Agent
             end
         elseif collective_id == 4
             group_num = 1
-        end
-
-        if collective_id == 1
-            num_of_people_in_kindergarten[group_num] += 1
-        elseif collective_id == 2
-            num_of_people_in_school[group_num] += 1
-        elseif collective_id == 3
-            num_of_people_in_university[group_num] += 1
-        elseif collective_id == 4
-            num_of_people_in_workplace[1] += 1
         end
 
         # Уровень иммуноглобулина
@@ -806,12 +793,12 @@ mutable struct Agent
 
         new(
             id, age, infant_age, is_male, household_conn_ids,
-            collective_id, group_num,
+            collective_id, group_num, 0, 0, 0,
             Int[], Int[], Int[], 0, false, ig_level,
             virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
             RSV_days_immune, AdV_days_immune, PIV_days_immune, CoV_days_immune,
             incubation_period, infection_period, days_infected,
-            days_immune, is_asymptomatic, is_isolated, infectivity, attendance, false, "")
+            days_immune, is_asymptomatic, is_isolated, infectivity, attendance, false)
     end
 end
 

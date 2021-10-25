@@ -146,7 +146,6 @@ function simulate_contacts(
                             (agent.virus_id != 7 || agent2.CoV_days_immune == 0) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
                             (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
                             (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
-
                             
                             dur = 0.0
                             if agent.collective_id == 1
@@ -158,7 +157,6 @@ function simulate_contacts(
                             else
                                 dur = get_contact_duration_gamma(1.81, 1.7, rng)
                             end
-
                             if dur > 0.1
                                 make_contact(agent, agent2, dur, current_step, duration_parameter,
                                     susceptibility_parameters, temp_influences, rng)
@@ -243,17 +241,15 @@ function simulate_contacts(
                                 (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
                                 (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
                                 
-                                    dur = get_contact_duration_gamma(1.2, 1.07, rng)
-                                    if dur > 0.1
-                                        make_contact(
-                                            agent, agent2, get_contact_duration_gamma(1.0, 1.6, rng),
-                                            current_step, duration_parameter,
-                                            susceptibility_parameters, temp_influences, rng)
-            
-                                        if agent2.is_newly_infected
-                                            infected_inside_collective[current_step, 3, thread_id] += 1
-                                        end
+                                dur = get_contact_duration_gamma(1.2, 1.07, rng)
+                                if dur > 0.1
+                                    make_contact(agent, agent2, dur, current_step, duration_parameter,
+                                        susceptibility_parameters, temp_influences, rng)
+        
+                                    if agent2.is_newly_infected
+                                        infected_inside_collective[current_step, 3, thread_id] += 1
                                     end
+                                end
                             end
                         end
                     end

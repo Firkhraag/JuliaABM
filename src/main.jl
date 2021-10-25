@@ -3,14 +3,20 @@ using Distributions
 using Random
 using DelimitedFiles
 using LatinHypercubeSampling
+using DataFrames
+
+include("global/variables.jl")
 
 include("model/virus.jl")
-include("model/collective.jl")
 include("model/agent.jl")
+include("model/household.jl")
+include("model/workplace.jl")
+include("model/school.jl")
 include("model/initialization.jl")
 include("model/simulation.jl")
 include("model/r0.jl")
 include("model/contacts.jl")
+include("model/connections.jl")
 
 include("data/district_households.jl")
 include("data/district_people.jl")
@@ -267,14 +273,75 @@ function main()
     # With random seed
     # thread_rng = [MersenneTwister(rand(1:1000000)) for i = 1:num_threads]
 
+    # Массив для хранения домохозяйств
+    households = Array{Household, 1}(undef, num_households)
+
+    home_coords = readdlm(joinpath(@__DIR__, "..", "input", "tables", "homes.csv"), ',', Float64, '\n')
+    homes_coords_df = DataFrame(home_coords, ["dist", "x", "y", "kinder", "school"])
+
+    kindergarten_coords = readdlm(joinpath(@__DIR__, "..", "input", "tables", "kindergartens.csv"), ',', Float64, '\n')
+    kindergarten_coords_df = DataFrame(kindergarten_coords, ["dist", "x", "y"])
+
+    # Массив для хранения детских садов
+    kindergartens = Array{School, 1}(undef, num_kindergartens)
+    @threads for thread_id in 1:num_threads
+        local kindergarten_id = start_kindergarten_ids[thread_id]
+        for index in district_nums[thread_id:num_threads:end]
+            kindergarten_coords_district_df = kindergarten_coords_df[kindergarten_coords_df.dist .== index, :]
+            for row in eachrow(kindergarten_coords_district_df)
+                kindergartens[kindergarten_id] = School(1, row.x, row.y)
+                kindergarten_id += 1
+            end
+        end
+    end
+
+    school_coords = readdlm(joinpath(@__DIR__, "..", "input", "tables", "schools.csv"), ',', Float64, '\n')
+    school_coords_df = DataFrame(school_coords, ["dist", "x", "y"])
+
+    # Массив для хранения школ
+    schools = Array{School, 1}(undef, num_schools)
+    @threads for thread_id in 1:num_threads
+        local school_id = start_school_ids[thread_id]
+        for index in district_nums[thread_id:num_threads:end]
+            school_coords_district_df = school_coords_df[school_coords_df.dist .== index, :]
+            for row in eachrow(school_coords_district_df)
+                schools[school_id] = School(2, row.x, row.y)
+                school_id += 1
+            end
+        end
+    end
+
+    university_coords = readdlm(joinpath(@__DIR__, "..", "input", "tables", "universities.csv"), ',', Float64, '\n')
+    university_coords_df = DataFrame(university_coords, ["dist", "x", "y"])
+
+    # Массив для хранения школ
+    universities = Array{School, 1}(undef, num_universities)
+    @threads for thread_id in 1:num_threads
+        local university_id = start_university_ids[thread_id]
+        for index in district_nums[thread_id:num_threads:end]
+            university_coords_district_df = university_coords_df[university_coords_df.dist .== index, :]
+            for row in eachrow(university_coords_district_df)
+                universities[university_id] = School(3, row.x, row.y)
+                university_id += 1
+            end
+        end
+    end
+
+    # Массив для хранения фирм
+    workplaces = Workplace[]
+
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, viruses, infectivities, district_households, district_people,
+            agents, viruses, infectivities, start_household_ids[thread_id], households, homes_coords_df, district_households, district_people,
             district_people_households, district_nums)
     end
 
-    # get_stats(agents)
+    @time set_connections(
+        agents, households, kindergartens, schools, universities,
+        workplaces, thread_rng, num_threads, homes_coords_df)
+
+    get_stats(agents)
     # return
 
     println("Simulation...")
@@ -609,7 +676,7 @@ function main()
     #     temp_influences, duration_parameter,
     #     susceptibility_parameters, etiology)
 
-    run_simulation_evaluation(
+    @time run_simulation_evaluation(
         num_threads, thread_rng, start_agent_ids, end_agent_ids, agents)
 end
 

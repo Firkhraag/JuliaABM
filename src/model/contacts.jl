@@ -78,7 +78,6 @@ function simulate_contacts_evaluation(
                 agent2 = agents[agent2_id]
 
                 if agent2.id != agent.id && agent2.attendance
-
                     dur = 0.0
                     if agent.collective_id == 1
                         dur = get_contact_duration_gamma(2.5, 1.6, rng)
@@ -89,7 +88,6 @@ function simulate_contacts_evaluation(
                     else
                         dur = get_contact_duration_gamma(1.81, 1.7, rng)
                     end
-
                     if dur > 0.1
                         if agent.collective_id == 1
                             contact_duration_matrix_by_age_kindergarten_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
@@ -109,20 +107,20 @@ function simulate_contacts_evaluation(
                     end
                 end
             end
-            if agent.collective_id == 3
-                for agent2_id in agent.collective_cross_conn_ids
-                    agent2 = agents[agent2_id]
-                    if agent2.id != agent.id && agent2.attendance && !agent2.is_teacher && rand(rng, Float64) < 0.25
-                        dur = get_contact_duration_gamma(1.2, 1.07, rng)
-                        if dur > 0.1
-                            contact_duration_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contact_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                            contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                        end
-                    end
-                end
-            end
+            # if agent.collective_id == 3
+            #     for agent2_id in agent.collective_cross_conn_ids
+            #         agent2 = agents[agent2_id]
+            #         if agent2.id != agent.id && agent2.attendance && !agent2.is_teacher && rand(rng, Float64) < 0.25
+            #             dur = get_contact_duration_gamma(1.2, 1.07, rng)
+            #             if dur > 0.1
+            #                 contact_duration_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+            #                 contact_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+            #                 contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+            #                 contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+            #             end
+            #         end
+            #     end
+            # end
         end
     end
 end

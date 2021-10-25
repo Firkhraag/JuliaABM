@@ -1,39 +1,6 @@
 function get_stats(agents::Vector{Agent})
     println("Stats...")
     age_groups_nums = zeros(Int, 90)
-    age_groups_nums_P1 = zeros(Int, 90)
-    age_groups_nums_PWOP2P0C = zeros(Int, 90)
-    age_groups_nums_PWOP3P0C = zeros(Int, 90)
-    age_groups_nums_PWOP3P1C = zeros(Int, 90)
-    age_groups_nums_PWOP4P0C = zeros(Int, 90)
-    age_groups_nums_PWOP4P1C = zeros(Int, 90)
-    age_groups_nums_PWOP4P2C = zeros(Int, 90)
-    age_groups_nums_PWOP5P0C = zeros(Int, 90)
-    age_groups_nums_PWOP5P1C = zeros(Int, 90)
-    age_groups_nums_PWOP5P2C = zeros(Int, 90)
-    age_groups_nums_PWOP5P3C = zeros(Int, 90)
-    age_groups_nums_PWOP6P0C = zeros(Int, 90)
-    age_groups_nums_PWOP6P1C = zeros(Int, 90)
-    age_groups_nums_PWOP6P2C = zeros(Int, 90)
-    age_groups_nums_PWOP6P3C = zeros(Int, 90)
-    age_groups_nums_2PWOP4P0C = zeros(Int, 90)
-    age_groups_nums_2PWOP5P0C = zeros(Int, 90)
-    age_groups_nums_2PWOP5P1C = zeros(Int, 90)
-    age_groups_nums_2PWOP6P0C = zeros(Int, 90)
-    age_groups_nums_2PWOP6P1C = zeros(Int, 90)
-    age_groups_nums_2PWOP6P2C = zeros(Int, 90)
-
-    age_groups_nums_O2P0C = zeros(Int, 90)
-    age_groups_nums_O2P1C = zeros(Int, 90)
-    age_groups_nums_O3P0C = zeros(Int, 90)
-    age_groups_nums_O3P1C = zeros(Int, 90)
-    age_groups_nums_O3P2C = zeros(Int, 90)
-    age_groups_nums_O4P0C = zeros(Int, 90)
-    age_groups_nums_O4P1C = zeros(Int, 90)
-    age_groups_nums_O4P2C = zeros(Int, 90)
-    age_groups_nums_O5P0C = zeros(Int, 90)
-    age_groups_nums_O5P1C = zeros(Int, 90)
-    age_groups_nums_O5P2C = zeros(Int, 90)
 
     age_groups_nums_1 = zeros(Int, 90)
     age_groups_nums_2 = zeros(Int, 90)
@@ -96,73 +63,6 @@ function get_stats(agents::Vector{Agent})
         elseif length(agent.household_conn_ids) == 5 || length(agent.household_conn_ids) == 6
             age_groups_nums_5[agent.age + 1] += 1
         end
-
-        if agent.household_type == "1P"
-            age_groups_nums_P1[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP2P0C"
-            age_groups_nums_PWOP2P0C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP3P0C"
-            age_groups_nums_PWOP3P0C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP3P1C"
-            age_groups_nums_PWOP3P1C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP4P0C"
-            age_groups_nums_PWOP4P0C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP4P1C"
-            age_groups_nums_PWOP4P1C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP4P2C"
-            age_groups_nums_PWOP4P2C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP5P0C"
-            age_groups_nums_PWOP5P0C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP5P1C"
-            age_groups_nums_PWOP5P1C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP5P2C"
-            age_groups_nums_PWOP5P2C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP5P3C"
-            age_groups_nums_PWOP5P3C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP6P0C"
-            age_groups_nums_PWOP6P0C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP6P1C"
-            age_groups_nums_PWOP6P1C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP6P2C"
-            age_groups_nums_PWOP6P2C[agent.age + 1] += 1
-        elseif agent.household_type == "PWOP6P3C"
-            age_groups_nums_PWOP6P3C[agent.age + 1] += 1
-        elseif agent.household_type == "2PWOP4P0C"
-            age_groups_nums_2PWOP4P0C[agent.age + 1] += 1
-        elseif agent.household_type == "2PWOP5P0C"
-            age_groups_nums_2PWOP5P0C[agent.age + 1] += 1
-        elseif agent.household_type == "2PWOP5P1C"
-            age_groups_nums_2PWOP5P1C[agent.age + 1] += 1
-        elseif agent.household_type == "2PWOP6P0C"
-            age_groups_nums_2PWOP6P0C[agent.age + 1] += 1
-        elseif agent.household_type == "2PWOP6P1C"
-            age_groups_nums_2PWOP6P1C[agent.age + 1] += 1
-        elseif agent.household_type == "2PWOP6P2C"
-            age_groups_nums_2PWOP6P2C[agent.age + 1] += 1
-        elseif agent.household_type == "O2P0C"
-            age_groups_nums_O2P0C[agent.age + 1] += 1
-        elseif agent.household_type == "O2P1C"
-            age_groups_nums_O2P1C[agent.age + 1] += 1
-        elseif agent.household_type == "O3P0C"
-            age_groups_nums_O3P0C[agent.age + 1] += 1
-        elseif agent.household_type == "O3P1C"
-            age_groups_nums_O3P1C[agent.age + 1] += 1
-        elseif agent.household_type == "O3P2C"
-            age_groups_nums_O3P2C[agent.age + 1] += 1
-        elseif agent.household_type == "O4P0C"
-            age_groups_nums_O4P0C[agent.age + 1] += 1
-        elseif agent.household_type == "O4P1C"
-            age_groups_nums_O4P1C[agent.age + 1] += 1
-        elseif agent.household_type == "O4P2C"
-            age_groups_nums_O4P2C[agent.age + 1] += 1
-        elseif agent.household_type == "O5P0C"
-            age_groups_nums_O5P0C[agent.age + 1] += 1
-        elseif agent.household_type == "O5P1C"
-            age_groups_nums_O5P1C[agent.age + 1] += 1
-        elseif agent.household_type == "O5P2C"
-            age_groups_nums_O5P2C[agent.age + 1] += 1
-        end
-
     
         if agent.collective_id == 1
             collective_nums[1] += 1
@@ -216,40 +116,6 @@ function get_stats(agents::Vector{Agent})
     # end
 
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums.csv"), age_groups_nums, ',')
-
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_P1.csv"), age_groups_nums_P1, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP2P0C.csv"), age_groups_nums_PWOP2P0C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP3P0C.csv"), age_groups_nums_PWOP3P0C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP3P1C.csv"), age_groups_nums_PWOP3P1C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP4P0C.csv"), age_groups_nums_PWOP4P0C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP4P1C.csv"), age_groups_nums_PWOP4P1C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP4P2C.csv"), age_groups_nums_PWOP4P2C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP5P0C.csv"), age_groups_nums_PWOP5P0C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP5P1C.csv"), age_groups_nums_PWOP5P1C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP5P2C.csv"), age_groups_nums_PWOP5P2C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP5P3C.csv"), age_groups_nums_PWOP5P3C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP6P0C.csv"), age_groups_nums_PWOP6P0C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP6P1C.csv"), age_groups_nums_PWOP6P1C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP6P2C.csv"), age_groups_nums_PWOP6P2C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP6P3C.csv"), age_groups_nums_PWOP6P3C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2PWOP4P0C.csv"), age_groups_nums_2PWOP4P0C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2PWOP5P0C.csv"), age_groups_nums_2PWOP5P0C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2PWOP5P1C.csv"), age_groups_nums_2PWOP5P1C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2PWOP6P0C.csv"), age_groups_nums_2PWOP6P0C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2PWOP6P1C.csv"), age_groups_nums_2PWOP6P1C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2PWOP6P2C.csv"), age_groups_nums_2PWOP6P2C, ',')
-
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O2P0C.csv"), age_groups_nums_O2P0C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O2P1C.csv"), age_groups_nums_O2P1C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O3P0C.csv"), age_groups_nums_O3P0C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O3P1C.csv"), age_groups_nums_O3P1C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O3P2C.csv"), age_groups_nums_O3P2C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O4P0C.csv"), age_groups_nums_O4P0C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O4P1C.csv"), age_groups_nums_O4P1C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O4P2C.csv"), age_groups_nums_O4P2C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O5P0C.csv"), age_groups_nums_O5P0C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O5P1C.csv"), age_groups_nums_O5P1C, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O5P2C.csv"), age_groups_nums_O5P2C, ',')
 
 
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_1.csv"), age_groups_nums_1, ',')
