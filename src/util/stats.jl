@@ -29,26 +29,7 @@ function get_stats(agents::Vector{Agent})
     t2 = 0
     t3 = 0
 
-    n1 = 0
-    n2 = 0
-
     for agent in agents
-
-        if agent.collective_id == 2
-            if agent.group_num == 8
-                n1 += 1
-            elseif agent.group_num == 9
-                n2 += 1
-            end
-        end
-
-        if agent.age >= 18 && agent.collective_id == 1
-            t1 += 1
-        elseif agent.age >= 20 && agent.collective_id == 2
-            t2 += 1
-        elseif agent.age >= 25 && agent.collective_id == 3
-            t3 += 1
-        end
 
         age_groups_nums[agent.age + 1] += 1
         
@@ -64,20 +45,20 @@ function get_stats(agents::Vector{Agent})
             age_groups_nums_5[agent.age + 1] += 1
         end
     
-        if agent.collective_id == 1
+        if agent.activity_type == 1
             collective_nums[1] += 1
             mean_num_of_kinder_conn += size(agent.collective_conn_ids, 1)
             size_kinder_conn += 1
-        elseif agent.collective_id == 2
+        elseif agent.activity_type == 2
             collective_nums[2] += 1
             mean_num_of_school_conn += size(agent.collective_conn_ids, 1)
             size_school_conn += 1
-        elseif agent.collective_id == 3
+        elseif agent.activity_type == 3
             collective_nums[3] += 1
             mean_num_of_univer_conn += size(agent.collective_conn_ids, 1)
             mean_num_of_univer_cross_conn += size(agent.collective_cross_conn_ids, 1)
             size_univer_conn += 1
-        elseif agent.collective_id == 4
+        elseif agent.activity_type == 4
             collective_nums[4] += 1
             mean_num_of_work_conn += size(agent.collective_conn_ids, 1)
             size_work_conn += 1

@@ -492,13 +492,13 @@ function main()
 
     collective_nums = Int[0, 0, 0, 0]
     for agent in agents
-        if agent.collective_id == 1
+        if agent.activity_type == 1
             collective_nums[1] += 1
-        elseif agent.collective_id == 2
+        elseif agent.activity_type == 2
             collective_nums[2] += 1
-        elseif agent.collective_id == 3
+        elseif agent.activity_type == 3
             collective_nums[3] += 1
-        elseif agent.collective_id == 4
+        elseif agent.activity_type == 4
             collective_nums[4] += 1
         end
     end

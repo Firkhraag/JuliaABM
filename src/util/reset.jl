@@ -395,15 +395,15 @@ function reset_population(
             end
 
             agent.attendance = true
-            if collective_id == 1 && !agent.is_teacher
+            if activity_type == 1 && !agent.is_teacher
                 if rand(thread_rng[thread_id], Float64) < 0.1
                     agent.attendance = false
                 end
-            elseif collective_id == 2 && !agent.is_teacher
+            elseif activity_type == 2 && !agent.is_teacher
                 if rand(thread_rng[thread_id], Float64) < 0.1
                     agent.attendance = false
                 end
-            elseif collective_id == 3 && !agent.is_teacher
+            elseif activity_type == 3 && !agent.is_teacher
                 if rand(thread_rng[thread_id], Float64) < 0.5
                     agent.attendance = false
                 end

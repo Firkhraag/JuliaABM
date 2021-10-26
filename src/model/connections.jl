@@ -11,57 +11,54 @@ function set_connections(
 )
     num_working_agents = 0
     for agent in agents
-        if agent.collective_id == 1
+        if agent.activity_type == 1
             agent.school_id = households[agent.household_id].closest_kindergarten_id
-            groups = kindergartens[agent.school_id].groups[agent.group_num]
+            groups = kindergartens[agent.school_id].groups[agent.school_group_num]
             group_id = size(groups, 1)
-            if (agent.group_num == 1 && 
+            if (agent.school_group_num == 1 && 
                 size(groups[group_id], 1) == kindergarten_groups_size_1) ||
-                ((agent.group_num == 2 || agent.group_num == 3) && size(groups[group_id], 1) == kindergarten_groups_size_2_3) ||
-                ((agent.group_num == 4 || agent.group_num == 5) && size(groups[group_id], 1) == kindergarten_groups_size_4_5)
+                ((agent.school_group_num == 2 || agent.school_group_num == 3) && size(groups[group_id], 1) == kindergarten_groups_size_2_3) ||
+                ((agent.school_group_num == 4 || agent.school_group_num == 5) && size(groups[group_id], 1) == kindergarten_groups_size_4_5)
                 
                 push!(groups, Int[])
                 group_id += 1
             end
             push!(groups[group_id], agent.id)
             agent.collective_conn_ids = groups[group_id]
-            # agent.school_group_id = group_id
-        elseif agent.collective_id == 2
+        elseif agent.activity_type == 2
             agent.school_id = households[agent.household_id].closest_school_id
-            groups = schools[agent.school_id].groups[agent.group_num]
+            groups = schools[agent.school_id].groups[agent.school_group_num]
             group_id = size(groups, 1)
-            if size(groups[group_id], 1) == school_groups_size_10_11
+            if size(groups[group_id], 1) == school_groups_size
                 push!(groups, Int[])
                 group_id += 1
             end
             push!(groups[group_id], agent.id)
             agent.collective_conn_ids = groups[group_id]
-            # agent.school_group_id = group_id
-        elseif agent.collective_id == 3
+        elseif agent.activity_type == 3
             agent.school_id = rand(1:num_universities)
-            groups = universities[agent.school_id].groups[agent.group_num]
+            groups = universities[agent.school_id].groups[agent.school_group_num]
             group_id = size(groups, 1)
-            if (agent.group_num == 1 && size(groups[group_id], 1) == university_groups_size_1) ||
-                ((agent.group_num == 2 || agent.group_num == 3) && size(groups[group_id], 1) == university_groups_size_2_3) ||
-                (agent.group_num == 4 && size(groups[group_id], 1) == university_groups_size_4) ||
-                (agent.group_num == 5 && size(groups[group_id], 1) == university_groups_size_5) ||
-                (agent.group_num == 6 && size(groups[group_id], 1) == university_groups_size_6)
+            if (agent.school_group_num == 1 && size(groups[group_id], 1) == university_groups_size_1) ||
+                ((agent.school_group_num == 2 || agent.school_group_num == 3) && size(groups[group_id], 1) == university_groups_size_2_3) ||
+                (agent.school_group_num == 4 && size(groups[group_id], 1) == university_groups_size_4) ||
+                (agent.school_group_num == 5 && size(groups[group_id], 1) == university_groups_size_5) ||
+                (agent.school_group_num == 6 && size(groups[group_id], 1) == university_groups_size_6)
 
                 push!(groups, Int[])
                 group_id += 1
             end
             push!(groups[group_id], agent.id)
             agent.collective_conn_ids = groups[group_id]
-            # agent.school_group_id = group_id
-        elseif agent.collective_id == 4
+        elseif agent.activity_type == 4
             num_working_agents += 1
         end
     end
 
     for kindergarten_id in 1:num_kindergartens
         kindergarten = kindergartens[kindergarten_id]
-        for group_num in 1:size(kindergarten.groups, 1)
-            groups = kindergarten.groups[group_num]
+        for school_group_num in 1:size(kindergarten.groups, 1)
+            groups = kindergarten.groups[school_group_num]
             groups_size = size(groups, 1)
             for group_id in 1:groups_size
                 group = groups[group_id]
@@ -69,16 +66,16 @@ function set_connections(
                 agent_id = 1
                 while searching
                     agent_id = rand(1:num_agents)
-                    if agents[agent_id].collective_id == 4 && agents[agent_id].age >= 18
+                    if agents[agent_id].activity_type == 4 && agents[agent_id].age >= 18
                         searching = false
                     end
                 end
 
                 push!(group, agent_id)
-                agents[agent_id].collective_id = 1
+                agents[agent_id].activity_type = 1
                 agents[agent_id].is_teacher = true
                 agents[agent_id].school_id = kindergarten_id
-                agents[agent_id].group_num = group_num
+                agents[agent_id].school_group_num = school_group_num
                 agents[agent_id].collective_conn_ids = group
                 # agents[agent_id].school_group_id = group_id
             end
@@ -88,8 +85,8 @@ function set_connections(
 
     for school_id in 1:num_schools
         school = schools[school_id]
-        for group_num in 1:size(school.groups, 1)
-            groups = school.groups[group_num]
+        for school_group_num in 1:size(school.groups, 1)
+            groups = school.groups[school_group_num]
             groups_size = size(groups, 1)
             for group_id in 1:groups_size
                 group = groups[group_id]
@@ -97,16 +94,16 @@ function set_connections(
                 agent_id = 1
                 while searching
                     agent_id = rand(1:num_agents)
-                    if agents[agent_id].collective_id == 4 && agents[agent_id].age >= 20
+                    if agents[agent_id].activity_type == 4 && agents[agent_id].age >= 20
                         searching = false
                     end
                 end
 
                 push!(group, agent_id)
-                agents[agent_id].collective_id = 2
+                agents[agent_id].activity_type = 2
                 agents[agent_id].is_teacher = true
                 agents[agent_id].school_id = school_id
-                agents[agent_id].group_num = group_num
+                agents[agent_id].school_group_num = school_group_num
                 agents[agent_id].collective_conn_ids = group
                 # agents[agent_id].school_group_id = group_id
             end
@@ -116,8 +113,8 @@ function set_connections(
 
     for university_id in 1:num_universities
         university = universities[university_id]
-        for group_num in 1:size(university.groups, 1)
-            groups = university.groups[group_num]
+        for school_group_num in 1:size(university.groups, 1)
+            groups = university.groups[school_group_num]
             groups_size = size(groups, 1)
             for group_id in 1:groups_size
                 group = groups[group_id]
@@ -125,16 +122,16 @@ function set_connections(
                 agent_id = 1
                 while searching
                     agent_id = rand(1:num_agents)
-                    if agents[agent_id].collective_id == 4 && agents[agent_id].age >= 25
+                    if agents[agent_id].activity_type == 4 && agents[agent_id].age >= 25
                         searching = false
                     end
                 end
 
                 push!(group, agent_id)
-                agents[agent_id].collective_id = 3
+                agents[agent_id].activity_type = 3
                 agents[agent_id].is_teacher = true
                 agents[agent_id].school_id = university_id
-                agents[agent_id].group_num = group_num
+                agents[agent_id].school_group_num = school_group_num
                 agents[agent_id].collective_conn_ids = group
                 # agents[agent_id].school_group_id = group_id
             end
@@ -155,7 +152,7 @@ function set_connections(
         j = 0
         for agent_id in start_agent_id:num_agents
             agent = agents[agent_id]
-            if agent.collective_id == 4 && agent.workplace_id == 0
+            if agent.activity_type == 4 && agent.workplace_id == 0
                 j += 1
                 agent_ids[j] = agent.id
             end

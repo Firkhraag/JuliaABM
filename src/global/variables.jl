@@ -15,13 +15,11 @@ const start_university_ids = Int[1, 50, 94, 123]
 const end_university_ids = Int[49, 93, 122, 138]
 
 # Размер групп в образовательных учреждениях
-const kindergarten_groups_size_1 = 8
-const kindergarten_groups_size_2_3 = 12
-const kindergarten_groups_size_4_5 = 17
+const kindergarten_groups_size_1 = 10
+const kindergarten_groups_size_2_3 = 14
+const kindergarten_groups_size_4_5 = 18
 
-const school_groups_size_1_4 = 23
-const school_groups_size_5_9 = 23
-const school_groups_size_10_11 = 23
+const school_groups_size = 24
 
 const university_groups_size_1 = 15
 const university_groups_size_2_3 = 14

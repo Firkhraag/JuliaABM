@@ -55,27 +55,27 @@ function simulate_contacts_r0(
             # Проверка восприимчивости агента к вирусу
             if !(agent2.id in infected_agent_ids)
 
-                agent_at_home = agent.is_isolated || agent.collective_id == 0 ||
-                    (agent.collective_id == 4 && is_work_holiday) || (agent.collective_id == 3 && is_university_holiday) ||
-                    (agent.collective_id == 2 && is_school_holiday) || (agent.collective_id == 1 && is_kindergarten_holiday)
-                agent2_at_home = agent2.collective_id == 0 ||
-                    (agent2.collective_id == 4 && is_work_holiday) || (agent2.collective_id == 3 && is_university_holiday) ||
-                    (agent2.collective_id == 2 && is_school_holiday) || (agent2.collective_id == 1 && is_kindergarten_holiday)
+                agent_at_home = agent.is_isolated || agent.activity_type == 0 ||
+                    (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_university_holiday) ||
+                    (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)
+                agent2_at_home = agent2.activity_type == 0 ||
+                    (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_university_holiday) ||
+                    (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday)
 
                 dur = 0.0
                 if is_holiday || (agent_at_home && agent2_at_home)
 
                     dur = get_contact_duration_normal(12.0, 4.0, rng)
-                elseif ((agent.collective_id == 4 && !agent_at_home) ||
-                    (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
+                elseif ((agent.activity_type == 4 && !agent_at_home) ||
+                    (agent2.activity_type == 4 && !agent2_at_home)) && !is_work_holiday
 
                     dur = get_contact_duration_normal(4.5, 1.5, rng)
-                elseif ((agent.collective_id == 2 && !agent_at_home) ||
-                    (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
+                elseif ((agent.activity_type == 2 && !agent_at_home) ||
+                    (agent2.activity_type == 2 && !agent2_at_home)) && !is_school_holiday
 
                     dur = get_contact_duration_normal(5.8, 2.0, rng)
-                elseif ((agent.collective_id == 1 && !agent_at_home) ||
-                    (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
+                elseif ((agent.activity_type == 1 && !agent_at_home) ||
+                    (agent2.activity_type == 1 && !agent2_at_home)) && !is_kindergarten_holiday
 
                     dur = get_contact_duration_normal(6.5, 2.2, rng)
                 else
@@ -89,19 +89,19 @@ function simulate_contacts_r0(
             end
         end
         if !is_holiday && agent.group_num != 0 && !agent.is_isolated &&
-            ((agent.collective_id == 1 && !is_kindergarten_holiday) ||
-                (agent.collective_id == 2 && !is_school_holiday) ||
-                (agent.collective_id == 3 && !is_university_holiday) ||
-                (agent.collective_id == 4 && !is_work_holiday))
+            ((agent.activity_type == 1 && !is_kindergarten_holiday) ||
+                (agent.activity_type == 2 && !is_school_holiday) ||
+                (agent.activity_type == 3 && !is_university_holiday) ||
+                (agent.activity_type == 4 && !is_work_holiday))
             for agent2_id in agent.collective_conn_ids
                 agent2 = agents[agent2_id]
                 if !(agent2.id in infected_agent_ids)
                     dur = 0.0
-                    if agent.collective_id == 1
+                    if agent.activity_type == 1
                         dur = get_contact_duration_gamma(2.5, 1.6, rng)
-                    elseif agent.collective_id == 2
+                    elseif agent.activity_type == 2
                         dur = get_contact_duration_gamma(1.78, 1.95, rng)
-                    elseif agent.collective_id == 3
+                    elseif agent.activity_type == 3
                         dur = get_contact_duration_gamma(2.0, 1.07, rng)
                     else
                         dur = get_contact_duration_gamma(1.81, 1.7, rng)
@@ -113,7 +113,7 @@ function simulate_contacts_r0(
                 end
             end
 
-            if agent.collective_id == 3
+            if agent.activity_type == 3
                 for agent2_id in agent.collective_cross_conn_ids
                     agent2 = agents[agent2_id]
                     if !(agent2.id in infected_agent_ids)
