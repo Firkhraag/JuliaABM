@@ -18,6 +18,8 @@ include("model/r0.jl")
 include("model/contacts.jl")
 include("model/connections.jl")
 
+include("model/public_space.jl")
+
 include("data/district_households.jl")
 include("data/district_people.jl")
 include("data/district_people_households.jl")
@@ -330,6 +332,24 @@ function main()
     # Массив для хранения фирм
     workplaces = Workplace[]
 
+    restaurants = Array{PublicSpace, 1}(undef, 10000)
+    shops = Array{PublicSpace, 1}(undef, 10000)
+    parks = Array{PublicSpace, 1}(undef, 10000)
+    transit = Array{PublicSpace, 1}(undef, 10000)
+
+    for i = 1:10000
+        restaurants[i] = PublicSpace(37.0, 55.0)
+    end
+    for i = 1:10000
+        shops[i] = PublicSpace(37.0, 55.0)
+    end
+    for i = 1:10000
+        parks[i] = PublicSpace(37.0, 55.0)
+    end
+    for i = 1:10000
+        transit[i] = PublicSpace(37.0, 55.0)
+    end
+
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
@@ -341,7 +361,10 @@ function main()
         agents, households, kindergartens, schools, universities,
         workplaces, thread_rng, num_threads, homes_coords_df)
 
-    get_stats(agents)
+    # return
+
+    # get_stats(agents)
+
     # return
 
     println("Simulation...")

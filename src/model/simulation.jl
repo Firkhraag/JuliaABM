@@ -75,10 +75,11 @@ function simulate_contacts(
     is_work_holiday::Bool,
     week_num::Int,
     current_step::Int,
-    infected_inside_collective::Array{Int, 3}
+    infected_inside_activity::Array{Int, 3}
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
+
         if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
             for agent2_id in agent.household_conn_ids
                 agent2 = agents[agent2_id]
@@ -118,7 +119,7 @@ function simulate_contacts(
                             make_contact(agent, agent2, dur, current_step, duration_parameter,
                                 susceptibility_parameters, temp_influences, rng)
                             if agent2.is_newly_infected
-                                infected_inside_collective[current_step, 5, thread_id] += 1
+                                infected_inside_activity[current_step, 5, thread_id] += 1
                             end
                         end
                     end
@@ -129,7 +130,7 @@ function simulate_contacts(
                     (agent.activity_type == 2 && !is_school_holiday) ||
                     (agent.activity_type == 3 && !is_university_holiday) ||
                     (agent.activity_type == 4 && !is_work_holiday))
-                for agent2_id in agent.collective_conn_ids
+                for agent2_id in agent.school_conn_ids
                     agent2 = agents[agent2_id]
                     if agent2.virus_id == 0 && agent2.attendance && agent2.days_immune == 0 && !agent2.is_isolated && !agent2.on_parent_leave
                         if (agent.virus_id != 1 || agent2.FluA_days_immune == 0) && (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
@@ -151,7 +152,7 @@ function simulate_contacts(
                                 make_contact(agent, agent2, dur, current_step, duration_parameter,
                                     susceptibility_parameters, temp_influences, rng)
                                 if agent2.is_newly_infected
-                                    infected_inside_collective[current_step, agent.activity_type, thread_id] += 1
+                                    infected_inside_activity[current_step, agent.activity_type, thread_id] += 1
                                 end
                             end
                         end
@@ -159,7 +160,7 @@ function simulate_contacts(
                 end
 
                 if agent.activity_type == 3
-                    for agent2_id in agent.collective_cross_conn_ids
+                    for agent2_id in agent.school_cross_conn_ids
                         agent2 = agents[agent2_id]
                         if agent2.virus_id == 0 && agent2.attendance && !agent2.is_teacher  && rand(rng, Float64) < 0.5 &&
                             agent2.days_immune == 0 && !agent2.is_isolated && !agent2.on_parent_leave
@@ -174,7 +175,7 @@ function simulate_contacts(
                                         susceptibility_parameters, temp_influences, rng)
         
                                     if agent2.is_newly_infected
-                                        infected_inside_collective[current_step, 3, thread_id] += 1
+                                        infected_inside_activity[current_step, 3, thread_id] += 1
                                     end
                                 end
                             end
@@ -553,7 +554,7 @@ function run_simulation(
 
     num_infected_age_groups_viruses = Array{Int, 3}(undef, 52, 7, 4)
     confirmed_daily_new_cases_age_groups_viruses = zeros(365, 4, 7, num_threads)
-    infected_inside_collective = zeros(Int, 365, 5, num_threads)
+    infected_inside_activity = zeros(Int, 365, 5, num_threads)
 
     # DEBUG
     max_step = 365
@@ -635,7 +636,51 @@ function run_simulation(
                 is_work_holiday,
                 week_num,
                 current_step,
-                infected_inside_collective)
+                infected_inside_activity)
+        end
+
+        for agent in agents
+            agent.goes_to_other_household = false
+            agent.goes_to_restaurant = false
+            agent.goes_to_shop = false
+            agent.goes_to_park = false
+            agent.goes_to_other_place = false
+            agent.transits = false
+            if is_holiday || (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_university_holiday) ||
+                (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)
+
+                if agent.age > 14
+                    if rand(rng, Float64) < weekend_go_to_other_household_p
+                        agent.goes_to_other_household = true
+                    elseif rand(rng, Float64) < weekend_go_to_restaurant_p
+                        agent.goes_to_restaurant = true
+                    elseif rand(rng, Float64) < weekend_go_to_shopping_p
+                        agent.goes_to_shop = true
+                    elseif rand(rng, Float64) < weekend_go_to_outdoor_p
+                        agent.goes_to_park = true
+                    elseif rand(rng, Float64) < weekend_go_to_other_place_p
+                        agent.goes_to_other_place = true
+                    elseif rand(rng, Float64) < weekend_transit_p
+                        agent.transits = true
+                    end
+                end
+            else
+                if agent.age > 14
+                    if rand(rng, Float64) < weekday_go_to_other_household_p
+                        agent.goes_to_other_household = true
+                    elseif rand(rng, Float64) < weekday_go_to_restaurant_p
+                        agent.goes_to_restaurant = true
+                    elseif rand(rng, Float64) < weekday_go_to_shopping_p
+                        agent.goes_to_shop = true
+                    elseif rand(rng, Float64) < weekday_go_to_outdoor_p
+                        agent.goes_to_park = true
+                    elseif rand(rng, Float64) < weekday_go_to_other_place_p
+                        agent.goes_to_other_place = true
+                    elseif rand(rng, Float64) < weekday_transit_p
+                        agent.transits = true
+                    end
+                end
+            end
         end
         
         @threads for thread_id in 1:num_threads
@@ -684,8 +729,8 @@ function run_simulation(
 
     if (is_single_run)
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"),
-            sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_activity_data.csv"),
+            sum(infected_inside_activity, dims = 3)[:, :, 1], ',')
     end
 
     return num_infected_age_groups_viruses

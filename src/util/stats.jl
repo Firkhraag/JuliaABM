@@ -25,6 +25,8 @@ function get_stats(agents::Vector{Agent})
     size_univer_conn = 0
     size_work_conn = 0
 
+    mean_num_of_friend_conn = 0
+
     t1 = 0
     t2 = 0
     t3 = 0
@@ -47,22 +49,33 @@ function get_stats(agents::Vector{Agent})
     
         if agent.activity_type == 1
             collective_nums[1] += 1
-            mean_num_of_kinder_conn += size(agent.collective_conn_ids, 1)
+            mean_num_of_kinder_conn += size(agent.school_conn_ids, 1)
             size_kinder_conn += 1
+            if agent.is_teacher
+                t1 += 1
+            end
         elseif agent.activity_type == 2
             collective_nums[2] += 1
-            mean_num_of_school_conn += size(agent.collective_conn_ids, 1)
+            mean_num_of_school_conn += size(agent.school_conn_ids, 1)
             size_school_conn += 1
+            if agent.is_teacher
+                t2 += 1
+            end
         elseif agent.activity_type == 3
             collective_nums[3] += 1
-            mean_num_of_univer_conn += size(agent.collective_conn_ids, 1)
-            mean_num_of_univer_cross_conn += size(agent.collective_cross_conn_ids, 1)
+            mean_num_of_univer_conn += size(agent.school_conn_ids, 1)
+            mean_num_of_univer_cross_conn += size(agent.school_cross_conn_ids, 1)
             size_univer_conn += 1
+            if agent.is_teacher
+                t3 += 1
+            end
         elseif agent.activity_type == 4
             collective_nums[4] += 1
-            mean_num_of_work_conn += size(agent.collective_conn_ids, 1)
+            mean_num_of_work_conn += size(agent.workplace_conn_ids, 1)
             size_work_conn += 1
         end
+
+        mean_num_of_friend_conn += length(agent.friend_conn_ids)
 
         household_nums[size(agent.household_conn_ids, 1)] += 1
 
@@ -129,4 +142,5 @@ function get_stats(agents::Vector{Agent})
     println("Univer conn: $(mean_num_of_univer_conn / size_univer_conn)")
     println("Univer cross conn: $(mean_num_of_univer_cross_conn / size_univer_conn)")
     println("Work conn: $(mean_num_of_work_conn / size_work_conn)")
+    println("Friends conn: $(mean_num_of_friend_conn / num_agents)")
 end

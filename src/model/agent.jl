@@ -21,8 +21,12 @@ mutable struct Agent
     # Id работы
     workplace_id::Int
     # Связи в коллективе
-    collective_conn_ids::Vector{Int}
-    collective_cross_conn_ids::Vector{Int}
+    school_conn_ids::Vector{Int}
+    school_cross_conn_ids::Vector{Int}
+    # Связи на работе
+    workplace_conn_ids::Vector{Int}
+    # Связи с друзьями
+    friend_conn_ids::Vector{Int}
     # Id детей за которыми нужен уход в случае болезни
     dependant_ids::Vector{Int}
     # Id того, кто будет ухаживать в случае болезни
@@ -797,8 +801,8 @@ mutable struct Agent
 
         new(
             id, age, infant_age, is_male, household_id, household_conn_ids,
-            activity_type, 0, school_group_num, 0, Int[], Int[], Int[], 0, false, ig_level,
-            virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
+            activity_type, 0, school_group_num, 0, Int[], Int[], Int[], Int[], Int[], 0, false,
+            ig_level, virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
             RSV_days_immune, AdV_days_immune, PIV_days_immune, CoV_days_immune,
             incubation_period, infection_period, days_infected, days_immune,
             is_asymptomatic, is_isolated, infectivity, attendance, false)

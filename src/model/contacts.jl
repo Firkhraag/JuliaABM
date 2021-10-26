@@ -69,55 +69,68 @@ function simulate_contacts_evaluation(
                 end
             end
         end
-        if agent.attendance &&
-            ((agent.activity_type == 1 && !is_kindergarten_holiday) ||
-                (agent.activity_type == 2 && !is_school_holiday) ||
-                (agent.activity_type == 3 && !is_university_holiday) ||
-                (agent.activity_type == 4 && !is_work_holiday))
-            for agent2_id in agent.collective_conn_ids
-                agent2 = agents[agent2_id]
 
+        if agent.activity_type == 1 && agent.attendance
+            for agent2_id in agent.school_conn_ids
+                agent2 = agents[agent2_id]
                 if agent2.id != agent.id && agent2.attendance
-                    dur = 0.0
-                    if agent.activity_type == 1
-                        dur = get_contact_duration_gamma(2.5, 1.6, rng)
-                    elseif agent.activity_type == 2
-                        dur = get_contact_duration_gamma(1.78, 1.95, rng)
-                    elseif agent.activity_type == 3
-                        dur = get_contact_duration_gamma(2.0, 1.07, rng)
-                    else
-                        dur = get_contact_duration_gamma(1.81, 1.7, rng)
-                    end
+                    dur = get_contact_duration_gamma(kindergarten_time_spent_shape, kindergarten_time_spent_scale, rng)
                     if dur > 0.1
-                        if agent.activity_type == 1
-                            contact_duration_matrix_by_age_kindergarten_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contact_matrix_by_age_kindergarten_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                        elseif agent.activity_type == 2
-                            contact_duration_matrix_by_age_school_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contact_matrix_by_age_school_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                        elseif agent.activity_type == 3
-                            contact_duration_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contact_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                        else
-                            contact_duration_matrix_by_age_workplace_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contact_matrix_by_age_workplace_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                        end
+                        contact_duration_matrix_by_age_kindergarten_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contact_matrix_by_age_kindergarten_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                         contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
                         contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                     end
                 end
             end
-            if agent.activity_type == 3
-                for agent2_id in agent.collective_cross_conn_ids
-                    agent2 = agents[agent2_id]
-                    if agent2.id != agent.id && agent2.attendance && !agent2.is_teacher && rand(rng, Float64) < 0.5
-                        dur = get_contact_duration_gamma(1.2, 1.07, rng)
-                        if dur > 0.1
-                            contact_duration_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contact_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                            contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                        end
+        elseif agent.activity_type == 2 && agent.attendance
+            for agent2_id in agent.school_conn_ids
+                agent2 = agents[agent2_id]
+                if agent2.id != agent.id && agent2.attendance
+                    dur = get_contact_duration_gamma(school_time_spent_shape, school_time_spent_scale, rng)
+                    if dur > 0.1
+                        contact_duration_matrix_by_age_school_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contact_matrix_by_age_school_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                    end
+                end
+            end
+        elseif agent.activity_type == 3 && agent.attendance
+            for agent2_id in agent.school_conn_ids
+                agent2 = agents[agent2_id]
+                if agent2.id != agent.id && agent2.attendance
+                    dur = get_contact_duration_gamma(university_time_spent_shape, university_time_spent_scale, rng)
+                    if dur > 0.1
+                        contact_duration_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contact_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                    end
+                end
+            end
+            for agent2_id in agent.school_cross_conn_ids
+                agent2 = agents[agent2_id]
+                if agent2.id != agent.id && agent2.attendance && !agent2.is_teacher && rand(rng, Float64) < 0.5
+                    dur = get_contact_duration_gamma(1.2, 1.07, rng)
+                    if dur > 0.1
+                        contact_duration_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contact_matrix_by_age_university_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                    end
+                end
+            end
+        elseif agent.activity_type == 4
+            for agent2_id in agent.workplace_conn_ids
+                agent2 = agents[agent2_id]
+                if agent2.id != agent.id && agent2.attendance
+                    dur = get_contact_duration_gamma(workplace_time_spent_shape, workplace_time_spent_scale, rng)
+                    if dur > 0.1
+                        contact_duration_matrix_by_age_workplace_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contact_matrix_by_age_workplace_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contact_duration_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contact_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                     end
                 end
             end
