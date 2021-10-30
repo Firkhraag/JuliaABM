@@ -16,12 +16,12 @@ function get_stats(agents::Vector{Agent})
     num_of_isolated = 0
     num_of_parent_leave = 0
     mean_num_of_kinder_conn = 0
-    mean_num_of_school_conn = 0
+    mean_num_of_activity_conn = 0
     mean_num_of_univer_conn = 0
     mean_num_of_univer_cross_conn = 0
     mean_num_of_work_conn = 0
     size_kinder_conn = 0
-    size_school_conn = 0
+    size_activity_conn = 0
     size_univer_conn = 0
     size_work_conn = 0
 
@@ -49,33 +49,33 @@ function get_stats(agents::Vector{Agent})
     
         if agent.activity_type == 1
             collective_nums[1] += 1
-            mean_num_of_kinder_conn += size(agent.school_conn_ids, 1)
+            mean_num_of_kinder_conn += size(agent.activity_conn_ids, 1)
             size_kinder_conn += 1
             if agent.is_teacher
                 t1 += 1
             end
         elseif agent.activity_type == 2
             collective_nums[2] += 1
-            mean_num_of_school_conn += size(agent.school_conn_ids, 1)
-            size_school_conn += 1
+            mean_num_of_activity_conn += size(agent.activity_conn_ids, 1)
+            size_activity_conn += 1
             if agent.is_teacher
                 t2 += 1
             end
         elseif agent.activity_type == 3
             collective_nums[3] += 1
-            mean_num_of_univer_conn += size(agent.school_conn_ids, 1)
-            mean_num_of_univer_cross_conn += size(agent.school_cross_conn_ids, 1)
+            mean_num_of_univer_conn += size(agent.activity_conn_ids, 1)
+            mean_num_of_univer_cross_conn += size(agent.activity_cross_conn_ids, 1)
             size_univer_conn += 1
             if agent.is_teacher
                 t3 += 1
             end
         elseif agent.activity_type == 4
             collective_nums[4] += 1
-            mean_num_of_work_conn += size(agent.workplace_conn_ids, 1)
+            mean_num_of_work_conn += size(agent.activity_conn_ids, 1)
             size_work_conn += 1
         end
 
-        mean_num_of_friend_conn += length(agent.friend_conn_ids)
+        # mean_num_of_friend_conn += length(agent.friend_conn_ids)
 
         household_nums[size(agent.household_conn_ids, 1)] += 1
 
@@ -110,8 +110,6 @@ function get_stats(agents::Vector{Agent})
     # end
 
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums.csv"), age_groups_nums, ',')
-
-
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_1.csv"), age_groups_nums_1, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2.csv"), age_groups_nums_2, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_3.csv"), age_groups_nums_3, ',')
@@ -126,9 +124,6 @@ function get_stats(agents::Vector{Agent})
     #     println("$(i - 1): $(age_groups_nums[i])")
     # end
 
-    # println("N1: $(n1)")
-    # println("N2: $(n2)")
-
     println("Teachers 1: $(t1)")
     println("Teachers 2: $(t2)")
     println("Teachers 3: $(t3)")
@@ -138,9 +133,9 @@ function get_stats(agents::Vector{Agent})
     println("Ig level: $(mean_ig_level / size(agents, 1))")
     println("Infected: $(num_of_infected)")
     println("Kinder conn: $(mean_num_of_kinder_conn / size_kinder_conn)")
-    println("School conn: $(mean_num_of_school_conn / size_school_conn)")
+    println("School conn: $(mean_num_of_activity_conn / size_activity_conn)")
     println("Univer conn: $(mean_num_of_univer_conn / size_univer_conn)")
     println("Univer cross conn: $(mean_num_of_univer_cross_conn / size_univer_conn)")
     println("Work conn: $(mean_num_of_work_conn / size_work_conn)")
-    println("Friends conn: $(mean_num_of_friend_conn / num_agents)")
+    # println("Friends conn: $(mean_num_of_friend_conn / num_agents)")
 end

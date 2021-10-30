@@ -45,9 +45,7 @@ end
 
 function age_distribution_groups()
 
-    # num_people_data_vec = [482706, 464029, 438403, 541724, 963365, 1028257, 975748, 902265, 825823, 906344, 922120, 759863, 682891, 381686, 538020, 300376, 244526, 143476]
-    num_people_data_vec = [433175, 420460, 399159, 495506, 869700, 924829, 892794, 831873, 757411,
-        818571, 833850, 697220, 640330, 358392, 503280, 281946, 230579, 136843]
+    num_people_data_vec = [482706, 464029, 438403, 541724, 963365, 1028257, 975748, 902265, 825823, 906344, 922120, 759863, 682891, 381686, 538020, 300376, 244526, 143476]
     # num_people_data = reshape(num_people_data_vec, length(num_people_data_vec), 1)
 
     age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums.csv"), ',', Int, '\n')
@@ -357,8 +355,7 @@ function age_distribution_model()
 end
 
 function age_distribution_data()
-    # num_people_data_vec = [482706, 464029, 438403, 541724, 963365, 1028257, 975748, 902265, 825823, 906344, 922120, 759863, 682891, 381686, 538020, 300376, 244526, 143476]
-    num_people_data_vec = [448207, 434557, 412172, 510265, 897920, 955712, 917287, 853197, 777888, 845037, 860915, 715341, 652058, 363978, 511066, 286099, 233904, 138633]
+    num_people_data_vec = [482706, 464029, 438403, 541724, 963365, 1028257, 975748, 902265, 825823, 906344, 922120, 759863, 682891, 381686, 538020, 300376, 244526, 143476]
     num_people_data = reshape(num_people_data_vec, length(num_people_data_vec), 1)
 
     labels = CategoricalArray(string.(collect(0:17)))
@@ -481,6 +478,46 @@ end
 
 function age_distribution()
     age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums.csv"), ',', Int, '\n')
+    age_groups_nums_P1 = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_P1.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP2P0C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP2P0C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP3P0C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP3P0C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP3P1C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP3P1C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP4P0C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP4P0C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP4P1C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP4P1C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP4P2C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP4P2C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP5P0C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP5P0C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP5P1C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP5P1C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP5P2C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP5P2C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP5P3C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP5P3C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP6P0C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP6P0C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP6P1C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP6P1C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP6P2C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP6P2C.csv"), ',', Int, '\n')
+    age_groups_nums_PWOP6P3C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_PWOP6P3C.csv"), ',', Int, '\n')
+    age_groups_nums_2PWOP4P0C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2PWOP4P0C.csv"), ',', Int, '\n')
+    age_groups_nums_2PWOP5P0C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2PWOP5P0C.csv"), ',', Int, '\n')
+    age_groups_nums_2PWOP5P1C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2PWOP5P1C.csv"), ',', Int, '\n')
+    age_groups_nums_2PWOP6P0C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2PWOP6P0C.csv"), ',', Int, '\n')
+    age_groups_nums_2PWOP6P1C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2PWOP6P1C.csv"), ',', Int, '\n')
+    age_groups_nums_2PWOP6P2C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2PWOP6P2C.csv"), ',', Int, '\n')
+
+    age_groups_nums_O2P0C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O2P0C.csv"), ',', Int, '\n')
+    age_groups_nums_O2P1C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O2P1C.csv"), ',', Int, '\n')
+    age_groups_nums_O3P0C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O3P0C.csv"), ',', Int, '\n')
+    age_groups_nums_O3P1C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O3P1C.csv"), ',', Int, '\n')
+    age_groups_nums_O3P2C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O3P2C.csv"), ',', Int, '\n')
+    age_groups_nums_O4P0C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O4P0C.csv"), ',', Int, '\n')
+    age_groups_nums_O4P1C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O4P1C.csv"), ',', Int, '\n')
+    age_groups_nums_O4P2C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O4P2C.csv"), ',', Int, '\n')
+    age_groups_nums_O5P0C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O5P0C.csv"), ',', Int, '\n')
+    age_groups_nums_O5P1C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O5P1C.csv"), ',', Int, '\n')
+    age_groups_nums_O5P2C = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_O5P2C.csv"), ',', Int, '\n')
+
+    age_groups_nums_PWOP = age_groups_nums_PWOP2P0C + age_groups_nums_PWOP3P0C + age_groups_nums_PWOP3P1C + age_groups_nums_PWOP4P0C +
+        age_groups_nums_PWOP4P1C + age_groups_nums_PWOP4P2C + age_groups_nums_PWOP5P0C + age_groups_nums_PWOP5P1C + age_groups_nums_PWOP5P2C +
+        age_groups_nums_PWOP5P3C + age_groups_nums_PWOP6P0C + age_groups_nums_2PWOP6P1C + age_groups_nums_2PWOP6P2C
+    age_groups_nums_O = age_groups_nums_O2P0C + age_groups_nums_O2P1C + age_groups_nums_O3P0C + age_groups_nums_O3P1C +
+        age_groups_nums_O3P2C + age_groups_nums_O4P0C + age_groups_nums_O4P1C + age_groups_nums_O4P2C + age_groups_nums_O5P0C +
+        age_groups_nums_O5P1C + age_groups_nums_O5P2C
 
     labels = CategoricalArray(string.(collect(0:89)))
     levels!(labels, string.(collect(0:89)))
@@ -498,7 +535,6 @@ function age_distribution()
         linewidth = 0.6,
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
-        title = "Age distribution",
         xlabel = "Age",
         ylabel = "Num",
         grid = false,
@@ -506,15 +542,508 @@ function age_distribution()
         xticks = (xticks, xticklabels),
         yticks = (yticks, yticklabels),
     )
+    age_distribution_P1_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_P1,
+        legend = false,
+        linewidth = 0.6,
+        title = "P1",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP2P0C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP2P0C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP2P0C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP3P0C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP3P0C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP3P0C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP3P1C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP3P1C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP3P1C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP4P0C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP4P0C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP4P0C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP4P1C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP4P1C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP4P1C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP4P2C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP4P2C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP4P2C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP5P0C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP5P0C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP5P0C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP5P1C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP5P1C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP5P1C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP5P2C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP5P2C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP5P2C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP5P3C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP5P3C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP5P3C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP6P0C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP6P0C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP6P0C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP6P1C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP6P1C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP6P1C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP6P2C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP6P2C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP6P2C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_PWOP6P3C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP6P3C,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP6P3C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_2PWOP4P0C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_2PWOP4P0C,
+        legend = false,
+        linewidth = 0.6,
+        title = "2PWOP4P0C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_2PWOP5P0C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_2PWOP5P0C,
+        legend = false,
+        linewidth = 0.6,
+        title = "2PWOP5P0C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_2PWOP5P1C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_2PWOP5P1C,
+        legend = false,
+        linewidth = 0.6,
+        title = "2PWOP5P1C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_2PWOP6P0C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_2PWOP6P0C,
+        legend = false,
+        linewidth = 0.6,
+        title = "2PWOP6P0C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_2PWOP6P1C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_2PWOP6P1C,
+        legend = false,
+        linewidth = 0.6,
+        title = "2PWOP6P1C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_2PWOP6P2C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_2PWOP6P2C,
+        legend = false,
+        linewidth = 0.6,
+        title = "2PWOP6P2C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_O2P0C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_O2P0C,
+        legend = false,
+        linewidth = 0.6,
+        title = "O2P0C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_O2P1C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_O2P1C,
+        legend = false,
+        linewidth = 0.6,
+        title = "O2P1C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_O3P0C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_O3P0C,
+        legend = false,
+        linewidth = 0.6,
+        title = "O3P0C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_O3P1C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_O3P1C,
+        legend = false,
+        linewidth = 0.6,
+        title = "O3P1C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_O3P2C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_O3P2C,
+        legend = false,
+        linewidth = 0.6,
+        title = "O3P2C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_O4P0C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_O4P0C,
+        legend = false,
+        linewidth = 0.6,
+        title = "O4P0C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_O4P1C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_O4P1C,
+        legend = false,
+        linewidth = 0.6,
+        title = "O4P1C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_O4P2C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_O4P2C,
+        legend = false,
+        linewidth = 0.6,
+        title = "O4P2C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_O5P0C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_O5P0C,
+        legend = false,
+        linewidth = 0.6,
+        title = "O5P0C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_O5P1C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_O5P1C,
+        legend = false,
+        linewidth = 0.6,
+        title = "O5P1C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_O5P2C_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_O5P2C,
+        legend = false,
+        linewidth = 0.6,
+        title = "O5P2C",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+
+    age_distribution_PWOP_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_PWOP,
+        legend = false,
+        linewidth = 0.6,
+        title = "PWOP",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
+    age_distribution_O_plot = groupedbar(
+        collect(0:89),
+        age_groups_nums_O,
+        legend = false,
+        linewidth = 0.6,
+        title = "O",
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+        xlabel = "Age",
+        ylabel = "Num",
+        grid = false,
+        xticks = (xticks, xticklabels),
+    )
 
     savefig(age_distribution_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution.pdf"))
+    savefig(age_distribution_P1_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_P1.pdf"))
+    savefig(age_distribution_PWOP2P0C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP2P0C.pdf"))
+    savefig(age_distribution_PWOP3P0C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP3P0C.pdf"))
+    savefig(age_distribution_PWOP3P1C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP3P1C.pdf"))
+    savefig(age_distribution_PWOP4P0C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP4P0C.pdf"))
+    savefig(age_distribution_PWOP4P1C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP4P1C.pdf"))
+    savefig(age_distribution_PWOP4P2C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP4P2C.pdf"))
+    savefig(age_distribution_PWOP5P0C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP5P0C.pdf"))
+    savefig(age_distribution_PWOP5P1C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP5P1C.pdf"))
+    savefig(age_distribution_PWOP5P2C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP5P2C.pdf"))
+    savefig(age_distribution_PWOP5P3C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP5P3C.pdf"))
+    savefig(age_distribution_PWOP6P0C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP6P0C.pdf"))
+    savefig(age_distribution_PWOP6P1C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP6P1C.pdf"))
+    savefig(age_distribution_PWOP6P2C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP6P2C.pdf"))
+    savefig(age_distribution_PWOP6P3C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP6P3C.pdf"))
+    savefig(age_distribution_2PWOP4P0C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_2PWOP4P0C.pdf"))
+    savefig(age_distribution_2PWOP5P0C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_2PWOP5P0C.pdf"))
+    savefig(age_distribution_2PWOP5P1C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_2PWOP5P1C.pdf"))
+    savefig(age_distribution_2PWOP6P0C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_2PWOP6P0C.pdf"))
+    savefig(age_distribution_2PWOP6P1C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_2PWOP6P1C.pdf"))
+    savefig(age_distribution_2PWOP6P2C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_2PWOP6P2C.pdf"))
+
+    savefig(age_distribution_O2P0C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_O2P0C.pdf"))
+    savefig(age_distribution_O2P1C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_O2P1C.pdf"))
+    savefig(age_distribution_O3P0C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_O3P0C.pdf"))
+    savefig(age_distribution_O3P1C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_O3P1C.pdf"))
+    savefig(age_distribution_O3P2C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_O3P2C.pdf"))
+    savefig(age_distribution_O4P0C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_O4P0C.pdf"))
+    savefig(age_distribution_O4P1C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_O4P1C.pdf"))
+    savefig(age_distribution_O4P2C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_O4P2C.pdf"))
+    savefig(age_distribution_O5P0C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_O5P0C.pdf"))
+    savefig(age_distribution_O5P1C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_O5P1C.pdf"))
+    savefig(age_distribution_O5P2C_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_O5P2C.pdf"))
+
+    savefig(age_distribution_PWOP_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_PWOP.pdf"))
+    savefig(age_distribution_O_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age", "age_distribution_O.pdf"))
+
+    # age_distribution = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_distribution.csv"), ',', Int, '\n')
+
+    # # ticks = range(1, stop = 365, length = 13)
+    # # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    # age_distribution_plot = plot(
+    #     age_distribution,
+    #     lw = 3,
+    #     legend = false,
+    #     # xlabel = L"\textrm{\sffamily Age}",
+    #     # ylabel = L"\textrm{\sffamily Num}",
+    #     xlabel = L"\textrm{\sffamily Age}",
+    #     ylabel = L"\textrm{\sffamily Num}",
+    #     kind="bar")
+    # savefig(age_distribution_plot, joinpath(@__DIR__, "..", "..", "input", "plots", "age_distribution.pdf"))
 end
 
 function household_size_distribution()
     household_size_distribution = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "household_size_distribution.csv"), ',', Int, '\n')
 
-    # num_households_data_vec = [1197839, 1149095, 1015265, 634953, 257772, 161163]
-    num_households_data_vec = [1118631, 1056816, 922206, 575250, 236758, 148261]
+    num_households_data_vec = [1197839, 1149095, 1015265, 634953, 257772, 161163]
     # num_households_data = reshape(num_households_data_vec, length(num_households_data_vec), 1)
 
     num_households_data = append!(num_households_data_vec, vec(household_size_distribution))
@@ -896,8 +1425,8 @@ end
 # plot_incidence_age_groups()
 
 age_distribution()
-age_distribution_groups()
-household_size_distribution()
+# age_distribution_groups()
+# household_size_distribution()
 
 # plot_etiology()
 # plot_incubation_periods()

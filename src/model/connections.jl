@@ -1,3 +1,31 @@
+function add_agent_to_kindergarten(agent::Agent, closest_kindergarten_id::Int, kindergartens::Vector{School})
+    agent.school_id = closest_kindergarten_id
+    groups = kindergartens[agent.school_id].groups[agent.school_group_num]
+    group_id = length(groups)
+    if (agent.school_group_num == 1 && 
+        size(groups[group_id], 1) == kindergarten_groups_size_1) ||
+        ((agent.school_group_num == 2 || agent.school_group_num == 3) && size(groups[group_id], 1) == kindergarten_groups_size_2_3) ||
+        ((agent.school_group_num == 4 || agent.school_group_num == 5) && size(groups[group_id], 1) == kindergarten_groups_size_4_5)
+        
+        push!(groups, Int[])
+        group_id += 1
+    end
+    push!(groups[group_id], agent.id)
+    agent.activity_conn_ids = groups[group_id]
+end
+
+function add_agent_to_school(agent::Agent, closest_school_id::Int, schools::Vector{School})
+    agent.school_id = closest_school_id
+    groups = schools[agent.school_id].groups[agent.school_group_num]
+    group_id = length(groups)
+    if size(groups[group_id], 1) == school_groups_size
+        push!(groups, Int[])
+        group_id += 1
+    end
+    push!(groups[group_id], agent.id)
+    agent.activity_conn_ids = groups[group_id]
+end
+
 function set_connections(
     agents::Vector{Agent},
     households::Vector{Household},
@@ -12,45 +40,21 @@ function set_connections(
     num_working_agents = 0
     for agent_id in 1:length(agents)
         agent = agents[agent_id]
-        num_of_conn = round(Int, rand(Normal(num_of_close_friends_mean, num_of_close_friends_sd)))
-        if num_of_conn > length(agent.friend_conn_ids)
-            for agent2_id = (agent_id + 1):length(agents)
-                agent2 = agents[agent2_id]
-                if rand(Float64) < get_similarity_between_agents(agent, agent)
-                    push!(agent.friend_conn_ids, agent2_id)
-                    push!(agent2.friend_conn_ids, agent_id)
-                    if length(agent.friend_conn_ids) == num_of_conn
-                        break
-                    end
-                end
-            end
-        end
+        # num_of_conn = round(Int, rand(Normal(num_of_close_friends_mean, num_of_close_friends_sd)))
+        # if num_of_conn > length(agent.friend_conn_ids)
+        #     for agent2_id = (agent_id + 1):length(agents)
+        #         agent2 = agents[agent2_id]
+        #         if rand(Float64) < get_similarity_between_agents(agent, agent)
+        #             push!(agent.friend_conn_ids, agent2_id)
+        #             push!(agent2.friend_conn_ids, agent_id)
+        #             if length(agent.friend_conn_ids) == num_of_conn
+        #                 break
+        #             end
+        #         end
+        #     end
+        # end
 
-        if agent.activity_type == 1
-            agent.school_id = households[agent.household_id].closest_kindergarten_id
-            groups = kindergartens[agent.school_id].groups[agent.school_group_num]
-            group_id = length(groups)
-            if (agent.school_group_num == 1 && 
-                size(groups[group_id], 1) == kindergarten_groups_size_1) ||
-                ((agent.school_group_num == 2 || agent.school_group_num == 3) && size(groups[group_id], 1) == kindergarten_groups_size_2_3) ||
-                ((agent.school_group_num == 4 || agent.school_group_num == 5) && size(groups[group_id], 1) == kindergarten_groups_size_4_5)
-                
-                push!(groups, Int[])
-                group_id += 1
-            end
-            push!(groups[group_id], agent.id)
-            agent.school_conn_ids = groups[group_id]
-        elseif agent.activity_type == 2
-            agent.school_id = households[agent.household_id].closest_school_id
-            groups = schools[agent.school_id].groups[agent.school_group_num]
-            group_id = length(groups)
-            if size(groups[group_id], 1) == school_groups_size
-                push!(groups, Int[])
-                group_id += 1
-            end
-            push!(groups[group_id], agent.id)
-            agent.school_conn_ids = groups[group_id]
-        elseif agent.activity_type == 3
+        if agent.activity_type == 3
             agent.school_id = rand(1:num_universities)
             groups = universities[agent.school_id].groups[agent.school_group_num]
             group_id = length(groups)
@@ -64,7 +68,7 @@ function set_connections(
                 group_id += 1
             end
             push!(groups[group_id], agent.id)
-            agent.school_conn_ids = groups[group_id]
+            agent.activity_conn_ids = groups[group_id]
         elseif agent.activity_type == 4
             num_working_agents += 1
         end
@@ -91,7 +95,7 @@ function set_connections(
                 agents[agent_id].is_teacher = true
                 agents[agent_id].school_id = kindergarten_id
                 agents[agent_id].school_group_num = school_group_num
-                agents[agent_id].school_conn_ids = group
+                agents[agent_id].activity_conn_ids = group
                 # agents[agent_id].school_group_id = group_id
             end
             num_working_agents -= groups_size
@@ -119,7 +123,7 @@ function set_connections(
                 agents[agent_id].is_teacher = true
                 agents[agent_id].school_id = school_id
                 agents[agent_id].school_group_num = school_group_num
-                agents[agent_id].school_conn_ids = group
+                agents[agent_id].activity_conn_ids = group
                 # agents[agent_id].school_group_id = group_id
             end
             num_working_agents -= groups_size
@@ -147,14 +151,12 @@ function set_connections(
                 agents[agent_id].is_teacher = true
                 agents[agent_id].school_id = university_id
                 agents[agent_id].school_group_num = school_group_num
-                agents[agent_id].school_conn_ids = group
+                agents[agent_id].activity_conn_ids = group
                 # agents[agent_id].school_group_id = group_id
             end
             num_working_agents -= groups_size
         end
     end
-
-    # log_norm_dist = truncated(LogNormal(1.3, 1.7), 1, 1000)
 
     start_agent_id = 1
     while num_working_agents > 0
@@ -210,19 +212,19 @@ function set_connections(
                         connections_for_group4 = vcat(group2, group3, group1)
                         for agent_id in group1
                             agent = agents[agent_id]
-                            agent.school_cross_conn_ids = connections_for_group1
+                            agent.activity_cross_conn_ids = connections_for_group1
                         end
                         for agent_id in group2
                             agent = agents[agent_id]
-                            agent.school_cross_conn_ids = connections_for_group2
+                            agent.activity_cross_conn_ids = connections_for_group2
                         end
                         for agent_id in group3
                             agent = agents[agent_id]
-                            agent.school_cross_conn_ids = connections_for_group3
+                            agent.activity_cross_conn_ids = connections_for_group3
                         end
                         for agent_id in group4
                             agent = agents[agent_id]
-                            agent.school_cross_conn_ids = connections_for_group4
+                            agent.activity_cross_conn_ids = connections_for_group4
                         end
                     end
                 end
@@ -266,8 +268,8 @@ function generate_barabasi_albert_network(agents::Vector{Agent}, agent_ids::Vect
     # Связный граф с m вершинами
     for i = 1:m
         for j = (i + 1):m
-            push!(agents[agent_ids[i]].workplace_conn_ids, agent_ids[j])
-            push!(agents[agent_ids[j]].workplace_conn_ids, agent_ids[i])
+            push!(agents[agent_ids[i]].activity_conn_ids, agent_ids[j])
+            push!(agents[agent_ids[j]].activity_conn_ids, agent_ids[i])
         end
     end
     # Сумма связей всех вершин
@@ -280,15 +282,15 @@ function generate_barabasi_albert_network(agents::Vector{Agent}, agent_ids::Vect
             cumulative = 0.0
             rand_num = rand(rng, Float64)
             for j = 1:(i - 1)
-                if agent_ids[j] in agent.workplace_conn_ids
+                if agent_ids[j] in agent.activity_conn_ids
                     continue
                 end
                 agent2 = agents[agent_ids[j]]
-                cumulative += length(agent2.workplace_conn_ids) / degree_sum_temp
+                cumulative += length(agent2.activity_conn_ids) / degree_sum_temp
                 if rand_num < cumulative
-                    degree_sum_temp -= length(agent2.workplace_conn_ids)
-                    push!(agent.workplace_conn_ids, agent2.id)
-                    push!(agent2.workplace_conn_ids, agent.id)
+                    degree_sum_temp -= length(agent2.activity_conn_ids)
+                    push!(agent.activity_conn_ids, agent2.id)
+                    push!(agent2.activity_conn_ids, agent.id)
                     break
                 end
             end

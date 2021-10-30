@@ -36,10 +36,6 @@ function main()
 
     num_threads = nthreads()
 
-    num_people = 10072668
-    start_agent_ids = Int[1, 2483024, 4977885, 7516450]
-    end_agent_ids = Int[2483023, 4977884, 7516449, 10072668]
-
     viruses = Virus[
         Virus(1, 1.4, 0.09, 1, 7, 2.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.32, 0.16, 365),
         Virus(2, 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 0.32, 0.16, 365),
@@ -123,12 +119,85 @@ function main()
 
     agents = Array{Agent, 1}(undef, num_people)
     thread_rng = [MersenneTwister(i) for i = 1:num_threads]
+
+    homes_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "homes.csv")))
+    # Массив для хранения домохозяйств
+    households = Array{Household, 1}(undef, num_households)
+
+    kindergarten_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "kindergartens.csv")))
+    # Массив для хранения детских садов
+    kindergartens = Array{School, 1}(undef, num_kindergartens)
+    for i in 1:size(kindergarten_coords_df, 1)
+        kindergartens[i] = School(
+            1,
+            kindergarten_coords_df[i, :dist],
+            kindergarten_coords_df[i, :x],
+            kindergarten_coords_df[i, :y],
+        )
+    end
+
+    school_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "schools.csv")))
+    # Массив для хранения школ
+    schools = Array{School, 1}(undef, num_schools)
+    for i in 1:size(school_coords_df, 1)
+        schools[i] = School(
+            2,
+            school_coords_df[i, :dist],
+            school_coords_df[i, :x],
+            school_coords_df[i, :y],
+        )
+    end
+
+    university_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "universities.csv")))
+    # Массив для хранения школ
+    universities = Array{School, 1}(undef, num_universities)
+    for i in 1:size(university_coords_df, 1)
+        universities[i] = School(
+            3,
+            university_coords_df[i, :dist],
+            university_coords_df[i, :x],
+            university_coords_df[i, :y],
+        )
+    end
+
+    # Массив для хранения фирм
+    workplaces = Workplace[]
+
+    shop_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "shops.csv")))
+    # Массив для хранения магазинов
+    shops = Array{Shop, 1}(undef, num_shops)
+    for i in 1:size(shop_coords_df, 1)
+        shops[i] = Shop(
+            shop_coords_df[i, :dist],
+            shop_coords_df[i, :x],
+            shop_coords_df[i, :y],
+            ceil(Int, rand(Gamma(shop_capacity_shape, shop_capacity_scale)))
+        )
+    end
+
+    restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "restaurants.csv")))
+    # Массив для хранения ресторанов/кафе/столовых
+    restaurants = Array{Restaurant, 1}(undef, num_restaurants)
+    for i in 1:size(restaurant_coords_df, 1)
+        restaurants[i] = Restaurant(
+            restaurant_coords_df[i, :dist],
+            restaurant_coords_df[i, :x],
+            restaurant_coords_df[i, :y],
+            restaurant_coords_df[i, :seats]
+        )
+    end
+
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, viruses, infectivities, district_households, district_people,
+            agents, households, kindergartens, schools, viruses, infectivities, start_household_ids[thread_id],
+            homes_coords_df, district_households, district_people,
             district_people_households, district_nums)
     end
+
+    @time set_connections(
+        agents, households, kindergartens, schools, universities,
+        workplaces, thread_rng, num_threads, homes_coords_df)
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "mcmc", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     
@@ -167,9 +236,6 @@ function main()
         temperature_parameter_6_array[size(temperature_parameter_6_array)[1]],
         temperature_parameter_7_array[size(temperature_parameter_7_array)[1]],
     ]
-
-    # susceptibility_parameters_prior_means = [0.68387609533, 0.68532162206, 0.75330066128, 1.0, 0.9812805904, 0.87943949097, 0.88961403651]
-    # temperature_parameters_prior_means = [1.0, 0.68265703035, 0.0329387545, 0.38442810676, 0.1292956737, 0.13577590095, 0.61765285455]
 
     duration_parameter_prior_mean = 4.708649537853532
     susceptibility_parameters_prior_means = [4.791077491179754, 4.801204516560952, 5.277449916720067, 7.005768331227963, 6.87462448433526, 6.161149335090182, 6.232429844021741]
@@ -213,8 +279,8 @@ function main()
     end
 
     @time num_infected_age_groups_viruses = run_simulation(
-        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-        temp_influences, duration_parameter,
+        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, households,
+        shops, restaurants, infectivities, temp_influences, duration_parameter,
         susceptibility_parameters, etiology, false)
 
     num_infected_age_groups = sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :]
@@ -318,8 +384,8 @@ function main()
         end
 
         @time num_infected_age_groups_viruses = run_simulation(
-            num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-            temp_influences, duration_parameter,
+            num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, households,
+            shops, restaurants, infectivities, temp_influences, duration_parameter,
             susceptibility_parameters, etiology, false)
 
         num_infected_age_groups = sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :]

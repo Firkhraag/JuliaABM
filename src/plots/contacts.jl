@@ -15,30 +15,9 @@ function main()
     xticks = [0, 20, 40, 60, 80]
     xticklabels = ["0", "20", "40", "60", "80"]
 
-    heatmap_plot1 = heatmap(
-        contact_counts1,
-        fontfamily = "Times",
-        xticks = (xticks, xticklabels),
-        title="Contacts on the weekday in summer",
-        margin = 6Plots.mm,
-        c = :jet,
-    )
-    heatmap_plot2 = heatmap(
-        contact_counts2,
-        fontfamily = "Times",
-        xticks = (xticks, xticklabels),
-        title="Contacts on the weekday",
-        margin = 6Plots.mm,
-        c = :jet,
-    )
-    heatmap_plot3 = heatmap(
-        contact_counts3,
-        fontfamily = "Times",
-        xticks = (xticks, xticklabels),
-        title="Contacts on sunday",
-        margin = 4Plots.mm,
-        c = :jet,
-    )
+    heatmap_plot1 = heatmap(contact_counts1, fontfamily = "Times", xticks = (xticks, xticklabels), title="Contacts on the weekday in summer", margin = 6Plots.mm)
+    heatmap_plot2 = heatmap(contact_counts2, fontfamily = "Times", xticks = (xticks, xticklabels), title="Contacts on the weekday", margin = 6Plots.mm)
+    heatmap_plot3 = heatmap(contact_counts3, fontfamily = "Times", xticks = (xticks, xticklabels), title="Contacts on sunday", margin = 4Plots.mm)
 
     contact_counts1 = log.(contact_counts1)
     contact_counts2 = log.(contact_counts2)
@@ -50,27 +29,23 @@ function main()
         xticks = (xticks, xticklabels),
         title="Contacts on the weekday in summer",
         margin = 6Plots.mm,
-        linewidth = 0,
-        c = :jet
-    )
+        c = :jet1)
     contour_plot2 = contourf(
         contact_counts2,
         fontfamily = "Times",
         xticks = (xticks, xticklabels),
         title="Contacts on the weekday",
         margin = 6Plots.mm,
-        linewidth = 0,
-        c = :jet
-    )
+        # nlevels = 50,
+        # linewidth = 0,
+        c = :jet1)
     contour_plot3 = contourf(
         contact_counts3,
         fontfamily = "Times",
         xticks = (xticks, xticklabels),
         title="Contacts on sunday",
         margin = 4Plots.mm,
-        linewidth = 0,
-        c = :jet
-    )
+        c = :jet1)
     
     xlabel!("Age, years")
     ylabel!("Age, years")
@@ -84,15 +59,15 @@ function main()
 
 
 
-    contact_durations = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations.csv"), ',', Float64)
+    # contact_durations = readdlm(joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations.csv"), ',', Float64)
 	
-	contact_durations += transpose(contact_durations)
-	contact_durations ./= 2
+	# contact_durations += transpose(contact_durations)
+	# contact_durations ./= 2
 	
-	heatmap_plot = heatmap(contact_durations, fontfamily = "Times", xticks = (xticks, xticklabels), title="Average daily contact durations over a year")
-	xlabel!("Age, years")
-    ylabel!("Age, years")
-    savefig(heatmap_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "contact_durations.pdf"))
+	# heatmap_plot = heatmap(contact_durations, fontfamily = "Times", xticks = (xticks, xticklabels), title="Average daily contact durations over a year")
+	# xlabel!("Age, years")
+    # ylabel!("Age, years")
+    # savefig(heatmap_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "contact_durations.pdf"))
 end
 
 main()

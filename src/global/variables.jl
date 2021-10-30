@@ -13,6 +13,12 @@ const end_school_ids = Int[241, 514, 750, 988]
 const num_universities = 138
 const start_university_ids = Int[1, 50, 94, 123]
 const end_university_ids = Int[49, 93, 122, 138]
+const num_shops = 11109
+const start_shop_ids = Int[1, 2984, 5671, 8191]
+const end_shop_ids = Int[2983, 5670, 8190, 11109]
+const num_restaurants = 12843
+const start_restaurant_ids = Int[1, 4002, 8101, 10534]
+const end_restaurant_ids = Int[4001, 8100, 10533, 12843]
 
 const max_agent_age = 89
 
@@ -54,15 +60,11 @@ const household_university_mean_time_spent = 9.0
 const household_university_time_spent_sd = 3.0
 
 # American Time Use Survey
+# Probabilities
 # 2019
 weekend_go_to_other_household_p = 0.269
-weekend_go_to_other_household_t = 0.95
-
 weekend_go_to_restaurant_p = 0.295
-weekend_go_to_restaurant_t = 0.38
-
 weekend_go_to_shopping_p = 0.354
-weekend_go_to_shopping_t = 0.44
 
 weekend_go_to_outdoor_p = 0.15
 weekend_go_to_outdoor_t = 0.28
@@ -70,8 +72,8 @@ weekend_go_to_outdoor_t = 0.28
 weekend_go_to_other_place_p = 0.402
 weekend_go_to_other_place_t = 1.18
 
-weekend_transit_p = 0.791
-weekend_transit_t = 1.19
+weekend_public_transport_p = 0.791
+weekend_public_transport_t = 1.19
 
 # 2020
 # weekend_go_to_other_household_p = 0.218
@@ -89,18 +91,13 @@ weekend_transit_t = 1.19
 # weekend_go_to_other_place_p = 0.229
 # weekend_go_to_other_place_t = 0.59
 
-# weekend_transit_p = 0.626
-# weekend_transit_t = 0.80
+# weekend_public_transport_p = 0.626
+# weekend_public_transport_t = 0.80
 
 # 2019
 weekday_go_to_other_household_p = 0.177
-weekday_go_to_other_household_t = 0.42
-
 weekday_go_to_restaurant_p = 0.255
-weekday_go_to_restaurant_t = 0.26
-
 weekday_go_to_shopping_p = 0.291
-weekday_go_to_shopping_t = 0.28
 
 weekday_go_to_outdoor_p = 0.133
 weekday_go_to_outdoor_t = 0.16
@@ -108,8 +105,21 @@ weekday_go_to_outdoor_t = 0.16
 weekday_go_to_other_place_p = 0.483
 weekday_go_to_other_place_t = 1.22
 
-weekday_transit_p = 0.858
-weekday_transit_t = 1.27
+weekday_public_transport_p = 0.858
+weekday_public_transport_t = 1.27
+
+# Means
+weekend_other_household_time_mean = 0.95
+weekday_other_household_time_mean = 0.42
+other_household_time_sd = 0.15
+
+weekend_shopping_time_mean = 0.44
+weekday_shopping_time_mean = 0.28
+shopping_time_sd = 0.09
+
+weekend_restaurant_time_mean = 0.38
+weekday_restaurant_time_mean = 0.26
+restaurant_time_sd = 0.09
 
 # 2020
 
@@ -128,8 +138,18 @@ weekday_transit_t = 1.27
 # weekday_go_to_other_place_p = 0.274
 # weekday_go_to_other_place_t = 0.6
 
-# weekday_transit_p = 0.68
-# weekday_transit_t = 0.83
+# weekday_public_transport_p = 0.68
+# weekday_public_transport_t = 0.83
+
+shop_capacity_shape = 2.5
+shop_capacity_scale = 20.0
+
+# 30 minutes for 10 hours
+restaurant_num_groups = 20
+shop_num_groups = 20
+# contact with only x closest agents
+restaurant_num_nearest_agents_as_contact = 20
+shop_num_nearest_agents_as_contact = 20
 
 # Activity contact durations
 # Продолжительность контактов в коллективах
@@ -147,3 +167,8 @@ const university_short_time_spent_scale = 1.07
 
 const workplace_time_spent_shape = 1.81
 const workplace_time_spent_scale = 1.7
+
+# Вероятность прогула для различных образовательных учреждений
+const skip_kindergarten_probability = 0.1
+const skip_school_probability = 0.1
+const skip_university_probability = 0.5

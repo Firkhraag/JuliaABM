@@ -4,6 +4,7 @@ using Random
 using DelimitedFiles
 using LatinHypercubeSampling
 using DataFrames
+using CSV
 
 include("global/variables.jl")
 
@@ -12,13 +13,13 @@ include("model/agent.jl")
 include("model/household.jl")
 include("model/workplace.jl")
 include("model/school.jl")
+include("model/restaurant.jl")
+include("model/shop.jl")
 include("model/initialization.jl")
 include("model/simulation.jl")
 include("model/r0.jl")
 include("model/contacts.jl")
 include("model/connections.jl")
-
-include("model/public_space.jl")
 
 include("data/district_households.jl")
 include("data/district_people.jl")
@@ -275,93 +276,84 @@ function main()
     # With random seed
     # thread_rng = [MersenneTwister(rand(1:1000000)) for i = 1:num_threads]
 
+    homes_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "homes.csv")))
     # Массив для хранения домохозяйств
     households = Array{Household, 1}(undef, num_households)
 
-    home_coords = readdlm(joinpath(@__DIR__, "..", "input", "tables", "homes.csv"), ',', Float64, '\n')
-    homes_coords_df = DataFrame(home_coords, ["dist", "x", "y", "kinder", "school"])
-
-    kindergarten_coords = readdlm(joinpath(@__DIR__, "..", "input", "tables", "kindergartens.csv"), ',', Float64, '\n')
-    kindergarten_coords_df = DataFrame(kindergarten_coords, ["dist", "x", "y"])
-
+    kindergarten_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "kindergartens.csv")))
     # Массив для хранения детских садов
     kindergartens = Array{School, 1}(undef, num_kindergartens)
-    @threads for thread_id in 1:num_threads
-        local kindergarten_id = start_kindergarten_ids[thread_id]
-        for index in district_nums[thread_id:num_threads:end]
-            kindergarten_coords_district_df = kindergarten_coords_df[kindergarten_coords_df.dist .== index, :]
-            for row in eachrow(kindergarten_coords_district_df)
-                kindergartens[kindergarten_id] = School(1, row.x, row.y)
-                kindergarten_id += 1
-            end
-        end
+    for i in 1:size(kindergarten_coords_df, 1)
+        kindergartens[i] = School(
+            1,
+            kindergarten_coords_df[i, :dist],
+            kindergarten_coords_df[i, :x],
+            kindergarten_coords_df[i, :y],
+        )
     end
 
-    school_coords = readdlm(joinpath(@__DIR__, "..", "input", "tables", "schools.csv"), ',', Float64, '\n')
-    school_coords_df = DataFrame(school_coords, ["dist", "x", "y"])
-
+    school_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "schools.csv")))
     # Массив для хранения школ
     schools = Array{School, 1}(undef, num_schools)
-    @threads for thread_id in 1:num_threads
-        local school_id = start_school_ids[thread_id]
-        for index in district_nums[thread_id:num_threads:end]
-            school_coords_district_df = school_coords_df[school_coords_df.dist .== index, :]
-            for row in eachrow(school_coords_district_df)
-                schools[school_id] = School(2, row.x, row.y)
-                school_id += 1
-            end
-        end
+    for i in 1:size(school_coords_df, 1)
+        schools[i] = School(
+            2,
+            school_coords_df[i, :dist],
+            school_coords_df[i, :x],
+            school_coords_df[i, :y],
+        )
     end
 
-    university_coords = readdlm(joinpath(@__DIR__, "..", "input", "tables", "universities.csv"), ',', Float64, '\n')
-    university_coords_df = DataFrame(university_coords, ["dist", "x", "y"])
-
+    university_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "universities.csv")))
     # Массив для хранения школ
     universities = Array{School, 1}(undef, num_universities)
-    @threads for thread_id in 1:num_threads
-        local university_id = start_university_ids[thread_id]
-        for index in district_nums[thread_id:num_threads:end]
-            university_coords_district_df = university_coords_df[university_coords_df.dist .== index, :]
-            for row in eachrow(university_coords_district_df)
-                universities[university_id] = School(3, row.x, row.y)
-                university_id += 1
-            end
-        end
+    for i in 1:size(university_coords_df, 1)
+        universities[i] = School(
+            3,
+            university_coords_df[i, :dist],
+            university_coords_df[i, :x],
+            university_coords_df[i, :y],
+        )
     end
 
     # Массив для хранения фирм
     workplaces = Workplace[]
 
-    restaurants = Array{PublicSpace, 1}(undef, 10000)
-    shops = Array{PublicSpace, 1}(undef, 10000)
-    parks = Array{PublicSpace, 1}(undef, 10000)
-    transit = Array{PublicSpace, 1}(undef, 10000)
+    shop_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "shops.csv")))
+    # Массив для хранения магазинов
+    shops = Array{Shop, 1}(undef, num_shops)
+    for i in 1:size(shop_coords_df, 1)
+        shops[i] = Shop(
+            shop_coords_df[i, :dist],
+            shop_coords_df[i, :x],
+            shop_coords_df[i, :y],
+            ceil(Int, rand(Gamma(shop_capacity_shape, shop_capacity_scale)))
+        )
+    end
 
-    for i = 1:10000
-        restaurants[i] = PublicSpace(37.0, 55.0)
-    end
-    for i = 1:10000
-        shops[i] = PublicSpace(37.0, 55.0)
-    end
-    for i = 1:10000
-        parks[i] = PublicSpace(37.0, 55.0)
-    end
-    for i = 1:10000
-        transit[i] = PublicSpace(37.0, 55.0)
+    restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "restaurants.csv")))
+    # Массив для хранения ресторанов/кафе/столовых
+    restaurants = Array{Restaurant, 1}(undef, num_restaurants)
+    for i in 1:size(restaurant_coords_df, 1)
+        restaurants[i] = Restaurant(
+            restaurant_coords_df[i, :dist],
+            restaurant_coords_df[i, :x],
+            restaurant_coords_df[i, :y],
+            restaurant_coords_df[i, :seats]
+        )
     end
 
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, viruses, infectivities, start_household_ids[thread_id], households, homes_coords_df, district_households, district_people,
+            agents, households, kindergartens, schools, viruses, infectivities, start_household_ids[thread_id],
+            homes_coords_df, district_households, district_people,
             district_people_households, district_nums)
     end
 
     @time set_connections(
         agents, households, kindergartens, schools, universities,
         workplaces, thread_rng, num_threads, homes_coords_df)
-
-    # return
 
     # get_stats(agents)
 
@@ -513,29 +505,29 @@ function main()
         dims = 3,
     )
 
-    collective_nums = Int[0, 0, 0, 0]
+    activity_nums = Int[0, 0, 0, 0]
     for agent in agents
         if agent.activity_type == 1
-            collective_nums[1] += 1
+            activity_nums[1] += 1
         elseif agent.activity_type == 2
-            collective_nums[2] += 1
+            activity_nums[2] += 1
         elseif agent.activity_type == 3
-            collective_nums[3] += 1
+            activity_nums[3] += 1
         elseif agent.activity_type == 4
-            collective_nums[4] += 1
+            activity_nums[4] += 1
         end
     end
 
     writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
+        joinpath(@__DIR__, "..", "output", "tables", "activity_sizes.csv"), activity_nums, ',')
 
     # ----------------------
     # Single run
     # ----------------------
-    # @time num_infected_age_groups_viruses = run_simulation(
-    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-    #     temp_influences, duration_parameter,
-    #     susceptibility_parameters, etiology, true)
+    @time num_infected_age_groups_viruses = run_simulation(
+        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, households,
+        shops, restaurants, infectivities, temp_influences, duration_parameter,
+        susceptibility_parameters, etiology, true)
 
     # writedlm(
     #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
@@ -699,8 +691,8 @@ function main()
     #     temp_influences, duration_parameter,
     #     susceptibility_parameters, etiology)
 
-    @time run_simulation_evaluation(
-        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents)
+    # run_simulation_evaluation(
+    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents)
 end
 
 main()

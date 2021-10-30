@@ -21,12 +21,8 @@ mutable struct Agent
     # Id работы
     workplace_id::Int
     # Связи в коллективе
-    school_conn_ids::Vector{Int}
-    school_cross_conn_ids::Vector{Int}
-    # Связи на работе
-    workplace_conn_ids::Vector{Int}
-    # Связи с друзьями
-    friend_conn_ids::Vector{Int}
+    activity_conn_ids::Vector{Int}
+    activity_cross_conn_ids::Vector{Int}
     # Id детей за которыми нужен уход в случае болезни
     dependant_ids::Vector{Int}
     # Id того, кто будет ухаживать в случае болезни
@@ -216,57 +212,6 @@ mutable struct Agent
                 end
             end
         end
-
-        # Mixing of different ages in a group
-        # school_group_num = 0
-        # if activity_type == 1
-        #     school_group_num = age
-        #     if age == 1
-        #         school_group_num = 1
-        #     elseif age < 6
-        #         if rand(thread_rng[thread_id], Float64) < 0.5
-        #             school_group_num = age
-        #         else
-        #             school_group_num = age - 1
-        #         end
-        #     else
-        #         school_group_num = 6
-        #     end
-        # elseif activity_type == 2
-        #     if age == 6
-        #         school_group_num = 1
-        #     elseif age < 17
-        #         if rand(thread_rng[thread_id], Float64) < 0.5
-        #             school_group_num = age - 5
-        #         else
-        #             school_group_num = age - 6
-        #         end
-        #     else
-        #         school_group_num = 11
-        #     end
-        # elseif activity_type == 3
-        #     if age == 18
-        #         school_group_num = 1
-        #     elseif age == 19
-        #         if rand(thread_rng[thread_id], Float64) < 0.5
-        #             school_group_num = age - 17
-        #         else
-        #             school_group_num = age - 18
-        #         end
-        #     elseif age < 24
-        #         if rand(thread_rng[thread_id], Float64) < 0.2
-        #             school_group_num = age - 17
-        #         elseif rand(thread_rng[thread_id], Float64) < 0.6
-        #             school_group_num = age - 18
-        #         else
-        #             school_group_num = age - 19
-        #         end
-        #     else
-        #         school_group_num = 6
-        #     end
-        # elseif activity_type == 4
-        #     school_group_num = 1
-        # end
 
         school_group_num = 0
         if activity_type == 1
@@ -783,6 +728,7 @@ mutable struct Agent
         end
 
         attendance = true
+        is_teacher = false
         if activity_type == 1
             if rand(thread_rng[thread_id], Float64) < 0.1
                 attendance = false
@@ -801,11 +747,12 @@ mutable struct Agent
 
         new(
             id, age, infant_age, is_male, household_id, household_conn_ids,
-            activity_type, 0, school_group_num, 0, Int[], Int[], Int[], Int[], Int[], 0, false,
+            activity_type, 0, school_group_num, 0, Int[], Int[], Int[], 0, false,
             ig_level, virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
             RSV_days_immune, AdV_days_immune, PIV_days_immune, CoV_days_immune,
             incubation_period, infection_period, days_infected, days_immune,
-            is_asymptomatic, is_isolated, infectivity, attendance, false)
+            is_asymptomatic, is_isolated, infectivity, attendance, is_teacher)
+            # 0, false, false, false, false, false, false)
     end
 end
 
