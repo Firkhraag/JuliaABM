@@ -40,19 +40,19 @@ function set_connections(
     num_working_agents = 0
     for agent_id in 1:length(agents)
         agent = agents[agent_id]
-        # num_of_conn = round(Int, rand(Normal(num_of_close_friends_mean, num_of_close_friends_sd)))
-        # if num_of_conn > length(agent.friend_conn_ids)
-        #     for agent2_id = (agent_id + 1):length(agents)
-        #         agent2 = agents[agent2_id]
-        #         if rand(Float64) < get_similarity_between_agents(agent, agent)
-        #             push!(agent.friend_conn_ids, agent2_id)
-        #             push!(agent2.friend_conn_ids, agent_id)
-        #             if length(agent.friend_conn_ids) == num_of_conn
-        #                 break
-        #             end
-        #         end
-        #     end
-        # end
+        num_of_conn = round(Int, rand(Normal(num_of_close_friends_mean, num_of_close_friends_sd)))
+        if num_of_conn > length(agent.friend_ids)
+            for agent2_id = (agent_id + 1):length(agents)
+                agent2 = agents[agent2_id]
+                if rand(Float64) < get_similarity_between_agents(agent, agent)
+                    push!(agent.friend_ids, agent2_id)
+                    push!(agent2.friend_ids, agent_id)
+                    if length(agent.friend_ids) == num_of_conn
+                        break
+                    end
+                end
+            end
+        end
 
         if agent.activity_type == 3
             agent.school_id = rand(1:num_universities)
