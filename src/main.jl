@@ -398,6 +398,26 @@ function main()
         mean(temperature_parameter_7_array[burnin:step:size(temperature_parameter_7_array)[1]])
     ]
 
+    duration_parameter = 2.5
+    susceptibility_parameters = [
+        6.38,
+        6.21,
+        6.56,
+        8.06,
+        8.06,
+        7.39,
+        7.27
+    ]
+    temperature_parameters = [
+        -0.98,
+        -0.55,
+        -0.01,
+        -0.34,
+        -0.05,
+        -0.04,
+        -0.59
+    ]
+
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
     for i in 1:365

@@ -59,52 +59,25 @@ const household_kindergarten_time_spent_sd = 2.2
 const household_university_mean_time_spent = 9.0
 const household_university_time_spent_sd = 3.0
 
-# American Time Use Survey
+# American Time Use Survey 2019
 # Probabilities
-# 2019
 weekend_go_to_other_household_p = 0.269
 weekend_go_to_restaurant_p = 0.295
 weekend_go_to_shopping_p = 0.354
-
 weekend_go_to_outdoor_p = 0.15
 weekend_go_to_outdoor_t = 0.28
-
 weekend_go_to_other_place_p = 0.402
 weekend_go_to_other_place_t = 1.18
-
 weekend_public_transport_p = 0.791
 weekend_public_transport_t = 1.19
 
-# 2020
-# weekend_go_to_other_household_p = 0.218
-# weekend_go_to_other_household_t = 0.82
-
-# weekend_go_to_restaurant_p = 0.188	
-# weekend_go_to_restaurant_t = 0.16
-
-# weekend_go_to_shopping_p = 0.283	
-# weekend_go_to_shopping_t = 0.32
-
-# weekend_go_to_outdoor_p = 0.183
-# weekend_go_to_outdoor_t = 0.3
-
-# weekend_go_to_other_place_p = 0.229
-# weekend_go_to_other_place_t = 0.59
-
-# weekend_public_transport_p = 0.626
-# weekend_public_transport_t = 0.80
-
-# 2019
 weekday_go_to_other_household_p = 0.177
 weekday_go_to_restaurant_p = 0.255
 weekday_go_to_shopping_p = 0.291
-
 weekday_go_to_outdoor_p = 0.133
 weekday_go_to_outdoor_t = 0.16
-
 weekday_go_to_other_place_p = 0.483
 weekday_go_to_other_place_t = 1.22
-
 weekday_public_transport_p = 0.858
 weekday_public_transport_t = 1.27
 
@@ -120,26 +93,6 @@ shopping_time_sd = 0.09
 weekend_restaurant_time_mean = 0.38
 weekday_restaurant_time_mean = 0.26
 restaurant_time_sd = 0.09
-
-# 2020
-
-# weekday_go_to_other_household_p = 0.132	
-# weekday_go_to_other_household_t = 0.43
-
-# weekday_go_to_restaurant_p = 0.145	
-# weekday_go_to_restaurant_t = 0.11
-
-# weekday_go_to_shopping_p = 0.233
-# weekday_go_to_shopping_t = 0.2
-
-# weekday_go_to_outdoor_p = 0.182
-# weekday_go_to_outdoor_t = 0.23
-
-# weekday_go_to_other_place_p = 0.274
-# weekday_go_to_other_place_t = 0.6
-
-# weekday_public_transport_p = 0.68
-# weekday_public_transport_t = 0.83
 
 shop_capacity_shape = 2.5
 shop_capacity_scale = 20.0

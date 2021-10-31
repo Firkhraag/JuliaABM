@@ -1393,7 +1393,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 Int[agent_id], index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             is_child = rand(thread_rng[thread_id], Float64) < 0.0123
             agent = create_agent(
                     agent_id, household_id, viruses, infectivities, household.agent_ids, index, district_people,
@@ -1413,7 +1413,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 0, 0, index,
@@ -1434,7 +1434,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 1, index,
@@ -1455,7 +1455,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 0, index,
@@ -1478,7 +1478,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 2, index,
@@ -1499,7 +1499,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 1, index,
@@ -1522,7 +1522,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 0, index,
@@ -1545,7 +1545,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 3, index,
@@ -1566,7 +1566,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 2, index,
@@ -1589,7 +1589,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 1, index,
@@ -1612,7 +1612,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 3, 0, index,
@@ -1635,7 +1635,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 4, index,
@@ -1656,7 +1656,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 3, index,
@@ -1679,7 +1679,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 2, index,
@@ -1702,7 +1702,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 3, 1, index,
@@ -1725,7 +1725,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 0, index,
@@ -1752,7 +1752,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 1, index,
@@ -1779,7 +1779,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 0, index,
@@ -1808,7 +1808,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 2, index,
@@ -1835,7 +1835,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 1, index,
@@ -1864,7 +1864,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 0, index,
@@ -1893,7 +1893,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 0, 1, index,
@@ -1914,7 +1914,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 1, 0, index,
@@ -1937,7 +1937,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
@@ -1958,7 +1958,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
@@ -1981,7 +1981,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 2, 0, index,
@@ -2004,7 +2004,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
@@ -2025,7 +2025,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
@@ -2048,7 +2048,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
@@ -2071,7 +2071,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 3, 0, index,
@@ -2094,7 +2094,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 0, 1, index,
@@ -2115,7 +2115,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 1, 0, index,
@@ -2138,7 +2138,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
@@ -2159,7 +2159,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
@@ -2182,7 +2182,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 2, 0, index,
@@ -2205,7 +2205,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
@@ -2226,7 +2226,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
@@ -2249,7 +2249,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
@@ -2270,7 +2270,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
@@ -2293,7 +2293,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
@@ -2317,7 +2317,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
@@ -2338,7 +2338,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
@@ -2361,7 +2361,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
@@ -2382,7 +2382,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
@@ -2405,7 +2405,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
@@ -2428,7 +2428,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 4, index,
@@ -2449,7 +2449,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 3, index,
@@ -2472,7 +2472,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 2, index,
@@ -2496,7 +2496,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 0, 1, index,
@@ -2517,7 +2517,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 1, 0, index,
@@ -2540,7 +2540,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
@@ -2561,7 +2561,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
@@ -2584,7 +2584,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 2, 0, index,
@@ -2607,7 +2607,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
@@ -2628,7 +2628,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
@@ -2651,7 +2651,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
@@ -2674,7 +2674,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 3, 1, index,
@@ -2697,7 +2697,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 4, index,
@@ -2718,7 +2718,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 3, index,
@@ -2741,7 +2741,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 2, index,
@@ -2764,7 +2764,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 3, 2, index,
@@ -2787,7 +2787,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 5, index,
@@ -2808,7 +2808,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 4, index,
@@ -2831,7 +2831,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 3, index,
@@ -2854,7 +2854,7 @@ function create_population(
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant)
+                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
                 agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 3, 2, index,

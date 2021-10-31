@@ -305,13 +305,13 @@ function plot_r0()
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "r0.pdf"))
 end
 
-# plot_incidence()
-# plot_incidence_etiology()
-# plot_incidence_age_groups()
+plot_incidence()
+plot_incidence_etiology()
+plot_incidence_age_groups()
 
 # plot_daily_new_cases_viruses()
 
-plot_r0()
+# plot_r0()
 
 # plot_daily_new_cases_age_groups()
 # plot_daily_new_recoveries_age_groups()
