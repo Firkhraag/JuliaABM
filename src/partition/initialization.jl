@@ -1,4 +1,4 @@
-function create_population(
+function get_num_of_people(
     thread_id::Int,
     num_threads::Int,
     district_nums::Vector{Int},
@@ -233,16 +233,40 @@ function create_population(
             num_people += 4
         end
         for _ in 1:district_households[index, 57]
+            # O4P3C
+            num_people += 4
+        end
+        for _ in 1:district_households[index, 58]
             # O5P0C
             num_people += 5
         end
-        for _ in 1:district_households[index, 58]
+        for _ in 1:district_households[index, 59]
             # O5P1C
             num_people += 5
         end
-        for _ in 1:district_households[index, 59]
+        for _ in 1:district_households[index, 60]
             # O5P2C
             num_people += 5
+        end
+        for _ in 1:district_households[index, 61]
+            # O5P3C
+            num_people += 5
+        end
+        for _ in 1:district_households[index, 62]
+            # O6P0C
+            num_people += 6
+        end
+        for _ in 1:district_households[index, 63]
+            # O6P1C
+            num_people += 6
+        end
+        for _ in 1:district_households[index, 64]
+            # O6P2C
+            num_people += 6
+        end
+        for _ in 1:district_households[index, 65]
+            # O6P3C
+            num_people += 6
         end
     end
     return num_people

@@ -3,14 +3,23 @@ using Distributions
 using Random
 using DelimitedFiles
 using LatinHypercubeSampling
+using DataFrames
+using CSV
+
+include("global/variables.jl")
 
 include("model/virus.jl")
-include("model/collective.jl")
 include("model/agent.jl")
+include("model/household.jl")
+include("model/workplace.jl")
+include("model/school.jl")
+include("model/restaurant.jl")
+include("model/shop.jl")
 include("model/initialization.jl")
 include("model/simulation.jl")
 include("model/r0.jl")
 include("model/contacts.jl")
+include("model/connections.jl")
 
 include("data/district_households.jl")
 include("data/district_people.jl")
@@ -208,13 +217,9 @@ function main()
 
     num_threads = nthreads()
 
-    num_people = 9897284
-    # 6 threads
-    # start_agent_ids = Int[1, 1669514, 3297338, 4919969, 6552869, 8229576]
-    # end_agent_ids = Int[1669513, 3297337, 4919968, 6552868, 8229575, 9897284]
-    # 4 threads
-    start_agent_ids = Int[1, 2442913, 4892801, 7392381]
-    end_agent_ids = Int[2442912, 4892800, 7392380, 9897284]
+    num_people = 10072668
+    start_agent_ids = Int[1, 2483024, 4977885, 7516450]
+    end_agent_ids = Int[2483023, 4977884, 7516449, 10072668]
 
     viruses = Virus[
         Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.32, 0.16, 365),
@@ -271,14 +276,88 @@ function main()
     # With random seed
     # thread_rng = [MersenneTwister(rand(1:1000000)) for i = 1:num_threads]
 
+    homes_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "homes.csv")))
+    # Массив для хранения домохозяйств
+    households = Array{Household, 1}(undef, num_households)
+
+    kindergarten_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "kindergartens.csv")))
+    # Массив для хранения детских садов
+    kindergartens = Array{School, 1}(undef, num_kindergartens)
+    for i in 1:size(kindergarten_coords_df, 1)
+        kindergartens[i] = School(
+            1,
+            kindergarten_coords_df[i, :dist],
+            kindergarten_coords_df[i, :x],
+            kindergarten_coords_df[i, :y],
+        )
+    end
+
+    school_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "schools.csv")))
+    # Массив для хранения школ
+    schools = Array{School, 1}(undef, num_schools)
+    for i in 1:size(school_coords_df, 1)
+        schools[i] = School(
+            2,
+            school_coords_df[i, :dist],
+            school_coords_df[i, :x],
+            school_coords_df[i, :y],
+        )
+    end
+
+    university_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "universities.csv")))
+    # Массив для хранения школ
+    universities = Array{School, 1}(undef, num_universities)
+    for i in 1:size(university_coords_df, 1)
+        universities[i] = School(
+            3,
+            university_coords_df[i, :dist],
+            university_coords_df[i, :x],
+            university_coords_df[i, :y],
+        )
+    end
+
+    # Массив для хранения фирм
+    workplaces = Workplace[]
+
+    shop_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "shops.csv")))
+    # Массив для хранения магазинов
+    shops = Array{Shop, 1}(undef, num_shops)
+    for i in 1:size(shop_coords_df, 1)
+        shops[i] = Shop(
+            shop_coords_df[i, :dist],
+            shop_coords_df[i, :x],
+            shop_coords_df[i, :y],
+            ceil(Int, rand(Gamma(shop_capacity_shape, shop_capacity_scale)))
+        )
+    end
+
+    restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "restaurants.csv")))
+    # Массив для хранения ресторанов/кафе/столовых
+    restaurants = Array{Restaurant, 1}(undef, num_restaurants)
+    for i in 1:size(restaurant_coords_df, 1)
+        restaurants[i] = Restaurant(
+            restaurant_coords_df[i, :dist],
+            restaurant_coords_df[i, :x],
+            restaurant_coords_df[i, :y],
+            restaurant_coords_df[i, :seats]
+        )
+    end
+
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, viruses, infectivities, district_households, district_people,
+            agents, households, kindergartens, schools, viruses, infectivities, start_household_ids[thread_id],
+            homes_coords_df, district_households, district_people,
             district_people_households, district_nums)
     end
 
+    @time set_connections(
+        agents, households, kindergartens, schools, universities,
+        workplaces, thread_rng, num_threads, homes_coords_df)
+
     # get_stats(agents)
+
+    # return
 
     println("Simulation...")
 
@@ -426,48 +505,48 @@ function main()
         dims = 3,
     )
 
-    collective_nums = Int[0, 0, 0, 0]
+    activity_nums = Int[0, 0, 0, 0]
     for agent in agents
-        if agent.collective_id == 1
-            collective_nums[1] += 1
-        elseif agent.collective_id == 2
-            collective_nums[2] += 1
-        elseif agent.collective_id == 3
-            collective_nums[3] += 1
-        elseif agent.collective_id == 4
-            collective_nums[4] += 1
+        if agent.activity_type == 1
+            activity_nums[1] += 1
+        elseif agent.activity_type == 2
+            activity_nums[2] += 1
+        elseif agent.activity_type == 3
+            activity_nums[3] += 1
+        elseif agent.activity_type == 4
+            activity_nums[4] += 1
         end
     end
 
     writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "collective_sizes.csv"), collective_nums, ',')
+        joinpath(@__DIR__, "..", "output", "tables", "activity_sizes.csv"), activity_nums, ',')
 
     # ----------------------
     # Single run
     # ----------------------
     @time num_infected_age_groups_viruses = run_simulation(
-        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-        temp_influences, duration_parameter,
+        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, households,
+        shops, restaurants, infectivities, temp_influences, duration_parameter,
         susceptibility_parameters, etiology, true)
 
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
-        num_infected_age_groups_viruses ./ 9897, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
-        sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
-        sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 9897, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
-        sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 9897, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
+    #     num_infected_age_groups_viruses ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
+    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
 
-    S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
-    S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+    # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+    # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
-    println("S: ", S_abs)
-    println("S: ", S_square)
+    # println("S: ", S_abs)
+    # println("S: ", S_square)
 
     # ----------------------
     # Prior search
@@ -506,7 +585,7 @@ function main()
     #         susceptibility_parameters, etiology, false)
     #     writedlm(
     #         joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_d_$k.csv"),
-    #         sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    #         sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
     #     reset_population(
     #         agents,
     #         num_threads,
@@ -533,7 +612,7 @@ function main()
     #             susceptibility_parameters_new, etiology, false)
     #         writedlm(
     #             joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_s$(i)_$k.csv"),
-    #             sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    #             sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
     #         reset_population(
     #             agents,
     #             num_threads,
@@ -576,7 +655,7 @@ function main()
     #             susceptibility_parameters, etiology, false)
     #         writedlm(
     #             joinpath(@__DIR__, "..", "analysis", "tables", "infected_data_t$(i)_$k.csv"),
-    #             sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 9897, ',')
+    #             sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
     #         reset_population(
     #             agents,
     #             num_threads,
@@ -606,10 +685,14 @@ function main()
     # ----------------------
     # Contacts evaluation
     # ----------------------
+
     # run_simulation_evaluation(
     #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
     #     temp_influences, duration_parameter,
     #     susceptibility_parameters, etiology)
+
+    # run_simulation_evaluation(
+    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents)
 end
 
 main()

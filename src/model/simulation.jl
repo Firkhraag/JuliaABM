@@ -3,7 +3,7 @@ function get_contact_duration_normal(mean::Float64, sd::Float64, rng::MersenneTw
 end
 
 function get_contact_duration_gamma(shape::Float64, scale::Float64, rng::MersenneTwister)
-    return rand(rng, truncated(Gamma(shape, scale), 0.0, 24.0))
+    return rand(rng, Gamma(shape, scale))
 end
 
 function make_contact(
@@ -64,6 +64,9 @@ function simulate_contacts(
     start_agent_id::Int,
     end_agent_id::Int,
     agents::Vector{Agent},
+    households::Vector{Household},
+    shops::Vector{Shop},
+    restaurants::Vector{Restaurant},
     temp_influences::Array{Float64, 2},
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
@@ -75,10 +78,39 @@ function simulate_contacts(
     is_work_holiday::Bool,
     week_num::Int,
     current_step::Int,
-    infected_inside_collective::Array{Int, 3}
+    infected_inside_activity::Array{Int, 3}
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
+
+        agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.activity_type == 0 ||
+            (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_university_holiday) ||
+            (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)
+
+            if agent.age > 14
+                if rand(rng, Float64) < (agent_at_home ? weekend_go_to_shopping_p : weekday_go_to_shopping_p)
+                    shop = shops[households[agent.household_id].closest_shop_id]
+                    shop_group = shop.groups[rand(1:length(shop.groups))]
+                    for shop_agent_id = 1:length(shop_group)
+                        if shop_group[shop_agent_id] == 0
+                            shop_group[shop_agent_id] = agent_id
+                            break
+                        end
+                    end
+                end
+
+                if rand(rng, Float64) < (agent_at_home ? weekend_go_to_restaurant_p : weekday_go_to_restaurant_p)
+                    restaurant = restaurants[households[agent.household_id].closest_restaurant_id]
+                    restaurant_group = restaurant.groups[rand(1:length(restaurant.groups))]
+                    for restaurant_agent_id = 1:length(restaurant_group)
+                        if restaurant_group[restaurant_agent_id] == 0
+                            restaurant_group[restaurant_agent_id] = agent_id
+                            break
+                        end
+                    end
+                end
+            end
+
         if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
             for agent2_id in agent.household_conn_ids
                 agent2 = agents[agent2_id]
@@ -89,109 +121,136 @@ function simulate_contacts(
                         (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
                         (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
 
-                        agent_at_home = agent.is_isolated || agent.on_parent_leave || agent.collective_id == 0 ||
-                            (agent.collective_id == 4 && is_work_holiday) || (agent.collective_id == 3 && is_university_holiday) ||
-                            (agent.collective_id == 2 && is_school_holiday) || (agent.collective_id == 1 && is_kindergarten_holiday)
-                        agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.collective_id == 0 ||
-                            (agent2.collective_id == 4 && is_work_holiday) || (agent2.collective_id == 3 && is_university_holiday) ||
-                            (agent2.collective_id == 2 && is_school_holiday) || (agent2.collective_id == 1 && is_kindergarten_holiday)
+                        agent2_at_home = agent2.is_isolated || agent2.on_parent_leave || agent2.activity_type == 0 ||
+                            (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_university_holiday) ||
+                            (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday)
 
-                        # http://ecs.force.com/mbdata/MBQuest2RTanw?rep=KK3Q1806#:~:text=6%20hours%20per%20day%20for%20kindergarten%20and%20elementary%20students.&text=437.5%20hours%20per%20year%20for%20half%2Dday%20kindergarten.
-                        # https://nces.ed.gov/surveys/sass/tables/sass0708_035_s1s.asp
-                        # Mixing patterns between age groups in social networks
-                        # American Time Use Survey Summary. Bls.gov. 2017-06-27. Retrieved 2018-06-06s
-
+                        dur = 0.0
                         if is_holiday || (agent_at_home && agent2_at_home)
-                            make_contact(
-                                agent, agent2, get_contact_duration_normal(12.5, 5.5, rng),
-                                current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
-                        elseif ((agent.collective_id == 4 && !agent_at_home) ||
-                            (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
-                            make_contact(
-                                agent, agent2, get_contact_duration_normal(4.5, 2.0, rng),
-                                current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
-                        elseif ((agent.collective_id == 2 && !agent_at_home) ||
-                            (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
-                            make_contact(
-                                agent, agent2, get_contact_duration_normal(5.86, 2.65, rng),
-                                current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
-                        elseif ((agent.collective_id == 1 && !agent_at_home) ||
-                            (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
-                            make_contact(
-                                agent, agent2, get_contact_duration_normal(6.5, 2.46, rng),
-                                current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
-                        elseif ((agent.collective_id == 3 && !agent_at_home) ||
-                            (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
-                            make_contact(
-                                agent, agent2, get_contact_duration_normal(10.0, 3.69, rng),
-                                current_step, duration_parameter, susceptibility_parameters, temp_influences, rng)
-                        else
-                            println("Error")
-                        end
 
-                        if agent2.is_newly_infected
-                            infected_inside_collective[current_step, 5, thread_id] += 1
+                            dur = get_contact_duration_normal(12.0, 4.0, rng)
+                        elseif ((agent.activity_type == 4 && !agent_at_home) ||
+                            (agent2.activity_type == 4 && !agent2_at_home)) && !is_work_holiday
+
+                            dur = get_contact_duration_normal(4.5, 1.5, rng)
+                        elseif ((agent.activity_type == 2 && !agent_at_home) ||
+                            (agent2.activity_type == 2 && !agent2_at_home)) && !is_school_holiday
+
+                            dur = get_contact_duration_normal(5.8, 2.0, rng)
+                        elseif ((agent.activity_type == 1 && !agent_at_home) ||
+                            (agent2.activity_type == 1 && !agent2_at_home)) && !is_kindergarten_holiday
+
+                            dur = get_contact_duration_normal(6.5, 2.2, rng)
+                        else
+                            dur = get_contact_duration_normal(9.0, 3.0, rng)
+                        end
+                        if dur > 0.01
+                            make_contact(agent, agent2, dur, current_step, duration_parameter,
+                                susceptibility_parameters, temp_influences, rng)
+                            if agent2.is_newly_infected
+                                infected_inside_activity[current_step, 5, thread_id] += 1
+                            end
                         end
                     end
                 end
             end
-            if !is_holiday && agent.group_num != 0 && !agent.is_isolated && !agent.on_parent_leave &&
-                ((agent.collective_id == 1 && !is_kindergarten_holiday) ||
-                    (agent.collective_id == 2 && !is_school_holiday) ||
-                    (agent.collective_id == 3 && !is_university_holiday) ||
-                    (agent.collective_id == 4 && !is_work_holiday))
-                for agent2_id in agent.collective_conn_ids
+            if !agent.is_isolated && !agent.on_parent_leave && agent.attendance &&
+                ((agent.activity_type == 1 && !is_kindergarten_holiday) ||
+                    (agent.activity_type == 2 && !is_school_holiday) ||
+                    (agent.activity_type == 3 && !is_university_holiday) ||
+                    (agent.activity_type == 4 && !is_work_holiday))
+                for agent2_id in agent.activity_conn_ids
                     agent2 = agents[agent2_id]
-                    if agent2.virus_id == 0 && agent2.days_immune == 0 && !agent2.is_isolated && !agent2.on_parent_leave
+                    if agent2.virus_id == 0 && agent2.attendance && agent2.days_immune == 0 && !agent2.is_isolated && !agent2.on_parent_leave
                         if (agent.virus_id != 1 || agent2.FluA_days_immune == 0) && (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
                             (agent.virus_id != 7 || agent2.CoV_days_immune == 0) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
                             (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
                             (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
-                            if agent.collective_id == 1
-                                make_contact(
-                                    agent, agent2, get_contact_duration_normal(4.5, 2.66, rng),
-                                    current_step, duration_parameter,
-                                    susceptibility_parameters, temp_influences, rng)
-                            elseif agent.collective_id == 2
-                                make_contact(
-                                    agent, agent2, get_contact_duration_normal(3.783, 2.67, rng),
-                                    current_step, duration_parameter,
-                                    susceptibility_parameters, temp_influences, rng)
-                            elseif agent.collective_id == 3
-                                make_contact(
-                                    agent, agent2, get_contact_duration_normal(2.5, 1.62, rng),
-                                    current_step, duration_parameter,
-                                    susceptibility_parameters, temp_influences, rng)
+
+                            dur = 0.0
+                            if agent.activity_type == 1
+                                dur = get_contact_duration_gamma(2.5, 1.6, rng)
+                            elseif agent.activity_type == 2
+                                dur = get_contact_duration_gamma(1.78, 1.95, rng)
+                            elseif agent.activity_type == 3
+                                dur = get_contact_duration_gamma(2.0, 1.07, rng)
                             else
-                                make_contact(
-                                    agent, agent2, get_contact_duration_normal(3.07, 2.5, rng),
-                                    current_step, duration_parameter,
-                                    susceptibility_parameters, temp_influences, rng)
+                                dur = get_contact_duration_gamma(1.81, 1.7, rng)
                             end
 
-                            if agent2.is_newly_infected
-                                infected_inside_collective[current_step, agent.collective_id, thread_id] += 1
+                            if dur > 0.01
+                                make_contact(agent, agent2, dur, current_step, duration_parameter,
+                                    susceptibility_parameters, temp_influences, rng)
+                                if agent2.is_newly_infected
+                                    infected_inside_activity[current_step, agent.activity_type, thread_id] += 1
+                                end
                             end
+
+                            # if agent.activity_type == 1
+                            #     # make_contact(
+                            #     #     agent, agent2, get_contact_duration_normal(4.5, 2.66, rng),
+                            #     #     current_step, duration_parameter,
+                            #     #     susceptibility_parameters, temp_influences, rng)
+                            #     make_contact(
+                            #         agent, agent2, get_contact_duration_gamma(2.5, 1.6, rng),
+                            #         current_step, duration_parameter,
+                            #         susceptibility_parameters, temp_influences, rng)
+                            # elseif agent.activity_type == 2
+                            #     # make_contact(
+                            #     #     agent, agent2, get_contact_duration_normal(3.783, 2.67, rng),
+                            #     #     current_step, duration_parameter,
+                            #     #     susceptibility_parameters, temp_influences, rng)
+                            #     make_contact(
+                            #         agent, agent2, get_contact_duration_gamma(1.78, 1.95, rng),
+                            #         current_step, duration_parameter,
+                            #         susceptibility_parameters, temp_influences, rng)
+                            # elseif agent.activity_type == 3
+                            #     # make_contact(
+                            #     #     agent, agent2, get_contact_duration_normal(2.5, 1.62, rng),
+                            #     #     current_step, duration_parameter,
+                            #     #     susceptibility_parameters, temp_influences, rng)
+                            #     make_contact(
+                            #         agent, agent2, get_contact_duration_gamma(2.0, 1.07, rng),
+                            #         current_step, duration_parameter,
+                            #         susceptibility_parameters, temp_influences, rng)
+                            # else
+                            #     # make_contact(
+                            #     #     agent, agent2, get_contact_duration_normal(3.07, 2.5, rng),
+                            #     #     current_step, duration_parameter,
+                            #     #     susceptibility_parameters, temp_influences, rng)
+                            #     make_contact(
+                            #         agent, agent2, get_contact_duration_gamma(1.81, 1.7, rng),
+                            #         current_step, duration_parameter,
+                            #         susceptibility_parameters, temp_influences, rng)
+                            # end
+
+                            # if agent2.is_newly_infected
+                            #     infected_inside_activity[current_step, agent.activity_type, thread_id] += 1
+                            # end
                         end
                     end
                 end
 
-                if agent.collective_id == 3
-                    for agent2_id in agent.collective_cross_conn_ids
+                if agent.activity_type == 3
+                    for agent2_id in agent.activity_cross_conn_ids
                         agent2 = agents[agent2_id]
-                        if agent2.virus_id == 0 && agent2.days_immune == 0 && !agent2.is_isolated && !agent2.on_parent_leave
+                        if agent2.virus_id == 0 && agent2.attendance && !agent2.is_teacher && rand(rng, Float64) < 0.33 &&
+                            agent2.days_immune == 0 && !agent2.is_isolated && !agent2.on_parent_leave
                             if (agent.virus_id != 1 || agent2.FluA_days_immune == 0) && (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
                                 (agent.virus_id != 7 || agent2.CoV_days_immune == 0) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
                                 (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
                                 (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
                                 
-                                make_contact(
-                                    agent, agent2, get_contact_duration_gamma(1.0, 1.6, rng),
-                                    current_step, duration_parameter,
-                                    susceptibility_parameters, temp_influences, rng)
-    
-                                if agent2.is_newly_infected
-                                    infected_inside_collective[current_step, 3, thread_id] += 1
+                                dur = get_contact_duration_gamma(1.2, 1.07, rng)
+                                if dur > 0.01
+                                    make_contact(
+                                        agent, agent2, get_contact_duration_gamma(1.0, 1.6, rng),
+                                        current_step, duration_parameter,
+                                        susceptibility_parameters, temp_influences, rng)
+        
+                                    if agent2.is_newly_infected
+                                        infected_inside_activity[current_step, 3, thread_id] += 1
+                                    end
                                 end
                             end
                         end
@@ -281,7 +340,7 @@ function update_agent_states(
             end
         end
         if agent.CoV_days_immune != 0
-            if agent.CoV_days_immune == 270
+            if agent.CoV_days_immune == 120
                 agent.CoV_days_immune = 0
             else
                 agent.CoV_days_immune += 1
@@ -313,7 +372,7 @@ function update_agent_states(
                     is_support_still_needed = false
                     for dependant_id in agents[agent.supporter_id].dependant_ids
                         dependant = agents[dependant_id]
-                        if dependant.virus_id != 0 && !dependant.is_asymptomatic && (dependant.collective_id == 0 || dependant.is_isolated)
+                        if dependant.virus_id != 0 && !dependant.is_asymptomatic && (dependant.activity_type == 0 || dependant.is_isolated)
                             is_support_still_needed = true
                         end
                     end
@@ -389,7 +448,7 @@ function update_agent_states(
                     infectivities[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
                     agent.is_asymptomatic && agent.days_infected > 0)
 
-                if agent.supporter_id != 0 && !agent.is_asymptomatic && agent.days_infected > 0 && (agent.is_isolated || agent.collective_id == 0)
+                if agent.supporter_id != 0 && !agent.is_asymptomatic && agent.days_infected > 0 && (agent.is_isolated || agent.activity_type == 0)
                     agents[agent.supporter_id].on_parent_leave = true
                 end
             end
@@ -525,6 +584,21 @@ function update_agent_states(
                 agent.is_asymptomatic && agent.days_infected > 0)
             agent.is_newly_infected = false
         end
+
+        agent.attendance = true
+        if agent.activity_type == 1 && !agent.is_teacher
+            if rand(rng, Float64) < 0.1
+                agent.attendance = false
+            end
+        elseif agent.activity_type == 2 && !agent.is_teacher
+            if rand(rng, Float64) < 0.1
+                agent.attendance = false
+            end
+        elseif agent.activity_type == 3 && !agent.is_teacher
+            if rand(rng, Float64) < 0.5
+                agent.attendance = false
+            end
+        end
     end
 end
 
@@ -534,6 +608,9 @@ function run_simulation(
     start_agent_ids::Vector{Int},
     end_agent_ids::Vector{Int},
     agents::Vector{Agent},
+    households::Vector{Household},
+    shops::Vector{Shop},
+    restaurants::Vector{Restaurant},
     infectivities::Array{Float64, 4},
     temp_influences::Array{Float64, 2},
     duration_parameter::Float64,
@@ -546,7 +623,7 @@ function run_simulation(
     # Месяц
     month = 8
     # День недели
-    week_day = 1
+    week_day = 6
     # Номер недели
     week_num = 1
 
@@ -554,13 +631,14 @@ function run_simulation(
 
     num_infected_age_groups_viruses = Array{Int, 3}(undef, 52, 7, 4)
     confirmed_daily_new_cases_age_groups_viruses = zeros(365, 4, 7, num_threads)
-    infected_inside_collective = zeros(Int, 365, 5, num_threads)
+    infected_inside_activity = zeros(Int, 365, 5, num_threads)
 
     # DEBUG
-    max_step = 365
-    # max_step = 100
+    # max_step = 365
+    max_step = 10
 
     for current_step = 1:max_step
+        println(current_step)
         # Выходные, праздники
         is_holiday = false
         if week_day == 7
@@ -577,7 +655,7 @@ function run_simulation(
             is_holiday = true
         end
 
-        is_work_holiday = false
+        is_work_holiday = is_holiday
         if week_day == 6
             is_work_holiday = true
         end
@@ -592,7 +670,7 @@ function run_simulation(
         # Осенние - 05.11.yyyy - 11.11.yyyy
         # Зимние - 28.12.yyyy - 09.03.yyyy
         # Весенние - 22.03.yyyy - 31.03.yyyy
-        is_school_holiday = false
+        is_school_holiday = is_holiday
         if month == 6 || month == 7 || month == 8
             is_school_holiday = true
         elseif month == 11 && day >= 5 && day <= 11
@@ -605,7 +683,7 @@ function run_simulation(
             is_school_holiday = true
         end
 
-        is_university_holiday = false
+        is_university_holiday = is_holiday
         if month == 7 || month == 8
             is_university_holiday = true
         elseif month == 1 && day != 11 && day != 15 && day != 19 && day != 23 && day != 27
@@ -625,6 +703,9 @@ function run_simulation(
                 start_agent_ids[thread_id],
                 end_agent_ids[thread_id],
                 agents,
+                households,
+                shops,
+                restaurants,
                 temp_influences,
                 duration_parameter,
                 susceptibility_parameters,
@@ -636,9 +717,141 @@ function run_simulation(
                 is_work_holiday,
                 week_num,
                 current_step,
-                infected_inside_collective)
+                infected_inside_activity)
         end
+
+        @threads for thread_id in 1:num_threads
+            for shop_id in start_shop_ids[thread_id]:end_shop_ids[thread_id]
+                shop = shops[shop_id]
+                for group_id in 1:length(shop.groups)
+                    group = shop.groups[group_id]
+                    for i in 1:length(group)
+                        agent_id = group[i]
+                        if agent_id == 0
+                            break
+                        end
+                        agent = agents[agent_id]
+                        if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
+                            group_to_choose_from = Int[]
+                            for j in 1:length(group)
+                                other_agent_id = group[j]
+                                if other_agent_id == agent_id
+                                    continue
+                                end
+                                if other_agent_id == 0
+                                    break
+                                end
+                                push!(group_to_choose_from, other_agent_id)
+                            end
+                            num_contacts = 0
+                            while length(group_to_choose_from) > 0 && num_contacts < shop_num_nearest_agents_as_contact
+                                agent2_id = splice!(group_to_choose_from, rand(eachindex(group_to_choose_from)))
+                                agent2 = agents[agent2_id]
+                                num_contacts += 1
         
+                                if agent2.virus_id == 0 && (agent.virus_id != 1 || agent2.FluA_days_immune == 0) && (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
+                                    (agent.virus_id != 7 || agent2.CoV_days_immune == 0) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
+                                    (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
+                                    (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
+        
+                                    agent_at_home = is_holiday || agent.is_isolated || agent.on_parent_leave || agent.activity_type == 0 ||
+                                        (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_university_holiday) ||
+                                        (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)
+                                    agent2_at_home = is_holiday || agent2.is_isolated || agent2.on_parent_leave || agent2.activity_type == 0 ||
+                                        (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_university_holiday) ||
+                                        (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday)
+        
+                                    mean_dur_time = weekday_shopping_time_mean
+                                    if agent_at_home && agent2_at_home
+                                        mean_dur_time = weekend_shopping_time_mean
+                                    end
+                                    dur = get_contact_duration_normal(mean_dur_time, shopping_time_sd, thread_rng[thread_id])
+                                    if dur > 0.01
+                                        make_contact(agent, agent2, dur, current_step, duration_parameter,
+                                            susceptibility_parameters, temp_influences, thread_rng[thread_id])
+                                        if agent2.is_newly_infected
+                                            infected_inside_activity[current_step, 5, thread_id] += 1
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    for i in 1:length(group)
+                        if group[i] == 0
+                            break
+                        end
+                        shops[shop_id].groups[group_id][i] = 0
+                    end
+                end
+            end
+        
+            for restaurant_id in start_restaurant_ids[thread_id]:end_restaurant_ids[thread_id]
+                restaurant = restaurants[restaurant_id]
+                for group_id in 1:length(restaurant.groups)
+                    group = restaurant.groups[group_id]
+                    for i in 1:length(group)
+                        agent_id = group[i]
+                        if agent_id == 0
+                            break
+                        end
+                        agent = agents[agent_id]
+                        if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
+                            group_to_choose_from = Int[]
+                            for j in 1:length(group)
+                                other_agent_id = group[j]
+                                if other_agent_id == agent_id
+                                    continue
+                                end
+                                if other_agent_id == 0
+                                    break
+                                end
+                                push!(group_to_choose_from, other_agent_id)
+                            end
+                            num_contacts = 0
+                            while length(group_to_choose_from) > 0 && num_contacts < restaurant_num_nearest_agents_as_contact
+                                agent2_id = splice!(group_to_choose_from, rand(eachindex(group_to_choose_from)))
+                                agent2 = agents[agent2_id]
+                                num_contacts += 1
+        
+                                if agent2.virus_id == 0 && (agent.virus_id != 1 || agent2.FluA_days_immune == 0) && (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
+                                    (agent.virus_id != 7 || agent2.CoV_days_immune == 0) && (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
+                                    (agent.virus_id != 4 || agent2.RSV_days_immune == 0) && (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
+                                    (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
+        
+                                    agent_at_home = is_holiday || agent.is_isolated || agent.on_parent_leave || agent.activity_type == 0 ||
+                                        (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_university_holiday) ||
+                                        (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)
+                                    agent2_at_home = is_holiday || agent2.is_isolated || agent2.on_parent_leave || agent2.activity_type == 0 ||
+                                        (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_university_holiday) ||
+                                        (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday)
+        
+                                    mean_dur_time = weekday_restaurant_time_mean
+                                    if agent_at_home && agent2_at_home
+                                        mean_dur_time = weekend_restaurant_time_mean
+                                    end
+                                    dur = get_contact_duration_normal(mean_dur_time, restaurant_time_sd, thread_rng[thread_id])
+                                    if dur > 0.01
+                                        make_contact(agent, agent2, dur, current_step, duration_parameter,
+                                            susceptibility_parameters, temp_influences, thread_rng[thread_id])
+                                        if agent2.is_newly_infected
+                                            infected_inside_activity[current_step, 5, thread_id] += 1
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    for i in 1:length(group)
+                        if group[i] == 0
+                            break
+                        end
+                        restaurants[restaurant_id].groups[group_id][i] = 0
+                    end
+                end
+            end
+        end
+
         @threads for thread_id in 1:num_threads
             update_agent_states(
                 thread_id,
@@ -652,7 +865,7 @@ function run_simulation(
         end
 
         # Обновление даты
-        if week_day == 7
+        if current_step % 7 == 0
             for i = 1:4
                 for j = 1:7
                     num_infected_age_groups_viruses[week_num, j, i] = sum(confirmed_daily_new_cases_age_groups_viruses[current_step - 6:current_step, i, j, :])
@@ -685,8 +898,8 @@ function run_simulation(
 
     if (is_single_run)
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_collective_data.csv"),
-            sum(infected_inside_collective, dims = 3)[:, :, 1], ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_activity_data.csv"),
+            sum(infected_inside_activity, dims = 3)[:, :, 1], ',')
     end
 
     return num_infected_age_groups_viruses

@@ -393,6 +393,21 @@ function reset_population(
                     agent.age, infectivities[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
                     agent.is_asymptomatic && agent.days_infected > 0)
             end
+
+            agent.attendance = true
+            if activity_type == 1 && !agent.is_teacher
+                if rand(thread_rng[thread_id], Float64) < 0.1
+                    agent.attendance = false
+                end
+            elseif activity_type == 2 && !agent.is_teacher
+                if rand(thread_rng[thread_id], Float64) < 0.1
+                    agent.attendance = false
+                end
+            elseif activity_type == 3 && !agent.is_teacher
+                if rand(thread_rng[thread_id], Float64) < 0.5
+                    agent.attendance = false
+                end
+            end
         end
     end
 end

@@ -8,15 +8,21 @@ mutable struct Agent
     infant_age::Int
     # Пол
     is_male::Bool
+    # Id домохозяйства
+    household_id::Int
     # Связи в домохозяйстве
     household_conn_ids::Vector{Int}
-    # Id коллектива
-    collective_id::Int
+    # Тип коллектива
+    activity_type::Int
+    # Id детсада, школы, универа
+    school_id::Int
     # Номер группы
-    group_num::Int
+    school_group_num::Int
+    # Id работы
+    workplace_id::Int
     # Связи в коллективе
-    collective_conn_ids::Vector{Int}
-    collective_cross_conn_ids::Vector{Int}
+    activity_conn_ids::Vector{Int}
+    activity_cross_conn_ids::Vector{Int}
     # Id детей за которыми нужен уход в случае болезни
     dependant_ids::Vector{Int}
     # Id того, кто будет ухаживать в случае болезни
@@ -52,8 +58,14 @@ mutable struct Agent
     # Инфекционность
     infectivity::Float64
 
+    # Посещение детсада, школы, университета
+    attendance::Bool
+    # Учитель, воспитатель, профессор
+    is_teacher::Bool
+
     function Agent(
         id::Int,
+        household_id::Int,
         viruses::Vector{Virus},
         infectivities::Array{Float64, 4},
         household_conn_ids::Vector{Int},
@@ -61,10 +73,6 @@ mutable struct Agent
         age::Int,
         thread_id::Int,
         thread_rng::Vector{MersenneTwister},
-        num_of_people_in_kindergarten::Vector{Int},
-        num_of_people_in_school::Vector{Int},
-        num_of_people_in_university::Vector{Int},
-        num_of_people_in_workplace::Vector{Int}
     )
         # Возраст новорожденного
         infant_age = 0
@@ -73,113 +81,178 @@ mutable struct Agent
         end
 
         # Социальный статус
-        collective_id = 0
+        activity_type = 0
+        # Household
         if age == 0
-            collective_id = 0
+            activity_type = 0
+        # 1-5 Kindergarten
         elseif age == 1
             if rand(thread_rng[thread_id], Float64) < 0.2
-                collective_id = 1
+                activity_type = 1
             end
         elseif age == 2
             if rand(thread_rng[thread_id], Float64) < 0.33
-                collective_id = 1
+                activity_type = 1
             end
-        elseif age < 7
+        elseif age < 6
             if rand(thread_rng[thread_id], Float64) < 0.83
-                collective_id = 1
+                activity_type = 1
             end
-        elseif age < 18
-            collective_id = 2
+        # 6-7 Kindergarten - School
+        elseif age == 6
+            if rand(thread_rng[thread_id], Float64) < 0.66
+                activity_type = 1
+            else
+                activity_type = 2
+            end
+        elseif age == 7
+            if rand(thread_rng[thread_id], Float64) < 0.66
+                activity_type = 2
+            else
+                activity_type = 1
+            end
+        # 8-16 School
+        elseif age < 17
+            activity_type = 2
+        elseif age == 17
+            rand_num = rand(thread_rng[thread_id], Float64)
+            if rand_num < 0.8
+                activity_type = 2
+            elseif rand_num < 0.9
+                activity_type = 4
+            end
+        elseif age == 18
+            rand_num = rand(thread_rng[thread_id], Float64)
+            if rand_num < 0.28
+                activity_type = 2
+            elseif rand_num < 0.45
+                activity_type = 4
+            elseif rand_num < 0.75
+                activity_type = 3
+            end
+        # 18-23 University - Work
         elseif age < 22
             rand_num = rand(thread_rng[thread_id], Float64)
-            if rand_num < 0.33
-                collective_id = 3
-            elseif rand_num < 0.66
-                collective_id = 4
+            if rand_num < 0.66
+                activity_type = 4
+            elseif rand_num < 0.9
+                activity_type = 3
             end
         elseif age < 24
             rand_num = rand(thread_rng[thread_id], Float64)
-            if rand_num < 0.82
-                collective_id = 4
-            elseif rand_num < 0.88
-                collective_id = 3
+            if rand_num < 0.75
+                activity_type = 4
+            elseif rand_num < 0.9
+                activity_type = 3
             end
+        # 24+ Work
         elseif age < 30
             rand_num = rand(thread_rng[thread_id], Float64)
             if is_male
                 if rand_num < 0.82
-                    collective_id = 4
+                    activity_type = 4
                 end
             else
                 if rand_num < 0.74
-                    collective_id = 4
+                    activity_type = 4
                 end
             end
         elseif age < 40
             rand_num = rand(thread_rng[thread_id], Float64)
             if is_male
                 if rand_num < 0.95
-                    collective_id = 4
+                    activity_type = 4
                 end
             else
                 if rand_num < 0.85
-                    collective_id = 4
+                    activity_type = 4
                 end
             end
         elseif age < 50
             rand_num = rand(thread_rng[thread_id], Float64)
             if is_male
                 if rand_num < 0.94
-                    collective_id = 4
+                    activity_type = 4
                 end
             else
                 if rand_num < 0.89
-                    collective_id = 4
+                    activity_type = 4
                 end
             end
         elseif age < 60
             rand_num = rand(thread_rng[thread_id], Float64)
             if is_male
                 if rand_num < 0.88
-                    collective_id = 4
+                    activity_type = 4
                 end
             else
                 if rand_num < 0.7
-                    collective_id = 4
+                    activity_type = 4
                 end
             end
         elseif age < 65
             rand_num = rand(thread_rng[thread_id], Float64)
             if is_male
                 if rand_num < 0.51
-                    collective_id = 4
+                    activity_type = 4
                 end
             else
                 if rand_num < 0.29
-                    collective_id = 4
+                    activity_type = 4
+                end
+            end
+        elseif age < 70
+            if is_male
+                if rand(thread_rng[thread_id], Float64) < 0.25
+                    activity_type = 4
+                end
+            else
+                if rand(thread_rng[thread_id], Float64) < 0.15
+                    activity_type = 4
                 end
             end
         end
 
-        group_num = 0
-        if collective_id == 1
-            group_num = age
-        elseif collective_id == 2
-            group_num = age - 6
-        elseif collective_id == 3
-            group_num = age - 17
-        elseif collective_id == 4
-            group_num = 1
-        end
-
-        if collective_id == 1
-            num_of_people_in_kindergarten[group_num] += 1
-        elseif collective_id == 2
-            num_of_people_in_school[group_num] += 1
-        elseif collective_id == 3
-            num_of_people_in_university[group_num] += 1
-        elseif collective_id == 4
-            num_of_people_in_workplace[1] += 1
+        school_group_num = 0
+        if activity_type == 1
+            school_group_num = age
+            if age == 1
+                school_group_num = 1
+            elseif age == 2
+                school_group_num = rand(thread_rng[thread_id], 1:2)
+            elseif age < 5
+                school_group_num = rand(thread_rng[thread_id], (age - 2):age)
+            elseif age == 5
+                school_group_num = rand(thread_rng[thread_id], (age - 1):age)
+            else
+                school_group_num = 5
+            end
+        elseif activity_type == 2
+            if age == 6
+                school_group_num = 1
+            elseif age == 7
+                school_group_num = rand(thread_rng[thread_id], 1:2)
+            elseif age < 17
+                school_group_num = rand(thread_rng[thread_id], (age - 7):(age - 5))
+                # school_group_num = age - 6
+            elseif age == 17
+                school_group_num = rand(thread_rng[thread_id], 10:11)
+                # school_group_num = age - 6
+            else
+                school_group_num = 11
+            end
+        elseif activity_type == 3
+            if age == 18
+                school_group_num = 1
+            elseif age == 19
+                school_group_num = rand(thread_rng[thread_id], 1:2)
+            elseif age < 24
+                school_group_num = rand(thread_rng[thread_id], (age - 19):(age - 17))
+            else
+                school_group_num = rand(thread_rng[thread_id], 5:6)
+            end
+        elseif activity_type == 4
+            school_group_num = 1
         end
 
         # Уровень иммуноглобулина
@@ -654,16 +727,32 @@ mutable struct Agent
                 is_asymptomatic && days_infected > 0)
         end
 
+        attendance = true
+        is_teacher = false
+        if activity_type == 1
+            if rand(thread_rng[thread_id], Float64) < 0.1
+                attendance = false
+            end
+        elseif activity_type == 2
+            if rand(thread_rng[thread_id], Float64) < 0.1
+                attendance = false
+            end
+        elseif activity_type == 3
+            if rand(thread_rng[thread_id], Float64) < 0.5
+                attendance = false
+            end
+        end
+
         days_immune = 0
 
         new(
-            id, age, infant_age, is_male, household_conn_ids,
-            collective_id, group_num,
-            Int[], Int[], Int[], 0, false, ig_level,
-            virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
+            id, age, infant_age, is_male, household_id, household_conn_ids,
+            activity_type, 0, school_group_num, 0, Int[], Int[], Int[], 0, false,
+            ig_level, virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
             RSV_days_immune, AdV_days_immune, PIV_days_immune, CoV_days_immune,
-            incubation_period, infection_period, days_infected,
-            days_immune, is_asymptomatic, is_isolated, infectivity)
+            incubation_period, infection_period, days_infected, days_immune,
+            is_asymptomatic, is_isolated, infectivity, attendance, is_teacher)
+            # 0, false, false, false, false, false, false)
     end
 end
 

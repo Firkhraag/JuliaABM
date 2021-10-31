@@ -1,342 +1,404 @@
 function create_agent(
     agent_id::Int,
+    household_id::Int,
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
     household_conn_ids::Vector{Int},
     index::Int,
-    district_people::Matrix{Int},
-    district_people_households::Matrix{Int},
+    district_people::Matrix{Float64},
+    district_people_households::Matrix{Float64},
     district_household_index::Int,
     thread_id::Int,
     thread_rng::Vector{MersenneTwister},
-    num_of_people_in_kindergarten::Vector{Int},
-    num_of_people_in_school::Vector{Int},
-    num_of_people_in_university::Vector{Int},
-    num_of_people_in_workplace::Vector{Int},
     is_male::Union{Bool, Nothing} = nothing,
     is_child::Bool = false,
     parent_age::Union{Int, Nothing} = nothing,
     is_older::Bool = false,
     is_parent_of_parent::Bool = false
 ):: Agent
-    age_rand_num = rand(thread_rng[thread_id], 1:100)
-    sex_random_num = rand(thread_rng[thread_id], 1:100)
+    age_rand_num = rand(thread_rng[thread_id], Float64)
+    sex_random_num = rand(thread_rng[thread_id], Float64)
     if is_child
         if parent_age < 23
             # M0–4
-            return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                sex_random_num <= district_people[index, 1], rand(thread_rng[thread_id], 0:(parent_age - 18)),
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+            return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:(parent_age - 18)),
+                thread_id, thread_rng)
         elseif parent_age < 28
             # T0-4_0–9
-            if (age_rand_num <= district_people[index, 19])
+            if (age_rand_num < district_people[index, 19])
                 # M0–4
-                Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 1], rand(thread_rng[thread_id], 0:4),
-                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                    num_of_people_in_university, num_of_people_in_workplace)
+                Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:4),
+                    thread_id, thread_rng)
             else
                 # M5–9
-                Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 2], rand(thread_rng[thread_id], 5:(parent_age - 18)),
-                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                    num_of_people_in_university, num_of_people_in_workplace)
+                Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:(parent_age - 18)),
+                    thread_id, thread_rng)
             end
         elseif parent_age < 33
             # T0-4_0–14
-            if (age_rand_num <= district_people[index, 20])
+            if (age_rand_num < district_people[index, 20])
                 # M0–4
-                Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 1], rand(thread_rng[thread_id], 0:4),
-                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                    num_of_people_in_university, num_of_people_in_workplace)
+                Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:4),
+                    thread_id, thread_rng)
             # T0-9_0–14
-            elseif (age_rand_num <= district_people[index, 21])
+            elseif (age_rand_num < district_people[index, 21])
                 # M5–9
-                Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 2], rand(thread_rng[thread_id], 5:9),
-                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                    num_of_people_in_university, num_of_people_in_workplace)
+                Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:9),
+                    thread_id, thread_rng)
             else
                 # M10–14
-                Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 3], rand(thread_rng[thread_id], 10:(parent_age - 18)),
-                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                    num_of_people_in_university, num_of_people_in_workplace)
+                Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:(parent_age - 18)),
+                    thread_id, thread_rng)
             end
         elseif parent_age < 35
-            age_group_rand_num = rand(thread_rng[thread_id], 1:100)
-            if age_group_rand_num <= district_people_households[1, district_household_index]
+            age_group_rand_num = rand(thread_rng[thread_id], Float64)
+            if age_group_rand_num < district_people_households[1, district_household_index]
                 # T0-4_0–14
-                if (age_rand_num <= district_people[index, 20])
+                if (age_rand_num < district_people[index, 20])
                     # M0–4
-                    Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 1], rand(thread_rng[thread_id], 0:4),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:4),
+                        thread_id, thread_rng)
                 # T0-9_0–14
-                elseif (age_rand_num <= district_people[index, 21])
+                elseif (age_rand_num < district_people[index, 21])
                     # M5–9
-                    Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 2], rand(thread_rng[thread_id], 5:9),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:9),
+                        thread_id, thread_rng)
                 else
                     # M10–14
-                    Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 3], rand(thread_rng[thread_id], 10:14),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:14),
+                        thread_id, thread_rng)
                 end
             else
                 # M15–19
-                return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 4], rand(thread_rng[thread_id], 15:(parent_age - 18)),
-                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                    num_of_people_in_university, num_of_people_in_workplace)
+                return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:(parent_age - 18)),
+                    thread_id, thread_rng)
             end
-        else
-            age_group_rand_num = rand(thread_rng[thread_id], 1:100)
-            if age_group_rand_num <= district_people_households[1, district_household_index]
+        elseif parent_age < 55
+            age_group_rand_num = rand(thread_rng[thread_id], Float64)
+            if age_group_rand_num < district_people_households[1, district_household_index]
                 # T0-4_0–14
-                if (age_rand_num <= district_people[index, 20])
+                if (age_rand_num < district_people[index, 20])
                     # M0–4
-                    Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 1], rand(thread_rng[thread_id], 0:4),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:4),
+                        thread_id, thread_rng)
                 # T0-9_0–14
-                elseif (age_rand_num <= district_people[index, 21])
+                elseif (age_rand_num < district_people[index, 21])
                     # M5–9
-                    Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 2], rand(thread_rng[thread_id], 5:9),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:9),
+                        thread_id, thread_rng)
                 else
                     # M10–14
-                    Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 3], rand(thread_rng[thread_id], 10:14),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:14),
+                        thread_id, thread_rng)
                 end
             else
                 # M15–19
-                return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 4], rand(thread_rng[thread_id], 15:17),
-                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                    num_of_people_in_university, num_of_people_in_workplace)
+                return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:17),
+                    thread_id, thread_rng)
+            end
+        elseif parent_age < 60
+            age_group_rand_num = rand(thread_rng[thread_id], Float64)
+            if age_group_rand_num < district_people_households[1, district_household_index]
+                # T0-4_0–14
+                if (age_rand_num < district_people[index, 20])
+                    # M0–4
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], (parent_age - 55):4),
+                        thread_id, thread_rng)
+                # T0-9_0–14
+                elseif (age_rand_num < district_people[index, 21])
+                    # M5–9
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:9),
+                        thread_id, thread_rng)
+                else
+                    # M10–14
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:14),
+                        thread_id, thread_rng)
+                end
+            else
+                # M15–19
+                return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:17),
+                    thread_id, thread_rng)
+            end
+        elseif parent_age < 65
+            age_group_rand_num = rand(thread_rng[thread_id], Float64)
+            if age_group_rand_num < district_people_households[1, district_household_index]
+                # T5-9_5–14
+                if rand(thread_rng[thread_id], Float64) < 0.5
+                    # M5–9
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], (parent_age - 55):9),
+                        thread_id, thread_rng)
+                else
+                    # M10–14
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:14),
+                        thread_id, thread_rng)
+                end
+            else
+                # M15–19
+                return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:17),
+                    thread_id, thread_rng)
+            end
+        elseif parent_age < 70
+            age_group_rand_num = rand(thread_rng[thread_id], Float64)
+            if age_group_rand_num < district_people_households[1, district_household_index]
+                # M10–14
+                Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], (parent_age - 55):14),
+                        thread_id, thread_rng)
+            else
+                # M15–19
+                return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:17),
+                    thread_id, thread_rng)
+            end
+        elseif parent_age < 73
+            return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], (parent_age - 55):17),
+                thread_id, thread_rng)
+        else
+            age_group_rand_num = rand(thread_rng[thread_id], Float64)
+            if age_group_rand_num < district_people_households[1, district_household_index]
+                # T0-4_0–14
+                if (age_rand_num < district_people[index, 20])
+                    # M0–4
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:4),
+                        thread_id, thread_rng)
+                # T0-9_0–14
+                elseif (age_rand_num < district_people[index, 21])
+                    # M5–9
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:9),
+                        thread_id, thread_rng)
+                else
+                    # M10–14
+                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:14),
+                        thread_id, thread_rng)
+                end
+            else
+                # M15–19
+                return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:17),
+                    thread_id, thread_rng)
             end
         end
     else
-        age_group_rand_num = rand(thread_rng[thread_id], 1:100)
+        age_group_rand_num = 0.0
         if is_older
-            age_group_rand_num = rand(thread_rng[thread_id], (district_people_households[3, district_household_index] + 1):100)
+            age_group_rand_num = rand(thread_rng[thread_id], Uniform(district_people_households[3, district_household_index], 1.0))
         elseif parent_age !== nothing
             if parent_age < 45
-                age_group_rand_num = 1
+                age_group_rand_num = 0.001
             elseif parent_age < 55
-                age_group_rand_num = rand(thread_rng[thread_id], 1:district_people_households[3, district_household_index])
+                age_group_rand_num = rand(thread_rng[thread_id], Uniform(0.0, district_people_households[3, district_household_index]))
             elseif parent_age < 65
-                age_group_rand_num = rand(thread_rng[thread_id], 1:district_people_households[4, district_household_index])
+                age_group_rand_num = rand(thread_rng[thread_id], Uniform(0.0, district_people_households[4, district_household_index]))
             else
-                age_group_rand_num = rand(thread_rng[thread_id], 1:district_people_households[5, district_household_index])
+                age_group_rand_num = rand(thread_rng[thread_id], Uniform(0.0, district_people_households[5, district_household_index]))
             end
         elseif is_parent_of_parent
             if parent_age < 25
-                age_group_rand_num = rand(thread_rng[thread_id], (district_people_households[3, district_household_index] + 1):100)
+                age_group_rand_num = rand(thread_rng[thread_id], Uniform(district_people_households[3, district_household_index], 1.0))
             elseif parent_age < 35
-                age_group_rand_num = rand(thread_rng[thread_id], (district_people_households[4, district_household_index] + 1):100)
+                age_group_rand_num = rand(thread_rng[thread_id], Uniform(district_people_households[4, district_household_index], 1.0))
             elseif parent_age < 45
-                age_group_rand_num = rand(thread_rng[thread_id], (district_people_households[5, district_household_index] + 1):100)
+                age_group_rand_num = rand(thread_rng[thread_id], Uniform(district_people_households[5, district_household_index], 1.0))
             else
-                age_group_rand_num = 100
+                age_group_rand_num = 0.999
             end
+        else
+            age_group_rand_num = rand(thread_rng[thread_id], Float64)
         end
-        if age_group_rand_num <= district_people_households[2, district_household_index]
-            if is_male !== nothing
-                return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 18:24),
-                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                    num_of_people_in_university, num_of_people_in_workplace)
-            else
-                # M20–24
-                return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                    sex_random_num <= district_people[index, 5], rand(thread_rng[thread_id], 18:24),
-                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                    num_of_people_in_university, num_of_people_in_workplace)
-            end
-        elseif age_group_rand_num <= district_people_households[3, district_household_index]
-            # T25-29_25–34
-            if age_rand_num <= district_people[index, 22]
+
+        if age_group_rand_num < district_people_households[2, district_household_index]
+            if rand(thread_rng[thread_id], Float64) < 0.25
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 25:29),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 18:19),
+                        thread_id, thread_rng)
+                else
+                    # M20–24
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 5], rand(thread_rng[thread_id], 18:19),
+                        thread_id, thread_rng)
+                end
+            else
+                if is_male !== nothing
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 20:24),
+                        thread_id, thread_rng)
+                else
+                    # M20–24
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 5], rand(thread_rng[thread_id], 20:24),
+                        thread_id, thread_rng)
+                end
+            end
+        elseif age_group_rand_num < district_people_households[3, district_household_index]
+            # T25-29_25–34
+            if age_rand_num < district_people[index, 22]
+                if is_male !== nothing
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 25:29),
+                        thread_id, thread_rng)
                 else
                     # M25–29
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 6], rand(thread_rng[thread_id], 25:29),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 6], rand(thread_rng[thread_id], 25:29),
+                        thread_id, thread_rng)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 30:34),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 30:34),
+                        thread_id, thread_rng)
                 else
                     # M30–34
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 7], rand(thread_rng[thread_id], 30:34),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 7], rand(thread_rng[thread_id], 30:34),
+                        thread_id, thread_rng)
                 end
             end
-        elseif age_group_rand_num <= district_people_households[4, district_household_index]
+        elseif age_group_rand_num < district_people_households[4, district_household_index]
             # T35-39_35–44
-            if age_rand_num <= district_people[index, 23]
+            if age_rand_num < district_people[index, 23]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 35:39),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 35:39),
+                        thread_id, thread_rng)
                 else
                     # M35–39
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 8], rand(thread_rng[thread_id], 35:39),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 8], rand(thread_rng[thread_id], 35:39),
+                        thread_id, thread_rng)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 40:44),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 40:44),
+                        thread_id, thread_rng)
                 else
                     # M40–44
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 9], rand(thread_rng[thread_id], 40:44),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 9], rand(thread_rng[thread_id], 40:44),
+                        thread_id, thread_rng)
                 end
             end
-        elseif age_group_rand_num <= district_people_households[5, district_household_index]
+        elseif age_group_rand_num < district_people_households[5, district_household_index]
             # T45-49_45–54
-            if age_rand_num <= district_people[index, 24]
+            if age_rand_num < district_people[index, 24]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 45:49),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 45:49),
+                        thread_id, thread_rng)
                 else
                     # M45–49
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 10], rand(thread_rng[thread_id], 45:49),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 10], rand(thread_rng[thread_id], 45:49),
+                        thread_id, thread_rng)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 50:54),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 50:54),
+                        thread_id, thread_rng)
                 else
                     # M50–54
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 11], rand(thread_rng[thread_id], 50:54),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 11], rand(thread_rng[thread_id], 50:54),
+                        thread_id, thread_rng)
                 end
             end
-        elseif age_group_rand_num <= district_people_households[6, district_household_index]
+        elseif age_group_rand_num < district_people_households[6, district_household_index]
             # T55-59_55–64
-            if age_rand_num <= district_people[index, 25]
+            if age_rand_num < district_people[index, 25]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 55:59),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 55:59),
+                        thread_id, thread_rng)
                 else
                     # M55–59
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 12], rand(thread_rng[thread_id], 55:59),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 12], rand(thread_rng[thread_id], 55:59),
+                        thread_id, thread_rng)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 60:64),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 60:64),
+                        thread_id, thread_rng)
                 else
                     # M60–64
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 13], rand(thread_rng[thread_id], 60:64),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 13], rand(thread_rng[thread_id], 60:64),
+                        thread_id, thread_rng)
                 end
             end
         else
             # T65-69_65–89
-            if age_rand_num <= district_people[index, 26]
+            if age_rand_num < district_people[index, 26]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 65:69),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 65:69),
+                        thread_id, thread_rng)
                 else
                     # M65–69
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 14], rand(thread_rng[thread_id], 65:69),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 14], rand(thread_rng[thread_id], 65:69),
+                        thread_id, thread_rng)
                 end
             # T65-74_65–89
-            elseif age_rand_num <= district_people[index, 27]
+            elseif age_rand_num < district_people[index, 27]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 70:74),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 70:74),
+                        thread_id, thread_rng)
                 else
                     # M70–74
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 15], rand(thread_rng[thread_id], 70:74),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 15], rand(thread_rng[thread_id], 70:74),
+                        thread_id, thread_rng)
                 end
             # T65-79_65–89
-            elseif age_rand_num <= district_people[index, 28]
+            elseif age_rand_num < district_people[index, 28]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 75:79),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 75:79),
+                        thread_id, thread_rng)
                 else
                     # M75–79
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 16], rand(thread_rng[thread_id], 75:79),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 16], rand(thread_rng[thread_id], 75:79),
+                        thread_id, thread_rng)
                 end
             # T65-84_65–89
-            elseif age_rand_num <= district_people[index, 29]
+            elseif age_rand_num < district_people[index, 29]
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 80:84),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 80:84),
+                        thread_id, thread_rng)
                 else
                     # M80–84
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 17], rand(thread_rng[thread_id], 80:84),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 17], rand(thread_rng[thread_id], 80:84),
+                        thread_id, thread_rng)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 85:89),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 85:89),
+                        thread_id, thread_rng)
                 else
                     # M85–89
-                    return Agent(agent_id, viruses, infectivities, household_conn_ids,
-                        sex_random_num <= district_people[index, 18], rand(thread_rng[thread_id], 85:89),
-                        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                        num_of_people_in_university, num_of_people_in_workplace)
+                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        sex_random_num < district_people[index, 18], rand(thread_rng[thread_id], 85:89),
+                        thread_id, thread_rng)
                 end
             end
         end
@@ -345,16 +407,13 @@ end
 
 function create_spouse(
     agent_id::Int,
+    household_id::Int,
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
     household_conn_ids::Vector{Int},
     partner_age::Int,
     thread_id::Int,
     thread_rng::Vector{MersenneTwister},
-    num_of_people_in_kindergarten::Vector{Int},
-    num_of_people_in_school::Vector{Int},
-    num_of_people_in_university::Vector{Int},
-    num_of_people_in_workplace::Vector{Int}
 )
     rand_num = rand(thread_rng[thread_id], Float64)
     difference = 0
@@ -380,301 +439,321 @@ function create_spouse(
         difference = rand(thread_rng[thread_id], 10:14)
     end
 
-    spouse_age = partner_age + difference
-    if spouse_age < 18
-        spouse_age = 18
-    elseif spouse_age > 89
-        spouse_age = 89
+    # spouse_age = partner_age + difference
+    spouse_age = partner_age - difference
+
+    while spouse_age < 18 || spouse_age > 89
+        rand_num = rand(thread_rng[thread_id], Float64)
+        difference = 0
+        if rand_num < 0.03
+            difference = rand(thread_rng[thread_id], -20:-15)
+        elseif rand_num < 0.08
+            difference = rand(thread_rng[thread_id], -14:-10)
+        elseif rand_num < 0.2
+            difference = rand(thread_rng[thread_id], -9:-6)
+        elseif rand_num < 0.33
+            difference = rand(thread_rng[thread_id], -5:-4)
+        elseif rand_num < 0.53
+            difference = rand(thread_rng[thread_id], -3:-2)
+        elseif rand_num < 0.86
+            difference = rand(thread_rng[thread_id], -1:1)
+        elseif rand_num < 0.93
+            difference = rand(thread_rng[thread_id], 2:3)
+        elseif rand_num < 0.96
+            difference = rand(thread_rng[thread_id], 4:5)
+        elseif rand_num < 0.98
+            difference = rand(thread_rng[thread_id], 6:9)
+        else
+            difference = rand(thread_rng[thread_id], 10:14)
+        end
+        spouse_age = partner_age - difference
     end
-    return Agent(agent_id, viruses, infectivities, household_conn_ids, false, spouse_age,
-        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-        num_of_people_in_university, num_of_people_in_workplace)
+
+    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, true, spouse_age,
+        thread_id, thread_rng)
 end
 
 function check_parent_leave(no_one_at_home::Bool, adult::Agent, child::Agent)
     if no_one_at_home && child.age < 14
         push!(adult.dependant_ids, child.id)
         child.supporter_id = adult.id
-        if child.age < 3 && child.collective_id == 0
-            adult.collective_id = 0
+        if child.age < 3 && child.activity_type == 0
+            adult.activity_type = 0
         end
     end
 end
 
 function create_parents_with_children(
     agent_id::Int,
+    household_id::Int,
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
     household_conn_ids::Vector{Int},
-    district_people::Matrix{Int},
-    district_people_households::Matrix{Int},
+    district_people::Matrix{Float64},
+    district_people_households::Matrix{Float64},
     district_household_index::Int,
     num_of_children::Int,
     num_of_other_people::Int,
     index::Int,
     thread_id::Int,
     thread_rng::Vector{MersenneTwister},
-    num_of_people_in_kindergarten::Vector{Int},
-    num_of_people_in_school::Vector{Int},
-    num_of_people_in_university::Vector{Int},
-    num_of_people_in_workplace::Vector{Int}
+    is_old_pair::Bool = false,
 )::Vector{Agent}
-    agent_male = create_agent(agent_id,
-        viruses, infectivities, household_conn_ids, index,
+    agent_female = create_agent(
+        agent_id, household_id, viruses,
+        infectivities, household_conn_ids, index,
         district_people, district_people_households,
-        district_household_index,
-        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-        num_of_people_in_university, num_of_people_in_workplace, true)
+        district_household_index, thread_id, thread_rng,
+        false, false, nothing, is_old_pair)
     agent_id += 1
-    agent_female = create_spouse(
-        agent_id, viruses, infectivities, household_conn_ids, agent_male.age,
-        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-        num_of_people_in_university, num_of_people_in_workplace)
+    agent_male = create_spouse(
+        agent_id, household_id, viruses, infectivities,
+        household_conn_ids, agent_female.age, thread_id, thread_rng)
     agent_id += 1
     if num_of_other_people == 0
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age)
             agent_id += 1
-            no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
+            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
             check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age + 2)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, child, child2, child3]
         end
         return Agent[agent_male, agent_female]
     elseif num_of_other_people == 1
-        agent_other = create_agent(agent_id,
+        agent_other = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age)
             agent_id += 1
-            no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
-            if agent_other.collective_id == 0
+            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
+            if agent_other.activity_type == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, agent_other, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, agent_other, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age + 2)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, child, child2, child3]
         end
         return Agent[agent_male, agent_female, agent_other]
     elseif num_of_other_people == 2
-        agent_other = create_agent(agent_id,
+        agent_other = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
-        agent_other2 = create_agent(agent_id,
+        agent_other2 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age)
             agent_id += 1
-            no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
-            if agent_other.collective_id == 0 || agent_other2.collective_id == 0
+            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
+            if agent_other.activity_type == 0 || agent_other2.activity_type == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, agent_other, agent_other2, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, agent_other, agent_other2, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age + 2)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, agent_other2, child, child2, child3]
         end
         return Agent[agent_male, agent_female, agent_other, agent_other2]
     elseif num_of_other_people == 3
-        agent_other = create_agent(agent_id,
+        agent_other = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
-        agent_other2 = create_agent(agent_id,
+        agent_other2 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
-        agent_other3 = create_agent(agent_id,
+        agent_other3 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age)
             agent_id += 1
-            no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
-            if agent_other.collective_id == 0 || agent_other2.collective_id == 0 || agent_other3.collective_id == 0
+            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
+            if agent_other.activity_type == 0 || agent_other2.activity_type == 0 || agent_other3.activity_type == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age + 2)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
         return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3]
     else
-        agent_other = create_agent(agent_id,
+        agent_other = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
-        agent_other2 = create_agent(agent_id,
+        agent_other2 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
-        agent_other3 = create_agent(agent_id,
+        agent_other3 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
-        agent_other4 = create_agent(agent_id,
+        agent_other4 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age)
             agent_id += 1
-            no_one_at_home = agent_male.collective_id != 0 && agent_female.collective_id != 0
-            if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
-                agent_other3.collective_id == 0 || agent_other4.collective_id == 0
+            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
+            if agent_other.activity_type == 0 || agent_other2.activity_type == 0 ||
+                agent_other3.activity_type == 0 || agent_other4.activity_type == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, agent_other4, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, agent_other4, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, agent_female.age)
+                thread_id, thread_rng, nothing, true, agent_female.age + 2)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
@@ -684,293 +763,290 @@ end
 
 function create_parent_with_children(
     agent_id::Int,
+    household_id::Int,
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
     household_conn_ids::Vector{Int},
-    district_people::Matrix{Int},
-    district_people_households::Matrix{Int},
+    district_people::Matrix{Float64},
+    district_people_households::Matrix{Float64},
     district_household_index::Int,
     num_of_children::Int,
     num_of_other_people::Int,
     index::Int,
     thread_id::Int,
     thread_rng::Vector{MersenneTwister},
-    num_of_people_in_kindergarten::Vector{Int},
-    num_of_people_in_school::Vector{Int},
-    num_of_people_in_university::Vector{Int},
-    num_of_people_in_workplace::Vector{Int},
     is_male_parent::Union{Bool, Nothing},
     with_parent_of_parent::Bool = false,
 )::Vector{Agent}
-    parent = create_agent(agent_id,
+    parent = create_agent(agent_id, household_id,
         viruses, infectivities, household_conn_ids, index,
         district_people, district_people_households,
         district_household_index,
-        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-        num_of_people_in_university, num_of_people_in_workplace, is_male_parent,
+        thread_id, thread_rng, is_male_parent,
         false, nothing, num_of_other_people > 0)
     agent_id += 1
     if num_of_other_people == 0
-        child = create_agent(agent_id,
+        child = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+            thread_id, thread_rng, nothing, true, parent.age)
         agent_id += 1
-        no_one_at_home = parent.collective_id != 0
+        no_one_at_home = parent.activity_type != 0
         check_parent_leave(no_one_at_home, parent, child)
         if num_of_children == 1
             return Agent[parent, child]
         end
-        child2 = create_agent(agent_id,
+        child2 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+            thread_id, thread_rng, nothing, true, parent.age + 1)
+
         agent_id += 1
         check_parent_leave(no_one_at_home, parent, child2)
         if num_of_children == 2
             return Agent[parent, child, child2]
         end
-        child3 = create_agent(agent_id,
+        child3 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+            thread_id, thread_rng, nothing, true, parent.age + 2)
         check_parent_leave(no_one_at_home, parent, child3)
         return Agent[parent, child, child2, child3]
     elseif num_of_other_people == 1
-        agent_other = create_agent(agent_id,
+        agent_other = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing, false,
+            thread_id, thread_rng, nothing, false,
             parent.age, false, with_parent_of_parent)
         agent_id += 1
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                thread_id, thread_rng, nothing, true, parent.age)
             agent_id += 1
-            no_one_at_home = parent.collective_id != 0
-            if agent_other.collective_id == 0
+            no_one_at_home = parent.activity_type != 0
+            if agent_other.activity_type == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, parent, child)
             if num_of_children == 1
                 return Agent[parent, agent_other, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                thread_id, thread_rng, nothing, true, parent.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
                 return Agent[parent, agent_other, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                thread_id, thread_rng, nothing, true, parent.age + 2)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, child, child2, child3]
         end
         return Agent[parent, agent_other]
     elseif num_of_other_people == 2
-        agent_other = create_agent(agent_id,
+        agent_other = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing, false,
+            thread_id, thread_rng, nothing, false,
             parent.age, false, with_parent_of_parent)
         agent_id += 1
-        agent_other2 = create_agent(agent_id,
+        agent_other2 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing,
+            thread_id, thread_rng, nothing,
             false, parent.age)
         agent_id += 1
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                thread_id, thread_rng, nothing, true, parent.age)
             agent_id += 1
-            no_one_at_home = parent.collective_id != 0
-            if agent_other.collective_id == 0 || agent_other2.collective_id == 0
+            no_one_at_home = parent.activity_type != 0
+            if agent_other.activity_type == 0 || agent_other2.activity_type == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, parent, child)
             if num_of_children == 1
                 return Agent[parent, agent_other, agent_other2, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                thread_id, thread_rng, nothing, true, parent.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
                 return Agent[parent, agent_other, agent_other2, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                thread_id, thread_rng, nothing, true, parent.age + 2)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, agent_other2, child, child2, child3]
         end
         return Agent[parent, agent_other, agent_other2]
     elseif num_of_other_people == 3
-        agent_other = create_agent(agent_id,
+        agent_other = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing, false,
+            thread_id, thread_rng, nothing, false,
             parent.age, false, with_parent_of_parent)
         agent_id += 1
-        agent_other2 = create_agent(agent_id,
+        agent_other2 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing,
+            thread_id, thread_rng, nothing,
             false, parent.age)
         agent_id += 1
-        agent_other3 = create_agent(agent_id,
+        agent_other3 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing,
+            thread_id, thread_rng, nothing,
             false, parent.age)
         agent_id += 1
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                thread_id, thread_rng, nothing, true, parent.age)
             agent_id += 1
-            no_one_at_home = parent.collective_id != 0
-            if agent_other.collective_id == 0 || agent_other2.collective_id == 0 || agent_other3.collective_id == 0
+            no_one_at_home = parent.activity_type != 0
+            if agent_other.activity_type == 0 || agent_other2.activity_type == 0 || agent_other3.activity_type == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, parent, child)
             if num_of_children == 1
                 return Agent[parent, agent_other, agent_other2, agent_other3, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                thread_id, thread_rng, nothing, true, parent.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
                 return Agent[parent, agent_other, agent_other2, agent_other3, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                thread_id, thread_rng, nothing, true, parent.age + 2)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
         return Agent[parent, agent_other, agent_other2, agent_other3]
     else
-        agent_other = create_agent(agent_id,
+        agent_other = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing, false,
+            thread_id, thread_rng, nothing, false,
             parent.age, false, with_parent_of_parent)
         agent_id += 1
-        agent_other2 = create_agent(agent_id,
+        agent_other2 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing,
+            thread_id, thread_rng, nothing,
             false, parent.age)
         agent_id += 1
-        agent_other3 = create_agent(agent_id,
+        agent_other3 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing,
+            thread_id, thread_rng, nothing,
             false, parent.age)
         agent_id += 1
-        agent_other4 = create_agent(agent_id,
+        agent_other4 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace, nothing,
+            thread_id, thread_rng, nothing,
             false, parent.age)
         agent_id += 1
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                thread_id, thread_rng, nothing, true, parent.age)
             agent_id += 1
-            no_one_at_home = parent.collective_id != 0
-            if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
-                agent_other3.collective_id == 0 || agent_other4.collective_id == 0
+            no_one_at_home = parent.activity_type != 0
+            if agent_other.activity_type == 0 || agent_other2.activity_type == 0 ||
+                agent_other3.activity_type == 0 || agent_other4.activity_type == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, parent, child)
             if num_of_children == 1
                 return Agent[parent, agent_other, agent_other2, agent_other3, agent_other4, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                thread_id, thread_rng, nothing, true, parent.age + 1)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
                 return Agent[parent, agent_other, agent_other2, agent_other3, agent_other4, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, parent.age)
+                thread_id, thread_rng, nothing, true, parent.age + 2)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
@@ -980,441 +1056,305 @@ end
 
 function create_others(
     agent_id::Int,
+    household_id::Int,
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
     household_conn_ids::Vector{Int},
-    district_people::Matrix{Int},
-    district_people_households::Matrix{Int},
+    district_people::Matrix{Float64},
+    district_people_households::Matrix{Float64},
     district_household_index::Int,
     num_of_children::Int,
     num_of_other_people::Int,
     index::Int,
     thread_id::Int,
     thread_rng::Vector{MersenneTwister},
-    num_of_people_in_kindergarten::Vector{Int},
-    num_of_people_in_school::Vector{Int},
-    num_of_people_in_university::Vector{Int},
-    num_of_people_in_workplace::Vector{Int}
 )::Vector{Agent}
-    agent = create_agent(agent_id,
+    agent = create_agent(agent_id, household_id,
         viruses, infectivities, household_conn_ids, index,
         district_people, district_people_households, district_household_index,
-        thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-        num_of_people_in_university, num_of_people_in_workplace)
+        thread_id, thread_rng)
     agent_id += 1
     if num_of_other_people == 0
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             agent_id += 1
-            no_one_at_home = agent.collective_id != 0
+            no_one_at_home = agent.activity_type != 0
             check_parent_leave(no_one_at_home, agent, child)
             if num_of_children == 1
                 return Agent[agent, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
                 return Agent[agent, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, child, child2, child3]
         end
         return Agent[agent]
     elseif num_of_other_people == 1
-        agent_other = create_agent(agent_id,
+        agent_other = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             agent_id += 1
-            no_one_at_home = agent.collective_id != 0
-            if agent_other.collective_id == 0
+            no_one_at_home = agent.activity_type != 0
+            if agent_other.activity_type == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent, child)
             if num_of_children == 1
                 return Agent[agent, agent_other, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
                 return Agent[agent, agent_other, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, agent_other, child, child2, child3]
         end
         return Agent[agent, agent_other]
     elseif num_of_other_people == 2
-        agent_other = create_agent(agent_id,
+        agent_other = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
-        agent_other2 = create_agent(agent_id,
+        agent_other2 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             agent_id += 1
-            no_one_at_home = agent.collective_id != 0
-            if agent_other.collective_id == 0 || agent_other2.collective_id == 0
+            no_one_at_home = agent.activity_type != 0
+            if agent_other.activity_type == 0 || agent_other2.activity_type == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent, child)
             if num_of_children == 1
                 return Agent[agent, agent_other, agent_other2, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
                 return Agent[agent, agent_other, agent_other2, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, agent_other, agent_other2, child, child2, child3]
         end
         return Agent[agent, agent_other, agent_other2]
     elseif num_of_other_people == 3
-        agent_other = create_agent(agent_id,
+        agent_other = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
-        agent_other2 = create_agent(agent_id,
+        agent_other2 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
-        agent_other3 = create_agent(agent_id,
+        agent_other3 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             agent_id += 1
-            no_one_at_home = agent.collective_id != 0
-            if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
-                agent_other3.collective_id == 0
+            no_one_at_home = agent.activity_type != 0
+            if agent_other.activity_type == 0 || agent_other2.activity_type == 0 ||
+                agent_other3.activity_type == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent, child)
             if num_of_children == 1
                 return Agent[agent, agent_other, agent_other2, agent_other3, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
                 return Agent[agent, agent_other, agent_other2, agent_other3, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
         return Agent[agent, agent_other, agent_other2, agent_other3]
-    else
-        agent_other = create_agent(agent_id,
+    elseif num_of_other_people == 4
+        agent_other = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
-        agent_other2 = create_agent(agent_id,
+        agent_other2 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
-        agent_other3 = create_agent(agent_id,
+        agent_other3 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
-        agent_other4 = create_agent(agent_id,
+        agent_other4 = create_agent(
+            agent_id, household_id,
             viruses, infectivities, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
-            thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-            num_of_people_in_university, num_of_people_in_workplace)
+            thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
-            child = create_agent(agent_id,
+            child = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             agent_id += 1
-            no_one_at_home = agent.collective_id != 0
-            if agent_other.collective_id == 0 || agent_other2.collective_id == 0 ||
-                agent_other3.collective_id == 0 || agent_other4.collective_id == 0
+            no_one_at_home = agent.activity_type != 0
+            if agent_other.activity_type == 0 || agent_other2.activity_type == 0 ||
+                agent_other3.activity_type == 0 || agent_other4.activity_type == 0
                 no_one_at_home = false
             end
             check_parent_leave(no_one_at_home, agent, child)
             if num_of_children == 1
                 return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4, child]
             end
-            child2 = create_agent(agent_id,
+            child2 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
                 return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4, child, child2]
             end
-            child3 = create_agent(agent_id,
+            child3 = create_agent(
+                agent_id, household_id,
                 viruses, infectivities, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true, 35)
+                thread_id, thread_rng, nothing, true, 35)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
         return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4]
-    end
-end
-
-function sample_from_zipf_distribution(
-    parameter::Float64, max_size::Int, rng::MersenneTwister
-)::Int
-    cumulative = 0.0
-    rand_num = rand(rng, Float64)
-    multiplier = 1 / sum((1:max_size).^(-parameter))
-    for i = 1:max_size
-        cumulative += i^(-parameter) * multiplier
-        if rand_num < cumulative
-            return i
-        end
-    end
-    return max_size
-end
-
-# Создание графа Барабаши-Альберта
-# На вход подаются группа с набором агентов (group) и число минимальных связей, которые должен иметь агент (m)
-function generate_barabasi_albert_network(agents::Vector{Agent}, group_ids::Vector{Int}, m::Int, rng::MersenneTwister)
-    if size(group_ids, 1) < m
-        m = size(group_ids, 1)
-    end
-    # Связный граф с m вершинами
-    for i = 1:m
-        for j = (i + 1):m
-            push!(agents[group_ids[i]].collective_conn_ids, group_ids[j])
-            push!(agents[group_ids[j]].collective_conn_ids, group_ids[i])
-        end
-    end
-    # Сумма связей всех вершин
-    degree_sum = m * (m - 1)
-    # Добавление новых вершин
-    for i = (m + 1):size(group_ids, 1)
-        agent = agents[group_ids[i]]
-        degree_sum_temp = degree_sum
-        for _ = 1:m
-            cumulative = 0.0
-            rand_num = rand(rng, Float64)
-            for j = 1:(i-1)
-                if group_ids[j] in agent.collective_conn_ids
-                    continue
-                end
-                agent2 = agents[group_ids[j]]
-                cumulative += size(agent2.collective_conn_ids, 1) / degree_sum_temp
-                if rand_num < cumulative
-                    degree_sum_temp -= size(agent2.collective_conn_ids, 1)
-                    push!(agent.collective_conn_ids, agent2.id)
-                    push!(agent2.collective_conn_ids, agent.id)
-                    break
-                end
-            end
-        end
-        degree_sum += 2m
-    end
-end
-
-function set_connections(
-    agents::Vector{Agent},
-    start_agent_id::Int,
-    end_agent_id::Int,
-    num_of_people_in_school::Vector{Int},
-    num_of_people_in_university::Vector{Int},
-    num_of_people_in_workplace::Vector{Int},
-    rng::MersenneTwister
-)
-    school_group_nums = ceil.(Int, num_of_people_in_school ./ 25)
-
-    university_group_nums = Array{Int, 1}(undef, 6)
-    university_group_nums[1] = ceil(Int, num_of_people_in_university[1] / 15)
-    university_group_nums[2:3] = ceil.(Int, num_of_people_in_university[2:3] ./ 14)
-    university_group_nums[4] = ceil.(Int, num_of_people_in_university[4] ./ 13)
-    university_group_nums[5] = ceil.(Int, num_of_people_in_university[5] ./ 11)
-    university_group_nums[6] = ceil.(Int, num_of_people_in_university[6] ./ 10)
-
-    workplaces_num_people = Int[]
-    workplace_num_people = num_of_people_in_workplace[1]
-
-    while num_of_people_in_workplace[1] > 0
-        num_people = sample_from_zipf_distribution(1.059, 1995, rng) + 5
-        if num_of_people_in_workplace[1] - num_people > 0
-            append!(workplaces_num_people, num_people)
-        else
-            append!(workplaces_num_people, num_of_people_in_workplace[1])
-        end
-        num_of_people_in_workplace[1] -= num_people
-    end
-
-    workplace_weights = workplaces_num_people ./ workplace_num_people
-
-    school_groups = [[Int[] for _ in 1:school_group_nums[j]] for j = 1:11]
-    university_groups = [[Int[] for _ in 1:university_group_nums[j]] for j = 1:6]
-    workplace_groups = [Int[] for _ in 1:size(workplaces_num_people, 1)]
-
-    school_group_ids = [collect(1:school_group_nums[i]) for i = 1:11]
-    university_group_ids = [collect(1:university_group_nums[i]) for i = 1:6]
-
-    for agent_id = start_agent_id:end_agent_id
-        agent = agents[agent_id]
-        if agent.collective_id == 2
-            random_num = rand(rng, 1:size(school_group_ids[agent.group_num], 1))
-            group_id = school_group_ids[agent.group_num][random_num]
-            deleteat!(school_group_ids[agent.group_num], random_num)
-            if size(school_group_ids[agent.group_num], 1) == 0
-                school_group_ids[agent.group_num] = collect(1:school_group_nums[agent.group_num])
-            end
-            push!(school_groups[agent.group_num][group_id], agent.id)
-            agent.collective_conn_ids = school_groups[agent.group_num][group_id]
-        elseif agent.collective_id == 3
-            random_num = rand(rng, 1:size(university_group_ids[agent.group_num], 1))
-            group_id = university_group_ids[agent.group_num][random_num]
-            deleteat!(university_group_ids[agent.group_num], random_num)
-            if size(university_group_ids[agent.group_num], 1) == 0
-                university_group_ids[agent.group_num] = collect(1:university_group_nums[agent.group_num])
-            end
-            push!(university_groups[agent.group_num][group_id], agent.id)
-            agent.collective_conn_ids = university_groups[agent.group_num][group_id]
-        elseif agent.collective_id == 4
-            random_num = rand(rng, Float64)
-            cumulative = 0.0
-            for i in 1:size(workplaces_num_people, 1)
-                cumulative += workplace_weights[i]
-                if random_num < cumulative
-                    push!(workplace_groups[i], agent.id)
-                    break
-                end
-            end
-        end
-    end
-
-    for i = 1:6
-        for j = 1:4:size(university_groups[i], 1)
-            if size(university_groups[i], 1) - j >= 4
-                group1 = university_groups[i][j]
-                group2 = university_groups[i][j + 1]
-                group3 = university_groups[i][j + 2]
-                group4 = university_groups[i][j + 3]
-                connections_for_group1 = vcat(group2, group3, group4)
-                connections_for_group2 = vcat(group1, group3, group4)
-                connections_for_group3 = vcat(group2, group1, group4)
-                connections_for_group4 = vcat(group2, group3, group1)
-                for agent_id in group1
-                    agent = agents[agent_id]
-                    agent.collective_cross_conn_ids = connections_for_group1
-                end
-                for agent_id in group2
-                    agent = agents[agent_id]
-                    agent.collective_cross_conn_ids = connections_for_group2
-                end
-                for agent_id in group3
-                    agent = agents[agent_id]
-                    agent.collective_cross_conn_ids = connections_for_group3
-                end
-                for agent_id in group4
-                    agent = agents[agent_id]
-                    agent.collective_cross_conn_ids = connections_for_group4
-                end
-            end
-        end
-    end
-
-    for workplace_group in workplace_groups
-        generate_barabasi_albert_network(agents, workplace_group, 6, rng)
+    else
+        agent_other = create_agent(
+            agent_id, household_id,
+            viruses, infectivities, household_conn_ids, index,
+            district_people, district_people_households, district_household_index,
+            thread_id, thread_rng)
+        agent_id += 1
+        agent_other2 = create_agent(
+            agent_id, household_id,
+            viruses, infectivities, household_conn_ids, index,
+            district_people, district_people_households, district_household_index,
+            thread_id, thread_rng)
+        agent_id += 1
+        agent_other3 = create_agent(
+            agent_id, household_id,
+            viruses, infectivities, household_conn_ids, index,
+            district_people, district_people_households, district_household_index,
+            thread_id, thread_rng)
+        agent_id += 1
+        agent_other4 = create_agent(
+            agent_id, household_id,
+            viruses, infectivities, household_conn_ids, index,
+            district_people, district_people_households, district_household_index,
+            thread_id, thread_rng)
+        agent_id += 1
+        agent_other5 = create_agent(
+            agent_id, household_id,
+            viruses, infectivities, household_conn_ids, index,
+            district_people, district_people_households, district_household_index,
+            thread_id, thread_rng)
+        agent_id += 1
+        return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4, agent_other5]
     end
 end
 
@@ -1425,18 +1365,20 @@ function create_population(
     start_agent_id::Int,
     end_agent_id::Int,
     all_agents::Vector{Agent},
+    households::Vector{Household},
+    kindergartens::Vector{School},
+    schools::Vector{School},
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
+    start_household_id::Int,
+    homes_coords_df::DataFrame,
     district_households::Matrix{Int},
-    district_people::Matrix{Int},
-    district_people_households::Matrix{Int},
+    district_people::Matrix{Float64},
+    district_people_households::Matrix{Float64},
     district_nums::Vector{Int}
 )
-    num_of_people_in_school = zeros(Int, 11)
-    num_of_people_in_university = zeros(Int, 6)
-    num_of_people_in_workplace = zeros(Int, 1)
-
     agent_id = start_agent_id
+    household_id = start_household_id
     for index in district_nums[thread_id:num_threads:size(district_nums, 1)]
         index_for_1_people::Int = (index - 1) * 5 + 1
         index_for_2_people::Int = index_for_1_people + 1
@@ -1444,907 +1386,1490 @@ function create_population(
         index_for_4_people::Int = index_for_3_people + 1
         index_for_5_people::Int = index_for_4_people + 1
 
-        district_start_agent_id = agent_id
-
-        num_of_people_in_kindergarten = zeros(Int, 6)
+        homes_coords_district_df = homes_coords_df[homes_coords_df.dist .== index, :]
 
         for _ in 1:district_households[index, 1]
             # 1P
-            household_conn_ids = Int[agent_id]
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                Int[agent_id], index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
+            is_child = rand(thread_rng[thread_id], Float64) < 0.0123
             agent = create_agent(
-                agent_id, viruses, infectivities, household_conn_ids, index, district_people,
-                    district_people_households, index_for_1_people,
-                    thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                    num_of_people_in_university, num_of_people_in_workplace)
-            agent_id += 1
+                    agent_id, household_id, viruses, infectivities, household.agent_ids, index, district_people,
+                    district_people_households, index_for_1_people, thread_id,
+                    thread_rng, nothing, is_child, is_child ? 70 : nothing)
             all_agents[agent.id] = agent
+            if agent.activity_type == 2
+                add_agent_to_school(agent, household.closest_school_id, schools)
+            end
+            agent_id += 1
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 2]
             # PWOP2P0C
             new_agent_id = agent_id + 1
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 0, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 3]
             # PWOP3P0C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 4]
             # PWOP3P1C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 5]
             # PWOP4P0C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 6]
             # PWOP4P1C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 7]
             # PWOP4P2C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 8]
             # PWOP5P0C
             new_agent_id = agent_id + 4
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 3, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 9]
             # PWOP5P1C
             new_agent_id = agent_id + 4
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 10]
             # PWOP5P2C
             new_agent_id = agent_id + 4
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 11]
             # PWOP5P3C
             new_agent_id = agent_id + 4
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 3, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 12]
             # PWOP6P0C
             new_agent_id = agent_id + 5
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 4, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 13]
             # PWOP6P1C
             new_agent_id = agent_id + 5
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 3, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 14]
             # PWOP6P2C
             new_agent_id = agent_id + 5
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 15]
             # PWOP6P3C
             new_agent_id = agent_id + 5
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 3, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 16]
             # 2PWOP4P0C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id += 2
             agents2 = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng, true)
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 17]
             # 2PWOP5P0C
             new_agent_id = agent_id + 4
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id += 3
             agents2 = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng, true)
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 18]
             # 2PWOP5P1C
             new_agent_id = agent_id + 4
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id += 3
             agents2 = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng, true)
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 19]
             # 2PWOP6P0C
             new_agent_id = agent_id + 5
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
-                district_people_households, index_for_5_people, 0, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
-            agent_id += 3
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 0, 2, index,
+                thread_id, thread_rng)
+            agent_id += 4
             agents2 = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
-                district_people_households, index_for_5_people, 0, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 0, 0, index,
+                thread_id, thread_rng, true)
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 20]
             # 2PWOP6P1C
             new_agent_id = agent_id + 5
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
-                district_people_households, index_for_5_people, 1, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
-            agent_id += 3
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 1, 1, index,
+                thread_id, thread_rng)
+            agent_id += 4
             agents2 = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
-                district_people_households, index_for_5_people, 0, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 0, 0, index,
+                thread_id, thread_rng, true)
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 21]
             # 2PWOP6P2C
             new_agent_id = agent_id + 5
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
-                district_people_households, index_for_5_people, 1, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
-            agent_id += 3
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 2, 0, index,
+                thread_id, thread_rng)
+            agent_id += 4
             agents2 = create_parents_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
-                district_people_households, index_for_5_people, 1, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 0, 0, index,
+                thread_id, thread_rng, true)
             append!(agents, agents2)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 22]
             # SMWC2P0C
             new_agent_id = agent_id + 1
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 0, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, false)
+                thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 23]
             # SMWC2P1C
             new_agent_id = agent_id + 1
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 1, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, false)
+                thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 24]
             # SMWC3P0C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, false)
+                thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 25]
             # SMWC3P1C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, false)
+                thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 26]
             # SMWC3P2C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 2, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, false)
+                thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 27]
             # SMWC4P0C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, false)
+                thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 28]
             # SMWC4P1C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, false)
+                thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 29]
             # SMWC4P2C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, false)
+                thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 30]
             # SMWC4P3C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 3, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, false)
+                thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 31]
             # SFWC2P0C
             new_agent_id = agent_id + 1
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 0, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, true)
+                thread_id, thread_rng, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 32]
             # SFWC2P1C
             new_agent_id = agent_id + 1
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 1, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, true)
+                thread_id, thread_rng, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 33]
             # SFWC3P0C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, true)
+                thread_id, thread_rng, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 34]
             # SFWC3P1C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, true)
+                thread_id, thread_rng, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 35]
             # SFWC3P2C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 2, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, true)
+                thread_id, thread_rng, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 36]
             # SPWCWP3P0C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 37]
             # SPWCWP3P1C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 38]
             # SPWCWP4P0C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 39]
             # SPWCWP4P1C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 40]
             # SPWCWP4P2C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
 
         for _ in 1:district_households[index, 41]
             # SPWCWPWOP3P0C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 42]
             # SPWCWPWOP3P1C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 43]
             # SPWCWPWOP4P0C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 44]
             # SPWCWPWOP4P1C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 45]
             # SPWCWPWOP4P2C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 46]
             # SPWCWPWOP5P0C
             new_agent_id = agent_id + 4
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 4, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 47]
             # SPWCWPWOP5P1C
             new_agent_id = agent_id + 4
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 3, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 48]
             # SPWCWPWOP5P2C
             new_agent_id = agent_id + 4
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_parent_with_children(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace, nothing, true)
+                thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
 
         for _ in 1:district_households[index, 49]
             # O2P0C
             new_agent_id = agent_id + 1
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_others(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 0, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 50]
             # O2P1C
             new_agent_id = agent_id + 1
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_others(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 1, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 51]
             # O3P0C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_others(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 52]
             # O3P1C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_others(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 53]
             # O3P2C
             new_agent_id = agent_id + 2
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_others(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 2, 0, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 54]
             # O4P0C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_others(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 55]
             # O4P1C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_others(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 56]
             # O4P2C
             new_agent_id = agent_id + 3
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_others(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 57]
-            # O5P0C
-            new_agent_id = agent_id + 4
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            # O4P3C
+            new_agent_id = agent_id + 3
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_others(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
-                district_people_households, index_for_5_people, 0, 4, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_4_people, 3, 1, index,
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 58]
-            # O5P1C
+            # O5P0C
             new_agent_id = agent_id + 4
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_others(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
-                district_people_households, index_for_5_people, 1, 3, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 0, 4, index,
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
             end
+            households[household_id] = household
+            household_id += 1
         end
         for _ in 1:district_households[index, 59]
-            # O5P2C
+            # O5P1C
             new_agent_id = agent_id + 4
-            household_conn_ids = collect(Int, agent_id:new_agent_id)
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
             agents = create_others(
-                agent_id, viruses, infectivities, household_conn_ids, district_people,
-                district_people_households, index_for_5_people, 2, 2, index,
-                thread_id, thread_rng, num_of_people_in_kindergarten, num_of_people_in_school,
-                num_of_people_in_university, num_of_people_in_workplace)
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 1, 3, index,
+                thread_id, thread_rng)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
-            end
-        end
-        district_end_agent_id = agent_id - 1
-
-        kindergarten_group_nums = Array{Int, 1}(undef, 6)
-        kindergarten_group_nums[1] = ceil(Int, num_of_people_in_kindergarten[1] / 10)
-        kindergarten_group_nums[2:3] = ceil.(Int, num_of_people_in_kindergarten[2:3] ./ 15)
-        kindergarten_group_nums[4:6] = ceil.(Int, num_of_people_in_kindergarten[4:6] ./ 20)
-
-        kindergarten_groups = [[Int[] for _ in 1:kindergarten_group_nums[j]] for j = 1:6]
-        kindergarten_group_ids = [collect(1:kindergarten_group_nums[i]) for i = 1:6]
-
-        for agent in all_agents[district_start_agent_id:district_end_agent_id]
-            if agent.collective_id == 1
-                random_num = rand(thread_rng[thread_id], 1:size(kindergarten_group_ids[agent.group_num], 1))
-                group_id = kindergarten_group_ids[agent.group_num][random_num]
-                deleteat!(kindergarten_group_ids[agent.group_num], random_num)
-                if size(kindergarten_group_ids[agent.group_num], 1) == 0
-                    kindergarten_group_ids[agent.group_num] = collect(1:kindergarten_group_nums[agent.group_num])
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
                 end
-                push!(kindergarten_groups[agent.group_num][group_id], agent.id)
-                agent.collective_conn_ids = kindergarten_groups[agent.group_num][group_id]
             end
+            households[household_id] = household
+            household_id += 1
+        end
+        for _ in 1:district_households[index, 60]
+            # O5P2C
+            new_agent_id = agent_id + 4
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
+            agents = create_others(
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 2, 2, index,
+                thread_id, thread_rng)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
+            end
+            households[household_id] = household
+            household_id += 1
+        end
+        for _ in 1:district_households[index, 61]
+            # O5P3C
+            new_agent_id = agent_id + 4
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
+            agents = create_others(
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 3, 2, index,
+                thread_id, thread_rng)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
+            end
+            households[household_id] = household
+            household_id += 1
+        end
+        for _ in 1:district_households[index, 62]
+            # O6P0C
+            new_agent_id = agent_id + 5
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
+            agents = create_others(
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 0, 5, index,
+                thread_id, thread_rng)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                end
+            end
+            households[household_id] = household
+            household_id += 1
+        end
+        for _ in 1:district_households[index, 63]
+            # O6P1C
+            new_agent_id = agent_id + 5
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
+            agents = create_others(
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 1, 4, index,
+                thread_id, thread_rng)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
+            end
+            households[household_id] = household
+            household_id += 1
+        end
+        for _ in 1:district_households[index, 64]
+            # O6P2C
+            new_agent_id = agent_id + 5
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
+            agents = create_others(
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 2, 3, index,
+                thread_id, thread_rng)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
+            end
+            households[household_id] = household
+            household_id += 1
+        end
+        for _ in 1:district_households[index, 65]
+            # O6P3C
+            new_agent_id = agent_id + 5
+            df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
+            household = Household(
+                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
+                df_row.shop, df_row.restaurant)
+            agents = create_others(
+                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                district_people_households, index_for_5_people, 3, 2, index,
+                thread_id, thread_rng)
+            agent_id = new_agent_id + 1
+            for agent in agents
+                all_agents[agent.id] = agent
+                if agent.activity_type == 2
+                    add_agent_to_school(agent, household.closest_school_id, schools)
+                elseif agent.activity_type == 1
+                    add_agent_to_kindergarten(agent, household.closest_kindergarten_id, kindergartens)
+                end
+            end
+            households[household_id] = household
+            household_id += 1
         end
     end
-
-    set_connections(
-        all_agents,
-        start_agent_id,
-        end_agent_id,
-        num_of_people_in_school,
-        num_of_people_in_university,
-        num_of_people_in_workplace,
-        thread_rng[thread_id])
 end
