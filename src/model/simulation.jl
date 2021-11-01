@@ -80,10 +80,60 @@ function simulate_contacts(
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
+        # Агент инфицирован
         if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
+            # Инфицированный агент посещает чужое домохозяйство
             if agent.visit_household_id != 0
                 for agent2_id in households[agent.visit_household_id].agent_ids
                     agent2 = agents[agent2_id]
+                    # Проверка восприимчивости агента к вирусу
+                    if agent2.visit_household_id == 0 &&
+                        agent2.virus_id == 0 &&
+                        agent2.days_immune == 0 &&
+                        (agent.virus_id != 1 || agent2.FluA_days_immune == 0) &&
+                        (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
+                        (agent.virus_id != 7 || agent2.CoV_days_immune == 0) &&
+                        (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
+                        (agent.virus_id != 4 || agent2.RSV_days_immune == 0) &&
+                        (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
+                        (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
+
+                        if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
+                            (agent.activity_type == 3 && is_university_holiday) ||
+                            (agent.activity_type == 2 && is_school_holiday) ||
+                            (agent.activity_type == 1 && is_kindergarten_holiday)) &&
+                            (agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
+                            (agent2.activity_type == 3 && is_university_holiday) ||
+                            (agent2.activity_type == 2 && is_school_holiday) ||
+                            (agent2.activity_type == 1 && is_kindergarten_holiday))
+
+                            dur = get_contact_duration_normal(0.95, 0.2, rng)
+                            if dur > 0.01
+                                make_contact(agent, agent2, dur, current_step, duration_parameter,
+                                    susceptibility_parameters, temp_influences, rng)
+                                if agent2.is_newly_infected
+                                    infected_inside_activity[current_step, 8, thread_id] += 1
+                                end
+                            end
+                        else
+                            dur = get_contact_duration_normal(0.42, 0.1, rng)
+                            if dur > 0.01
+                                make_contact(agent, agent2, dur, current_step, duration_parameter,
+                                    susceptibility_parameters, temp_influences, rng)
+                                if agent2.is_newly_infected
+                                    infected_inside_activity[current_step, 8, thread_id] += 1
+                                end
+                            end
+                        end
+                    end
+                end
+            # Агент-ребенок посещает чужое домохозяйство вместе со своим попечителем
+            elseif agent.supporter_id != 0 &&
+                agents[agent.supporter_id].visit_household_id != 0 &&
+                (agent.needs_supporter_care || rand(rng, Float64) < 0.5)
+                for agent2_id in households[agents[agent.supporter_id].visit_household_id].agent_ids
+                    agent2 = agents[agent2_id]
+                    # Проверка восприимчивости агента к вирусу
                     if agent2.visit_household_id == 0 &&
                         agent2.virus_id == 0 &&
                         agent2.days_immune == 0 &&
@@ -125,7 +175,7 @@ function simulate_contacts(
                     end
                 end
             end
-
+            # Контакты в домохозяйстве
             for agent2_id in agent.household_conn_ids
                 agent2 = agents[agent2_id]
                 # Проверка восприимчивости агента к вирусу
@@ -171,6 +221,7 @@ function simulate_contacts(
                     end
                 end
             end
+            # Контакты в остальных коллективах
             if !agent.is_isolated && !agent.on_parent_leave && agent.attendance &&
                 ((agent.activity_type == 1 && !is_kindergarten_holiday) ||
                     (agent.activity_type == 2 && !is_school_holiday) ||
@@ -209,6 +260,7 @@ function simulate_contacts(
                     end
                 end
 
+                # Контакты между университетскими группами
                 if agent.activity_type == 3
                     for agent2_id in agent.activity_cross_conn_ids
                         agent2 = agents[agent2_id]
@@ -239,7 +291,9 @@ function simulate_contacts(
                     end
                 end
             end
+        # Агент восприимчив
         elseif agent.virus_id == 0 && agent.days_immune == 0
+            # Восприимчивый агент посещает чужое домохозяйство
             if agent.visit_household_id != 0
                 for agent2_id in households[agent.visit_household_id].agent_ids
                     agent2 = agents[agent2_id]
@@ -284,8 +338,55 @@ function simulate_contacts(
                         end
                     end
                 end
+            # Восприимчивый агент-ребенок посещает чужое домохозяйство вместе со своим попечителем с вероятностью 0.5
+            elseif agent.supporter_id != 0 && agents[agent.supporter_id].visit_household_id != 0 && rand(rng, Float64) < 0.5
+                for agent2_id in households[agents[agent.supporter_id].visit_household_id].agent_ids
+                    agent2 = agents[agent2_id]
+                    # Проверка восприимчивости агента к вирусу
+                    if agent2.visit_household_id == 0 &&
+                        agent2.virus_id != 0 &&
+                        !agent2.is_newly_infected &&
+                        agent2.infectivity > 0.0001 &&
+                        (agent2.virus_id != 1 || agent.FluA_days_immune == 0) &&
+                        (agent2.virus_id != 2 || agent.FluB_days_immune == 0) &&
+                        (agent2.virus_id != 7 || agent.CoV_days_immune == 0) &&
+                        (agent2.virus_id != 3 || agent.RV_days_immune == 0) &&
+                        (agent2.virus_id != 4 || agent.RSV_days_immune == 0) &&
+                        (agent2.virus_id != 5 || agent.AdV_days_immune == 0) &&
+                        (agent2.virus_id != 6 || agent.PIV_days_immune == 0)
+
+                        if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
+                            (agent.activity_type == 3 && is_university_holiday) ||
+                            (agent.activity_type == 2 && is_school_holiday) ||
+                            (agent.activity_type == 1 && is_kindergarten_holiday)) &&
+                            (agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
+                            (agent2.activity_type == 3 && is_university_holiday) ||
+                            (agent2.activity_type == 2 && is_school_holiday) ||
+                            (agent2.activity_type == 1 && is_kindergarten_holiday))
+
+                            dur = get_contact_duration_normal(0.95, 0.2, rng)
+                            if dur > 0.01
+                                make_contact(agent2, agent, dur, current_step, duration_parameter,
+                                    susceptibility_parameters, temp_influences, rng)
+                                if agent.is_newly_infected
+                                    infected_inside_activity[current_step, 8, thread_id] += 1
+                                end
+                            end
+                        else
+                            dur = get_contact_duration_normal(0.42, 0.1, rng)
+                            if dur > 0.01
+                                make_contact(agent2, agent, dur, current_step, duration_parameter,
+                                    susceptibility_parameters, temp_influences, rng)
+                                if agent.is_newly_infected
+                                    infected_inside_activity[current_step, 8, thread_id] += 1
+                                end
+                            end
+                        end
+                    end
+                end
             end
 
+            # Случайное инфицирование
             if agent.age < 2
                 if rand(rng, Float64) < 0.0003
                     infect_randomly(agent, current_step, etiology, rng)
@@ -396,11 +497,16 @@ function update_agent_states(
                 agent.virus_id = 0
                 agent.is_isolated = false
 
-                if agent.supporter_id != 0
+                if agent.needs_supporter_care
                     is_support_still_needed = false
                     for dependant_id in agents[agent.supporter_id].dependant_ids
                         dependant = agents[dependant_id]
-                        if dependant.virus_id != 0 && !dependant.is_asymptomatic && (dependant.activity_type == 0 || dependant.is_isolated)
+                        if dependant.needs_supporter_care &&
+                            dependant.virus_id != 0 &&
+                            !dependant.is_asymptomatic &&
+                            dependant.days_infected > 0 &&
+                            (dependant.activity_type == 0 || dependant.is_isolated)
+
                             is_support_still_needed = true
                         end
                     end
@@ -476,7 +582,12 @@ function update_agent_states(
                     infectivities[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
                     agent.is_asymptomatic && agent.days_infected > 0)
 
-                if agent.supporter_id != 0 && !agent.is_asymptomatic && agent.days_infected > 0 && (agent.is_isolated || agent.activity_type == 0)
+                if agent.supporter_id != 0 &&
+                    agent.needs_supporter_care &&
+                    !agent.is_asymptomatic &&
+                    agent.days_infected > 0 &&
+                    (agent.is_isolated || agent.activity_type == 0)
+
                     agents[agent.supporter_id].on_parent_leave = true
                 end
             end
@@ -634,13 +745,14 @@ function run_simulation(
 
     num_viruses = 7
 
-    num_infected_age_groups_viruses = Array{Int, 3}(undef, 52, 7, 4)
+    # num_infected_age_groups_viruses = Array{Int, 3}(undef, 52, 7, 4)
+    num_infected_age_groups_viruses = zeros(52, 7, 4)
     confirmed_daily_new_cases_age_groups_viruses = zeros(365, 4, 7, num_threads)
     infected_inside_activity = zeros(Int, 365, 8, num_threads)
 
     # DEBUG
     # max_step = 365
-    max_step = 10
+    max_step = 15
 
     for current_step = 1:max_step
         println(current_step)
@@ -701,10 +813,10 @@ function run_simulation(
             is_university_holiday = true
         end
 
-        @time @threads for thread_id in 1:num_threads
+        @threads for thread_id in 1:num_threads
             for agent_id in start_agent_ids[thread_id]:end_agent_ids[thread_id]
                 agent = agents[agent_id]
-                if agent.age > 14
+                if agent.age >= 14
                     if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
                         (agent.activity_type == 3 && is_university_holiday) ||
                         (agent.activity_type == 2 && is_school_holiday) ||
@@ -724,9 +836,23 @@ function run_simulation(
                                 for i = 1:length(group)
                                     group_agent_id = group[i]
                                     if group_agent_id == 0
-                                        group[i] = agent.id
-                                        space_found = true
-                                        break
+                                        num_children = 0
+                                        if length(agent.dependant_ids) > 0
+                                            for children_id in agent.dependant_ids
+                                                children = agents[children_id]
+                                                if children.needs_supporter_care || rand(thread_rng[thread_id], Float64) < 0.5
+                                                    num_children += 1
+                                                end
+                                            end
+                                        end
+                                        if i + num_children <= length(group)
+                                            for child_num = 1:num_children
+                                                group[i + child_num] = agent.dependant_ids[child_num]
+                                            end
+                                            group[i] = agent.id
+                                            space_found = true
+                                            break
+                                        end
                                     end
                                 end
                                 if space_found
@@ -738,9 +864,23 @@ function run_simulation(
                                     for i = 1:length(group)
                                         group_agent_id = group[i]
                                         if group_agent_id == 0
-                                            group[i] = agent.id
-                                            space_found = true
-                                            break
+                                            num_children = 0
+                                            if length(agent.dependant_ids) > 0
+                                                for children_id in agent.dependant_ids
+                                                    children = agents[children_id]
+                                                    if children.needs_supporter_care || rand(thread_rng[thread_id], Float64) < 0.5
+                                                        num_children += 1
+                                                    end
+                                                end
+                                            end
+                                            if i + num_children <= length(group)
+                                                for child_num = 1:num_children
+                                                    group[i + child_num] = agent.dependant_ids[child_num]
+                                                end
+                                                group[i] = agent.id
+                                                space_found = true
+                                                break
+                                            end
                                         end
                                     end
                                     if space_found
@@ -756,9 +896,23 @@ function run_simulation(
                                 for i = 1:length(group)
                                     group_agent_id = group[i]
                                     if group_agent_id == 0
-                                        group[i] = agent.id
-                                        space_found = true
-                                        break
+                                        num_children = 0
+                                        if length(agent.dependant_ids) > 0
+                                            for children_id in agent.dependant_ids
+                                                children = agents[children_id]
+                                                if children.needs_supporter_care || rand(thread_rng[thread_id], Float64) < 0.5
+                                                    num_children += 1
+                                                end
+                                            end
+                                        end
+                                        if i + num_children <= length(group)
+                                            for child_num = 1:num_children
+                                                group[i + child_num] = agent.dependant_ids[child_num]
+                                            end
+                                            group[i] = agent.id
+                                            space_found = true
+                                            break
+                                        end
                                     end
                                 end
                                 if space_found
@@ -770,9 +924,23 @@ function run_simulation(
                                     for i = 1:length(group)
                                         group_agent_id = group[i]
                                         if group_agent_id == 0
-                                            group[i] = agent.id
-                                            space_found = true
-                                            break
+                                            num_children = 0
+                                            if length(agent.dependant_ids) > 0
+                                                for children_id in agent.dependant_ids
+                                                    children = agents[children_id]
+                                                    if children.needs_supporter_care || rand(thread_rng[thread_id], Float64) < 0.5
+                                                        num_children += 1
+                                                    end
+                                                end
+                                            end
+                                            if i + num_children <= length(group)
+                                                for child_num = 1:num_children
+                                                    group[i + child_num] = agent.dependant_ids[child_num]
+                                                end
+                                                group[i] = agent.id
+                                                space_found = true
+                                                break
+                                            end
                                         end
                                     end
                                     if space_found
@@ -796,9 +964,23 @@ function run_simulation(
                                 for i = 1:length(group)
                                     group_agent_id = group[i]
                                     if group_agent_id == 0
-                                        group[i] = agent.id
-                                        space_found = true
-                                        break
+                                        num_children = 0
+                                        if length(agent.dependant_ids) > 0
+                                            for children_id in agent.dependant_ids
+                                                children = agents[children_id]
+                                                if children.needs_supporter_care || rand(thread_rng[thread_id], Float64) < 0.5
+                                                    num_children += 1
+                                                end
+                                            end
+                                        end
+                                        if i + num_children <= length(group)
+                                            for child_num = 1:num_children
+                                                group[i + child_num] = agent.dependant_ids[child_num]
+                                            end
+                                            group[i] = agent.id
+                                            space_found = true
+                                            break
+                                        end
                                     end
                                 end
                                 if space_found
@@ -810,9 +992,23 @@ function run_simulation(
                                     for i = 1:length(group)
                                         group_agent_id = group[i]
                                         if group_agent_id == 0
-                                            group[i] = agent.id
-                                            space_found = true
-                                            break
+                                            num_children = 0
+                                            if length(agent.dependant_ids) > 0
+                                                for children_id in agent.dependant_ids
+                                                    children = agents[children_id]
+                                                    if children.needs_supporter_care || rand(thread_rng[thread_id], Float64) < 0.5
+                                                        num_children += 1
+                                                    end
+                                                end
+                                            end
+                                            if i + num_children <= length(group)
+                                                for child_num = 1:num_children
+                                                    group[i + child_num] = agent.dependant_ids[child_num]
+                                                end
+                                                group[i] = agent.id
+                                                space_found = true
+                                                break
+                                            end
                                         end
                                     end
                                     if space_found
@@ -828,9 +1024,23 @@ function run_simulation(
                                 for i = 1:length(group)
                                     group_agent_id = group[i]
                                     if group_agent_id == 0
-                                        group[i] = agent.id
-                                        space_found = true
-                                        break
+                                        num_children = 0
+                                        if length(agent.dependant_ids) > 0
+                                            for children_id in agent.dependant_ids
+                                                children = agents[children_id]
+                                                if children.needs_supporter_care || rand(thread_rng[thread_id], Float64) < 0.5
+                                                    num_children += 1
+                                                end
+                                            end
+                                        end
+                                        if i + num_children <= length(group)
+                                            for child_num = 1:num_children
+                                                group[i + child_num] = agent.dependant_ids[child_num]
+                                            end
+                                            group[i] = agent.id
+                                            space_found = true
+                                            break
+                                        end
                                     end
                                 end
                                 if space_found
@@ -842,9 +1052,23 @@ function run_simulation(
                                     for i = 1:length(group)
                                         group_agent_id = group[i]
                                         if group_agent_id == 0
-                                            group[i] = agent.id
-                                            space_found = true
-                                            break
+                                            num_children = 0
+                                            if length(agent.dependant_ids) > 0
+                                                for children_id in agent.dependant_ids
+                                                    children = agents[children_id]
+                                                    if children.needs_supporter_care || rand(thread_rng[thread_id], Float64) < 0.5
+                                                        num_children += 1
+                                                    end
+                                                end
+                                            end
+                                            if i + num_children <= length(group)
+                                                for child_num = 1:num_children
+                                                    group[i + child_num] = agent.dependant_ids[child_num]
+                                                end
+                                                group[i] = agent.id
+                                                space_found = true
+                                                break
+                                            end
                                         end
                                     end
                                     if space_found
@@ -858,7 +1082,7 @@ function run_simulation(
             end
         end
 
-        @time @threads for thread_id in 1:num_threads
+        @threads for thread_id in 1:num_threads
             simulate_contacts(
                 thread_id,
                 thread_rng[thread_id],
@@ -880,7 +1104,7 @@ function run_simulation(
                 infected_inside_activity)
         end
 
-        @time @threads for thread_id in 1:num_threads
+        @threads for thread_id in 1:num_threads
             for shop_id in start_shop_ids[thread_id]:end_shop_ids[thread_id]
                 shop = shops[shop_id]
                 for group_id in 1:length(shop.groups)
@@ -1012,7 +1236,7 @@ function run_simulation(
             end
         end
 
-        @time @threads for thread_id in 1:num_threads
+        @threads for thread_id in 1:num_threads
             update_agent_states(
                 thread_id,
                 thread_rng[thread_id],

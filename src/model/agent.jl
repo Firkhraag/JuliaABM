@@ -27,11 +27,19 @@ mutable struct Agent
     # # Связи с друзьями
     friend_ids::Vector{Int}
     visit_household_id::Int
+
+    # # Id детей за которыми нужен уход в случае болезни
+    # dependant_ids::Vector{Int}
+    # # Id того, кто будет ухаживать в случае болезни
     
-    # Id детей за которыми нужен уход в случае болезни
+    # Id детей младше 14 лет
     dependant_ids::Vector{Int}
-    # Id того, кто будет ухаживать в случае болезни
+    # Id попечителя
     supporter_id::Int
+    # Нуждается в уходе при болезни
+    needs_supporter_care::Bool
+
+
     # Уход за больным ребенком
     on_parent_leave::Bool
     # Уровень иммуноглобулина
@@ -351,19 +359,19 @@ mutable struct Agent
         # Болен
         is_infected = false
         if age < 3
-            if rand(thread_rng[thread_id], Float64) < 0.016
+            if rand(thread_rng[thread_id], Float64) < 0.025
                 is_infected = true
             end
         elseif age < 7
-            if rand(thread_rng[thread_id], Float64) < 0.01
+            if rand(thread_rng[thread_id], Float64) < 0.018
                 is_infected = true
             end
         elseif age < 15
-            if rand(thread_rng[thread_id], Float64) < 0.007
+            if rand(thread_rng[thread_id], Float64) < 0.012
                 is_infected = true
             end
         else
-            if rand(thread_rng[thread_id], Float64) < 0.003
+            if rand(thread_rng[thread_id], Float64) < 0.002
                 is_infected = true
             end
         end
@@ -753,7 +761,7 @@ mutable struct Agent
         new(
             id, age, infant_age, is_male, household_id, household_conn_ids,
             activity_type, 0, school_group_num, 0, Int[], Int[], Int[], 0, Int[], 0, false,
-            ig_level, virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
+            false, ig_level, virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
             RSV_days_immune, AdV_days_immune, PIV_days_immune, CoV_days_immune,
             incubation_period, infection_period, days_infected, days_immune,
             is_asymptomatic, is_isolated, infectivity, attendance, is_teacher)

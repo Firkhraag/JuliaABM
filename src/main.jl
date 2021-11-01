@@ -320,7 +320,7 @@ function main()
     workplaces = Workplace[]
 
     shop_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "shops.csv")))
-    # Массив для хранения магазинов
+    # Массив для хранения продовольственных магазинов
     shops = Array{Shop, 1}(undef, num_shops)
     for i in 1:size(shop_coords_df, 1)
         shops[i] = Shop(
@@ -398,15 +398,15 @@ function main()
         mean(temperature_parameter_7_array[burnin:step:size(temperature_parameter_7_array)[1]])
     ]
 
-    duration_parameter = 2.5
+    duration_parameter = 3.0
     susceptibility_parameters = [
-        6.38,
-        6.21,
-        6.56,
-        8.06,
-        8.06,
-        7.39,
-        7.27
+        6.08,
+        5.91,
+        6.26,
+        7.76,
+        7.76,
+        7.09,
+        6.97
     ]
     temperature_parameters = [
         -0.98,
@@ -549,24 +549,24 @@ function main()
         shops, restaurants, infectivities, temp_influences, duration_parameter,
         susceptibility_parameters, etiology, true)
 
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
-    #     num_infected_age_groups_viruses ./ 10072, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
-    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
-    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
-    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
+        num_infected_age_groups_viruses ./ 10072, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
+        sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
+        sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
+        sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
 
-    # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
-    # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+    S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+    S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
-    # println("S: ", S_abs)
-    # println("S: ", S_square)
+    println("S: ", S_abs)
+    println("S: ", S_square)
 
     # ----------------------
     # Prior search

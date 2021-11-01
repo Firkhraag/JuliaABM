@@ -474,11 +474,14 @@ function create_spouse(
 end
 
 function check_parent_leave(no_one_at_home::Bool, adult::Agent, child::Agent)
-    if no_one_at_home && child.age < 14
-        push!(adult.dependant_ids, child.id)
+    if child.age <= 13
         child.supporter_id = adult.id
-        if child.age < 3 && child.activity_type == 0
-            adult.activity_type = 0
+        push!(adult.dependant_ids, child.id)
+        if no_one_at_home
+            child.needs_supporter_care = true
+            if child.age <= 3 && child.activity_type == 0
+                adult.activity_type = 0
+            end
         end
     end
 end
