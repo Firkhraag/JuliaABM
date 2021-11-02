@@ -1,4 +1,4 @@
-# julia --sysimage sys_plots.so src/plots/results.jl
+# julia --sysimage sys_plots.so src/plots/output/results.jl
 
 using PackageCompiler
 using Plots

@@ -314,3 +314,284 @@ function sample_from_zipf_distribution(
     end
     return max_size
 end
+
+function add_additional_connections(
+    rng::MersenneTwister,
+    start_agent_id::Int,
+    end_agent_id::Int,
+    agents::Vector{Agent},
+    households::Vector{Household},
+    shops::Vector{Shop},
+    restaurants::Vector{Restaurant},
+    is_kindergarten_holiday::Bool,
+    is_school_holiday::Bool,
+    is_university_holiday::Bool,
+    is_work_holiday::Bool,
+)
+    for agent_id in start_agent_id:end_agent_id
+        agent = agents[agent_id]
+        if agent.age >= 14
+            if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
+                (agent.activity_type == 3 && is_university_holiday) ||
+                (agent.activity_type == 2 && is_school_holiday) ||
+                (agent.activity_type == 1 && is_kindergarten_holiday)
+
+                if rand(rng, Float64) < 0.269
+                    if length(agent.friend_ids) > 0
+                        agent.visit_household_id = agents[rand(rng, agent.friend_ids)].household_id
+                    else
+                        agent.visit_household_id = 0
+                    end
+                end
+
+                if rand(rng, Float64) < 0.354
+                    space_found = false
+                    for group in shops[households[agent.household_id].closest_shop_id].groups
+                        for i = 1:length(group)
+                            group_agent_id = group[i]
+                            if group_agent_id == 0
+                                num_children = 0
+                                if length(agent.dependant_ids) > 0
+                                    for children_id in agent.dependant_ids
+                                        children = agents[children_id]
+                                        if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                            num_children += 1
+                                        end
+                                    end
+                                end
+                                if i + num_children <= length(group)
+                                    for child_num = 1:num_children
+                                        group[i + child_num] = agent.dependant_ids[child_num]
+                                    end
+                                    group[i] = agent.id
+                                    space_found = true
+                                    break
+                                end
+                            end
+                        end
+                        if space_found
+                            break
+                        end
+                    end
+                    if !space_found && households[agent.household_id].closest_shop_id != households[agent.household_id].closest_shop_id2
+                        for group in shops[households[agent.household_id].closest_shop_id2].groups
+                            for i = 1:length(group)
+                                group_agent_id = group[i]
+                                if group_agent_id == 0
+                                    num_children = 0
+                                    if length(agent.dependant_ids) > 0
+                                        for children_id in agent.dependant_ids
+                                            children = agents[children_id]
+                                            if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                                num_children += 1
+                                            end
+                                        end
+                                    end
+                                    if i + num_children <= length(group)
+                                        for child_num = 1:num_children
+                                            group[i + child_num] = agent.dependant_ids[child_num]
+                                        end
+                                        group[i] = agent.id
+                                        space_found = true
+                                        break
+                                    end
+                                end
+                            end
+                            if space_found
+                                break
+                            end
+                        end
+                    end
+                end
+
+                if rand(rng, Float64) < 0.295
+                    space_found = false
+                    for group in restaurants[households[agent.household_id].closest_restaurant_id].groups
+                        for i = 1:length(group)
+                            group_agent_id = group[i]
+                            if group_agent_id == 0
+                                num_children = 0
+                                if length(agent.dependant_ids) > 0
+                                    for children_id in agent.dependant_ids
+                                        children = agents[children_id]
+                                        if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                            num_children += 1
+                                        end
+                                    end
+                                end
+                                if i + num_children <= length(group)
+                                    for child_num = 1:num_children
+                                        group[i + child_num] = agent.dependant_ids[child_num]
+                                    end
+                                    group[i] = agent.id
+                                    space_found = true
+                                    break
+                                end
+                            end
+                        end
+                        if space_found
+                            break
+                        end
+                    end
+                    if !space_found && households[agent.household_id].closest_restaurant_id != households[agent.household_id].closest_restaurant_id2
+                        for group in restaurants[households[agent.household_id].closest_restaurant_id2].groups
+                            for i = 1:length(group)
+                                group_agent_id = group[i]
+                                if group_agent_id == 0
+                                    num_children = 0
+                                    if length(agent.dependant_ids) > 0
+                                        for children_id in agent.dependant_ids
+                                            children = agents[children_id]
+                                            if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                                num_children += 1
+                                            end
+                                        end
+                                    end
+                                    if i + num_children <= length(group)
+                                        for child_num = 1:num_children
+                                            group[i + child_num] = agent.dependant_ids[child_num]
+                                        end
+                                        group[i] = agent.id
+                                        space_found = true
+                                        break
+                                    end
+                                end
+                            end
+                            if space_found
+                                break
+                            end
+                        end
+                    end
+                end
+            else
+                if rand(rng, Float64) < 0.177
+                    if length(agent.friend_ids) > 0
+                        agent.visit_household_id = agents[rand(rng, agent.friend_ids)].household_id
+                    else
+                        agent.visit_household_id = 0
+                    end
+                end
+
+                if rand(rng, Float64) < 0.291
+                    space_found = false
+                    for group in shops[households[agent.household_id].closest_shop_id].groups
+                        for i = 1:length(group)
+                            group_agent_id = group[i]
+                            if group_agent_id == 0
+                                num_children = 0
+                                if length(agent.dependant_ids) > 0
+                                    for children_id in agent.dependant_ids
+                                        children = agents[children_id]
+                                        if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                            num_children += 1
+                                        end
+                                    end
+                                end
+                                if i + num_children <= length(group)
+                                    for child_num = 1:num_children
+                                        group[i + child_num] = agent.dependant_ids[child_num]
+                                    end
+                                    group[i] = agent.id
+                                    space_found = true
+                                    break
+                                end
+                            end
+                        end
+                        if space_found
+                            break
+                        end
+                    end
+                    if !space_found && households[agent.household_id].closest_shop_id != households[agent.household_id].closest_shop_id2
+                        for group in shops[households[agent.household_id].closest_shop_id2].groups
+                            for i = 1:length(group)
+                                group_agent_id = group[i]
+                                if group_agent_id == 0
+                                    num_children = 0
+                                    if length(agent.dependant_ids) > 0
+                                        for children_id in agent.dependant_ids
+                                            children = agents[children_id]
+                                            if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                                num_children += 1
+                                            end
+                                        end
+                                    end
+                                    if i + num_children <= length(group)
+                                        for child_num = 1:num_children
+                                            group[i + child_num] = agent.dependant_ids[child_num]
+                                        end
+                                        group[i] = agent.id
+                                        space_found = true
+                                        break
+                                    end
+                                end
+                            end
+                            if space_found
+                                break
+                            end
+                        end
+                    end
+                end
+
+                if rand(rng, Float64) < 0.255
+                    space_found = false
+                    for group in restaurants[households[agent.household_id].closest_restaurant_id].groups
+                        for i = 1:length(group)
+                            group_agent_id = group[i]
+                            if group_agent_id == 0
+                                num_children = 0
+                                if length(agent.dependant_ids) > 0
+                                    for children_id in agent.dependant_ids
+                                        children = agents[children_id]
+                                        if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                            num_children += 1
+                                        end
+                                    end
+                                end
+                                if i + num_children <= length(group)
+                                    for child_num = 1:num_children
+                                        group[i + child_num] = agent.dependant_ids[child_num]
+                                    end
+                                    group[i] = agent.id
+                                    space_found = true
+                                    break
+                                end
+                            end
+                        end
+                        if space_found
+                            break
+                        end
+                    end
+                    if !space_found && households[agent.household_id].closest_restaurant_id != households[agent.household_id].closest_restaurant_id2
+                        for group in restaurants[households[agent.household_id].closest_restaurant_id2].groups
+                            for i = 1:length(group)
+                                group_agent_id = group[i]
+                                if group_agent_id == 0
+                                    num_children = 0
+                                    if length(agent.dependant_ids) > 0
+                                        for children_id in agent.dependant_ids
+                                            children = agents[children_id]
+                                            if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                                num_children += 1
+                                            end
+                                        end
+                                    end
+                                    if i + num_children <= length(group)
+                                        for child_num = 1:num_children
+                                            group[i + child_num] = agent.dependant_ids[child_num]
+                                        end
+                                        group[i] = agent.id
+                                        space_found = true
+                                        break
+                                    end
+                                end
+                            end
+                            if space_found
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end

@@ -109,15 +109,13 @@ function get_stats(agents::Vector{Agent})
     #     println("$(5 * i): $(sum)")
     # end
 
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums.csv"), age_groups_nums, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_1.csv"), age_groups_nums_1, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2.csv"), age_groups_nums_2, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_3.csv"), age_groups_nums_3, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_4.csv"), age_groups_nums_4, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_5.csv"), age_groups_nums_5, ',')
-
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_distribution.csv"), age_groups_nums, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "household_size_distribution.csv"), household_nums, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums.csv"), age_groups_nums, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums_1.csv"), age_groups_nums_1, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums_2.csv"), age_groups_nums_2, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums_3.csv"), age_groups_nums_3, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums_4.csv"), age_groups_nums_4, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums_5.csv"), age_groups_nums_5, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "household_size_distribution.csv"), household_nums, ',')
 
     # println("Age groups:")
     # for i = 1:90

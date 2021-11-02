@@ -20,7 +20,7 @@ function simulate_contacts_evaluation(
         if agent.visit_household_id != 0
             for agent2_id in households[agent.visit_household_id].agent_ids
                 agent2 = agents[agent2_id]
-                if agent2.visit_household_id == 0
+                if agent2_id != agent_id && agent2.visit_household_id == 0
                     if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
                         (agent.activity_type == 3 && is_university_holiday) ||
                         (agent.activity_type == 2 && is_school_holiday) ||
@@ -53,7 +53,7 @@ function simulate_contacts_evaluation(
             (agent.needs_supporter_care || rand(rng, Float64) < 0.5)
             for agent2_id in households[agents[agent.supporter_id].visit_household_id].agent_ids
                 agent2 = agents[agent2_id]
-                if agent2.visit_household_id == 0
+                if agent2_id != agent_id && agent2.visit_household_id == 0
 
                     if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
                         (agent.activity_type == 3 && is_university_holiday) ||
@@ -160,287 +160,6 @@ function simulate_contacts_evaluation(
                             contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
                             contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, agent.activity_type] += 1
                             contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, agent.activity_type] += dur
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-
-function add_additional_connections(
-    rng::MersenneTwister,
-    start_agent_id::Int,
-    end_agent_id::Int,
-    agents::Vector{Agent},
-    households::Vector{Household},
-    shops::Vector{Shop},
-    restaurants::Vector{Restaurant},
-    is_kindergarten_holiday::Bool,
-    is_school_holiday::Bool,
-    is_university_holiday::Bool,
-    is_work_holiday::Bool,
-)
-    for agent_id in start_agent_id:end_agent_id
-        agent = agents[agent_id]
-        if agent.age >= 14
-            if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-                (agent.activity_type == 3 && is_university_holiday) ||
-                (agent.activity_type == 2 && is_school_holiday) ||
-                (agent.activity_type == 1 && is_kindergarten_holiday)
-
-                if rand(rng, Float64) < 0.269
-                    if length(agent.friend_ids) > 0
-                        agent.visit_household_id = agents[rand(rng, agent.friend_ids)].household_id
-                    else
-                        agent.visit_household_id = 0
-                    end
-                end
-
-                if rand(rng, Float64) < 0.354
-                    space_found = false
-                    for group in shops[households[agent.household_id].closest_shop_id].groups
-                        for i = 1:length(group)
-                            group_agent_id = group[i]
-                            if group_agent_id == 0
-                                num_children = 0
-                                if length(agent.dependant_ids) > 0
-                                    for children_id in agent.dependant_ids
-                                        children = agents[children_id]
-                                        if children.needs_supporter_care || rand(rng, Float64) < 0.5
-                                            num_children += 1
-                                        end
-                                    end
-                                end
-                                if i + num_children <= length(group)
-                                    for child_num = 1:num_children
-                                        group[i + child_num] = agent.dependant_ids[child_num]
-                                    end
-                                    group[i] = agent.id
-                                    space_found = true
-                                    break
-                                end
-                            end
-                        end
-                        if space_found
-                            break
-                        end
-                    end
-                    if !space_found && households[agent.household_id].closest_shop_id != households[agent.household_id].closest_shop_id2
-                        for group in shops[households[agent.household_id].closest_shop_id2].groups
-                            for i = 1:length(group)
-                                group_agent_id = group[i]
-                                if group_agent_id == 0
-                                    num_children = 0
-                                    if length(agent.dependant_ids) > 0
-                                        for children_id in agent.dependant_ids
-                                            children = agents[children_id]
-                                            if children.needs_supporter_care || rand(rng, Float64) < 0.5
-                                                num_children += 1
-                                            end
-                                        end
-                                    end
-                                    if i + num_children <= length(group)
-                                        for child_num = 1:num_children
-                                            group[i + child_num] = agent.dependant_ids[child_num]
-                                        end
-                                        group[i] = agent.id
-                                        space_found = true
-                                        break
-                                    end
-                                end
-                            end
-                            if space_found
-                                break
-                            end
-                        end
-                    end
-                end
-
-                if rand(rng, Float64) < 0.295
-                    space_found = false
-                    for group in restaurants[households[agent.household_id].closest_restaurant_id].groups
-                        for i = 1:length(group)
-                            group_agent_id = group[i]
-                            if group_agent_id == 0
-                                num_children = 0
-                                if length(agent.dependant_ids) > 0
-                                    for children_id in agent.dependant_ids
-                                        children = agents[children_id]
-                                        if children.needs_supporter_care || rand(rng, Float64) < 0.5
-                                            num_children += 1
-                                        end
-                                    end
-                                end
-                                if i + num_children <= length(group)
-                                    for child_num = 1:num_children
-                                        group[i + child_num] = agent.dependant_ids[child_num]
-                                    end
-                                    group[i] = agent.id
-                                    space_found = true
-                                    break
-                                end
-                            end
-                        end
-                        if space_found
-                            break
-                        end
-                    end
-                    if !space_found && households[agent.household_id].closest_restaurant_id != households[agent.household_id].closest_restaurant_id2
-                        for group in restaurants[households[agent.household_id].closest_restaurant_id2].groups
-                            for i = 1:length(group)
-                                group_agent_id = group[i]
-                                if group_agent_id == 0
-                                    num_children = 0
-                                    if length(agent.dependant_ids) > 0
-                                        for children_id in agent.dependant_ids
-                                            children = agents[children_id]
-                                            if children.needs_supporter_care || rand(rng, Float64) < 0.5
-                                                num_children += 1
-                                            end
-                                        end
-                                    end
-                                    if i + num_children <= length(group)
-                                        for child_num = 1:num_children
-                                            group[i + child_num] = agent.dependant_ids[child_num]
-                                        end
-                                        group[i] = agent.id
-                                        space_found = true
-                                        break
-                                    end
-                                end
-                            end
-                            if space_found
-                                break
-                            end
-                        end
-                    end
-                end
-            else
-                if rand(rng, Float64) < 0.177
-                    if length(agent.friend_ids) > 0
-                        agent.visit_household_id = agents[rand(rng, agent.friend_ids)].household_id
-                    else
-                        agent.visit_household_id = 0
-                    end
-                end
-
-                if rand(rng, Float64) < 0.291
-                    space_found = false
-                    for group in shops[households[agent.household_id].closest_shop_id].groups
-                        for i = 1:length(group)
-                            group_agent_id = group[i]
-                            if group_agent_id == 0
-                                num_children = 0
-                                if length(agent.dependant_ids) > 0
-                                    for children_id in agent.dependant_ids
-                                        children = agents[children_id]
-                                        if children.needs_supporter_care || rand(rng, Float64) < 0.5
-                                            num_children += 1
-                                        end
-                                    end
-                                end
-                                if i + num_children <= length(group)
-                                    for child_num = 1:num_children
-                                        group[i + child_num] = agent.dependant_ids[child_num]
-                                    end
-                                    group[i] = agent.id
-                                    space_found = true
-                                    break
-                                end
-                            end
-                        end
-                        if space_found
-                            break
-                        end
-                    end
-                    if !space_found && households[agent.household_id].closest_shop_id != households[agent.household_id].closest_shop_id2
-                        for group in shops[households[agent.household_id].closest_shop_id2].groups
-                            for i = 1:length(group)
-                                group_agent_id = group[i]
-                                if group_agent_id == 0
-                                    num_children = 0
-                                    if length(agent.dependant_ids) > 0
-                                        for children_id in agent.dependant_ids
-                                            children = agents[children_id]
-                                            if children.needs_supporter_care || rand(rng, Float64) < 0.5
-                                                num_children += 1
-                                            end
-                                        end
-                                    end
-                                    if i + num_children <= length(group)
-                                        for child_num = 1:num_children
-                                            group[i + child_num] = agent.dependant_ids[child_num]
-                                        end
-                                        group[i] = agent.id
-                                        space_found = true
-                                        break
-                                    end
-                                end
-                            end
-                            if space_found
-                                break
-                            end
-                        end
-                    end
-                end
-
-                if rand(rng, Float64) < 0.255
-                    space_found = false
-                    for group in restaurants[households[agent.household_id].closest_restaurant_id].groups
-                        for i = 1:length(group)
-                            group_agent_id = group[i]
-                            if group_agent_id == 0
-                                num_children = 0
-                                if length(agent.dependant_ids) > 0
-                                    for children_id in agent.dependant_ids
-                                        children = agents[children_id]
-                                        if children.needs_supporter_care || rand(rng, Float64) < 0.5
-                                            num_children += 1
-                                        end
-                                    end
-                                end
-                                if i + num_children <= length(group)
-                                    for child_num = 1:num_children
-                                        group[i + child_num] = agent.dependant_ids[child_num]
-                                    end
-                                    group[i] = agent.id
-                                    space_found = true
-                                    break
-                                end
-                            end
-                        end
-                        if space_found
-                            break
-                        end
-                    end
-                    if !space_found && households[agent.household_id].closest_restaurant_id != households[agent.household_id].closest_restaurant_id2
-                        for group in restaurants[households[agent.household_id].closest_restaurant_id2].groups
-                            for i = 1:length(group)
-                                group_agent_id = group[i]
-                                if group_agent_id == 0
-                                    num_children = 0
-                                    if length(agent.dependant_ids) > 0
-                                        for children_id in agent.dependant_ids
-                                            children = agents[children_id]
-                                            if children.needs_supporter_care || rand(rng, Float64) < 0.5
-                                                num_children += 1
-                                            end
-                                        end
-                                    end
-                                    if i + num_children <= length(group)
-                                        for child_num = 1:num_children
-                                            group[i + child_num] = agent.dependant_ids[child_num]
-                                        end
-                                        group[i] = agent.id
-                                        space_found = true
-                                        break
-                                    end
-                                end
-                            end
-                            if space_found
-                                break
-                            end
                         end
                     end
                 end
@@ -581,75 +300,18 @@ function run_simulation_evaluation(
     households::Vector{Household},
     shops::Vector{Shop},
     restaurants::Vector{Restaurant},
+    is_holiday::Bool,
 )
-    # День месяца
-    day = 1
-    # Месяц
-    month = 9
-    # День недели
-    week_day = 1
-
     contacts_num_matrix_by_age_threads = zeros(Int, num_threads, 90, 90)
     contacts_dur_matrix_by_age_threads = zeros(Float64, num_threads, 90, 90)
     contacts_num_matrix_by_age_activities_threads = zeros(Int, num_threads, 90, 90, 8)
     contacts_dur_matrix_by_age_activities_threads = zeros(Float64, num_threads, 90, 90, 8)
 
     # Выходные, праздники
-    is_holiday = false
-    if week_day == 7
-        is_holiday = true
-    elseif month == 1 && (day == 1 || day == 2 || day == 3 || day == 7)
-        is_holiday = true
-    elseif month == 5 && (day == 1 || day == 9)
-        is_holiday = true
-    elseif month == 2 && day == 23
-        is_holiday = true
-    elseif month == 3 && day == 8
-        is_holiday = true
-    elseif month == 6 && day == 12
-        is_holiday = true
-    end
-
     is_work_holiday = is_holiday
-    if week_day == 6
-        is_work_holiday = true
-    end
-
-    is_kindergarten_holiday = is_work_holiday
-    if month == 7 || month == 8
-        is_kindergarten_holiday = true
-    end
-
-    # Каникулы
-    # Летние - 01.06.yyyy - 31.08.yyyy
-    # Осенние - 05.11.yyyy - 11.11.yyyy
-    # Зимние - 28.12.yyyy - 09.03.yyyy
-    # Весенние - 22.03.yyyy - 31.03.yyyy
+    is_kindergarten_holiday = is_holiday
     is_school_holiday = is_holiday
-    if month == 6 || month == 7 || month == 8
-        is_school_holiday = true
-    elseif month == 11 && day >= 5 && day <= 11
-        is_school_holiday = true
-    elseif month == 12 && day >= 28 && day <= 31
-        is_school_holiday = true
-    elseif month == 1 && day >= 1 && day <= 9
-        is_school_holiday = true
-    elseif month == 3 && day >= 22 && day <= 31
-        is_school_holiday = true
-    end
-
     is_university_holiday = is_holiday
-    if month == 7 || month == 8
-        is_university_holiday = true
-    elseif month == 1 && day != 11 && day != 15 && day != 19 && day != 23 && day != 27
-        is_university_holiday = true
-    elseif month == 6 && day != 11 && day != 15 && day != 19 && day != 23 && day != 27
-        is_university_holiday = true
-    elseif month == 2 && (day >= 1 && day <= 10)
-        is_university_holiday = true
-    elseif month == 12 && (day >= 22 && day <= 31)
-        is_university_holiday = true
-    end
 
     @threads for thread_id in 1:num_threads
         add_additional_connections(
@@ -707,72 +369,42 @@ function run_simulation_evaluation(
             contacts_dur_matrix_by_age_activities_threads)
     end
 
-    # Обновление даты
-    if ((month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10) && day == 31) ||
-        ((month == 4 || month == 6 || month == 9 || month == 11) && day == 30) ||
-        (month == 2 && day == 28)
-        day = 1
-        month += 1
-    elseif (month == 12 && day == 31)
-        day = 1
-        month = 1
-    else
-        day += 1
-    end
-
     contacts_num_matrix_by_age = sum(contacts_num_matrix_by_age_threads, dims=1)[1, :, :]
     contacts_dur_matrix_by_age = sum(contacts_dur_matrix_by_age_threads, dims=1)[1, :, :]
     contacts_num_matrix_by_age_activities = sum(contacts_num_matrix_by_age_activities_threads, dims=1)[1, :, :, :]
     contacts_dur_matrix_by_age_activities = sum(contacts_dur_matrix_by_age_activities_threads, dims=1)[1, :, :, :]
 
     println(sum(contacts_num_matrix_by_age))
-    println(sum(contacts_num_matrix_by_age_activities[:, :, 1]))
-    println(sum(contacts_num_matrix_by_age_activities[:, :, 2]))
-    println(sum(contacts_num_matrix_by_age_activities[:, :, 3]))
-    println(sum(contacts_num_matrix_by_age_activities[:, :, 4]))
-    println(sum(contacts_num_matrix_by_age_activities[:, :, 5]))
-    println(sum(contacts_num_matrix_by_age_activities[:, :, 6]))
-    println(sum(contacts_num_matrix_by_age_activities[:, :, 7]))
-    println(sum(contacts_num_matrix_by_age_activities[:, :, 8]))
+    for i = 1:8
+        println(sum(contacts_num_matrix_by_age_activities[:, :, i]))
+    end
 
-    if month == 8
+    if is_holiday
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_weekday_summer.csv"), contacts_num_matrix_by_age, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_counts_holiday.csv"), contacts_num_matrix_by_age, ',')
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations_weekday_summer.csv"), contacts_dur_matrix_by_age, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_durations_holiday.csv"), contacts_dur_matrix_by_age, ',')
         for i = 1:8
             writedlm(
-                joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_activity_$(i)_weekday_summer.csv"),
+                joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_counts_activity_$(i)_holiday.csv"),
                 contacts_num_matrix_by_age_activities[:, :, i], ',')
             writedlm(
-                joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations_activity_$(i)_weekday_summer.csv"),
-                contacts_dur_matrix_by_age_activities[:, :, i], ',')
-        end
-    elseif week_day == 1
-        writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_sunday.csv"), contacts_num_matrix_by_age, ',')
-        writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations_sunday.csv"), contacts_dur_matrix_by_age, ',')
-        for i = 1:8
-            writedlm(
-                joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_activity_$(i)_sunday.csv"),
-                contacts_num_matrix_by_age_activities[:, :, i], ',')
-            writedlm(
-                joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations_activity_$(i)_sunday.csv"),
+                joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_durations_activity_$(i)_holiday.csv"),
                 contacts_dur_matrix_by_age_activities[:, :, i], ',')
         end
     else
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_weekday.csv"), contacts_num_matrix_by_age, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_counts.csv"), contacts_num_matrix_by_age, ',')
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations_weekday.csv"), contacts_dur_matrix_by_age, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_durations.csv"), contacts_dur_matrix_by_age, ',')
         for i = 1:8
             writedlm(
-                joinpath(@__DIR__, "..", "..", "output", "tables", "contact_counts_activity_$(i)_weekday.csv"),
+                joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_counts_activity_$(i).csv"),
                 contacts_num_matrix_by_age_activities[:, :, i], ',')
             writedlm(
-                joinpath(@__DIR__, "..", "..", "output", "tables", "contact_durations_activity_$(i)_weekday.csv"),
+                joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_durations_activity_$(i).csv"),
                 contacts_dur_matrix_by_age_activities[:, :, i], ',')
         end
     end
+    
 end
