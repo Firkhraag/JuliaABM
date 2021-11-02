@@ -4,13 +4,19 @@ using Random
 using DelimitedFiles
 using Statistics
 
+include("global/variables.jl")
+
 include("model/virus.jl")
-include("model/collective.jl")
 include("model/agent.jl")
+include("model/household.jl")
+include("model/workplace.jl")
+include("model/school.jl")
+include("model/restaurant.jl")
+include("model/shop.jl")
 include("model/initialization.jl")
 include("model/simulation.jl")
-include("model/r0.jl")
 include("model/contacts.jl")
+include("model/connections.jl")
 
 include("data/district_households.jl")
 include("data/district_people.jl")
@@ -117,7 +123,7 @@ function main()
         dims = 2,
     )
 
-    agents = Array{Agent, 1}(undef, num_people)
+    agents = Array{Agent, 1}(undef, num_agents)
     thread_rng = [MersenneTwister(i) for i = 1:num_threads]
 
     homes_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "homes.csv")))
@@ -279,7 +285,7 @@ function main()
     end
 
     @time num_infected_age_groups_viruses = run_simulation(
-        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, households,
+        num_threads, thread_rng, agents, households,
         shops, restaurants, infectivities, temp_influences, duration_parameter,
         susceptibility_parameters, etiology, false)
 
@@ -384,7 +390,7 @@ function main()
         end
 
         @time num_infected_age_groups_viruses = run_simulation(
-            num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, households,
+            num_threads, thread_rng, agents, households,
             shops, restaurants, infectivities, temp_influences, duration_parameter,
             susceptibility_parameters, etiology, false)
 

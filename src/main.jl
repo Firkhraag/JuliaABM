@@ -217,10 +217,6 @@ function main()
 
     num_threads = nthreads()
 
-    num_people = 10072668
-    start_agent_ids = Int[1, 2483024, 4977885, 7516450]
-    end_agent_ids = Int[2483023, 4977884, 7516449, 10072668]
-
     viruses = Virus[
         Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.32, 0.16, 365),
         Virus(2, 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 0.32, 0.16, 365),
@@ -269,12 +265,10 @@ function main()
     # Max - Min температура
     max_min_temp = 26.6
 
-    agents = Array{Agent, 1}(undef, num_people)
+    agents = Array{Agent, 1}(undef, num_agents)
 
     # With set seed
     thread_rng = [MersenneTwister(i) for i = 1:num_threads]
-    # With random seed
-    # thread_rng = [MersenneTwister(rand(1:1000000)) for i = 1:num_threads]
 
     homes_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "homes.csv")))
     # Массив для хранения домохозяйств
@@ -544,29 +538,29 @@ function main()
     # ----------------------
     # Single run
     # ----------------------
-    @time num_infected_age_groups_viruses = run_simulation(
-        num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, households,
-        shops, restaurants, infectivities, temp_influences, duration_parameter,
-        susceptibility_parameters, etiology, true)
+    # @time num_infected_age_groups_viruses = run_simulation(
+    #     num_threads, thread_rng, agents, households,
+    #     shops, restaurants, infectivities, temp_influences, duration_parameter,
+    #     susceptibility_parameters, etiology, true)
 
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
-        num_infected_age_groups_viruses ./ 10072, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
-        sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
-        sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
-        sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
+    #     num_infected_age_groups_viruses ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
+    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
 
-    S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
-    S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+    # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+    # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
-    println("S: ", S_abs)
-    println("S: ", S_square)
+    # println("S: ", S_abs)
+    # println("S: ", S_square)
 
     # ----------------------
     # Prior search
@@ -705,14 +699,8 @@ function main()
     # ----------------------
     # Contacts evaluation
     # ----------------------
-
-    # run_simulation_evaluation(
-    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents, infectivities,
-    #     temp_influences, duration_parameter,
-    #     susceptibility_parameters, etiology)
-
-    # run_simulation_evaluation(
-    #     num_threads, thread_rng, start_agent_ids, end_agent_ids, agents)
+    run_simulation_evaluation(
+        num_threads, thread_rng, agents, households, shops, restaurants)
 end
 
 main()

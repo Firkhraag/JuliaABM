@@ -359,19 +359,19 @@ mutable struct Agent
         # Болен
         is_infected = false
         if age < 3
-            if rand(thread_rng[thread_id], Float64) < 0.025
+            if rand(thread_rng[thread_id], Float64) < 0.05
                 is_infected = true
             end
         elseif age < 7
-            if rand(thread_rng[thread_id], Float64) < 0.018
+            if rand(thread_rng[thread_id], Float64) < 0.025
                 is_infected = true
             end
         elseif age < 15
-            if rand(thread_rng[thread_id], Float64) < 0.012
+            if rand(thread_rng[thread_id], Float64) < 0.015
                 is_infected = true
             end
         else
-            if rand(thread_rng[thread_id], Float64) < 0.002
+            if rand(thread_rng[thread_id], Float64) < 0.003
                 is_infected = true
             end
         end
