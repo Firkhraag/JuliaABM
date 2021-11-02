@@ -349,7 +349,7 @@ function main()
         agents, households, kindergartens, schools, universities,
         workplaces, thread_rng, num_threads, homes_coords_df)
 
-    get_stats(agents)
+    # get_stats(agents)
 
     # return
 
@@ -699,10 +699,18 @@ function main()
     # ----------------------
     # Contacts evaluation
     # ----------------------
-    run_simulation_evaluation(
-        num_threads, thread_rng, agents, households, shops, restaurants, true)
+    # println("Holiday")
+    # run_simulation_evaluation(
+    #     num_threads, thread_rng, agents, households, shops, restaurants, true)
+    println("Weekday")
     run_simulation_evaluation(
         num_threads, thread_rng, agents, households, shops, restaurants, false)
+    
+    age_groups_nums = zeros(Int, 90)
+    for agent in agents
+        age_groups_nums[agent.age + 1] += 1
+    end
+    writedlm(joinpath(@__DIR__, "..", "input", "tables", "age_groups_nums.csv"), age_groups_nums, ',')
 end
 
 main()

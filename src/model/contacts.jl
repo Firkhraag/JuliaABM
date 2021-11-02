@@ -34,16 +34,24 @@ function simulate_contacts_evaluation(
                         if dur > 0.01
                             contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 8] += 1
-                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 8] += dur
+                            contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
+                            contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
+                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += 1
+                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += dur
+                            contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += 1
+                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += dur
                         end
                     else
                         dur = get_contact_duration_normal(0.42, 0.1, rng)
                         if dur > 0.01
                             contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 8] += 1
-                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 8] += dur
+                            contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
+                            contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
+                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += 1
+                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += dur
+                            contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += 1
+                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += dur
                         end
                     end
                 end
@@ -54,7 +62,6 @@ function simulate_contacts_evaluation(
             for agent2_id in households[agents[agent.supporter_id].visit_household_id].agent_ids
                 agent2 = agents[agent2_id]
                 if agent2_id != agent_id && agent2.visit_household_id == 0
-
                     if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
                         (agent.activity_type == 3 && is_university_holiday) ||
                         (agent.activity_type == 2 && is_school_holiday) ||
@@ -68,19 +75,39 @@ function simulate_contacts_evaluation(
                         if dur > 0.01
                             contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 8] += 1
-                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 8] += dur
+                            contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
+                            contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
+                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += 1
+                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += dur
+                            contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += 1
+                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += dur
                         end
                     else
                         dur = get_contact_duration_normal(0.42, 0.1, rng)
                         if dur > 0.01
                             contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 8] += 1
-                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 8] += dur
+                            contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
+                            contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
+                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += 1
+                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += dur
+                            contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += 1
+                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += dur
                         end
                     end
                 end
+            end
+            agent2 = agents[agent.supporter_id]
+            dur = get_contact_duration_normal(0.95, 0.2, rng)
+            if dur > 0.01
+                contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
+                contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
+                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += 1
+                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += dur
+                contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += 1
+                contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += dur
             end
         end
         # Контакты в домохозяйстве
@@ -215,16 +242,16 @@ function simulate_additional_contacts_evaluation(
                             if dur > 0.01
                                 contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += 1
-                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
                             end
                         else
                             dur = get_contact_duration_normal(0.28, 0.09, rng)
                             if dur > 0.01
                                 contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += 1
-                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
                             end
                         end
                     end
@@ -267,16 +294,16 @@ function simulate_additional_contacts_evaluation(
                             if dur > 0.01
                                 contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
-                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 8] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 8] += dur
                             end
                         else
                             dur = get_contact_duration_normal(0.26, 0.08, rng)
                             if dur > 0.01
                                 contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
-                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 8] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 8] += dur
                             end
                         end
                     end
