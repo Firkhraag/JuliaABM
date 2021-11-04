@@ -203,7 +203,7 @@ function main()
 
     @time set_connections(
         agents, households, kindergartens, schools, universities,
-        workplaces, thread_rng, num_threads, homes_coords_df)
+        workplaces, shops, restaurants, thread_rng, num_threads, homes_coords_df)
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     

@@ -56,58 +56,75 @@ function simulate_contacts_evaluation(
                     end
                 end
             end
-        elseif agent.supporter_id != 0 &&
-            agents[agent.supporter_id].visit_household_id != 0 &&
-            (agent.needs_supporter_care || rand(rng, Float64) < 0.5)
-            for agent2_id in households[agents[agent.supporter_id].visit_household_id].agent_ids
-                agent2 = agents[agent2_id]
-                if agent2_id != agent_id && agent2.visit_household_id == 0
-                    if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-                        (agent.activity_type == 3 && is_university_holiday) ||
-                        (agent.activity_type == 2 && is_school_holiday) ||
-                        (agent.activity_type == 1 && is_kindergarten_holiday)) &&
-                        (agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
-                        (agent2.activity_type == 3 && is_university_holiday) ||
-                        (agent2.activity_type == 2 && is_school_holiday) ||
-                        (agent2.activity_type == 1 && is_kindergarten_holiday))
 
-                        dur = get_contact_duration_normal(0.95, 0.2, rng)
-                        if dur > 0.01
-                            contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                            contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
-                            contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
-                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += 1
-                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += dur
-                            contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += 1
-                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += dur
-                        end
-                    else
-                        dur = get_contact_duration_normal(0.42, 0.1, rng)
-                        if dur > 0.01
-                            contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                            contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
-                            contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
-                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += 1
-                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += dur
-                            contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += 1
-                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += dur
+            if agent.supporter_id != 0
+                agent2 = agents[agent.supporter_id]
+                if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
+                    (agent.activity_type == 3 && is_university_holiday) ||
+                    (agent.activity_type == 2 && is_school_holiday) ||
+                    (agent.activity_type == 1 && is_kindergarten_holiday)) &&
+                    (agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
+                    (agent2.activity_type == 3 && is_university_holiday) ||
+                    (agent2.activity_type == 2 && is_school_holiday) ||
+                    (agent2.activity_type == 1 && is_kindergarten_holiday))
+
+                    dur = get_contact_duration_normal(0.95, 0.2, rng)
+                    if dur > 0.01
+                        contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
+                        contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
+                        contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += 1
+                        contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += dur
+                        contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += 1
+                        contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += dur
+                    end
+                else
+                    dur = get_contact_duration_normal(0.42, 0.1, rng)
+                    if dur > 0.01
+                        contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
+                        contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
+                        contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += 1
+                        contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += dur
+                        contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += 1
+                        contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += dur
+                    end
+                end
+                for dependant_id in agent2.dependant_ids
+                    if dependant_id != agent_id
+                        agent3 = agents[dependant_id]
+                        # Проверка восприимчивости агента к вирусу
+                        if agent3.visit_household_id != 0
+                            if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
+                                (agent.activity_type == 3 && is_university_holiday) ||
+                                (agent.activity_type == 2 && is_school_holiday) ||
+                                (agent.activity_type == 1 && is_kindergarten_holiday)) &&
+                                (agent3.activity_type == 0 || (agent3.activity_type == 4 && is_work_holiday) ||
+                                (agent3.activity_type == 3 && is_university_holiday) ||
+                                (agent3.activity_type == 2 && is_school_holiday) ||
+                                (agent3.activity_type == 1 && is_kindergarten_holiday))
+
+                                dur = get_contact_duration_normal(0.95, 0.2, rng)
+                                if dur > 0.01
+                                    contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent3.age + 1] += 1
+                                    contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent3.age + 1] += dur
+                                    contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent3.age + 1, 6] += 1
+                                    contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent3.age + 1, 6] += dur
+                                end
+                            else
+                                dur = get_contact_duration_normal(0.42, 0.1, rng)
+                                if dur > 0.01
+                                    contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent3.age + 1] += 1
+                                    contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent3.age + 1] += dur
+                                    contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent3.age + 1, 6] += 1
+                                    contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent3.age + 1, 6] += dur
+                                end
+                            end
                         end
                     end
                 end
-            end
-            agent2 = agents[agent.supporter_id]
-            dur = get_contact_duration_normal(0.95, 0.2, rng)
-            if dur > 0.01
-                contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
-                contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
-                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += 1
-                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 6] += dur
-                contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += 1
-                contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 6] += dur
             end
         end
         # Контакты в домохозяйстве
@@ -256,12 +273,64 @@ function simulate_additional_contacts_evaluation(
                         end
                     end
                 end
+                for agent2_id in shop.worker_ids
+                    agent2 = agents[agent2_id]
+                    if agent2_id != agent_id && rand(rng, Float64) < (1 / length(shop.worker_ids))
+                        if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
+                            (agent.activity_type == 3 && is_university_holiday) ||
+                            (agent.activity_type == 2 && is_school_holiday) ||
+                            (agent.activity_type == 1 && is_kindergarten_holiday)
+        
+                            dur = get_contact_duration_normal(0.44, 0.1, rng)
+                            if dur > 0.01
+                                contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                                contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
+                                contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
+                                contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 7] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 7] += dur
+                            end
+                        else
+                            dur = get_contact_duration_normal(0.28, 0.09, rng)
+                            if dur > 0.01
+                                contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                                contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
+                                contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
+                                contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 7] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 7] += dur
+                            end
+                        end
+                    end
+                end
             end
             for i in 1:length(group)
                 if group[i] == 0
                     break
                 end
                 shops[shop_id].groups[group_id][i] = 0
+            end
+        end
+
+        for agent_id in shop.worker_ids
+            agent = agents[agent_id]
+            if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
+                for agent2_id in shop.worker_ids
+                    agent2 = agents[agent2_id]
+                    if agent2_id != agent_id
+                        dur = get_contact_duration_gamma(1.81, 1.7, rng)
+                        if dur > 0.01
+                            contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                            contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
+                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
+                        end
+                    end
+                end
             end
         end
     end
@@ -308,12 +377,63 @@ function simulate_additional_contacts_evaluation(
                         end
                     end
                 end
+                for agent2_id in restaurant.worker_ids
+                    agent2 = agents[agent2_id]
+                    if agent2_id != agent_id && rand(rng, Float64) < (1 / length(restaurant.worker_ids))
+                        if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
+                            (agent.activity_type == 3 && is_university_holiday) ||
+                            (agent.activity_type == 2 && is_school_holiday) ||
+                            (agent.activity_type == 1 && is_kindergarten_holiday)
+        
+                            dur = get_contact_duration_normal(0.44, 0.1, rng)
+                            if dur > 0.01
+                                contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                                contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
+                                contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
+                                contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 7] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 7] += dur
+                            end
+                        else
+                            dur = get_contact_duration_normal(0.28, 0.09, rng)
+                            if dur > 0.01
+                                contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                                contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
+                                contacts_num_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += 1
+                                contacts_dur_matrix_by_age_threads[thread_id, agent2.age + 1, agent.age + 1] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 7] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent2.age + 1, agent.age + 1, 7] += dur
+                            end
+                        end
+                    end
+                end
             end
             for i in 1:length(group)
                 if group[i] == 0
                     break
                 end
                 restaurants[restaurant_id].groups[group_id][i] = 0
+            end
+        end
+        for agent_id in restaurant.worker_ids
+            agent = agents[agent_id]
+            if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
+                for agent2_id in restaurant.worker_ids
+                    agent2 = agents[agent2_id]
+                    if agent2_id != agent_id
+                        dur = get_contact_duration_gamma(1.81, 1.7, rng)
+                        if dur > 0.01
+                            contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                            contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
+                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
+                        end
+                    end
+                end
             end
         end
     end

@@ -5,6 +5,8 @@ function set_connections(
     schools::Vector{School},
     universities::Vector{School},
     workplaces::Vector{Workplace},
+    shops::Vector{Shop},
+    restaurants::Vector{Restaurant},
     thread_rng::Vector{MersenneTwister},
     num_threads::Int,
     homes_coords_df::DataFrame,
@@ -152,6 +154,44 @@ function set_connections(
             end
             num_working_agents -= groups_size
         end
+    end
+
+    for shop_id in 1:num_shops
+        shop = shops[shop_id]
+        for i in 1:length(shop.worker_ids)
+            if shop.worker_ids[i] == 0
+                searching = true
+                agent_id = 1
+                while searching
+                    agent_id = rand(1:num_agents)
+                    if agents[agent_id].activity_type == 4
+                        searching = false
+                    end
+                end
+                shop.worker_ids[i] = agent_id
+                agents[agent_id].activity_type = 5
+            end
+        end
+        num_working_agents -= length(shop.worker_ids)
+    end
+
+    for restaurant_id in 1:num_restaurants
+        restaurant = restaurants[restaurant_id]
+        for i in 1:length(restaurant.worker_ids)
+            if restaurant.worker_ids[i] == 0
+                searching = true
+                agent_id = 1
+                while searching
+                    agent_id = rand(1:num_agents)
+                    if agents[agent_id].activity_type == 4
+                        searching = false
+                    end
+                end
+                restaurant.worker_ids[i] = agent_id
+                agents[agent_id].activity_type = 6
+            end
+        end
+        num_working_agents -= length(restaurant.worker_ids)
     end
 
     start_agent_id = 1
@@ -335,6 +375,12 @@ function add_additional_connections(
                 if rand(rng, Float64) < 0.269
                     if length(agent.friend_ids) > 0
                         agent.visit_household_id = agents[rand(rng, agent.friend_ids)].household_id
+                        for agent2_id in agent.dependant_ids
+                            agent2 = agents[agent2_id]
+                            if agent2.needs_supporter_care || rand(rng, Float64) < 0.33
+                                agent2.visit_household_id = agent.visit_household_id
+                            end
+                        end
                     else
                         agent.visit_household_id = 0
                     end
@@ -350,7 +396,7 @@ function add_additional_connections(
                                 if length(agent.dependant_ids) > 0
                                     for children_id in agent.dependant_ids
                                         children = agents[children_id]
-                                        if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                        if children.needs_supporter_care || rand(rng, Float64) < 0.33
                                             num_children += 1
                                         end
                                     end
@@ -378,7 +424,7 @@ function add_additional_connections(
                                     if length(agent.dependant_ids) > 0
                                         for children_id in agent.dependant_ids
                                             children = agents[children_id]
-                                            if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                            if children.needs_supporter_care || rand(rng, Float64) < 0.33
                                                 num_children += 1
                                             end
                                         end
@@ -410,7 +456,7 @@ function add_additional_connections(
                                 if length(agent.dependant_ids) > 0
                                     for children_id in agent.dependant_ids
                                         children = agents[children_id]
-                                        if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                        if children.needs_supporter_care || rand(rng, Float64) < 0.33
                                             num_children += 1
                                         end
                                     end
@@ -438,7 +484,7 @@ function add_additional_connections(
                                     if length(agent.dependant_ids) > 0
                                         for children_id in agent.dependant_ids
                                             children = agents[children_id]
-                                            if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                            if children.needs_supporter_care || rand(rng, Float64) < 0.33
                                                 num_children += 1
                                             end
                                         end
@@ -463,6 +509,12 @@ function add_additional_connections(
                 if rand(rng, Float64) < 0.177
                     if length(agent.friend_ids) > 0
                         agent.visit_household_id = agents[rand(rng, agent.friend_ids)].household_id
+                        for agent2_id in agent.dependant_ids
+                            agent2 = agents[agent2_id]
+                            if agent2.needs_supporter_care || rand(rng, Float64) < 0.33
+                                agent2.visit_household_id = agent.visit_household_id
+                            end
+                        end
                     else
                         agent.visit_household_id = 0
                     end
@@ -478,7 +530,7 @@ function add_additional_connections(
                                 if length(agent.dependant_ids) > 0
                                     for children_id in agent.dependant_ids
                                         children = agents[children_id]
-                                        if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                        if children.needs_supporter_care || rand(rng, Float64) < 0.33
                                             num_children += 1
                                         end
                                     end
@@ -506,7 +558,7 @@ function add_additional_connections(
                                     if length(agent.dependant_ids) > 0
                                         for children_id in agent.dependant_ids
                                             children = agents[children_id]
-                                            if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                            if children.needs_supporter_care || rand(rng, Float64) < 0.33
                                                 num_children += 1
                                             end
                                         end
@@ -538,7 +590,7 @@ function add_additional_connections(
                                 if length(agent.dependant_ids) > 0
                                     for children_id in agent.dependant_ids
                                         children = agents[children_id]
-                                        if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                        if children.needs_supporter_care || rand(rng, Float64) < 0.33
                                             num_children += 1
                                         end
                                     end
@@ -566,7 +618,7 @@ function add_additional_connections(
                                     if length(agent.dependant_ids) > 0
                                         for children_id in agent.dependant_ids
                                             children = agents[children_id]
-                                            if children.needs_supporter_care || rand(rng, Float64) < 0.5
+                                            if children.needs_supporter_care || rand(rng, Float64) < 0.33
                                                 num_children += 1
                                             end
                                         end
