@@ -1163,7 +1163,7 @@ function run_simulation(
 
     # DEBUG
     # max_step = 365
-    max_step = 15
+    max_step = 21
 
     for current_step = 1:max_step
         println(current_step)
@@ -1304,13 +1304,15 @@ function run_simulation(
                         confirmed_daily_new_cases_age_groups_viruses[current_step - 6:current_step, i, j, :])
                 end
             end
-
-            week_day = 1
             if week_num == 52
-                week_num = 1
+                break
             else
                 week_num += 1
             end
+        end
+
+        if week_day == 7
+            week_day = 1
         else
             week_day += 1
         end

@@ -538,29 +538,29 @@ function main()
     # ----------------------
     # Single run
     # ----------------------
-    # @time num_infected_age_groups_viruses = run_simulation(
-    #     num_threads, thread_rng, agents, households,
-    #     shops, restaurants, infectivities, temp_influences, duration_parameter,
-    #     susceptibility_parameters, etiology, true)
+    @time num_infected_age_groups_viruses = run_simulation(
+        num_threads, thread_rng, agents, households,
+        shops, restaurants, infectivities, temp_influences, duration_parameter,
+        susceptibility_parameters, etiology, true)
 
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
-    #     num_infected_age_groups_viruses ./ 10072, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
-    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
-    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
-    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
+        num_infected_age_groups_viruses ./ 10072, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
+        sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
+        sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
+    writedlm(
+        joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
+        sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
 
-    # S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
-    # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+    S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+    S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
-    # println("S: ", S_abs)
-    # println("S: ", S_square)
+    println("S: ", S_abs)
+    println("S: ", S_square)
 
     # ----------------------
     # Prior search
@@ -702,15 +702,15 @@ function main()
     # println("Holiday")
     # run_simulation_evaluation(
     #     num_threads, thread_rng, agents, households, shops, restaurants, true)
-    println("Weekday")
-    run_simulation_evaluation(
-        num_threads, thread_rng, agents, households, shops, restaurants, false)
+    # println("Weekday")
+    # run_simulation_evaluation(
+    #     num_threads, thread_rng, agents, households, shops, restaurants, false)
     
-    age_groups_nums = zeros(Int, 90)
-    for agent in agents
-        age_groups_nums[agent.age + 1] += 1
-    end
-    writedlm(joinpath(@__DIR__, "..", "input", "tables", "age_groups_nums.csv"), age_groups_nums, ',')
+    # age_groups_nums = zeros(Int, 90)
+    # for agent in agents
+    #     age_groups_nums[agent.age + 1] += 1
+    # end
+    # writedlm(joinpath(@__DIR__, "..", "input", "tables", "age_groups_nums.csv"), age_groups_nums, ',')
 end
 
 main()

@@ -5,8 +5,8 @@ using StatsPlots
 using LaTeXStrings
 using CategoricalArrays
 
-include("../data/temperature.jl")
-include("../data/etiology.jl")
+include("../../data/temperature.jl")
+include("../../data/etiology.jl")
 
 # default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
 default(legendfontsize = 9, guidefont = (14, :black), tickfont = (9, :black))
