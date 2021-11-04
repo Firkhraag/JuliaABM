@@ -1,31 +1,3 @@
-function add_agent_to_kindergarten(agent::Agent, closest_kindergarten_id::Int, kindergartens::Vector{School})
-    agent.school_id = closest_kindergarten_id
-    groups = kindergartens[agent.school_id].groups[agent.school_group_num]
-    group_id = length(groups)
-    if (agent.school_group_num == 1 && 
-        size(groups[group_id], 1) == kindergarten_groups_size_1) ||
-        ((agent.school_group_num == 2 || agent.school_group_num == 3) && size(groups[group_id], 1) == kindergarten_groups_size_2_3) ||
-        ((agent.school_group_num == 4 || agent.school_group_num == 5) && size(groups[group_id], 1) == kindergarten_groups_size_4_5)
-        
-        push!(groups, Int[])
-        group_id += 1
-    end
-    push!(groups[group_id], agent.id)
-    agent.activity_conn_ids = groups[group_id]
-end
-
-function add_agent_to_school(agent::Agent, closest_school_id::Int, schools::Vector{School})
-    agent.school_id = closest_school_id
-    groups = schools[agent.school_id].groups[agent.school_group_num]
-    group_id = length(groups)
-    if size(groups[group_id], 1) == school_groups_size
-        push!(groups, Int[])
-        group_id += 1
-    end
-    push!(groups[group_id], agent.id)
-    agent.activity_conn_ids = groups[group_id]
-end
-
 function set_connections(
     agents::Vector{Agent},
     households::Vector{Household},
@@ -54,7 +26,31 @@ function set_connections(
             end
         end
 
-        if agent.activity_type == 3
+        if agent.activity_type == 1
+            agent.school_id = households[agent.household_id].closest_kindergarten_id
+            groups = kindergartens[agent.school_id].groups[agent.school_group_num]
+            group_id = length(groups)
+            if (agent.school_group_num == 1 && 
+                size(groups[group_id], 1) == kindergarten_groups_size_1) ||
+                ((agent.school_group_num == 2 || agent.school_group_num == 3) && size(groups[group_id], 1) == kindergarten_groups_size_2_3) ||
+                ((agent.school_group_num == 4 || agent.school_group_num == 5) && size(groups[group_id], 1) == kindergarten_groups_size_4_5)
+                
+                push!(groups, Int[])
+                group_id += 1
+            end
+            push!(groups[group_id], agent.id)
+            agent.activity_conn_ids = groups[group_id]
+        elseif agent.activity_type == 2
+            agent.school_id = households[agent.household_id].closest_school_id
+            groups = schools[agent.school_id].groups[agent.school_group_num]
+            group_id = length(groups)
+            if size(groups[group_id], 1) == school_groups_size
+                push!(groups, Int[])
+                group_id += 1
+            end
+            push!(groups[group_id], agent.id)
+            agent.activity_conn_ids = groups[group_id]
+        elseif agent.activity_type == 3
             agent.school_id = rand(1:num_universities)
             groups = universities[agent.school_id].groups[agent.school_group_num]
             group_id = length(groups)

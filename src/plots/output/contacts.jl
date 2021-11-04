@@ -251,19 +251,6 @@ function plot_contacts()
 end
 
 function plot_contacts_grouped()
-    # contact_duration_matrix_by_age = sum(contact_duration_matrix_by_age_threads, dims=1)[1, :, :]
-
-    # contact_duration_matrix_by_age ./= contact_matrix_by_age
-
-    # agent_counts = zeros(90)
-    # for a in agents
-    #     agent_counts[a.age + 1] += 1
-    # end
-
-    # for i = 1:90
-    #     contact_matrix_by_age[i, :] ./= agent_counts[i]
-    # end
-
     age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_groups_nums.csv"), ',', Float64)
 
     ticks = collect(1:18)
@@ -283,11 +270,11 @@ function plot_contacts_grouped()
                 end
             end
         end
-        num_people = 0
-        for j = 0:4
-            num_people += age_groups_nums[(i - 1) * 5 + 1 + j]
-        end
-        contact_counts[i, :] ./= num_people
+        # num_people = 0
+        # for j = 0:4
+        #     num_people += age_groups_nums[(i - 1) * 5 + 1 + j]
+        # end
+        # contact_counts[i, :] ./= num_people
     end
 
     heatmap_plot = heatmap(
@@ -343,11 +330,11 @@ function plot_contacts_grouped()
                     end
                 end
             end
-            num_people = 0
-            for j = 0:4
-                num_people += age_groups_nums[(i - 1) * 5 + 1 + j]
-            end
-            contact_counts[i, :] ./= num_people
+            # num_people = 0
+            # for j = 0:4
+            #     num_people += age_groups_nums[(i - 1) * 5 + 1 + j]
+            # end
+            # contact_counts[i, :] ./= num_people
         end
 
         plot_title = "Daily number of contacts"
@@ -363,20 +350,12 @@ function plot_contacts_grouped()
             plot_title *= " (Public Space)"
         end
 
-        # colorticks = [0.01, 0.1, 1.0]
-        # colorticklabels = ["0.01", "0.1", "1.0"]
-        # if activity_num == 3
-        #     colorticks = [0.01, 0.1, 1.0, 10.0]
-        #     colorticklabels = ["0.01", "0.1", "1.0", "10.0"]
-        # end
-
         heatmap_plot = heatmap(
             contact_counts,
             fontfamily = "Times",
             xticks = (ticks, ticklabels),
             yticks = (ticks, ticklabels),
-            # colorbar_ticks = (colorticks, colorticklabels),
-            colorbar_scale = :log10,
+            # colorbar_scale = :log10,
             title = plot_title,
             margin = 6Plots.mm,
             c = :jet,
@@ -419,5 +398,5 @@ function plot_contacts_grouped()
     end
 end
 
-plot_contacts()
-# plot_contacts_grouped()
+# plot_contacts()
+plot_contacts_grouped()

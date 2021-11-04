@@ -11,16 +11,16 @@ function main()
     shops_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "shops.csv")))
     restaurants_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "restaurants.csv")))
 
-    homes_coords_df[!, "kinder"] .= 1
-    homes_coords_df[!, "school"] .= 1
-    homes_coords_df[!, "shop"] .= 1
-    homes_coords_df[!, "shop2"] .= 1
-    homes_coords_df[!, "restaurant"] .= 1
-    homes_coords_df[!, "restaurant2"] .= 1
+    homes_coords_df[!, "kinder"] .= 0
+    homes_coords_df[!, "school"] .= 0
+    homes_coords_df[!, "shop"] .= 0
+    homes_coords_df[!, "shop2"] .= 0
+    homes_coords_df[!, "restaurant"] .= 0
+    homes_coords_df[!, "restaurant2"] .= 0
 
     @threads for i in 1:size(homes_coords_df)[1]
         smallest_dist = 999999999
-        closest_id = 1
+        closest_id = 0
         kindergartens_coords_district_df = kindergartens_coords_df[kindergartens_coords_df.dist .== homes_coords_df[i, "dist"], :]
         for j in 1:size(kindergartens_coords_district_df)[1]
             dist = get_distance(
@@ -36,7 +36,7 @@ function main()
         homes_coords_df[i, "kinder"] = closest_id
 
         smallest_dist = 999999999
-        closest_id = 1
+        closest_id = 0
         schools_coords_district_df = schools_coords_df[schools_coords_df.dist .== homes_coords_df[i, "dist"], :]
         for j in 1:size(schools_coords_district_df)[1]
             dist = get_distance(
@@ -102,7 +102,7 @@ function main()
         homes_coords_df[i, "restaurant2"] = closest_id2
     end
 
-    CSV.write(joinpath(@__DIR__, "..", "input", "tables", "homes.csv"), homes_coords_df)
+    CSV.write(joinpath(@__DIR__, "..", "input", "tables", "space", "homes.csv"), homes_coords_df)
 end
 
 main()

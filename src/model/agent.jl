@@ -113,32 +113,43 @@ mutable struct Agent
             end
         # 6-7 Kindergarten - School
         elseif age == 6
-            if rand(thread_rng[thread_id], Float64) < 0.66
+            if rand(thread_rng[thread_id], Float64) < 0.7
                 activity_type = 1
             else
                 activity_type = 2
             end
         elseif age == 7
-            if rand(thread_rng[thread_id], Float64) < 0.66
+            if rand(thread_rng[thread_id], Float64) < 0.7
                 activity_type = 2
             else
                 activity_type = 1
             end
         # 8-16 School
-        elseif age < 17
+        elseif age < 15
             activity_type = 2
+        elseif age == 15
+            if rand(thread_rng[thread_id], Float64) < 0.96
+                activity_type = 2
+            end
+        elseif age == 16
+            rand_num = rand(thread_rng[thread_id], Float64)
+            if rand_num < 0.92
+                activity_type = 2
+            elseif rand_num < 0.95
+                activity_type = 4
+            end
         elseif age == 17
             rand_num = rand(thread_rng[thread_id], Float64)
-            if rand_num < 0.8
+            if rand_num < 0.72
                 activity_type = 2
-            elseif rand_num < 0.9
+            elseif rand_num < 0.85
                 activity_type = 4
             end
         elseif age == 18
             rand_num = rand(thread_rng[thread_id], Float64)
-            if rand_num < 0.28
+            if rand_num < 0.29
                 activity_type = 2
-            elseif rand_num < 0.45
+            elseif rand_num < 0.55
                 activity_type = 4
             elseif rand_num < 0.75
                 activity_type = 3
@@ -160,67 +171,82 @@ mutable struct Agent
             end
         # 24+ Work
         elseif age < 30
-            rand_num = rand(thread_rng[thread_id], Float64)
             if is_male
-                if rand_num < 0.82
+                if rand(thread_rng[thread_id], Float64) < 0.82
                     activity_type = 4
                 end
             else
-                if rand_num < 0.74
+                if rand(thread_rng[thread_id], Float64) < 0.74
                     activity_type = 4
                 end
             end
         elseif age < 40
-            rand_num = rand(thread_rng[thread_id], Float64)
             if is_male
-                if rand_num < 0.95
+                if rand(thread_rng[thread_id], Float64) < 0.95
                     activity_type = 4
                 end
             else
-                if rand_num < 0.85
+                if rand(thread_rng[thread_id], Float64) < 0.85
                     activity_type = 4
                 end
             end
         elseif age < 50
-            rand_num = rand(thread_rng[thread_id], Float64)
             if is_male
-                if rand_num < 0.94
+                if rand(thread_rng[thread_id], Float64) < 0.94
                     activity_type = 4
                 end
             else
-                if rand_num < 0.89
+                if rand(thread_rng[thread_id], Float64) < 0.89
                     activity_type = 4
                 end
             end
         elseif age < 60
-            rand_num = rand(thread_rng[thread_id], Float64)
             if is_male
-                if rand_num < 0.88
+                if rand(thread_rng[thread_id], Float64) < 0.88
                     activity_type = 4
                 end
             else
-                if rand_num < 0.7
+                if rand(thread_rng[thread_id], Float64) < 0.7
                     activity_type = 4
                 end
             end
         elseif age < 65
-            rand_num = rand(thread_rng[thread_id], Float64)
             if is_male
-                if rand_num < 0.51
+                if rand(thread_rng[thread_id], Float64) < 0.51
                     activity_type = 4
                 end
             else
-                if rand_num < 0.29
+                if rand(thread_rng[thread_id], Float64) < 0.29
                     activity_type = 4
                 end
             end
         elseif age < 70
+            if is_male
+                if rand(thread_rng[thread_id], Float64) < 0.38
+                    activity_type = 4
+                end
+            else
+                if rand(thread_rng[thread_id], Float64) < 0.21
+                    activity_type = 4
+                end
+            end
+        elseif age < 75
             if is_male
                 if rand(thread_rng[thread_id], Float64) < 0.25
                     activity_type = 4
                 end
             else
                 if rand(thread_rng[thread_id], Float64) < 0.15
+                    activity_type = 4
+                end
+            end
+        elseif age < 80
+            if is_male
+                if rand(thread_rng[thread_id], Float64) < 0.12
+                    activity_type = 4
+                end
+            else
+                if rand(thread_rng[thread_id], Float64) < 0.07
                     activity_type = 4
                 end
             end
@@ -247,10 +273,13 @@ mutable struct Agent
                 school_group_num = rand(thread_rng[thread_id], 1:2)
             elseif age < 17
                 school_group_num = rand(thread_rng[thread_id], (age - 7):(age - 5))
-                # school_group_num = age - 6
             elseif age == 17
-                school_group_num = rand(thread_rng[thread_id], 10:11)
-                # school_group_num = age - 6
+                if rand(thread_rng[thread_id], Float64) < 0.66
+                    school_group_num = 11
+                else
+                    school_group_num = 10
+                end
+                # school_group_num = rand(thread_rng[thread_id], 10:11)
             else
                 school_group_num = 11
             end
