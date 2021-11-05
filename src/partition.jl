@@ -400,6 +400,7 @@ function main()
     end
 
     num_agents = Array{Int, 1}(undef, num_threads)
+    districts_agent_ids = Array{UnitRange{Int64}, 1}(undef, length(district_nums))
     num_households = Array{Int, 1}(undef, num_threads)
     @threads for thread_id in 1:num_threads
         num_agents[thread_id], num_households[thread_id] = get_num_of_people_and_households(
@@ -407,7 +408,6 @@ function main()
     end
 
     println("const num_agents = $(sum(num_agents))")
-
     print("const start_agent_ids = Int[1, ")
     sum_entities = 1
     for thread_id in 2:(num_threads - 1)
@@ -416,7 +416,6 @@ function main()
     end
     sum_entities += num_agents[num_threads - 1]
     println("$(sum_entities)]")
-
     print("const end_agent_ids = Int[")
     sum_entities = 0
     for thread_id in 1:(num_threads - 1)
@@ -427,7 +426,6 @@ function main()
     println("$(sum_entities)]")
 
     println("const num_households = $(sum(num_households))")
-
     print("const start_household_ids = Int[1, ")
     sum_entities = 1
     for thread_id in 2:(num_threads - 1)
@@ -436,7 +434,6 @@ function main()
     end
     sum_entities += num_households[num_threads - 1]
     println("$(sum_entities)]")
-
     print("const end_household_ids = Int[")
     sum_entities = 0
     for thread_id in 1:(num_threads - 1)
@@ -447,7 +444,6 @@ function main()
     println("$(sum_entities)]")
 
     println("const num_kindergartens = $(size(kindergarten_coords_df)[1])")
-
     print("const start_kindergarten_ids = Int[1, ")
     sum_entities = 1
     for thread_id in 2:(num_threads - 1)
@@ -456,7 +452,6 @@ function main()
     end
     sum_entities += num_kindergartens[num_threads - 1]
     println("$(sum_entities)]")
-
     print("const end_kindergarten_ids = Int[")
     sum_entities = 0
     for thread_id in 1:(num_threads - 1)
@@ -467,7 +462,6 @@ function main()
     println("$(sum_entities)]")
 
     println("const num_schools = $(size(school_coords_df)[1])")
-
     print("const start_school_ids = Int[1, ")
     sum_entities = 1
     for thread_id in 2:(num_threads - 1)
@@ -476,7 +470,6 @@ function main()
     end
     sum_entities += num_schools[num_threads - 1]
     println("$(sum_entities)]")
-
     print("const end_school_ids = Int[")
     sum_entities = 0
     for thread_id in 1:(num_threads - 1)
@@ -487,7 +480,6 @@ function main()
     println("$(sum_entities)]")
 
     println("const num_universities = $(size(university_coords_df)[1])")
-
     print("const start_university_ids = Int[1, ")
     sum_entities = 1
     for thread_id in 2:(num_threads - 1)
@@ -496,7 +488,6 @@ function main()
     end
     sum_entities += num_universities[num_threads - 1]
     println("$(sum_entities)]")
-
     print("const end_university_ids = Int[")
     sum_entities = 0
     for thread_id in 1:(num_threads - 1)
@@ -507,7 +498,6 @@ function main()
     println("$(sum_entities)]")
 
     println("const num_shops = $(size(shop_coords_df)[1])")
-
     print("const start_shop_ids = Int[1, ")
     sum_entities = 1
     for thread_id in 2:(num_threads - 1)
@@ -516,7 +506,6 @@ function main()
     end
     sum_entities += num_shops[num_threads - 1]
     println("$(sum_entities)]")
-
     print("const end_shop_ids = Int[")
     sum_entities = 0
     for thread_id in 1:(num_threads - 1)
@@ -527,7 +516,6 @@ function main()
     println("$(sum_entities)]")
 
     println("const num_restaurants = $(size(restaurant_coords_df)[1])")
-
     print("const start_restaurant_ids = Int[1, ")
     sum_entities = 1
     for thread_id in 2:(num_threads - 1)
@@ -536,7 +524,6 @@ function main()
     end
     sum_entities += num_restaurants[num_threads - 1]
     println("$(sum_entities)]")
-
     print("const end_restaurant_ids = Int[")
     sum_entities = 0
     for thread_id in 1:(num_threads - 1)

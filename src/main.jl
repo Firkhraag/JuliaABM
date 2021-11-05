@@ -321,7 +321,8 @@ function main()
             shop_coords_df[i, :dist],
             shop_coords_df[i, :x],
             shop_coords_df[i, :y],
-            ceil(Int, rand(Gamma(shop_capacity_shape, shop_capacity_scale)))
+            ceil(Int, rand(Gamma(shop_capacity_shape, shop_capacity_scale))),
+            shop_num_groups,
         )
     end
 
@@ -333,21 +334,23 @@ function main()
             restaurant_coords_df[i, :dist],
             restaurant_coords_df[i, :x],
             restaurant_coords_df[i, :y],
-            restaurant_coords_df[i, :seats]
+            restaurant_coords_df[i, :seats],
+            restaurant_num_groups,
         )
     end
 
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, households, kindergartens, schools, viruses, infectivities, start_household_ids[thread_id],
+            agents, households, viruses, infectivities, start_household_ids[thread_id],
             homes_coords_df, district_households, district_people,
             district_people_households, district_nums)
     end
 
     @time set_connections(
         agents, households, kindergartens, schools, universities,
-        workplaces, shops, restaurants, thread_rng, num_threads, homes_coords_df)
+        workplaces, shops, restaurants, thread_rng,
+        num_threads, homes_coords_df)
 
     # get_stats(agents)
 
@@ -392,7 +395,7 @@ function main()
         mean(temperature_parameter_7_array[burnin:step:size(temperature_parameter_7_array)[1]])
     ]
 
-    duration_parameter = 3.0
+    duration_parameter = 3.2
     susceptibility_parameters = [
         6.08,
         5.91,

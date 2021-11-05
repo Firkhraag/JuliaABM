@@ -386,27 +386,45 @@ mutable struct Agent
         ig_level = (ig_g + ig_a + ig_m - min_ig_level) / max_min_ig_level_diff
 
         # Болен
+        # is_infected = false
+        # if age < 3
+        #     if rand(thread_rng[thread_id], Float64) < 0.05
+        #         is_infected = true
+        #     end
+        # elseif age < 7
+        #     if rand(thread_rng[thread_id], Float64) < 0.025
+        #         is_infected = true
+        #     end
+        # elseif age < 15
+        #     if rand(thread_rng[thread_id], Float64) < 0.015
+        #         is_infected = true
+        #     end
+        # else
+        #     if rand(thread_rng[thread_id], Float64) < 0.003
+        #         is_infected = true
+        #     end
+        # end
+
         is_infected = false
         if age < 3
-            if rand(thread_rng[thread_id], Float64) < 0.05
+            if rand(thread_rng[thread_id], Float64) < 0.04
                 is_infected = true
             end
         elseif age < 7
-            if rand(thread_rng[thread_id], Float64) < 0.025
+            if rand(thread_rng[thread_id], Float64) < 0.02
                 is_infected = true
             end
         elseif age < 15
-            if rand(thread_rng[thread_id], Float64) < 0.015
+            if rand(thread_rng[thread_id], Float64) < 0.01
                 is_infected = true
             end
         else
-            if rand(thread_rng[thread_id], Float64) < 0.003
+            if rand(thread_rng[thread_id], Float64) < 0.0025
                 is_infected = true
             end
         end
 
         # Набор дней после приобретения типоспецифического иммунитета
-
         FluA_days_immune = 0
         FluB_days_immune = 0
         RV_days_immune = 0

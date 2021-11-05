@@ -196,14 +196,15 @@ function main()
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, households, kindergartens, schools, viruses, infectivities, start_household_ids[thread_id],
+            agents, households, viruses, infectivities, start_household_ids[thread_id],
             homes_coords_df, district_households, district_people,
             district_people_households, district_nums)
     end
 
     @time set_connections(
         agents, households, kindergartens, schools, universities,
-        workplaces, shops, restaurants, thread_rng, num_threads, homes_coords_df)
+        workplaces, shops, restaurants, thread_rng,
+        num_threads, homes_coords_df)
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     

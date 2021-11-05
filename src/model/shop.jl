@@ -9,7 +9,7 @@ struct Shop
     x::Float64
     y::Float64
 
-    function Shop(district_id::Int, x::Float64, y::Float64, capacity::Int)
-        new([Int[0 for _ in 1:capacity] for __ in 1:shop_num_groups], Int[0 for _ in 1:rand(1:6)], district_id, x, y)
+    function Shop(district_id::Int, x::Float64, y::Float64, capacity::Int, num_groups::Int)
+        new([Int[0 for _ in 1:capacity] for __ in 1:num_groups], Int[0 for _ in 1:rand(1:6)], district_id, x, y)
     end
 end

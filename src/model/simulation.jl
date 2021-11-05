@@ -81,6 +81,34 @@ function simulate_contacts(
         agent = agents[agent_id]
         # Агент инфицирован
         if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
+            # Случайные контакты
+            if agent.age >= 14 && !agent.is_isolated && !agent.on_parent_leave
+                for i = 1:trunc(Int, rand(rng, Normal(20, 5)))
+                    agent2_id = rand(start_agent_id:end_agent_id)
+                    agent2 = agents[agent2_id]
+                    # Проверка восприимчивости агента к вирусу
+                    if agent2.visit_household_id == 0 &&
+                        agent2.virus_id == 0 &&
+                        agent2.days_immune == 0 &&
+                        (agent.virus_id != 1 || agent2.FluA_days_immune == 0) &&
+                        (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
+                        (agent.virus_id != 7 || agent2.CoV_days_immune == 0) &&
+                        (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
+                        (agent.virus_id != 4 || agent2.RSV_days_immune == 0) &&
+                        (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
+                        (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
+
+                        dur = get_contact_duration_normal(0.14, 0.03, rng)
+                        if dur > 0.01
+                            make_contact(agent, agent2, dur, current_step, duration_parameter,
+                                susceptibility_parameters, temp_influences, rng)
+                            if agent2.is_newly_infected
+                                infected_inside_activity[current_step, 8, thread_id] += 1
+                            end
+                        end
+                    end
+                end
+            end
             # Инфицированный агент посещает чужое домохозяйство
             if agent.visit_household_id != 0
                 for agent2_id in households[agent.visit_household_id].agent_ids
@@ -1027,7 +1055,7 @@ function simulate_additional_contacts(
                                 (agent.activity_type == 2 && is_school_holiday) ||
                                 (agent.activity_type == 1 && is_kindergarten_holiday)
             
-                                dur = get_contact_duration_normal(0.44, 0.1, rng)
+                                dur = get_contact_duration_normal(0.38, 0.09, rng)
                                 if dur > 0.01
                                     make_contact(agent, agent2, dur, current_step, duration_parameter,
                                         susceptibility_parameters, temp_influences, rng)
@@ -1036,7 +1064,7 @@ function simulate_additional_contacts(
                                     end
                                 end
                             else
-                                dur = get_contact_duration_normal(0.28, 0.09, rng)
+                                dur = get_contact_duration_normal(0.26, 0.08, rng)
                                 if dur > 0.01
                                     make_contact(agent, agent2, dur, current_step, duration_parameter,
                                         susceptibility_parameters, temp_influences, rng)
@@ -1073,7 +1101,7 @@ function simulate_additional_contacts(
                                 (agent2.activity_type == 2 && is_school_holiday) ||
                                 (agent2.activity_type == 1 && is_kindergarten_holiday)
     
-                                dur = get_contact_duration_normal(0.44, 0.1, rng)
+                                dur = get_contact_duration_normal(0.38, 0.09, rng)
                                 if dur > 0.01
                                     make_contact(agent, agent2, dur, current_step, duration_parameter,
                                         susceptibility_parameters, temp_influences, rng)
@@ -1082,7 +1110,7 @@ function simulate_additional_contacts(
                                     end
                                 end
                             else
-                                dur = get_contact_duration_normal(0.28, 0.09, rng)
+                                dur = get_contact_duration_normal(0.26, 0.08, rng)
                                 if dur > 0.01
                                     make_contact(agent, agent2, dur, current_step, duration_parameter,
                                         susceptibility_parameters, temp_influences, rng)
@@ -1151,7 +1179,7 @@ function run_simulation(
     # Месяц
     month = 8
     # День недели
-    week_day = 6
+    week_day = 1
     # Номер недели
     week_num = 1
 
@@ -1163,7 +1191,8 @@ function run_simulation(
 
     # DEBUG
     # max_step = 365
-    max_step = 21
+    max_step = 28
+    # VACATIONS!!!!!!!!!!!!!!
 
     for current_step = 1:max_step
         println(current_step)
@@ -1188,7 +1217,8 @@ function run_simulation(
             is_work_holiday = true
         end
 
-        is_kindergarten_holiday = is_work_holiday
+        # is_kindergarten_holiday = is_work_holiday
+        is_kindergarten_holiday = true
         if month == 7 || month == 8
             is_kindergarten_holiday = true
         end
@@ -1198,7 +1228,8 @@ function run_simulation(
         # Осенние - 05.11.yyyy - 11.11.yyyy
         # Зимние - 28.12.yyyy - 09.01.yyyy
         # Весенние - 22.03.yyyy - 31.03.yyyy
-        is_school_holiday = is_holiday
+        # is_school_holiday = is_holiday
+        is_school_holiday = true
         if month == 6 || month == 7 || month == 8
             is_school_holiday = true
         elseif month == 11 && day >= 5 && day <= 11
@@ -1211,7 +1242,8 @@ function run_simulation(
             is_school_holiday = true
         end
 
-        is_university_holiday = is_holiday
+        # is_university_holiday = is_holiday
+        is_university_holiday = true
         if month == 7 || month == 8
             is_university_holiday = true
         elseif month == 1 && day != 11 && day != 15 && day != 19 && day != 23 && day != 27
@@ -1225,7 +1257,7 @@ function run_simulation(
         end
 
         @threads for thread_id in 1:num_threads
-            add_additional_connections(
+            add_additional_connections_each_step(
                 thread_rng[thread_id],
                 start_agent_ids[thread_id],
                 end_agent_ids[thread_id],
@@ -1334,6 +1366,8 @@ function run_simulation(
     if is_single_run
         writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_activity_data.csv"),
             sum(infected_inside_activity, dims = 3)[:, :, 1], ',')
+        writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "confirmed_daily_new_cases_age_groups_viruses.csv"),
+            sum(sum(confirmed_daily_new_cases_age_groups_viruses, dims = 3)[:, :, :, 1], dims = 3)[:, :, 1], ',')
     end
 
     return num_infected_age_groups_viruses

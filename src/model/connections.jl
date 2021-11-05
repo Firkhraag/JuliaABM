@@ -351,7 +351,7 @@ function sample_from_zipf_distribution(
     return max_size
 end
 
-function add_additional_connections(
+function add_additional_connections_each_step(
     rng::MersenneTwister,
     start_agent_id::Int,
     end_agent_id::Int,
@@ -366,27 +366,30 @@ function add_additional_connections(
 )
     for agent_id in start_agent_id:end_agent_id
         agent = agents[agent_id]
-        if agent.age >= 14
+        agent.visit_household_id = 0
+    end
+
+    for agent_id in start_agent_id:end_agent_id
+        agent = agents[agent_id]
+        if agent.age >= 14 && !agent.is_isolated
             if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
                 (agent.activity_type == 3 && is_university_holiday) ||
                 (agent.activity_type == 2 && is_school_holiday) ||
                 (agent.activity_type == 1 && is_kindergarten_holiday)
 
-                if rand(rng, Float64) < 0.269
+                if !agent.on_parent_leave && rand(rng, Float64) < 0.269
                     if length(agent.friend_ids) > 0
                         agent.visit_household_id = agents[rand(rng, agent.friend_ids)].household_id
                         for agent2_id in agent.dependant_ids
                             agent2 = agents[agent2_id]
-                            if agent2.needs_supporter_care || rand(rng, Float64) < 0.33
+                            if !agent2.is_isolated && (agent2.needs_supporter_care || rand(rng, Float64) < 0.33)
                                 agent2.visit_household_id = agent.visit_household_id
                             end
                         end
-                    else
-                        agent.visit_household_id = 0
                     end
                 end
 
-                if rand(rng, Float64) < 0.354
+                if agent.activity_type != 5 && rand(rng, Float64) < 0.354
                     space_found = false
                     for group in shops[households[agent.household_id].closest_shop_id].groups
                         for i = 1:length(group)
@@ -396,7 +399,7 @@ function add_additional_connections(
                                 if length(agent.dependant_ids) > 0
                                     for children_id in agent.dependant_ids
                                         children = agents[children_id]
-                                        if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                        if !children.is_isolated && (children.needs_supporter_care || rand(rng, Float64) < 0.33)
                                             num_children += 1
                                         end
                                     end
@@ -424,7 +427,7 @@ function add_additional_connections(
                                     if length(agent.dependant_ids) > 0
                                         for children_id in agent.dependant_ids
                                             children = agents[children_id]
-                                            if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                            if !children.is_isolated && (children.needs_supporter_care || rand(rng, Float64) < 0.33)
                                                 num_children += 1
                                             end
                                         end
@@ -446,7 +449,7 @@ function add_additional_connections(
                     end
                 end
 
-                if rand(rng, Float64) < 0.295
+                if agent.activity_type != 6 && rand(rng, Float64) < 0.295
                     space_found = false
                     for group in restaurants[households[agent.household_id].closest_restaurant_id].groups
                         for i = 1:length(group)
@@ -456,7 +459,7 @@ function add_additional_connections(
                                 if length(agent.dependant_ids) > 0
                                     for children_id in agent.dependant_ids
                                         children = agents[children_id]
-                                        if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                        if !children.is_isolated && (children.needs_supporter_care || rand(rng, Float64) < 0.33)
                                             num_children += 1
                                         end
                                     end
@@ -484,7 +487,7 @@ function add_additional_connections(
                                     if length(agent.dependant_ids) > 0
                                         for children_id in agent.dependant_ids
                                             children = agents[children_id]
-                                            if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                            if !children.is_isolated && (children.needs_supporter_care || rand(rng, Float64) < 0.33)
                                                 num_children += 1
                                             end
                                         end
@@ -506,21 +509,19 @@ function add_additional_connections(
                     end
                 end
             else
-                if rand(rng, Float64) < 0.177
+                if !agent.on_parent_leave && rand(rng, Float64) < 0.177
                     if length(agent.friend_ids) > 0
                         agent.visit_household_id = agents[rand(rng, agent.friend_ids)].household_id
                         for agent2_id in agent.dependant_ids
                             agent2 = agents[agent2_id]
-                            if agent2.needs_supporter_care || rand(rng, Float64) < 0.33
+                            if !agent2.is_isolated && (agent2.needs_supporter_care || rand(rng, Float64) < 0.33)
                                 agent2.visit_household_id = agent.visit_household_id
                             end
                         end
-                    else
-                        agent.visit_household_id = 0
                     end
                 end
 
-                if rand(rng, Float64) < 0.291
+                if agent.activity_type != 5 && rand(rng, Float64) < 0.291
                     space_found = false
                     for group in shops[households[agent.household_id].closest_shop_id].groups
                         for i = 1:length(group)
@@ -530,7 +531,7 @@ function add_additional_connections(
                                 if length(agent.dependant_ids) > 0
                                     for children_id in agent.dependant_ids
                                         children = agents[children_id]
-                                        if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                        if !children.is_isolated && (children.needs_supporter_care || rand(rng, Float64) < 0.33)
                                             num_children += 1
                                         end
                                     end
@@ -558,7 +559,7 @@ function add_additional_connections(
                                     if length(agent.dependant_ids) > 0
                                         for children_id in agent.dependant_ids
                                             children = agents[children_id]
-                                            if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                            if !children.is_isolated && (children.needs_supporter_care || rand(rng, Float64) < 0.33)
                                                 num_children += 1
                                             end
                                         end
@@ -580,7 +581,7 @@ function add_additional_connections(
                     end
                 end
 
-                if rand(rng, Float64) < 0.255
+                if agent.activity_type != 6 && rand(rng, Float64) < 0.255
                     space_found = false
                     for group in restaurants[households[agent.household_id].closest_restaurant_id].groups
                         for i = 1:length(group)
@@ -590,7 +591,7 @@ function add_additional_connections(
                                 if length(agent.dependant_ids) > 0
                                     for children_id in agent.dependant_ids
                                         children = agents[children_id]
-                                        if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                        if !children.is_isolated && (children.needs_supporter_care || rand(rng, Float64) < 0.33)
                                             num_children += 1
                                         end
                                     end
@@ -618,7 +619,7 @@ function add_additional_connections(
                                     if length(agent.dependant_ids) > 0
                                         for children_id in agent.dependant_ids
                                             children = agents[children_id]
-                                            if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                            if !children.is_isolated && (children.needs_supporter_care || rand(rng, Float64) < 0.33)
                                                 num_children += 1
                                             end
                                         end

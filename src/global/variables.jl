@@ -100,6 +100,7 @@ shop_capacity_scale = 20.0
 # 30 minutes for 10 hours
 restaurant_num_groups = 20
 shop_num_groups = 20
+
 # contact with only x closest agents
 restaurant_num_nearest_agents_as_contact = 20
 shop_num_nearest_agents_as_contact = 20

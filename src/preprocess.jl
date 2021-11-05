@@ -248,8 +248,8 @@ function preprocess_hair_salons()
 end
 
 # Don't forget to run partition.jl after applying changes
-preprocess_kindergartens()
-preprocess_schools()
-preprocess_universities()
-preprocess_shops()
-preprocess_restaurants()
+# preprocess_kindergartens()
+# preprocess_schools()
+# preprocess_universities()
+# preprocess_shops()
+# preprocess_restaurants()

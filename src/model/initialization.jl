@@ -1675,8 +1675,6 @@ function create_population(
     end_agent_id::Int,
     all_agents::Vector{Agent},
     households::Vector{Household},
-    kindergartens::Vector{School},
-    schools::Vector{School},
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
     start_household_id::Int,
