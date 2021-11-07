@@ -17,6 +17,17 @@ function simulate_contacts_evaluation(
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
+        if agent.age >= 14
+            for i = 1:trunc(Int, rand(rng, Normal(20, 5)))
+                agent2_id = rand(start_agent_id:end_agent_id)
+                agent2 = agents[agent2_id]
+                dur = get_contact_duration_normal(0.14, 0.03, rng)
+                if dur > 0.01
+                    contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                    contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                end
+            end
+        end
         if agent.visit_household_id != 0
             for agent2_id in households[agent.visit_household_id].agent_ids
                 agent2 = agents[agent2_id]
@@ -132,7 +143,7 @@ function simulate_contacts_evaluation(
             agent2 = agents[agent2_id]
             if agent2_id != agent_id
                 dur = 0.0
-                if is_holiday || ((agent.is_isolated || agent.on_parent_leave || agent.activity_type == 0 ||
+                if is_holiday || ((agent.activity_type == 0 ||
                     (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_university_holiday) ||
                     (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)) &&
                     (agent2.is_isolated || agent2.on_parent_leave || agent2.activity_type == 0 ||
@@ -140,20 +151,29 @@ function simulate_contacts_evaluation(
                     (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday)))
 
                     dur = get_contact_duration_normal(12.0, 4.0, rng)
-                elseif ((agent.activity_type == 4 && !(agent.is_isolated || agent.on_parent_leave)) ||
-                    (agent2.activity_type == 4 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_work_holiday
+                elseif ((agent.activity_type == 4) ||
+                    (agent2.activity_type == 4)) && !is_work_holiday
 
                     dur = get_contact_duration_normal(4.5, 1.5, rng)
-                elseif ((agent.activity_type == 2 && !(agent.is_isolated || agent.on_parent_leave)) ||
-                    (agent2.activity_type == 2 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_school_holiday
+                elseif ((agent.activity_type == 2) ||
+                    (agent2.activity_type == 2)) && !is_school_holiday
 
                     dur = get_contact_duration_normal(5.8, 2.0, rng)
-                elseif ((agent.activity_type == 1 && !(agent.is_isolated || agent.on_parent_leave)) ||
-                    (agent2.activity_type == 1 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_kindergarten_holiday
+                elseif ((agent.activity_type == 1) ||
+                    (agent2.activity_type == 1)) && !is_kindergarten_holiday
                     
                     dur = get_contact_duration_normal(6.5, 2.2, rng)
                 else
                     dur = get_contact_duration_normal(9.0, 3.0, rng)
+                end
+                if agent.visit_household_id != 0 || agent2.visit_household_id != 0
+                    dur -= 1.0
+                end
+                if agent.with_restaurant || agent2.with_restaurant
+                    dur -= 0.5
+                end
+                if agent.with_restaurant || agent2.with_restaurant
+                    dur -= 0.5
                 end
                 if dur > 0.01
                     contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
@@ -164,7 +184,7 @@ function simulate_contacts_evaluation(
             end
         end
         # Контакты в остальных коллективах
-        if !agent.is_isolated && !agent.on_parent_leave && agent.attendance &&
+        if agent.attendance &&
             ((agent.activity_type == 1 && !is_kindergarten_holiday) ||
             (agent.activity_type == 2 && !is_school_holiday) ||
             (agent.activity_type == 3 && !is_university_holiday) ||
@@ -204,6 +224,318 @@ function simulate_contacts_evaluation(
                             contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
                             contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, agent.activity_type] += 1
                             contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, agent.activity_type] += dur
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+function add_additional_connections_each_step_evaluation(
+    rng::MersenneTwister,
+    start_agent_id::Int,
+    end_agent_id::Int,
+    agents::Vector{Agent},
+    households::Vector{Household},
+    shops::Vector{Shop},
+    restaurants::Vector{Restaurant},
+    is_kindergarten_holiday::Bool,
+    is_school_holiday::Bool,
+    is_university_holiday::Bool,
+    is_work_holiday::Bool,
+)
+    for agent_id in start_agent_id:end_agent_id
+        agent = agents[agent_id]
+        agent.visit_household_id = 0
+    end
+
+    for agent_id in start_agent_id:end_agent_id
+        agent = agents[agent_id]
+        if agent.age >= 14
+            if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
+                (agent.activity_type == 3 && is_university_holiday) ||
+                (agent.activity_type == 2 && is_school_holiday) ||
+                (agent.activity_type == 1 && is_kindergarten_holiday)
+
+                if !agent.on_parent_leave && rand(rng, Float64) < 0.269
+                    if length(agent.friend_ids) > 0
+                        agent_to_visit = agents[rand(rng, agent.friend_ids)]
+                        agent.visit_household_id = agent_to_visit.household_id
+                        for agent2_id in agent.dependant_ids
+                            agent2 = agents[agent2_id]
+                            if agent2.needs_supporter_care || rand(rng, Float64) < 0.33
+                                agent2.visit_household_id = agent.visit_household_id
+                            end
+                        end
+                    end
+                end
+
+                if agent.activity_type != 5 && rand(rng, Float64) < 0.354
+                    space_found = false
+                    for group in shops[households[agent.household_id].closest_shop_id].groups
+                        for i = 1:length(group)
+                            group_agent_id = group[i]
+                            if group_agent_id == 0
+                                num_children = 0
+                                if length(agent.dependant_ids) > 0
+                                    for children_id in agent.dependant_ids
+                                        children = agents[children_id]
+                                        if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                            num_children += 1
+                                        end
+                                    end
+                                end
+                                if i + num_children <= length(group)
+                                    for child_num = 1:num_children
+                                        group[i + child_num] = agent.dependant_ids[child_num]
+                                        agents[agent.dependant_ids[child_num]].with_shopping = true
+                                    end
+                                    agent.with_shopping = true
+                                    group[i] = agent.id
+                                    space_found = true
+                                    break
+                                end
+                            end
+                        end
+                        if space_found
+                            break
+                        end
+                    end
+                    if !space_found && households[agent.household_id].closest_shop_id != households[agent.household_id].closest_shop_id2
+                        for group in shops[households[agent.household_id].closest_shop_id2].groups
+                            for i = 1:length(group)
+                                group_agent_id = group[i]
+                                if group_agent_id == 0
+                                    num_children = 0
+                                    if length(agent.dependant_ids) > 0
+                                        for children_id in agent.dependant_ids
+                                            children = agents[children_id]
+                                            if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                                num_children += 1
+                                            end
+                                        end
+                                    end
+                                    if i + num_children <= length(group)
+                                        for child_num = 1:num_children
+                                            group[i + child_num] = agent.dependant_ids[child_num]
+                                            agents[agent.dependant_ids[child_num]].with_shopping = true
+                                        end
+                                        agent.with_shopping = true
+                                        group[i] = agent.id
+                                        space_found = true
+                                        break
+                                    end
+                                end
+                            end
+                            if space_found
+                                break
+                            end
+                        end
+                    end
+                end
+
+                if agent.activity_type != 6 && rand(rng, Float64) < 0.295
+                    space_found = false
+                    for group in restaurants[households[agent.household_id].closest_restaurant_id].groups
+                        for i = 1:length(group)
+                            group_agent_id = group[i]
+                            if group_agent_id == 0
+                                num_children = 0
+                                if length(agent.dependant_ids) > 0
+                                    for children_id in agent.dependant_ids
+                                        children = agents[children_id]
+                                        if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                            num_children += 1
+                                        end
+                                    end
+                                end
+                                if i + num_children <= length(group)
+                                    for child_num = 1:num_children
+                                        group[i + child_num] = agent.dependant_ids[child_num]
+                                        agents[agent.dependant_ids[child_num]].with_restaurant = true
+                                    end
+                                    agent.with_restaurant = true
+                                    group[i] = agent.id
+                                    space_found = true
+                                    break
+                                end
+                            end
+                        end
+                        if space_found
+                            break
+                        end
+                    end
+                    if !space_found && households[agent.household_id].closest_restaurant_id != households[agent.household_id].closest_restaurant_id2
+                        for group in restaurants[households[agent.household_id].closest_restaurant_id2].groups
+                            for i = 1:length(group)
+                                group_agent_id = group[i]
+                                if group_agent_id == 0
+                                    num_children = 0
+                                    if length(agent.dependant_ids) > 0
+                                        for children_id in agent.dependant_ids
+                                            children = agents[children_id]
+                                            if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                                num_children += 1
+                                            end
+                                        end
+                                    end
+                                    if i + num_children <= length(group)
+                                        for child_num = 1:num_children
+                                            group[i + child_num] = agent.dependant_ids[child_num]
+                                            agents[agent.dependant_ids[child_num]].with_restaurant = true
+                                        end
+                                        agent.with_restaurant = true
+                                        group[i] = agent.id
+                                        space_found = true
+                                        break
+                                    end
+                                end
+                            end
+                            if space_found
+                                break
+                            end
+                        end
+                    end
+                end
+            else
+                if !agent.on_parent_leave && rand(rng, Float64) < 0.177
+                    if length(agent.friend_ids) > 0
+                        agent_to_visit = agents[rand(rng, agent.friend_ids)]
+                        agent.visit_household_id = agent_to_visit.household_id
+                        for agent2_id in agent.dependant_ids
+                            agent2 = agents[agent2_id]
+                            if agent2.needs_supporter_care || rand(rng, Float64) < 0.33
+                                agent2.visit_household_id = agent.visit_household_id
+                            end
+                        end
+                    end
+                end
+
+                if agent.activity_type != 5 && rand(rng, Float64) < 0.291
+                    space_found = false
+                    for group in shops[households[agent.household_id].closest_shop_id].groups
+                        for i = 1:length(group)
+                            group_agent_id = group[i]
+                            if group_agent_id == 0
+                                num_children = 0
+                                if length(agent.dependant_ids) > 0
+                                    for children_id in agent.dependant_ids
+                                        children = agents[children_id]
+                                        if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                            num_children += 1
+                                        end
+                                    end
+                                end
+                                if i + num_children <= length(group)
+                                    for child_num = 1:num_children
+                                        group[i + child_num] = agent.dependant_ids[child_num]
+                                        agents[agent.dependant_ids[child_num]].with_shopping = true
+                                    end
+                                    agent.with_shopping = true
+                                    group[i] = agent.id
+                                    space_found = true
+                                    break
+                                end
+                            end
+                        end
+                        if space_found
+                            break
+                        end
+                    end
+                    if !space_found && households[agent.household_id].closest_shop_id != households[agent.household_id].closest_shop_id2
+                        for group in shops[households[agent.household_id].closest_shop_id2].groups
+                            for i = 1:length(group)
+                                group_agent_id = group[i]
+                                if group_agent_id == 0
+                                    num_children = 0
+                                    if length(agent.dependant_ids) > 0
+                                        for children_id in agent.dependant_ids
+                                            children = agents[children_id]
+                                            if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                                num_children += 1
+                                            end
+                                        end
+                                    end
+                                    if i + num_children <= length(group)
+                                        for child_num = 1:num_children
+                                            group[i + child_num] = agent.dependant_ids[child_num]
+                                            agents[agent.dependant_ids[child_num]].with_shopping = true
+                                        end
+                                        agent.with_shopping = true
+                                        group[i] = agent.id
+                                        space_found = true
+                                        break
+                                    end
+                                end
+                            end
+                            if space_found
+                                break
+                            end
+                        end
+                    end
+                end
+
+                if agent.activity_type != 6 && rand(rng, Float64) < 0.255
+                    space_found = false
+                    for group in restaurants[households[agent.household_id].closest_restaurant_id].groups
+                        for i = 1:length(group)
+                            group_agent_id = group[i]
+                            if group_agent_id == 0
+                                num_children = 0
+                                if length(agent.dependant_ids) > 0
+                                    for children_id in agent.dependant_ids
+                                        children = agents[children_id]
+                                        if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                            num_children += 1
+                                        end
+                                    end
+                                end
+                                if i + num_children <= length(group)
+                                    for child_num = 1:num_children
+                                        group[i + child_num] = agent.dependant_ids[child_num]
+                                        agents[agent.dependant_ids[child_num]].with_restaurant = true
+                                    end
+                                    agent.with_restaurant = true
+                                    group[i] = agent.id
+                                    space_found = true
+                                    break
+                                end
+                            end
+                        end
+                        if space_found
+                            break
+                        end
+                    end
+                    if !space_found && households[agent.household_id].closest_restaurant_id != households[agent.household_id].closest_restaurant_id2
+                        for group in restaurants[households[agent.household_id].closest_restaurant_id2].groups
+                            for i = 1:length(group)
+                                group_agent_id = group[i]
+                                if group_agent_id == 0
+                                    num_children = 0
+                                    if length(agent.dependant_ids) > 0
+                                        for children_id in agent.dependant_ids
+                                            children = agents[children_id]
+                                            if children.needs_supporter_care || rand(rng, Float64) < 0.33
+                                                num_children += 1
+                                            end
+                                        end
+                                    end
+                                    if i + num_children <= length(group)
+                                        for child_num = 1:num_children
+                                            group[i + child_num] = agent.dependant_ids[child_num]
+                                            agents[agent.dependant_ids[child_num]].with_restaurant = true
+                                        end
+                                        agent.with_restaurant = true
+                                        group[i] = agent.id
+                                        space_found = true
+                                        break
+                                    end
+                                end
+                            end
+                            if space_found
+                                break
+                            end
                         end
                     end
                 end
@@ -318,17 +650,15 @@ function simulate_additional_contacts_evaluation(
 
         for agent_id in shop.worker_ids
             agent = agents[agent_id]
-            if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
-                for agent2_id in shop.worker_ids
-                    agent2 = agents[agent2_id]
-                    if agent2_id != agent_id
-                        dur = get_contact_duration_gamma(1.81, 1.7, rng)
-                        if dur > 0.01
-                            contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                            contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
-                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
-                        end
+            for agent2_id in shop.worker_ids
+                agent2 = agents[agent2_id]
+                if agent2_id != agent_id
+                    dur = get_contact_duration_gamma(1.81, 1.7, rng)
+                    if dur > 0.01
+                        contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
+                        contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
                     end
                 end
             end
@@ -421,17 +751,15 @@ function simulate_additional_contacts_evaluation(
         end
         for agent_id in restaurant.worker_ids
             agent = agents[agent_id]
-            if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
-                for agent2_id in restaurant.worker_ids
-                    agent2 = agents[agent2_id]
-                    if agent2_id != agent_id
-                        dur = get_contact_duration_gamma(1.81, 1.7, rng)
-                        if dur > 0.01
-                            contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                            contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                            contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
-                            contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
-                        end
+            for agent2_id in restaurant.worker_ids
+                agent2 = agents[agent2_id]
+                if agent2_id != agent_id
+                    dur = get_contact_duration_gamma(1.81, 1.7, rng)
+                    if dur > 0.01
+                        contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                        contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                        contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += 1
+                        contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, 7] += dur
                     end
                 end
             end
@@ -461,7 +789,7 @@ function run_simulation_evaluation(
     is_university_holiday = is_holiday
 
     @threads for thread_id in 1:num_threads
-        add_additional_connections(
+        add_additional_connections_each_step_evaluation(
             thread_rng[thread_id],
             start_agent_ids[thread_id],
             end_agent_ids[thread_id],
@@ -523,7 +851,7 @@ function run_simulation_evaluation(
 
     println(sum(contacts_num_matrix_by_age))
     for i = 1:8
-        println(sum(contacts_num_matrix_by_age_activities[:, :, i]))
+        println("Activity $(i): $(sum(contacts_num_matrix_by_age_activities[:, :, i])))")
     end
 
     if is_holiday

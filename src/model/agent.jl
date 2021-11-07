@@ -39,7 +39,6 @@ mutable struct Agent
     # Нуждается в уходе при болезни
     needs_supporter_care::Bool
 
-
     # Уход за больным ребенком
     on_parent_leave::Bool
     # Уровень иммуноглобулина
@@ -75,6 +74,9 @@ mutable struct Agent
     attendance::Bool
     # Учитель, воспитатель, профессор
     is_teacher::Bool
+
+    with_shopping::Bool
+    with_restaurant::Bool
 
     function Agent(
         id::Int,
@@ -386,43 +388,28 @@ mutable struct Agent
         ig_level = (ig_g + ig_a + ig_m - min_ig_level) / max_min_ig_level_diff
 
         # Болен
-        # is_infected = false
+        is_infected = false
+        # if rand(thread_rng[thread_id], Float64) < 0.004
+        if rand(thread_rng[thread_id], Float64) < 0.005
+            is_infected = true
+        end
         # if age < 3
-        #     if rand(thread_rng[thread_id], Float64) < 0.05
+        #     if rand(thread_rng[thread_id], Float64) < 0.001
         #         is_infected = true
         #     end
         # elseif age < 7
-        #     if rand(thread_rng[thread_id], Float64) < 0.025
+        #     if rand(thread_rng[thread_id], Float64) < 0.002
         #         is_infected = true
         #     end
         # elseif age < 15
-        #     if rand(thread_rng[thread_id], Float64) < 0.015
-        #         is_infected = true
-        #     end
-        # else
         #     if rand(thread_rng[thread_id], Float64) < 0.003
         #         is_infected = true
         #     end
+        # else
+        #     if rand(thread_rng[thread_id], Float64) < 0.004
+        #         is_infected = true
+        #     end
         # end
-
-        is_infected = false
-        if age < 3
-            if rand(thread_rng[thread_id], Float64) < 0.04
-                is_infected = true
-            end
-        elseif age < 7
-            if rand(thread_rng[thread_id], Float64) < 0.02
-                is_infected = true
-            end
-        elseif age < 15
-            if rand(thread_rng[thread_id], Float64) < 0.01
-                is_infected = true
-            end
-        else
-            if rand(thread_rng[thread_id], Float64) < 0.0025
-                is_infected = true
-            end
-        end
 
         # Набор дней после приобретения типоспецифического иммунитета
         FluA_days_immune = 0
@@ -733,7 +720,11 @@ mutable struct Agent
                 # Самоизоляция
                 if days_infected >= 1
                     rand_num = rand(thread_rng[thread_id], Float64)
-                    if age < 8
+                    if age < 3
+                        if rand_num < 0.406
+                            is_isolated = true
+                        end
+                    elseif age < 8
                         if rand_num < 0.305
                             is_isolated = true
                         end
@@ -749,7 +740,11 @@ mutable struct Agent
                 end
                 if days_infected >= 2 && !is_isolated
                     rand_num = rand(thread_rng[thread_id], Float64)
-                    if age < 8
+                    if age < 3
+                        if rand_num < 0.669
+                            is_isolated = true
+                        end
+                    elseif age < 8
                         if rand_num < 0.576
                             is_isolated = true
                         end
@@ -765,7 +760,11 @@ mutable struct Agent
                 end
                 if days_infected >= 3 && !is_isolated
                     rand_num = rand(thread_rng[thread_id], Float64)
-                    if age < 8
+                    if age < 3
+                        if rand_num < 0.45
+                            is_isolated = true
+                        end
+                    elseif age < 8
                         if rand_num < 0.325
                             is_isolated = true
                         end
@@ -811,15 +810,8 @@ mutable struct Agent
             false, ig_level, virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
             RSV_days_immune, AdV_days_immune, PIV_days_immune, CoV_days_immune,
             incubation_period, infection_period, days_infected, days_immune,
-            is_asymptomatic, is_isolated, infectivity, attendance, is_teacher)
-
-        # new(
-        #     id, age, infant_age, is_male, household_id, household_conn_ids,
-        #     activity_type, 0, school_group_num, 0, Int[], Int[], Int[], 0, false,
-        #     ig_level, virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
-        #     RSV_days_immune, AdV_days_immune, PIV_days_immune, CoV_days_immune,
-        #     incubation_period, infection_period, days_infected, days_immune,
-        #     is_asymptomatic, is_isolated, infectivity, attendance, is_teacher)
+            is_asymptomatic, is_isolated, infectivity, attendance, is_teacher,
+            false, false)
     end
 end
 

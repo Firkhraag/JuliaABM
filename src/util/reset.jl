@@ -12,23 +12,27 @@ function reset_population(
             agent = agents[agent_id]
             agent.on_parent_leave = false
             is_infected = false
-            if agent.age < 3
-                if rand(thread_rng[thread_id], Float64) < 0.05
-                    is_infected = true
-                end
-            elseif agent.age < 7
-                if rand(thread_rng[thread_id], Float64) < 0.025
-                    is_infected = true
-                end
-            elseif agent.age < 15
-                if rand(thread_rng[thread_id], Float64) < 0.015
-                    is_infected = true
-                end
-            else
-                if rand(thread_rng[thread_id], Float64) < 0.003
-                    is_infected = true
-                end
+            if rand(thread_rng[thread_id], Float64) < 0.004
+                is_infected = true
             end
+            # is_infected = false
+            # if agent.age < 3
+            #     if rand(thread_rng[thread_id], Float64) < 0.05
+            #         is_infected = true
+            #     end
+            # elseif agent.age < 7
+            #     if rand(thread_rng[thread_id], Float64) < 0.025
+            #         is_infected = true
+            #     end
+            # elseif agent.age < 15
+            #     if rand(thread_rng[thread_id], Float64) < 0.015
+            #         is_infected = true
+            #     end
+            # else
+            #     if rand(thread_rng[thread_id], Float64) < 0.003
+            #         is_infected = true
+            #     end
+            # end
 
             # Набор дней после приобретения типоспецифического иммунитета
 
@@ -340,7 +344,11 @@ function reset_population(
                     # Самоизоляция
                     if agent.days_infected >= 1
                         rand_num = rand(thread_rng[thread_id], Float64)
-                        if agent.age < 8
+                        if agent.age < 3
+                            if rand_num < 0.406
+                                agent.is_isolated = true
+                            end
+                        elseif agent.age < 8
                             if rand_num < 0.305
                                 agent.is_isolated = true
                             end
@@ -356,7 +364,11 @@ function reset_population(
                     end
                     if agent.days_infected >= 2 && !agent.is_isolated
                         rand_num = rand(thread_rng[thread_id], Float64)
-                        if agent.age < 8
+                        if agent.age < 3
+                            if rand_num < 0.669
+                                agent.is_isolated = true
+                            end
+                        elseif agent.age < 8
                             if rand_num < 0.576
                                 agent.is_isolated = true
                             end
@@ -372,7 +384,11 @@ function reset_population(
                     end
                     if agent.days_infected >= 3 && !agent.is_isolated
                         rand_num = rand(thread_rng[thread_id], Float64)
-                        if agent.age < 8
+                        if agent.age < 3
+                            if rand_num < 0.45
+                                agent.is_isolated = true
+                            end
+                        elseif agent.age < 8
                             if rand_num < 0.325
                                 agent.is_isolated = true
                             end

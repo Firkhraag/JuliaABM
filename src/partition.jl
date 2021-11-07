@@ -400,7 +400,6 @@ function main()
     end
 
     num_agents = Array{Int, 1}(undef, num_threads)
-    districts_agent_ids = Array{UnitRange{Int64}, 1}(undef, length(district_nums))
     num_households = Array{Int, 1}(undef, num_threads)
     @threads for thread_id in 1:num_threads
         num_agents[thread_id], num_households[thread_id] = get_num_of_people_and_households(
