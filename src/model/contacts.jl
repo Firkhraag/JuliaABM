@@ -17,7 +17,7 @@ function simulate_contacts_evaluation(
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
-        if agent.age >= 14
+        if agent.age >= 12
             for i = 1:trunc(Int, rand(rng, Normal(20, 5)))
                 agent2_id = rand(start_agent_id:end_agent_id)
                 agent2 = agents[agent2_id]
@@ -252,7 +252,7 @@ function add_additional_connections_each_step_evaluation(
 
     for agent_id in start_agent_id:end_agent_id
         agent = agents[agent_id]
-        if agent.age >= 14
+        if agent.age >= 12
             if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
                 (agent.activity_type == 3 && is_university_holiday) ||
                 (agent.activity_type == 2 && is_school_holiday) ||

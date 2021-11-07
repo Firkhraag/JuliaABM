@@ -32,7 +32,7 @@ mutable struct Agent
     # dependant_ids::Vector{Int}
     # # Id того, кто будет ухаживать в случае болезни
     
-    # Id детей младше 14 лет
+    # Id детей младше 12 лет
     dependant_ids::Vector{Int}
     # Id попечителя
     supporter_id::Int

@@ -80,7 +80,7 @@ function multiple_simulations(
         (temperature_parameters_default[7] - 0.05, temperature_parameters_default[7] + 0.05)])
 
     # S_min = 3.2385170711911373e9
-    S_min = 5.465804007121758e9
+    S_min = 4.721147450929181e9
 
     for i = 1:num_runs
         println(i)

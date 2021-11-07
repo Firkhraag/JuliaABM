@@ -82,7 +82,7 @@ function simulate_contacts(
         # Агент инфицирован
         if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
             # Случайные контакты
-            if agent.age >= 14 && !agent.is_isolated && !agent.on_parent_leave
+            if agent.age >= 12 && !agent.is_isolated && !agent.on_parent_leave
                 for i = 1:trunc(Int, rand(rng, Normal(20, 5)))
                     agent2_id = rand(start_agent_id:end_agent_id)
                     agent2 = agents[agent2_id]
@@ -596,7 +596,7 @@ function update_agent_states(
                     if agent.days_infected == 1
                         rand_num = rand(rng, Float64)
                         if agent.age < 3
-                            if rand_num < 0.406
+                            if rand_num < 0.506
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 8
@@ -615,7 +615,7 @@ function update_agent_states(
                     elseif agent.days_infected == 2
                         rand_num = rand(rng, Float64)
                         if agent.age < 3
-                            if rand_num < 0.669
+                            if rand_num < 0.769
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 8
@@ -634,7 +634,7 @@ function update_agent_states(
                     elseif agent.days_infected == 3
                         rand_num = rand(rng, Float64)
                         if agent.age < 3
-                            if rand_num < 0.45
+                            if rand_num < 0.555
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 8
@@ -827,7 +827,7 @@ function add_additional_connections_each_step(
 
     for agent_id in start_agent_id:end_agent_id
         agent = agents[agent_id]
-        if agent.age >= 14 && !agent.is_isolated
+        if agent.age >= 12 && !agent.is_isolated
             if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
                 (agent.activity_type == 3 && is_university_holiday) ||
                 (agent.activity_type == 2 && is_school_holiday) ||
@@ -1533,8 +1533,8 @@ function run_simulation(
     infected_inside_activity = zeros(Int, 365, 8, num_threads)
 
     # DEBUG
-    # max_step = 365
-    max_step = 28
+    max_step = 365
+    # max_step = 28
 
     for current_step = 1:max_step
         # println(current_step)

@@ -24,10 +24,10 @@ const max_agent_age = 89
 
 # Размер групп в образовательных учреждениях
 const kindergarten_groups_size_1 = 10
-const kindergarten_groups_size_2_3 = 14
-const kindergarten_groups_size_4_5 = 18
+const kindergarten_groups_size_2_3 = 15
+const kindergarten_groups_size_4_5 = 20
 
-const school_groups_size = 24
+const school_groups_size = 25
 
 const university_groups_size_1 = 15
 const university_groups_size_2_3 = 14
