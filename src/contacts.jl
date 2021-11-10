@@ -9,11 +9,11 @@ include("global/variables.jl")
 
 include("model/virus.jl")
 include("model/agent.jl")
+include("model/group.jl")
 include("model/household.jl")
 include("model/workplace.jl")
 include("model/school.jl")
-include("model/restaurant.jl")
-include("model/shop.jl")
+include("model/public_space.jl")
 include("model/initialization.jl")
 include("model/simulation.jl")
 include("model/contacts.jl")
@@ -127,9 +127,9 @@ function main()
 
     shop_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "shops.csv")))
     # Массив для хранения продовольственных магазинов
-    shops = Array{Shop, 1}(undef, num_shops)
+    shops = Array{PublicSpace, 1}(undef, num_shops)
     for i in 1:size(shop_coords_df, 1)
-        shops[i] = Shop(
+        shops[i] = PublicSpace(
             shop_coords_df[i, :dist],
             shop_coords_df[i, :x],
             shop_coords_df[i, :y],
@@ -140,9 +140,9 @@ function main()
 
     restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "restaurants.csv")))
     # Массив для хранения ресторанов/кафе/столовых
-    restaurants = Array{Restaurant, 1}(undef, num_restaurants)
+    restaurants = Array{PublicSpace, 1}(undef, num_restaurants)
     for i in 1:size(restaurant_coords_df, 1)
-        restaurants[i] = Restaurant(
+        restaurants[i] = PublicSpace(
             restaurant_coords_df[i, :dist],
             restaurant_coords_df[i, :x],
             restaurant_coords_df[i, :y],
@@ -173,7 +173,7 @@ function main()
     # run_simulation_evaluation(
     #     num_threads, thread_rng, agents, households, shops, restaurants, true)
     println("Weekday")
-    run_simulation_evaluation(
+    @time run_simulation_evaluation(
         num_threads, thread_rng, agents, households, shops, restaurants, false)
     
     age_groups_nums = zeros(Int, 90)

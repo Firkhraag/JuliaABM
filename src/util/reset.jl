@@ -12,7 +12,7 @@ function reset_population(
             agent = agents[agent_id]
             agent.on_parent_leave = false
             is_infected = false
-            if rand(thread_rng[thread_id], Float64) < 0.004
+            if rand(thread_rng[thread_id], Float64) < 0.005
                 is_infected = true
             end
             # is_infected = false
@@ -411,18 +411,8 @@ function reset_population(
             end
 
             agent.attendance = true
-            if agent.activity_type == 1 && !agent.is_teacher
-                if rand(thread_rng[thread_id], Float64) < 0.1
-                    agent.attendance = false
-                end
-            elseif agent.activity_type == 2 && !agent.is_teacher
-                if rand(thread_rng[thread_id], Float64) < 0.1
-                    agent.attendance = false
-                end
-            elseif agent.activity_type == 3 && !agent.is_teacher
-                if rand(thread_rng[thread_id], Float64) < 0.5
-                    agent.attendance = false
-                end
+            if agent.activity_type == 3 && !agent.is_teacher && rand(rng, Float64) < 0.5
+                agent.attendance = false
             end
         end
     end

@@ -9,14 +9,13 @@ include("global/variables.jl")
 
 include("model/virus.jl")
 include("model/agent.jl")
+include("model/group.jl")
 include("model/household.jl")
 include("model/workplace.jl")
 include("model/school.jl")
-include("model/restaurant.jl")
-include("model/shop.jl")
+include("model/public_space.jl")
 include("model/initialization.jl")
 include("model/simulation.jl")
-include("model/contacts.jl")
 include("model/connections.jl")
 
 include("data/district_households.jl")
@@ -133,9 +132,9 @@ function main()
 
     shop_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "shops.csv")))
     # Массив для хранения продовольственных магазинов
-    shops = Array{Shop, 1}(undef, num_shops)
+    shops = Array{PublicSpace, 1}(undef, num_shops)
     for i in 1:size(shop_coords_df, 1)
-        shops[i] = Shop(
+        shops[i] = PublicSpace(
             shop_coords_df[i, :dist],
             shop_coords_df[i, :x],
             shop_coords_df[i, :y],
@@ -146,9 +145,9 @@ function main()
 
     restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "restaurants.csv")))
     # Массив для хранения ресторанов/кафе/столовых
-    restaurants = Array{Restaurant, 1}(undef, num_restaurants)
+    restaurants = Array{PublicSpace, 1}(undef, num_restaurants)
     for i in 1:size(restaurant_coords_df, 1)
-        restaurants[i] = Restaurant(
+        restaurants[i] = PublicSpace(
             restaurant_coords_df[i, :dist],
             restaurant_coords_df[i, :x],
             restaurant_coords_df[i, :y],
@@ -213,9 +212,9 @@ function main()
         mean(temperature_parameter_7_array[burnin:step:size(temperature_parameter_7_array)[1]])
     ]
 
-    duration_parameter = 3.534747474747475
-    susceptibility_parameters = [5.988080808080809, 5.876666666666667, 6.234747474747475, 7.8397979797979795, 7.859999999999999, 7.101111111111111, 7.005353535353535]
-    temperature_parameters = [-0.9176767676767678, -0.6322222222222222, -0.07373737373737374, -0.3527272727272727, -0.03535353535353536, -0.0696969696969697, -0.6197979797979798]
+    duration_parameter = 3.438829107400536
+    susceptibility_parameters = [5.92481550195836, 5.915442176870749, 6.236788291074006, 7.882655122655122, 7.800816326530612, 7.16437641723356, 7.064537208822923]
+    temperature_parameters = [-0.8799216656359514, -0.6067120181405896, -0.10741084312512884, -0.3374211502782931, -0.010204081632653059, -0.070717377860235, -0.663675530818388]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -230,6 +229,10 @@ function main()
             year_day += 1
         end
     end
+
+    a1_symptomatic_parameters = [1.0, 0.6]
+    a2_symptomatic_parameters = [0.07, 0.04]
+    a3_symptomatic_parameters = [0.1, 0.3]
 
     # Runs
     etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')

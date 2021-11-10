@@ -25,7 +25,7 @@ function plot_duration_influence()
         # xlabel = L"\textrm{\sffamily Hours}",
         # ylabel = L"\textrm{\sffamily Contact duration influence (} D_{ijc}\textrm{\sffamily )}",
         xlabel = "Продолжительность, ч.",
-        ylabel = L"D_{ijc}",
+        ylabel = "D_{ijc}",
     )
     savefig(duration_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "duration_influence.pdf"))
 end

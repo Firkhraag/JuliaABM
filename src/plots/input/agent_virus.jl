@@ -179,7 +179,61 @@ function plot_ig_levels()
     savefig(ig_levels_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "ig_levels.pdf"))
 end
 
-plot_incubation_periods()
-plot_infection_periods()
-plot_mean_viral_loads()
-plot_ig_levels()
+function plot_asymptomatic_prob()
+    a = 1.0
+    b = 0.07
+    c = 0.1
+    asymptomatic_prob(x) = a / (1 + exp(b * x)) + c
+
+    age_range = range(0, stop=89, length=90)
+    v = 0
+    for i in age_range
+        v += asymptomatic_prob(i)
+    end
+    println(v / 90.0)
+    asymptomatic_prob_plot = plot(
+        age_range,
+        asymptomatic_prob.(age_range),
+        lw = 3,
+        legend = false,
+        color = "blue",
+        grid = false,
+        # xlabel = L"\textrm{\sffamily Age}",
+        # ylabel = L"\textrm{\sffamily Contact duration influence (} D_{ijc}\textrm{\sffamily )}",
+        xlabel = "Возраст, лет",
+        ylabel = "Вероятность",
+    )
+    savefig(asymptomatic_prob_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "asymptomatic_prob_influenza.pdf"))
+
+    # a = 0.8
+    # b = 0.04
+    # c = 0.25
+    a = 0.6
+    b = 0.04
+    c = 0.3
+
+    v = 0
+    for i in age_range
+        v += asymptomatic_prob(i)
+    end
+    println(v / 90.0)
+    asymptomatic_prob_plot = plot(
+        age_range,
+        asymptomatic_prob.(age_range),
+        lw = 3,
+        legend = false,
+        color = "blue",
+        grid = false,
+        # xlabel = L"\textrm{\sffamily Age}",
+        # ylabel = L"\textrm{\sffamily Contact duration influence (} D_{ijc}\textrm{\sffamily )}",
+        xlabel = "Возраст, лет",
+        ylabel = "Вероятность",
+    )
+    savefig(asymptomatic_prob_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "asymptomatic_prob_other.pdf"))
+end
+
+# plot_incubation_periods()
+# plot_infection_periods()
+# plot_mean_viral_loads()
+# plot_ig_levels()
+plot_asymptomatic_prob()

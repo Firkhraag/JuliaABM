@@ -9,11 +9,11 @@ include("global/variables.jl")
 
 include("model/virus.jl")
 include("model/agent.jl")
+include("model/group.jl")
 include("model/household.jl")
 include("model/workplace.jl")
 include("model/school.jl")
-include("model/restaurant.jl")
-include("model/shop.jl")
+include("model/public_space.jl")
 include("model/initialization.jl")
 include("model/simulation.jl")
 include("model/r0.jl")
@@ -32,6 +32,9 @@ include("util/stats.jl")
 
 function find_R0(
     agents::Vector{Agent},
+    households::Vector{Household},
+    shops::Vector{PublicSpace},
+    restaurants::Vector{PublicSpace},
     num_threads::Int,
     thread_rng::Vector{MersenneTwister},
     start_agent_ids::Vector{Int},
@@ -98,8 +101,8 @@ function find_R0(
                         agent.is_asymptomatic && agent.days_infected > 0)
 
                     R0[virus_num, month_num] += run_simulation_r0(
-                        month_num, infected_agent_id, agents, infectivities,
-                        temp_influences, duration_parameter,
+                        month_num, infected_agent_id, agents, households, shops, restaurants,
+                        infectivities, temp_influences, duration_parameter,
                         susceptibility_parameters, thread_rng[thread_id])
                 end
                 R0[virus_num, month_num] /= num_runs
@@ -212,9 +215,9 @@ function main()
 
     shop_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "shops.csv")))
     # Массив для хранения продовольственных магазинов
-    shops = Array{Shop, 1}(undef, num_shops)
+    shops = Array{PublicSpace, 1}(undef, num_shops)
     for i in 1:size(shop_coords_df, 1)
-        shops[i] = Shop(
+        shops[i] = PublicSpace(
             shop_coords_df[i, :dist],
             shop_coords_df[i, :x],
             shop_coords_df[i, :y],
@@ -225,9 +228,9 @@ function main()
 
     restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "restaurants.csv")))
     # Массив для хранения ресторанов/кафе/столовых
-    restaurants = Array{Restaurant, 1}(undef, num_restaurants)
+    restaurants = Array{PublicSpace, 1}(undef, num_restaurants)
     for i in 1:size(restaurant_coords_df, 1)
-        restaurants[i] = Restaurant(
+        restaurants[i] = PublicSpace(
             restaurant_coords_df[i, :dist],
             restaurant_coords_df[i, :x],
             restaurant_coords_df[i, :y],
@@ -286,26 +289,6 @@ function main()
         mean(temperature_parameter_5_array[burnin:step:size(temperature_parameter_5_array)[1]]),
         mean(temperature_parameter_6_array[burnin:step:size(temperature_parameter_6_array)[1]]),
         mean(temperature_parameter_7_array[burnin:step:size(temperature_parameter_7_array)[1]])
-    ]
-
-    duration_parameter = 3.66
-    susceptibility_parameters = [
-        6.08,
-        5.91,
-        6.26,
-        7.76,
-        7.76,
-        7.09,
-        6.97
-    ]
-    temperature_parameters = [
-        -0.98,
-        -0.55,
-        -0.01,
-        -0.34,
-        -0.05,
-        -0.04,
-        -0.59
     ]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
@@ -418,8 +401,10 @@ function main()
     num_runs = 500000
     months_threads = [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
 
-    find_R0(agents, num_threads, thread_rng, start_agent_ids, end_agent_ids, num_runs, infectivities,
-        viruses, duration_parameter, susceptibility_parameters,
+    find_R0(agents, households, shops, restaurants,
+        num_threads, thread_rng, start_agent_ids,
+        end_agent_ids, num_runs, infectivities, viruses,
+        duration_parameter, susceptibility_parameters,
         temp_influences, months_threads)
 end
 

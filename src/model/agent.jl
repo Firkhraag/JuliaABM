@@ -706,18 +706,87 @@ mutable struct Agent
             # Дней с момента инфицирования
             days_infected = rand(thread_rng[thread_id], (1 - incubation_period):infection_period)
 
-            asymp_prob = 0.0
-            if age < 16
-                asymp_prob = viruses[virus_id].asymptomatic_probab_child
+            # asymp_prob = 0.0
+            # if age < 16
+            #     asymp_prob = viruses[virus_id].asymptomatic_probab_child
+            # else
+            #     asymp_prob = viruses[virus_id].asymptomatic_probab_adult
+            # end
+
+            # if rand(thread_rng[thread_id], Float64) < asymp_prob
+            #     # Асимптомный
+            #     is_asymptomatic = true
+            # else
+            #     # Самоизоляция
+            #     if days_infected >= 1
+            #         rand_num = rand(thread_rng[thread_id], Float64)
+            #         if age < 3
+            #             if rand_num < 0.406
+            #                 is_isolated = true
+            #             end
+            #         elseif age < 8
+            #             if rand_num < 0.305
+            #                 is_isolated = true
+            #             end
+            #         elseif age < 18
+            #             if rand_num < 0.204
+            #                 is_isolated = true
+            #             end
+            #         else
+            #             if rand_num < 0.101
+            #                 is_isolated = true
+            #             end
+            #         end
+            #     end
+            #     if days_infected >= 2 && !is_isolated
+            #         rand_num = rand(thread_rng[thread_id], Float64)
+            #         if age < 3
+            #             if rand_num < 0.669
+            #                 is_isolated = true
+            #             end
+            #         elseif age < 8
+            #             if rand_num < 0.576
+            #                 is_isolated = true
+            #             end
+            #         elseif age < 18
+            #             if rand_num < 0.499
+            #                 is_isolated = true
+            #             end
+            #         else
+            #             if rand_num < 0.334
+            #                 is_isolated = true
+            #             end
+            #         end
+            #     end
+            #     if days_infected >= 3 && !is_isolated
+            #         rand_num = rand(thread_rng[thread_id], Float64)
+            #         if age < 3
+            #             if rand_num < 0.45
+            #                 is_isolated = true
+            #             end
+            #         elseif age < 8
+            #             if rand_num < 0.325
+            #                 is_isolated = true
+            #             end
+            #         elseif age < 18
+            #             if rand_num < 0.376
+            #                 is_isolated = true
+            #             end
+            #         else
+            #             if rand_num < 0.168
+            #                 is_isolated = true
+            #             end
+            #         end
+            #     end
+            # end
+            is_asymptomatic = false
+            if virus_id == 1 || virus_id == 2
+                is_asymptomatic = check_if_will_be_asymptomatic(age, 1.0, 0.07, 0.1, thread_rng[thread_id])
             else
-                asymp_prob = viruses[virus_id].asymptomatic_probab_adult
+                is_asymptomatic = check_if_will_be_asymptomatic(age, 0.8, 0.05, 0.3, thread_rng[thread_id])
             end
 
-            if rand(thread_rng[thread_id], Float64) < asymp_prob
-                # Асимптомный
-                is_asymptomatic = true
-            else
-                # Самоизоляция
+            if !is_asymptomatic
                 if days_infected >= 1
                     rand_num = rand(thread_rng[thread_id], Float64)
                     if age < 3
@@ -788,18 +857,8 @@ mutable struct Agent
 
         attendance = true
         is_teacher = false
-        if activity_type == 1
-            if rand(thread_rng[thread_id], Float64) < 0.1
-                attendance = false
-            end
-        elseif activity_type == 2
-            if rand(thread_rng[thread_id], Float64) < 0.1
-                attendance = false
-            end
-        elseif activity_type == 3
-            if rand(thread_rng[thread_id], Float64) < 0.5
-                attendance = false
-            end
+        if activity_type == 3 && rand(thread_rng[thread_id], Float64) < 0.5
+            attendance = false
         end
 
         days_immune = 0
@@ -813,6 +872,18 @@ mutable struct Agent
             is_asymptomatic, is_isolated, infectivity, attendance, is_teacher,
             false, false)
     end
+end
+
+# Будет ли агент в симптомном состоянии или нет
+function check_if_will_be_asymptomatic(
+    age::Int,
+    a1::Float64,
+    a2::Float64,
+    a3::Float64,
+    rng::MersenneTwister,
+)::Bool
+    # rand(rng, Float64) < a1 * exp(a2 * age + a3) - a1 * exp(a3)
+    rand(rng, Float64) < a1 / (1 + exp(a2 * age)) + a3
 end
 
 # Получить длительность инкубационного периода или периода болезни

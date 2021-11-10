@@ -22,7 +22,7 @@ function plot_contacts()
         c = :jet1,
         xlabel = "Age, years",
         ylabel = "Age, years",
-        colorbar_title = "Frequency of contacts",
+        colorbar_title = "Number of contacts",
     )
     heatmap_plot_holiday = heatmap(
         contact_counts_holiday,
@@ -33,7 +33,7 @@ function plot_contacts()
         c = :jet1,
         xlabel = "Age, years",
         ylabel = "Age, years",
-        colorbar_title = "Frequency of contacts",
+        colorbar_title = "Number of contacts",
     )
 
     contact_counts = log.(contact_counts)
@@ -48,7 +48,7 @@ function plot_contacts()
         c = :jet1,
         xlabel = "Age, years",
         ylabel = "Age, years",
-        colorbar_title = "Frequency of contacts",
+        colorbar_title = "Number of contacts",
     )
     contour_plot_holiday = contourf(
         contact_counts_holiday,
@@ -61,7 +61,7 @@ function plot_contacts()
         c = :jet1,
         xlabel = "Age, years",
         ylabel = "Age, years",
-        colorbar_title = "Frequency of contacts",
+        colorbar_title = "Number of contacts",
     )
     
     savefig(heatmap_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "contacts", "contact_counts.pdf"))
@@ -142,7 +142,7 @@ function plot_contacts()
             c = :jet1,
             xlabel = "Age, years",
             ylabel = "Age, years",
-            colorbar_title = "Frequency of contacts",
+            colorbar_title = "Number of contacts",
         )
 
         contact_counts = log.(contact_counts)
@@ -156,7 +156,7 @@ function plot_contacts()
             c = :jet1,
             xlabel = "Age, years",
             ylabel = "Age, years",
-            colorbar_title = "Frequency of contacts",
+            colorbar_title = "Number of contacts",
         )
 
         name_title = "contact_counts_activity_"
@@ -209,7 +209,7 @@ function plot_contacts()
     #         c = :jet1,
     #         xlabel = "Age, years",
     #         ylabel = "Age, years",
-    #         colorbar_title = "Frequency of contacts",
+    #         colorbar_title = "Number of contacts",
     #     )
 
     #     contact_counts_holiday = log.(contact_counts_holiday)
@@ -225,7 +225,7 @@ function plot_contacts()
     #         c = :jet1,
     #         xlabel = "Age, years",
     #         ylabel = "Age, years",
-    #         colorbar_title = "Frequency of contacts",
+    #         colorbar_title = "Number of contacts",
     #     )
         
     #     savefig(heatmap_plot_holiday, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "contacts", "contact_counts_activity_$(i)_holiday.pdf"))
@@ -287,7 +287,7 @@ function plot_contacts_grouped()
         c = :jet,
         xlabel = "Age, years",
         ylabel = "Age, years",
-        colorbar_title = "Frequency of contacts",
+        colorbar_title = "Number of contacts",
         size = (1200, 1200),
     )
 
@@ -301,7 +301,7 @@ function plot_contacts_grouped()
         c = :jet,
         xlabel = "Age, years",
         ylabel = "Age, years",
-        colorbar_title = "Frequency of contacts",
+        colorbar_title = "Number of contacts",
         size = (1200, 1200),
     )
     
@@ -362,7 +362,7 @@ function plot_contacts_grouped()
             # clims = (0.01, 12.5),
             xlabel = "Age, years",
             ylabel = "Age, years",
-            colorbar_title = "Frequency of contacts",
+            colorbar_title = "Number of contacts",
             size = (1200, 1200),
         )
 
@@ -376,7 +376,7 @@ function plot_contacts_grouped()
             c = :jet,
             xlabel = "Age, years",
             ylabel = "Age, years",
-            colorbar_title = "Frequency of contacts",
+            colorbar_title = "Number of contacts",
             size = (1200, 1200),
         )
 
