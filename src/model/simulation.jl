@@ -68,6 +68,7 @@ function simulate_contacts(
     temp_influences::Array{Float64, 2},
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
+    random_infection_probabilities::Vector{Float64},
     etiology::Matrix{Float64},
     is_kindergarten_holiday::Bool,
     is_school_holiday::Bool,
@@ -327,16 +328,20 @@ function simulate_contacts(
             end
 
             # Случайное инфицирование
-            if agent.age < 2
-                if rand(rng, Float64) < 0.0003
+            if agent.age < 3
+                if rand(rng, Float64) < random_infection_probabilities[1]
                     infect_randomly(agent, current_step, etiology, rng)
                 end
-            elseif agent.age < 16
-                if rand(rng, Float64) < 0.0002
+            elseif agent.age < 7
+                if rand(rng, Float64) < random_infection_probabilities[2]
+                    infect_randomly(agent, current_step, etiology, rng)
+                end
+            elseif agent.age < 15
+                if rand(rng, Float64) < random_infection_probabilities[3]
                     infect_randomly(agent, current_step, etiology, rng)
                 end
             else
-                if rand(rng, Float64) < 0.0001
+                if rand(rng, Float64) < random_infection_probabilities[4]
                     infect_randomly(agent, current_step, etiology, rng)
                 end
             end
@@ -351,6 +356,9 @@ function update_agent_states(
     end_agent_id::Int,
     agents::Vector{Agent},
     infectivities::Array{Float64, 4},
+    a1_symptomatic_parameters::Vector{Float64},
+    a2_symptomatic_parameters::Vector{Float64},
+    a3_symptomatic_parameters::Vector{Float64},
     current_step::Int,
     confirmed_daily_new_cases_age_groups_viruses::Array{Float64, 4},
 )
@@ -646,9 +654,21 @@ function update_agent_states(
             #     end
             # end
             if agent.virus_id == 1 || agent.virus_id == 2
-                agent.is_asymptomatic = check_if_will_be_asymptomatic(agent.age, 1.0, 0.07, 0.1, rng)
+                agent.is_asymptomatic = check_if_will_be_asymptomatic(
+                    agent.age,
+                    a1_symptomatic_parameters[1],
+                    a2_symptomatic_parameters[1],
+                    a3_symptomatic_parameters[1],
+                    rng
+                )
             else
-                agent.is_asymptomatic = check_if_will_be_asymptomatic(agent.age, 0.8, 0.05, 0.3, rng)
+                agent.is_asymptomatic = check_if_will_be_asymptomatic(
+                    agent.age,
+                    a1_symptomatic_parameters[2],
+                    a2_symptomatic_parameters[2],
+                    a3_symptomatic_parameters[2],
+                    rng
+                )
             end
             
             agent.infectivity = find_agent_infectivity(
@@ -1020,6 +1040,10 @@ function run_simulation(
     temp_influences::Array{Float64, 2},
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
+    a1_symptomatic_parameters::Vector{Float64},
+    a2_symptomatic_parameters::Vector{Float64},
+    a3_symptomatic_parameters::Vector{Float64},
+    random_infection_probabilities::Vector{Float64},
     etiology::Matrix{Float64},
     is_single_run::Bool,
 )::Array{Float64, 3}
@@ -1039,8 +1063,9 @@ function run_simulation(
     infected_inside_activity = zeros(Int, 365, 8, num_threads)
 
     # DEBUG
-    # max_step = 365
-    max_step = 42
+    max_step = 365
+    # max_step = 49
+    # max_step = 28
 
     for current_step = 1:max_step
         # println(current_step)
@@ -1128,6 +1153,7 @@ function run_simulation(
                 temp_influences,
                 duration_parameter,
                 susceptibility_parameters,
+                random_infection_probabilities,
                 etiology,
                 is_kindergarten_holiday,
                 is_school_holiday,
@@ -1193,6 +1219,9 @@ function run_simulation(
                 end_agent_ids[thread_id],
                 agents,
                 infectivities,
+                a1_symptomatic_parameters,
+                a2_symptomatic_parameters,
+                a3_symptomatic_parameters,
                 current_step,
                 confirmed_daily_new_cases_age_groups_viruses)
         end

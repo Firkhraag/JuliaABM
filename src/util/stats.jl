@@ -8,6 +8,8 @@ function get_stats(agents::Vector{Agent})
     age_groups_nums_4 = zeros(Int, 90)
     age_groups_nums_5 = zeros(Int, 90)
 
+    num_agents_groups = zeros(Int, 4)
+
     collective_nums = Int[0, 0, 0, 0]
     household_nums = Int[0, 0, 0, 0, 0, 0]
     mean_ig_level = 0.0
@@ -32,6 +34,15 @@ function get_stats(agents::Vector{Agent})
     t3 = 0
 
     for agent in agents
+        if agent.age < 3
+            num_agents_groups[1] += 1
+        elseif agent.age < 7
+            num_agents_groups[2] += 1
+        elseif agent.age < 15
+            num_agents_groups[3] += 1
+        else
+            num_agents_groups[4] += 1
+        end
 
         age_groups_nums[agent.age + 1] += 1
         
@@ -122,6 +133,7 @@ function get_stats(agents::Vector{Agent})
     #     println("$(i - 1): $(age_groups_nums[i])")
     # end
 
+    println("Main age groups: $(num_agents_groups)")
     println("Teachers 1: $(t1)")
     println("Teachers 2: $(t2)")
     println("Teachers 3: $(t3)")

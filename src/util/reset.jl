@@ -5,6 +5,9 @@ function reset_population(
     start_agent_ids::Vector{Int},
     end_agent_ids::Vector{Int},
     infectivities::Array{Float64, 4},
+    a1_symptomatic_parameters::Vector{Float64},
+    a2_symptomatic_parameters::Vector{Float64},
+    a3_symptomatic_parameters::Vector{Float64},
     viruses::Vector{Virus},
 )
     @threads for thread_id in 1:num_threads
@@ -12,9 +15,32 @@ function reset_population(
             agent = agents[agent_id]
             agent.on_parent_leave = false
             is_infected = false
-            if rand(thread_rng[thread_id], Float64) < 0.005
-                is_infected = true
+            # if rand(thread_rng[thread_id], Float64) < 0.005
+            #     is_infected = true
+            # end
+
+            if agent.age < 3
+                if rand(thread_rng[thread_id], Float64) < 0.9 * 4896 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 2)) - a3_symptomatic_parameters[2]) / 272834
+                # if rand(thread_rng[thread_id], Float64) < 4896 / 272834
+                    is_infected = true
+                end
+            elseif agent.age < 7
+                # if rand(thread_rng[thread_id], Float64) < 3615 / 319868
+                if rand(thread_rng[thread_id], Float64) < 1.15 * 3615 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 5)) - a3_symptomatic_parameters[2]) / 319868
+                    is_infected = true
+                end
+            elseif agent.age < 15
+                # if rand(thread_rng[thread_id], Float64) < 2906 / 559565
+                if rand(thread_rng[thread_id], Float64) < 1.25 * 2906 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 10)) - a3_symptomatic_parameters[2]) / 559565
+                    is_infected = true
+                end
+            else
+                # if rand(thread_rng[thread_id], Float64) < 14928 / 8920401
+                if rand(thread_rng[thread_id], Float64) < 1.5 * 14928 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 35)) - a3_symptomatic_parameters[2]) / 8920401
+                    is_infected = true
+                end
             end
+
             # is_infected = false
             # if agent.age < 3
             #     if rand(thread_rng[thread_id], Float64) < 0.05
@@ -330,17 +356,25 @@ function reset_population(
                 # Дней с момента инфицирования
                 agent.days_infected = rand(thread_rng[thread_id], (1 - agent.incubation_period):agent.infection_period)
 
-                asymp_prob = 0.0
-                if agent.age < 16
-                    asymp_prob = viruses[agent.virus_id].asymptomatic_probab_child
+                if agent.virus_id == 1 || agent.virus_id == 2
+                    agent.is_asymptomatic = check_if_will_be_asymptomatic(
+                        agent.age,
+                        a1_symptomatic_parameters[1],
+                        a2_symptomatic_parameters[1],
+                        a3_symptomatic_parameters[1],
+                        thread_rng[thread_id]
+                    )
                 else
-                    asymp_prob = viruses[agent.virus_id].asymptomatic_probab_adult
+                    agent.is_asymptomatic = check_if_will_be_asymptomatic(
+                        agent.age,
+                        a1_symptomatic_parameters[2],
+                        a2_symptomatic_parameters[2],
+                        a3_symptomatic_parameters[2],
+                        thread_rng[thread_id]
+                    )
                 end
 
-                if rand(thread_rng[thread_id], Float64) < asymp_prob
-                    # Асимптомный
-                    agent.is_asymptomatic = true
-                else
+                if !agent.is_asymptomatic
                     # Самоизоляция
                     if agent.days_infected >= 1
                         rand_num = rand(thread_rng[thread_id], Float64)
@@ -411,7 +445,7 @@ function reset_population(
             end
 
             agent.attendance = true
-            if agent.activity_type == 3 && !agent.is_teacher && rand(rng, Float64) < 0.5
+            if agent.activity_type == 3 && !agent.is_teacher && rand(thread_rng[thread_id], Float64) < 0.5
                 agent.attendance = false
             end
         end

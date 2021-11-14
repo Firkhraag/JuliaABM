@@ -3,6 +3,9 @@ function create_agent(
     household_id::Int,
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
+    a1_symptomatic_parameters::Vector{Float64},
+    a2_symptomatic_parameters::Vector{Float64},
+    a3_symptomatic_parameters::Vector{Float64},
     household_conn_ids::Vector{Int},
     index::Int,
     district_people::Matrix{Float64},
@@ -21,7 +24,8 @@ function create_agent(
     if is_child
         if parent_age < 21
             # M0–4
-            return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+            return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                 sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:(parent_age - 16)),
                 thread_id, thread_rng)
         elseif parent_age < 26
@@ -30,32 +34,35 @@ function create_agent(
                 # M0–4
                 sub_age_rand_num = rand(thread_rng[thread_id], Float64)
                 if sub_age_rand_num < (0.2 * parent_age / 25)
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 4,
                         thread_id, thread_rng)
                 elseif sub_age_rand_num < (0.4 * parent_age / 25)
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 3,
                         thread_id, thread_rng)
                 elseif sub_age_rand_num < (0.6 * parent_age / 25)
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 2,
                         thread_id, thread_rng)
                 elseif sub_age_rand_num < (0.8 * parent_age / 25)
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 1,
                         thread_id, thread_rng)
                 else
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 0,
                         thread_id, thread_rng)
                 end
-                # Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                #     sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:4),
-                #     thread_id, thread_rng)
             else
                 # M5–9
-                Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                     sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:(parent_age - 16)),
                     thread_id, thread_rng)
             end
@@ -65,60 +72,65 @@ function create_agent(
                 # M0–4
                 sub_age_rand_num = rand(thread_rng[thread_id], Float64)
                 if sub_age_rand_num < (0.2 * parent_age / 30)
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 4,
                         thread_id, thread_rng)
                 elseif sub_age_rand_num < (0.4 * parent_age / 30)
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 3,
                         thread_id, thread_rng)
                 elseif sub_age_rand_num < (0.6 * parent_age / 30)
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 2,
                         thread_id, thread_rng)
                 elseif sub_age_rand_num < (0.8 * parent_age / 30)
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 1,
                         thread_id, thread_rng)
                 else
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 0,
                         thread_id, thread_rng)
                 end
-                # Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                #     sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:4),
-                #     thread_id, thread_rng)
             # T0-9_0–14
             elseif age_rand_num < (district_people[index, 21]  * 32 / parent_age)
                 # M5–9
                 sub_age_rand_num = rand(thread_rng[thread_id], Float64)
                 if sub_age_rand_num < (0.2 * parent_age / 30)
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 9,
                         thread_id, thread_rng)
                 elseif sub_age_rand_num < (0.4 * parent_age / 30)
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 8,
                         thread_id, thread_rng)
                 elseif sub_age_rand_num < (0.6 * parent_age / 30)
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 7,
                         thread_id, thread_rng)
                 elseif sub_age_rand_num < (0.8 * parent_age / 30)
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 6,
                         thread_id, thread_rng)
                 else
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 5,
                         thread_id, thread_rng)
                 end
-                # Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                #     sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:9),
-                #     thread_id, thread_rng)
             else
                 # M10–14
-                Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                     sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:(parent_age - 16)),
                     thread_id, thread_rng)
             end
@@ -128,24 +140,28 @@ function create_agent(
                 # T0-4_0–14
                 if age_rand_num < (district_people[index, 20] * 32 / parent_age)
                     # M0–4
-                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:4),
                         thread_id, thread_rng)
                 # T0-9_0–14
                 elseif age_rand_num < (district_people[index, 21] * 32 / parent_age)
                     # M5–9
-                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:9),
                         thread_id, thread_rng)
                 else
                     # M10–14
-                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:14),
                         thread_id, thread_rng)
                 end
             else
                 # M15–19
-                return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                    a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                     sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:(parent_age - 16)),
                     thread_id, thread_rng)
             end
@@ -155,37 +171,28 @@ function create_agent(
                 # T0-4_0–14
                 if (age_rand_num < district_people[index, 20])
                     # M0–4
-                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:4),
                         thread_id, thread_rng)
                 # T0-9_0–14
                 elseif (age_rand_num < district_people[index, 21])
                     # M5–9
-                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:9),
                         thread_id, thread_rng)
                 else
                     # M10–14
-                    Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:14),
                         thread_id, thread_rng)
                 end
             else
-                # if rand(thread_rng[thread_id], Float64) < 0.39
-                #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                #         sex_random_num < district_people[index, 4], 17,
-                #         thread_id, thread_rng)
-                # elseif rand(thread_rng[thread_id], Float64) < 0.72
-                #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                #         sex_random_num < district_people[index, 4], 16,
-                #         thread_id, thread_rng)
-                # else
-                #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                #         sex_random_num < district_people[index, 4], 15,
-                #         thread_id, thread_rng)
-                # end
                 # M15–19
-                return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                    a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                     sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:17),
                     thread_id, thread_rng)
             end
@@ -199,317 +206,113 @@ function create_agent(
                     # M0–4
                     sub_age_rand_num = rand(thread_rng[thread_id], Float64)
                     if sub_age_rand_num < 0.16
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 0,
                             thread_id, thread_rng)
                     elseif sub_age_rand_num < 0.34
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 1,
                             thread_id, thread_rng)
                     elseif sub_age_rand_num < 0.54
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 2,
                             thread_id, thread_rng)
                     elseif sub_age_rand_num < 0.76
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 3,
                             thread_id, thread_rng)
                     else
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 4,
                             thread_id, thread_rng)
                     end
-
-
-                    # sub_age_rand_num = rand(thread_rng[thread_id], Float64)
-                    # if sub_age_rand_num < (0.2 * 50 / parent_age)
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 0,
-                    #         thread_id, thread_rng)
-                    # elseif sub_age_rand_num < (0.4 * 50 / parent_age)
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 1,
-                    #         thread_id, thread_rng)
-                    # elseif sub_age_rand_num < (0.6 * 50 / parent_age)
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 2,
-                    #         thread_id, thread_rng)
-                    # elseif sub_age_rand_num < (0.8 * 50 / parent_age)
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 3,
-                    #         thread_id, thread_rng)
-                    # else
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 4,
-                    #         thread_id, thread_rng)
-                    # end
-
-
-                    # Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #     sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:4),
-                    #     thread_id, thread_rng)
                 # T0-9_0–14
                 elseif age_rand_num < (district_people[index, 21] * 50 / parent_age)
                     # M5–9
                     sub_age_rand_num = rand(thread_rng[thread_id], Float64)
                     if sub_age_rand_num < 0.16
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 5,
                             thread_id, thread_rng)
                     elseif sub_age_rand_num < 0.34
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 6,
                             thread_id, thread_rng)
                     elseif sub_age_rand_num < 0.54
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 7,
                             thread_id, thread_rng)
                     elseif sub_age_rand_num < 0.76
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 8,
                             thread_id, thread_rng)
                     else
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 9,
                             thread_id, thread_rng)
                     end
-
-                    # sub_age_rand_num = rand(thread_rng[thread_id], Float64)
-                    # if sub_age_rand_num < (0.2 * 50 / parent_age)
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 5,
-                    #         thread_id, thread_rng)
-                    # elseif sub_age_rand_num < (0.4 * 50 / parent_age)
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 6,
-                    #         thread_id, thread_rng)
-                    # elseif sub_age_rand_num < (0.6 * 50 / parent_age)
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 7,
-                    #         thread_id, thread_rng)
-                    # elseif sub_age_rand_num < (0.8 * 50 / parent_age)
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 8,
-                    #         thread_id, thread_rng)
-                    # else
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 9,
-                    #         thread_id, thread_rng)
-                    # end
-                    # Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #     sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:9),
-                    #     thread_id, thread_rng)
                 else
                     # M10–14
                     sub_age_rand_num = rand(thread_rng[thread_id], Float64)
                     if sub_age_rand_num < 0.16
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 10,
                             thread_id, thread_rng)
                     elseif sub_age_rand_num < 0.34
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 11,
                             thread_id, thread_rng)
                     elseif sub_age_rand_num < 0.54
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 12,
                             thread_id, thread_rng)
                     elseif sub_age_rand_num < 0.76
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 13,
                             thread_id, thread_rng)
                     else
-                        return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                        return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                             sex_random_num < district_people[index, 4], 14,
                             thread_id, thread_rng)
                     end
-
-                    # sub_age_rand_num = rand(thread_rng[thread_id], Float64)
-                    # if sub_age_rand_num < (0.2 * 50 / parent_age)
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 10,
-                    #         thread_id, thread_rng)
-                    # elseif sub_age_rand_num < (0.4 * 50 / parent_age)
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 11,
-                    #         thread_id, thread_rng)
-                    # elseif sub_age_rand_num < (0.6 * 50 / parent_age)
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 12,
-                    #         thread_id, thread_rng)
-                    # elseif sub_age_rand_num < (0.8 * 50 / parent_age)
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 13,
-                    #         thread_id, thread_rng)
-                    # else
-                    #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #         sex_random_num < district_people[index, 4], 14,
-                    #         thread_id, thread_rng)
-                    # end
-
-                    # Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                    #     sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:14),
-                    #     thread_id, thread_rng)
                 end
             else
                 # M15–19
                 sub_age_rand_num = rand(thread_rng[thread_id], Float64)
                 if sub_age_rand_num < 0.2933
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 15,
                         thread_id, thread_rng)
                 elseif sub_age_rand_num < 0.6266
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 16,
                         thread_id, thread_rng)
                 else
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 4], 17,
                         thread_id, thread_rng)
                 end
-
-                # sub_age_rand_num = rand(thread_rng[thread_id], Float64)
-                # if sub_age_rand_num < (0.33 * 50 / parent_age)
-                #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                #         sex_random_num < district_people[index, 4], 15,
-                #         thread_id, thread_rng)
-                # elseif sub_age_rand_num < (0.66 * 50 / parent_age)
-                #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                #         sex_random_num < district_people[index, 4], 16,
-                #         thread_id, thread_rng)
-                # else
-                #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                #         sex_random_num < district_people[index, 4], 17,
-                #         thread_id, thread_rng)
-                # end
-
-                # return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-                #     sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:17),
-                #     thread_id, thread_rng)
             end
         end
-
-
-        # elseif parent_age < 60
-        #     age_group_rand_num = rand(thread_rng[thread_id], Float64)
-        #     if age_group_rand_num < district_people_households[1, district_household_index]
-        #         # T0-4_0–14
-        #         if (age_rand_num < district_people[index, 20])
-        #             # M0–4
-        #             Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #                 sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], (parent_age - 55):4),
-        #                 thread_id, thread_rng)
-        #         # T0-9_0–14
-        #         elseif (age_rand_num < district_people[index, 21])
-        #             # M5–9
-        #             Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #                 sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:9),
-        #                 thread_id, thread_rng)
-        #         else
-        #             # M10–14
-        #             Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #                 sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:14),
-        #                 thread_id, thread_rng)
-        #         end
-        #     else
-        #         # M15–19
-        #         return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #             sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:17),
-        #             thread_id, thread_rng)
-        #     end
-        # elseif parent_age < 65
-        #     age_group_rand_num = rand(thread_rng[thread_id], Float64)
-        #     if age_group_rand_num < district_people_households[1, district_household_index]
-        #         # T5-9_5–14
-        #         if rand(thread_rng[thread_id], Float64) < 0.5
-        #             # M5–9
-        #             Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #                 sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], (parent_age - 55):9),
-        #                 thread_id, thread_rng)
-        #         else
-        #             # M10–14
-        #             Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #                 sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:14),
-        #                 thread_id, thread_rng)
-        #         end
-        #     else
-        #         # M15–19
-        #         return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #             sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:17),
-        #             thread_id, thread_rng)
-        #     end
-        # elseif parent_age < 70
-        #     age_group_rand_num = rand(thread_rng[thread_id], Float64)
-        #     if age_group_rand_num < district_people_households[1, district_household_index]
-        #         # M10–14
-        #         Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #                 sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], (parent_age - 55):14),
-        #                 thread_id, thread_rng)
-        #     else
-        #         # M15–19
-        #         return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #             sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:17),
-        #             thread_id, thread_rng)
-        #     end
-        # elseif parent_age < 73
-        #     return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #         sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], (parent_age - 55):17),
-        #         thread_id, thread_rng)
-        # else
-        #     age_group_rand_num = rand(thread_rng[thread_id], Float64)
-        #     if age_group_rand_num < district_people_households[1, district_household_index]
-        #         # T0-4_0–14
-        #         if (age_rand_num < district_people[index, 20])
-        #             # M0–4
-        #             Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #                 sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:4),
-        #                 thread_id, thread_rng)
-        #         # T0-9_0–14
-        #         elseif (age_rand_num < district_people[index, 21])
-        #             # M5–9
-        #             Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #                 sex_random_num < district_people[index, 2], rand(thread_rng[thread_id], 5:9),
-        #                 thread_id, thread_rng)
-        #         else
-        #             # M10–14
-        #             Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #                 sex_random_num < district_people[index, 3], rand(thread_rng[thread_id], 10:14),
-        #                 thread_id, thread_rng)
-        #         end
-        #     else
-        #         # M15–19
-        #         return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
-        #             sex_random_num < district_people[index, 4], rand(thread_rng[thread_id], 15:17),
-        #             thread_id, thread_rng)
-        #     end
-        # end
     else
-        # age_group_rand_num = 0.0
-        # if is_older
-        #     age_group_rand_num = rand(thread_rng[thread_id], Uniform(district_people_households[3, district_household_index], 1.0))
-        # elseif parent_age !== nothing
-        #     if parent_age < 40
-        #         age_group_rand_num = 0.001
-        #     elseif parent_age < 50
-        #         age_group_rand_num = rand(thread_rng[thread_id], Uniform(0.0, district_people_households[3, district_household_index]))
-        #     elseif parent_age < 60
-        #         age_group_rand_num = rand(thread_rng[thread_id], Uniform(0.0, district_people_households[4, district_household_index]))
-        #     else
-        #         age_group_rand_num = rand(thread_rng[thread_id], Uniform(0.0, district_people_households[5, district_household_index]))
-        #     end
-        # elseif is_parent_of_parent
-        #     if parent_age < 25
-        #         age_group_rand_num = rand(thread_rng[thread_id], Uniform(district_people_households[3, district_household_index], 1.0))
-        #     elseif parent_age < 35
-        #         age_group_rand_num = rand(thread_rng[thread_id], Uniform(district_people_households[4, district_household_index], 1.0))
-        #     elseif parent_age < 45
-        #         age_group_rand_num = rand(thread_rng[thread_id], Uniform(district_people_households[5, district_household_index], 1.0))
-        #     else
-        #         age_group_rand_num = 0.999
-        #     end
-        # else
-        #     age_group_rand_num = rand(thread_rng[thread_id], Float64)
-        # end
         age_group_rand_num = 0.0
         if is_older
             age_group_rand_num = rand(thread_rng[thread_id], Uniform(district_people_households[3, district_household_index], 1.0))
@@ -540,21 +343,25 @@ function create_agent(
         if age_group_rand_num < district_people_households[2, district_household_index]
             if rand(thread_rng[thread_id], Float64) < 0.25
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 18:19),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 18:19),
                         thread_id, thread_rng)
                 else
                     # M20–24
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 5], rand(thread_rng[thread_id], 18:19),
                         thread_id, thread_rng)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 20:24),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 20:24),
                         thread_id, thread_rng)
                 else
                     # M20–24
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 5], rand(thread_rng[thread_id], 20:24),
                         thread_id, thread_rng)
                 end
@@ -563,21 +370,25 @@ function create_agent(
             # T25-29_25–34
             if age_rand_num < district_people[index, 22]
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 25:29),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 25:29),
                         thread_id, thread_rng)
                 else
                     # M25–29
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 6], rand(thread_rng[thread_id], 25:29),
                         thread_id, thread_rng)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 30:34),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 30:34),
                         thread_id, thread_rng)
                 else
                     # M30–34
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 7], rand(thread_rng[thread_id], 30:34),
                         thread_id, thread_rng)
                 end
@@ -586,21 +397,25 @@ function create_agent(
             # T35-39_35–44
             if age_rand_num < district_people[index, 23]
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 35:39),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 35:39),
                         thread_id, thread_rng)
                 else
                     # M35–39
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 8], rand(thread_rng[thread_id], 35:39),
                         thread_id, thread_rng)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 40:44),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 40:44),
                         thread_id, thread_rng)
                 else
                     # M40–44
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 9], rand(thread_rng[thread_id], 40:44),
                         thread_id, thread_rng)
                 end
@@ -609,21 +424,25 @@ function create_agent(
             # T45-49_45–54
             if age_rand_num < district_people[index, 24]
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 45:49),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 45:49),
                         thread_id, thread_rng)
                 else
                     # M45–49
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 10], rand(thread_rng[thread_id], 45:49),
                         thread_id, thread_rng)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 50:54),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 50:54),
                         thread_id, thread_rng)
                 else
                     # M50–54
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 11], rand(thread_rng[thread_id], 50:54),
                         thread_id, thread_rng)
                 end
@@ -632,21 +451,25 @@ function create_agent(
             # T55-59_55–64
             if age_rand_num < district_people[index, 25]
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 55:59),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 55:59),
                         thread_id, thread_rng)
                 else
                     # M55–59
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 12], rand(thread_rng[thread_id], 55:59),
                         thread_id, thread_rng)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 60:64),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 60:64),
                         thread_id, thread_rng)
                 else
                     # M60–64
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 13], rand(thread_rng[thread_id], 60:64),
                         thread_id, thread_rng)
                 end
@@ -655,54 +478,64 @@ function create_agent(
             # T65-69_65–89
             if age_rand_num < district_people[index, 26]
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 65:69),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 65:69),
                         thread_id, thread_rng)
                 else
                     # M65–69
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 14], rand(thread_rng[thread_id], 65:69),
                         thread_id, thread_rng)
                 end
             # T65-74_65–89
             elseif age_rand_num < district_people[index, 27]
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 70:74),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 70:74),
                         thread_id, thread_rng)
                 else
                     # M70–74
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 15], rand(thread_rng[thread_id], 70:74),
                         thread_id, thread_rng)
                 end
             # T65-79_65–89
             elseif age_rand_num < district_people[index, 28]
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 75:79),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 75:79),
                         thread_id, thread_rng)
                 else
                     # M75–79
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 16], rand(thread_rng[thread_id], 75:79),
                         thread_id, thread_rng)
                 end
             # T65-84_65–89
             elseif age_rand_num < district_people[index, 29]
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 80:84),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 80:84),
                         thread_id, thread_rng)
                 else
                     # M80–84
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 17], rand(thread_rng[thread_id], 80:84),
                         thread_id, thread_rng)
                 end
             else
                 if is_male !== nothing
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, is_male, rand(thread_rng[thread_id], 85:89),
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, is_male, rand(thread_rng[thread_id], 85:89),
                         thread_id, thread_rng)
                 else
                     # M85–89
-                    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids,
+                    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+                        a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids,
                         sex_random_num < district_people[index, 18], rand(thread_rng[thread_id], 85:89),
                         thread_id, thread_rng)
                 end
@@ -716,6 +549,9 @@ function create_spouse(
     household_id::Int,
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
+    a1_symptomatic_parameters::Vector{Float64},
+    a2_symptomatic_parameters::Vector{Float64},
+    a3_symptomatic_parameters::Vector{Float64},
     household_conn_ids::Vector{Int},
     partner_age::Int,
     thread_id::Int,
@@ -775,7 +611,8 @@ function create_spouse(
         spouse_age = partner_age - difference
     end
 
-    return Agent(agent_id, household_id, viruses, infectivities, household_conn_ids, true, spouse_age,
+    return Agent(agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, true, spouse_age,
         thread_id, thread_rng)
 end
 
@@ -797,6 +634,9 @@ function create_parents_with_children(
     household_id::Int,
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
+    a1_symptomatic_parameters::Vector{Float64},
+    a2_symptomatic_parameters::Vector{Float64},
+    a3_symptomatic_parameters::Vector{Float64},
     household_conn_ids::Vector{Int},
     district_people::Matrix{Float64},
     district_people_households::Matrix{Float64},
@@ -810,20 +650,24 @@ function create_parents_with_children(
 )::Vector{Agent}
     agent_female = create_agent(
         agent_id, household_id, viruses,
-        infectivities, household_conn_ids, index,
-        district_people, district_people_households,
-        district_household_index, thread_id, thread_rng,
-        false, false, nothing, is_old_pair)
+        infectivities, a1_symptomatic_parameters,
+        a2_symptomatic_parameters, a3_symptomatic_parameters,
+        household_conn_ids, index, district_people,
+        district_people_households, district_household_index,
+        thread_id, thread_rng, false, false, nothing, is_old_pair)
     agent_id += 1
     agent_male = create_spouse(
         agent_id, household_id, viruses, infectivities,
-        household_conn_ids, agent_female.age, thread_id, thread_rng)
+        a1_symptomatic_parameters, a2_symptomatic_parameters,
+        a3_symptomatic_parameters, household_conn_ids,
+        agent_female.age, thread_id, thread_rng)
     agent_id += 1
     if num_of_other_people == 0
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age)
@@ -835,7 +679,8 @@ function create_parents_with_children(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age + 1)
@@ -846,7 +691,8 @@ function create_parents_with_children(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age + 2)
@@ -857,14 +703,16 @@ function create_parents_with_children(
     elseif num_of_other_people == 1
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age)
@@ -879,7 +727,8 @@ function create_parents_with_children(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age + 1)
@@ -890,7 +739,8 @@ function create_parents_with_children(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age + 2)
@@ -901,20 +751,23 @@ function create_parents_with_children(
     elseif num_of_other_people == 2
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other2 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age)
@@ -929,7 +782,8 @@ function create_parents_with_children(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age + 1)
@@ -940,7 +794,8 @@ function create_parents_with_children(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age + 2)
@@ -951,26 +806,30 @@ function create_parents_with_children(
     elseif num_of_other_people == 3
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other2 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other3 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age)
@@ -985,7 +844,8 @@ function create_parents_with_children(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age + 1)
@@ -996,7 +856,8 @@ function create_parents_with_children(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age + 2)
@@ -1007,32 +868,37 @@ function create_parents_with_children(
     else
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other2 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other3 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other4 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age)
@@ -1048,7 +914,8 @@ function create_parents_with_children(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age + 1)
@@ -1059,7 +926,8 @@ function create_parents_with_children(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, agent_female.age + 2)
@@ -1075,6 +943,9 @@ function create_parent_with_children(
     household_id::Int,
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
+    a1_symptomatic_parameters::Vector{Float64},
+    a2_symptomatic_parameters::Vector{Float64},
+    a3_symptomatic_parameters::Vector{Float64},
     household_conn_ids::Vector{Int},
     district_people::Matrix{Float64},
     district_people_households::Matrix{Float64},
@@ -1088,7 +959,8 @@ function create_parent_with_children(
     with_parent_of_parent::Bool = false,
 )::Vector{Agent}
     parent = create_agent(agent_id, household_id,
-        viruses, infectivities, household_conn_ids, index,
+        viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
         district_people, district_people_households,
         district_household_index,
         thread_id, thread_rng, is_male_parent,
@@ -1097,7 +969,8 @@ function create_parent_with_children(
     if num_of_other_people == 0
         child = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing, true, parent.age)
@@ -1109,7 +982,8 @@ function create_parent_with_children(
         end
         child2 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing, true, parent.age + 1)
@@ -1121,7 +995,8 @@ function create_parent_with_children(
         end
         child3 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing, true, parent.age + 2)
@@ -1130,7 +1005,8 @@ function create_parent_with_children(
     elseif num_of_other_people == 1
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing, false,
@@ -1139,7 +1015,8 @@ function create_parent_with_children(
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, parent.age)
@@ -1154,7 +1031,8 @@ function create_parent_with_children(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, parent.age + 1)
@@ -1165,7 +1043,8 @@ function create_parent_with_children(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, parent.age + 2)
@@ -1176,7 +1055,8 @@ function create_parent_with_children(
     elseif num_of_other_people == 2
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing, false,
@@ -1184,7 +1064,8 @@ function create_parent_with_children(
         agent_id += 1
         agent_other2 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing,
@@ -1193,7 +1074,8 @@ function create_parent_with_children(
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, parent.age)
@@ -1208,7 +1090,8 @@ function create_parent_with_children(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, parent.age + 1)
@@ -1219,7 +1102,8 @@ function create_parent_with_children(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, parent.age + 2)
@@ -1230,7 +1114,8 @@ function create_parent_with_children(
     elseif num_of_other_people == 3
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing, false,
@@ -1238,7 +1123,8 @@ function create_parent_with_children(
         agent_id += 1
         agent_other2 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing,
@@ -1246,7 +1132,8 @@ function create_parent_with_children(
         agent_id += 1
         agent_other3 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing,
@@ -1255,7 +1142,8 @@ function create_parent_with_children(
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, parent.age)
@@ -1270,7 +1158,8 @@ function create_parent_with_children(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, parent.age + 1)
@@ -1281,7 +1170,8 @@ function create_parent_with_children(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, parent.age + 2)
@@ -1292,7 +1182,8 @@ function create_parent_with_children(
     else
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing, false,
@@ -1300,7 +1191,8 @@ function create_parent_with_children(
         agent_id += 1
         agent_other2 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing,
@@ -1308,7 +1200,8 @@ function create_parent_with_children(
         agent_id += 1
         agent_other3 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing,
@@ -1316,7 +1209,8 @@ function create_parent_with_children(
         agent_id += 1
         agent_other4 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing,
@@ -1325,7 +1219,8 @@ function create_parent_with_children(
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, parent.age)
@@ -1341,7 +1236,8 @@ function create_parent_with_children(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, parent.age + 1)
@@ -1352,7 +1248,8 @@ function create_parent_with_children(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, parent.age + 2)
@@ -1368,6 +1265,9 @@ function create_others(
     household_id::Int,
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
+    a1_symptomatic_parameters::Vector{Float64},
+    a2_symptomatic_parameters::Vector{Float64},
+    a3_symptomatic_parameters::Vector{Float64},
     household_conn_ids::Vector{Int},
     district_people::Matrix{Float64},
     district_people_households::Matrix{Float64},
@@ -1379,7 +1279,8 @@ function create_others(
     thread_rng::Vector{MersenneTwister},
 )::Vector{Agent}
     agent = create_agent(agent_id, household_id,
-        viruses, infectivities, household_conn_ids, index,
+        viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
         district_people, district_people_households, district_household_index,
         thread_id, thread_rng)
     agent_id += 1
@@ -1387,7 +1288,8 @@ function create_others(
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1399,7 +1301,8 @@ function create_others(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1410,7 +1313,8 @@ function create_others(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1421,14 +1325,16 @@ function create_others(
     elseif num_of_other_people == 1
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1443,7 +1349,8 @@ function create_others(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1454,7 +1361,8 @@ function create_others(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1465,20 +1373,23 @@ function create_others(
     elseif num_of_other_people == 2
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other2 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1493,7 +1404,8 @@ function create_others(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1504,7 +1416,8 @@ function create_others(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1515,26 +1428,30 @@ function create_others(
     elseif num_of_other_people == 3
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other2 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other3 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1550,7 +1467,8 @@ function create_others(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1561,7 +1479,8 @@ function create_others(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1572,32 +1491,37 @@ function create_others(
     elseif num_of_other_people == 4
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other2 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other3 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other4 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         if num_of_children > 0
             child = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1613,7 +1537,8 @@ function create_others(
             end
             child2 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1624,7 +1549,8 @@ function create_others(
             end
             child3 = create_agent(
                 agent_id, household_id,
-                viruses, infectivities, household_conn_ids, index,
+                viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
                 district_people, district_people_households,
                 district_household_index,
                 thread_id, thread_rng, nothing, true, 35)
@@ -1635,31 +1561,36 @@ function create_others(
     else
         agent_other = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other2 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other3 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other4 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
         agent_other5 = create_agent(
             agent_id, household_id,
-            viruses, infectivities, household_conn_ids, index,
+            viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household_conn_ids, index,
             district_people, district_people_households, district_household_index,
             thread_id, thread_rng)
         agent_id += 1
@@ -1677,6 +1608,9 @@ function create_population(
     households::Vector{Household},
     viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
+    a1_symptomatic_parameters::Vector{Float64},
+    a2_symptomatic_parameters::Vector{Float64},
+    a3_symptomatic_parameters::Vector{Float64},
     start_household_id::Int,
     homes_coords_df::DataFrame,
     district_households::Matrix{Int},
@@ -1703,7 +1637,8 @@ function create_population(
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             is_child = rand(thread_rng[thread_id], Float64) < 0.0123
             agent = create_agent(
-                    agent_id, household_id, viruses, infectivities, household.agent_ids, index, district_people,
+                    agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, index, district_people,
                     district_people_households, index_for_1_people, thread_id,
                     thread_rng, nothing, is_child, is_child ? 70 : nothing)
             all_agents[agent.id] = agent
@@ -1719,7 +1654,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 0, 0, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1737,7 +1673,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 1, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1755,7 +1692,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 0, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1773,7 +1711,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 2, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1791,7 +1730,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 1, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1809,7 +1749,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 0, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1827,7 +1768,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 3, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1845,7 +1787,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 2, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1863,7 +1806,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 1, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1881,7 +1825,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 3, 0, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1899,7 +1844,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 4, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1917,7 +1863,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 3, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1935,7 +1882,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 2, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1953,7 +1901,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 3, 1, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -1971,12 +1920,14 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 0, index,
                 thread_id, thread_rng)
             agent_id += 2
             agents2 = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 0, index,
                 thread_id, thread_rng, true)
             append!(agents, agents2)
@@ -1995,12 +1946,14 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 1, index,
                 thread_id, thread_rng)
             agent_id += 3
             agents2 = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 0, index,
                 thread_id, thread_rng, true)
             append!(agents, agents2)
@@ -2019,12 +1972,14 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 0, index,
                 thread_id, thread_rng)
             agent_id += 3
             agents2 = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 0, index,
                 thread_id, thread_rng, true)
             append!(agents, agents2)
@@ -2043,12 +1998,14 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 2, index,
                 thread_id, thread_rng)
             agent_id += 4
             agents2 = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 0, index,
                 thread_id, thread_rng, true)
             append!(agents, agents2)
@@ -2067,12 +2024,14 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 1, index,
                 thread_id, thread_rng)
             agent_id += 4
             agents2 = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 0, index,
                 thread_id, thread_rng, true)
             append!(agents, agents2)
@@ -2091,12 +2050,14 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 0, index,
                 thread_id, thread_rng)
             agent_id += 4
             agents2 = create_parents_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 0, index,
                 thread_id, thread_rng, true)
             append!(agents, agents2)
@@ -2115,7 +2076,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 0, 1, index,
                 thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
@@ -2133,7 +2095,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 1, 0, index,
                 thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
@@ -2151,7 +2114,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
                 thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
@@ -2169,7 +2133,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
                 thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
@@ -2187,7 +2152,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 2, 0, index,
                 thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
@@ -2205,7 +2171,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
                 thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
@@ -2223,7 +2190,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
                 thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
@@ -2241,7 +2209,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
                 thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
@@ -2259,7 +2228,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 3, 0, index,
                 thread_id, thread_rng, false)
             agent_id = new_agent_id + 1
@@ -2277,7 +2247,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 0, 1, index,
                 thread_id, thread_rng, true)
             agent_id = new_agent_id + 1
@@ -2295,7 +2266,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 1, 0, index,
                 thread_id, thread_rng, true)
             agent_id = new_agent_id + 1
@@ -2313,7 +2285,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
                 thread_id, thread_rng, true)
             agent_id = new_agent_id + 1
@@ -2331,7 +2304,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
                 thread_id, thread_rng, true)
             agent_id = new_agent_id + 1
@@ -2349,7 +2323,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 2, 0, index,
                 thread_id, thread_rng, true)
             agent_id = new_agent_id + 1
@@ -2367,7 +2342,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2385,7 +2361,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2403,7 +2380,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2421,7 +2399,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2439,7 +2418,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2458,7 +2438,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2476,7 +2457,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2494,7 +2476,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2512,7 +2495,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2530,7 +2514,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2548,7 +2533,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 4, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2566,7 +2552,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 3, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2584,7 +2571,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 2, index,
                 thread_id, thread_rng, nothing, true)
             agent_id = new_agent_id + 1
@@ -2603,7 +2591,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 0, 1, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2621,7 +2610,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_2_people, 1, 0, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2639,7 +2629,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 0, 2, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2657,7 +2648,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 1, 1, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2675,7 +2667,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_3_people, 2, 0, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2693,7 +2686,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 0, 3, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2711,7 +2705,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 1, 2, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2729,7 +2724,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 2, 1, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2747,7 +2743,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_4_people, 3, 1, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2765,7 +2762,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 4, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2783,7 +2781,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 3, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2801,7 +2800,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 2, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2819,7 +2819,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 3, 2, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2837,7 +2838,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 0, 5, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2855,7 +2857,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 1, 4, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2873,7 +2876,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 2, 3, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1
@@ -2891,7 +2895,8 @@ function create_population(
                 collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
                 df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
             agents = create_others(
-                agent_id, household_id, viruses, infectivities, household.agent_ids, district_people,
+                agent_id, household_id, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, household.agent_ids, district_people,
                 district_people_households, index_for_5_people, 3, 2, index,
                 thread_id, thread_rng)
             agent_id = new_agent_id + 1

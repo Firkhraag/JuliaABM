@@ -83,6 +83,9 @@ mutable struct Agent
         household_id::Int,
         viruses::Vector{Virus},
         infectivities::Array{Float64, 4},
+        a1_symptomatic_parameters::Vector{Float64},
+        a2_symptomatic_parameters::Vector{Float64},
+        a3_symptomatic_parameters::Vector{Float64},
         household_conn_ids::Vector{Int},
         is_male::Bool,
         age::Int,
@@ -390,9 +393,33 @@ mutable struct Agent
         # Болен
         is_infected = false
         # if rand(thread_rng[thread_id], Float64) < 0.004
-        if rand(thread_rng[thread_id], Float64) < 0.005
-            is_infected = true
+        # if rand(thread_rng[thread_id], Float64) < 0.005
+        #     is_infected = true
+        # end
+
+        if age < 3
+            if rand(thread_rng[thread_id], Float64) < 0.9 * 4896 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 2)) - a3_symptomatic_parameters[2]) / 272834
+            # if rand(thread_rng[thread_id], Float64) < 4896 / 272834
+                is_infected = true
+            end
+        elseif age < 7
+            # if rand(thread_rng[thread_id], Float64) < 3615 / 319868
+            if rand(thread_rng[thread_id], Float64) < 1.15 * 3615 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 5)) - a3_symptomatic_parameters[2]) / 319868
+                is_infected = true
+            end
+        elseif age < 15
+            # if rand(thread_rng[thread_id], Float64) < 2906 / 559565
+            if rand(thread_rng[thread_id], Float64) < 1.25 * 2906 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 10)) - a3_symptomatic_parameters[2]) / 559565
+                is_infected = true
+            end
+        else
+            # if rand(thread_rng[thread_id], Float64) < 14928 / 8920401
+            if rand(thread_rng[thread_id], Float64) < 1.5 * 14928 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 35)) - a3_symptomatic_parameters[2]) / 8920401
+                is_infected = true
+            end
         end
+        # a1 / (1 + exp(a2 * age)) + a3
+
         # if age < 3
         #     if rand(thread_rng[thread_id], Float64) < 0.001
         #         is_infected = true
@@ -421,43 +448,51 @@ mutable struct Agent
         CoV_days_immune = 0
 
         if !is_infected
-            if rand(thread_rng[thread_id], Float64) < 0.000106497
+            FluA_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
+            # FluB_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
+            # RV_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
+            # RSV_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
+            # AdV_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
+            # PIV_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
+            # CoV_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
+
+            if FluA_days_immune_rand_num < 0.000106497
                 FluA_days_immune = rand(thread_rng[thread_id], 211:217)
-            elseif rand(thread_rng[thread_id], Float64) < 0.000141861
+            elseif FluA_days_immune_rand_num < 0.000248358
                 FluA_days_immune = rand(thread_rng[thread_id], 204:210)
-            elseif rand(thread_rng[thread_id], Float64) < 0.000330201
+            elseif FluA_days_immune_rand_num < 0.000578559
                 FluA_days_immune = rand(thread_rng[thread_id], 197:203)
-            elseif rand(thread_rng[thread_id], Float64) < 0.000805497
+            elseif FluA_days_immune_rand_num < 0.001384056
                 FluA_days_immune = rand(thread_rng[thread_id], 190:196)
-            elseif rand(thread_rng[thread_id], Float64) < 0.001778317
+            elseif FluA_days_immune_rand_num < 0.003162373
                 FluA_days_immune = rand(thread_rng[thread_id], 183:189)
-            elseif rand(thread_rng[thread_id], Float64) < 0.003233707
+            elseif FluA_days_immune_rand_num < 0.00639608
                 FluA_days_immune = rand(thread_rng[thread_id], 176:182)
-            elseif rand(thread_rng[thread_id], Float64) < 0.005078104
+            elseif FluA_days_immune_rand_num < 0.011474184
                 FluA_days_immune = rand(thread_rng[thread_id], 169:175)
-            elseif rand(thread_rng[thread_id], Float64) < 0.007095888
+            elseif FluA_days_immune_rand_num < 0.018570072
                 FluA_days_immune = rand(thread_rng[thread_id], 162:168)
-            elseif rand(thread_rng[thread_id], Float64) < 0.008454683
+            elseif FluA_days_immune_rand_num < 0.027024755
                 FluA_days_immune = rand(thread_rng[thread_id], 155:161)
-            elseif rand(thread_rng[thread_id], Float64) < 0.00834273
+            elseif FluA_days_immune_rand_num < 0.035367485
                 FluA_days_immune = rand(thread_rng[thread_id], 148:154)
-            elseif rand(thread_rng[thread_id], Float64) < 0.006538951
+            elseif FluA_days_immune_rand_num < 0.041906436
                 FluA_days_immune = rand(thread_rng[thread_id], 141:147)
-            elseif rand(thread_rng[thread_id], Float64) < 0.004756795
+            elseif FluA_days_immune_rand_num < 0.051420026
                 FluA_days_immune = rand(thread_rng[thread_id], 134:140)
-            elseif rand(thread_rng[thread_id], Float64) < 0.002209558
+            elseif FluA_days_immune_rand_num < 0.053629584
                 FluA_days_immune = rand(thread_rng[thread_id], 127:133)
-            elseif rand(thread_rng[thread_id], Float64) < 0.001100738
+            elseif FluA_days_immune_rand_num < 0.054730322
                 FluA_days_immune = rand(thread_rng[thread_id], 120:126)
-            elseif rand(thread_rng[thread_id], Float64) < 0.000655956
+            elseif FluA_days_immune_rand_num < 0.055386278
                 FluA_days_immune = rand(thread_rng[thread_id], 113:119)
-            elseif rand(thread_rng[thread_id], Float64) < 0.00040679
+            elseif FluA_days_immune_rand_num < 0.055793068
                 FluA_days_immune = rand(thread_rng[thread_id], 106:112)
-            elseif rand(thread_rng[thread_id], Float64) < 0.000258664
+            elseif FluA_days_immune_rand_num < 0.056051732
                 FluA_days_immune = rand(thread_rng[thread_id], 99:105)
-            elseif rand(thread_rng[thread_id], Float64) < 0.000159442
+            elseif FluA_days_immune_rand_num < 0.056211174
                 FluA_days_immune = rand(thread_rng[thread_id], 92:98)
-            elseif rand(thread_rng[thread_id], Float64) < 0.000101445
+            elseif FluA_days_immune_rand_num < 0.056312619
                 FluA_days_immune = rand(thread_rng[thread_id], 85:91)
             end
 
@@ -781,9 +816,21 @@ mutable struct Agent
             # end
             is_asymptomatic = false
             if virus_id == 1 || virus_id == 2
-                is_asymptomatic = check_if_will_be_asymptomatic(age, 1.0, 0.07, 0.1, thread_rng[thread_id])
+                is_asymptomatic = check_if_will_be_asymptomatic(
+                    age,
+                    a1_symptomatic_parameters[1],
+                    a2_symptomatic_parameters[1],
+                    a3_symptomatic_parameters[1],
+                    thread_rng[thread_id]
+                )
             else
-                is_asymptomatic = check_if_will_be_asymptomatic(age, 0.8, 0.05, 0.3, thread_rng[thread_id])
+                is_asymptomatic = check_if_will_be_asymptomatic(
+                    age,
+                    a1_symptomatic_parameters[2],
+                    a2_symptomatic_parameters[2],
+                    a3_symptomatic_parameters[2],
+                    thread_rng[thread_id]
+                )
             end
 
             if !is_asymptomatic

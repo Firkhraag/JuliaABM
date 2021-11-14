@@ -180,9 +180,9 @@ function plot_ig_levels()
 end
 
 function plot_asymptomatic_prob()
-    a = 1.0
-    b = 0.07
-    c = 0.1
+    a = 1.626122448979592
+    b = 0.06612244897959184
+    c = 0.005306122448979591
     asymptomatic_prob(x) = a / (1 + exp(b * x)) + c
 
     age_range = range(0, stop=89, length=90)
@@ -205,12 +205,9 @@ function plot_asymptomatic_prob()
     )
     savefig(asymptomatic_prob_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "asymptomatic_prob_influenza.pdf"))
 
-    # a = 0.8
-    # b = 0.04
-    # c = 0.25
-    a = 0.6
-    b = 0.04
-    c = 0.3
+    a = 0.5877551020408163
+    b = 0.013163265306122447
+    c = 0.2985714285714286
 
     v = 0
     for i in age_range

@@ -50,20 +50,39 @@ function multiple_simulations(
     duration_parameter_default::Float64,
     susceptibility_parameters_default::Vector{Float64},
     temperature_parameters_default::Vector{Float64},
+    a1_symptomatic_parameters_default::Vector{Float64},
+    a2_symptomatic_parameters_default::Vector{Float64},
+    a3_symptomatic_parameters_default::Vector{Float64},
+    random_infection_probabilities_default::Vector{Float64},
     num_infected_age_groups_viruses_mean::Array{Float64, 3}
 )
-    latin_hypercube_plan, _ = LHCoptim(num_runs, 15, 1000)
+    latin_hypercube_plan, _ = LHCoptim(num_runs, 25, 1000)
 
-    for i = 1:7
-        if temperature_parameters_default[i] < -0.95
-            temperature_parameters_default[i] = -0.95
-        elseif temperature_parameters_default[i] > -0.05
-            temperature_parameters_default[i] = -0.05
-        end
-    end
+    # for i = 1:7
+    #     if temperature_parameters_default[i] < -0.95
+    #         temperature_parameters_default[i] = -0.95
+    #     elseif temperature_parameters_default[i] > -0.05
+    #         temperature_parameters_default[i] = -0.05
+    #     end
+    # end
+
+    # for i = 1:2
+    #     if a1_symptomatic_parameters_default[i] < 0.0
+    #         a1_symptomatic_parameters_default[i] = 0.01
+    #     end
+    #     if a3_symptomatic_parameters_default[i] > 0.5
+    #         a3_symptomatic_parameters_default[i] = 0.49
+    #     end
+    # end
+
+    # for i = 1:4
+    #     if random_infection_probabilities_default[i] < 0.0
+    #         random_infection_probabilities_default[i] = 0.000025
+    #     end
+    # end
 
     points = scaleLHC(latin_hypercube_plan, [
-        (duration_parameter_default - 0.1, duration_parameter_default + 0.1),
+        (duration_parameter_default - 0.01, duration_parameter_default + 0.15),
         (susceptibility_parameters_default[1] - 0.1, susceptibility_parameters_default[1] + 0.1),
         (susceptibility_parameters_default[2] - 0.1, susceptibility_parameters_default[2] + 0.1),
         (susceptibility_parameters_default[3] - 0.1, susceptibility_parameters_default[3] + 0.1),
@@ -71,17 +90,26 @@ function multiple_simulations(
         (susceptibility_parameters_default[5] - 0.1, susceptibility_parameters_default[5] + 0.1),
         (susceptibility_parameters_default[6] - 0.1, susceptibility_parameters_default[6] + 0.1),
         (susceptibility_parameters_default[7] - 0.1, susceptibility_parameters_default[7] + 0.1),
-        (temperature_parameters_default[1] - 0.05, temperature_parameters_default[1] + 0.05),
+        (temperature_parameters_default[1] - 0.001, temperature_parameters_default[1] + 0.03),
         (temperature_parameters_default[2] - 0.05, temperature_parameters_default[2] + 0.05),
         (temperature_parameters_default[3] - 0.05, temperature_parameters_default[3] + 0.05),
         (temperature_parameters_default[4] - 0.05, temperature_parameters_default[4] + 0.05),
         (temperature_parameters_default[5] - 0.05, temperature_parameters_default[5] + 0.05),
         (temperature_parameters_default[6] - 0.05, temperature_parameters_default[6] + 0.05),
-        (temperature_parameters_default[7] - 0.05, temperature_parameters_default[7] + 0.05)])
+        (temperature_parameters_default[7] - 0.05, temperature_parameters_default[7] + 0.05),
+        (a1_symptomatic_parameters_default[1] - 0.05, a1_symptomatic_parameters_default[1] + 0.05),
+        (a1_symptomatic_parameters_default[2] - 0.05, a1_symptomatic_parameters_default[2] + 0.05),
+        (a2_symptomatic_parameters_default[1] - 0.005, a2_symptomatic_parameters_default[1] + 0.005),
+        (a2_symptomatic_parameters_default[2] - 0.005, a2_symptomatic_parameters_default[2] + 0.005),
+        (a3_symptomatic_parameters_default[1], a3_symptomatic_parameters_default[1] + 0.005),
+        (a3_symptomatic_parameters_default[2] - 0.001, a3_symptomatic_parameters_default[2] + 0.001),
+        (random_infection_probabilities_default[1] - 0.0005, random_infection_probabilities_default[1] + 0.0005),
+        (random_infection_probabilities_default[2] - 0.0003, random_infection_probabilities_default[2] + 0.0003),
+        (random_infection_probabilities_default[3] - 0.0001, random_infection_probabilities_default[3] + 0.0001),
+        (random_infection_probabilities_default[4] - 0.0000005, random_infection_probabilities_default[4] + 0.0000005),
+    ])
 
-    # S_min = 3.2385170711911373e9
-    # S_min = 5.155338543739129e9
-    S_min = 1.5200662049999874e10
+    S_min = 3.5760008552260814e9
 
     for i = 1:num_runs
         println(i)
@@ -89,6 +117,22 @@ function multiple_simulations(
         duration_parameter = points[i, 1]
         susceptibility_parameters = points[i, 2:8]
         temperature_parameters = points[i, 9:15]
+        a1_symptomatic_parameters = points[i, 16:17]
+        a2_symptomatic_parameters = points[i, 18:19]
+        a3_symptomatic_parameters = points[i, 20:21]
+        random_infection_probabilities = points[i, 22:25]
+
+        reset_population(
+            agents,
+            num_threads,
+            thread_rng,
+            start_agent_ids,
+            end_agent_ids,
+            infectivities,
+            a1_symptomatic_parameters,
+            a2_symptomatic_parameters,
+            a3_symptomatic_parameters,
+            viruses)
 
         temp_influences = Array{Float64,2}(undef, 7, 365)
         year_day = 213
@@ -106,8 +150,10 @@ function multiple_simulations(
 
         @time num_infected_age_groups_viruses = run_simulation(
             num_threads, thread_rng, agents, households,
-            shops, restaurants, infectivities, temp_influences, duration_parameter,
-            susceptibility_parameters, etiology, false)
+            shops, restaurants, infectivities,  temp_influences, duration_parameter,
+            susceptibility_parameters, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters,
+            random_infection_probabilities, etiology, false)
 
         S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
@@ -123,17 +169,12 @@ function multiple_simulations(
             println(io, "duration_parameter = ", duration_parameter)
             println(io, "susceptibility_parameters = ", susceptibility_parameters)
             println(io, "temperature_parameters = ", temperature_parameters)
+            println(io, "a1_symptomatic_parameters = ", a1_symptomatic_parameters)
+            println(io, "a2_symptomatic_parameters = ", a2_symptomatic_parameters)
+            println(io, "a3_symptomatic_parameters = ", a3_symptomatic_parameters)
+            println(io, "random_infection_probabilities = ", random_infection_probabilities)
             println(io)
         end
-
-        reset_population(
-            agents,
-            num_threads,
-            thread_rng,
-            start_agent_ids,
-            end_agent_ids,
-            infectivities,
-            viruses)
     end
 end
 
@@ -264,10 +305,51 @@ function main()
         )
     end
 
+    # duration_parameter = 3.075159760874048
+    # susceptibility_parameters = [6.000169037311895, 6.015038136466708, 6.382343846629561, 7.881645021645022, 7.655260770975056, 7.199527932385074, 7.0009008451865595]
+    # temperature_parameters = [-0.9258812615955474, -0.6183281797567513, -0.13619872191300764, -0.3328756957328386, -0.06060606060606061, -0.11566687280972995, -0.6581199752628325]
+    # a1_symptomatic_parameters = [1.62, 0.6]
+    # a2_symptomatic_parameters = [0.07, 0.015]
+    # a3_symptomatic_parameters = [0.01, 0.3]
+    # random_infection_probabilities = [0.0026, 0.0018, 0.0008, 0.00001]
+
+    # duration_parameter = 3.1425066996495583
+    # susceptibility_parameters = [6.043026180169038, 6.082385075242218, 6.4252009894867035, 7.940828695114409, 7.608321995464853, 7.230140177283033, 6.998860028860029]
+    # temperature_parameters = [-0.9391465677179964, -0.5989404246547104, -0.17191300762729333, -0.29920222634508353, -0.08815708101422387, -0.1064831993403422, -0.6979158936301795]
+    # a1_symptomatic_parameters = [1.649591836734694, 0.6071428571428571]
+    # a2_symptomatic_parameters = [0.07112244897959184, 0.013673469387755101]
+    # a3_symptomatic_parameters = [0.00826530612244898, 0.2972448979591837]
+    # random_infection_probabilities = [0.0021, 0.0015612244897959184, 0.0007081632653061225, 5.0e-6]
+
+    # duration_parameter = 3.1690373118944564
+    # susceptibility_parameters = [6.085883323026181, 6.084425891568749, 6.394588744588744, 7.8734817563389, 7.675668934240363, 7.134221809936094, 7.049880437023294]
+    # temperature_parameters = [-0.927922077922078, -0.6183281797567513, -0.1321170892599464, -0.2838961038961039, -0.12999381570810142, -0.14015666872809732, -0.6703648732220162]
+    # a1_symptomatic_parameters = [1.626122448979592, 0.5877551020408163]
+    # a2_symptomatic_parameters = [0.06612244897959184, 0.013163265306122447]
+    # a3_symptomatic_parameters = [0.005306122448979591, 0.2985714285714286]
+    # random_infection_probabilities = [0.0024979591836734693, 0.0013959183673469388, 0.0006775510204081633, 1.0000000000000006e-6]
+
+    # duration_parameter = 3.1955679241393544
+    # susceptibility_parameters = [6.161393527107813, 6.05381364667079, 6.319078540507112, 7.826542980828696, 7.620566893424037, 7.172997320140176, 7.145798804370233]
+    # temperature_parameters = [-0.9452690166975882, -0.654042465471037, -0.1780354566068852, -0.2726716141001856, -0.1432591218305504, -0.14729952587095446, -0.6652628324056897]
+    # a1_symptomatic_parameters = [1.6455102040816327, 0.5704081632653061]
+    # a2_symptomatic_parameters = [0.06785714285714287, 0.009795918367346937]
+    # a3_symptomatic_parameters = [0.0025510204081632642, 0.29940816326530617]
+    # random_infection_probabilities = [0.002406122448979592, 0.0013775510204081633, 0.0005775510204081633, 1.3163265306122453e-6]
+
+    duration_parameter = 3.232710781282212
+    susceptibility_parameters = [6.110373118944548, 5.95381364667079, 6.341527520098949, 7.889808286951145, 7.5205668934240375, 7.236262626262625, 7.17232941661513]
+    temperature_parameters = [-0.9932282003710576, -0.667307771593486, -0.14028035456606885, -0.2777736549165121, -0.1463203463203463, -0.1054627911770769, -0.6683240568954857]
+    a1_symptomatic_parameters = [1.6138775510204082, 0.557142857142857]
+    a2_symptomatic_parameters = [0.06755102040816327, 0.009897959183673467]
+    a3_symptomatic_parameters = [0.0, 0.30024489795918374]
+    random_infection_probabilities = [0.002253061224489796, 0.0015795918367346939, 0.0005428571428571429, 1.0204081632653065e-6]
+
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, households, viruses, infectivities, start_household_ids[thread_id],
+            agents, households, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, start_household_ids[thread_id],
             homes_coords_df, district_households, district_people,
             district_people_households, district_nums)
     end
@@ -278,10 +360,6 @@ function main()
         num_threads, homes_coords_df)
 
     println("Simulation...")
-
-    duration_parameter = 3.438829107400536
-    susceptibility_parameters = [5.92481550195836, 5.915442176870749, 6.236788291074006, 7.882655122655122, 7.800816326530612, 7.16437641723356, 7.064537208822923]
-    temperature_parameters = [-0.8799216656359514, -0.6067120181405896, -0.10741084312512884, -0.3374211502782931, -0.010204081632653059, -0.070717377860235, -0.663675530818388]
 
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
@@ -390,8 +468,6 @@ function main()
         dims = 3,
     )
 
-    # 5.280093072078365e9
-
     num_runs = 50
     multiple_simulations(
         agents,
@@ -412,6 +488,10 @@ function main()
         duration_parameter,
         susceptibility_parameters,
         temperature_parameters,
+        a1_symptomatic_parameters,
+        a2_symptomatic_parameters,
+        a3_symptomatic_parameters,
+        random_infection_probabilities,
         num_infected_age_groups_viruses_mean
     )
 end
