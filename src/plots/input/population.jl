@@ -5,7 +5,8 @@ using StatsPlots
 using LaTeXStrings
 using CategoricalArrays
 
-default(legendfontsize = 9, guidefont = (14, :black), tickfont = (9, :black))
+# default(legendfontsize = 9, guidefont = (14, :black), tickfont = (9, :black))
+default(legendfontsize = 11, guidefont = (14, :black), tickfont = (11, :black))
 
 function workplace_sizes_distribution()
     workplaces_num_people1 = vec(readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "workplaces_num_people1.csv"), ',', Int, '\n'))
@@ -53,7 +54,8 @@ function age_distribution_groups()
 
     num_people_data = append!(num_people_data_vec, num_people_model_vec)
 
-    legend = repeat(["data", "model"], inner = 18)
+    # legend = repeat(["data", "model"], inner = 18)
+    legend = repeat(["данные", "модель"], inner = 18)
 
     labels = CategoricalArray(repeat(["0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89"], outer = 3))
     levels!(labels, ["0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89"])
@@ -69,15 +71,18 @@ function age_distribution_groups()
         num_people_data,
         group = legend,
         linewidth = 0.6,
-        title = "Age distribution",
+        # title = "Age distribution",
         size = (1000, 500),
         color = reshape([:coral2, :dodgerblue], (1, 2)),
         margin = 6Plots.mm,
+        xrotation = 45,
         # color = reshape(palette(:auto)[1:16], (1,16)),
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
-        xlabel = "Age",
-        ylabel = "Num",
+        # xlabel = "Age",
+        # ylabel = "Num",
+        xlabel = "Возраст",
+        ylabel = "Число",
         grid = false,
         # xticks = (xticks, xticklabels),
         yticks = (yticks, yticklabels),
@@ -130,11 +135,13 @@ function age_distribution_groups()
             num_people_data,
             legend = false,
             linewidth = 0.6,
-            title = "Age distribution with size of household $(i)",
+            # title = "Age distribution with size of household $(i)",
             # xlabel = L"\textrm{\sffamily Virus}",
             # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
-            xlabel = "Age",
-            ylabel = "Num",
+            # xlabel = "Age",
+            # ylabel = "Num",
+            xlabel = "Возраст",
+            ylabel = "Число",
             grid = false,
             xticks = (xticks, xticklabels),
         )
@@ -161,8 +168,10 @@ function age_distribution()
         linewidth = 0.6,
         # xlabel = L"\textrm{\sffamily Age}",
         # ylabel = L"\textrm{\sffamily Num}"
-        xlabel = "Age",
-        ylabel = "Num",
+        # xlabel = "Age",
+        # ylabel = "Num",
+        xlabel = "Возраст",
+        ylabel = "Число",
         grid = false,
         ylim = (0, 200000),
         xticks = (xticks, xticklabels),
@@ -182,7 +191,8 @@ function household_size_distribution()
     labels = CategoricalArray(repeat(["1", "2", "3", "4", "5", "6"], outer = 3))
     levels!(labels, ["1", "2", "3", "4", "5", "6"])
 
-    legend = repeat(["data", "model"], inner = 6)
+    # legend = repeat(["data", "model"], inner = 6)
+    legend = repeat(["данные", "модель"], inner = 6)
 
     yticks = [2.5 * 10^5, 5.0 * 10^5, 7.5 * 10^5, 1.0 * 10^6]
     yticklabels = ["250000" "500000" "750000" "1000000"]
@@ -193,18 +203,20 @@ function household_size_distribution()
         group = legend,
         # group = legend,
         # color=:dodgerblue,
-        title = "Household size distribution",
+        # title = "Household size distribution",
         yticks = (yticks, yticklabels),
         color = reshape([:coral2, :dodgerblue], (1, 2)),
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
-        xlabel = "Size",
-        ylabel = "Num",
+        # xlabel = "Size",
+        # ylabel = "Num",
+        xlabel = "Размер",
+        ylabel = "Число",
         grid = false
     )
     savefig(household_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "household_size_distribution.pdf"))
 end
 
 age_distribution_groups()
-age_distribution()
-household_size_distribution()
+# age_distribution()
+# household_size_distribution()

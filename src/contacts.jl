@@ -151,10 +151,15 @@ function main()
         )
     end
 
+    a1_symptomatic_parameters = [1.0, 1.0]
+    a2_symptomatic_parameters = [0.05, 0.05]
+    a3_symptomatic_parameters = [0.0, 0.0]
+
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, households, viruses, infectivities, start_household_ids[thread_id],
+            agents, households, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, start_household_ids[thread_id],
             homes_coords_df, district_households, district_people,
             district_people_households, district_nums)
     end

@@ -85,7 +85,9 @@ function main()
     agents = Array{Agent, 1}(undef, num_agents)
 
     # With set seed
-    thread_rng = [MersenneTwister(i) for i = 1:num_threads]
+    # thread_rng = [MersenneTwister(i) for i = 1:num_threads]
+    # thread_rng = [MersenneTwister(i) for i = (num_threads + 1):(2 * num_threads)]
+    thread_rng = [MersenneTwister(i) for i = (2 * num_threads + 1):(3 * num_threads)]
 
     homes_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "homes.csv")))
     # Массив для хранения домохозяйств
@@ -156,21 +158,15 @@ function main()
         )
     end
 
-    # duration_parameter = 3.075159760874048
-    # susceptibility_parameters = [6.000169037311895, 6.015038136466708, 6.382343846629561, 7.881645021645022, 7.655260770975056, 7.199527932385074, 7.0009008451865595]
-    # temperature_parameters = [-0.9258812615955474, -0.6183281797567513, -0.13619872191300764, -0.3328756957328386, -0.06060606060606061, -0.11566687280972995, -0.6581199752628325]
-    # a1_symptomatic_parameters = [1.62, 0.6]
-    # a2_symptomatic_parameters = [0.07, 0.015]
-    # a3_symptomatic_parameters = [0.01, 0.3]
-    # random_infection_probabilities = [0.0026, 0.0018, 0.0008, 0.00001]
-
-    duration_parameter = 3.2847515976087425
-    susceptibility_parameters = [6.140985363842507, 6.025242218099361, 6.2782622139765, 7.895930735930737, 7.42873015873016, 7.307691197691196, 7.251921253349824]
-    temperature_parameters = [-0.9632282003710576, -0.7050628736343023, -0.15762729334157904, -0.2869573283858999, -0.14325912183055037, -0.13301381158524017, -0.6468954854669142]
-    a1_symptomatic_parameters = [1.6414285714285715, 0.5459183673469387]
-    a2_symptomatic_parameters = [0.06969387755102041, 0.006122448979591834]
-    a3_symptomatic_parameters = [0.002346938775510204, 0.30087755102040825]
-    random_infection_probabilities = [0.0019163265306122448, 0.0014387755102040817, 0.00046734693877551023, 8.673469387755105e-7]
+    # S: 1.3012569914171046e6
+    # S: 3.030593610581239e9
+    duration_parameter = 3.312914862914865
+    susceptibility_parameters = [6.045066996495568, 5.970140177283035, 6.2762213976499694, 7.877563388991962, 7.463424036281181, 7.215854462997319, 7.164166151309008]
+    temperature_parameters = [-0.9417996289424861, -0.6979200164914452, -0.1484436198721913, -0.2512430426716142, -0.14223871366728508, -0.14423830138115853, -0.6479158936301795]
+    a1_symptomatic_parameters = [1.6077551020408163, 0.5673469387755101]
+    a2_symptomatic_parameters = [0.06551020408163265, 0.005816326530612243]
+    a3_symptomatic_parameters = [0.0017959183673469388, 0.3006122448979593]
+    random_infection_probabilities = [0.0018693877551020407, 0.0011551020408163267, 0.0005632653061224491, 5.530612244897962e-7]
 
     @time @threads for thread_id in 1:num_threads
         create_population(
@@ -366,17 +362,30 @@ function main()
         a2_symptomatic_parameters, a3_symptomatic_parameters,
         random_infection_probabilities, etiology, true)
 
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
+    #     num_infected_age_groups_viruses ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
+    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
+
     writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
+        joinpath(@__DIR__, "..", "output", "tables", "deviations", "age_groups_viruses_data3.csv"),
         num_infected_age_groups_viruses ./ 10072, ',')
     writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
+        joinpath(@__DIR__, "..", "output", "tables", "deviations", "infected_data3.csv"),
         sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
     writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
+        joinpath(@__DIR__, "..", "output", "tables", "deviations", "etiology_data3.csv"),
         sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
     writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
+        joinpath(@__DIR__, "..", "output", "tables", "deviations", "age_groups_data3.csv"),
         sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
 
     S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))

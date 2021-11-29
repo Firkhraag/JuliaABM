@@ -9,6 +9,13 @@ default(legendfontsize = 12, guidefont = (17, :black), tickfont = (12, :black))
 
 function plot_incidence()
     incidence = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "infected_data.csv"), ',', Float64)
+    # incidence2 = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "deviations", "infected_data2.csv"), ',', Float64)
+    # incidence3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "deviations", "infected_data3.csv"), ',', Float64)
+    # stds = zeros(Float64, 52)
+    # for i = 1:52
+    #     stds[i] = std([incidence[i], incidence2[i], incidence3[i]])
+    # end
+
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
     infected_data_mean = mean(infected_data[39:45, 2:53], dims = 1)[1, :] ./ 10072
 
@@ -23,6 +30,8 @@ function plot_incidence()
         xticks = (ticks, ticklabels),
         label = ["модель" "данные"],
         grid = false,
+        # yerror = stds,
+        # ribbon=stds,fillalpha=.5,
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = "Месяц",
@@ -146,8 +155,9 @@ function plot_r0()
 
     # ticks = range(1, stop = 12, length = 13)
     # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
-    ticks = range(1, stop = 12, length = 7)
-    ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    # ticks = range(1, stop = 12, length = 6)
+    ticks = [1, 3, 5, 7, 9, 11]
+    ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн"]
     registered_new_cases_plot = plot(
         1:12,
         [r0[i, :] for i = 1:7],
@@ -166,7 +176,7 @@ function plot_r0()
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "r0.pdf"))
 end
 
-plot_incidence()
-plot_incidence_etiology()
-plot_incidence_age_groups()
-# plot_r0()
+# plot_incidence()
+# plot_incidence_etiology()
+# plot_incidence_age_groups()
+plot_r0()

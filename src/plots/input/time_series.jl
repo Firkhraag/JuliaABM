@@ -4,12 +4,14 @@ using Statistics
 using StatsPlots
 using LaTeXStrings
 using CategoricalArrays
+using Interpolations
 
 include("../../data/temperature.jl")
 include("../../data/etiology.jl")
 
 # default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
-default(legendfontsize = 9, guidefont = (14, :black), tickfont = (9, :black))
+# default(legendfontsize = 9, guidefont = (14, :black), tickfont = (9, :black))
+default(legendfontsize = 12, guidefont = (17, :black), tickfont = (12, :black))
 
 function plot_temperature()
     temperature_data = get_air_temperature()
@@ -33,6 +35,45 @@ function plot_temperature()
         ylabel = "Температура, °C",
     )
     savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "temperature.pdf"))
+end
+
+function plot_all_data()
+    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Float64, '\n')
+    incidence_data = vec(incidence_data[5:45, 2:53])
+    # incidence_data = vec(incidence_data[33:45, 2:53])
+
+    years = collect(1962:2002)
+    # years = collect(1990:2002)
+    xs = [1959, 1970, 1979, 1989, 2002]
+    ys = [5085, 7061, 7931, 8875, 10382]
+    itp_cubic = interpolate(xs, ys, FritschCarlsonMonotonicInterpolation())
+    for i in 1:length(years)
+        for j = 1:52
+            incidence_data[(i - 1) * 52 + j] = incidence_data[(i - 1) * 52 + j] / itp_cubic(years[i])
+        end
+    end
+
+    ticks = range(1, stop = length(incidence_data), length = 11)
+    ticklabels = ["1962" "1966" "1970" "1974" "1978" "1982" "1986" "1990" "1994" "1998" "2002"]
+    # ticks = range(1, stop = length(incidence_data), length = 7)
+    # ticklabels = ["1990" "1992" "1994" "1996" "1998" "2000" "2002"]
+    incidence_plot = plot(
+        1:length(incidence_data),
+        incidence_data,
+        lw = 3,
+        legend = false,
+        color = "red",
+        xticks = (ticks, ticklabels),
+        grid = false,
+        size = (800, 500),
+        margin = 6Plots.mm,
+        xrotation = 45,
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
+        xlabel = "Год",
+        ylabel = "Число случаев на 1000 ч.",
+    )
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "all_data.pdf"))
 end
 
 function plot_incidence()
@@ -118,7 +159,8 @@ function plot_etiology()
     savefig(etiology_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "etiology.pdf"))
 end
 
-plot_temperature()
-plot_incidence()
-plot_incidence_age_groups()
-plot_etiology()
+# plot_temperature()
+plot_all_data()
+# plot_incidence()
+# plot_incidence_age_groups()
+# plot_etiology()

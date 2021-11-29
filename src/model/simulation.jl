@@ -82,7 +82,7 @@ function simulate_contacts(
         # Агент инфицирован
         if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
             # Локальные случайные контакты по району (общественный транспорт)
-            if agent.age >= 12 && rand(rng, Float64) < 0.8
+            if (agent.age >= 12 && rand(rng, Float64) < 0.8) || (agent.age < 12 && rand(rng, Float64) < 0.4)
                 for i = 1:trunc(Int, rand(rng, Normal(20, 5)))
                     agent2_id = rand(
                         start_agent_ids_districts[households[agent.household_id].district_id]:end_agent_ids_districts[households[agent.household_id].district_id])
@@ -102,7 +102,7 @@ function simulate_contacts(
                         (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
                         (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
 
-                        dur = get_contact_duration_normal(0.25, 0.06, rng)
+                        dur = get_contact_duration_normal(0.2, 0.05, rng)
                         if dur > 0.01
                             make_contact(agent, agent2, dur, current_step, duration_parameter,
                                 susceptibility_parameters, temp_influences, rng)
@@ -272,7 +272,7 @@ function simulate_contacts(
                             dur = get_contact_duration_gamma(1.2, 1.07, rng)
                             if dur > 0.01
                                 make_contact(
-                                    agent, agent2, get_contact_duration_gamma(1.0, 1.6, rng),
+                                    agent, agent2, dur,
                                     current_step, duration_parameter,
                                     susceptibility_parameters, temp_influences, rng)
     
@@ -375,14 +375,14 @@ function update_agent_states(
 
         # Продолжительности типоспецифического иммунитета
         if agent.FluA_days_immune != 0
-            if agent.FluA_days_immune == 270
+            if agent.FluA_days_immune == 300
                 agent.FluA_days_immune = 0
             else
                 agent.FluA_days_immune += 1
             end
         end
         if agent.FluB_days_immune != 0
-            if agent.FluB_days_immune == 270
+            if agent.FluB_days_immune == 300
                 agent.FluB_days_immune = 0
             else
                 agent.FluB_days_immune += 1

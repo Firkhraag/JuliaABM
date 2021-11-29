@@ -2,7 +2,8 @@ using Base.Threads
 using Distributions
 using Random
 using DelimitedFiles
-using Statistics
+using DataFrames
+using CSV
 
 include("global/variables.jl")
 
@@ -15,7 +16,6 @@ include("model/school.jl")
 include("model/public_space.jl")
 include("model/initialization.jl")
 include("model/simulation.jl")
-include("model/contacts.jl")
 include("model/connections.jl")
 
 include("data/district_households.jl")
@@ -25,8 +25,9 @@ include("data/district_nums.jl")
 include("data/temperature.jl")
 include("data/etiology.jl")
 
-include("util/reset.jl")
 include("util/burnin.jl")
+include("util/reset.jl")
+include("util/stats.jl")
 
 function f(x, mu, sigma)
     dist = Normal(mu, sigma)
@@ -177,7 +178,8 @@ function main()
             shop_coords_df[i, :dist],
             shop_coords_df[i, :x],
             shop_coords_df[i, :y],
-            ceil(Int, rand(Gamma(shop_capacity_shape, shop_capacity_scale)))
+            ceil(Int, rand(Gamma(shop_capacity_shape, shop_capacity_scale))),
+            shop_num_groups,
         )
     end
 
@@ -189,14 +191,24 @@ function main()
             restaurant_coords_df[i, :dist],
             restaurant_coords_df[i, :x],
             restaurant_coords_df[i, :y],
-            restaurant_coords_df[i, :seats]
+            restaurant_coords_df[i, :seats],
+            restaurant_num_groups,
         )
     end
+
+    duration_parameter = 3.312914862914865
+    susceptibility_parameters = [6.045066996495568, 5.970140177283035, 6.2762213976499694, 7.877563388991962, 7.463424036281181, 7.215854462997319, 7.164166151309008]
+    temperature_parameters = [-0.9417996289424861, -0.6979200164914452, -0.1484436198721913, -0.2512430426716142, -0.14223871366728508, -0.14423830138115853, -0.6479158936301795]
+    a1_symptomatic_parameters = [1.6077551020408163, 0.5673469387755101]
+    a2_symptomatic_parameters = [0.06551020408163265, 0.005816326530612243]
+    a3_symptomatic_parameters = [0.0017959183673469388, 0.3006122448979593]
+    random_infection_probabilities = [0.0018693877551020407, 0.0011551020408163267, 0.0005632653061224491, 5.530612244897962e-7]
 
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, households, viruses, infectivities, start_household_ids[thread_id],
+            agents, households, viruses, infectivities, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters, start_household_ids[thread_id],
             homes_coords_df, district_households, district_people,
             district_people_households, district_nums)
     end
@@ -244,9 +256,9 @@ function main()
         temperature_parameter_7_array[size(temperature_parameter_7_array)[1]],
     ]
 
-    duration_parameter_prior_mean = 4.708649537853532
-    susceptibility_parameters_prior_means = [4.791077491179754, 4.801204516560952, 5.277449916720067, 7.005768331227963, 6.87462448433526, 6.161149335090182, 6.232429844021741]
-    temperature_parameters_prior_means = [-0.9813131313131312, -0.6699003080680871, -0.03232323232323232, -0.37724434921845895, -0.12687954242389426, -0.13323867452062765, -0.6061108567674399]
+    duration_parameter_prior_mean = 3.312914862914865
+    susceptibility_parameters_prior_means = [6.045066996495568, 5.970140177283035, 6.2762213976499694, 7.877563388991962, 7.463424036281181, 7.215854462997319, 7.164166151309008]
+    temperature_parameters_prior_means = [-0.9417996289424861, -0.6979200164914452, -0.1484436198721913, -0.2512430426716142, -0.14223871366728508, -0.14423830138115853, -0.6479158936301795]
 
     duration_parameter_prior_sd = 0.2
     susceptibility_parameters_prior_sds = [
@@ -288,7 +300,9 @@ function main()
     @time num_infected_age_groups_viruses = run_simulation(
         num_threads, thread_rng, agents, households,
         shops, restaurants, infectivities, temp_influences, duration_parameter,
-        susceptibility_parameters, etiology, false)
+        susceptibility_parameters, a1_symptomatic_parameters,
+        a2_symptomatic_parameters, a3_symptomatic_parameters,
+        random_infection_probabilities, etiology, true)
 
     num_infected_age_groups = sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :]
     S_abs = sum(abs.(num_infected_age_groups - num_infected_age_groups_mean))
@@ -308,7 +322,7 @@ function main()
         end
     end
 
-    open("mcmc/output.txt", "a") do io
+    open("parameters/output.txt", "a") do io
         println(io, "n = ", 0)
         println(io, "S_abs: ", S_abs)
         println(io, "S_square: ", S_square)
@@ -390,10 +404,12 @@ function main()
             end
         end
 
-        @time num_infected_age_groups_viruses = run_simulation(
+        @time num_infected_age_groups_viruses = num_infected_age_groups_viruses = run_simulation(
             num_threads, thread_rng, agents, households,
             shops, restaurants, infectivities, temp_influences, duration_parameter,
-            susceptibility_parameters, etiology, false)
+            susceptibility_parameters, a1_symptomatic_parameters,
+            a2_symptomatic_parameters, a3_symptomatic_parameters,
+            random_infection_probabilities, etiology, true)
 
         num_infected_age_groups = sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :]
         S_abs = sum(abs.(num_infected_age_groups - num_infected_age_groups_mean))
@@ -421,7 +437,7 @@ function main()
         accept_prob += prob_prior - prob_prev_prior
         accept_prob_final = min(1.0, exp(accept_prob))
 
-        open("mcmc/output.txt", "a") do io
+        open("parameters/output.txt", "a") do io
             println(io, "n = ", n)
             println(io, "Accept prob exp: ", accept_prob)
             println(io, "Accept prob: ", accept_prob_final)
@@ -534,6 +550,9 @@ function main()
             start_agent_ids,
             end_agent_ids,
             infectivities,
+            a1_symptomatic_parameters,
+            a2_symptomatic_parameters,
+            a3_symptomatic_parameters,
             viruses)
         
         println("Accept rate: ", accept_num / n)

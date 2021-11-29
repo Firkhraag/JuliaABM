@@ -1,7 +1,8 @@
 using Plots
 using DelimitedFiles
 
-default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
+# default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
+default(legendfontsize = 15, guidefont = (19, :black), tickfont = (15, :black))
 
 function plot_contacts()
     contact_counts = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts.csv"), ',', Float64)
@@ -260,15 +261,23 @@ function plot_contacts_grouped()
         "70-74", "75-79", "80-84", "85-89"]
 
     contact_counts_matrix = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts.csv"), ',', Float64)
+    contact_durations_matrix = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_durations.csv"), ',', Float64)
+    contact_durations_matrix ./= contact_counts_matrix
+
+    contact_durations_matrix += transpose(contact_durations_matrix)
+    contact_durations_matrix ./= 2
 
     contact_counts = zeros(Float64, 18, 18)
+    contact_durations = zeros(Float64, 18, 18)
     for i = 1:18
         for j = 1:18
             for k = 0:4
                 for l = 0:4
                     contact_counts[i, j] += contact_counts_matrix[(i - 1) * 5 + 1 + k, (j - 1) * 5 + 1 + l]
+                    contact_durations[i, j] += contact_durations_matrix[(i - 1) * 5 + 1 + k, (j - 1) * 5 + 1 + l]
                 end
             end
+            contact_durations[i, j] /= 25.0
         end
         # num_people = 0
         # for j = 0:4
@@ -279,15 +288,18 @@ function plot_contacts_grouped()
 
     heatmap_plot = heatmap(
         contact_counts,
-        fontfamily = "Times",
+        # fontfamily = "Times",
         xticks = (ticks, ticklabels),
         yticks = (ticks, ticklabels),
-        title = "Daily number of contacts",
-        margin = 6Plots.mm,
+        # title = "Daily number of contacts",
+        margin = 12Plots.mm,
+        xrotation = 45,
         c = :jet,
-        xlabel = "Age, years",
-        ylabel = "Age, years",
-        colorbar_title = "Number of contacts",
+        # xlabel = "Age, years",
+        # ylabel = "Age, years",
+        # colorbar_title = "Number of contacts",
+        xlabel = "Возраст, лет",
+        ylabel = "Возраст, лет",
         size = (1200, 1200),
     )
 
@@ -307,6 +319,26 @@ function plot_contacts_grouped()
     
     savefig(heatmap_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "contacts", "contact_counts.pdf"))
     savefig(contour_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "contacts", "contact_counts_contour.pdf"))
+
+    
+    heatmap_plot = heatmap(
+        contact_durations,
+        # fontfamily = "Times",
+        xticks = (ticks, ticklabels),
+        yticks = (ticks, ticklabels),
+        # title = "Daily number of contacts",
+        margin = 12Plots.mm,
+        xrotation = 45,
+        c = :jet,
+        # xlabel = "Age, years",
+        # ylabel = "Age, years",
+        # colorbar_title = "Number of contacts",
+        xlabel = "Возраст, лет",
+        ylabel = "Возраст, лет",
+        size = (1200, 1200),
+    )
+    savefig(heatmap_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "contacts", "contact_durations.pdf"))
+
 
     for activity_num = 3:7
         contact_counts_matrix = readdlm(joinpath(
