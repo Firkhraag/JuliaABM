@@ -25,7 +25,6 @@ include("data/district_people_households.jl")
 include("data/district_nums.jl")
 include("data/temperature.jl")
 
-include("util/burnin.jl")
 include("util/stats.jl")
 
 function main()
@@ -179,7 +178,8 @@ function main()
     #     num_threads, thread_rng, agents, households, shops, restaurants, true)
     println("Weekday")
     @time run_simulation_evaluation(
-        num_threads, thread_rng, agents, households, shops, restaurants, false)
+        num_threads, thread_rng, agents, households, kindergartens,
+        schools, universities, shops, restaurants, false)
     
     age_groups_nums = zeros(Int, 90)
     for agent in agents

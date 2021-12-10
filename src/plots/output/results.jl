@@ -1,11 +1,11 @@
 using DelimitedFiles
-using Plots
 using Statistics
+using Plots
 using LaTeXStrings
 
 # default(legendfontsize = 14, guidefont = (20, :black), tickfont = (14, :black))
 # default(legendfontsize = 9, guidefont = (12, :black), tickfont = (9, :black))
-default(legendfontsize = 12, guidefont = (17, :black), tickfont = (12, :black))
+default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
 
 function plot_incidence()
     incidence = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "infected_data.csv"), ',', Float64)
@@ -35,7 +35,7 @@ function plot_incidence()
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = "Месяц",
-        ylabel = "Число случаев на 1000 ч.",
+        ylabel = "Число случаев на 1000 чел. / неделя",
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence.pdf"))
 end
@@ -81,10 +81,10 @@ function plot_incidence_age_groups()
     infected_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    infected_data_mean_0 = mean(infected_data_0[2:53, 21:27], dims = 2)[:, 1] ./ 10072
-    infected_data_mean_3 = mean(infected_data_3[2:53, 21:27], dims = 2)[:, 1] ./ 10072
-    infected_data_mean_7 = mean(infected_data_7[2:53, 21:27], dims = 2)[:, 1] ./ 10072
-    infected_data_mean_15 = mean(infected_data_15[2:53, 21:27], dims = 2)[:, 1] ./ 10072
+    infected_data_mean_0 = mean(infected_data_0[2:53, 22:27], dims = 2)[:, 1] ./ 10072
+    infected_data_mean_3 = mean(infected_data_3[2:53, 22:27], dims = 2)[:, 1] ./ 10072
+    infected_data_mean_7 = mean(infected_data_7[2:53, 22:27], dims = 2)[:, 1] ./ 10072
+    infected_data_mean_15 = mean(infected_data_15[2:53, 22:27], dims = 2)[:, 1] ./ 10072
 
     # ticks = range(1, stop = 52, length = 13)
     # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
@@ -100,7 +100,7 @@ function plot_incidence_age_groups()
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = "Месяц",
-        ylabel = "Число случаев на 1000 ч.",
+        ylabel = "Число случаев на 1000 чел. / неделя",
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "incidence0-2.pdf"))
 
@@ -114,7 +114,7 @@ function plot_incidence_age_groups()
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = "Месяц",
-        ylabel = "Число случаев на 1000 ч.",
+        ylabel = "Число случаев на 1000 чел. / неделя",
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "incidence3-6.pdf"))
 
@@ -128,7 +128,7 @@ function plot_incidence_age_groups()
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = "Месяц",
-        ylabel = "Число случаев на 1000 ч.",
+        ylabel = "Число случаев на 1000 чел. / неделя",
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "incidence7-14.pdf"))
 
@@ -142,7 +142,7 @@ function plot_incidence_age_groups()
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = "Месяц",
-        ylabel = "Число случаев на 1000 ч.",
+        ylabel = "Число случаев на 1000 чел. / неделя",
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "incidence15+.pdf"))
 end
@@ -176,7 +176,7 @@ function plot_r0()
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "r0.pdf"))
 end
 
-# plot_incidence()
+plot_incidence()
 # plot_incidence_etiology()
-# plot_incidence_age_groups()
-plot_r0()
+plot_incidence_age_groups()
+# plot_r0()

@@ -624,14 +624,14 @@ function get_district_people_ids(
 end
 
 function main()
-    # district_nums = get_district_nums()
-    # district_households = get_district_households()
-
     # start_agent_ids_districts, end_agent_ids_districts = get_district_people_ids(
     #     district_nums, district_households)
     # println("start_agent_ids_districts = $(start_agent_ids_districts)")
     # println("end_agent_ids_districts = $(end_agent_ids_districts)")
     # return
+
+    district_nums = get_district_nums()
+    district_households = get_district_households()
 
     num_threads = nthreads()
 

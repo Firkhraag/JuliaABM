@@ -2,12 +2,6 @@ function get_stats(agents::Vector{Agent})
     println("Stats...")
     age_groups_nums = zeros(Int, 90)
 
-    age_groups_nums_1 = zeros(Int, 90)
-    age_groups_nums_2 = zeros(Int, 90)
-    age_groups_nums_3 = zeros(Int, 90)
-    age_groups_nums_4 = zeros(Int, 90)
-    age_groups_nums_5 = zeros(Int, 90)
-
     num_agents_groups = zeros(Int, 4)
 
     collective_nums = Int[0, 0, 0, 0]
@@ -45,18 +39,6 @@ function get_stats(agents::Vector{Agent})
         end
 
         age_groups_nums[agent.age + 1] += 1
-        
-        if length(agent.household_conn_ids) == 1
-            age_groups_nums_1[agent.age + 1] += 1
-        elseif length(agent.household_conn_ids) == 2
-            age_groups_nums_2[agent.age + 1] += 1
-        elseif length(agent.household_conn_ids) == 3
-            age_groups_nums_3[agent.age + 1] += 1
-        elseif length(agent.household_conn_ids) == 4
-            age_groups_nums_4[agent.age + 1] += 1
-        elseif length(agent.household_conn_ids) == 5 || length(agent.household_conn_ids) == 6
-            age_groups_nums_5[agent.age + 1] += 1
-        end
     
         if agent.activity_type == 1
             collective_nums[1] += 1
@@ -121,11 +103,6 @@ function get_stats(agents::Vector{Agent})
     # end
 
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums.csv"), age_groups_nums, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums_1.csv"), age_groups_nums_1, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums_2.csv"), age_groups_nums_2, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums_3.csv"), age_groups_nums_3, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums_4.csv"), age_groups_nums_4, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums_5.csv"), age_groups_nums_5, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "household_size_distribution.csv"), household_nums, ',')
 
     # println("Age groups:")

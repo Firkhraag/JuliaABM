@@ -94,6 +94,7 @@ function set_connections(
                 agents[agent_id].school_id = kindergarten_id
                 agents[agent_id].school_group_num = school_group_num
                 agents[agent_id].activity_conn_ids = group
+                push!(kindergarten.teacher_ids, agent_id)
                 # agents[agent_id].school_group_id = group_id
             end
             num_working_agents -= groups_size
@@ -122,6 +123,7 @@ function set_connections(
                 agents[agent_id].school_id = school_id
                 agents[agent_id].school_group_num = school_group_num
                 agents[agent_id].activity_conn_ids = group
+                push!(school.teacher_ids, agent_id)
                 # agents[agent_id].school_group_id = group_id
             end
             num_working_agents -= groups_size
@@ -150,6 +152,7 @@ function set_connections(
                 agents[agent_id].school_id = university_id
                 agents[agent_id].school_group_num = school_group_num
                 agents[agent_id].activity_conn_ids = group
+                push!(university.teacher_ids, agent_id)
                 # agents[agent_id].school_group_id = group_id
             end
             num_working_agents -= groups_size
@@ -280,6 +283,8 @@ function get_similarity_between_agents(
 )::Float64
     if (agent1.age < 18 || agent2.age < 18) && abs(agent1.age - agent2.age > 5)
         return 0.0
+    elseif abs(agent1.age - agent2.age > 45)
+        return 0.0
     elseif agent1.age < 18 || agent2.age < 18
         sex_multiplier = 1.0
         if agent1.is_male != agent2.is_male
@@ -291,7 +296,7 @@ function get_similarity_between_agents(
         if agent1.is_male != agent2.is_male
             sex_multiplier = 0.5
         end
-        return 1.0 - (sex_multiplier * abs(agent1.age - agent2.age) / (max_agent_age - 18))
+        return 1.0 - (sex_multiplier * abs(agent1.age - agent2.age) / 45)
     end
 end
 

@@ -25,7 +25,6 @@ include("data/district_nums.jl")
 include("data/temperature.jl")
 include("data/etiology.jl")
 
-include("util/burnin.jl")
 include("util/reset.jl")
 include("util/stats.jl")
 

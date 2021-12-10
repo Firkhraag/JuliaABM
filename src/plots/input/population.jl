@@ -52,6 +52,12 @@ function age_distribution_groups()
     end
     # num_people_data = reshape(num_people_model_vec, length(num_people_model_vec), 1)
 
+    s = 0.0
+    for i = 1:18
+        s += (num_people_model_vec[i] - num_people_data_vec[i])^2
+    end
+    println(s)
+
     num_people_data = append!(num_people_data_vec, num_people_model_vec)
 
     # legend = repeat(["data", "model"], inner = 18)
@@ -74,7 +80,7 @@ function age_distribution_groups()
         # title = "Age distribution",
         size = (1000, 500),
         color = reshape([:coral2, :dodgerblue], (1, 2)),
-        margin = 6Plots.mm,
+        margin = 8Plots.mm,
         xrotation = 45,
         # color = reshape(palette(:auto)[1:16], (1,16)),
         # xlabel = L"\textrm{\sffamily Virus}",
@@ -89,64 +95,64 @@ function age_distribution_groups()
     )
     savefig(age_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "age_distribution_groups.pdf"))
 
-    num_people_data_vecs = [
-        [3681, 10862, 136140, 174283, 167371, 181407, 182310, 341499],
-        [112432, 34063, 201960, 356412, 301265, 381884, 394116, 515879],
-        [358332, 75387, 336866, 558165, 494945, 541491, 361521, 318805],
-        [442011, 83579, 295152, 445478, 404316, 399842, 252920, 216230],
-        [467367, 67980, 249236, 468202, 358952, 322412, 250161, 213446]]
-    for i = 1:5
-        age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_groups_nums_$(i).csv"), ',', Int, '\n')
-        num_people_data_vec = zeros(Int, 8)
-        for i = 1:15
-            num_people_data_vec[1] += age_groups_nums[i]
-        end
-        for i = 16:18
-            num_people_data_vec[2] += age_groups_nums[i]
-        end
-        for i = 19:25
-            num_people_data_vec[3] += age_groups_nums[i]
-        end
-        for i = 26:35
-            num_people_data_vec[4] += age_groups_nums[i]
-        end
-        for i = 36:45
-            num_people_data_vec[5] += age_groups_nums[i]
-        end
-        for i = 46:55
-            num_people_data_vec[6] += age_groups_nums[i]
-        end
-        for i = 56:65
-            num_people_data_vec[7] += age_groups_nums[i]
-        end
-        for i = 66:90
-            num_people_data_vec[8] += age_groups_nums[i]
-        end
-        num_people_data = reshape(num_people_data_vec, length(num_people_data_vec), 1)
+    # num_people_data_vecs = [
+    #     [3681, 10862, 136140, 174283, 167371, 181407, 182310, 341499],
+    #     [112432, 34063, 201960, 356412, 301265, 381884, 394116, 515879],
+    #     [358332, 75387, 336866, 558165, 494945, 541491, 361521, 318805],
+    #     [442011, 83579, 295152, 445478, 404316, 399842, 252920, 216230],
+    #     [467367, 67980, 249236, 468202, 358952, 322412, 250161, 213446]]
+    # for i = 1:5
+    #     age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_groups_nums_$(i).csv"), ',', Int, '\n')
+    #     num_people_data_vec = zeros(Int, 8)
+    #     for i = 1:15
+    #         num_people_data_vec[1] += age_groups_nums[i]
+    #     end
+    #     for i = 16:18
+    #         num_people_data_vec[2] += age_groups_nums[i]
+    #     end
+    #     for i = 19:25
+    #         num_people_data_vec[3] += age_groups_nums[i]
+    #     end
+    #     for i = 26:35
+    #         num_people_data_vec[4] += age_groups_nums[i]
+    #     end
+    #     for i = 36:45
+    #         num_people_data_vec[5] += age_groups_nums[i]
+    #     end
+    #     for i = 46:55
+    #         num_people_data_vec[6] += age_groups_nums[i]
+    #     end
+    #     for i = 56:65
+    #         num_people_data_vec[7] += age_groups_nums[i]
+    #     end
+    #     for i = 66:90
+    #         num_people_data_vec[8] += age_groups_nums[i]
+    #     end
+    #     num_people_data = reshape(num_people_data_vec, length(num_people_data_vec), 1)
     
-        labels = CategoricalArray(string.(collect(0:7)))
-        levels!(labels, string.(collect(0:7)))
+    #     labels = CategoricalArray(string.(collect(0:7)))
+    #     levels!(labels, string.(collect(0:7)))
     
-        xticks = [0, 1, 2, 3, 4, 5, 6, 7]
-        xticklabels = ["0-14", "15-17", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"]
+    #     xticks = [0, 1, 2, 3, 4, 5, 6, 7]
+    #     xticklabels = ["0-14", "15-17", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"]
     
-        age_distribution_plot = groupedbar(
-            collect(0:7),
-            num_people_data,
-            legend = false,
-            linewidth = 0.6,
-            # title = "Age distribution with size of household $(i)",
-            # xlabel = L"\textrm{\sffamily Virus}",
-            # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
-            # xlabel = "Age",
-            # ylabel = "Num",
-            xlabel = "Возраст",
-            ylabel = "Число",
-            grid = false,
-            xticks = (xticks, xticklabels),
-        )
-        savefig(age_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "age_distribution_model_$(i).pdf"))
-    end
+    #     age_distribution_plot = groupedbar(
+    #         collect(0:7),
+    #         num_people_data,
+    #         legend = false,
+    #         linewidth = 0.6,
+    #         # title = "Age distribution with size of household $(i)",
+    #         # xlabel = L"\textrm{\sffamily Virus}",
+    #         # ylabel = L"\textrm{\sffamily Incubation period duration, days}"
+    #         # xlabel = "Age",
+    #         # ylabel = "Num",
+    #         xlabel = "Возраст",
+    #         ylabel = "Число",
+    #         grid = false,
+    #         xticks = (xticks, xticklabels),
+    #     )
+    #     savefig(age_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "age_distribution_model_$(i).pdf"))
+    # end
 end
 
 function age_distribution()
@@ -218,5 +224,5 @@ function household_size_distribution()
 end
 
 age_distribution_groups()
-# age_distribution()
+age_distribution()
 # household_size_distribution()

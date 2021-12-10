@@ -46,6 +46,8 @@ function plot_contacts()
         xticks = (xticks, xticklabels),
         title = "Daily number of contacts",
         margin = 6Plots.mm,
+        nlevels = 50,
+        linewidth = 0,
         c = :jet1,
         xlabel = "Age, years",
         ylabel = "Age, years",
@@ -279,12 +281,15 @@ function plot_contacts_grouped()
             end
             contact_durations[i, j] /= 25.0
         end
-        # num_people = 0
-        # for j = 0:4
-        #     num_people += age_groups_nums[(i - 1) * 5 + 1 + j]
-        # end
-        # contact_counts[i, :] ./= num_people
     end
+
+    # for i = 1:18
+    #     num_people = 0
+    #     for j = 0:4
+    #         num_people += age_groups_nums[(i - 1) * 5 + 1 + j]
+    #     end
+    #     contact_counts[:, i] ./= num_people
+    # end
 
     heatmap_plot = heatmap(
         contact_counts,
@@ -310,6 +315,7 @@ function plot_contacts_grouped()
         yticks = (ticks, ticklabels),
         title = "Daily number of contacts",
         margin = 6Plots.mm,
+        xrotation = 45,
         c = :jet,
         xlabel = "Age, years",
         ylabel = "Age, years",
@@ -362,12 +368,15 @@ function plot_contacts_grouped()
                     end
                 end
             end
-            # num_people = 0
-            # for j = 0:4
-            #     num_people += age_groups_nums[(i - 1) * 5 + 1 + j]
-            # end
-            # contact_counts[i, :] ./= num_people
         end
+
+        # for i = 1:18
+        #     num_people = 0
+        #     for j = 0:4
+        #         num_people += age_groups_nums[(i - 1) * 5 + 1 + j]
+        #     end
+        #     contact_counts[:, i] ./= num_people
+        # end
 
         plot_title = "Daily number of contacts"
         if activity_num == 3
@@ -390,6 +399,7 @@ function plot_contacts_grouped()
             # colorbar_scale = :log10,
             title = plot_title,
             margin = 6Plots.mm,
+            xrotation = 45,
             c = :jet,
             # clims = (0.01, 12.5),
             xlabel = "Age, years",
@@ -405,6 +415,7 @@ function plot_contacts_grouped()
             yticks = (ticks, ticklabels),
             title = plot_title,
             margin = 6Plots.mm,
+            xrotation = 45,
             c = :jet,
             xlabel = "Age, years",
             ylabel = "Age, years",

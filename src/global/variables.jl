@@ -104,11 +104,13 @@ shop_capacity_scale = 20.0
 
 # 30 minutes for 10 hours
 restaurant_num_groups = 20
-shop_num_groups = 20
+# 30 minutes for 12 hours
+shop_num_groups = 24
 
 # contact with only x closest agents
-restaurant_num_nearest_agents_as_contact = 20
-shop_num_nearest_agents_as_contact = 20
+restaurant_num_nearest_agents_as_contact = 15
+shop_num_nearest_agents_as_contact = 15
+school_num_of_teacher_contacts = 10
 
 # Activity contact durations
 # Продолжительность контактов в коллективах
@@ -131,3 +133,7 @@ const workplace_time_spent_scale = 1.7
 const skip_kindergarten_probability = 0.1
 const skip_school_probability = 0.1
 const skip_university_probability = 0.5
+
+# Параметры
+const burnin = 1
+const step = 4

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.16.1
+# v0.17.2
 
 using Markdown
 using InteractiveUtils
@@ -19,6 +19,9 @@ begin
         "70-74", "75-79", "80-84", "85-89"]
 end
 
+# ╔═╡ efd0dfbb-a321-4c01-8214-ce021c7fc36d
+age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_groups_nums.csv"), ',', Float64)
+
 # ╔═╡ f96f7e85-367b-4015-a99a-cb261aec1a20
 begin
     contact_counts_matrix = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts.csv"), ',', Float64)
@@ -33,6 +36,14 @@ begin
             end
         end
     end
+	
+	for i = 1:18
+        num_people = 0
+        for j = 0:4
+            num_people += age_groups_nums[(i - 1) * 5 + 1 + j]
+        end
+        contact_counts[:, i] ./= num_people
+    end
 
     heatmap(
         contact_counts,
@@ -41,10 +52,20 @@ begin
         yticks = (ticks, ticklabels),
         title = "Daily number of contacts",
         margin = 6Plots.mm,
-        c = :jet,
+        xrotation = 45,
+		legendfontsize = 15,
+		guidefont = (19, :black),
+		tickfont = (15, :black),
+		colorbar_guidefont = (19, :black),
+		colorbar_titlefontsize = 19,
+		clims = (10^-2, 10.001),
+		# c = :dense,
+		# c = :ice,
+		# c = reverse(cgrad(:ice)),
+		c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
 		colorbar_scale = :log10,
         xlabel = "Age, years",
-        ylabel = "Age, years",
+        ylabel = "Age of contacts, years",
         colorbar_title = "Frequency of contacts",
         size = (1200, 1200),
     )
@@ -54,17 +75,18 @@ end
 # ╔═╡ 3ca36453-efb4-49b0-8055-eb6cb0431262
 begin
 	plot_arr = []
-	age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_groups_nums.csv"), ',', Float64)
 	
 	for activity_num = 3:7
         contact_counts_matrix = readdlm(joinpath(
             @__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_activity_$(activity_num).csv"), ',', Float64)
         if activity_num == 3
-            # contact_counts_matrix += readdlm(joinpath(
-            #     @__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_activity_1.csv"), ',', Float64)
+            contact_counts_matrix += readdlm(joinpath(
+                @__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_activity_1.csv"), ',', Float64)
             contact_counts_matrix += readdlm(joinpath(
                 @__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_activity_2.csv"), ',', Float64)
-		elseif activity_num == 4
+		elseif activity_num == 5
+			# contact_counts_matrix += readdlm(joinpath(
+   #              @__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_activity_6.csv"), ',', Float64)
         elseif activity_num == 7
             contact_counts_matrix += readdlm(joinpath(
                 @__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_activity_8.csv"), ',', Float64)
@@ -82,12 +104,15 @@ begin
 					contact_counts[i, j] += 0.0001
 				end
             end
-            # num_people = 0
-            # for j = 0:4
-            #     num_people += age_groups_nums[(i - 1) * 5 + 1 + j]
-            # end
-            # contact_counts[i, :] ./= num_people
         end
+		
+		for i = 1:18
+			num_people = 0
+			for j = 0:4
+				num_people += age_groups_nums[(i - 1) * 5 + 1 + j]
+			end
+			contact_counts[:, i] ./= num_people
+		end
 
         plot_title = "Daily number of contacts"
         if activity_num == 3
@@ -101,22 +126,35 @@ begin
         elseif activity_num == 7
             plot_title *= " (Public Space)"
         end
-		
-        m = heatmap(
-            contact_counts,
-            fontfamily = "Times",
-            xticks = (ticks, ticklabels),
-            yticks = (ticks, ticklabels),
-            colorbar_scale = :log10,
-            title = plot_title,
-            margin = 6Plots.mm,
-            c = :jet,
-            # clims = (0.01, 12.5),
-            xlabel = "Age, years",
-            ylabel = "Age, years",
-            colorbar_title = "Frequency of contacts",
-            size = (1200, 1200),
-        )
+
+		clim = (10^-2, 1.001)
+        if activity_num == 3
+            clim = (10^-2, 10.001)
+        elseif activity_num == 6
+            clim = (10^-2, 0.101)
+        end
+
+		m = heatmap(
+			contact_counts,
+			fontfamily = "Times",
+			xticks = (ticks, ticklabels),
+			yticks = (ticks, ticklabels),
+			colorbar_scale = :log10,
+			title = plot_title,
+			margin = 6Plots.mm,
+			xrotation = 45,
+			legendfontsize = 15,
+			guidefont = (19, :black),
+			tickfont = (15, :black),
+			colorbar_guidefont = (19, :black),
+			colorbar_titlefontsize = 19,
+			c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
+			clims = clim,
+			xlabel = "Age, years",
+			ylabel = "Age of contacts, years",
+			colorbar_title = "Frequency of contacts",
+			size = (1200, 1200),
+		)
 		
 		push!(plot_arr, m)
     end
@@ -342,9 +380,9 @@ version = "0.21.0+0"
 
 [[Glib_jll]]
 deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libiconv_jll", "Libmount_jll", "PCRE_jll", "Pkg", "Zlib_jll"]
-git-tree-sha1 = "7bf67e9a481712b3dbe9cb3dac852dc4b1162e02"
+git-tree-sha1 = "74ef6288d071f58033d54fd6708d4bc23a8b8972"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
-version = "2.68.3+0"
+version = "2.68.3+1"
 
 [[Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -365,9 +403,9 @@ version = "0.9.16"
 
 [[HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
-git-tree-sha1 = "8a954fed8ac097d5be04921d595f741115c1b2ad"
+git-tree-sha1 = "129acf094d168394e80ee1dc4bc06ec835e510a3"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
-version = "2.8.1+0"
+version = "2.8.1+1"
 
 [[IniFile]]
 deps = ["Test"]
@@ -462,9 +500,9 @@ uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 
 [[Libffi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "761a393aeccd6aa92ec3515e428c26bf99575b3b"
+git-tree-sha1 = "0b4a5d71f3e5200a7dff793393e09dfc2d874290"
 uuid = "e9f186c6-92d2-5b65-8a66-fee21dc1b490"
-version = "3.2.2+0"
+version = "3.2.2+1"
 
 [[Libgcrypt_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libgpg_error_jll", "Pkg"]
@@ -509,7 +547,7 @@ uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
 version = "2.36.0+0"
 
 [[LinearAlgebra]]
-deps = ["Libdl"]
+deps = ["Libdl", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[LogExpFunctions]]
@@ -571,6 +609,10 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "7937eda4681660b4d6aeeecc2f7e1c81c8ee4e2f"
 uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
 version = "1.3.5+0"
+
+[[OpenBLAS_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
+uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
 
 [[OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -650,7 +692,7 @@ deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 
 [[Random]]
-deps = ["Serialization"]
+deps = ["SHA", "Serialization"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [[RecipesBase]]
@@ -945,6 +987,10 @@ git-tree-sha1 = "5982a94fcba20f02f42ace44b9894ee2b140fe47"
 uuid = "0ac62f75-1d6f-5e53-bd7c-93b484bb37c0"
 version = "0.15.1+0"
 
+[[libblastrampoline_jll]]
+deps = ["Artifacts", "Libdl", "OpenBLAS_jll"]
+uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
+
 [[libfdk_aac_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "daacc84a041563f965be61859a36e17c4e4fcd55"
@@ -993,6 +1039,7 @@ version = "0.9.1+5"
 # ╔═╡ Cell order:
 # ╠═735bdab0-3ccb-11ec-3af7-f9fc5be810c3
 # ╠═4a4217f5-9869-472e-a6ed-21175525f0d8
+# ╠═efd0dfbb-a321-4c01-8214-ce021c7fc36d
 # ╠═f96f7e85-367b-4015-a99a-cb261aec1a20
 # ╠═3ca36453-efb4-49b0-8055-eb6cb0431262
 # ╠═5be6c4af-9a73-4bae-9012-90b7d64e7c70

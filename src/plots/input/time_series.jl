@@ -11,7 +11,7 @@ include("../../data/etiology.jl")
 
 # default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
 # default(legendfontsize = 9, guidefont = (14, :black), tickfont = (9, :black))
-default(legendfontsize = 12, guidefont = (17, :black), tickfont = (12, :black))
+default(legendfontsize = 12, guidefont = (15, :black), tickfont = (12, :black))
 
 function plot_temperature()
     temperature_data = get_air_temperature()
@@ -71,7 +71,7 @@ function plot_all_data()
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
         xlabel = "Год",
-        ylabel = "Число случаев на 1000 ч.",
+        ylabel = "Число случаев на 1000 чел. / неделя",
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "all_data.pdf"))
 end

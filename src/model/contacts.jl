@@ -5,6 +5,9 @@ function simulate_contacts_evaluation(
     end_agent_id::Int,
     agents::Vector{Agent},
     households::Vector{Household},
+    kindergartens::Vector{School},
+    schools::Vector{School},
+    universities::Vector{School},
     is_holiday::Bool,
     is_kindergarten_holiday::Bool,
     is_school_holiday::Bool,
@@ -18,22 +21,22 @@ function simulate_contacts_evaluation(
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
         # Локальные случайные контакты по району (общественный транспорт)
-        if agent.age >= 12 && rand(rng, Float64) < 0.8
-            for i = 1:trunc(Int, rand(rng, Normal(20, 5)))
-                agent2_id = rand(
-                    start_agent_ids_districts[households[agent.household_id].district_id]:end_agent_ids_districts[households[agent.household_id].district_id])
-                while agent2_id in agent.household_conn_ids
-                    agent2_id = rand(
-                        start_agent_ids_districts[households[agent.household_id].district_id]:end_agent_ids_districts[households[agent.household_id].district_id])
-                end
-                agent2 = agents[agent2_id]
-                dur = get_contact_duration_normal(0.25, 0.06, rng)
-                if dur > 0.01
-                    contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
-                    contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
-                end
-            end
-        end
+        # if agent.age >= 12 && rand(rng, Float64) < 0.8
+        #     for i = 1:trunc(Int, rand(rng, Normal(20, 5)))
+        #         agent2_id = rand(
+        #             start_agent_ids_districts[households[agent.household_id].district_id]:end_agent_ids_districts[households[agent.household_id].district_id])
+        #         while agent2_id in agent.household_conn_ids
+        #             agent2_id = rand(
+        #                 start_agent_ids_districts[households[agent.household_id].district_id]:end_agent_ids_districts[households[agent.household_id].district_id])
+        #         end
+        #         agent2 = agents[agent2_id]
+        #         dur = get_contact_duration_normal(0.2, 0.05, rng)
+        #         if dur > 0.01
+        #             contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+        #             contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+        #         end
+        #     end
+        # end
         # Агент посещает чужое домохозяйство
         if agent.visit_household_id != 0
             for agent2_id in households[agent.visit_household_id].agent_ids
@@ -147,6 +150,58 @@ function simulate_contacts_evaluation(
                 end
             end
 
+            if agent.is_teacher
+                num_contacts = 0
+                if agent.activity_type == 1
+                    while num_contacts < school_num_of_teacher_contacts && num_contacts < length(kindergartens[agent.school_id].teacher_ids)
+                        teacher_id = rand(kindergartens[agent.school_id].teacher_ids)
+                        if teacher_id != agent.id
+                            agent2 = agents[teacher_id]
+                            dur = get_contact_duration_gamma(1.4, 0.7, rng)
+                            if dur > 0.01
+                                contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                                contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, agent.activity_type] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, agent.activity_type] += dur
+                            end
+                            num_contacts += 1
+                        end
+                    end
+                elseif agent.activity_type == 2
+                    while num_contacts < school_num_of_teacher_contacts && num_contacts < length(schools[agent.school_id].teacher_ids)
+                        teacher_id = rand(schools[agent.school_id].teacher_ids)
+                        if teacher_id != agent.id
+                            agent2 = agents[teacher_id]
+                            dur = get_contact_duration_gamma(1.4, 0.7, rng)
+                            if dur > 0.01
+                                contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                                contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, agent.activity_type] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, agent.activity_type] += dur
+                            end
+                            num_contacts += 1
+                        end
+                    end
+                elseif agent.activity_type == 3
+                    while num_contacts < school_num_of_teacher_contacts && num_contacts < length(universities[agent.school_id].teacher_ids)
+                        teacher_id = rand(universities[agent.school_id].teacher_ids)
+                        if teacher_id != agent.id
+                            agent2 = agents[teacher_id]
+                            dur = get_contact_duration_gamma(1.4, 0.7, rng)
+                            if dur > 0.01
+                                contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
+                                contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
+                                contacts_num_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, agent.activity_type] += 1
+                                contacts_dur_matrix_by_age_activities_threads[thread_id, agent.age + 1, agent2.age + 1, agent.activity_type] += dur
+                            end
+                            num_contacts += 1
+                        end
+                    end
+                else
+                    println("Wrong")
+                end
+            end
+
             # Контакты между университетскими группами
             if agent.activity_type == 3
                 for agent2_id in agent.activity_cross_conn_ids
@@ -170,6 +225,7 @@ function add_agent_to_public_space_evaluation(
     agent::Agent,
     rng::MersenneTwister,
     agents::Vector{Agent},
+    households::Vector{Household},
     public_spaces::Vector{PublicSpace},
     closest_public_space_id1::Int,
     closest_public_space_id2::Int,
@@ -177,48 +233,123 @@ function add_agent_to_public_space_evaluation(
     is_school_holiday::Bool,
     is_university_holiday::Bool,
     is_work_holiday::Bool,
+    restaurant_visit_time_distribution::MixtureModel,
+    shop_visit_time_distribution::MixtureModel,
     is_shopping::Bool,
 )
     space_found = false
-    for group in public_spaces[closest_public_space_id1].groups
+    if is_shopping
+        selected_time = round(Int, rand(rng, restaurant_visit_time_distribution))
+        if selected_time > shop_num_groups
+            selected_time = shop_num_groups
+        end
+    else
+        selected_time = round(Int, rand(rng, shop_visit_time_distribution))
+        if selected_time > restaurant_num_groups
+            selected_time = restaurant_num_groups
+        end
+    end
+    if selected_time < 1
+        selected_time = 1
+    end
+    group = public_spaces[closest_public_space_id1].groups[selected_time]
+    if group.num_agents < length(group.agent_ids)
+        group.num_agents += 1
+        group.agent_ids[group.num_agents] = agent.id
+        if is_shopping
+            agent.with_shopping = true
+        else
+            agent.with_restaurant = true
+        end
         if group.num_agents < length(group.agent_ids)
-            group.num_agents += 1
-            group.agent_ids[group.num_agents] = agent.id
-            if length(agent.dependant_ids) > 0 && group.num_agents < length(group.agent_ids)
-                for children_id in agent.dependant_ids
-                    children = agents[children_id]
-                    if rand(rng, Float64) < 1 / (2 * length(agent.dependant_ids))
+            for agent2_id in households[agent.household_id].agent_ids
+                agent2 = agents[agent2_id]
+                if (!agent2.with_shopping && is_shopping) || (!agent2.with_restaurant && !is_shopping)
+                    probab = 1 / (3 * length(households[agent.household_id].agent_ids))
+                    if agent2_id in agent.dependant_ids
+                        probab = 1 / (2 * length(agent.dependant_ids))
+                    end
+                    if rand(rng, Float64) < probab
                         group.num_agents += 1
-                        group.agent_ids[group.num_agents] = children.id
+                        group.agent_ids[group.num_agents] = agent2_id
+                        if is_shopping
+                            agent2.with_shopping = true
+                        else
+                            agent2.with_restaurant = true
+                        end
                         if group.num_agents == length(group.agent_ids)
                             break
                         end
                     end
                 end
             end
-            space_found = true
-            break
-        end
-    end
-    if !space_found && closest_public_space_id1 != closest_public_space_id2
-        for group in public_spaces[closest_public_space_id2].groups
-            if group.num_agents < length(group.agent_ids)
-                group.num_agents += 1
-                group.agent_ids[group.num_agents] = agent.id
-                if length(agent.dependant_ids) > 0 && group.num_agents < length(group.agent_ids)
-                    for children_id in agent.dependant_ids
-                        children = agents[children_id]
-                        if rand(rng, Float64) < 1 / (2 * length(agent.dependant_ids))
+
+            if !is_shopping && group.num_agents < length(group.agent_ids)
+                for friend_id in agent.friend_ids
+                    friend = agents[friend_id]
+                    if !friend.with_restaurant && !is_shopping
+                        if rand(rng, Float64) < 1 / (3 * length(agent.friend_ids))
                             group.num_agents += 1
-                            group.agent_ids[group.num_agents] = children.id
+                            group.agent_ids[group.num_agents] = friend.id
+                            friend.with_restaurant = true
                             if group.num_agents == length(group.agent_ids)
                                 break
                             end
                         end
                     end
                 end
-                space_found = true
-                break
+            end
+        end
+        space_found = true
+    end
+    if !space_found && closest_public_space_id1 != closest_public_space_id2
+        group = public_spaces[closest_public_space_id2].groups[selected_time]
+        if group.num_agents < length(group.agent_ids)
+            group.num_agents += 1
+            group.agent_ids[group.num_agents] = agent.id
+            if is_shopping
+                agent.with_shopping = true
+            else
+                agent.with_restaurant = true
+            end
+            if group.num_agents < length(group.agent_ids)
+                for agent2_id in households[agent.household_id].agent_ids
+                    agent2 = agents[agent2_id]
+                    if (!agent2.with_shopping && is_shopping) || (!agent2.with_restaurant && !is_shopping)
+                        probab = 1 / (3 * length(households[agent.household_id].agent_ids))
+                        if agent2_id in agent.dependant_ids
+                            probab = 1 / (2 * length(agent.dependant_ids))
+                        end
+                        if rand(rng, Float64) < probab
+                            group.num_agents += 1
+                            group.agent_ids[group.num_agents] = agent2_id
+                            if is_shopping
+                                agent2.with_shopping = true
+                            else
+                                agent2.with_restaurant = true
+                            end
+                            if group.num_agents == length(group.agent_ids)
+                                break
+                            end
+                        end
+                    end
+                end
+
+                if !is_shopping && group.num_agents < length(group.agent_ids)
+                    for friend_id in agent.friend_ids
+                        friend = agents[friend_id]
+                        if !friend.with_restaurant && !is_shopping
+                            if rand(rng, Float64) < 1 / (3 * length(agent.friend_ids))
+                                group.num_agents += 1
+                                group.agent_ids[group.num_agents] = friend.id
+                                friend.with_restaurant = true
+                                if group.num_agents == length(group.agent_ids)
+                                    break
+                                end
+                            end
+                        end
+                    end
+                end
             end
         end
     end
@@ -236,6 +367,8 @@ function add_additional_connections_each_step_evaluation(
     is_school_holiday::Bool,
     is_university_holiday::Bool,
     is_work_holiday::Bool,
+    restaurant_visit_time_distribution::MixtureModel,
+    shop_visit_time_distribution::MixtureModel,
 )
     for agent_id in start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -246,24 +379,32 @@ function add_additional_connections_each_step_evaluation(
     for agent_id in start_agent_id:end_agent_id
         agent = agents[agent_id]
         if agent.age >= 12
-            prob = 0.0
-            if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-                (agent.activity_type == 3 && is_university_holiday) ||
-                (agent.activity_type == 2 && is_school_holiday) ||
-                (agent.activity_type == 1 && is_kindergarten_holiday)
+            if agent.visit_household_id == 0
+                prob = 0.0
+                if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
+                    (agent.activity_type == 3 && is_university_holiday) ||
+                    (agent.activity_type == 2 && is_school_holiday) ||
+                    (agent.activity_type == 1 && is_kindergarten_holiday)
 
-                prob = 0.269
-            else
-                prob = 0.177
-            end
-            if !agent.on_parent_leave && rand(rng, Float64) < prob
-                if length(agent.friend_ids) > 0
-                    agent_to_visit = agents[rand(rng, agent.friend_ids)]
-                    agent.visit_household_id = agent_to_visit.household_id
-                    for agent2_id in agent.dependant_ids
-                        agent2 = agents[agent2_id]
-                        if agent2.needs_supporter_care || rand(rng, Float64) < 1 / (2 * length(agent.dependant_ids))
-                            agent2.visit_household_id = agent.visit_household_id
+                    prob = 0.269
+                else
+                    prob = 0.177
+                end
+                if !agent.on_parent_leave && rand(rng, Float64) < prob
+                    if length(agent.friend_ids) > 0
+                        agent_to_visit = agents[rand(rng, agent.friend_ids)]
+                        agent.visit_household_id = agent_to_visit.household_id
+                        for agent2_id in agent.dependant_ids
+                            agent2 = agents[agent2_id]
+                            if agent2.visit_household_id == 0 && rand(rng, Float64) < 1 / (2 * length(agent.dependant_ids))
+                                agent2.visit_household_id = agent.visit_household_id
+                            end
+                        end
+                        for agent2_id in households[agent.household_id].agent_ids
+                            agent2 = agents[agent2_id]
+                            if agent2.visit_household_id == 0 && abs(agent.age - agent2.age) < 15 && rand(rng, Float64) < 1 / (2 * length(households[agent.household_id].agent_ids))
+                                agent2.visit_household_id = agent.visit_household_id
+                            end
                         end
                     end
                 end
@@ -284,6 +425,7 @@ function add_additional_connections_each_step_evaluation(
                     agent,
                     rng,
                     agents,
+                    households,
                     shops,
                     households[agent.household_id].closest_shop_id,
                     households[agent.household_id].closest_shop_id2,
@@ -291,6 +433,8 @@ function add_additional_connections_each_step_evaluation(
                     is_school_holiday,
                     is_university_holiday,
                     is_work_holiday,
+                    restaurant_visit_time_distribution,
+                    shop_visit_time_distribution,
                     true,
                 )
             end
@@ -309,6 +453,7 @@ function add_additional_connections_each_step_evaluation(
                     agent,
                     rng,
                     agents,
+                    households,
                     restaurants,
                     households[agent.household_id].closest_restaurant_id,
                     households[agent.household_id].closest_restaurant_id2,
@@ -316,6 +461,8 @@ function add_additional_connections_each_step_evaluation(
                     is_school_holiday,
                     is_university_holiday,
                     is_work_holiday,
+                    restaurant_visit_time_distribution,
+                    shop_visit_time_distribution,
                     false,
                 )
             end
@@ -327,6 +474,7 @@ function simulate_public_space_contacts_evaluation(
     thread_id::Int,
     rng::MersenneTwister,
     agents::Vector{Agent},
+    households::Vector{Household},
     start_public_space_id::Int,
     end_public_space_id::Int,
     public_spaces::Vector{PublicSpace},
@@ -356,7 +504,7 @@ function simulate_public_space_contacts_evaluation(
                 for agent2_num in 1:group.num_agents
                     agent2_id = group.agent_ids[agent2_num]
                     agent2 = agents[agent2_id]
-                    if rand(rng, Float64) < (mean_num_contacts_in_public_space / group.num_agents)
+                    if agent2_id in households[agent.household_id].agent_ids || agent2_id in agent.friend_ids || rand(rng, Float64) < (mean_num_contacts_in_public_space / group.num_agents)
                         dur = 0.0
                         if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
                             (agent.activity_type == 3 && is_university_holiday) ||
@@ -434,6 +582,9 @@ function run_simulation_evaluation(
     thread_rng::Vector{MersenneTwister},
     agents::Vector{Agent},
     households::Vector{Household},
+    kindergartens::Vector{School},
+    schools::Vector{School},
+    universities::Vector{School},
     shops::Vector{PublicSpace},
     restaurants::Vector{PublicSpace},
     is_holiday::Bool,
@@ -442,6 +593,13 @@ function run_simulation_evaluation(
     contacts_dur_matrix_by_age_threads = zeros(Float64, num_threads, 90, 90)
     contacts_num_matrix_by_age_activities_threads = zeros(Int, num_threads, 90, 90, 8)
     contacts_dur_matrix_by_age_activities_threads = zeros(Float64, num_threads, 90, 90, 8)
+
+    restaurant_visit_time_distribution = MixtureModel(Normal[
+        Normal(3.0, 0.7),
+        Normal(8.0, 0.7)], [0.4, 0.6])
+    shop_visit_time_distribution = MixtureModel(Normal[
+        Normal(4.0, 1.0),
+        Normal(9.0, 1.0)], [0.4, 0.6])
 
     # Выходные, праздники
     is_work_holiday = is_holiday
@@ -462,6 +620,8 @@ function run_simulation_evaluation(
             is_school_holiday,
             is_university_holiday,
             is_work_holiday,
+            restaurant_visit_time_distribution,
+            shop_visit_time_distribution,
         )
     end
 
@@ -473,6 +633,9 @@ function run_simulation_evaluation(
             end_agent_ids[thread_id],
             agents,
             households,
+            kindergartens,
+            schools,
+            universities,
             is_holiday,
             is_kindergarten_holiday,
             is_school_holiday,
@@ -489,10 +652,11 @@ function run_simulation_evaluation(
             thread_id,
             thread_rng[thread_id],
             agents,
+            households,
             start_shop_ids[thread_id],
             end_shop_ids[thread_id],
             shops,
-            20,
+            shop_num_nearest_agents_as_contact,
             0.28,
             0.09,
             0.44,
@@ -512,10 +676,11 @@ function run_simulation_evaluation(
             thread_id,
             thread_rng[thread_id],
             agents,
+            households,
             start_restaurant_ids[thread_id],
             end_restaurant_ids[thread_id],
             restaurants,
-            20,
+            restaurant_num_nearest_agents_as_contact,
             0.26,
             0.08,
             0.38,
