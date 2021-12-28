@@ -131,41 +131,50 @@ function main()
     # Массив для хранения фирм
     workplaces = Workplace[]
 
-    shop_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "shops.csv")))
-    # Массив для хранения продовольственных магазинов
-    shops = Array{PublicSpace, 1}(undef, num_shops)
-    for i in 1:size(shop_coords_df, 1)
-        shops[i] = PublicSpace(
-            shop_coords_df[i, :dist],
-            shop_coords_df[i, :x],
-            shop_coords_df[i, :y],
-            ceil(Int, rand(Gamma(shop_capacity_shape, shop_capacity_scale))),
-            shop_num_groups,
-        )
-    end
+    # --------------------------TBD ZONE-----------------------------------
 
-    restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "restaurants.csv")))
-    # Массив для хранения ресторанов/кафе/столовых
-    restaurants = Array{PublicSpace, 1}(undef, num_restaurants)
-    for i in 1:size(restaurant_coords_df, 1)
-        restaurants[i] = PublicSpace(
-            restaurant_coords_df[i, :dist],
-            restaurant_coords_df[i, :x],
-            restaurant_coords_df[i, :y],
-            restaurant_coords_df[i, :seats],
-            restaurant_num_groups,
-        )
-    end
+    # shop_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "shops.csv")))
+    # # Массив для хранения продовольственных магазинов
+    # shops = Array{PublicSpace, 1}(undef, num_shops)
+    # for i in 1:size(shop_coords_df, 1)
+    #     shops[i] = PublicSpace(
+    #         shop_coords_df[i, :dist],
+    #         shop_coords_df[i, :x],
+    #         shop_coords_df[i, :y],
+    #         ceil(Int, rand(Gamma(shop_capacity_shape, shop_capacity_scale))),
+    #         shop_num_groups,
+    #     )
+    # end
+
+    # restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "restaurants.csv")))
+    # # Массив для хранения ресторанов/кафе/столовых
+    # restaurants = Array{PublicSpace, 1}(undef, num_restaurants)
+    # for i in 1:size(restaurant_coords_df, 1)
+    #     restaurants[i] = PublicSpace(
+    #         restaurant_coords_df[i, :dist],
+    #         restaurant_coords_df[i, :x],
+    #         restaurant_coords_df[i, :y],
+    #         restaurant_coords_df[i, :seats],
+    #         restaurant_num_groups,
+    #     )
+    # end
+
+    # -------------------------------------------------------------
 
     # S: 1.3012569914171046e6
     # S: 3.030593610581239e9
     # duration_parameter = 3.312914862914865
     # susceptibility_parameters = [6.045066996495568, 5.970140177283035, 6.2762213976499694, 7.877563388991962, 7.463424036281181, 7.215854462997319, 7.164166151309008]
     # temperature_parameters = [-0.9417996289424861, -0.6979200164914452, -0.1484436198721913, -0.2512430426716142, -0.14223871366728508, -0.14423830138115853, -0.6479158936301795]
-    a1_symptomatic_parameters = [1.6077551020408163, 0.5673469387755101]
-    a2_symptomatic_parameters = [0.06551020408163265, 0.005816326530612243]
-    a3_symptomatic_parameters = [0.0017959183673469388, 0.3006122448979593]
-    random_infection_probabilities = [0.0018693877551020407, 0.0011551020408163267, 0.0005632653061224491, 5.530612244897962e-7]
+    # a1_symptomatic_parameters = [1.6077551020408163, 0.5673469387755101]
+    # a2_symptomatic_parameters = [0.06551020408163265, 0.005816326530612243]
+    # a3_symptomatic_parameters = [0.0017959183673469388, 0.3006122448979593]
+    # random_infection_probabilities = [0.0018693877551020407, 0.0011551020408163267, 0.0005632653061224491, 5.530612244897962e-7]
+
+    a1_symptomatic_parameters = [1.653673469387755, 0.5153061224489794]
+    a2_symptomatic_parameters = [0.06765306122448979, 0.010816326530612244]
+    a3_symptomatic_parameters = [0.003204081632653061, 0.3017755102040817]
+    random_infection_probabilities = [0.0016510204081632651, 0.0012469387755102042, 0.00044693877551020415, 7.816326530612248e-7]
 
     @time @threads for thread_id in 1:num_threads
         create_population(
@@ -176,10 +185,18 @@ function main()
             district_people_households, district_nums)
     end
 
+    # --------------------------TBD ZONE-----------------------------------
+
+    # @time set_connections(
+    #     agents, households, kindergartens, schools, universities,
+    #     workplaces, shops, restaurants, thread_rng,
+    #     num_threads, homes_coords_df)
+
+    # -------------------------------------------------------------
+
     @time set_connections(
         agents, households, kindergartens, schools, universities,
-        workplaces, shops, restaurants, thread_rng,
-        num_threads, homes_coords_df)
+        workplaces, thread_rng, num_threads, homes_coords_df)
 
     # get_stats(agents)
 
@@ -228,6 +245,10 @@ function main()
     # susceptibility_parameters = [5.92481550195836, 5.915442176870749, 6.236788291074006, 7.882655122655122, 7.800816326530612, 7.16437641723356, 7.064537208822923]
     # temperature_parameters = [-0.8799216656359514, -0.6067120181405896, -0.10741084312512884, -0.3374211502782931, -0.010204081632653059, -0.070717377860235, -0.663675530818388]
 
+    # duration_parameter = 3.318163265306123
+    # susceptibility_parameters = [6.037959183673469, 6.0036734693877545, 6.163877551020408, 7.914489795918367, 7.587346938775509, 7.251020408163265, 7.2785714285714285]
+    # temperature_parameters = [-0.9206959183673469, -0.7163265306122449, -0.09693877551020405, -0.33918367346938777, -0.14, -0.1136734693877551, -0.6481632653061224]
+    
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
     for i in 1:365
@@ -354,38 +375,49 @@ function main()
     # ----------------------
     # Single run
     # ----------------------
-    @time num_infected_age_groups_viruses = run_simulation(
-        num_threads, thread_rng, agents, households,
-        shops, restaurants, infectivities, temp_influences, duration_parameter,
-        susceptibility_parameters, a1_symptomatic_parameters,
-        a2_symptomatic_parameters, a3_symptomatic_parameters,
-        random_infection_probabilities, etiology, true)
+    
+    # --------------------------TBD ZONE-----------------------------------
 
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
-    #     num_infected_age_groups_viruses ./ 10072, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
-    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
-    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
-    # writedlm(
-    #     joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
-    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
+    # @time num_infected_age_groups_viruses = run_simulation(
+    #     num_threads, thread_rng, agents, households,
+    #     shops, restaurants, infectivities, temp_influences, duration_parameter,
+    #     susceptibility_parameters, a1_symptomatic_parameters,
+    #     a2_symptomatic_parameters, a3_symptomatic_parameters,
+    #     random_infection_probabilities, etiology, true)
+
+    # -------------------------------------------------------------
+
+    @time num_infected_age_groups_viruses = run_simulation(
+        num_threads, thread_rng, agents, households, infectivities,
+        temp_influences, duration_parameter, susceptibility_parameters,
+        a1_symptomatic_parameters, a2_symptomatic_parameters,
+        a3_symptomatic_parameters, random_infection_probabilities, etiology, true)
 
     writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "deviations", "age_groups_viruses_data3.csv"),
+        joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
         num_infected_age_groups_viruses ./ 10072, ',')
     writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "deviations", "infected_data3.csv"),
+        joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
         sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
     writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "deviations", "etiology_data3.csv"),
+        joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
         sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
     writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "deviations", "age_groups_data3.csv"),
+        joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
         sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
+
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "deviations", "age_groups_viruses_data3.csv"),
+    #     num_infected_age_groups_viruses ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "deviations", "infected_data3.csv"),
+    #     sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "deviations", "etiology_data3.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
+    # writedlm(
+    #     joinpath(@__DIR__, "..", "output", "tables", "deviations", "age_groups_data3.csv"),
+    #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
 
     S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
     S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)

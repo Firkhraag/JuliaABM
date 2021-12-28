@@ -25,6 +25,10 @@ age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables"
 # ╔═╡ f96f7e85-367b-4015-a99a-cb261aec1a20
 begin
     contact_counts_matrix = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts.csv"), ',', Float64)
+	contact_counts_matrix_holiday = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_holiday.csv"), ',', Float64)
+
+	# contact_counts_matrix = 5 .* contact_counts_matrix + 2 .* contact_counts_matrix_holiday
+	# contact_counts_matrix ./= 7
 
     contact_counts = zeros(Float64, 18, 18)
     for i = 1:18
@@ -50,22 +54,23 @@ begin
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
         yticks = (ticks, ticklabels),
-        title = "Daily number of contacts",
+        title = "(a) Total",
         margin = 6Plots.mm,
-        xrotation = 45,
-		legendfontsize = 15,
-		guidefont = (19, :black),
-		tickfont = (15, :black),
-		colorbar_guidefont = (19, :black),
-		colorbar_titlefontsize = 19,
+        xrotation = 60,
+		legendfontsize = 25,
+		guidefont = (34, :black),
+		tickfont = (25, :black),
+		colorbar_guidefont = (29, :black),
+		colorbar_titlefontsize = 34,
+		titlefontsize = 36,
 		clims = (10^-2, 10.001),
 		# c = :dense,
 		# c = :ice,
 		# c = reverse(cgrad(:ice)),
 		c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
 		colorbar_scale = :log10,
-        xlabel = "Age, years",
-        ylabel = "Age of contacts, years",
+        xlabel = "Age",
+        ylabel = "Age of contact",
         colorbar_title = "Frequency of contacts",
         size = (1200, 1200),
     )
@@ -90,6 +95,12 @@ begin
         elseif activity_num == 7
             contact_counts_matrix += readdlm(joinpath(
                 @__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_activity_8.csv"), ',', Float64)
+			 contact_counts_matrix_holiday = readdlm(joinpath(
+                @__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_activity_7_holiday.csv"), ',', Float64)
+	# 		contact_counts_matrix_holiday += readdlm(joinpath(
+ #                @__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_activity_8_holiday.csv"), ',', Float64)
+	# 		contact_counts_matrix = contact_counts_matrix + contact_counts_matrix_holiday
+	# contact_counts_matrix ./= 2
         end
 
         contact_counts = zeros(Float64, 18, 18)
@@ -114,17 +125,30 @@ begin
 			contact_counts[:, i] ./= num_people
 		end
 
-        plot_title = "Daily number of contacts"
-        if activity_num == 3
-            plot_title *= " (School)"
+        plot_title = ""
+        # if activity_num == 3
+        #     # plot_title = "Educational institution contact patterns"
+        #     plot_title = "School contact patterns"
+        # elseif activity_num == 4
+        #     plot_title = "Workplace contact patterns"
+        # elseif activity_num == 5
+        #     plot_title = "Household contact patterns"
+        # elseif activity_num == 6
+        #     plot_title = "Visiting contact patterns"
+        # elseif activity_num == 7
+        #     plot_title = "Public space contact patterns"
+        # end
+
+		if activity_num == 3
+            plot_title = "(c) School"
         elseif activity_num == 4
-            plot_title *= " (Work)"
+            plot_title = "(d) Workplace"
         elseif activity_num == 5
-            plot_title *= " (Household)"
+            plot_title = "(b) Household"
         elseif activity_num == 6
-            plot_title *= " (Visiting)"
+            plot_title = "Visiting contact patterns"
         elseif activity_num == 7
-            plot_title *= " (Public Space)"
+            plot_title = "Public space contact patterns"
         end
 
 		clim = (10^-2, 1.001)
@@ -142,16 +166,17 @@ begin
 			colorbar_scale = :log10,
 			title = plot_title,
 			margin = 6Plots.mm,
-			xrotation = 45,
-			legendfontsize = 15,
-			guidefont = (19, :black),
-			tickfont = (15, :black),
-			colorbar_guidefont = (19, :black),
-			colorbar_titlefontsize = 19,
+			xrotation = 60,
+			legendfontsize = 25,
+			guidefont = (34, :black),
+			tickfont = (25, :black),
+			colorbar_guidefont = (29, :black),
+			colorbar_titlefontsize = 34,
+			titlefontsize = 36,
 			c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
 			clims = clim,
-			xlabel = "Age, years",
-			ylabel = "Age of contacts, years",
+			xlabel = "Age",
+			ylabel = "Age of contact",
 			colorbar_title = "Frequency of contacts",
 			size = (1200, 1200),
 		)
@@ -174,6 +199,61 @@ plot_arr[4]
 
 # ╔═╡ bea2c608-ef90-425f-bb25-8999cad5254c
 plot_arr[5]
+
+# ╔═╡ f54a2c78-1912-4b43-8d58-afaa1d8d3f3f
+begin
+    contact_durations_matrix = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_durations.csv"), ',', Float64)
+	contact_durations_matrix_holiday = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_durations_holiday.csv"), ',', Float64)
+
+	contact_durations_matrix ./= contact_counts_matrix
+	contact_durations_matrix_holiday ./= contact_counts_matrix_holiday
+
+	contact_durations_matrix += transpose(contact_durations_matrix)
+	contact_durations_matrix ./= 2
+	contact_durations_matrix_holiday += transpose(contact_durations_matrix_holiday)
+	contact_durations_matrix_holiday ./= 2
+
+	contact_durations_matrix = 5 .* contact_durations_matrix + 2 .* contact_durations_matrix_holiday
+	contact_durations_matrix ./= 7
+
+	contact_durations = zeros(Float64, 18, 18)
+	for i = 1:18
+        for j = 1:18
+            for k = 0:4
+                for l = 0:4
+                    contact_durations[i, j] += contact_durations_matrix[(i - 1) * 5 + 1 + k, (j - 1) * 5 + 1 + l]
+                end
+            end
+            contact_durations[i, j] /= 25.0
+        end
+    end
+
+    heatmap(
+        contact_durations,
+        fontfamily = "Times",
+        xticks = (ticks, ticklabels),
+        yticks = (ticks, ticklabels),
+        title = "Contact duration patterns",
+        margin = 6Plots.mm,
+        xrotation = 45,
+		legendfontsize = 15,
+		guidefont = (19, :black),
+		tickfont = (15, :black),
+		colorbar_guidefont = (19, :black),
+		colorbar_titlefontsize = 19,
+		titlefontsize = 24,
+		# clims = (1.0, 6.0001),
+		clims = (1.0, 10.0001),
+		c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
+		# c = cgrad([:dodgerblue, :seagreen1, :yellow, :white], [0.2, 0.4, 0.6, 0.8]),
+		# colorbar_scale = :log10,
+        xlabel = "Age",
+        ylabel = "Age of contacts",
+        colorbar_title = "Duration of contacts, hours",
+        size = (1200, 1200),
+    )
+
+end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1047,5 +1127,6 @@ version = "0.9.1+5"
 # ╠═122911fb-9874-4fc3-8ee8-58c09d1c9749
 # ╠═fbf2f696-17c9-43de-b02b-daa66048b8f0
 # ╠═bea2c608-ef90-425f-bb25-8999cad5254c
+# ╠═f54a2c78-1912-4b43-8d58-afaa1d8d3f3f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

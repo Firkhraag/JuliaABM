@@ -25,8 +25,8 @@ mutable struct Agent
     activity_cross_conn_ids::Vector{Int}
 
     # # Связи с друзьями
-    friend_ids::Vector{Int}
-    visit_household_id::Int
+    # friend_ids::Vector{Int}
+    # visit_household_id::Int
 
     # # Id детей за которыми нужен уход в случае болезни
     # dependant_ids::Vector{Int}
@@ -75,8 +75,8 @@ mutable struct Agent
     # Учитель, воспитатель, профессор
     is_teacher::Bool
 
-    with_shopping::Bool
-    with_restaurant::Bool
+    # shopping_time::Int
+    # restaurant_time::Int
 
     function Agent(
         id::Int,
@@ -1145,14 +1145,21 @@ mutable struct Agent
 
         days_immune = 0
 
+        # new(
+        #     id, age, infant_age, is_male, household_id, household_conn_ids,
+        #     activity_type, 0, school_group_num, 0, Int[], Int[], Int[], 0, Int[], 0, false,
+        #     false, ig_level, virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
+        #     RSV_days_immune, AdV_days_immune, PIV_days_immune, CoV_days_immune,
+        #     incubation_period, infection_period, days_infected, days_immune,
+        #     is_asymptomatic, is_isolated, infectivity, attendance, is_teacher, 0, 0)
+        
         new(
             id, age, infant_age, is_male, household_id, household_conn_ids,
-            activity_type, 0, school_group_num, 0, Int[], Int[], Int[], 0, Int[], 0, false,
+            activity_type, 0, school_group_num, 0, Int[], Int[], Int[], 0, false,
             false, ig_level, virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
             RSV_days_immune, AdV_days_immune, PIV_days_immune, CoV_days_immune,
             incubation_period, infection_period, days_infected, days_immune,
-            is_asymptomatic, is_isolated, infectivity, attendance, is_teacher,
-            false, false)
+            is_asymptomatic, is_isolated, infectivity, attendance, is_teacher)
     end
 end
 

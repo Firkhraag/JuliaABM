@@ -189,14 +189,24 @@ function get_agent_sex_and_age(
 end
 
 function check_parent_leave(no_one_at_home::Bool, adult::Agent, child::Agent)
-    child.supporter_id = adult.id
-    push!(adult.dependant_ids, child.id)
-    if child.age < 12 && no_one_at_home
-        child.needs_supporter_care = true
-        if child.age < 4 && child.activity_type == 0
-            adult.activity_type = 0
+    if child.age < 12
+        child.supporter_id = adult.id
+        push!(adult.dependant_ids, child.id)
+        if no_one_at_home
+            child.needs_supporter_care = true
+            if child.age < 4 && child.activity_type == 0
+                adult.activity_type = 0
+            end
         end
     end
+    # child.supporter_id = adult.id
+    # push!(adult.dependant_ids, child.id)
+    # if child.age < 12 && no_one_at_home
+    #     child.needs_supporter_care = true
+    #     if child.age < 4 && child.activity_type == 0
+    #         adult.activity_type = 0
+    #     end
+    # end
 end
 
 function create_parents_with_children(

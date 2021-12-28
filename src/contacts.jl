@@ -124,31 +124,35 @@ function main()
     # Массив для хранения фирм
     workplaces = Workplace[]
 
-    shop_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "shops.csv")))
-    # Массив для хранения продовольственных магазинов
-    shops = Array{PublicSpace, 1}(undef, num_shops)
-    for i in 1:size(shop_coords_df, 1)
-        shops[i] = PublicSpace(
-            shop_coords_df[i, :dist],
-            shop_coords_df[i, :x],
-            shop_coords_df[i, :y],
-            ceil(Int, rand(Gamma(shop_capacity_shape, shop_capacity_scale))),
-            shop_num_groups,
-        )
-    end
+    # --------------------------TBD ZONE-----------------------------------
+    
+    # shop_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "shops.csv")))
+    # # Массив для хранения продовольственных магазинов
+    # shops = Array{PublicSpace, 1}(undef, num_shops)
+    # for i in 1:size(shop_coords_df, 1)
+    #     shops[i] = PublicSpace(
+    #         shop_coords_df[i, :dist],
+    #         shop_coords_df[i, :x],
+    #         shop_coords_df[i, :y],
+    #         ceil(Int, rand(Gamma(shop_capacity_shape, shop_capacity_scale))),
+    #         shop_num_groups,
+    #     )
+    # end
 
-    restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "restaurants.csv")))
-    # Массив для хранения ресторанов/кафе/столовых
-    restaurants = Array{PublicSpace, 1}(undef, num_restaurants)
-    for i in 1:size(restaurant_coords_df, 1)
-        restaurants[i] = PublicSpace(
-            restaurant_coords_df[i, :dist],
-            restaurant_coords_df[i, :x],
-            restaurant_coords_df[i, :y],
-            restaurant_coords_df[i, :seats],
-            restaurant_num_groups,
-        )
-    end
+    # restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "restaurants.csv")))
+    # # Массив для хранения ресторанов/кафе/столовых
+    # restaurants = Array{PublicSpace, 1}(undef, num_restaurants)
+    # for i in 1:size(restaurant_coords_df, 1)
+    #     restaurants[i] = PublicSpace(
+    #         restaurant_coords_df[i, :dist],
+    #         restaurant_coords_df[i, :x],
+    #         restaurant_coords_df[i, :y],
+    #         restaurant_coords_df[i, :seats],
+    #         restaurant_num_groups,
+    #     )
+    # end
+
+    # -------------------------------------------------------------
 
     a1_symptomatic_parameters = [1.0, 1.0]
     a2_symptomatic_parameters = [0.05, 0.05]
@@ -163,23 +167,45 @@ function main()
             district_people_households, district_nums)
     end
 
+    # --------------------------TBD ZONE-----------------------------------
+
+    # @time set_connections(
+    #     agents, households, kindergartens, schools, universities,
+    #     workplaces, shops, restaurants, thread_rng,
+    #     num_threads, homes_coords_df)
+
+    # -------------------------------------------------------------
+
     @time set_connections(
         agents, households, kindergartens, schools, universities,
-        workplaces, shops, restaurants, thread_rng,
-        num_threads, homes_coords_df)
+        workplaces, thread_rng, num_threads, homes_coords_df)
 
     # get_stats(agents)
     # return
 
     println("Simulation...")
     
+    # --------------------------TBD ZONE-----------------------------------
+
     # println("Holiday")
-    # run_simulation_evaluation(
-    #     num_threads, thread_rng, agents, households, shops, restaurants, true)
+    # @time run_simulation_evaluation(
+    #     num_threads, thread_rng, agents, households, kindergartens,
+    #     schools, universities, shops, restaurants, true)
+    # println("Weekday")
+    # @time run_simulation_evaluation(
+    #     num_threads, thread_rng, agents, households, kindergartens,
+    #     schools, universities, shops, restaurants, false)
+
+    # -------------------------------------------------------------
+
+    # println("Holiday")
+    # @time run_simulation_evaluation(
+    #     num_threads, thread_rng, agents, households, kindergartens,
+    #     schools, universities, shops, restaurants, true)
     println("Weekday")
     @time run_simulation_evaluation(
         num_threads, thread_rng, agents, households, kindergartens,
-        schools, universities, shops, restaurants, false)
+        schools, universities, false)
     
     age_groups_nums = zeros(Int, 90)
     for agent in agents
