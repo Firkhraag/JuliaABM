@@ -43,13 +43,13 @@ function main()
     num_threads = nthreads()
 
     viruses = Virus[
-        Virus(1, 1.4, 0.09, 1, 7, 2.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.32, 0.16, 365),
-        Virus(2, 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 0.32, 0.16, 365),
+        Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 0.32, 0.16, 300),
+        Virus(2, 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 0.32, 0.16, 300),
         Virus(3, 1.9, 0.175, 1, 7, 10.1, 4.93, 3, 12, 11.4, 6.25, 4, 14, 3.5, 0.5, 0.3, 60),
         Virus(4, 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 0.5, 0.3, 60),
         Virus(5, 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 0.5, 0.3, 90),
         Virus(6, 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.8, 0.5, 0.3, 90),
-        Virus(7, 3.2, 0.496, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.93, 0.5, 0.3, 365)]
+        Virus(7, 3.2, 0.496, 1, 7, 6.5, 2.15, 3, 12, 7.5, 2.9, 4, 14, 4.93, 0.5, 0.3, 120)]
 
     infectivities = Array{Float64,4}(undef, 7, 7, 13, 21)
     for days_infected in -6:14
@@ -195,13 +195,13 @@ function main()
         )
     end
 
-    duration_parameter = 3.312914862914865
-    susceptibility_parameters = [6.045066996495568, 5.970140177283035, 6.2762213976499694, 7.877563388991962, 7.463424036281181, 7.215854462997319, 7.164166151309008]
-    temperature_parameters = [-0.9417996289424861, -0.6979200164914452, -0.1484436198721913, -0.2512430426716142, -0.14223871366728508, -0.14423830138115853, -0.6479158936301795]
-    a1_symptomatic_parameters = [1.6077551020408163, 0.5673469387755101]
-    a2_symptomatic_parameters = [0.06551020408163265, 0.005816326530612243]
-    a3_symptomatic_parameters = [0.0017959183673469388, 0.3006122448979593]
-    random_infection_probabilities = [0.0018693877551020407, 0.0011551020408163267, 0.0005632653061224491, 5.530612244897962e-7]
+    duration_parameter = 3.5214965986394575
+    susceptibility_parameters = [5.562201607915895, 5.760239125953412, 5.892160379303236, 7.768025149453722, 7.772195423623994, 6.932838589981448, 7.372510822510822]
+    temperature_parameters = [-0.9462413729128016, -0.7259224902082045, -0.11562564419707275, -0.2841331684188827, -0.06545454545454546, -0.059562358276643974, -0.7648299319727891]
+    a1_symptomatic_parameters = [1.6733704390847248, 0.33298289012574717]
+    a2_symptomatic_parameters = [0.0636631622345908, 0.01874561945990517]
+    a3_symptomatic_parameters = [0.0046687280972995265, 0.3018866213151929]
+    random_infection_probabilities = [0.00039344465058750765, 0.0003267367553081841, 0.0004984539270253558, 2.402391259534072e-9]
 
     @time @threads for thread_id in 1:num_threads
         create_population(
@@ -214,8 +214,7 @@ function main()
 
     @time set_connections(
         agents, households, kindergartens, schools, universities,
-        workplaces, shops, restaurants, thread_rng,
-        num_threads, homes_coords_df)
+        workplaces, thread_rng, num_threads, homes_coords_df)
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     
@@ -255,9 +254,9 @@ function main()
         temperature_parameter_7_array[size(temperature_parameter_7_array)[1]],
     ]
 
-    duration_parameter_prior_mean = 3.312914862914865
-    susceptibility_parameters_prior_means = [6.045066996495568, 5.970140177283035, 6.2762213976499694, 7.877563388991962, 7.463424036281181, 7.215854462997319, 7.164166151309008]
-    temperature_parameters_prior_means = [-0.9417996289424861, -0.6979200164914452, -0.1484436198721913, -0.2512430426716142, -0.14223871366728508, -0.14423830138115853, -0.6479158936301795]
+    duration_parameter_prior_mean = 3.5214965986394575
+    susceptibility_parameters_prior_means = [5.562201607915895, 5.760239125953412, 5.892160379303236, 7.768025149453722, 7.772195423623994, 6.932838589981448, 7.372510822510822]
+    temperature_parameters_prior_means = [-0.9462413729128016, -0.7259224902082045, -0.11562564419707275, -0.2841331684188827, -0.06545454545454546, -0.059562358276643974, -0.7648299319727891]
 
     duration_parameter_prior_sd = 0.2
     susceptibility_parameters_prior_sds = [
@@ -297,11 +296,10 @@ function main()
     end
 
     @time num_infected_age_groups_viruses = run_simulation(
-        num_threads, thread_rng, agents, households,
-        shops, restaurants, infectivities, temp_influences, duration_parameter,
-        susceptibility_parameters, a1_symptomatic_parameters,
-        a2_symptomatic_parameters, a3_symptomatic_parameters,
-        random_infection_probabilities, etiology, true)
+        num_threads, thread_rng, agents, households, infectivities,
+        temp_influences, duration_parameter, susceptibility_parameters,
+        a1_symptomatic_parameters, a2_symptomatic_parameters,
+        a3_symptomatic_parameters, random_infection_probabilities, etiology, false)
 
     num_infected_age_groups = sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :]
     S_abs = sum(abs.(num_infected_age_groups - num_infected_age_groups_mean))
@@ -403,12 +401,11 @@ function main()
             end
         end
 
-        @time num_infected_age_groups_viruses = num_infected_age_groups_viruses = run_simulation(
-            num_threads, thread_rng, agents, households,
-            shops, restaurants, infectivities, temp_influences, duration_parameter,
-            susceptibility_parameters, a1_symptomatic_parameters,
-            a2_symptomatic_parameters, a3_symptomatic_parameters,
-            random_infection_probabilities, etiology, true)
+        @time num_infected_age_groups_viruses = run_simulation(
+            num_threads, thread_rng, agents, households, infectivities,
+            temp_influences, duration_parameter, susceptibility_parameters,
+            a1_symptomatic_parameters, a2_symptomatic_parameters,
+            a3_symptomatic_parameters, random_infection_probabilities, etiology, false)
 
         num_infected_age_groups = sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :]
         S_abs = sum(abs.(num_infected_age_groups - num_infected_age_groups_mean))

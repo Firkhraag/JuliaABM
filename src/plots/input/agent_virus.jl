@@ -181,25 +181,29 @@ function plot_ig_levels()
 end
 
 function plot_asymptomatic_prob()
-    a_flu = 1.6077551020408163
-    b_flu = 0.06551020408163265
-    c_flu = 0.0017959183673469388
+    a_flu = 1.6733704390847248
+    b_flu = 0.0636631622345908
+    c_flu = 0.0046687280972995265
     asymptomatic_prob_flu(x) = a_flu / (1 + exp(b_flu * x)) + c_flu
 
-    a_other = 0.5673469387755101
-    b_other = 0.005816326530612243
-    c_other = 0.3006122448979593
+    a_other = 0.33298289012574717
+    b_other = 0.01874561945990517
+    c_other = 0.3018866213151929
     asymptomatic_prob_other(x) = a_other / (1 + exp(b_other * x)) + c_other
 
     age_range = range(0, stop=89, length=90)
     v_flu = 0
     v_other = 0
+    v1 = zeros(Float64, 90)
+    v2 = zeros(Float64, 90)
     for i in age_range
-        v_flu += asymptomatic_prob_flu(i)
-        v_other += asymptomatic_prob_other(i)
+        v1[trunc(Int, i + 1)] = asymptomatic_prob_flu(i)
+        v2[trunc(Int, i + 1)] = asymptomatic_prob_other(i)
     end
-    println(v_flu / 90.0)
-    println(v_other / 90.0)
+    println(mean(v1))
+    println(mean(v2))
+    println(std(v1))
+    println(std(v2))
 
     asymptomatic_prob_plot = plot(
         age_range,
