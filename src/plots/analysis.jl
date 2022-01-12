@@ -4,7 +4,7 @@ using Statistics
 using LaTeXStrings
 
 include("../data/etiology.jl")
-include("../util/burnin.jl")
+include("../global/variables.jl")
 
 default(legendfontsize = 18, guidefont = (25, :black), tickfont = (18, :black))
 

@@ -3,7 +3,7 @@ using Plots
 using Statistics
 using LaTeXStrings
 
-include("../data/etiology.jl")
+include("../../data/etiology.jl")
 
 default(legendfontsize = 14, guidefont = (20, :black), tickfont = (14, :black))
 

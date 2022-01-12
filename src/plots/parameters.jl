@@ -3,7 +3,7 @@ using Plots
 using Statistics
 using LaTeXStrings
 
-include("../util/burnin.jl")
+include("../global/variables.jl")
 
 default(legendfontsize = 19, guidefont = (28, :black), tickfont = (19, :black))
 
@@ -313,6 +313,11 @@ function print_parameters()
     std15 = std(temperature_parameter_7_array)
 
     denominator = sqrt(length(duration_parameter_array))
+
+    println(m1)
+    println(std1)
+    println(length(duration_parameter_array))
+
     z = 1.96
 
     println("d: ", round(m1, digits = 2), " (", round(m1 - z * std1 / denominator, digits = 2), "--", round(m1 + z * std1 / denominator, digits = 2), ")")
@@ -334,5 +339,5 @@ function print_parameters()
     println("t7: ", round(m15, digits = 2), " (", round(max(0.0, m15 - z * std15 / denominator), digits = 2), "--", round(min(1.0, m15 + z * std15 / denominator), digits = 2), ")")
 end
 
-plot_parameters()
+# plot_parameters()
 print_parameters()

@@ -131,7 +131,7 @@ const skip_university_probability = 0.5
 
 # Параметры
 const burnin = 1
-const step = 4
+const step = 5
 
 const prob_shopping_together = 0.7
 const prob_restaurant_together = 0.9

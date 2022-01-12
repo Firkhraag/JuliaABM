@@ -360,8 +360,6 @@ function main()
     # random_infection_probabilities = [0.0019163265306122448, 0.0014387755102040817, 0.00046734693877551023, 8.673469387755105e-7]
 
 
-
-
     # duration_parameter = 3.3
     # susceptibility_parameters = [6.14, 6.02, 6.27, 7.89, 7.42, 7.3, 7.25]
     # temperature_parameters = [-0.959, -0.70, -0.15, -0.28, -0.14, -0.13, -0.64]

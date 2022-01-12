@@ -5,7 +5,7 @@ using LaTeXStrings
 
 include("../../data/temperature.jl")
 include("../../model/virus.jl")
-include("../../util/burnin.jl")
+include("../../global/variables.jl")
 
 default(legendfontsize = 12, guidefont = (17, :black), tickfont = (12, :black))
 

@@ -7,6 +7,8 @@ using LaTeXStrings
 # default(legendfontsize = 9, guidefont = (12, :black), tickfont = (9, :black))
 default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
 
+is_russian = false
+
 function plot_incidence()
     incidence = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "infected_data.csv"), ',', Float64)
     # incidence2 = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "deviations", "infected_data2.csv"), ',', Float64)
@@ -19,23 +21,39 @@ function plot_incidence()
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
     infected_data_mean = mean(infected_data[39:45, 2:53], dims = 1)[1, :] ./ 10072
 
-    # ticks = range(1, stop = 52, length = 13)
-    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     ticks = range(1, stop = 52, length = 7)
-    ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    label_names = ["model" "data"]
+    if is_russian
+        label_names = ["модель" "данные"]
+    end
+
+    xlabel_name = L"\textrm{\sffamily Month}"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = L"\textrm{\sffamily Cases per 1000 people in a week}"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
     incidence_plot = plot(
         1:52,
         [incidence infected_data_mean],
         lw = 3,
         xticks = (ticks, ticklabels),
-        label = ["модель" "данные"],
-        grid = false,
+        label = label_names,
+        grid = !is_russian,
         # yerror = stds,
         # ribbon=stds,fillalpha=.5,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Месяц",
-        ylabel = "Число случаев на 1000 чел. / неделя",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence.pdf"))
 end
@@ -48,10 +66,23 @@ function plot_incidence_etiology()
         etiology[:, i] = etiology[:, i] ./ etiology_sum[:, 1]
     end
 
-    # ticks = range(1, stop = 52, length = 13)
-    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     ticks = range(1, stop = 52, length = 7)
-    ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    xlabel_name = L"\textrm{\sffamily Month}"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = L"\textrm{\sffamily Ratio}"
+    if is_russian
+        ylabel_name = "Доля"
+    end
+
     yticks = [0.1, 0.3, 0.5, 0.7]
     yticklabels = ["0.1", "0.3", "0.5", "0.7"]
     etiology_incidence_plot = plot(
@@ -64,11 +95,9 @@ function plot_incidence_etiology()
         ylim = (0.0, 0.7),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
-        grid = false,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Ratio}",
-        xlabel = "Месяц",
-        ylabel = "Доля",
+        grid = !is_russian,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(etiology_incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_etiology.pdf"))
 end
@@ -86,21 +115,37 @@ function plot_incidence_age_groups()
     infected_data_mean_7 = mean(infected_data_7[2:53, 22:27], dims = 2)[:, 1] ./ 10072
     infected_data_mean_15 = mean(infected_data_15[2:53, 22:27], dims = 2)[:, 1] ./ 10072
 
-    # ticks = range(1, stop = 52, length = 13)
-    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     ticks = range(1, stop = 52, length = 7)
-    ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    label_names = ["model" "data"]
+    if is_russian
+        label_names = ["модель" "данные"]
+    end
+
+    xlabel_name = L"\textrm{\sffamily Month}"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = L"\textrm{\sffamily Cases per 1000 people in a week}"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
     incidence_plot = plot(
         1:52,
         [age_groups[:, 1] infected_data_mean_0],
         lw = 3,
         xticks = (ticks, ticklabels),
-        label = ["модель" "данные"],
-        grid = false,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Месяц",
-        ylabel = "Число случаев на 1000 чел. / неделя",
+        label = label_names,
+        grid = !is_russian,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "incidence0-2.pdf"))
 
@@ -109,12 +154,10 @@ function plot_incidence_age_groups()
         [age_groups[:, 2] infected_data_mean_3],
         lw = 3,
         xticks = (ticks, ticklabels),
-        label = ["модель" "данные"],
-        grid = false,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Месяц",
-        ylabel = "Число случаев на 1000 чел. / неделя",
+        label = label_names,
+        grid = !is_russian,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "incidence3-6.pdf"))
 
@@ -123,12 +166,10 @@ function plot_incidence_age_groups()
         [age_groups[:, 3] infected_data_mean_7],
         lw = 3,
         xticks = (ticks, ticklabels),
-        label = ["модель" "данные"],
-        grid = false,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Месяц",
-        ylabel = "Число случаев на 1000 чел. / неделя",
+        label = label_names,
+        grid = !is_russian,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "incidence7-14.pdf"))
 
@@ -137,12 +178,10 @@ function plot_incidence_age_groups()
         [age_groups[:, 4] infected_data_mean_15],
         lw = 3,
         xticks = (ticks, ticklabels),
-        label = ["модель" "данные"],
-        grid = false,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Месяц",
-        ylabel = "Число случаев на 1000 чел. / неделя",
+        label = label_names,
+        grid = !is_russian,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "incidence15+.pdf"))
 end
@@ -153,11 +192,28 @@ function plot_r0()
 
     r0 = cat(r0[:, 8:12], r0[:, 1:7], dims=2)
 
-    # ticks = range(1, stop = 12, length = 13)
-    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
-    # ticks = range(1, stop = 12, length = 6)
     ticks = [1, 3, 5, 7, 9, 11]
-    ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн"]
+    
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    label_names = ["model" "data"]
+    if is_russian
+        label_names = ["модель" "данные"]
+    end
+
+    xlabel_name = L"\textrm{\sffamily Month}"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = L"\textrm{\sffamily R0}"
+    if is_russian
+        ylabel_name = "R0"
+    end
+
     registered_new_cases_plot = plot(
         1:12,
         [r0[i, :] for i = 1:7],
@@ -165,12 +221,10 @@ function plot_r0()
         xticks = (ticks, ticklabels),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         legend = (0.5, 0.6),
-        label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
-        grid = false,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily R0}",
-        xlabel = "Месяц",
-        ylabel = "R0",
+        label = label_names,
+        grid = !is_russian,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "r0.pdf"))
