@@ -284,7 +284,9 @@ function create_parents_with_children(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child_age > 45) || (agent_female_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)

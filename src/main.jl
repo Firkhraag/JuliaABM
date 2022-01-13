@@ -205,7 +205,7 @@ function main()
     println("Simulation...")
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
-    duration_parameter = mean(duration_parameter_array[burnin:step:size(duration_parameter_array)[1]])
+    duration_parameter = mean(duration_parameter_array[burnin:step:end])
     
     susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
     susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
@@ -215,13 +215,13 @@ function main()
     susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
     susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
     susceptibility_parameters = [
-        mean(susceptibility_parameter_1_array[burnin:step:size(susceptibility_parameter_1_array)[1]]),
-        mean(susceptibility_parameter_2_array[burnin:step:size(susceptibility_parameter_2_array)[1]]),
-        mean(susceptibility_parameter_3_array[burnin:step:size(susceptibility_parameter_3_array)[1]]),
-        mean(susceptibility_parameter_4_array[burnin:step:size(susceptibility_parameter_4_array)[1]]),
-        mean(susceptibility_parameter_5_array[burnin:step:size(susceptibility_parameter_5_array)[1]]),
-        mean(susceptibility_parameter_6_array[burnin:step:size(susceptibility_parameter_6_array)[1]]),
-        mean(susceptibility_parameter_7_array[burnin:step:size(susceptibility_parameter_7_array)[1]])
+        mean(susceptibility_parameter_1_array[burnin:step:end]),
+        mean(susceptibility_parameter_2_array[burnin:step:end]),
+        mean(susceptibility_parameter_3_array[burnin:step:end]),
+        mean(susceptibility_parameter_4_array[burnin:step:end]),
+        mean(susceptibility_parameter_5_array[burnin:step:end]),
+        mean(susceptibility_parameter_6_array[burnin:step:end]),
+        mean(susceptibility_parameter_7_array[burnin:step:end])
     ]
 
     temperature_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_1_array.csv"), ',', Float64, '\n'))
@@ -232,13 +232,13 @@ function main()
     temperature_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_6_array.csv"), ',', Float64, '\n'))
     temperature_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_7_array.csv"), ',', Float64, '\n'))
     temperature_parameters = -[
-        mean(temperature_parameter_1_array[burnin:step:size(temperature_parameter_1_array)[1]]),
-        mean(temperature_parameter_2_array[burnin:step:size(temperature_parameter_2_array)[1]]),
-        mean(temperature_parameter_3_array[burnin:step:size(temperature_parameter_3_array)[1]]),
-        mean(temperature_parameter_4_array[burnin:step:size(temperature_parameter_4_array)[1]]),
-        mean(temperature_parameter_5_array[burnin:step:size(temperature_parameter_5_array)[1]]),
-        mean(temperature_parameter_6_array[burnin:step:size(temperature_parameter_6_array)[1]]),
-        mean(temperature_parameter_7_array[burnin:step:size(temperature_parameter_7_array)[1]])
+        mean(temperature_parameter_1_array[burnin:step:end]),
+        mean(temperature_parameter_2_array[burnin:step:end]),
+        mean(temperature_parameter_3_array[burnin:step:end]),
+        mean(temperature_parameter_4_array[burnin:step:end]),
+        mean(temperature_parameter_5_array[burnin:step:end]),
+        mean(temperature_parameter_6_array[burnin:step:end]),
+        mean(temperature_parameter_7_array[burnin:step:end])
     ]
 
     # duration_parameter = 3.438829107400536
@@ -387,24 +387,59 @@ function main()
 
     # -------------------------------------------------------------
 
-    @time num_infected_age_groups_viruses = run_simulation(
-        num_threads, thread_rng, agents, households, infectivities,
-        temp_influences, duration_parameter, susceptibility_parameters,
-        a1_symptomatic_parameters, a2_symptomatic_parameters,
-        a3_symptomatic_parameters, random_infection_probabilities, etiology, true)
+    n = 1
+    for i = 1:n
+        if n > 1
+            duration_parameter = rand(duration_parameter_array[burnin:step:end])
 
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "age_groups_viruses_data.csv"),
-        num_infected_age_groups_viruses ./ 10072, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "infected_data.csv"),
-        sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "etiology_data.csv"),
-        sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", "age_groups_data.csv"),
-        sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
+            susceptibility_parameters = [
+                rand(susceptibility_parameter_1_array[burnin:step:end]),
+                rand(susceptibility_parameter_2_array[burnin:step:end]),
+                rand(susceptibility_parameter_3_array[burnin:step:end]),
+                rand(susceptibility_parameter_4_array[burnin:step:end]),
+                rand(susceptibility_parameter_5_array[burnin:step:end]),
+                rand(susceptibility_parameter_6_array[burnin:step:end]),
+                rand(susceptibility_parameter_7_array[burnin:step:end])
+            ]
+
+            temperature_parameters = -[
+                rand(temperature_parameter_1_array[burnin:step:end]),
+                rand(temperature_parameter_2_array[burnin:step:end]),
+                rand(temperature_parameter_3_array[burnin:step:end]),
+                rand(temperature_parameter_4_array[burnin:step:end]),
+                rand(temperature_parameter_5_array[burnin:step:end]),
+                rand(temperature_parameter_6_array[burnin:step:end]),
+                rand(temperature_parameter_7_array[burnin:step:end])
+            ]
+        end
+
+        @time num_infected_age_groups_viruses = run_simulation(
+            num_threads, thread_rng, agents, households, infectivities,
+            temp_influences, duration_parameter, susceptibility_parameters,
+            a1_symptomatic_parameters, a2_symptomatic_parameters,
+            a3_symptomatic_parameters, random_infection_probabilities, etiology, n == 1)
+
+        writedlm(
+            joinpath(@__DIR__, "..", "output", "tables", n > 1 ? "age_groups_viruses_data_$(i).csv" : "age_groups_viruses_data.csv"),
+            num_infected_age_groups_viruses ./ 10072, ',')
+        writedlm(
+            joinpath(@__DIR__, "..", "output", "tables", n > 1 ? "infected_data_$(i).csv" : "infected_data.csv"),
+            sum(sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1] ./ 10072, ',')
+        writedlm(
+            joinpath(@__DIR__, "..", "output", "tables", n > 1 ? "etiology_data_$(i).csv" : "etiology_data.csv"),
+            sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
+        writedlm(
+            joinpath(@__DIR__, "..", "output", "tables", n > 1 ? "age_groups_data_$(i).csv" : "age_groups_data.csv"),
+            sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
+
+        S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
+        S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+
+        println("S: ", S_abs)
+        println("S: ", S_square)
+    end
+
+    
 
     # writedlm(
     #     joinpath(@__DIR__, "..", "output", "tables", "deviations", "age_groups_viruses_data3.csv"),
@@ -418,12 +453,6 @@ function main()
     # writedlm(
     #     joinpath(@__DIR__, "..", "output", "tables", "deviations", "age_groups_data3.csv"),
     #     sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
-
-    S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
-    S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
-
-    println("S: ", S_abs)
-    println("S: ", S_square)
 
     # ----------------------
     # Sensitivity analyses

@@ -102,6 +102,8 @@ restaurant_num_groups = 20
 # 30 minutes for 12 hours
 shop_num_groups = 24
 
+mean_child_mother_age_difference = 28
+
 # contact with only x closest agents
 restaurant_num_nearest_agents_as_contact = 15
 shop_num_nearest_agents_as_contact = 15
