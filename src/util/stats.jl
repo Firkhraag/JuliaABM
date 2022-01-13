@@ -21,7 +21,7 @@ function get_stats(agents::Vector{Agent})
     size_univer_conn = 0
     size_work_conn = 0
 
-    mean_num_of_friend_conn = 0
+    # mean_num_of_friend_conn = 0
 
     t1 = 0
     t2 = 0
@@ -68,7 +68,7 @@ function get_stats(agents::Vector{Agent})
             size_work_conn += 1
         end
 
-        mean_num_of_friend_conn += length(agent.friend_ids)
+        # mean_num_of_friend_conn += length(agent.friend_ids)
 
         household_nums[size(agent.household_conn_ids, 1)] += 1
 
@@ -124,5 +124,5 @@ function get_stats(agents::Vector{Agent})
     println("Univer conn: $(mean_num_of_univer_conn / size_univer_conn)")
     println("Univer cross conn: $(mean_num_of_univer_cross_conn / size_univer_conn)")
     println("Work conn: $(mean_num_of_work_conn / size_work_conn)")
-    println("Friends conn: $(mean_num_of_friend_conn / num_agents)")
+    # println("Friends conn: $(mean_num_of_friend_conn / num_agents)")
 end

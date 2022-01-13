@@ -194,13 +194,13 @@ function main()
 
     # -------------------------------------------------------------
 
-    @time set_connections(
-        agents, households, kindergartens, schools, universities,
-        workplaces, thread_rng, num_threads, homes_coords_df)
+    # @time set_connections(
+    #     agents, households, kindergartens, schools, universities,
+    #     workplaces, thread_rng, num_threads, homes_coords_df)
 
     # get_stats(agents)
 
-    # return
+    return
 
     println("Simulation...")
 
