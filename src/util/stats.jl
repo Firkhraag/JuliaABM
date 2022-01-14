@@ -27,6 +27,9 @@ function get_stats(agents::Vector{Agent})
     t2 = 0
     t3 = 0
 
+    age_diff = 0
+    age_diff_num = 0
+
     for agent in agents
         if agent.age < 3
             num_agents_groups[1] += 1
@@ -86,6 +89,11 @@ function get_stats(agents::Vector{Agent})
         if agent.on_parent_leave
             num_of_parent_leave += 1
         end
+
+        if agent.supporter_id != 0
+            age_diff += agents[agent.supporter_id].age - agent.age
+            age_diff_num += 1
+        end
     end
     for i = 1:6
         household_nums[i] /= i
@@ -124,5 +132,6 @@ function get_stats(agents::Vector{Agent})
     println("Univer conn: $(mean_num_of_univer_conn / size_univer_conn)")
     println("Univer cross conn: $(mean_num_of_univer_cross_conn / size_univer_conn)")
     println("Work conn: $(mean_num_of_work_conn / size_work_conn)")
+    println("Mean mother child age difference: $(age_diff / age_diff_num)")
     # println("Friends conn: $(mean_num_of_friend_conn / num_agents)")
 end

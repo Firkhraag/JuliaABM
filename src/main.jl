@@ -198,7 +198,7 @@ function main()
     #     agents, households, kindergartens, schools, universities,
     #     workplaces, thread_rng, num_threads, homes_coords_df)
 
-    # get_stats(agents)
+    get_stats(agents)
 
     return
 
