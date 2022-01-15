@@ -16,18 +16,7 @@ function get_agent_sex_and_age(
             # T0-4_0–14
             if (age_rand_num < district_people[index, 20])
                 # M0–4
-                sub_age_group_rand_num = rand(thread_rng[thread_id], Float64)
-                if sub_age_group_rand_num < 0.22
-                    return sex_random_num < district_people[index, 1], 0
-                elseif sub_age_group_rand_num < 0.43
-                    return sex_random_num < district_people[index, 1], 1
-                elseif sub_age_group_rand_num < 0.63
-                    return sex_random_num < district_people[index, 1], 2
-                elseif sub_age_group_rand_num < 0.82
-                    return sex_random_num < district_people[index, 1], 3
-                else
-                    return sex_random_num < district_people[index, 1], 4
-                end
+                return sex_random_num < district_people[index, 1], rand(thread_rng[thread_id], 0:4)
             # T0-9_0–14
             elseif (age_rand_num < district_people[index, 21])
                 # M5–9
@@ -50,17 +39,18 @@ function get_agent_sex_and_age(
     else
         age_group_rand_num = rand(thread_rng[thread_id], Float64)
         if age_group_rand_num < district_people_households[2, district_household_index]
-            if rand(thread_rng[thread_id], Float64) < 0.2
+            # if rand(thread_rng[thread_id], Float64) < 0.2
+            if rand(thread_rng[thread_id], Float64) < 0.18
                 # T18–19
                 if is_male !== nothing
-                    if rand(thread_rng[thread_id], Float64) < 0.66
+                    if rand(thread_rng[thread_id], Float64) < 0.6
                         return is_male, 19
                     else
                         return is_male, 18
                     end
                 else
                     # M18–19
-                    if rand(thread_rng[thread_id], Float64) < 0.66
+                    if rand(thread_rng[thread_id], Float64) < 0.6
                         return sex_random_num < district_people[index, 5], 19
                     else
                         return sex_random_num < district_people[index, 5], 18
@@ -69,10 +59,34 @@ function get_agent_sex_and_age(
             else
                 # T20–24
                 if is_male !== nothing
-                    return is_male, rand(thread_rng[thread_id], 20:24)
+                    sub_age_group_rand_num = rand(thread_rng[thread_id], Float64)
+                    if sub_age_group_rand_num < 0.22
+                        return is_male, 24
+                    elseif sub_age_group_rand_num < 0.43
+                        return is_male, 23
+                    elseif sub_age_group_rand_num < 0.63
+                        return is_male, 22
+                    elseif sub_age_group_rand_num < 0.82
+                        return is_male, 21
+                    else
+                        return is_male, 20
+                    end
+                    # return is_male, rand(thread_rng[thread_id], 20:24)
                 else
                     # M20–24
-                    return sex_random_num < district_people[index, 5], rand(thread_rng[thread_id], 20:24)
+                    sub_age_group_rand_num = rand(thread_rng[thread_id], Float64)
+                    if sub_age_group_rand_num < 0.24
+                        return sex_random_num < district_people[index, 5], 24
+                    elseif sub_age_group_rand_num < 0.46
+                        return sex_random_num < district_people[index, 5], 23
+                    elseif sub_age_group_rand_num < 0.66
+                        return sex_random_num < district_people[index, 5], 22
+                    elseif sub_age_group_rand_num < 0.84
+                        return sex_random_num < district_people[index, 5], 21
+                    else
+                        return sex_random_num < district_people[index, 5], 20
+                    end
+                    # return sex_random_num < district_people[index, 5], rand(thread_rng[thread_id], 20:24)
                 end
             end
         elseif age_group_rand_num < district_people_households[3, district_household_index]
@@ -234,25 +248,65 @@ function create_parents_with_children(
         district_people_households, district_household_index,
         thread_id, thread_rng, false)
 
+    # if with_others
+    #     while (agent_female_age > 52 && num_of_children > 0) || (num_of_children == 2 && (agent_female_age < 20 || (agent_female_age < 25 && rand(thread_rng[thread_id], Float64) > agent_female_age / 30))) || (num_of_children == 3 && (agent_female_age < 22 || (agent_female_age < 27 && rand(thread_rng[thread_id], Float64) > agent_female_age / 37)))
+    #         agent_female_sex, agent_female_age = get_agent_sex_and_age(
+    #             index, district_people, district_people_households,
+    #             district_household_index, thread_id, thread_rng, false)
+    #     end
+    # elseif with_grandparent
+    #     while agent_female_age > 50 || ((agent_female_age < 34 || (agent_female_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (agent_female_age < 40 && rand(thread_rng[thread_id], Float64) > agent_female_age / 50)) && num_of_other_people > 1) || (num_of_children == 2 && (agent_female_age < 20 || (agent_female_age < 25 && rand(thread_rng[thread_id], Float64) > agent_female_age / 30))) || (num_of_children == 3 && (agent_female_age < 22 || (agent_female_age < 27 && rand(thread_rng[thread_id], Float64) > agent_female_age / 37)))
+    #         agent_female_sex, agent_female_age = get_agent_sex_and_age(
+    #             index, district_people, district_people_households,
+    #             district_household_index, thread_id, thread_rng, false)
+    #     end
+    # else
+    #     while (agent_female_age > 52 && num_of_children > 0) || ((agent_female_age < 34 || (agent_female_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (agent_female_age < 40 && rand(thread_rng[thread_id], Float64) > agent_female_age / 50)) && num_of_other_people > 0) || (num_of_children == 2 && (agent_female_age < 20 || (agent_female_age < 25 && rand(thread_rng[thread_id], Float64) > agent_female_age / 30))) || (num_of_children == 3 && (agent_female_age < 22 || (agent_female_age < 27 && rand(thread_rng[thread_id], Float64) > agent_female_age / 37)))
+    #         agent_female_sex, agent_female_age = get_agent_sex_and_age(
+    #             index, district_people, district_people_households,
+    #             district_household_index, thread_id, thread_rng, false)
+    #     end
+    # end
+
     if with_others
-        while (agent_female_age > 52 && num_of_children > 0) || (num_of_children == 2 && (agent_female_age < 20 || (agent_female_age < 25 && rand(thread_rng[thread_id], Float64) > agent_female_age / 35))) || (num_of_children == 3 && (agent_female_age < 22 || (agent_female_age < 27 && rand(thread_rng[thread_id], Float64) > agent_female_age / 37)))
+        while (agent_female_age > 52 && num_of_children > 0) || (num_of_children == 2 && agent_female_age < 20)) || (num_of_children == 3 && agent_female_age < 22))
             agent_female_sex, agent_female_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, false)
         end
     elseif with_grandparent
-        while agent_female_age > 60 || ((agent_female_age < 34 || (agent_female_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (agent_female_age < 40 && rand(thread_rng[thread_id], Float64) > agent_female_age / 50)) && num_of_other_people > 1) || (num_of_children == 2 && (agent_female_age < 20 || (agent_female_age < 25 && rand(thread_rng[thread_id], Float64) > agent_female_age / 35))) || (num_of_children == 3 && (agent_female_age < 22 || (agent_female_age < 27 && rand(thread_rng[thread_id], Float64) > agent_female_age / 37)))
+        while agent_female_age > 50 || ((agent_female_age < 34 || (agent_female_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (agent_female_age < 40 && rand(thread_rng[thread_id], Float64) > agent_female_age / 50)) && num_of_other_people > 1) || (num_of_children == 2 && agent_female_age < 20)) || (num_of_children == 3 && agent_female_age < 22))
             agent_female_sex, agent_female_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, false)
         end
     else
-        while (agent_female_age > 52 && num_of_children > 0) || ((agent_female_age < 34 || (agent_female_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (agent_female_age < 40 && rand(thread_rng[thread_id], Float64) > agent_female_age / 50)) && num_of_other_people > 0) || (num_of_children == 2 && (agent_female_age < 20 || (agent_female_age < 25 && rand(thread_rng[thread_id], Float64) > agent_female_age / 35))) || (num_of_children == 3 && (agent_female_age < 22 || (agent_female_age < 27 && rand(thread_rng[thread_id], Float64) > agent_female_age / 37)))
+        while (agent_female_age > 52 && num_of_children > 0) || ((agent_female_age < 34 || (agent_female_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (agent_female_age < 40 && rand(thread_rng[thread_id], Float64) > agent_female_age / 50)) && num_of_other_people > 0) || (num_of_children == 2 && agent_female_age < 20)) || (num_of_children == 3 && agent_female_age < 22 || (agent_female_age < 27 && rand(thread_rng[thread_id], Float64) > agent_female_age / 37)))
             agent_female_sex, agent_female_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, false)
         end
     end
+
+    # if with_others
+    #     while (agent_female_age > 50 && num_of_children > 0) || ((agent_female_age > 53 || agent_female_age < 21) && num_of_children > 1) || ((agent_female_age > 50 || agent_female_age < 24) && num_of_children > 2)
+    #         agent_female_sex, agent_female_age = get_agent_sex_and_age(
+    #             index, district_people, district_people_households,
+    #             district_household_index, thread_id, thread_rng, false)
+    #     end
+    # elseif with_grandparent
+    #     while agent_female_age < 34 || agent_female_age > 55 || (agent_female_age > 50 && num_of_children > 0) || (agent_female_age > 53 && num_of_children > 1)
+    #         agent_female_sex, agent_female_age = get_agent_sex_and_age(
+    #             index, district_people, district_people_households,
+    #             district_household_index, thread_id, thread_rng, false)
+    #     end
+    # else
+    #     while agent_female_age < 34 || (agent_female_age < 37 && num_of_other_people > 0) || (agent_female_age < 40 && num_of_other_people > 1) || (agent_female_age < 43 && num_of_other_people > 2) || (agent_female_age < 46 && num_of_other_people > 3) || (agent_female_age > 50 && num_of_children > 0) || ((agent_female_age > 53 || agent_female_age < 21) && num_of_children > 1) || ((agent_female_age > 50 || agent_female_age < 24) && num_of_children > 2)
+    #         agent_female_sex, agent_female_age = get_agent_sex_and_age(
+    #             index, district_people, district_people_households,
+    #             district_household_index, thread_id, thread_rng, false)
+    #     end
+    # end
 
     agent_female = Agent(agent_id, household_id, viruses, infectivities,
         a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -284,10 +338,14 @@ function create_parents_with_children(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child_age > 45) || (agent_female_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
             child = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -302,10 +360,14 @@ function create_parents_with_children(
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child2_age > 45) || (agent_female_age - child2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child2_sex, child2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
             child2 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -319,10 +381,14 @@ function create_parents_with_children(
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child3_age > 45) || (agent_female_age - child3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child3_sex, child3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
             child3 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -339,16 +405,24 @@ function create_parents_with_children(
         if with_others
             # Do nothing
         elseif with_grandparent
-            while (agent_other_age - agent_female_age > 45) || (agent_other_age - agent_female_age < 16)
+            age_diff_rand_num = agent_other_age > agent_female_age ? rand(thread_rng[thread_id], Float64) : 0
+            age_diff = agent_other_age > agent_female_age ? abs(agent_other_age - agent_female_age - mean_child_mother_age_difference) : 13
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = agent_other_age > agent_female_age ? rand(thread_rng[thread_id], Float64) : 0
+                age_diff = agent_other_age > agent_female_age ? abs(agent_other_age - agent_female_age - mean_child_mother_age_difference) : 13
             end
         else
-            while (agent_female_age - agent_other_age > 45) || (agent_female_age - agent_other_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - agent_other_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
         agent_other = Agent(agent_id, household_id, viruses, infectivities,
@@ -360,10 +434,14 @@ function create_parents_with_children(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child_age > 45) || (agent_female_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
             child = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -381,10 +459,14 @@ function create_parents_with_children(
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child2_age > 45) || (agent_female_age - child2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child2_sex, child2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
             child2 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -398,11 +480,14 @@ function create_parents_with_children(
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child3_age > 45) || (agent_female_age - child3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child3_sex, child3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
-                    district_household_index,
-                    thread_id, thread_rng, nothing, true)
+                    district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
             child3 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -419,16 +504,24 @@ function create_parents_with_children(
         if with_others
             # Do nothing
         elseif with_grandparent
-            while (agent_other_age - agent_female_age > 45) || (agent_other_age - agent_female_age < 16)
+            age_diff_rand_num = agent_other_age > agent_female_age ? rand(thread_rng[thread_id], Float64) : 0
+            age_diff = agent_other_age > agent_female_age ? abs(agent_other_age - agent_female_age - mean_child_mother_age_difference) : 13
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = agent_other_age > agent_female_age ? rand(thread_rng[thread_id], Float64) : 0
+                age_diff = agent_other_age > agent_female_age ? abs(agent_other_age - agent_female_age - mean_child_mother_age_difference) : 13
             end
         else
-            while (agent_female_age - agent_other_age > 45) || (agent_female_age - agent_other_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - agent_other_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
         agent_other = Agent(agent_id, household_id, viruses, infectivities,
@@ -442,11 +535,15 @@ function create_parents_with_children(
         if with_others
             # Do nothing
         else
-            while (agent_female_age - agent_other2_age > 45) || (agent_female_age - agent_other2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index,
                     thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
             end
         end
         agent_other2 = Agent(agent_id, household_id, viruses, infectivities,
@@ -458,10 +555,14 @@ function create_parents_with_children(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child_age > 45) || (agent_female_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
             child = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -479,10 +580,14 @@ function create_parents_with_children(
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child2_age > 45) || (agent_female_age - child2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child2_sex, child2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
             child2 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -496,10 +601,14 @@ function create_parents_with_children(
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child3_age > 45) || (agent_female_age - child3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child3_sex, child3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
             child3 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -516,16 +625,24 @@ function create_parents_with_children(
         if with_others
             # Do nothing
         elseif with_grandparent
-            while (agent_other_age - agent_female_age > 45) || (agent_other_age - agent_female_age < 16)
+            age_diff_rand_num = agent_other_age > agent_female_age ? rand(thread_rng[thread_id], Float64) : 0
+            age_diff = agent_other_age > agent_female_age ? abs(agent_other_age - agent_female_age - mean_child_mother_age_difference) : 13
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = agent_other_age > agent_female_age ? rand(thread_rng[thread_id], Float64) : 0
+                age_diff = agent_other_age > agent_female_age ? abs(agent_other_age - agent_female_age - mean_child_mother_age_difference) : 13
             end
         else
-            while (agent_female_age - agent_other_age > 45) || (agent_female_age - agent_other_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - agent_other_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
         agent_other = Agent(agent_id, household_id, viruses, infectivities,
@@ -539,11 +656,14 @@ function create_parents_with_children(
         if with_others
             # Do nothing
         else
-            while (agent_female_age - agent_other2_age > 45) || (agent_female_age - agent_other2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
-                    district_household_index,
-                    thread_id, thread_rng)
+                    district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
             end
         end
         agent_other2 = Agent(agent_id, household_id, viruses, infectivities,
@@ -557,11 +677,15 @@ function create_parents_with_children(
         if with_others
             # Do nothing
         else
-            while (agent_female_age - agent_other3_age > 45) || (agent_female_age - agent_other3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - agent_other3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index,
                     thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - agent_other3_age - mean_child_mother_age_difference)
             end
         end
         agent_other3 = Agent(agent_id, household_id, viruses, infectivities,
@@ -573,10 +697,14 @@ function create_parents_with_children(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child_age > 45) || (agent_female_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
             child = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -594,10 +722,14 @@ function create_parents_with_children(
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child2_age > 45) || (agent_female_age - child2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child2_sex, child2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
             child2 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -611,10 +743,14 @@ function create_parents_with_children(
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child3_age > 45) || (agent_female_age - child3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child3_sex, child3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
             child3 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -631,16 +767,24 @@ function create_parents_with_children(
         if with_others
             # Do nothing
         elseif with_grandparent
-            while (agent_other_age - agent_female_age > 45) || (agent_other_age - agent_female_age < 16)
+            age_diff_rand_num = agent_other_age > agent_female_age ? rand(thread_rng[thread_id], Float64) : 0
+            age_diff = agent_other_age > agent_female_age ? abs(agent_other_age - agent_female_age - mean_child_mother_age_difference) : 13
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = agent_other_age > agent_female_age ? rand(thread_rng[thread_id], Float64) : 0
+                age_diff = agent_other_age > agent_female_age ? abs(agent_other_age - agent_female_age - mean_child_mother_age_difference) : 13
             end
         else
-            while (agent_female_age - agent_other_age > 45) || (agent_female_age - agent_other_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - agent_other_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
         agent_other = Agent(agent_id, household_id, viruses, infectivities,
@@ -654,10 +798,14 @@ function create_parents_with_children(
         if with_others
             # Do nothing
         else
-            while (agent_female_age - agent_other2_age > 45) || (agent_female_age - agent_other2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
             end
         end
         agent_other2 = Agent(agent_id, household_id, viruses, infectivities,
@@ -671,10 +819,14 @@ function create_parents_with_children(
         if with_others
             # Do nothing
         else
-            while (agent_female_age - agent_other3_age > 45) || (agent_female_age - agent_other3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - agent_other3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - agent_other3_age - mean_child_mother_age_difference)
             end
         end
         agent_other3 = Agent(agent_id, household_id, viruses, infectivities,
@@ -688,10 +840,14 @@ function create_parents_with_children(
         if with_others
             # Do nothing
         else
-            while (agent_female_age - agent_other4_age > 45) || (agent_female_age - agent_other4_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - agent_other4_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other4_sex, agent_other4_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - agent_other4_age - mean_child_mother_age_difference)
             end
         end
         agent_other4 = Agent(agent_id, household_id, viruses, infectivities,
@@ -703,10 +859,14 @@ function create_parents_with_children(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child_age > 45) || (agent_female_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
             child = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -725,10 +885,14 @@ function create_parents_with_children(
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child2_age > 45) || (agent_female_age - child2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child2_sex, child2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
             child2 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -742,10 +906,14 @@ function create_parents_with_children(
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child3_age > 45) || (agent_female_age - child3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child3_sex, child3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
             child3 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -780,11 +948,18 @@ function create_two_pairs_with_children_with_others(
         index, district_people,
         district_people_households, district_household_index,
         thread_id, thread_rng, false)
-    while agent_female_age > 60 || (num_of_children == 2 && agent_female_age < 20) || (num_of_children == 3 && agent_female_age < 22)
+
+    while agent_female_age > 50 || (num_of_children == 2 && agent_female_age < 20) || (num_of_children == 3 && agent_female_age < 22)
         agent_female_sex, agent_female_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
             district_household_index, thread_id, thread_rng, false)
     end
+    # while agent_female_age > 55 || (agent_female_age > 50 && num_of_children > 0) || ((agent_female_age > 53 || agent_female_age < 21) && num_of_children > 1) || (agent_female_age < 24 && num_of_children > 2)
+    #     agent_female_sex, agent_female_age = get_agent_sex_and_age(
+    #         index, district_people, district_people_households,
+    #         district_household_index, thread_id, thread_rng, false)
+    # end
+
     agent_female = Agent(agent_id, household_id, viruses, infectivities,
         a1_symptomatic_parameters, a2_symptomatic_parameters,
         a3_symptomatic_parameters, household_conn_ids, agent_female_sex, agent_female_age,
@@ -815,10 +990,14 @@ function create_two_pairs_with_children_with_others(
         index, district_people,
         district_people_households, district_household_index,
         thread_id, thread_rng, false)
-    while (agent_female_old_age - agent_female_age > 45) || (agent_female_old_age - agent_female_age < 16)
+    age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+    age_diff = abs(agent_female_old_age - agent_female_age - mean_child_mother_age_difference)
+    while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
         agent_female_old_sex, agent_female_old_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
             district_household_index, thread_id, thread_rng, false)
+        age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+        age_diff = abs(agent_female_old_age - agent_female_age - mean_child_mother_age_difference)
     end
     agent_female_old = Agent(agent_id, household_id, viruses, infectivities,
             a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -851,10 +1030,14 @@ function create_two_pairs_with_children_with_others(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child_age > 45) || (agent_female_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
             child = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -869,10 +1052,14 @@ function create_two_pairs_with_children_with_others(
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child2_age > 45) || (agent_female_age - child2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child2_sex, child2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
             child2 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -886,10 +1073,14 @@ function create_two_pairs_with_children_with_others(
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child3_age > 45) || (agent_female_age - child3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child3_sex, child3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
             child3 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -912,10 +1103,14 @@ function create_two_pairs_with_children_with_others(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child_age > 45) || (agent_female_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
             child = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -933,10 +1128,14 @@ function create_two_pairs_with_children_with_others(
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child2_age > 45) || (agent_female_age - child2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child2_sex, child2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
             child2 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -950,10 +1149,14 @@ function create_two_pairs_with_children_with_others(
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child3_age > 45) || (agent_female_age - child3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child3_sex, child3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
             child3 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -984,10 +1187,14 @@ function create_two_pairs_with_children_with_others(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child_age > 45) || (agent_female_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
             child = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1005,10 +1212,14 @@ function create_two_pairs_with_children_with_others(
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child2_age > 45) || (agent_female_age - child2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child2_sex, child2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
             child2 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1022,10 +1233,14 @@ function create_two_pairs_with_children_with_others(
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (agent_female_age - child3_age > 45) || (agent_female_age - child3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child3_sex, child3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
             child3 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1062,25 +1277,47 @@ function create_parent_with_children(
     parent_sex, parent_age = get_agent_sex_and_age(
         index, district_people, district_people_households,
         district_household_index, thread_id, thread_rng, is_male_parent)
+
+    # if with_others
+    #     while parent_age > 55 || (parent_age > 50 && num_of_children > 0) || ((parent_age > 53 || parent_age < 21) && num_of_children > 1) || (parent_age < 24 && num_of_children > 2)
+    #         parent_sex, parent_age = get_agent_sex_and_age(
+    #             index, district_people, district_people_households,
+    #             district_household_index, thread_id, thread_rng, false)
+    #     end
+    # elseif with_grandparent
+    #     while parent_age < 34 || parent_age > 55 || (parent_age > 50 && num_of_children > 0) || (parent_age > 53 && num_of_children > 1)
+    #         parent_sex, parent_age = get_agent_sex_and_age(
+    #             index, district_people, district_people_households,
+    #             district_household_index, thread_id, thread_rng, false)
+    #     end
+    # else
+    #     while parent_age < 34 || (parent_age < 37 && num_of_other_people > 0) || (parent_age < 40 && num_of_other_people > 1) || (parent_age < 43 && num_of_other_people > 2) || (parent_age < 46 && num_of_other_people > 3) || (parent_age > 50 && num_of_children > 0) || ((parent_age > 53 || parent_age < 21) && num_of_children > 1) || ((parent_age > 50 || parent_age < 24) && num_of_children > 2)
+    #         parent_sex, parent_age = get_agent_sex_and_age(
+    #             index, district_people, district_people_households,
+    #             district_household_index, thread_id, thread_rng, false)
+    #     end
+    # end
+
     if with_others
-        while parent_age > 60 || (num_of_children == 2 && parent_age < 20) || (num_of_children == 3 && parent_age < 22)
+        while parent_age > 50 || (num_of_children == 2 && parent_age < 20) || (num_of_children == 3 && parent_age < 22)
             parent_sex, parent_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, is_male_parent)
         end
     elseif with_grandparent
-        while parent_age > 60 || ((parent_age < 34 || (parent_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (parent_age < 40 && rand(thread_rng[thread_id], Float64) > parent_age / 50)) && num_of_other_people > 1) || (num_of_children == 2 && (parent_age < 20 || (parent_age < 25 && rand(thread_rng[thread_id], Float64) > parent_age / 35))) || (num_of_children == 3 && (parent_age < 22 || (parent_age < 27 && rand(thread_rng[thread_id], Float64) > parent_age / 37)))
+        while parent_age > 50 || ((parent_age < 34 || (parent_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (parent_age < 40 && rand(thread_rng[thread_id], Float64) > parent_age / 50)) && num_of_other_people > 1) || (num_of_children == 2 && (parent_age < 20 || (parent_age < 25 && rand(thread_rng[thread_id], Float64) > parent_age / 30))) || (num_of_children == 3 && (parent_age < 22 || (parent_age < 27 && rand(thread_rng[thread_id], Float64) > parent_age / 37)))
             parent_sex, parent_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, is_male_parent)
         end
     else
-        while (parent_age > 52 && num_of_children > 0) || ((parent_age < 34 || (parent_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (parent_age < 40 && rand(thread_rng[thread_id], Float64) > parent_age / 50)) && num_of_other_people > 0) || (num_of_children == 2 && (parent_age < 20 || (parent_age < 25 && rand(thread_rng[thread_id], Float64) > parent_age / 35))) || (num_of_children == 3 && (parent_age < 22 || (parent_age < 27 && rand(thread_rng[thread_id], Float64) > parent_age / 37)))
+        while (parent_age > 52 && num_of_children > 0) || ((parent_age < 34 || (parent_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (parent_age < 40 && rand(thread_rng[thread_id], Float64) > parent_age / 50)) && num_of_other_people > 0) || (num_of_children == 2 && (parent_age < 20 || (parent_age < 25 && rand(thread_rng[thread_id], Float64) > parent_age / 30))) || (num_of_children == 3 && (parent_age < 22 || (parent_age < 27 && rand(thread_rng[thread_id], Float64) > parent_age / 37)))
             parent_sex, parent_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, is_male_parent)
         end
     end
+
     parent = Agent(agent_id, household_id, viruses, infectivities,
         a1_symptomatic_parameters, a2_symptomatic_parameters,
         a3_symptomatic_parameters, household_conn_ids, parent_sex, parent_age,
@@ -1091,10 +1328,14 @@ function create_parent_with_children(
         child_sex, child_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
             district_household_index, thread_id, thread_rng, nothing, true)
-        while (parent_age - child_age > 45) || (parent_age - child_age < 16)
+        age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+        age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
+        while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
         end
         child = Agent(agent_id, household_id, viruses, infectivities,
             a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1110,10 +1351,14 @@ function create_parent_with_children(
             index, district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing, true)
-        while (parent_age - child2_age > 45) || (parent_age - child2_age < 16)
+        age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+        age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
+        while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
         end
         child2 = Agent(agent_id, household_id, viruses, infectivities,
             a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1128,10 +1373,14 @@ function create_parent_with_children(
             index, district_people, district_people_households,
             district_household_index,
             thread_id, thread_rng, nothing, true)
-        while (parent_age - child3_age > 45) || (parent_age - child3_age < 16)
+        age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+        age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
+        while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
         end
         child3 = Agent(agent_id, household_id, viruses, infectivities,
             a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1145,16 +1394,24 @@ function create_parent_with_children(
             district_household_index,
             thread_id, thread_rng)
         if with_others || with_grandparent
-            while (agent_other_age - parent_age > 45) || (agent_other_age - parent_age < 16)
+            age_diff_rand_num = agent_other_age > parent_age ? rand(thread_rng[thread_id], Float64) : 0
+            age_diff = agent_other_age > parent_age ? abs(agent_other_age - parent_age - mean_child_mother_age_difference) : 13
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = agent_other_age > parent_age ? rand(thread_rng[thread_id], Float64) : 0
+                age_diff = agent_other_age > parent_age ? abs(agent_other_age - parent_age - mean_child_mother_age_difference) : 13
             end
         else
-            while (parent_age - agent_other_age > 45) || (parent_age - agent_other_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - agent_other_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
         agent_other = Agent(agent_id, household_id, viruses, infectivities,
@@ -1166,10 +1423,14 @@ function create_parent_with_children(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (parent_age - child_age > 45) || (parent_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
             end
             child = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1187,10 +1448,14 @@ function create_parent_with_children(
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (parent_age - child2_age > 45) || (parent_age - child2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child2_sex, child2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
             end
             child2 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1204,10 +1469,14 @@ function create_parent_with_children(
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (parent_age - child3_age > 45) || (parent_age - child3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child3_sex, child3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
             end
             child3 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1223,16 +1492,24 @@ function create_parent_with_children(
             district_household_index,
             thread_id, thread_rng)
         if with_others || with_grandparent
-            while (agent_other_age - parent_age > 45) || (agent_other_age - parent_age < 16)
+            age_diff_rand_num = agent_other_age > parent_age ? rand(thread_rng[thread_id], Float64) : 0
+            age_diff = agent_other_age > parent_age ? abs(agent_other_age - parent_age - mean_child_mother_age_difference) : 13
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = agent_other_age > parent_age ? rand(thread_rng[thread_id], Float64) : 0
+                age_diff = agent_other_age > parent_age ? abs(agent_other_age - parent_age - mean_child_mother_age_difference) : 13
             end
         else
-            while (parent_age - agent_other_age > 45) || (parent_age - agent_other_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - agent_other_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
         agent_other = Agent(agent_id, household_id, viruses, infectivities,
@@ -1246,10 +1523,14 @@ function create_parent_with_children(
         if with_others
             # Do nothing
         else
-            while (parent_age - agent_other2_age > 45) || (parent_age - agent_other2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
             end
         end
         agent_other2 = Agent(agent_id, household_id, viruses, infectivities,
@@ -1261,10 +1542,14 @@ function create_parent_with_children(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (parent_age - child_age > 45) || (parent_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
             end
             child = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1282,10 +1567,14 @@ function create_parent_with_children(
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (parent_age - child2_age > 45) || (parent_age - child2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child2_sex, child2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
             end
             child2 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1299,10 +1588,14 @@ function create_parent_with_children(
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (parent_age - child3_age > 45) || (parent_age - child3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child3_sex, child3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
             end
             child3 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1318,16 +1611,24 @@ function create_parent_with_children(
             district_household_index,
             thread_id, thread_rng)
         if with_others || with_grandparent
-            while (agent_other_age - parent_age > 45) || (agent_other_age - parent_age < 16)
+            age_diff_rand_num = agent_other_age > parent_age ? rand(thread_rng[thread_id], Float64) : 0
+            age_diff = agent_other_age > parent_age ? abs(agent_other_age - parent_age - mean_child_mother_age_difference) : 13
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = agent_other_age > parent_age ? rand(thread_rng[thread_id], Float64) : 0
+                age_diff = agent_other_age > parent_age ? abs(agent_other_age - parent_age - mean_child_mother_age_difference) : 13
             end
         else
-            while (parent_age - agent_other_age > 45) || (parent_age - agent_other_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - agent_other_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
         agent_other = Agent(agent_id, household_id, viruses, infectivities,
@@ -1341,10 +1642,14 @@ function create_parent_with_children(
         if with_others
             # Do nothing
         else
-            while (parent_age - agent_other2_age > 45) || (parent_age - agent_other2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
             end
         end
         agent_other2 = Agent(agent_id, household_id, viruses, infectivities,
@@ -1358,10 +1663,14 @@ function create_parent_with_children(
         if with_others
             # Do nothing
         else
-            while (parent_age - agent_other3_age > 45) || (parent_age - agent_other3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - agent_other3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - agent_other3_age - mean_child_mother_age_difference)
             end
         end
         agent_other3 = Agent(agent_id, household_id, viruses, infectivities,
@@ -1373,10 +1682,14 @@ function create_parent_with_children(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (parent_age - child_age > 45) || (parent_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
             end
             child = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1394,10 +1707,14 @@ function create_parent_with_children(
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (parent_age - child2_age > 45) || (parent_age - child2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child2_sex, child2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
             end
             child2 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1411,10 +1728,14 @@ function create_parent_with_children(
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (parent_age - child3_age > 45) || (parent_age - child3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child3_sex, child3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
             end
             child3 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1430,16 +1751,24 @@ function create_parent_with_children(
             district_household_index,
             thread_id, thread_rng)
         if with_others || with_grandparent
-            while (agent_other_age - parent_age > 45) || (agent_other_age - parent_age < 16)
+            age_diff_rand_num = agent_other_age > parent_age ? rand(thread_rng[thread_id], Float64) : 0
+            age_diff = agent_other_age > parent_age ? abs(agent_other_age - parent_age - mean_child_mother_age_difference) : 13
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = agent_other_age > parent_age ? rand(thread_rng[thread_id], Float64) : 0
+                age_diff = agent_other_age > parent_age ? abs(agent_other_age - parent_age - mean_child_mother_age_difference) : 13
             end
         else
-            while (parent_age - agent_other_age > 45) || (parent_age - agent_other_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - agent_other_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other_sex, agent_other_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
         agent_other = Agent(agent_id, household_id, viruses, infectivities,
@@ -1453,10 +1782,14 @@ function create_parent_with_children(
         if with_others
             # Do nothing
         else
-            while (parent_age - agent_other2_age > 45) || (parent_age - agent_other2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
             end
         end
         agent_other2 = Agent(agent_id, household_id, viruses, infectivities,
@@ -1470,10 +1803,14 @@ function create_parent_with_children(
         if with_others
             # Do nothing
         else
-            while (parent_age - agent_other3_age > 45) || (parent_age - agent_other3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - agent_other3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - agent_other3_age - mean_child_mother_age_difference)
             end
         end
         agent_other3 = Agent(agent_id, household_id, viruses, infectivities,
@@ -1487,10 +1824,14 @@ function create_parent_with_children(
         if with_others
             # Do nothing
         else
-            while (parent_age - agent_other4_age > 45) || (parent_age - agent_other4_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - agent_other4_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 agent_other4_sex, agent_other4_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - agent_other4_age - mean_child_mother_age_difference)
             end
         end
         agent_other4 = Agent(agent_id, household_id, viruses, infectivities,
@@ -1502,10 +1843,14 @@ function create_parent_with_children(
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (parent_age - child_age > 45) || (parent_age - child_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child_sex, child_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
             end
             child = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1524,10 +1869,14 @@ function create_parent_with_children(
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (parent_age - child2_age > 45) || (parent_age - child2_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child2_sex, child2_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
             end
             child2 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -1541,10 +1890,14 @@ function create_parent_with_children(
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, nothing, true)
-            while (parent_age - child3_age > 45) || (parent_age - child3_age < 16)
+            age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+            age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
+            while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
                 child3_sex, child3_age = get_agent_sex_and_age(
                     index, district_people, district_people_households,
                     district_household_index, thread_id, thread_rng, nothing, true)
+                age_diff_rand_num = rand(thread_rng[thread_id], Float64)
+                age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
             end
             child3 = Agent(agent_id, household_id, viruses, infectivities,
                 a1_symptomatic_parameters, a2_symptomatic_parameters,
@@ -2784,6 +3137,7 @@ function create_population(
             households[household_id] = household
             household_id += 1
         end
+
         for _ in 1:district_households[index, 36]
             # SPWCWP3P0C
             new_agent_id = agent_id + 2
