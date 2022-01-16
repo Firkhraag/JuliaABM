@@ -59,34 +59,34 @@ function get_agent_sex_and_age(
             else
                 # T20–24
                 if is_male !== nothing
-                    sub_age_group_rand_num = rand(thread_rng[thread_id], Float64)
-                    if sub_age_group_rand_num < 0.22
-                        return is_male, 24
-                    elseif sub_age_group_rand_num < 0.43
-                        return is_male, 23
-                    elseif sub_age_group_rand_num < 0.63
-                        return is_male, 22
-                    elseif sub_age_group_rand_num < 0.82
-                        return is_male, 21
-                    else
-                        return is_male, 20
-                    end
-                    # return is_male, rand(thread_rng[thread_id], 20:24)
+                    # sub_age_group_rand_num = rand(thread_rng[thread_id], Float64)
+                    # if sub_age_group_rand_num < 0.22
+                    #     return is_male, 24
+                    # elseif sub_age_group_rand_num < 0.43
+                    #     return is_male, 23
+                    # elseif sub_age_group_rand_num < 0.63
+                    #     return is_male, 22
+                    # elseif sub_age_group_rand_num < 0.82
+                    #     return is_male, 21
+                    # else
+                    #     return is_male, 20
+                    # end
+                    return is_male, rand(thread_rng[thread_id], 20:24)
                 else
                     # M20–24
-                    sub_age_group_rand_num = rand(thread_rng[thread_id], Float64)
-                    if sub_age_group_rand_num < 0.24
-                        return sex_random_num < district_people[index, 5], 24
-                    elseif sub_age_group_rand_num < 0.46
-                        return sex_random_num < district_people[index, 5], 23
-                    elseif sub_age_group_rand_num < 0.66
-                        return sex_random_num < district_people[index, 5], 22
-                    elseif sub_age_group_rand_num < 0.84
-                        return sex_random_num < district_people[index, 5], 21
-                    else
-                        return sex_random_num < district_people[index, 5], 20
-                    end
-                    # return sex_random_num < district_people[index, 5], rand(thread_rng[thread_id], 20:24)
+                    # sub_age_group_rand_num = rand(thread_rng[thread_id], Float64)
+                    # if sub_age_group_rand_num < 0.24
+                    #     return sex_random_num < district_people[index, 5], 24
+                    # elseif sub_age_group_rand_num < 0.46
+                    #     return sex_random_num < district_people[index, 5], 23
+                    # elseif sub_age_group_rand_num < 0.66
+                    #     return sex_random_num < district_people[index, 5], 22
+                    # elseif sub_age_group_rand_num < 0.84
+                    #     return sex_random_num < district_people[index, 5], 21
+                    # else
+                    #     return sex_random_num < district_people[index, 5], 20
+                    # end
+                    return sex_random_num < district_people[index, 5], rand(thread_rng[thread_id], 20:24)
                 end
             end
         elseif age_group_rand_num < district_people_households[3, district_household_index]
@@ -269,19 +269,19 @@ function create_parents_with_children(
     # end
 
     if with_others
-        while (agent_female_age > 52 && num_of_children > 0) || (num_of_children == 2 && agent_female_age < 20)) || (num_of_children == 3 && agent_female_age < 22))
+        while ( (agent_female_age > 55 || (agent_female_age > 45 && rand(thread_rng[thread_id], Float64) > 0.5)) && num_of_children > 0 ) || ( num_of_children == 2 && agent_female_age < 20 ) || ( num_of_children == 3 && agent_female_age < 22 )
             agent_female_sex, agent_female_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, false)
         end
     elseif with_grandparent
-        while agent_female_age > 50 || ((agent_female_age < 34 || (agent_female_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (agent_female_age < 40 && rand(thread_rng[thread_id], Float64) > agent_female_age / 50)) && num_of_other_people > 1) || (num_of_children == 2 && agent_female_age < 20)) || (num_of_children == 3 && agent_female_age < 22))
+        while ( (agent_female_age > 55 || (agent_female_age > 45 && rand(thread_rng[thread_id], Float64) > 0.5)) && num_of_children > 0 ) || agent_female_age > 65 || ( agent_female_age > 50 && rand(thread_rng[thread_id], Float64) > 0.25 ) || ( agent_female_age > 40 && rand(thread_rng[thread_id], Float64) > 0.5 ) || ( agent_female_age < 34 && num_of_other_people > 1 ) || ( num_of_children == 2 && agent_female_age < 20 ) || ( num_of_children == 3 && agent_female_age < 22 )
             agent_female_sex, agent_female_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, false)
         end
     else
-        while (agent_female_age > 52 && num_of_children > 0) || ((agent_female_age < 34 || (agent_female_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (agent_female_age < 40 && rand(thread_rng[thread_id], Float64) > agent_female_age / 50)) && num_of_other_people > 0) || (num_of_children == 2 && agent_female_age < 20)) || (num_of_children == 3 && agent_female_age < 22 || (agent_female_age < 27 && rand(thread_rng[thread_id], Float64) > agent_female_age / 37)))
+        while ( (agent_female_age > 55 || (agent_female_age > 45 && rand(thread_rng[thread_id], Float64) > 0.5)) && num_of_children > 0 ) || ( agent_female_age < 34 && num_of_other_people > 0 ) || ( num_of_children == 2 && agent_female_age < 20 ) || ( num_of_children == 3 && agent_female_age < 22 )
             agent_female_sex, agent_female_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, thread_id, thread_rng, false)
@@ -949,11 +949,12 @@ function create_two_pairs_with_children_with_others(
         district_people_households, district_household_index,
         thread_id, thread_rng, false)
 
-    while agent_female_age > 50 || (num_of_children == 2 && agent_female_age < 20) || (num_of_children == 3 && agent_female_age < 22)
+    while ( (agent_female_age > 55 || (agent_female_age > 45 && rand(thread_rng[thread_id], Float64) > 0.5)) && num_of_children > 0 ) || agent_female_age > 65 || ( agent_female_age > 50 && rand(thread_rng[thread_id], Float64) > 0.25 ) || ( agent_female_age > 40 && rand(thread_rng[thread_id], Float64) > 0.5 ) || ( agent_female_age < 34 && num_of_other_people > 1 ) || ( num_of_children == 2 && agent_female_age < 20 ) || ( num_of_children == 3 && agent_female_age < 22 )
         agent_female_sex, agent_female_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
             district_household_index, thread_id, thread_rng, false)
     end
+
     # while agent_female_age > 55 || (agent_female_age > 50 && num_of_children > 0) || ((agent_female_age > 53 || agent_female_age < 21) && num_of_children > 1) || (agent_female_age < 24 && num_of_children > 2)
     #     agent_female_sex, agent_female_age = get_agent_sex_and_age(
     #         index, district_people, district_people_households,
@@ -1278,43 +1279,23 @@ function create_parent_with_children(
         index, district_people, district_people_households,
         district_household_index, thread_id, thread_rng, is_male_parent)
 
-    # if with_others
-    #     while parent_age > 55 || (parent_age > 50 && num_of_children > 0) || ((parent_age > 53 || parent_age < 21) && num_of_children > 1) || (parent_age < 24 && num_of_children > 2)
-    #         parent_sex, parent_age = get_agent_sex_and_age(
-    #             index, district_people, district_people_households,
-    #             district_household_index, thread_id, thread_rng, false)
-    #     end
-    # elseif with_grandparent
-    #     while parent_age < 34 || parent_age > 55 || (parent_age > 50 && num_of_children > 0) || (parent_age > 53 && num_of_children > 1)
-    #         parent_sex, parent_age = get_agent_sex_and_age(
-    #             index, district_people, district_people_households,
-    #             district_household_index, thread_id, thread_rng, false)
-    #     end
-    # else
-    #     while parent_age < 34 || (parent_age < 37 && num_of_other_people > 0) || (parent_age < 40 && num_of_other_people > 1) || (parent_age < 43 && num_of_other_people > 2) || (parent_age < 46 && num_of_other_people > 3) || (parent_age > 50 && num_of_children > 0) || ((parent_age > 53 || parent_age < 21) && num_of_children > 1) || ((parent_age > 50 || parent_age < 24) && num_of_children > 2)
-    #         parent_sex, parent_age = get_agent_sex_and_age(
-    #             index, district_people, district_people_households,
-    #             district_household_index, thread_id, thread_rng, false)
-    #     end
-    # end
-
     if with_others
-        while parent_age > 50 || (num_of_children == 2 && parent_age < 20) || (num_of_children == 3 && parent_age < 22)
+        while ( (parent_age > 55 || (parent_age > 45 && rand(thread_rng[thread_id], Float64) > 0.5)) && num_of_children > 0 ) || parent_age > 65 || ( parent_age > 50 && rand(thread_rng[thread_id], Float64) > 0.25 ) || ( parent_age > 40 && rand(thread_rng[thread_id], Float64) > 0.5 ) || ( num_of_children == 2 && parent_age < 20 ) || ( num_of_children == 3 && parent_age < 22 )
             parent_sex, parent_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
-                district_household_index, thread_id, thread_rng, is_male_parent)
+                district_household_index, thread_id, thread_rng, false)
         end
     elseif with_grandparent
-        while parent_age > 50 || ((parent_age < 34 || (parent_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (parent_age < 40 && rand(thread_rng[thread_id], Float64) > parent_age / 50)) && num_of_other_people > 1) || (num_of_children == 2 && (parent_age < 20 || (parent_age < 25 && rand(thread_rng[thread_id], Float64) > parent_age / 30))) || (num_of_children == 3 && (parent_age < 22 || (parent_age < 27 && rand(thread_rng[thread_id], Float64) > parent_age / 37)))
+        while ( (parent_age > 55 || (parent_age > 45 && rand(thread_rng[thread_id], Float64) > 0.5)) && num_of_children > 0 ) || parent_age > 65 || ( parent_age > 50 && rand(thread_rng[thread_id], Float64) > 0.25 ) || ( parent_age > 40 && rand(thread_rng[thread_id], Float64) > 0.5 ) || ( parent_age < 34 && num_of_other_people > 1 ) || ( num_of_children == 2 && parent_age < 20 ) || ( num_of_children == 3 && parent_age < 22 )
             parent_sex, parent_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
-                district_household_index, thread_id, thread_rng, is_male_parent)
+                district_household_index, thread_id, thread_rng, false)
         end
     else
-        while (parent_age > 52 && num_of_children > 0) || ((parent_age < 34 || (parent_age == 34 && rand(thread_rng[thread_id]) < 0.5) || (parent_age < 40 && rand(thread_rng[thread_id], Float64) > parent_age / 50)) && num_of_other_people > 0) || (num_of_children == 2 && (parent_age < 20 || (parent_age < 25 && rand(thread_rng[thread_id], Float64) > parent_age / 30))) || (num_of_children == 3 && (parent_age < 22 || (parent_age < 27 && rand(thread_rng[thread_id], Float64) > parent_age / 37)))
+        while ( (parent_age > 55 || (parent_age > 45 && rand(thread_rng[thread_id], Float64) > 0.5)) && num_of_children > 0 ) || ( parent_age < 34 && num_of_other_people > 0 ) || ( num_of_children == 2 && parent_age < 20 ) || ( num_of_children == 3 && parent_age < 22 )
             parent_sex, parent_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
-                district_household_index, thread_id, thread_rng, is_male_parent)
+                district_household_index, thread_id, thread_rng, false)
         end
     end
 
