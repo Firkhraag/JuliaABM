@@ -104,6 +104,8 @@ shop_num_groups = 24
 
 mean_child_mother_age_difference = 28
 
+immunity_duration_sd = 10
+
 # contact with only x closest agents
 restaurant_num_nearest_agents_as_contact = 15
 shop_num_nearest_agents_as_contact = 15

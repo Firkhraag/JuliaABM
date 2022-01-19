@@ -55,6 +55,14 @@ mutable struct Agent
     AdV_days_immune::Int
     PIV_days_immune::Int
     CoV_days_immune::Int
+
+    FluA_immunity_end::Int
+    FluB_immunity_end::Int
+    RV_immunity_end::Int
+    RSV_immunity_end::Int
+    AdV_immunity_end::Int
+    PIV_immunity_end::Int
+    CoV_immunity_end::Int
     # Продолжительность инкубационного периода
     incubation_period::Int
     # Продолжительность периода болезни
@@ -447,489 +455,363 @@ mutable struct Agent
         PIV_days_immune = 0
         CoV_days_immune = 0
 
+        FluA_immunity_end = 0
+        FluB_immunity_end = 0
+        RV_immunity_end = 0
+        RSV_immunity_end = 0
+        AdV_immunity_end = 0
+        PIV_immunity_end = 0
+        CoV_immunity_end = 0
+
         if !is_infected
-            # FluA_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
-            # FluB_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
-            # RV_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
-            # RSV_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
-            # AdV_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
-            # PIV_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
-            # CoV_days_immune_rand_num = rand(thread_rng[thread_id], Float64)
-
-            # if FluA_days_immune_rand_num < 0.000106497
-            #     FluA_days_immune = rand(thread_rng[thread_id], 211:217)
-            # elseif FluA_days_immune_rand_num < 0.000248358
-            #     FluA_days_immune = rand(thread_rng[thread_id], 204:210)
-            # elseif FluA_days_immune_rand_num < 0.000578559
-            #     FluA_days_immune = rand(thread_rng[thread_id], 197:203)
-            # elseif FluA_days_immune_rand_num < 0.001384056
-            #     FluA_days_immune = rand(thread_rng[thread_id], 190:196)
-            # elseif FluA_days_immune_rand_num < 0.003162373
-            #     FluA_days_immune = rand(thread_rng[thread_id], 183:189)
-            # elseif FluA_days_immune_rand_num < 0.00639608
-            #     FluA_days_immune = rand(thread_rng[thread_id], 176:182)
-            # elseif FluA_days_immune_rand_num < 0.011474184
-            #     FluA_days_immune = rand(thread_rng[thread_id], 169:175)
-            # elseif FluA_days_immune_rand_num < 0.018570072
-            #     FluA_days_immune = rand(thread_rng[thread_id], 162:168)
-            # elseif FluA_days_immune_rand_num < 0.027024755
-            #     FluA_days_immune = rand(thread_rng[thread_id], 155:161)
-            # elseif FluA_days_immune_rand_num < 0.035367485
-            #     FluA_days_immune = rand(thread_rng[thread_id], 148:154)
-            # elseif FluA_days_immune_rand_num < 0.041906436
-            #     FluA_days_immune = rand(thread_rng[thread_id], 141:147)
-            # elseif FluA_days_immune_rand_num < 0.051420026
-            #     FluA_days_immune = rand(thread_rng[thread_id], 134:140)
-            # elseif FluA_days_immune_rand_num < 0.053629584
-            #     FluA_days_immune = rand(thread_rng[thread_id], 127:133)
-            # elseif FluA_days_immune_rand_num < 0.054730322
-            #     FluA_days_immune = rand(thread_rng[thread_id], 120:126)
-            # elseif FluA_days_immune_rand_num < 0.055386278
-            #     FluA_days_immune = rand(thread_rng[thread_id], 113:119)
-            # elseif FluA_days_immune_rand_num < 0.055793068
-            #     FluA_days_immune = rand(thread_rng[thread_id], 106:112)
-            # elseif FluA_days_immune_rand_num < 0.056051732
-            #     FluA_days_immune = rand(thread_rng[thread_id], 99:105)
-            # elseif FluA_days_immune_rand_num < 0.056211174
-            #     FluA_days_immune = rand(thread_rng[thread_id], 92:98)
-            # elseif FluA_days_immune_rand_num < 0.056312619
-            #     FluA_days_immune = rand(thread_rng[thread_id], 85:91)
-            # end
-
             if rand(thread_rng[thread_id], Float64) < 0.000206497
                 FluA_days_immune = rand(thread_rng[thread_id], 211:217)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000281861
                 FluA_days_immune = rand(thread_rng[thread_id], 204:210)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000660201
                 FluA_days_immune = rand(thread_rng[thread_id], 197:203)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001605497
                 FluA_days_immune = rand(thread_rng[thread_id], 190:196)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.003478317
                 FluA_days_immune = rand(thread_rng[thread_id], 183:189)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.006433707
                 FluA_days_immune = rand(thread_rng[thread_id], 176:182)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.010078104
                 FluA_days_immune = rand(thread_rng[thread_id], 169:175)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.014095888
                 FluA_days_immune = rand(thread_rng[thread_id], 162:168)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.016454683
                 FluA_days_immune = rand(thread_rng[thread_id], 155:161)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.01634273
                 FluA_days_immune = rand(thread_rng[thread_id], 148:154)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.012538951
                 FluA_days_immune = rand(thread_rng[thread_id], 141:147)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.008756795
                 FluA_days_immune = rand(thread_rng[thread_id], 134:140)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.004209558
                 FluA_days_immune = rand(thread_rng[thread_id], 127:133)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002100738
                 FluA_days_immune = rand(thread_rng[thread_id], 120:126)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001255956
                 FluA_days_immune = rand(thread_rng[thread_id], 113:119)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.00080679
                 FluA_days_immune = rand(thread_rng[thread_id], 106:112)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000458664
                 FluA_days_immune = rand(thread_rng[thread_id], 99:105)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000309442
                 FluA_days_immune = rand(thread_rng[thread_id], 92:98)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000201445
                 FluA_days_immune = rand(thread_rng[thread_id], 85:91)
+                FluA_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[1].immunity_duration, immunity_duration_sd)))
             end
-
-            # if rand(thread_rng[thread_id], Float64) < 0.000131757
-            #     FluB_days_immune = rand(thread_rng[thread_id], 197:203)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000306962
-            #     FluB_days_immune = rand(thread_rng[thread_id], 190:196)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000520158
-            #     FluB_days_immune = rand(thread_rng[thread_id], 183:189)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.00087279
-            #     FluB_days_immune = rand(thread_rng[thread_id], 176:182)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001234718
-            #     FluB_days_immune = rand(thread_rng[thread_id], 169:175)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001443872
-            #     FluB_days_immune = rand(thread_rng[thread_id], 162:168)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001440032
-            #     FluB_days_immune = rand(thread_rng[thread_id], 155:161)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001264019
-            #     FluB_days_immune = rand(thread_rng[thread_id], 148:154)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001089219
-            #     FluB_days_immune = rand(thread_rng[thread_id], 141:147)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000956047
-            #     FluB_days_immune = rand(thread_rng[thread_id], 134:140)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000829948
-            #     FluB_days_immune = rand(thread_rng[thread_id], 127:133)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000487825
-            #     FluB_days_immune = rand(thread_rng[thread_id], 120:126)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000381328
-            #     FluB_days_immune = rand(thread_rng[thread_id], 113:119)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000366778
-            #     FluB_days_immune = rand(thread_rng[thread_id], 106:112)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000339699
-            #     FluB_days_immune = rand(thread_rng[thread_id], 99:105)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000300091
-            #     FluB_days_immune = rand(thread_rng[thread_id], 92:98)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000224715
-            #     FluB_days_immune = rand(thread_rng[thread_id], 85:91)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000172578
-            #     FluB_days_immune = rand(thread_rng[thread_id], 78:84)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.00015439
-            #     FluB_days_immune = rand(thread_rng[thread_id], 71:77)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000119228
-            #     FluB_days_immune = rand(thread_rng[thread_id], 64:70)
-            # end
 
             if rand(thread_rng[thread_id], Float64) < 0.000261757
                 FluB_days_immune = rand(thread_rng[thread_id], 197:203)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000606962
                 FluB_days_immune = rand(thread_rng[thread_id], 190:196)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001020158
                 FluB_days_immune = rand(thread_rng[thread_id], 183:189)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.00167279
                 FluB_days_immune = rand(thread_rng[thread_id], 176:182)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002434718
                 FluB_days_immune = rand(thread_rng[thread_id], 169:175)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002843872
                 FluB_days_immune = rand(thread_rng[thread_id], 162:168)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002840032
                 FluB_days_immune = rand(thread_rng[thread_id], 155:161)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002464019
                 FluB_days_immune = rand(thread_rng[thread_id], 148:154)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002089219
                 FluB_days_immune = rand(thread_rng[thread_id], 141:147)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001856047
                 FluB_days_immune = rand(thread_rng[thread_id], 134:140)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001629948
                 FluB_days_immune = rand(thread_rng[thread_id], 127:133)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000887825
                 FluB_days_immune = rand(thread_rng[thread_id], 120:126)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000681328
                 FluB_days_immune = rand(thread_rng[thread_id], 113:119)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000666778
                 FluB_days_immune = rand(thread_rng[thread_id], 106:112)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000639699
                 FluB_days_immune = rand(thread_rng[thread_id], 99:105)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000600091
                 FluB_days_immune = rand(thread_rng[thread_id], 92:98)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000424715
                 FluB_days_immune = rand(thread_rng[thread_id], 85:91)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000272578
                 FluB_days_immune = rand(thread_rng[thread_id], 78:84)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.00025439
                 FluB_days_immune = rand(thread_rng[thread_id], 71:77)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000219228
                 FluB_days_immune = rand(thread_rng[thread_id], 64:70)
+                FluB_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[2].immunity_duration, immunity_duration_sd)))
             end
-
-            # if rand(thread_rng[thread_id], Float64) < 0.000578761
-            #     RV_days_immune = rand(thread_rng[thread_id], 1:7)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000626452
-            #     RV_days_immune = rand(thread_rng[thread_id], 8:14)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.00064949
-            #     RV_days_immune = rand(thread_rng[thread_id], 15:21)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000844094
-            #     RV_days_immune = rand(thread_rng[thread_id], 22:28)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001069617
-            #     RV_days_immune = rand(thread_rng[thread_id], 29:35)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001199151
-            #     RV_days_immune = rand(thread_rng[thread_id], 36:42)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001422047
-            #     RV_days_immune = rand(thread_rng[thread_id], 43:49)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001906638
-            #     RV_days_immune = rand(thread_rng[thread_id], 50:56)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.002519551
-            #     RV_days_immune = rand(thread_rng[thread_id], 57:60)
-            # end
 
             if rand(thread_rng[thread_id], Float64) < 0.001578761
                 RV_days_immune = rand(thread_rng[thread_id], 1:7)
+                RV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[3].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001826452
                 RV_days_immune = rand(thread_rng[thread_id], 8:14)
+                RV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[3].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.00184949
                 RV_days_immune = rand(thread_rng[thread_id], 15:21)
+                RV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[3].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002444094
                 RV_days_immune = rand(thread_rng[thread_id], 22:28)
+                RV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[3].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.003069617
                 RV_days_immune = rand(thread_rng[thread_id], 29:35)
+                RV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[3].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.003399151
                 RV_days_immune = rand(thread_rng[thread_id], 36:42)
+                RV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[3].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.004222047
                 RV_days_immune = rand(thread_rng[thread_id], 43:49)
+                RV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[3].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.005706638
                 RV_days_immune = rand(thread_rng[thread_id], 50:56)
+                RV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[3].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.007519551
                 RV_days_immune = rand(thread_rng[thread_id], 57:60)
+                RV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[3].immunity_duration, immunity_duration_sd)))
             end
-
-            # if rand(thread_rng[thread_id], Float64) < 0.000177428
-            #     RSV_days_immune = rand(thread_rng[thread_id], 1:7)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000310397
-            #     RSV_days_immune = rand(thread_rng[thread_id], 8:14)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000509851
-            #     RSV_days_immune = rand(thread_rng[thread_id], 15:21)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000804082
-            #     RSV_days_immune = rand(thread_rng[thread_id], 22:28)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.00094857
-            #     RSV_days_immune = rand(thread_rng[thread_id], 29:35)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.00107083
-            #     RSV_days_immune = rand(thread_rng[thread_id], 36:42)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001356977
-            #     RSV_days_immune = rand(thread_rng[thread_id], 43:49)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001896332
-            #     RSV_days_immune = rand(thread_rng[thread_id], 50:56)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.002339295
-            #     RSV_days_immune = rand(thread_rng[thread_id], 57:63)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001476811
-            #     RSV_days_immune = rand(thread_rng[thread_id], 113:119)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001652218
-            #     RSV_days_immune = rand(thread_rng[thread_id], 106:112)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.001923613
-            #     RSV_days_immune = rand(thread_rng[thread_id], 99:105)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.002128322
-            #     RSV_days_immune = rand(thread_rng[thread_id], 92:98)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.002221885
-            #     RSV_days_immune = rand(thread_rng[thread_id], 85:91)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.002168536
-            #     RSV_days_immune = rand(thread_rng[thread_id], 78:84)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.002125695
-            #     RSV_days_immune = rand(thread_rng[thread_id], 71:77)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.002243912
-            #     RSV_days_immune = rand(thread_rng[thread_id], 64:70)
-            # end
 
             if rand(thread_rng[thread_id], Float64) < 0.000377428
                 RSV_days_immune = rand(thread_rng[thread_id], 1:7)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000910397
                 RSV_days_immune = rand(thread_rng[thread_id], 8:14)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001509851
                 RSV_days_immune = rand(thread_rng[thread_id], 15:21)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002404082
                 RSV_days_immune = rand(thread_rng[thread_id], 22:28)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.00274857
                 RSV_days_immune = rand(thread_rng[thread_id], 29:35)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.00307083
                 RSV_days_immune = rand(thread_rng[thread_id], 36:42)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.003956977
                 RSV_days_immune = rand(thread_rng[thread_id], 43:49)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.005496332
                 RSV_days_immune = rand(thread_rng[thread_id], 50:56)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.006939295
                 RSV_days_immune = rand(thread_rng[thread_id], 57:63)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.004276811
                 RSV_days_immune = rand(thread_rng[thread_id], 113:119)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.004852218
                 RSV_days_immune = rand(thread_rng[thread_id], 106:112)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.005723613
                 RSV_days_immune = rand(thread_rng[thread_id], 99:105)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.006328322
                 RSV_days_immune = rand(thread_rng[thread_id], 92:98)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.006621885
                 RSV_days_immune = rand(thread_rng[thread_id], 85:91)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.006368536
                 RSV_days_immune = rand(thread_rng[thread_id], 78:84)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.006325695
                 RSV_days_immune = rand(thread_rng[thread_id], 71:77)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.006643912
                 RSV_days_immune = rand(thread_rng[thread_id], 64:70)
+                RSV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[4].immunity_duration, immunity_duration_sd)))
             end
-
-            # if rand(thread_rng[thread_id], Float64) < 0.000200061
-            #     AdV_days_immune = rand(thread_rng[thread_id], 1:7)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000212994
-            #     AdV_days_immune = rand(thread_rng[thread_id], 8:14)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000311205
-            #     AdV_days_immune = rand(thread_rng[thread_id], 15:21)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000499343
-            #     AdV_days_immune = rand(thread_rng[thread_id], 22:28)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000542791
-            #     AdV_days_immune = rand(thread_rng[thread_id], 29:35)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000606042
-            #     AdV_days_immune = rand(thread_rng[thread_id], 36:42)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000683237
-            #     AdV_days_immune = rand(thread_rng[thread_id], 43:49)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000843286
-            #     AdV_days_immune = rand(thread_rng[thread_id], 50:56)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000931393
-            #     AdV_days_immune = rand(thread_rng[thread_id], 57:63)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000857432
-            #     AdV_days_immune = rand(thread_rng[thread_id], 85:90)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000817824
-            #     AdV_days_immune = rand(thread_rng[thread_id], 78:84)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000790947
-            #     AdV_days_immune = rand(thread_rng[thread_id], 71:77)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000769728
-            #     AdV_days_immune = rand(thread_rng[thread_id], 64:70)
-            # end
 
             if rand(thread_rng[thread_id], Float64) < 0.000600061
                 AdV_days_immune = rand(thread_rng[thread_id], 1:7)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000612994
                 AdV_days_immune = rand(thread_rng[thread_id], 8:14)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000911205
                 AdV_days_immune = rand(thread_rng[thread_id], 15:21)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001299343
                 AdV_days_immune = rand(thread_rng[thread_id], 22:28)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001542791
                 AdV_days_immune = rand(thread_rng[thread_id], 29:35)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001806042
                 AdV_days_immune = rand(thread_rng[thread_id], 36:42)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001883237
                 AdV_days_immune = rand(thread_rng[thread_id], 43:49)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002443286
                 AdV_days_immune = rand(thread_rng[thread_id], 50:56)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002731393
                 AdV_days_immune = rand(thread_rng[thread_id], 57:63)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002457432
                 AdV_days_immune = rand(thread_rng[thread_id], 85:90)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002417824
                 AdV_days_immune = rand(thread_rng[thread_id], 78:84)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002190947
                 AdV_days_immune = rand(thread_rng[thread_id], 71:77)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002169728
                 AdV_days_immune = rand(thread_rng[thread_id], 64:70)
+                AdV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[5].immunity_duration, immunity_duration_sd)))
             end
-
-            # if rand(thread_rng[thread_id], Float64) < 0.00027281
-            #     PIV_days_immune = rand(thread_rng[thread_id], 1:7)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000271395
-            #     PIV_days_immune = rand(thread_rng[thread_id], 8:14)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000255633
-            #     PIV_days_immune = rand(thread_rng[thread_id], 15:21)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000338891
-            #     PIV_days_immune = rand(thread_rng[thread_id], 22:28)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.00036698
-            #     PIV_days_immune = rand(thread_rng[thread_id], 29:35)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.00036698
-            #     PIV_days_immune = rand(thread_rng[thread_id], 36:42)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000421138
-            #     PIV_days_immune = rand(thread_rng[thread_id], 43:49)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000546832
-            #     PIV_days_immune = rand(thread_rng[thread_id], 50:56)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000706275
-            #     PIV_days_immune = rand(thread_rng[thread_id], 57:63)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000647267
-            #     PIV_days_immune = rand(thread_rng[thread_id], 85:90)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000463979
-            #     PIV_days_immune = rand(thread_rng[thread_id], 78:84)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000503789
-            #     PIV_days_immune = rand(thread_rng[thread_id], 71:77)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000563403
-            #     PIV_days_immune = rand(thread_rng[thread_id], 64:70)
-            # end
 
             if rand(thread_rng[thread_id], Float64) < 0.00067281
                 PIV_days_immune = rand(thread_rng[thread_id], 1:7)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000671395
                 PIV_days_immune = rand(thread_rng[thread_id], 8:14)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000655633
                 PIV_days_immune = rand(thread_rng[thread_id], 15:21)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000938891
                 PIV_days_immune = rand(thread_rng[thread_id], 22:28)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.00096698
                 PIV_days_immune = rand(thread_rng[thread_id], 29:35)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.00096698
                 PIV_days_immune = rand(thread_rng[thread_id], 36:42)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001221138
                 PIV_days_immune = rand(thread_rng[thread_id], 43:49)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001546832
                 PIV_days_immune = rand(thread_rng[thread_id], 50:56)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.002106275
                 PIV_days_immune = rand(thread_rng[thread_id], 57:63)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001847267
                 PIV_days_immune = rand(thread_rng[thread_id], 85:90)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001263979
                 PIV_days_immune = rand(thread_rng[thread_id], 78:84)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001503789
                 PIV_days_immune = rand(thread_rng[thread_id], 71:77)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001563403
                 PIV_days_immune = rand(thread_rng[thread_id], 64:70)
+                PIV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[6].immunity_duration, immunity_duration_sd)))
             end
-
-            # if rand(thread_rng[thread_id], Float64) < 0.000195211
-            #     CoV_days_immune = rand(thread_rng[thread_id], 211:217)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000146509
-            #     CoV_days_immune = rand(thread_rng[thread_id], 204:210)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000161261
-            #     CoV_days_immune = rand(thread_rng[thread_id], 197:203)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000208952
-            #     CoV_days_immune = rand(thread_rng[thread_id], 190:196)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000238052
-            #     CoV_days_immune = rand(thread_rng[thread_id], 183:189)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000289583
-            #     CoV_days_immune = rand(thread_rng[thread_id], 176:182)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000332424
-            #     CoV_days_immune = rand(thread_rng[thread_id], 169:175)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000384359
-            #     CoV_days_immune = rand(thread_rng[thread_id], 162:168)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000403557
-            #     CoV_days_immune = rand(thread_rng[thread_id], 155:161)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000391634
-            #     CoV_days_immune = rand(thread_rng[thread_id], 148:154)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000386178
-            #     CoV_days_immune = rand(thread_rng[thread_id], 141:147)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000337072
-            #     CoV_days_immune = rand(thread_rng[thread_id], 134:140)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000295847
-            #     CoV_days_immune = rand(thread_rng[thread_id], 127:133)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000186521
-            #     CoV_days_immune = rand(thread_rng[thread_id], 120:126)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000136001
-            #     CoV_days_immune = rand(thread_rng[thread_id], 113:119)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000130343
-            #     CoV_days_immune = rand(thread_rng[thread_id], 106:112)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000147924
-            #     CoV_days_immune = rand(thread_rng[thread_id], 99:105)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000157421
-            #     CoV_days_immune = rand(thread_rng[thread_id], 92:98)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000152774
-            #     CoV_days_immune = rand(thread_rng[thread_id], 85:91)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000127918
-            #     CoV_days_immune = rand(thread_rng[thread_id], 78:84)
-            # elseif rand(thread_rng[thread_id], Float64) < 0.000105082
-            #     CoV_days_immune = rand(thread_rng[thread_id], 71:77)
-            # end
 
             if rand(thread_rng[thread_id], Float64) < 0.000395211
                 CoV_days_immune = rand(thread_rng[thread_id], 211:217)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000346509
                 CoV_days_immune = rand(thread_rng[thread_id], 204:210)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000361261
                 CoV_days_immune = rand(thread_rng[thread_id], 197:203)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000608952
                 CoV_days_immune = rand(thread_rng[thread_id], 190:196)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000638052
                 CoV_days_immune = rand(thread_rng[thread_id], 183:189)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000689583
                 CoV_days_immune = rand(thread_rng[thread_id], 176:182)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000932424
                 CoV_days_immune = rand(thread_rng[thread_id], 169:175)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000984359
                 CoV_days_immune = rand(thread_rng[thread_id], 162:168)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.001203557
                 CoV_days_immune = rand(thread_rng[thread_id], 155:161)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000991634
                 CoV_days_immune = rand(thread_rng[thread_id], 148:154)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000986178
                 CoV_days_immune = rand(thread_rng[thread_id], 141:147)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000937072
                 CoV_days_immune = rand(thread_rng[thread_id], 134:140)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000695847
                 CoV_days_immune = rand(thread_rng[thread_id], 127:133)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000386521
                 CoV_days_immune = rand(thread_rng[thread_id], 120:126)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000336001
                 CoV_days_immune = rand(thread_rng[thread_id], 113:119)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000330343
                 CoV_days_immune = rand(thread_rng[thread_id], 106:112)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000347924
                 CoV_days_immune = rand(thread_rng[thread_id], 99:105)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000357421
                 CoV_days_immune = rand(thread_rng[thread_id], 92:98)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000352774
                 CoV_days_immune = rand(thread_rng[thread_id], 85:91)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000327918
                 CoV_days_immune = rand(thread_rng[thread_id], 78:84)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             elseif rand(thread_rng[thread_id], Float64) < 0.000305082
                 CoV_days_immune = rand(thread_rng[thread_id], 71:77)
+                CoV_immunity_end = trunc(Int, rand(thread_rng[thread_id], Normal(viruses[7].immunity_duration, immunity_duration_sd)))
             end
         end
 
@@ -1158,6 +1040,8 @@ mutable struct Agent
             activity_type, 0, school_group_num, 0, Int[], Int[], Int[], 0, false,
             false, ig_level, virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
             RSV_days_immune, AdV_days_immune, PIV_days_immune, CoV_days_immune,
+            FluA_immunity_end, FluB_immunity_end, RV_immunity_end,
+            RSV_immunity_end, AdV_immunity_end, PIV_immunity_end, CoV_immunity_end,
             incubation_period, infection_period, days_infected, days_immune,
             is_asymptomatic, is_isolated, infectivity, attendance, is_teacher)
     end

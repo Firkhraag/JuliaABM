@@ -358,49 +358,49 @@ function update_agent_states(
 
         # Продолжительности типоспецифического иммунитета
         if agent.FluA_days_immune != 0
-            if agent.FluA_days_immune == 300
+            if agent.FluA_days_immune == agent.FluA_immunity_end
                 agent.FluA_days_immune = 0
             else
                 agent.FluA_days_immune += 1
             end
         end
         if agent.FluB_days_immune != 0
-            if agent.FluB_days_immune == 300
+            if agent.FluB_days_immune == agent.FluB_immunity_end
                 agent.FluB_days_immune = 0
             else
                 agent.FluB_days_immune += 1
             end
         end
         if agent.RV_days_immune != 0
-            if agent.RV_days_immune == 60
+            if agent.RV_days_immune == agent.RV_immunity_end
                 agent.RV_days_immune = 0
             else
                 agent.RV_days_immune += 1
             end
         end
         if agent.RSV_days_immune != 0
-            if agent.RSV_days_immune == 60
+            if agent.RSV_days_immune == agent.RSV_immunity_end
                 agent.RSV_days_immune = 0
             else
                 agent.RSV_days_immune += 1
             end
         end
         if agent.AdV_days_immune != 0
-            if agent.AdV_days_immune == 90
+            if agent.AdV_days_immune == agent.AdV_immunity_end
                 agent.AdV_days_immune = 0
             else
                 agent.AdV_days_immune += 1
             end
         end
         if agent.PIV_days_immune != 0
-            if agent.PIV_days_immune == 90
+            if agent.PIV_days_immune == agent.PIV_immunity_end
                 agent.PIV_days_immune = 0
             else
                 agent.PIV_days_immune += 1
             end
         end
         if agent.CoV_days_immune != 0
-            if agent.CoV_days_immune == 120
+            if agent.CoV_days_immune == agent.CoV_immunity_end
                 agent.CoV_days_immune = 0
             else
                 agent.CoV_days_immune += 1
@@ -1119,6 +1119,7 @@ function run_simulation(
 
     # DEBUG
     max_step = 365
+    # max_step = 1
 
     for current_step = 1:max_step
         # println(current_step)
