@@ -171,18 +171,20 @@ function main()
     # a3_symptomatic_parameters = [0.0017959183673469388, 0.3006122448979593]
     # random_infection_probabilities = [0.0018693877551020407, 0.0011551020408163267, 0.0005632653061224491, 5.530612244897962e-7]
 
-    a1_symptomatic_parameters = [1.653673469387755, 0.5153061224489794]
-    a2_symptomatic_parameters = [0.06765306122448979, 0.010816326530612244]
-    a3_symptomatic_parameters = [0.003204081632653061, 0.3017755102040817]
-    random_infection_probabilities = [0.0016510204081632651, 0.0012469387755102042, 0.00044693877551020415, 7.816326530612248e-7]
+    # a1_symptomatic_parameters = [1.653673469387755, 0.5153061224489794]
+    # a2_symptomatic_parameters = [0.06765306122448979, 0.010816326530612244]
+    # a3_symptomatic_parameters = [0.003204081632653061, 0.3017755102040817]
 
-    
+    symptomatic_probabilities_children = [0.41, 0.41, 0.19, 0.26, 0.15, 0.16, 0.22]
+    symptomatic_probabilities_teenagers = [0.52, 0.52, 0.24, 0.33, 0.19, 0.2, 0.28]
+    symptomatic_probabilities_adults = [0.61, 0.61, 0.28, 0.39, 0.22, 0.24, 0.33]
+    random_infection_probabilities = [0.0016510204081632651, 0.0012469387755102042, 0.00044693877551020415, 7.816326530612248e-7]
 
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, households, viruses, infectivities, a1_symptomatic_parameters,
-            a2_symptomatic_parameters, a3_symptomatic_parameters, start_household_ids[thread_id],
+            agents, households, viruses, infectivities, symptomatic_probabilities_children,
+            symptomatic_probabilities_teenagers, symptomatic_probabilities_adults, start_household_ids[thread_id],
             homes_coords_df, district_households, district_people,
             district_people_households, district_nums)
     end
@@ -416,10 +418,10 @@ function main()
         end
 
         @time num_infected_age_groups_viruses = run_simulation(
-            num_threads, thread_rng, agents, households, infectivities,
+            num_threads, thread_rng, agents, viruses, households, infectivities,
             temp_influences, duration_parameter, susceptibility_parameters,
-            a1_symptomatic_parameters, a2_symptomatic_parameters,
-            a3_symptomatic_parameters, random_infection_probabilities, etiology, n == 1)
+            symptomatic_probabilities_children, symptomatic_probabilities_teenagers,
+            symptomatic_probabilities_adults, random_infection_probabilities, etiology, n == 1)
 
         writedlm(
             joinpath(@__DIR__, "..", "output", "tables", n > 1 ? "age_groups_viruses_data_$(i).csv" : "age_groups_viruses_data.csv"),

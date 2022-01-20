@@ -91,9 +91,9 @@ mutable struct Agent
         household_id::Int,
         viruses::Vector{Virus},
         infectivities::Array{Float64, 4},
-        a1_symptomatic_parameters::Vector{Float64},
-        a2_symptomatic_parameters::Vector{Float64},
-        a3_symptomatic_parameters::Vector{Float64},
+        symptomatic_probabilities_children::Vector{Float64},
+        symptomatic_probabilities_teenagers::Vector{Float64},
+        symptomatic_probabilities_adults::Vector{Float64},
         household_conn_ids::Vector{Int},
         is_male::Bool,
         age::Int,
@@ -406,23 +406,23 @@ mutable struct Agent
         # end
 
         if age < 3
-            if rand(thread_rng[thread_id], Float64) < 0.8 * 4896 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 2)) - a3_symptomatic_parameters[2]) / 272834
-            # if rand(thread_rng[thread_id], Float64) < 4896 / 272834
+            # if rand(thread_rng[thread_id], Float64) < 0.8 * 4896 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 2)) - a3_symptomatic_parameters[2]) / 272834
+            if rand(thread_rng[thread_id], Float64) < 4896 / 272834
                 is_infected = true
             end
         elseif age < 7
-            # if rand(thread_rng[thread_id], Float64) < 3615 / 319868
-            if rand(thread_rng[thread_id], Float64) < 1.1 * 3615 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 5)) - a3_symptomatic_parameters[2]) / 319868
+            if rand(thread_rng[thread_id], Float64) < 3615 / 319868
+            # if rand(thread_rng[thread_id], Float64) < 1.1 * 3615 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 5)) - a3_symptomatic_parameters[2]) / 319868
                 is_infected = true
             end
         elseif age < 15
-            # if rand(thread_rng[thread_id], Float64) < 2906 / 559565
-            if rand(thread_rng[thread_id], Float64) < 1.2 * 2906 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 10)) - a3_symptomatic_parameters[2]) / 559565
+            if rand(thread_rng[thread_id], Float64) < 2906 / 559565
+            # if rand(thread_rng[thread_id], Float64) < 1.2 * 2906 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 10)) - a3_symptomatic_parameters[2]) / 559565
                 is_infected = true
             end
         else
-            # if rand(thread_rng[thread_id], Float64) < 14928 / 8920401
-            if rand(thread_rng[thread_id], Float64) < 1.45 * 14928 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 35)) - a3_symptomatic_parameters[2]) / 8920401
+            if rand(thread_rng[thread_id], Float64) < 14928 / 8920401
+            # if rand(thread_rng[thread_id], Float64) < 1.45 * 14928 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 35)) - a3_symptomatic_parameters[2]) / 8920401
                 is_infected = true
             end
         end
@@ -934,23 +934,32 @@ mutable struct Agent
             #         end
             #     end
             # end
-            is_asymptomatic = false
-            if virus_id == 1 || virus_id == 2
-                is_asymptomatic = check_if_will_be_asymptomatic(
-                    age,
-                    a1_symptomatic_parameters[1],
-                    a2_symptomatic_parameters[1],
-                    a3_symptomatic_parameters[1],
-                    thread_rng[thread_id]
-                )
+
+            # is_asymptomatic = false
+            # if virus_id == 1 || virus_id == 2
+            #     is_asymptomatic = check_if_will_be_asymptomatic(
+            #         age,
+            #         a1_symptomatic_parameters[1],
+            #         a2_symptomatic_parameters[1],
+            #         a3_symptomatic_parameters[1],
+            #         thread_rng[thread_id]
+            #     )
+            # else
+            #     is_asymptomatic = check_if_will_be_asymptomatic(
+            #         age,
+            #         a1_symptomatic_parameters[2],
+            #         a2_symptomatic_parameters[2],
+            #         a3_symptomatic_parameters[2],
+            #         thread_rng[thread_id]
+            #     )
+            # end
+
+            if age < 10
+                is_asymptomatic = rand(thread_rng[thread_id], Float64) > symptomatic_probabilities_children[virus_id]
+            elseif age < 18
+                is_asymptomatic = rand(thread_rng[thread_id], Float64) > symptomatic_probabilities_teenagers[virus_id]
             else
-                is_asymptomatic = check_if_will_be_asymptomatic(
-                    age,
-                    a1_symptomatic_parameters[2],
-                    a2_symptomatic_parameters[2],
-                    a3_symptomatic_parameters[2],
-                    thread_rng[thread_id]
-                )
+                is_asymptomatic = rand(thread_rng[thread_id], Float64) > symptomatic_probabilities_adults[virus_id]
             end
 
             if !is_asymptomatic
@@ -1048,16 +1057,16 @@ mutable struct Agent
 end
 
 # Будет ли агент в симптомном состоянии или нет
-function check_if_will_be_asymptomatic(
-    age::Int,
-    a1::Float64,
-    a2::Float64,
-    a3::Float64,
-    rng::MersenneTwister,
-)::Bool
-    # rand(rng, Float64) < a1 * exp(a2 * age + a3) - a1 * exp(a3)
-    rand(rng, Float64) < a1 / (1 + exp(a2 * age)) + a3
-end
+# function check_if_will_be_asymptomatic(
+#     age::Int,
+#     a1::Float64,
+#     a2::Float64,
+#     a3::Float64,
+#     rng::MersenneTwister,
+# )::Bool
+#     # rand(rng, Float64) < a1 * exp(a2 * age + a3) - a1 * exp(a3)
+#     rand(rng, Float64) < a1 / (1 + exp(a2 * age)) + a3
+# end
 
 # Получить длительность инкубационного периода или периода болезни
 function get_period_from_erlang(

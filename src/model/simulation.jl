@@ -338,10 +338,11 @@ function update_agent_states(
     start_agent_id::Int,
     end_agent_id::Int,
     agents::Vector{Agent},
+    viruses::Vector{Virus},
     infectivities::Array{Float64, 4},
-    a1_symptomatic_parameters::Vector{Float64},
-    a2_symptomatic_parameters::Vector{Float64},
-    a3_symptomatic_parameters::Vector{Float64},
+    symptomatic_probabilities_children::Vector{Float64},
+    symptomatic_probabilities_teenagers::Vector{Float64},
+    symptomatic_probabilities_adults::Vector{Float64},
     current_step::Int,
     confirmed_daily_new_cases_age_groups_viruses::Array{Float64, 4},
 )
@@ -411,18 +412,25 @@ function update_agent_states(
             if agent.days_infected == agent.infection_period
                 if agent.virus_id == 1
                     agent.FluA_days_immune = 1
+                    agent.FluA_immunity_end = trunc(Int, rand(rng, Normal(viruses[1].immunity_duration, immunity_duration_sd)))
                 elseif agent.virus_id == 2
                     agent.FluB_days_immune = 1
+                    agent.FluB_immunity_end = trunc(Int, rand(rng, Normal(viruses[2].immunity_duration, immunity_duration_sd)))
                 elseif agent.virus_id == 3
                     agent.RV_days_immune = 1
+                    agent.RV_immunity_end = trunc(Int, rand(rng, Normal(viruses[3].immunity_duration, immunity_duration_sd)))
                 elseif agent.virus_id == 4
                     agent.RSV_days_immune = 1
+                    agent.RSV_immunity_end = trunc(Int, rand(rng, Normal(viruses[4].immunity_duration, immunity_duration_sd)))
                 elseif agent.virus_id == 5
                     agent.AdV_days_immune = 1
+                    agent.AdV_immunity_end = trunc(Int, rand(rng, Normal(viruses[5].immunity_duration, immunity_duration_sd)))
                 elseif agent.virus_id == 6
                     agent.PIV_days_immune = 1
+                    agent.PIV_immunity_end = trunc(Int, rand(rng, Normal(viruses[6].immunity_duration, immunity_duration_sd)))
                 else
                     agent.CoV_days_immune = 1
+                    agent.CoV_immunity_end = trunc(Int, rand(rng, Normal(viruses[7].immunity_duration, immunity_duration_sd)))
                 end
                 agent.days_immune = 1
                 agent.virus_id = 0
@@ -636,22 +644,31 @@ function update_agent_states(
             #         end
             #     end
             # end
-            if agent.virus_id == 1 || agent.virus_id == 2
-                agent.is_asymptomatic = check_if_will_be_asymptomatic(
-                    agent.age,
-                    a1_symptomatic_parameters[1],
-                    a2_symptomatic_parameters[1],
-                    a3_symptomatic_parameters[1],
-                    rng
-                )
+
+            # if agent.virus_id == 1 || agent.virus_id == 2
+            #     agent.is_asymptomatic = check_if_will_be_asymptomatic(
+            #         agent.age,
+            #         symptomatic_probabilities_children[1],
+            #         symptomatic_probabilities_teenagers[1],
+            #         symptomatic_probabilities_adults[1],
+            #         rng
+            #     )
+            # else
+            #     agent.is_asymptomatic = check_if_will_be_asymptomatic(
+            #         agent.age,
+            #         symptomatic_probabilities_children[2],
+            #         symptomatic_probabilities_teenagers[2],
+            #         symptomatic_probabilities_adults[2],
+            #         rng
+            #     )
+            # end
+
+            if agent.age < 10
+                agent.is_asymptomatic = rand(rng, Float64) > symptomatic_probabilities_children[agent.virus_id]
+            elseif agent.age < 18
+                agent.is_asymptomatic = rand(rng, Float64) > symptomatic_probabilities_teenagers[agent.virus_id]
             else
-                agent.is_asymptomatic = check_if_will_be_asymptomatic(
-                    agent.age,
-                    a1_symptomatic_parameters[2],
-                    a2_symptomatic_parameters[2],
-                    a3_symptomatic_parameters[2],
-                    rng
-                )
+                agent.is_asymptomatic = rand(rng, Float64) > symptomatic_probabilities_adults[agent.virus_id]
             end
             
             agent.infectivity = find_agent_infectivity(
@@ -1088,6 +1105,7 @@ function run_simulation(
     num_threads::Int,
     thread_rng::Vector{MersenneTwister},
     agents::Vector{Agent},
+    viruses::Vector{Virus},
     households::Vector{Household},
     # shops::Vector{PublicSpace},
     # restaurants::Vector{PublicSpace},
@@ -1095,9 +1113,9 @@ function run_simulation(
     temp_influences::Array{Float64, 2},
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
-    a1_symptomatic_parameters::Vector{Float64},
-    a2_symptomatic_parameters::Vector{Float64},
-    a3_symptomatic_parameters::Vector{Float64},
+    symptomatic_probabilities_children::Vector{Float64},
+    symptomatic_probabilities_teenagers::Vector{Float64},
+    symptomatic_probabilities_adults::Vector{Float64},
     random_infection_probabilities::Vector{Float64},
     etiology::Matrix{Float64},
     is_single_run::Bool,
@@ -1293,10 +1311,11 @@ function run_simulation(
                 start_agent_ids[thread_id],
                 end_agent_ids[thread_id],
                 agents,
+                viruses,
                 infectivities,
-                a1_symptomatic_parameters,
-                a2_symptomatic_parameters,
-                a3_symptomatic_parameters,
+                symptomatic_probabilities_children,
+                symptomatic_probabilities_teenagers,
+                symptomatic_probabilities_adults,
                 current_step,
                 confirmed_daily_new_cases_age_groups_viruses)
         end

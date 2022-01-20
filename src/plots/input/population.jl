@@ -56,6 +56,8 @@ function age_distribution_groups()
     for i = 1:18
         s += (num_people_model_vec[i] - num_people_data_vec[i])^2
     end
+    # 8.427377045e10
+    # 2.9657067362e10
     println(s)
 
     num_people_data = append!(num_people_data_vec, num_people_model_vec)
