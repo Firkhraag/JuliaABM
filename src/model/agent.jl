@@ -28,17 +28,12 @@ mutable struct Agent
     # friend_ids::Vector{Int}
     # visit_household_id::Int
 
-    # # Id детей за которыми нужен уход в случае болезни
-    # dependant_ids::Vector{Int}
-    # # Id того, кто будет ухаживать в случае болезни
-    
     # Id детей младше 12 лет
     dependant_ids::Vector{Int}
     # Id попечителя
     supporter_id::Int
     # Нуждается в уходе при болезни
     needs_supporter_care::Bool
-
     # Уход за больным ребенком
     on_parent_leave::Bool
     # Уровень иммуноглобулина
@@ -55,7 +50,7 @@ mutable struct Agent
     AdV_days_immune::Int
     PIV_days_immune::Int
     CoV_days_immune::Int
-
+    # Набор дней конца типоспецифических иммунитетов
     FluA_immunity_end::Int
     FluB_immunity_end::Int
     RV_immunity_end::Int
@@ -75,9 +70,6 @@ mutable struct Agent
     is_asymptomatic::Bool
     # На больничном
     is_isolated::Bool
-    # Инфекционность
-    infectivity::Float64
-
     # Посещение детсада, школы, университета
     attendance::Bool
     # Учитель, воспитатель, профессор
@@ -90,7 +82,6 @@ mutable struct Agent
         id::Int,
         household_id::Int,
         viruses::Vector{Virus},
-        infectivities::Array{Float64, 4},
         symptomatic_probabilities_children::Vector{Float64},
         symptomatic_probabilities_teenagers::Vector{Float64},
         symptomatic_probabilities_adults::Vector{Float64},
@@ -292,7 +283,6 @@ mutable struct Agent
                 else
                     school_group_num = 10
                 end
-                # school_group_num = rand(thread_rng[thread_id], 10:11)
             else
                 school_group_num = 11
             end
@@ -400,51 +390,24 @@ mutable struct Agent
 
         # Болен
         is_infected = false
-        # if rand(thread_rng[thread_id], Float64) < 0.004
-        # if rand(thread_rng[thread_id], Float64) < 0.005
-        #     is_infected = true
-        # end
 
         if age < 3
-            # if rand(thread_rng[thread_id], Float64) < 0.8 * 4896 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 2)) - a3_symptomatic_parameters[2]) / 272834
             if rand(thread_rng[thread_id], Float64) < 4896 / 272834
                 is_infected = true
             end
         elseif age < 7
             if rand(thread_rng[thread_id], Float64) < 3615 / 319868
-            # if rand(thread_rng[thread_id], Float64) < 1.1 * 3615 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 5)) - a3_symptomatic_parameters[2]) / 319868
                 is_infected = true
             end
         elseif age < 15
             if rand(thread_rng[thread_id], Float64) < 2906 / 559565
-            # if rand(thread_rng[thread_id], Float64) < 1.2 * 2906 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 10)) - a3_symptomatic_parameters[2]) / 559565
                 is_infected = true
             end
         else
             if rand(thread_rng[thread_id], Float64) < 14928 / 8920401
-            # if rand(thread_rng[thread_id], Float64) < 1.45 * 14928 / (1 - a1_symptomatic_parameters[2] / (1 + exp(a2_symptomatic_parameters[2] * 35)) - a3_symptomatic_parameters[2]) / 8920401
                 is_infected = true
             end
         end
-        # a1 / (1 + exp(a2 * age)) + a3
-
-        # if age < 3
-        #     if rand(thread_rng[thread_id], Float64) < 0.001
-        #         is_infected = true
-        #     end
-        # elseif age < 7
-        #     if rand(thread_rng[thread_id], Float64) < 0.002
-        #         is_infected = true
-        #     end
-        # elseif age < 15
-        #     if rand(thread_rng[thread_id], Float64) < 0.003
-        #         is_infected = true
-        #     end
-        # else
-        #     if rand(thread_rng[thread_id], Float64) < 0.004
-        #         is_infected = true
-        #     end
-        # end
 
         # Набор дней после приобретения типоспецифического иммунитета
         FluA_days_immune = 0
@@ -822,7 +785,7 @@ mutable struct Agent
         days_infected = 0
         is_asymptomatic = false
         is_isolated = false
-        infectivity = 0.0
+        # infectivity = 0.0
         if is_infected
             # Тип инфекции
             rand_num = rand(thread_rng[thread_id], Float64)
@@ -860,99 +823,6 @@ mutable struct Agent
 
             # Дней с момента инфицирования
             days_infected = rand(thread_rng[thread_id], (1 - incubation_period):infection_period)
-
-            # asymp_prob = 0.0
-            # if age < 16
-            #     asymp_prob = viruses[virus_id].asymptomatic_probab_child
-            # else
-            #     asymp_prob = viruses[virus_id].asymptomatic_probab_adult
-            # end
-
-            # if rand(thread_rng[thread_id], Float64) < asymp_prob
-            #     # Асимптомный
-            #     is_asymptomatic = true
-            # else
-            #     # Самоизоляция
-            #     if days_infected >= 1
-            #         rand_num = rand(thread_rng[thread_id], Float64)
-            #         if age < 3
-            #             if rand_num < 0.406
-            #                 is_isolated = true
-            #             end
-            #         elseif age < 8
-            #             if rand_num < 0.305
-            #                 is_isolated = true
-            #             end
-            #         elseif age < 18
-            #             if rand_num < 0.204
-            #                 is_isolated = true
-            #             end
-            #         else
-            #             if rand_num < 0.101
-            #                 is_isolated = true
-            #             end
-            #         end
-            #     end
-            #     if days_infected >= 2 && !is_isolated
-            #         rand_num = rand(thread_rng[thread_id], Float64)
-            #         if age < 3
-            #             if rand_num < 0.669
-            #                 is_isolated = true
-            #             end
-            #         elseif age < 8
-            #             if rand_num < 0.576
-            #                 is_isolated = true
-            #             end
-            #         elseif age < 18
-            #             if rand_num < 0.499
-            #                 is_isolated = true
-            #             end
-            #         else
-            #             if rand_num < 0.334
-            #                 is_isolated = true
-            #             end
-            #         end
-            #     end
-            #     if days_infected >= 3 && !is_isolated
-            #         rand_num = rand(thread_rng[thread_id], Float64)
-            #         if age < 3
-            #             if rand_num < 0.45
-            #                 is_isolated = true
-            #             end
-            #         elseif age < 8
-            #             if rand_num < 0.325
-            #                 is_isolated = true
-            #             end
-            #         elseif age < 18
-            #             if rand_num < 0.376
-            #                 is_isolated = true
-            #             end
-            #         else
-            #             if rand_num < 0.168
-            #                 is_isolated = true
-            #             end
-            #         end
-            #     end
-            # end
-
-            # is_asymptomatic = false
-            # if virus_id == 1 || virus_id == 2
-            #     is_asymptomatic = check_if_will_be_asymptomatic(
-            #         age,
-            #         a1_symptomatic_parameters[1],
-            #         a2_symptomatic_parameters[1],
-            #         a3_symptomatic_parameters[1],
-            #         thread_rng[thread_id]
-            #     )
-            # else
-            #     is_asymptomatic = check_if_will_be_asymptomatic(
-            #         age,
-            #         a1_symptomatic_parameters[2],
-            #         a2_symptomatic_parameters[2],
-            #         a3_symptomatic_parameters[2],
-            #         thread_rng[thread_id]
-            #     )
-            # end
 
             if age < 10
                 is_asymptomatic = rand(thread_rng[thread_id], Float64) > symptomatic_probabilities_children[virus_id]
@@ -1024,25 +894,12 @@ mutable struct Agent
                     end
                 end
             end
-
-            # Вирусная нагрузкаx
-            infectivity = find_agent_infectivity(
-                age, infectivities[virus_id, incubation_period, infection_period - 1, days_infected + 7],
-                is_asymptomatic && days_infected > 0)
         end
 
         attendance = true
         is_teacher = false
 
         days_immune = 0
-
-        # new(
-        #     id, age, infant_age, is_male, household_id, household_conn_ids,
-        #     activity_type, 0, school_group_num, 0, Int[], Int[], Int[], 0, Int[], 0, false,
-        #     false, ig_level, virus_id, false, FluA_days_immune, FluB_days_immune, RV_days_immune,
-        #     RSV_days_immune, AdV_days_immune, PIV_days_immune, CoV_days_immune,
-        #     incubation_period, infection_period, days_infected, days_immune,
-        #     is_asymptomatic, is_isolated, infectivity, attendance, is_teacher, 0, 0)
         
         new(
             id, age, infant_age, is_male, household_id, household_conn_ids,
@@ -1052,21 +909,9 @@ mutable struct Agent
             FluA_immunity_end, FluB_immunity_end, RV_immunity_end,
             RSV_immunity_end, AdV_immunity_end, PIV_immunity_end, CoV_immunity_end,
             incubation_period, infection_period, days_infected, days_immune,
-            is_asymptomatic, is_isolated, infectivity, attendance, is_teacher)
+            is_asymptomatic, is_isolated, attendance, is_teacher)
     end
 end
-
-# Будет ли агент в симптомном состоянии или нет
-# function check_if_will_be_asymptomatic(
-#     age::Int,
-#     a1::Float64,
-#     a2::Float64,
-#     a3::Float64,
-#     rng::MersenneTwister,
-# )::Bool
-#     # rand(rng, Float64) < a1 * exp(a2 * age + a3) - a1 * exp(a3)
-#     rand(rng, Float64) < a1 / (1 + exp(a2 * age)) + a3
-# end
 
 # Получить длительность инкубационного периода или периода болезни
 function get_period_from_erlang(
@@ -1081,31 +926,4 @@ function get_period_from_erlang(
     return round(
         rand(rng, truncated(
             Erlang(shape, scale), low, upper)))
-end
-
-# Получить вирусную нагрузку
-function find_agent_infectivity(
-    age::Int,
-    infectivity_value::Float64,
-    is_infectivity_halved::Bool,
-)::Float64
-    if age < 3
-        if is_infectivity_halved
-            return infectivity_value * 0.5
-        else
-            return infectivity_value
-        end
-    elseif age < 16
-        if is_infectivity_halved
-            return infectivity_value * 0.375
-        else
-            return infectivity_value * 0.75
-        end
-    else
-        if is_infectivity_halved
-            return infectivity_value * 0.25
-        else
-            return infectivity_value * 0.5
-        end
-    end
 end

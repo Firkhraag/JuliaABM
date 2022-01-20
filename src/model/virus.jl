@@ -38,7 +38,9 @@ struct Virus
     max_infection_period_child::Int
 
     # Средняя вирусная нагрузка (по умолчанию для младенца)
-    mean_viral_load::Float64
+    mean_viral_load_toddler::Float64
+    mean_viral_load_child::Float64
+    mean_viral_load_adult::Float64
 
     # Вероятность бессимптомного протекания болезни
     asymptomatic_probab_child::Float64
@@ -61,10 +63,12 @@ struct Virus
         infection_period_variance_child::Float64,
         min_infection_period_child::Int,
         max_infection_period_child::Int,
-        mean_viral_load::Float64,
+        mean_viral_load_toddler::Float64,
+        mean_viral_load_child::Float64,
+        mean_viral_load_adult::Float64,
         asymptomatic_probab_child::Float64,
         asymptomatic_probab_adult::Float64,
-        immunity_duration::Int
+        immunity_duration::Int,
     )
         new(
             id,
@@ -80,7 +84,9 @@ struct Virus
             infection_period_variance_child,
             min_infection_period_child,
             max_infection_period_child,
-            mean_viral_load,
+            mean_viral_load_toddler,
+            mean_viral_load_child,
+            mean_viral_load_adult,
             asymptomatic_probab_child,
             asymptomatic_probab_adult,
             immunity_duration

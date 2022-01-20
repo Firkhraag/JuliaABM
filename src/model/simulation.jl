@@ -7,26 +7,47 @@ function get_contact_duration_gamma(shape::Float64, scale::Float64, rng::Mersenn
 end
 
 function make_contact(
+    viruses::Vector{Virus},
     infected_agent::Agent,
     susceptible_agent::Agent,
     contact_duration::Float64,
     current_step::Int,
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
-    temp_influences::Array{Float64, 2},
+    temperature_parameters::Vector{Float64},
+    current_temp::Float64,
     rng::MersenneTwister,
 )
     # Влияние продолжительности контакта на вероятность инфицирования
     duration_influence = 1 / (1 + exp(-contact_duration + duration_parameter))
             
     # Влияние температуры воздуха на вероятность инфицирования
-    temperature_influence = temp_influences[infected_agent.virus_id, current_step]
+    temperature_influence = temperature_parameters[infected_agent.virus_id] * current_temp + 1.0
 
     # Влияние восприимчивости агента на вероятность инфицирования
     susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus_id] * susceptible_agent.ig_level))
 
     # Влияние силы инфекции на вероятность инфицирования
-    infectivity_influence = infected_agent.infectivity
+    infectivity_influence = 0.0
+    if infected_agent.age < 3
+        infectivity_influence = get_infectivity(
+            infected_agent.days_infected,
+            infected_agent.incubation_period,
+            infected_agent.infection_period,
+            viruses[infected_agent.virus_id].mean_viral_load_toddler)
+    elseif infected_agent.age < 16
+        infectivity_influence = get_infectivity(
+            infected_agent.days_infected,
+            infected_agent.incubation_period,
+            infected_agent.infection_period,
+            viruses[infected_agent.virus_id].mean_viral_load_child)
+    else
+        infectivity_influence = get_infectivity(
+            infected_agent.days_infected,
+            infected_agent.incubation_period,
+            infected_agent.infection_period,
+            viruses[infected_agent.virus_id].mean_viral_load_adult)
+    end
 
     # Вероятность инфицирования
     infection_probability = infectivity_influence * susceptibility_influence *
@@ -65,22 +86,24 @@ function simulate_contacts(
     end_agent_id::Int,
     agents::Vector{Agent},
     households::Vector{Household},
-    temp_influences::Array{Float64, 2},
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
+    temperature_parameters::Vector{Float64},
     random_infection_probabilities::Vector{Float64},
     etiology::Matrix{Float64},
+    viruses::Vector{Virus},
     is_kindergarten_holiday::Bool,
     is_school_holiday::Bool,
     is_university_holiday::Bool,
     is_work_holiday::Bool,
     current_step::Int,
+    current_temp::Float64,
     infected_inside_activity::Array{Int, 3},
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
         # Агент инфицирован
-        if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
+        if agent.virus_id != 0 && !agent.is_newly_infected
 
             # --------------------------TBD ZONE-----------------------------------
 
@@ -115,8 +138,8 @@ function simulate_contacts(
             #                 dur = get_contact_duration_normal(0.42, 0.1, rng)
             #             end
             #             if dur > 0.01
-            #                 make_contact(agent, agent2, dur, current_step, duration_parameter,
-            #                     susceptibility_parameters, temp_influences, rng)
+            #                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+            #                     susceptibility_parameters, temperature_parameters, current_temp, rng)
             #                 if agent2.is_newly_infected
             #                     infected_inside_activity[current_step, 8, thread_id] += 1
             #                 end
@@ -183,8 +206,8 @@ function simulate_contacts(
                     # -------------------------------------------------------------
 
                     if dur > 0.01
-                        make_contact(agent, agent2, dur, current_step, duration_parameter,
-                            susceptibility_parameters, temp_influences, rng)
+                        make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+                            susceptibility_parameters, temperature_parameters, current_temp, rng)
                         if agent2.is_newly_infected
                             infected_inside_activity[current_step, 5, thread_id] += 1
                         end
@@ -222,8 +245,8 @@ function simulate_contacts(
                         end
 
                         if dur > 0.01
-                            make_contact(agent, agent2, dur, current_step, duration_parameter,
-                                susceptibility_parameters, temp_influences, rng)
+                            make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+                                susceptibility_parameters, temperature_parameters, current_temp, rng)
                             if agent2.is_newly_infected
                                 infected_inside_activity[current_step, agent.activity_type, thread_id] += 1
                             end
@@ -249,10 +272,8 @@ function simulate_contacts(
                                 
                             dur = get_contact_duration_gamma(1.2, 1.07, rng)
                             if dur > 0.01
-                                make_contact(
-                                    agent, agent2, dur,
-                                    current_step, duration_parameter,
-                                    susceptibility_parameters, temp_influences, rng)
+                                make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+                                    susceptibility_parameters, temperature_parameters, current_temp, rng)
     
                                 if agent2.is_newly_infected
                                     infected_inside_activity[current_step, 3, thread_id] += 1
@@ -298,8 +319,8 @@ function simulate_contacts(
             #                 dur = get_contact_duration_normal(0.42, 0.1, rng)
             #             end
             #             if dur > 0.01
-            #                 make_contact(agent2, agent, dur, current_step, duration_parameter,
-            #                     susceptibility_parameters, temp_influences, rng)
+            #                 make_contact(viruses, agent2, agent, dur, current_step, duration_parameter,
+            #                     susceptibility_parameters, temperature_parameters, current_temp, rng)
             #                 if agent.is_newly_infected
             #                     infected_inside_activity[current_step, 8, thread_id] += 1
             #                 end
@@ -339,7 +360,6 @@ function update_agent_states(
     end_agent_id::Int,
     agents::Vector{Agent},
     viruses::Vector{Virus},
-    infectivities::Array{Float64, 4},
     symptomatic_probabilities_children::Vector{Float64},
     symptomatic_probabilities_teenagers::Vector{Float64},
     symptomatic_probabilities_adults::Vector{Float64},
@@ -527,11 +547,6 @@ function update_agent_states(
                         end
                     end
                 end
-                
-                agent.infectivity = find_agent_infectivity(
-                    agent.age,
-                    infectivities[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
-                    agent.is_asymptomatic && agent.days_infected > 0)
 
                 if agent.supporter_id != 0 &&
                     agent.needs_supporter_care &&
@@ -615,54 +630,6 @@ function update_agent_states(
             end
             agent.days_infected = 1 - agent.incubation_period
 
-            # if agent.virus_id == 1 || agent.virus_id == 2
-            #     if agent.age < 16
-            #         if rand(rng, Float64) < 0.32
-            #             agent.is_asymptomatic = true
-            #         else
-            #             agent.is_asymptomatic = false
-            #         end
-            #     else
-            #         if rand(rng, Float64) < 0.16
-            #             agent.is_asymptomatic = true
-            #         else
-            #             agent.is_asymptomatic = false
-            #         end
-            #     end
-            # else
-            #     if agent.age < 16
-            #         if rand(rng, Float64) < 0.5
-            #             agent.is_asymptomatic = true
-            #         else
-            #             agent.is_asymptomatic = false
-            #         end
-            #     else
-            #         if rand(rng, Float64) < 0.3
-            #             agent.is_asymptomatic = true
-            #         else
-            #             agent.is_asymptomatic = false
-            #         end
-            #     end
-            # end
-
-            # if agent.virus_id == 1 || agent.virus_id == 2
-            #     agent.is_asymptomatic = check_if_will_be_asymptomatic(
-            #         agent.age,
-            #         symptomatic_probabilities_children[1],
-            #         symptomatic_probabilities_teenagers[1],
-            #         symptomatic_probabilities_adults[1],
-            #         rng
-            #     )
-            # else
-            #     agent.is_asymptomatic = check_if_will_be_asymptomatic(
-            #         agent.age,
-            #         symptomatic_probabilities_children[2],
-            #         symptomatic_probabilities_teenagers[2],
-            #         symptomatic_probabilities_adults[2],
-            #         rng
-            #     )
-            # end
-
             if agent.age < 10
                 agent.is_asymptomatic = rand(rng, Float64) > symptomatic_probabilities_children[agent.virus_id]
             elseif agent.age < 18
@@ -671,10 +638,6 @@ function update_agent_states(
                 agent.is_asymptomatic = rand(rng, Float64) > symptomatic_probabilities_adults[agent.virus_id]
             end
             
-            agent.infectivity = find_agent_infectivity(
-                agent.age,
-                infectivities[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
-                agent.is_asymptomatic && agent.days_infected > 0)
             agent.is_newly_infected = false
         end
 
@@ -940,7 +903,7 @@ end
 #             for agent_num in 1:group.num_agents
 #                 agent_id = group.agent_ids[agent_num]
 #                 agent = agents[agent_id]
-#                 if agent.virus_id != 0 && !agent.is_newly_infected && agent.infectivity > 0.0001
+#                 if agent.virus_id != 0 && !agent.is_newly_infected
 #                     household_members = 0
 #                     for agent2_id in households[agent.household_id].agent_ids
 #                         agent2 = agents[agent2_id]
@@ -979,8 +942,8 @@ end
 #                                 dur = get_contact_duration_normal(0.28, 0.09, rng)
 #                             end
 #                             if dur > 0.01
-#                                 make_contact(agent, agent2, dur, current_step, duration_parameter,
-#                                     susceptibility_parameters, temp_influences, rng)
+#                                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+#                                     susceptibility_parameters, temperature_parameters, current_temp, rng)
 #                                 if agent2.is_newly_infected
 #                                     infected_inside_activity[current_step, is_shopping ? 7 : 8, thread_id] += 1
 #                                 end
@@ -1011,7 +974,7 @@ end
 #                                 dur = get_contact_duration_normal(0.28, 0.09, rng)
 #                             end
 #                             if dur > 0.01
-#                                 make_contact(agent, agent2, dur, current_step, duration_parameter,
+#                                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
 #                                     susceptibility_parameters, temp_influences, rng)
 #                                 if agent2.is_newly_infected
 #                                     infected_inside_activity[current_step, is_shopping ? 7 : 8, thread_id] += 1
@@ -1025,7 +988,7 @@ end
 #             for agent_id in public_space.worker_ids
 #                 agent = agents[agent_id]
 #                 if !agent.is_isolated && !agent.on_parent_leave && agent.virus_id != 0 &&
-#                     !agent.is_newly_infected && agent.infectivity > 0.0001
+#                     !agent.is_newly_infected
 
 #                     for agent2_num in 1:group.num_agents
 #                         agent2_id = group.agent_ids[agent2_num]
@@ -1051,8 +1014,8 @@ end
 #                                 dur = get_contact_duration_normal(0.28, 0.09, rng)
 #                             end
 #                             if dur > 0.01
-#                                 make_contact(agent, agent2, dur, current_step, duration_parameter,
-#                                     susceptibility_parameters, temp_influences, rng)
+#                                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+#                                     susceptibility_parameters, temperature_parameters, current_temp, rng)
 #                                 if agent2.is_newly_infected
 #                                     infected_inside_activity[current_step, is_shopping ? 7 : 8, thread_id] += 1
 #                                 end
@@ -1071,7 +1034,7 @@ end
 #         for agent_id in public_space.worker_ids
 #             agent = agents[agent_id]
 #             if !agent.is_isolated && !agent.on_parent_leave && agent.virus_id != 0 &&
-#                 !agent.is_newly_infected && agent.infectivity > 0.0001
+#                 !agent.is_newly_infected
                 
 #                 for agent2_id in public_space.worker_ids
 #                     agent2 = agents[agent2_id]
@@ -1086,8 +1049,8 @@ end
         
 #                         dur = get_contact_duration_gamma(1.81, 1.7, rng)
 #                         if dur > 0.01
-#                             make_contact(agent, agent2, dur, current_step, duration_parameter,
-#                                 susceptibility_parameters, temp_influences, rng)
+#                             make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+#                                 susceptibility_parameters, temperature_parameters, current_temp, rng)
 #                             if agent2.is_newly_infected
 #                                 infected_inside_activity[current_step, is_shopping ? 7 : 8, thread_id] += 1
 #                             end
@@ -1109,10 +1072,10 @@ function run_simulation(
     households::Vector{Household},
     # shops::Vector{PublicSpace},
     # restaurants::Vector{PublicSpace},
-    infectivities::Array{Float64, 4},
-    temp_influences::Array{Float64, 2},
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
+    temperature_parameters::Vector{Float64},
+    temperature::Vector{Float64},
     symptomatic_probabilities_children::Vector{Float64},
     symptomatic_probabilities_teenagers::Vector{Float64},
     symptomatic_probabilities_adults::Vector{Float64},
@@ -1129,15 +1092,22 @@ function run_simulation(
     # Номер недели
     week_num = 1
 
+    # Минимальная температура воздуха
+    min_temp = -7.2
+    # Max - Min температура
+    max_min_temp = 26.6
+
     num_viruses = 7
+
+    year_day = 213
 
     num_infected_age_groups_viruses = zeros(52, 7, 4)
     confirmed_daily_new_cases_age_groups_viruses = zeros(365, 4, 7, num_threads)
     infected_inside_activity = zeros(Int, 365, 8, num_threads)
 
     # DEBUG
-    max_step = 365
-    # max_step = 1
+    # max_step = 365
+    max_step = 10
 
     for current_step = 1:max_step
         # println(current_step)
@@ -1235,16 +1205,18 @@ function run_simulation(
                 end_agent_ids[thread_id],
                 agents,
                 households,
-                temp_influences,
                 duration_parameter,
                 susceptibility_parameters,
+                temperature_parameters,
                 random_infection_probabilities,
                 etiology,
+                viruses,
                 is_kindergarten_holiday,
                 is_school_holiday,
                 is_university_holiday,
                 is_work_holiday,
                 current_step,
+                (temperature[year_day] - min_temp) / max_min_temp,
                 infected_inside_activity)
         end
 
@@ -1312,7 +1284,6 @@ function run_simulation(
                 end_agent_ids[thread_id],
                 agents,
                 viruses,
-                infectivities,
                 symptomatic_probabilities_children,
                 symptomatic_probabilities_teenagers,
                 symptomatic_probabilities_adults,
@@ -1351,6 +1322,11 @@ function run_simulation(
             month = 1
         else
             day += 1
+        end
+
+        year_day += 1
+        if year_day > 365
+            year_day = 1
         end
     end
 
