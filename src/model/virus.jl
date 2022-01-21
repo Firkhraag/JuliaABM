@@ -93,23 +93,3 @@ struct Virus
         )
     end
 end
-
-# Найти значение вирусной нагрузки
-function get_infectivity(
-    days_infected::Int,
-    incubation_period::Int,
-    infection_period::Int,
-    mean_viral_load::Float64
-)::Float64
-    if days_infected < 1
-        if incubation_period == 1
-            return mean_viral_load / 24
-        end
-        k = mean_viral_load / (incubation_period - 1)
-        b = k * (incubation_period - 1)
-        return (k * days_infected + b) / 12
-    end
-    k = 2 * mean_viral_load / (1 - infection_period)
-    b = -k * infection_period
-    return (k * days_infected + b) / 12
-end

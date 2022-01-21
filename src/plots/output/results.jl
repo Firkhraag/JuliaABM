@@ -231,6 +231,6 @@ function plot_r0()
 end
 
 plot_incidence()
-# plot_incidence_etiology()
+plot_incidence_etiology()
 plot_incidence_age_groups()
 # plot_r0()
