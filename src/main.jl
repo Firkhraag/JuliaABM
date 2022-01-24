@@ -137,7 +137,6 @@ function main()
     symptomatic_probabilities_teenagers = [0.52, 0.52, 0.24, 0.33, 0.19, 0.2, 0.28]
     symptomatic_probabilities_adults = [0.61, 0.61, 0.28, 0.39, 0.22, 0.24, 0.33]
     random_infection_probabilities = [0.0015, 0.0012, 0.00045, 0.000001]
-
     immunity_duration_sds = [90.0, 90.0, 20.0, 20.0, 30.0, 30.0, 40.0]
 
     @time @threads for thread_id in 1:num_threads
@@ -204,6 +203,10 @@ function main()
         mean(temperature_parameter_6_array[burnin:step:end]),
         mean(temperature_parameter_7_array[burnin:step:end])
     ]
+
+    duration_parameter = 3.149494949494949
+    susceptibility_parameters = [5.466666666666667, 5.551515151515151, 5.693939393939395, 7.16969696969697, 6.875757575757577, 6.851515151515152, 6.966666666666666]
+    temperature_parameters = [-0.9292929292929293, -0.8217171717171717, -0.07979797979797981, -0.15656565656565663, -0.22373737373737376, -0.1904040404040404, -0.7626262626262627]
 
     # Runs
     etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
@@ -322,12 +325,12 @@ function main()
 
     # @time num_infected_age_groups_viruses = run_simulation(
     #     num_threads, thread_rng, agents, households,
-    #     shops, restaurants, infectivities, temperature_parameters, duration_parameter,
+    #     shops, restaurants, temperature_parameters, duration_parameter,
     #     susceptibility_parameters, a1_symptomatic_parameters,
     #     a2_symptomatic_parameters, a3_symptomatic_parameters,
     #     random_infection_probabilities, etiology, true)
 
-    # -------------------------------------------------------------
+    # ---------------------------------------------------------------------
 
     n = 1
     for i = 1:n
@@ -375,11 +378,19 @@ function main()
             joinpath(@__DIR__, "..", "output", "tables", n > 1 ? "age_groups_data_$(i).csv" : "age_groups_data.csv"),
             sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
 
+        MAE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / (size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3])
+        MAPE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean) ./ num_infected_age_groups_viruses_mean) / (size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3])
+        RMSE = sqrt(sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)) / sqrt((size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3]))
+        nMAE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / sum(num_infected_age_groups_viruses_mean)
         S_abs = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean))
         S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
-        println("S: ", S_abs)
-        println("S: ", S_square)
+        println("MAE: ", MAE)
+        println("MAPE: ", MAPE)
+        println("RMSE: ", RMSE)
+        println("nMAE: ", nMAE)
+        println("S_abs: ", S_abs)
+        println("S_square: ", S_square)
     end
 end
 

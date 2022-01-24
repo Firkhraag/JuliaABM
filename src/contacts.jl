@@ -136,7 +136,6 @@ function main()
     symptomatic_probabilities_teenagers = [0.52, 0.52, 0.24, 0.33, 0.19, 0.2, 0.28]
     symptomatic_probabilities_adults = [0.61, 0.61, 0.28, 0.39, 0.22, 0.24, 0.33]
     random_infection_probabilities = [0.0015, 0.0012, 0.00045, 0.000001]
-
     immunity_duration_sds = [90.0, 90.0, 20.0, 20.0, 30.0, 30.0, 40.0]
 
     @time @threads for thread_id in 1:num_threads

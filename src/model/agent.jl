@@ -76,6 +76,8 @@ mutable struct Agent
     # Учитель, воспитатель, профессор
     is_teacher::Bool
 
+    infected_num_agents_on_current_step::Int
+
     # shopping_time::Int
     # restaurant_time::Int
 
@@ -420,6 +422,7 @@ mutable struct Agent
         PIV_days_immune = 0
         CoV_days_immune = 0
 
+        # Набор дней окончания типоспецифического иммунитета
         FluA_immunity_end = 0
         FluB_immunity_end = 0
         RV_immunity_end = 0
@@ -1247,7 +1250,7 @@ mutable struct Agent
             FluA_immunity_end, FluB_immunity_end, RV_immunity_end,
             RSV_immunity_end, AdV_immunity_end, PIV_immunity_end, CoV_immunity_end,
             incubation_period, infection_period, days_infected, days_immune, days_immune_end,
-            is_asymptomatic, is_isolated, attendance, is_teacher)
+            is_asymptomatic, is_isolated, attendance, is_teacher, 0)
     end
 end
 

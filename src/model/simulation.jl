@@ -59,6 +59,7 @@ function make_contact(
     if rand(rng, Float64) < infection_probability
         susceptible_agent.virus_id = infected_agent.virus_id
         susceptible_agent.is_newly_infected = true
+        infected_agent.infected_num_agents_on_current_step += 1
     end
 end
 
@@ -433,6 +434,8 @@ function update_agent_states(
         end
 
         if agent.virus_id != 0 && !agent.is_newly_infected
+            agent.infected_num_agents_on_current_step = 0
+
             if agent.days_infected == agent.infection_period
                 if agent.virus_id == 1
                     agent.FluA_days_immune = 1
@@ -563,6 +566,7 @@ function update_agent_states(
                 end
             end
         elseif agent.is_newly_infected
+            # Инкубационный период
             incubation_period = get_period_from_erlang(
                 viruses[agent.virus_id].mean_incubation_period,
                 viruses[agent.virus_id].incubation_period_variance,
@@ -585,77 +589,6 @@ function update_agent_states(
                     viruses[agent.virus_id].max_infection_period_adult,
                     rng)
             end
-
-            # if agent.virus_id == 1
-            #     agent.incubation_period = get_period_from_erlang(
-            #         1.4, 0.09, 1, 7, rng)
-            # elseif agent.virus_id == 2
-            #     agent.incubation_period = get_period_from_erlang(
-            #         1.0, 0.048, 1, 7, rng)
-            # elseif agent.virus_id == 3
-            #     agent.incubation_period = get_period_from_erlang(
-            #         1.9, 0.175, 1, 7, rng)
-            # elseif agent.virus_id == 4
-            #     agent.incubation_period = get_period_from_erlang(
-            #         4.4, 0.937, 1, 7, rng)
-            # elseif agent.virus_id == 5
-            #     agent.incubation_period = get_period_from_erlang(
-            #         5.6, 1.51, 1, 7, rng)
-            # elseif agent.virus_id == 6
-            #     agent.incubation_period = get_period_from_erlang(
-            #         2.6, 0.327, 1, 7, rng)
-            # else
-            #     agent.incubation_period = get_period_from_erlang(
-            #         3.2, 0.496, 1, 7, rng)
-            # end
-            
-            # if agent.age < 16
-            #     if agent.virus_id == 1
-            #         agent.infection_period = get_period_from_erlang(
-            #             8.8, 3.748, 4, 14, rng)
-            #     elseif agent.virus_id == 2
-            #         agent.infection_period = get_period_from_erlang(
-            #             7.8, 2.94, 4, 14, rng)
-            #     elseif agent.virus_id == 3
-            #         agent.infection_period = get_period_from_erlang(
-            #             11.4, 6.25, 4, 14, rng)
-            #     elseif agent.virus_id == 4
-            #         agent.infection_period = get_period_from_erlang(
-            #             9.3, 4.0, 4, 14, rng)
-            #     elseif agent.virus_id == 5
-            #         agent.infection_period = get_period_from_erlang(
-            #             9.0, 3.92, 4, 14, rng)
-            #     elseif agent.virus_id == 6
-            #         agent.infection_period = get_period_from_erlang(
-            #             8.0, 3.1, 4, 14, rng)
-            #     else
-            #         agent.infection_period = get_period_from_erlang(
-            #             8.0, 3.1, 4, 14, rng)
-            #     end
-            # else
-            #     if agent.virus_id == 1
-            #         agent.infection_period = get_period_from_erlang(
-            #             4.8, 1.12, 3, 12, rng)
-            #     elseif agent.virus_id == 2
-            #         agent.infection_period = get_period_from_erlang(
-            #             3.7, 0.66, 3, 12, rng)
-            #     elseif agent.virus_id == 3
-            #         agent.infection_period = get_period_from_erlang(
-            #             10.1, 4.93, 3, 12, rng)
-            #     elseif agent.virus_id == 4
-            #         agent.infection_period = get_period_from_erlang(
-            #             7.4, 2.66, 3, 12, rng)
-            #     elseif agent.virus_id == 5
-            #         agent.infection_period = get_period_from_erlang(
-            #             8.0, 3.1, 3, 12, rng)
-            #     elseif agent.virus_id == 6
-            #         agent.infection_period = get_period_from_erlang(
-            #             7.0, 2.37, 3, 12, rng)
-            #     else
-            #         agent.infection_period = get_period_from_erlang(
-            #             7.0, 2.37, 3, 12, rng)
-            #     end
-            # end
 
             agent.days_infected = 1 - agent.incubation_period
 
@@ -1139,6 +1072,8 @@ function run_simulation(
     max_step = 365
     # max_step = 10
 
+    rt = zeros(Float64, max_step)
+
     for current_step = 1:max_step
         # println(current_step)
         # Выходные, праздники
@@ -1306,6 +1241,17 @@ function run_simulation(
 
         # -------------------------------------------------------------
 
+        if is_single_run
+            rt_count = 0
+            for agent in agents
+                if agent.virus_id != 0 && !agent.is_newly_infected
+                    rt[current_step] += agent.infected_num_agents_on_current_step
+                    rt_count += 1
+                end
+            end
+            rt[current_step] /= rt_count
+        end
+
         @threads for thread_id in 1:num_threads
             update_agent_states(
                 thread_id,
@@ -1367,6 +1313,7 @@ function run_simulation(
             sum(infected_inside_activity, dims = 3)[:, :, 1], ',')
         writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "confirmed_daily_new_cases_age_groups_viruses.csv"),
             sum(sum(confirmed_daily_new_cases_age_groups_viruses, dims = 3)[:, :, :, 1], dims = 3)[:, :, 1], ',')
+        writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "rt.csv"), rt, ',')
     end
 
     return num_infected_age_groups_viruses

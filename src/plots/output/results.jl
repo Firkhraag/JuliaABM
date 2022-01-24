@@ -186,6 +186,40 @@ function plot_incidence_age_groups()
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "incidence15+.pdf"))
 end
 
+function plot_rt()
+    rt = readdlm(
+        joinpath(@__DIR__, "..", "..", "..", "output", "tables", "rt.csv"), ',', Float64)
+
+    ticks = range(1, stop = 365, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    xlabel_name = L"\textrm{\sffamily Month}"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = L"\textrm{\sffamily R_t}"
+    if is_russian
+        ylabel_name = "Rt"
+    end
+
+    registered_new_cases_plot = plot(
+        1:365,
+        rt,
+        lw = 3,
+        xticks = (ticks, ticklabels),
+        color = :red,
+        grid = !is_russian,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(
+        registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "rt.pdf"))
+end
+
 function plot_r0()
     r0 = readdlm(
         joinpath(@__DIR__, "..", "..", "..", "output", "tables", "r0.csv"), ',', Float64)
@@ -221,7 +255,6 @@ function plot_r0()
         xticks = (ticks, ticklabels),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         legend = (0.5, 0.6),
-        label = label_names,
         grid = !is_russian,
         xlabel = xlabel_name,
         ylabel = ylabel_name,
@@ -233,4 +266,5 @@ end
 plot_incidence()
 plot_incidence_etiology()
 plot_incidence_age_groups()
+plot_rt()
 # plot_r0()

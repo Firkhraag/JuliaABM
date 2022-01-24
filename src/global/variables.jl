@@ -59,48 +59,40 @@ const household_kindergarten_time_spent_sd = 2.2
 const household_university_mean_time_spent = 9.0
 const household_university_time_spent_sd = 3.0
 
-# American Time Use Survey 2019
-# Probabilities
-weekend_go_to_other_household_p = 0.269
-weekend_go_to_restaurant_p = 0.295
-weekend_go_to_shopping_p = 0.354
-weekend_go_to_outdoor_p = 0.15
-weekend_go_to_outdoor_t = 0.28
-weekend_go_to_other_place_p = 0.402
-weekend_go_to_other_place_t = 1.18
-weekend_public_transport_p = 0.791
-weekend_public_transport_t = 1.19
+# Probabilities from American Time Use Survey 2019
+# weekend_other_household_p = 0.269
+# weekend_other_household_t = 0.95
+# weekend_restaurant_p = 0.295
+# weekend_restaurant_t = 0.38
+# weekend_shopping_p = 0.354
+# weekend_shopping_t = 0.44
+# weekend_outdoor_p = 0.15
+# weekend_outdoor_t = 0.28
+# weekend_other_place_p = 0.402
+# weekend_other_place_t = 1.18
 
-weekday_go_to_other_household_p = 0.177
-weekday_go_to_restaurant_p = 0.255
-weekday_go_to_shopping_p = 0.291
-weekday_go_to_outdoor_p = 0.133
-weekday_go_to_outdoor_t = 0.16
-weekday_go_to_other_place_p = 0.483
-weekday_go_to_other_place_t = 1.22
-weekday_public_transport_p = 0.858
-weekday_public_transport_t = 1.27
+# weekday_other_household_p = 0.177
+# weekday_other_household_t = 0.42
+# weekday_restaurant_p = 0.255
+# weekday_restaurant_t = 0.26
+# weekday_shopping_p = 0.291
+# weekday_shopping_t = 0.28
+# weekday_outdoor_p = 0.133
+# weekday_outdoor_t = 0.16
+# weekday_other_place_p = 0.483
+# weekday_other_place_t = 1.22
 
-# Means
-weekend_other_household_time_mean = 0.95
-weekday_other_household_time_mean = 0.42
-other_household_time_sd = 0.15
+# other_household_time_sd = 0.15
+# shopping_time_sd = 0.09
+# restaurant_time_sd = 0.09
 
-weekend_shopping_time_mean = 0.44
-weekday_shopping_time_mean = 0.28
-shopping_time_sd = 0.09
-
-weekend_restaurant_time_mean = 0.38
-weekday_restaurant_time_mean = 0.26
-restaurant_time_sd = 0.09
-
-shop_capacity_shape = 2.5
-shop_capacity_scale = 20.0
+# shop_capacity_shape = 2.5
+# shop_capacity_scale = 20.0
 
 # 30 minutes for 10 hours
-restaurant_num_groups = 20
+# restaurant_num_groups = 20
 # 30 minutes for 12 hours
-shop_num_groups = 24
+# shop_num_groups = 24
 
 mean_child_mother_age_difference = 28
 
