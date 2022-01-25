@@ -364,10 +364,9 @@ function update_agent_states(
     end_agent_id::Int,
     agents::Vector{Agent},
     viruses::Vector{Virus},
-    symptomatic_probabilities_children::Vector{Float64},
-    symptomatic_probabilities_teenagers::Vector{Float64},
-    symptomatic_probabilities_adults::Vector{Float64},
-    immunity_duration_sds::Vector{Float64},
+    isolation_probabilities_day_1::Vector{Float64},
+    isolation_probabilities_day_2::Vector{Float64},
+    isolation_probabilities_day_3::Vector{Float64},
     current_step::Int,
     confirmed_daily_new_cases_age_groups_viruses::Array{Float64, 4},
 )
@@ -439,25 +438,25 @@ function update_agent_states(
             if agent.days_infected == agent.infection_period
                 if agent.virus_id == 1
                     agent.FluA_days_immune = 1
-                    agent.FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].immunity_duration, immunity_duration_sds[1]), 1.0, 1000.0)))
+                    agent.FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 elseif agent.virus_id == 2
                     agent.FluB_days_immune = 1
-                    agent.FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].immunity_duration, immunity_duration_sds[2]), 1.0, 1000.0)))
+                    agent.FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 elseif agent.virus_id == 3
                     agent.RV_days_immune = 1
-                    agent.RV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[3].immunity_duration, immunity_duration_sds[3]), 1.0, 1000.0)))
+                    agent.RV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[3].mean_immunity_duration, viruses[3].immunity_duration_sd), 1.0, 1000.0)))
                 elseif agent.virus_id == 4
                     agent.RSV_days_immune = 1
-                    agent.RSV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[4].immunity_duration, immunity_duration_sds[4]), 1.0, 1000.0)))
+                    agent.RSV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[4].mean_immunity_duration, viruses[4].immunity_duration_sd), 1.0, 1000.0)))
                 elseif agent.virus_id == 5
                     agent.AdV_days_immune = 1
-                    agent.AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].immunity_duration, immunity_duration_sds[5]), 1.0, 1000.0)))
+                    agent.AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 elseif agent.virus_id == 6
                     agent.PIV_days_immune = 1
-                    agent.PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].immunity_duration, immunity_duration_sds[6]), 1.0, 1000.0)))
+                    agent.PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 else
                     agent.CoV_days_immune = 1
-                    agent.CoV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[7].immunity_duration, immunity_duration_sds[7]), 1.0, 1000.0)))
+                    agent.CoV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[7].mean_immunity_duration, viruses[7].immunity_duration_sd), 1.0, 1000.0)))
                 end
                 agent.days_immune = 1
                 agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), 1.0, 1000.0)))
@@ -488,57 +487,57 @@ function update_agent_states(
                     if agent.days_infected == 1
                         rand_num = rand(rng, Float64)
                         if agent.age < 3
-                            if rand_num < 0.506
+                            if rand_num < isolation_probabilities_day_1[1]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 8
-                            if rand_num < 0.305
+                            if rand_num < isolation_probabilities_day_1[2]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 18
-                            if rand_num < 0.204
+                            if rand_num < isolation_probabilities_day_1[3]
                                 agent.is_isolated = true
                             end
                         else
-                            if rand_num < 0.101
+                            if rand_num < isolation_probabilities_day_1[4]
                                 agent.is_isolated = true
                             end
                         end
                     elseif agent.days_infected == 2
                         rand_num = rand(rng, Float64)
                         if agent.age < 3
-                            if rand_num < 0.769
+                            if rand_num < isolation_probabilities_day_2[1]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 8
-                            if rand_num < 0.576
+                            if rand_num < isolation_probabilities_day_2[2]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 18
-                            if rand_num < 0.499
+                            if rand_num < isolation_probabilities_day_2[3]
                                 agent.is_isolated = true
                             end
                         else
-                            if rand_num < 0.334
+                            if rand_num < isolation_probabilities_day_2[4]
                                 agent.is_isolated = true
                             end
                         end
                     elseif agent.days_infected == 3
                         rand_num = rand(rng, Float64)
                         if agent.age < 3
-                            if rand_num < 0.555
+                            if rand_num < isolation_probabilities_day_3[1]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 8
-                            if rand_num < 0.325
+                            if rand_num < isolation_probabilities_day_3[2]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 18
-                            if rand_num < 0.376
+                            if rand_num < isolation_probabilities_day_3[3]
                                 agent.is_isolated = true
                             end
                         else
-                            if rand_num < 0.168
+                            if rand_num < isolation_probabilities_day_3[4]
                                 agent.is_isolated = true
                             end
                         end
@@ -592,12 +591,13 @@ function update_agent_states(
 
             agent.days_infected = 1 - agent.incubation_period
 
+            rand_num = rand(rng, Float64)
             if agent.age < 10
-                agent.is_asymptomatic = rand(rng, Float64) > symptomatic_probabilities_children[agent.virus_id]
+                agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_child
             elseif agent.age < 18
-                agent.is_asymptomatic = rand(rng, Float64) > symptomatic_probabilities_teenagers[agent.virus_id]
+                agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_teenager
             else
-                agent.is_asymptomatic = rand(rng, Float64) > symptomatic_probabilities_adults[agent.virus_id]
+                agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_adult
             end
             
             agent.is_newly_infected = false
@@ -1038,11 +1038,10 @@ function run_simulation(
     susceptibility_parameters::Vector{Float64},
     temperature_parameters::Vector{Float64},
     temperature::Vector{Float64},
-    symptomatic_probabilities_children::Vector{Float64},
-    symptomatic_probabilities_teenagers::Vector{Float64},
-    symptomatic_probabilities_adults::Vector{Float64},
+    isolation_probabilities_day_1::Vector{Float64},
+    isolation_probabilities_day_2::Vector{Float64},
+    isolation_probabilities_day_3::Vector{Float64},
     random_infection_probabilities::Vector{Float64},
-    immunity_duration_sds::Vector{Float64},
     etiology::Matrix{Float64},
     is_single_run::Bool,
 )::Array{Float64, 3}
@@ -1260,10 +1259,9 @@ function run_simulation(
                 end_agent_ids[thread_id],
                 agents,
                 viruses,
-                symptomatic_probabilities_children,
-                symptomatic_probabilities_teenagers,
-                symptomatic_probabilities_adults,
-                immunity_duration_sds,
+                isolation_probabilities_day_1,
+                isolation_probabilities_day_2,
+                isolation_probabilities_day_3,
                 current_step,
                 confirmed_daily_new_cases_age_groups_viruses)
         end

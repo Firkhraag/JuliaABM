@@ -34,13 +34,26 @@ function main()
     num_threads = nthreads()
 
     viruses = Virus[
-        Virus(1, 1.4, 0.09, 1, 7, 4.8, 1.12, 3, 12, 8.8, 3.748, 4, 14, 4.6, 3.5, 2.3, 0.32, 0.16, 270),
-        Virus(2, 1.0, 0.0484, 1, 7, 3.7, 0.66, 3, 12, 7.8, 2.94, 4, 14, 4.7, 3.5, 2.4, 0.32, 0.16, 270),
-        Virus(3, 1.9, 0.175, 1, 7, 10.1, 4.93, 3, 12, 11.4, 6.25, 4, 14, 3.5, 2.6, 1.8, 0.5, 0.3, 60),
-        Virus(4, 4.4, 0.937, 1, 7, 7.4, 2.66, 3, 12, 9.3, 4.0, 4, 14, 6.0, 4.5, 3.0, 0.5, 0.3, 60),
-        Virus(5, 5.6, 1.51, 1, 7, 8.0, 3.1, 3, 12, 9.0, 3.92, 4, 14, 4.1, 3.1, 2.1, 0.5, 0.3, 90),
-        Virus(6, 2.6, 0.327, 1, 7, 7.0, 2.37, 3, 12, 8.0, 3.1, 4, 14, 4.8, 3.6, 2.4, 0.5, 0.3, 90),
-        Virus(7, 3.2, 0.496, 1, 7, 6.5, 2.15, 3, 12, 7.5, 2.9, 4, 14, 4.9, 3.7, 2.5, 0.5, 0.3, 120)]
+        # FluA
+        Virus(1.4, 0.09, 1, 7,  4.8, 1.12, 3, 12,  8.8, 3.748, 4, 14,  4.6, 3.5, 2.3,  0.41, 0.52, 0.61,  270.0, 90.0),
+        # FluB
+        Virus(1.0, 0.0484, 1, 7,  3.7, 0.66, 3, 12,  7.8, 2.94, 4, 14,  4.7, 3.5, 2.4,  0.41, 0.52, 0.61,  270.0, 90.0),
+        # RV
+        Virus(1.9, 0.175, 1, 7,  10.1, 4.93, 3, 12,  11.4, 6.25, 4, 14,  3.5, 2.6, 1.8,  0.19, 0.24, 0.28,  60.0, 20.0),
+        # RSV
+        Virus(4.4, 0.937, 1, 7,  7.4, 2.66, 3, 12,  9.3, 4.0, 4, 14,  6.0, 4.5, 3.0,  0.26, 0.33, 0.39,  60.0, 20.0),
+        # AdV
+        Virus(5.6, 1.51, 1, 7,  8.0, 3.1, 3, 12,  9.0, 3.92, 4, 14,  4.1, 3.1, 2.1,  0.15, 0.19, 0.22,  90.0, 30.0),
+        # PIV
+        Virus(2.6, 0.327, 1, 7,  7.0, 2.37, 3, 12,  8.0, 3.1, 4, 14,  4.8, 3.6, 2.4,  0.16, 0.2, 0.24,  90.0, 30.0),
+        # CoV
+        Virus(3.2, 0.496, 1, 7,  6.5, 2.15, 3, 12,  7.5, 2.9, 4, 14,  4.9, 3.7, 2.5,  0.22, 0.28, 0.33,  120.0, 40.0)]
+
+    random_infection_probabilities = [0.0015, 0.0012, 0.00045, 0.000001]
+    initially_infected = [4896 / 272834, 3615 / 319868, 2906 / 559565, 14928 / 8920401]
+    isolation_probabilities_day_1 = [0.406, 0.305, 0.204, 0.101]
+    isolation_probabilities_day_2 = [0.669, 0.576, 0.499, 0.334]
+    isolation_probabilities_day_3 = [0.45, 0.325, 0.376, 0.168]
 
     # Число домохозяйств каждого типа по районам
     district_households = get_district_households()
@@ -133,19 +146,12 @@ function main()
 
     # -------------------------------------------------------------
 
-    symptomatic_probabilities_children = [0.41, 0.41, 0.19, 0.26, 0.15, 0.16, 0.22]
-    symptomatic_probabilities_teenagers = [0.52, 0.52, 0.24, 0.33, 0.19, 0.2, 0.28]
-    symptomatic_probabilities_adults = [0.61, 0.61, 0.28, 0.39, 0.22, 0.24, 0.33]
-    random_infection_probabilities = [0.0015, 0.0012, 0.00045, 0.000001]
-    immunity_duration_sds = [90.0, 90.0, 20.0, 20.0, 30.0, 30.0, 40.0]
-
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, households, viruses, immunity_duration_sds, symptomatic_probabilities_children,
-            symptomatic_probabilities_teenagers, symptomatic_probabilities_adults, start_household_ids[thread_id],
-            homes_coords_df, district_households, district_people,
-            district_people_households, district_nums)
+            agents, households, viruses, initially_infected, isolation_probabilities_day_1,
+            isolation_probabilities_day_2, isolation_probabilities_day_3, start_household_ids[thread_id],
+            homes_coords_df, district_households, district_people, district_people_households, district_nums)
     end
 
     # --------------------------TBD ZONE-----------------------------------
@@ -204,9 +210,17 @@ function main()
         mean(temperature_parameter_7_array[burnin:step:end])
     ]
 
-    duration_parameter = 3.149494949494949
-    susceptibility_parameters = [5.466666666666667, 5.551515151515151, 5.693939393939395, 7.16969696969697, 6.875757575757577, 6.851515151515152, 6.966666666666666]
-    temperature_parameters = [-0.9292929292929293, -0.8217171717171717, -0.07979797979797981, -0.15656565656565663, -0.22373737373737376, -0.1904040404040404, -0.7626262626262627]
+    # duration_parameter = 3.149494949494949
+    # susceptibility_parameters = [5.466666666666667, 5.551515151515151, 5.693939393939395, 7.16969696969697, 6.875757575757577, 6.851515151515152, 6.966666666666666]
+    # temperature_parameters = [-0.9292929292929293, -0.8217171717171717, -0.07979797979797981, -0.15656565656565663, -0.22373737373737376, -0.1904040404040404, -0.7626262626262627]
+
+    duration_parameter = 3.227272727272727
+    susceptibility_parameters = [5.556565656565656, 5.607070707070706, 5.733333333333334, 7.081818181818182, 6.90909090909091, 6.78989898989899, 6.939393939393939]
+    temperature_parameters = [-0.9621212121212122, -0.8383838383838385, -0.10757575757575757, -0.16616161616161623, -0.25959595959595966, -0.18383838383838386, -0.7237373737373738]
+
+    # duration_parameter = 3.055555555555555
+    # susceptibility_parameters = [5.421212121212122, 5.544444444444443, 5.636363636363638, 7.110101010101011, 6.92929292929293, 6.761616161616162, 7.034343434343433]
+    # temperature_parameters = [-0.9661616161616162, -0.8020202020202021, -0.10555555555555556, -0.19141414141414148, -0.21919191919191922, -0.23737373737373738, -0.73989898989899]
 
     # Runs
     etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
@@ -361,9 +375,8 @@ function main()
         @time num_infected_age_groups_viruses = run_simulation(
             num_threads, thread_rng, agents, viruses, households, duration_parameter,
             susceptibility_parameters, temperature_parameters, temperature,
-            symptomatic_probabilities_children, symptomatic_probabilities_teenagers,
-            symptomatic_probabilities_adults, random_infection_probabilities,
-            immunity_duration_sds, etiology, n == 1)
+            isolation_probabilities_day_1, isolation_probabilities_day_2,
+            isolation_probabilities_day_3, random_infection_probabilities, etiology, n == 1)
 
         writedlm(
             joinpath(@__DIR__, "..", "output", "tables", n > 1 ? "age_groups_viruses_data_$(i).csv" : "age_groups_viruses_data.csv"),
