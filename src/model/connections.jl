@@ -3,13 +3,15 @@ function set_connections(
     households::Vector{Household},
     kindergartens::Vector{School},
     schools::Vector{School},
-    universities::Vector{School},
+    colleges::Vector{School},
     workplaces::Vector{Workplace},
     # shops::Vector{PublicSpace},
     # restaurants::Vector{PublicSpace},
     thread_rng::Vector{MersenneTwister},
     num_threads::Int,
     homes_coords_df::DataFrame,
+    firm_max_size::Int,
+    num_barabasi_albert_attachments::Int,
 )
     num_working_agents = 0
     for agent_id in 1:length(agents)
@@ -58,14 +60,14 @@ function set_connections(
             push!(groups[group_id], agent.id)
             agent.activity_conn_ids = groups[group_id]
         elseif agent.activity_type == 3
-            agent.school_id = rand(1:num_universities)
-            groups = universities[agent.school_id].groups[agent.school_group_num]
+            agent.school_id = rand(1:num_colleges)
+            groups = colleges[agent.school_id].groups[agent.school_group_num]
             group_id = length(groups)
-            if (agent.school_group_num == 1 && size(groups[group_id], 1) == university_groups_size_1) ||
-                ((agent.school_group_num == 2 || agent.school_group_num == 3) && size(groups[group_id], 1) == university_groups_size_2_3) ||
-                (agent.school_group_num == 4 && size(groups[group_id], 1) == university_groups_size_4) ||
-                (agent.school_group_num == 5 && size(groups[group_id], 1) == university_groups_size_5) ||
-                (agent.school_group_num == 6 && size(groups[group_id], 1) == university_groups_size_6)
+            if (agent.school_group_num == 1 && size(groups[group_id], 1) == college_groups_size_1) ||
+                ((agent.school_group_num == 2 || agent.school_group_num == 3) && size(groups[group_id], 1) == college_groups_size_2_3) ||
+                (agent.school_group_num == 4 && size(groups[group_id], 1) == college_groups_size_4) ||
+                (agent.school_group_num == 5 && size(groups[group_id], 1) == college_groups_size_5) ||
+                (agent.school_group_num == 6 && size(groups[group_id], 1) == college_groups_size_6)
 
                 push!(groups, Int[])
                 group_id += 1
@@ -135,10 +137,10 @@ function set_connections(
         end
     end
 
-    for university_id in 1:num_universities
-        university = universities[university_id]
-        for school_group_num in 1:size(university.groups, 1)
-            groups = university.groups[school_group_num]
+    for college_id in 1:num_colleges
+        college = colleges[college_id]
+        for school_group_num in 1:size(college.groups, 1)
+            groups = college.groups[school_group_num]
             groups_size = size(groups, 1)
             for group_id in 1:groups_size
                 group = groups[group_id]
@@ -154,10 +156,10 @@ function set_connections(
                 push!(group, agent_id)
                 agents[agent_id].activity_type = 3
                 agents[agent_id].is_teacher = true
-                agents[agent_id].school_id = university_id
+                agents[agent_id].school_id = college_id
                 agents[agent_id].school_group_num = school_group_num
                 agents[agent_id].activity_conn_ids = group
-                push!(university.teacher_ids, agent_id)
+                push!(college.teacher_ids, agent_id)
                 # agents[agent_id].school_group_id = group_id
             end
             num_working_agents -= groups_size
@@ -208,7 +210,7 @@ function set_connections(
 
     start_agent_id = 1
     while num_working_agents > 0
-        num_workers = sample_from_zipf_distribution(1.059, zipf_max_size) + barabasi_albert_attachments
+        num_workers = sample_from_zipf_distribution(zipf_parameter, firm_max_size) + num_barabasi_albert_attachments
         if num_working_agents - num_workers < 0
             num_workers = num_working_agents
         end
@@ -245,15 +247,15 @@ function set_connections(
     end_workplace_ids[num_threads] = num_workplaces
 
     @threads for thread_id in 1:num_threads
-        for university_id in start_university_ids[thread_id]:end_university_ids[thread_id]
-            university = universities[university_id]
+        for college_id in start_college_ids[thread_id]:end_college_ids[thread_id]
+            college = colleges[college_id]
             for i = 1:6
-                for j = 1:4:length(university.groups[i])
-                    if size(university.groups[i], 1) - j >= 4
-                        group1 = university.groups[i][j]
-                        group2 = university.groups[i][j + 1]
-                        group3 = university.groups[i][j + 2]
-                        group4 = university.groups[i][j + 3]
+                for j = 1:4:length(college.groups[i])
+                    if size(college.groups[i], 1) - j >= 4
+                        group1 = college.groups[i][j]
+                        group2 = college.groups[i][j + 1]
+                        group3 = college.groups[i][j + 2]
+                        group4 = college.groups[i][j + 3]
                         connections_for_group1 = vcat(group2, group3, group4)
                         connections_for_group2 = vcat(group1, group3, group4)
                         connections_for_group3 = vcat(group2, group1, group4)
@@ -281,7 +283,7 @@ function set_connections(
 
         for workplace_id in start_workplace_ids[thread_id]:end_workplace_ids[thread_id]
             generate_barabasi_albert_network(
-                agents, workplaces[workplace_id].agent_ids, barabasi_albert_attachments, thread_rng[thread_id])
+                agents, workplaces[workplace_id].agent_ids, num_barabasi_albert_attachments, thread_rng[thread_id])
         end
     end
 end

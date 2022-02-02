@@ -7,11 +7,11 @@ function simulate_contacts_evaluation(
     households::Vector{Household},
     kindergartens::Vector{School},
     schools::Vector{School},
-    universities::Vector{School},
+    colleges::Vector{School},
     is_holiday::Bool,
     is_kindergarten_holiday::Bool,
     is_school_holiday::Bool,
-    is_university_holiday::Bool,
+    is_college_holiday::Bool,
     is_work_holiday::Bool,
     contacts_num_matrix_by_age_threads::Array{Int, 3},
     contacts_dur_matrix_by_age_threads::Array{Float64, 3},
@@ -31,11 +31,11 @@ function simulate_contacts_evaluation(
         #         if agent2.visit_household_id == 0
         #             dur = 0.0
         #             if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-        #                 (agent.activity_type == 3 && is_university_holiday) ||
+        #                 (agent.activity_type == 3 && is_college_holiday) ||
         #                 (agent.activity_type == 2 && is_school_holiday) ||
         #                 (agent.activity_type == 1 && is_kindergarten_holiday)) &&
         #                 (agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
-        #                 (agent2.activity_type == 3 && is_university_holiday) ||
+        #                 (agent2.activity_type == 3 && is_college_holiday) ||
         #                 (agent2.activity_type == 2 && is_school_holiday) ||
         #                 (agent2.activity_type == 1 && is_kindergarten_holiday))
 
@@ -65,10 +65,10 @@ function simulate_contacts_evaluation(
             if agent2_id != agent_id
                 dur = 0.0
                 if is_holiday || ((agent.activity_type == 0 ||
-                    (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_university_holiday) ||
+                    (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_college_holiday) ||
                     (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)) &&
                     (agent2.activity_type == 0 ||
-                    (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_university_holiday) ||
+                    (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_college_holiday) ||
                     (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday)))
 
                     dur = get_contact_duration_normal(12.0, 4.0, rng)
@@ -117,7 +117,7 @@ function simulate_contacts_evaluation(
         if agent.attendance &&
             ((agent.activity_type == 1 && !is_kindergarten_holiday) ||
             (agent.activity_type == 2 && !is_school_holiday) ||
-            (agent.activity_type == 3 && !is_university_holiday) ||
+            (agent.activity_type == 3 && !is_college_holiday) ||
             (agent.activity_type == 4 && !is_work_holiday))
 
             for agent2_id in agent.activity_conn_ids
@@ -176,8 +176,8 @@ function simulate_contacts_evaluation(
                         end
                     end
                 elseif agent.activity_type == 3
-                    while num_contacts < school_num_of_teacher_contacts && num_contacts < length(universities[agent.school_id].teacher_ids)
-                        teacher_id = rand(universities[agent.school_id].teacher_ids)
+                    while num_contacts < school_num_of_teacher_contacts && num_contacts < length(colleges[agent.school_id].teacher_ids)
+                        teacher_id = rand(colleges[agent.school_id].teacher_ids)
                         if teacher_id != agent.id
                             agent2 = agents[teacher_id]
                             dur = get_contact_duration_gamma(1.4, 0.7, rng)
@@ -190,8 +190,6 @@ function simulate_contacts_evaluation(
                             num_contacts += 1
                         end
                     end
-                else
-                    println("Wrong")
                 end
             end
 
@@ -226,7 +224,7 @@ end
 #     closest_public_space_id2::Int,
 #     is_kindergarten_holiday::Bool,
 #     is_school_holiday::Bool,
-#     is_university_holiday::Bool,
+#     is_college_holiday::Bool,
 #     is_work_holiday::Bool,
 #     restaurant_visit_time_distribution::MixtureModel,
 #     shop_visit_time_distribution::MixtureModel,
@@ -330,7 +328,7 @@ end
 #     restaurants::Vector{PublicSpace},
 #     is_kindergarten_holiday::Bool,
 #     is_school_holiday::Bool,
-#     is_university_holiday::Bool,
+#     is_college_holiday::Bool,
 #     is_work_holiday::Bool,
 #     restaurant_visit_time_distribution::MixtureModel,
 #     shop_visit_time_distribution::MixtureModel,
@@ -347,7 +345,7 @@ end
 #             if agent.visit_household_id == 0
 #                 prob = 0.0
 #                 if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                     (agent.activity_type == 3 && is_university_holiday) ||
+#                     (agent.activity_type == 3 && is_college_holiday) ||
 #                     (agent.activity_type == 2 && is_school_holiday) ||
 #                     (agent.activity_type == 1 && is_kindergarten_holiday)
 
@@ -371,7 +369,7 @@ end
 
 #             prob = 0.0
 #             if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                 (agent.activity_type == 3 && is_university_holiday) ||
+#                 (agent.activity_type == 3 && is_college_holiday) ||
 #                 (agent.activity_type == 2 && is_school_holiday) ||
 #                 (agent.activity_type == 1 && is_kindergarten_holiday)
 
@@ -390,7 +388,7 @@ end
 #                     households[agent.household_id].closest_shop_id2,
 #                     is_kindergarten_holiday,
 #                     is_school_holiday,
-#                     is_university_holiday,
+#                     is_college_holiday,
 #                     is_work_holiday,
 #                     restaurant_visit_time_distribution,
 #                     shop_visit_time_distribution,
@@ -399,7 +397,7 @@ end
 #             end
 
 #             if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                 (agent.activity_type == 3 && is_university_holiday) ||
+#                 (agent.activity_type == 3 && is_college_holiday) ||
 #                 (agent.activity_type == 2 && is_school_holiday) ||
 #                 (agent.activity_type == 1 && is_kindergarten_holiday)
 
@@ -418,7 +416,7 @@ end
 #                     households[agent.household_id].closest_restaurant_id2,
 #                     is_kindergarten_holiday,
 #                     is_school_holiday,
-#                     is_university_holiday,
+#                     is_college_holiday,
 #                     is_work_holiday,
 #                     restaurant_visit_time_distribution,
 #                     shop_visit_time_distribution,
@@ -444,7 +442,7 @@ end
 #     contact_time_sd_holiday::Float64,
 #     is_kindergarten_holiday::Bool,
 #     is_school_holiday::Bool,
-#     is_university_holiday::Bool,
+#     is_college_holiday::Bool,
 #     is_work_holiday::Bool,
 #     contacts_num_matrix_by_age_threads::Array{Int, 3},
 #     contacts_dur_matrix_by_age_threads::Array{Float64, 3},
@@ -475,11 +473,11 @@ end
 #                     if agent2_id in households[agent.household_id].agent_ids || rand(rng, Float64) < ((mean_num_contacts_in_public_space - household_members) / group.num_agents)
 #                         dur = 0.0
 #                         if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                             (agent.activity_type == 3 && is_university_holiday) ||
+#                             (agent.activity_type == 3 && is_college_holiday) ||
 #                             (agent.activity_type == 2 && is_school_holiday) ||
 #                             (agent.activity_type == 1 && is_kindergarten_holiday)) &&
 #                             (agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
-#                             (agent2.activity_type == 3 && is_university_holiday) ||
+#                             (agent2.activity_type == 3 && is_college_holiday) ||
 #                             (agent2.activity_type == 2 && is_school_holiday) ||
 #                             (agent2.activity_type == 1 && is_kindergarten_holiday))
 
@@ -505,7 +503,7 @@ end
 #                     if rand(rng, Float64) < (1 / length(public_space.worker_ids))
 #                         dur = 0.0
 #                         if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                             (agent.activity_type == 3 && is_university_holiday) ||
+#                             (agent.activity_type == 3 && is_college_holiday) ||
 #                             (agent.activity_type == 2 && is_school_holiday) ||
 #                             (agent.activity_type == 1 && is_kindergarten_holiday)
         
@@ -558,7 +556,7 @@ function run_simulation_evaluation(
     households::Vector{Household},
     kindergartens::Vector{School},
     schools::Vector{School},
-    universities::Vector{School},
+    colleges::Vector{School},
     # shops::Vector{PublicSpace},
     # restaurants::Vector{PublicSpace},
     is_holiday::Bool,
@@ -572,7 +570,7 @@ function run_simulation_evaluation(
     is_work_holiday = is_holiday
     is_kindergarten_holiday = is_holiday
     is_school_holiday = is_holiday
-    is_university_holiday = is_holiday
+    is_college_holiday = is_holiday
 
     # --------------------------TBD ZONE-----------------------------------
 
@@ -594,7 +592,7 @@ function run_simulation_evaluation(
     #         restaurants,
     #         is_kindergarten_holiday,
     #         is_school_holiday,
-    #         is_university_holiday,
+    #         is_college_holiday,
     #         is_work_holiday,
     #         restaurant_visit_time_distribution,
     #         shop_visit_time_distribution,
@@ -613,11 +611,11 @@ function run_simulation_evaluation(
             households,
             kindergartens,
             schools,
-            universities,
+            colleges,
             is_holiday,
             is_kindergarten_holiday,
             is_school_holiday,
-            is_university_holiday,
+            is_college_holiday,
             is_work_holiday,
             contacts_num_matrix_by_age_threads,
             contacts_dur_matrix_by_age_threads,
@@ -643,7 +641,7 @@ function run_simulation_evaluation(
     #         0.1,
     #         is_kindergarten_holiday,
     #         is_school_holiday,
-    #         is_university_holiday,
+    #         is_college_holiday,
     #         is_work_holiday,
     #         contacts_num_matrix_by_age_threads,
     #         contacts_dur_matrix_by_age_threads,
@@ -667,7 +665,7 @@ function run_simulation_evaluation(
     #         0.09,
     #         is_kindergarten_holiday,
     #         is_school_holiday,
-    #         is_university_holiday,
+    #         is_college_holiday,
     #         is_work_holiday,
     #         contacts_num_matrix_by_age_threads,
     #         contacts_dur_matrix_by_age_threads,

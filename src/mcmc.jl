@@ -26,7 +26,6 @@ include("data/temperature.jl")
 include("data/etiology.jl")
 
 include("util/reset.jl")
-include("util/stats.jl")
 
 function f(x, mu, sigma)
     dist = Normal(mu, sigma)
@@ -58,11 +57,27 @@ function main()
         # CoV
         Virus(3.2, 0.496, 1, 7,  6.5, 2.15, 3, 12,  7.5, 2.9, 4, 14,  4.9, 3.7, 2.5,  0.22, 0.28, 0.33,  120.0, 40.0)]
 
-    random_infection_probabilities = [0.0015, 0.0012, 0.00045, 0.000001]
+    # Начальные доли инфицированных
     initially_infected = [4896 / 272834, 3615 / 319868, 2906 / 559565, 14928 / 8920401]
+    # Вероятности случайного инфицирования
+    random_infection_probabilities = [0.0015, 0.0012, 0.00045, 0.000001]
+    # Вероятности изолироваться при болезни на 1-й, 2-й и 3-й дни
     isolation_probabilities_day_1 = [0.406, 0.305, 0.204, 0.101]
     isolation_probabilities_day_2 = [0.669, 0.576, 0.499, 0.334]
     isolation_probabilities_day_3 = [0.45, 0.325, 0.376, 0.168]
+    # Продолжительность резистентного состояния
+    recovered_duration_mean = 12.0
+    recovered_duration_sd = 4.0
+    # Продолжительности контактов в домохозяйствах
+    # Укороченные для различных коллективов и полная: Kinder, School, College, Work, Full
+    mean_household_contact_durations = [6.5, 5.8, 9.0, 4.5, 12.0]
+    household_contact_duration_sds = [2.2, 2.0, 3.0, 1.5, 4.0]
+    # Продолжительности контактов в прочих коллективах
+    other_contact_duration_shapes = [2.5, 1.78, 2.0, 1.81, 1.2]
+    other_contact_duration_scales = [1.6, 1.95, 1.07, 1.7, 1.07]
+    # Параметры, отвечающие за связи на рабочих местах
+    zipf_max_size = 994
+    num_barabasi_albert_attachments = 6
 
     # Число домохозяйств каждого типа по районам
     district_households = get_district_households()
@@ -110,15 +125,15 @@ function main()
         )
     end
 
-    university_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "universities.csv")))
+    college_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "colleges.csv")))
     # Массив для хранения школ
-    universities = Array{School, 1}(undef, num_universities)
-    for i in 1:size(university_coords_df, 1)
-        universities[i] = School(
+    colleges = Array{School, 1}(undef, num_colleges)
+    for i in 1:size(college_coords_df, 1)
+        colleges[i] = School(
             3,
-            university_coords_df[i, :dist],
-            university_coords_df[i, :x],
-            university_coords_df[i, :y],
+            college_coords_df[i, :dist],
+            college_coords_df[i, :x],
+            college_coords_df[i, :y],
         )
     end
 
@@ -159,7 +174,7 @@ function main()
     end
 
     @time set_connections(
-        agents, households, kindergartens, schools, universities,
+        agents, households, kindergartens, schools, colleges,
         workplaces, thread_rng, num_threads, homes_coords_df)
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))

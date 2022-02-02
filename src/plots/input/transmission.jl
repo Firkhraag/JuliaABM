@@ -12,7 +12,7 @@ default(legendfontsize = 12, guidefont = (17, :black), tickfont = (12, :black))
 function plot_duration_influence()
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     duration_parameter = mean(duration_parameter_array[burnin:step:length(duration_parameter_array)])
-    duration_parameter = 3.312914862914865
+    duration_parameter = 3.5
 
     duration_influence(x) = 1 / (1 + exp(-x + duration_parameter))
 
@@ -246,5 +246,5 @@ end
 
 plot_duration_influence()
 plot_temperature_influence_year()
-plot_infectivity_influence()
+# plot_infectivity_influence()
 plot_susceptibility_influence_age()

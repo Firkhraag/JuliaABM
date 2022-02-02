@@ -87,15 +87,15 @@ function main()
         )
     end
 
-    university_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "universities.csv")))
+    college_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "colleges.csv")))
     # Массив для хранения школ
-    universities = Array{School, 1}(undef, num_universities)
-    for i in 1:size(university_coords_df, 1)
-        universities[i] = School(
+    colleges = Array{School, 1}(undef, num_colleges)
+    for i in 1:size(college_coords_df, 1)
+        colleges[i] = School(
             3,
-            university_coords_df[i, :dist],
-            university_coords_df[i, :x],
-            university_coords_df[i, :y],
+            college_coords_df[i, :dist],
+            college_coords_df[i, :x],
+            college_coords_df[i, :y],
         )
     end
 
@@ -150,14 +150,14 @@ function main()
     # --------------------------TBD ZONE-----------------------------------
 
     # @time set_connections(
-    #     agents, households, kindergartens, schools, universities,
+    #     agents, households, kindergartens, schools, colleges,
     #     workplaces, shops, restaurants, thread_rng,
     #     num_threads, homes_coords_df)
 
     # -------------------------------------------------------------
 
     @time set_connections(
-        agents, households, kindergartens, schools, universities,
+        agents, households, kindergartens, schools, colleges,
         workplaces, thread_rng, num_threads, homes_coords_df)
 
     get_stats(agents)
@@ -170,22 +170,22 @@ function main()
     # println("Holiday")
     # @time run_simulation_evaluation(
     #     num_threads, thread_rng, agents, households, kindergartens,
-    #     schools, universities, shops, restaurants, true)
+    #     schools, colleges, shops, restaurants, true)
     # println("Weekday")
     # @time run_simulation_evaluation(
     #     num_threads, thread_rng, agents, households, kindergartens,
-    #     schools, universities, shops, restaurants, false)
+    #     schools, colleges, shops, restaurants, false)
 
     # -------------------------------------------------------------
 
     # println("Holiday")
     # @time run_simulation_evaluation(
     #     num_threads, thread_rng, agents, households, kindergartens,
-    #     schools, universities, shops, restaurants, true)
+    #     schools, colleges, shops, restaurants, true)
     println("Weekday")
     @time run_simulation_evaluation(
         num_threads, thread_rng, agents, households, kindergartens,
-        schools, universities, false)
+        schools, colleges, false)
     
     age_groups_nums = zeros(Int, 90)
     for agent in agents

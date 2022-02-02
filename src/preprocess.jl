@@ -156,8 +156,8 @@ function preprocess_schools()
     CSV.write("input/tables/space/schools.csv", df)
 end
 
-function preprocess_universities()
-    xf = XLSX.readxlsx("census/places/universities.xlsx")
+function preprocess_colleges()
+    xf = XLSX.readxlsx("census/places/colleges.xlsx")
     sh = xf["data"]
 
     a = string.(sh["A2:A140"])
@@ -174,7 +174,7 @@ function preprocess_universities()
     df = filter(row -> length(row.dist) < 4, df)
 
     insertcols!(df, 1, :id => 1:nrow(df))
-    CSV.write("input/tables/space/universities.csv", df)
+    CSV.write("input/tables/space/colleges.csv", df)
 end
 
 function preprocess_shops()
@@ -250,6 +250,6 @@ end
 # Don't forget to run partition.jl after applying changes
 # preprocess_kindergartens()
 # preprocess_schools()
-# preprocess_universities()
+# preprocess_colleges()
 # preprocess_shops()
 # preprocess_restaurants()

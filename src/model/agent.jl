@@ -161,7 +161,7 @@ mutable struct Agent
             elseif rand_num < 0.75
                 activity_type = 3
             end
-        # 18-23 University - Work
+        # 18-23 College - Work
         elseif age < 22
             rand_num = rand(rng, Float64)
             if rand_num < 0.66
@@ -435,115 +435,231 @@ mutable struct Agent
         CoV_immunity_end = 0
 
         if !is_infected
-            if rand(rng, Float64) < 0.000206497
+            # if rand(rng, Float64) < 0.000206497
+            #     FluA_days_immune = rand(rng, 211:217)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000281861
+            #     FluA_days_immune = rand(rng, 204:210)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000660201
+            #     FluA_days_immune = rand(rng, 197:203)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001605497
+            #     FluA_days_immune = rand(rng, 190:196)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.003478317
+            #     FluA_days_immune = rand(rng, 183:189)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.006433707
+            #     FluA_days_immune = rand(rng, 176:182)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.010078104
+            #     FluA_days_immune = rand(rng, 169:175)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.014095888
+            #     FluA_days_immune = rand(rng, 162:168)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.016454683
+            #     FluA_days_immune = rand(rng, 155:161)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.01634273
+            #     FluA_days_immune = rand(rng, 148:154)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.012538951
+            #     FluA_days_immune = rand(rng, 141:147)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.008756795
+            #     FluA_days_immune = rand(rng, 134:140)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.004209558
+            #     FluA_days_immune = rand(rng, 127:133)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002100738
+            #     FluA_days_immune = rand(rng, 120:126)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001255956
+            #     FluA_days_immune = rand(rng, 113:119)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.00080679
+            #     FluA_days_immune = rand(rng, 106:112)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000458664
+            #     FluA_days_immune = rand(rng, 99:105)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000309442
+            #     FluA_days_immune = rand(rng, 92:98)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000201445
+            #     FluA_days_immune = rand(rng, 85:91)
+            #     FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluA_immunity_end < FluA_days_immune
+            #         FluA_immunity_end = FluA_days_immune
+            #     end
+            # end
+
+            if rand(rng, Float64) < 0.000406497
                 FluA_days_immune = rand(rng, 211:217)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000281861
+            elseif rand(rng, Float64) < 0.000561861
                 FluA_days_immune = rand(rng, 204:210)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000660201
+            elseif rand(rng, Float64) < 0.001260201
                 FluA_days_immune = rand(rng, 197:203)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001605497
+            elseif rand(rng, Float64) < 0.003205497
                 FluA_days_immune = rand(rng, 190:196)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.003478317
+            elseif rand(rng, Float64) < 0.006878317
                 FluA_days_immune = rand(rng, 183:189)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.006433707
+            elseif rand(rng, Float64) < 0.012833707
                 FluA_days_immune = rand(rng, 176:182)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.010078104
+            elseif rand(rng, Float64) < 0.020078104
                 FluA_days_immune = rand(rng, 169:175)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.014095888
+            elseif rand(rng, Float64) < 0.028095888
                 FluA_days_immune = rand(rng, 162:168)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.016454683
+            elseif rand(rng, Float64) < 0.032454683
                 FluA_days_immune = rand(rng, 155:161)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.01634273
+            elseif rand(rng, Float64) < 0.03234273
                 FluA_days_immune = rand(rng, 148:154)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.012538951
+            elseif rand(rng, Float64) < 0.024538951
                 FluA_days_immune = rand(rng, 141:147)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.008756795
+            elseif rand(rng, Float64) < 0.016756795
                 FluA_days_immune = rand(rng, 134:140)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.004209558
+            elseif rand(rng, Float64) < 0.008409558
                 FluA_days_immune = rand(rng, 127:133)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002100738
+            elseif rand(rng, Float64) < 0.004200738
                 FluA_days_immune = rand(rng, 120:126)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001255956
+            elseif rand(rng, Float64) < 0.002455956
                 FluA_days_immune = rand(rng, 113:119)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.00080679
+            elseif rand(rng, Float64) < 0.00160679
                 FluA_days_immune = rand(rng, 106:112)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000458664
+            elseif rand(rng, Float64) < 0.000858664
                 FluA_days_immune = rand(rng, 99:105)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000309442
+            elseif rand(rng, Float64) < 0.000609442
                 FluA_days_immune = rand(rng, 92:98)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
                     FluA_immunity_end = FluA_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000201445
+            elseif rand(rng, Float64) < 0.000401445
                 FluA_days_immune = rand(rng, 85:91)
                 FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
                 if FluA_immunity_end < FluA_days_immune
@@ -551,127 +667,248 @@ mutable struct Agent
                 end
             end
 
-            if rand(rng, Float64) < 0.000261757
+            if rand(rng, Float64) < 0.000521757
                 FluB_days_immune = rand(rng, 197:203)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000606962
+            elseif rand(rng, Float64) < 0.001206962
                 FluB_days_immune = rand(rng, 190:196)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001020158
+            elseif rand(rng, Float64) < 0.002020158
                 FluB_days_immune = rand(rng, 183:189)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.00167279
+            elseif rand(rng, Float64) < 0.00327279
                 FluB_days_immune = rand(rng, 176:182)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002434718
+            elseif rand(rng, Float64) < 0.004834718
                 FluB_days_immune = rand(rng, 169:175)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002843872
+            elseif rand(rng, Float64) < 0.005643872
                 FluB_days_immune = rand(rng, 162:168)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002840032
+            elseif rand(rng, Float64) < 0.005640032
                 FluB_days_immune = rand(rng, 155:161)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002464019
+            elseif rand(rng, Float64) < 0.004864019
                 FluB_days_immune = rand(rng, 148:154)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002089219
+            elseif rand(rng, Float64) < 0.004089219
                 FluB_days_immune = rand(rng, 141:147)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001856047
+            elseif rand(rng, Float64) < 0.003656047
                 FluB_days_immune = rand(rng, 134:140)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001629948
+            elseif rand(rng, Float64) < 0.003229948
                 FluB_days_immune = rand(rng, 127:133)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000887825
+            elseif rand(rng, Float64) < 0.001687825
                 FluB_days_immune = rand(rng, 120:126)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000681328
+            elseif rand(rng, Float64) < 0.001281328
                 FluB_days_immune = rand(rng, 113:119)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000666778
+            elseif rand(rng, Float64) < 0.001266778
                 FluB_days_immune = rand(rng, 106:112)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000639699
+            elseif rand(rng, Float64) < 0.001239699
                 FluB_days_immune = rand(rng, 99:105)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000600091
+            elseif rand(rng, Float64) < 0.001200091
                 FluB_days_immune = rand(rng, 92:98)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000424715
+            elseif rand(rng, Float64) < 0.000824715
                 FluB_days_immune = rand(rng, 85:91)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000272578
+            elseif rand(rng, Float64) < 0.000472578
                 FluB_days_immune = rand(rng, 78:84)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.00025439
+            elseif rand(rng, Float64) < 0.00045439
                 FluB_days_immune = rand(rng, 71:77)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000219228
+            elseif rand(rng, Float64) < 0.000419228
                 FluB_days_immune = rand(rng, 64:70)
                 FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
                 if FluB_immunity_end < FluB_days_immune
                     FluB_immunity_end = FluB_days_immune
                 end
             end
+            # if rand(rng, Float64) < 0.000261757
+            #     FluB_days_immune = rand(rng, 197:203)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000606962
+            #     FluB_days_immune = rand(rng, 190:196)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001020158
+            #     FluB_days_immune = rand(rng, 183:189)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.00167279
+            #     FluB_days_immune = rand(rng, 176:182)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002434718
+            #     FluB_days_immune = rand(rng, 169:175)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002843872
+            #     FluB_days_immune = rand(rng, 162:168)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002840032
+            #     FluB_days_immune = rand(rng, 155:161)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002464019
+            #     FluB_days_immune = rand(rng, 148:154)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002089219
+            #     FluB_days_immune = rand(rng, 141:147)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001856047
+            #     FluB_days_immune = rand(rng, 134:140)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001629948
+            #     FluB_days_immune = rand(rng, 127:133)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000887825
+            #     FluB_days_immune = rand(rng, 120:126)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000681328
+            #     FluB_days_immune = rand(rng, 113:119)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000666778
+            #     FluB_days_immune = rand(rng, 106:112)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000639699
+            #     FluB_days_immune = rand(rng, 99:105)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000600091
+            #     FluB_days_immune = rand(rng, 92:98)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000424715
+            #     FluB_days_immune = rand(rng, 85:91)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000272578
+            #     FluB_days_immune = rand(rng, 78:84)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.00025439
+            #     FluB_days_immune = rand(rng, 71:77)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000219228
+            #     FluB_days_immune = rand(rng, 64:70)
+            #     FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
+            #     if FluB_immunity_end < FluB_days_immune
+            #         FluB_immunity_end = FluB_days_immune
+            #     end
+            # end
 
             if rand(rng, Float64) < 0.001578761
                 RV_days_immune = rand(rng, 1:7)
@@ -833,79 +1070,159 @@ mutable struct Agent
                 end
             end
 
-            if rand(rng, Float64) < 0.000600061
+            # if rand(rng, Float64) < 0.000600061
+            #     AdV_days_immune = rand(rng, 1:7)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000612994
+            #     AdV_days_immune = rand(rng, 8:14)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000911205
+            #     AdV_days_immune = rand(rng, 15:21)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001299343
+            #     AdV_days_immune = rand(rng, 22:28)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001542791
+            #     AdV_days_immune = rand(rng, 29:35)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001806042
+            #     AdV_days_immune = rand(rng, 36:42)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001883237
+            #     AdV_days_immune = rand(rng, 43:49)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002443286
+            #     AdV_days_immune = rand(rng, 50:56)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002731393
+            #     AdV_days_immune = rand(rng, 57:63)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002457432
+            #     AdV_days_immune = rand(rng, 85:90)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002417824
+            #     AdV_days_immune = rand(rng, 78:84)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002190947
+            #     AdV_days_immune = rand(rng, 71:77)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002169728
+            #     AdV_days_immune = rand(rng, 64:70)
+            #     AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
+            #     if AdV_immunity_end < AdV_days_immune
+            #         AdV_immunity_end = AdV_days_immune
+            #     end
+            # end
+
+            if rand(rng, Float64) < 0.001200061
                 AdV_days_immune = rand(rng, 1:7)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
                     AdV_immunity_end = AdV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000612994
+            elseif rand(rng, Float64) < 0.001212994
                 AdV_days_immune = rand(rng, 8:14)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
                     AdV_immunity_end = AdV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000911205
+            elseif rand(rng, Float64) < 0.001811205
                 AdV_days_immune = rand(rng, 15:21)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
                     AdV_immunity_end = AdV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001299343
+            elseif rand(rng, Float64) < 0.002499343
                 AdV_days_immune = rand(rng, 22:28)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
                     AdV_immunity_end = AdV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001542791
+            elseif rand(rng, Float64) < 0.003042791
                 AdV_days_immune = rand(rng, 29:35)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
                     AdV_immunity_end = AdV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001806042
+            elseif rand(rng, Float64) < 0.003606042
                 AdV_days_immune = rand(rng, 36:42)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
                     AdV_immunity_end = AdV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001883237
+            elseif rand(rng, Float64) < 0.003683237
                 AdV_days_immune = rand(rng, 43:49)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
                     AdV_immunity_end = AdV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002443286
+            elseif rand(rng, Float64) < 0.004843286
                 AdV_days_immune = rand(rng, 50:56)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
                     AdV_immunity_end = AdV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002731393
+            elseif rand(rng, Float64) < 0.005431393
                 AdV_days_immune = rand(rng, 57:63)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
                     AdV_immunity_end = AdV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002457432
+            elseif rand(rng, Float64) < 0.004857432
                 AdV_days_immune = rand(rng, 85:90)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
                     AdV_immunity_end = AdV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002417824
+            elseif rand(rng, Float64) < 0.004817824
                 AdV_days_immune = rand(rng, 78:84)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
                     AdV_immunity_end = AdV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002190947
+            elseif rand(rng, Float64) < 0.004290947
                 AdV_days_immune = rand(rng, 71:77)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
                     AdV_immunity_end = AdV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002169728
+            elseif rand(rng, Float64) < 0.004269728
                 AdV_days_immune = rand(rng, 64:70)
                 AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
                 if AdV_immunity_end < AdV_days_immune
@@ -913,79 +1230,159 @@ mutable struct Agent
                 end
             end
 
-            if rand(rng, Float64) < 0.00067281
+            # if rand(rng, Float64) < 0.00067281
+            #     PIV_days_immune = rand(rng, 1:7)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000671395
+            #     PIV_days_immune = rand(rng, 8:14)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000655633
+            #     PIV_days_immune = rand(rng, 15:21)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.000938891
+            #     PIV_days_immune = rand(rng, 22:28)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.00096698
+            #     PIV_days_immune = rand(rng, 29:35)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.00096698
+            #     PIV_days_immune = rand(rng, 36:42)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001221138
+            #     PIV_days_immune = rand(rng, 43:49)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001546832
+            #     PIV_days_immune = rand(rng, 50:56)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.002106275
+            #     PIV_days_immune = rand(rng, 57:63)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001847267
+            #     PIV_days_immune = rand(rng, 85:90)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001263979
+            #     PIV_days_immune = rand(rng, 78:84)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001503789
+            #     PIV_days_immune = rand(rng, 71:77)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # elseif rand(rng, Float64) < 0.001563403
+            #     PIV_days_immune = rand(rng, 64:70)
+            #     PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+            #     if PIV_immunity_end < PIV_days_immune
+            #         PIV_immunity_end = PIV_days_immune
+            #     end
+            # end
+
+            if rand(rng, Float64) < 0.00127281
                 PIV_days_immune = rand(rng, 1:7)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
                     PIV_immunity_end = PIV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000671395
+            elseif rand(rng, Float64) < 0.001271395
                 PIV_days_immune = rand(rng, 8:14)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
                     PIV_immunity_end = PIV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000655633
+            elseif rand(rng, Float64) < 0.001255633
                 PIV_days_immune = rand(rng, 15:21)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
                     PIV_immunity_end = PIV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.000938891
+            elseif rand(rng, Float64) < 0.001838891
                 PIV_days_immune = rand(rng, 22:28)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
                     PIV_immunity_end = PIV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.00096698
+            elseif rand(rng, Float64) < 0.00186698
                 PIV_days_immune = rand(rng, 29:35)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
                     PIV_immunity_end = PIV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.00096698
+            elseif rand(rng, Float64) < 0.00186698
                 PIV_days_immune = rand(rng, 36:42)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
                     PIV_immunity_end = PIV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001221138
+            elseif rand(rng, Float64) < 0.002421138
                 PIV_days_immune = rand(rng, 43:49)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
                     PIV_immunity_end = PIV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001546832
+            elseif rand(rng, Float64) < 0.003046832
                 PIV_days_immune = rand(rng, 50:56)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
                     PIV_immunity_end = PIV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.002106275
+            elseif rand(rng, Float64) < 0.004206275
                 PIV_days_immune = rand(rng, 57:63)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
                     PIV_immunity_end = PIV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001847267
+            elseif rand(rng, Float64) < 0.003647267
                 PIV_days_immune = rand(rng, 85:90)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
                     PIV_immunity_end = PIV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001263979
+            elseif rand(rng, Float64) < 0.002463979
                 PIV_days_immune = rand(rng, 78:84)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
                     PIV_immunity_end = PIV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001503789
+            elseif rand(rng, Float64) < 0.003003789
                 PIV_days_immune = rand(rng, 71:77)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
                     PIV_immunity_end = PIV_days_immune
                 end
-            elseif rand(rng, Float64) < 0.001563403
+            elseif rand(rng, Float64) < 0.003063403
                 PIV_days_immune = rand(rng, 64:70)
                 PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
                 if PIV_immunity_end < PIV_days_immune
@@ -1243,6 +1640,10 @@ mutable struct Agent
         end
 
         attendance = true
+        if activity_type == 3 && rand(rng, Float64) < skip_college_probability
+            attendance = false
+        end
+
         is_teacher = false
 
         days_immune = 0

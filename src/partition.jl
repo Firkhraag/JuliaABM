@@ -355,7 +355,7 @@ function main()
 
     kindergarten_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "kindergartens.csv")))
     school_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "schools.csv")))
-    university_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "universities.csv")))
+    college_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "colleges.csv")))
     shop_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "shops.csv")))
     restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "restaurants.csv")))
 
@@ -375,11 +375,11 @@ function main()
         end
     end
 
-    num_universities = zeros(Int, num_threads)
+    num_colleges = zeros(Int, num_threads)
     @threads for thread_id in 1:num_threads
         for index in district_nums[thread_id:num_threads:size(district_nums, 1)]
-            universities_coords_district_df = university_coords_df[university_coords_df.dist .== index, :]
-            num_universities[thread_id] += size(universities_coords_district_df)[1]
+            colleges_coords_district_df = college_coords_df[college_coords_df.dist .== index, :]
+            num_colleges[thread_id] += size(colleges_coords_district_df)[1]
         end
     end
 
@@ -478,22 +478,22 @@ function main()
     sum_entities += num_schools[num_threads]
     println("$(sum_entities)]")
 
-    println("const num_universities = $(size(university_coords_df)[1])")
-    print("const start_university_ids = Int[1, ")
+    println("const num_colleges = $(size(college_coords_df)[1])")
+    print("const start_college_ids = Int[1, ")
     sum_entities = 1
     for thread_id in 2:(num_threads - 1)
-        sum_entities += num_universities[thread_id - 1]
+        sum_entities += num_colleges[thread_id - 1]
         print("$(sum_entities), ")
     end
-    sum_entities += num_universities[num_threads - 1]
+    sum_entities += num_colleges[num_threads - 1]
     println("$(sum_entities)]")
-    print("const end_university_ids = Int[")
+    print("const end_college_ids = Int[")
     sum_entities = 0
     for thread_id in 1:(num_threads - 1)
-        sum_entities += num_universities[thread_id]
+        sum_entities += num_colleges[thread_id]
         print("$(sum_entities), ")
     end
-    sum_entities += num_universities[num_threads]
+    sum_entities += num_colleges[num_threads]
     println("$(sum_entities)]")
 
     println("const num_shops = $(size(shop_coords_df)[1])")

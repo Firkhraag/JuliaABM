@@ -160,7 +160,7 @@ function plot_etiology()
 end
 
 # plot_temperature()
-plot_all_data()
+# plot_all_data()
 # plot_incidence()
 # plot_incidence_age_groups()
-# plot_etiology()
+plot_etiology()

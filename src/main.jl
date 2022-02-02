@@ -35,9 +35,9 @@ function main()
 
     viruses = Virus[
         # FluA
-        Virus(1.4, 0.09, 1, 7,  4.8, 1.12, 3, 12,  8.8, 3.748, 4, 14,  4.6, 3.5, 2.3,  0.41, 0.52, 0.61,  270.0, 90.0),
+        Virus(1.4, 0.09, 1, 7,  4.8, 1.12, 3, 12,  8.8, 3.748, 4, 14,  4.6, 3.5, 2.3,  0.3, 0.45, 0.6,  270.0, 90.0),
         # FluB
-        Virus(1.0, 0.0484, 1, 7,  3.7, 0.66, 3, 12,  7.8, 2.94, 4, 14,  4.7, 3.5, 2.4,  0.41, 0.52, 0.61,  270.0, 90.0),
+        Virus(1.0, 0.0484, 1, 7,  3.7, 0.66, 3, 12,  7.8, 2.94, 4, 14,  4.7, 3.5, 2.4,  0.3, 0.45, 0.6,  270.0, 90.0),
         # RV
         Virus(1.9, 0.175, 1, 7,  10.1, 4.93, 3, 12,  11.4, 6.25, 4, 14,  3.5, 2.6, 1.8,  0.19, 0.24, 0.28,  60.0, 20.0),
         # RSV
@@ -49,11 +49,64 @@ function main()
         # CoV
         Virus(3.2, 0.496, 1, 7,  6.5, 2.15, 3, 12,  7.5, 2.9, 4, 14,  4.9, 3.7, 2.5,  0.22, 0.28, 0.33,  120.0, 40.0)]
 
+    # Начальные доли инфицированных
+    # initially_infected = [4896 / 272834, 3615 / 319868, 2906 / 559565, 14928 / 8920401]
+    initially_infected = [0.0179449, 0.01130153, 0.00519331, 0.00167346]
+    # Вероятности случайного инфицирования
     random_infection_probabilities = [0.0015, 0.0012, 0.00045, 0.000001]
-    initially_infected = [4896 / 272834, 3615 / 319868, 2906 / 559565, 14928 / 8920401]
+    # Вероятности изолироваться при болезни на 1-й, 2-й и 3-й дни
     isolation_probabilities_day_1 = [0.406, 0.305, 0.204, 0.101]
     isolation_probabilities_day_2 = [0.669, 0.576, 0.499, 0.334]
     isolation_probabilities_day_3 = [0.45, 0.325, 0.376, 0.168]
+    # Продолжительность резистентного состояния
+    recovered_duration_mean = 12.0
+    recovered_duration_sd = 4.0
+    # Продолжительности контактов в домохозяйствах
+    # Укороченные для различных коллективов и полная: Kinder, School, College, Work, Full
+    mean_household_contact_durations = [6.5, 5.8, 9.0, 4.5, 12.0]
+    household_contact_duration_sds = [2.2, 2.0, 3.0, 1.5, 4.0]
+    # Продолжительности контактов в прочих коллективах
+    other_contact_duration_shapes = [2.5, 1.78, 2.0, 1.81, 1.2]
+    other_contact_duration_scales = [1.6, 1.95, 1.07, 1.7, 1.07]
+    # Параметры, отвечающие за связи на рабочих местах
+    zipf_max_size = 994
+    num_barabasi_albert_attachments = 6
+
+    # MAE = 932.6227681583455
+    # MAPE = 1.176990548408736
+    # RMSE = 1677.0100811550135
+    # nMAE = 0.5370875868973097
+    # S_abs = 1.357898750438551e6
+    # S_square = 4.0948002547023134e9
+
+    # MAE: 928.4387163563445
+    # MAPE: 0.9621118663023186
+    # RMSE: 1690.5901989350573
+    # nMAE: 0.5346780357234437
+    # S_abs: 1.3518067710148375e6
+    # S_square: 4.161386641390563e9
+    duration_parameter = 3.8616161616161606
+    susceptibility_parameters = [3.9727272727272744, 3.8717171717171706, 4.349494949494953, 5.839393939393939, 4.705353535353538, 4.316363636363637, 4.8639393939393925]
+    temperature_parameters = [-0.8065656565656565, -0.8575757575757574, -0.13585858585858585, -0.04949494949494951, -0.07424242424242425, -0.19494949494949498, -0.6863636363636365]
+    random_infection_probabilities = [0.00012296969696969694, 6.8810101010101e-5, 4.9604040404040426e-5, 7.072727272727273e-7]
+    initially_infected = [0.018480331067479292, 0.008988405570833323, 0.004834733952338698, 0.0013320532284944535]
+    mean_immunity_durations = [272.030303030303, 268.6969696969697, 57.90909090909091, 62.45454545454545, 82.39393939393939, 99.18181818181816, 121.36363636363636]
+
+    viruses = Virus[
+        # FluA
+        Virus(1.4, 0.09, 1, 7,  4.8, 1.12, 3, 12,  8.8, 3.748, 4, 14,  4.6, 3.5, 2.3,  0.3, 0.45, 0.6,  mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
+        # FluB
+        Virus(1.0, 0.0484, 1, 7,  3.7, 0.66, 3, 12,  7.8, 2.94, 4, 14,  4.7, 3.5, 2.4,  0.3, 0.45, 0.6,  mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
+        # RV
+        Virus(1.9, 0.175, 1, 7,  10.1, 4.93, 3, 12,  11.4, 6.25, 4, 14,  3.5, 2.6, 1.8,  0.19, 0.24, 0.28,  mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
+        # RSV
+        Virus(4.4, 0.937, 1, 7,  7.4, 2.66, 3, 12,  9.3, 4.0, 4, 14,  6.0, 4.5, 3.0,  0.26, 0.33, 0.39,  mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
+        # AdV
+        Virus(5.6, 1.51, 1, 7,  8.0, 3.1, 3, 12,  9.0, 3.92, 4, 14,  4.1, 3.1, 2.1,  0.15, 0.19, 0.22,  mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
+        # PIV
+        Virus(2.6, 0.327, 1, 7,  7.0, 2.37, 3, 12,  8.0, 3.1, 4, 14,  4.8, 3.6, 2.4,  0.16, 0.2, 0.24,  mean_immunity_durations[6], mean_immunity_durations[6] * 0.33),
+        # CoV
+        Virus(3.2, 0.496, 1, 7,  6.5, 2.15, 3, 12,  7.5, 2.9, 4, 14,  4.9, 3.7, 2.5,  0.22, 0.28, 0.33,  mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
 
     # Число домохозяйств каждого типа по районам
     district_households = get_district_households()
@@ -101,15 +154,15 @@ function main()
         )
     end
 
-    university_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "universities.csv")))
-    # Массив для хранения школ
-    universities = Array{School, 1}(undef, num_universities)
-    for i in 1:size(university_coords_df, 1)
-        universities[i] = School(
+    college_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "colleges.csv")))
+    # Массив для хранения институтов
+    colleges = Array{School, 1}(undef, num_colleges)
+    for i in 1:size(college_coords_df, 1)
+        colleges[i] = School(
             3,
-            university_coords_df[i, :dist],
-            university_coords_df[i, :x],
-            university_coords_df[i, :y],
+            college_coords_df[i, :dist],
+            college_coords_df[i, :x],
+            college_coords_df[i, :y],
         )
     end
 
@@ -131,18 +184,18 @@ function main()
     #     )
     # end
 
-    # restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "restaurants.csv")))
-    # # Массив для хранения ресторанов/кафе/столовых
-    # restaurants = Array{PublicSpace, 1}(undef, num_restaurants)
-    # for i in 1:size(restaurant_coords_df, 1)
-    #     restaurants[i] = PublicSpace(
-    #         restaurant_coords_df[i, :dist],
-    #         restaurant_coords_df[i, :x],
-    #         restaurant_coords_df[i, :y],
-    #         restaurant_coords_df[i, :seats],
-    #         restaurant_num_groups,
-    #     )
-    # end
+    restaurant_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "restaurants.csv")))
+    # Массив для хранения ресторанов/кафе/столовых
+    restaurants = Array{PublicSpace, 1}(undef, num_restaurants)
+    for i in 1:size(restaurant_coords_df, 1)
+        restaurants[i] = PublicSpace(
+            restaurant_coords_df[i, :dist],
+            restaurant_coords_df[i, :x],
+            restaurant_coords_df[i, :y],
+            restaurant_coords_df[i, :seats],
+            restaurant_num_groups,
+        )
+    end
 
     # -------------------------------------------------------------
 
@@ -157,70 +210,58 @@ function main()
     # --------------------------TBD ZONE-----------------------------------
 
     # @time set_connections(
-    #     agents, households, kindergartens, schools, universities,
+    #     agents, households, kindergartens, schools, colleges,
     #     workplaces, shops, restaurants, thread_rng,
     #     num_threads, homes_coords_df)
 
     # -------------------------------------------------------------
 
     @time set_connections(
-        agents, households, kindergartens, schools, universities,
-        workplaces, thread_rng, num_threads, homes_coords_df)
+        agents, households, kindergartens, schools, colleges,
+        workplaces, thread_rng, num_threads, homes_coords_df,
+        zipf_max_size, num_barabasi_albert_attachments)
 
     # get_stats(agents)
-
     # return
 
     println("Simulation...")
 
-    duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
-    duration_parameter = mean(duration_parameter_array[burnin:step:end])
+    # duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
+    # duration_parameter = mean(duration_parameter_array[burnin:step:end])
     
-    susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_3_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_4_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_5_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameters = [
-        mean(susceptibility_parameter_1_array[burnin:step:end]),
-        mean(susceptibility_parameter_2_array[burnin:step:end]),
-        mean(susceptibility_parameter_3_array[burnin:step:end]),
-        mean(susceptibility_parameter_4_array[burnin:step:end]),
-        mean(susceptibility_parameter_5_array[burnin:step:end]),
-        mean(susceptibility_parameter_6_array[burnin:step:end]),
-        mean(susceptibility_parameter_7_array[burnin:step:end])
-    ]
+    # susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
+    # susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
+    # susceptibility_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_3_array.csv"), ',', Float64, '\n'))
+    # susceptibility_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_4_array.csv"), ',', Float64, '\n'))
+    # susceptibility_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_5_array.csv"), ',', Float64, '\n'))
+    # susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
+    # susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
+    # susceptibility_parameters = [
+    #     mean(susceptibility_parameter_1_array[burnin:step:end]),
+    #     mean(susceptibility_parameter_2_array[burnin:step:end]),
+    #     mean(susceptibility_parameter_3_array[burnin:step:end]),
+    #     mean(susceptibility_parameter_4_array[burnin:step:end]),
+    #     mean(susceptibility_parameter_5_array[burnin:step:end]),
+    #     mean(susceptibility_parameter_6_array[burnin:step:end]),
+    #     mean(susceptibility_parameter_7_array[burnin:step:end])
+    # ]
 
-    temperature_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_1_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_2_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_3_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_4_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_5_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_6_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_7_array.csv"), ',', Float64, '\n'))
-    temperature_parameters = -[
-        mean(temperature_parameter_1_array[burnin:step:end]),
-        mean(temperature_parameter_2_array[burnin:step:end]),
-        mean(temperature_parameter_3_array[burnin:step:end]),
-        mean(temperature_parameter_4_array[burnin:step:end]),
-        mean(temperature_parameter_5_array[burnin:step:end]),
-        mean(temperature_parameter_6_array[burnin:step:end]),
-        mean(temperature_parameter_7_array[burnin:step:end])
-    ]
-
-    # duration_parameter = 3.149494949494949
-    # susceptibility_parameters = [5.466666666666667, 5.551515151515151, 5.693939393939395, 7.16969696969697, 6.875757575757577, 6.851515151515152, 6.966666666666666]
-    # temperature_parameters = [-0.9292929292929293, -0.8217171717171717, -0.07979797979797981, -0.15656565656565663, -0.22373737373737376, -0.1904040404040404, -0.7626262626262627]
-
-    duration_parameter = 3.227272727272727
-    susceptibility_parameters = [5.556565656565656, 5.607070707070706, 5.733333333333334, 7.081818181818182, 6.90909090909091, 6.78989898989899, 6.939393939393939]
-    temperature_parameters = [-0.9621212121212122, -0.8383838383838385, -0.10757575757575757, -0.16616161616161623, -0.25959595959595966, -0.18383838383838386, -0.7237373737373738]
-
-    # duration_parameter = 3.055555555555555
-    # susceptibility_parameters = [5.421212121212122, 5.544444444444443, 5.636363636363638, 7.110101010101011, 6.92929292929293, 6.761616161616162, 7.034343434343433]
-    # temperature_parameters = [-0.9661616161616162, -0.8020202020202021, -0.10555555555555556, -0.19141414141414148, -0.21919191919191922, -0.23737373737373738, -0.73989898989899]
+    # temperature_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_1_array.csv"), ',', Float64, '\n'))
+    # temperature_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_2_array.csv"), ',', Float64, '\n'))
+    # temperature_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_3_array.csv"), ',', Float64, '\n'))
+    # temperature_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_4_array.csv"), ',', Float64, '\n'))
+    # temperature_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_5_array.csv"), ',', Float64, '\n'))
+    # temperature_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_6_array.csv"), ',', Float64, '\n'))
+    # temperature_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_7_array.csv"), ',', Float64, '\n'))
+    # temperature_parameters = -[
+    #     mean(temperature_parameter_1_array[burnin:step:end]),
+    #     mean(temperature_parameter_2_array[burnin:step:end]),
+    #     mean(temperature_parameter_3_array[burnin:step:end]),
+    #     mean(temperature_parameter_4_array[burnin:step:end]),
+    #     mean(temperature_parameter_5_array[burnin:step:end]),
+    #     mean(temperature_parameter_6_array[burnin:step:end]),
+    #     mean(temperature_parameter_7_array[burnin:step:end])
+    # ]
 
     # Runs
     etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
@@ -375,8 +416,11 @@ function main()
         @time num_infected_age_groups_viruses = run_simulation(
             num_threads, thread_rng, agents, viruses, households, duration_parameter,
             susceptibility_parameters, temperature_parameters, temperature,
+            mean_household_contact_durations, household_contact_duration_sds,
+            other_contact_duration_shapes, other_contact_duration_scales,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, random_infection_probabilities, etiology, n == 1)
+            isolation_probabilities_day_3, random_infection_probabilities, etiology,
+            recovered_duration_mean, recovered_duration_sd, n == 1)
 
         writedlm(
             joinpath(@__DIR__, "..", "output", "tables", n > 1 ? "age_groups_viruses_data_$(i).csv" : "age_groups_viruses_data.csv"),

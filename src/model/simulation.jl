@@ -90,6 +90,10 @@ function simulate_contacts(
     end_agent_id::Int,
     agents::Vector{Agent},
     households::Vector{Household},
+    mean_household_contact_durations::Vector{Float64},
+    household_contact_duration_sds::Vector{Float64},
+    other_contact_duration_shapes::Vector{Float64},
+    other_contact_duration_scales::Vector{Float64},
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
     temperature_parameters::Vector{Float64},
@@ -98,7 +102,7 @@ function simulate_contacts(
     viruses::Vector{Virus},
     is_kindergarten_holiday::Bool,
     is_school_holiday::Bool,
-    is_university_holiday::Bool,
+    is_college_holiday::Bool,
     is_work_holiday::Bool,
     current_step::Int,
     current_temp::Float64,
@@ -129,11 +133,11 @@ function simulate_contacts(
 
             #             dur = 0.0
             #             if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-            #                 (agent.activity_type == 3 && is_university_holiday) ||
+            #                 (agent.activity_type == 3 && is_college_holiday) ||
             #                 (agent.activity_type == 2 && is_school_holiday) ||
             #                 (agent.activity_type == 1 && is_kindergarten_holiday)) &&
             #                 (agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
-            #                 (agent2.activity_type == 3 && is_university_holiday) ||
+            #                 (agent2.activity_type == 3 && is_college_holiday) ||
             #                 (agent2.activity_type == 2 && is_school_holiday) ||
             #                 (agent2.activity_type == 1 && is_kindergarten_holiday))
 
@@ -169,27 +173,27 @@ function simulate_contacts(
 
                     dur = 0.0
                     if (agent.is_isolated || agent.on_parent_leave || agent.activity_type == 0 ||
-                        (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_university_holiday) ||
+                        (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_college_holiday) ||
                         (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)) &&
                         (agent2.is_isolated || agent2.on_parent_leave || agent2.activity_type == 0 ||
-                        (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_university_holiday) ||
+                        (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_college_holiday) ||
                         (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday))
 
-                        dur = get_contact_duration_normal(12.0, 4.0, rng)
+                        dur = get_contact_duration_normal(mean_household_contact_durations[5], household_contact_duration_sds[5], rng)
                     elseif ((agent.activity_type == 4 && !(agent.is_isolated || agent.on_parent_leave)) ||
                         (agent2.activity_type == 4 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_work_holiday
 
-                        dur = get_contact_duration_normal(4.5, 1.5, rng)
+                        dur = get_contact_duration_normal(mean_household_contact_durations[4], household_contact_duration_sds[4], rng)
                     elseif ((agent.activity_type == 2 && !(agent.is_isolated || agent.on_parent_leave)) ||
                         (agent2.activity_type == 2 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_school_holiday
 
-                        dur = get_contact_duration_normal(5.8, 2.0, rng)
+                        dur = get_contact_duration_normal(mean_household_contact_durations[2], household_contact_duration_sds[2], rng)
                     elseif ((agent.activity_type == 1 && !(agent.is_isolated || agent.on_parent_leave)) ||
                         (agent2.activity_type == 1 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_kindergarten_holiday
                         
-                        dur = get_contact_duration_normal(6.5, 2.2, rng)
+                        dur = get_contact_duration_normal(mean_household_contact_durations[1], household_contact_duration_sds[1], rng)
                     else
-                        dur = get_contact_duration_normal(9.0, 3.0, rng)
+                        dur = get_contact_duration_normal(mean_household_contact_durations[3], household_contact_duration_sds[3], rng)
                     end
 
                     # --------------------------TBD ZONE-----------------------------------
@@ -222,7 +226,7 @@ function simulate_contacts(
             if !agent.is_isolated && !agent.on_parent_leave && agent.attendance &&
                 ((agent.activity_type == 1 && !is_kindergarten_holiday) ||
                 (agent.activity_type == 2 && !is_school_holiday) ||
-                (agent.activity_type == 3 && !is_university_holiday) ||
+                (agent.activity_type == 3 && !is_college_holiday) ||
                 (agent.activity_type == 4 && !is_work_holiday))
                 
                 for agent2_id in agent.activity_conn_ids
@@ -239,13 +243,13 @@ function simulate_contacts(
 
                         dur = 0.0
                         if agent.activity_type == 1
-                            dur = get_contact_duration_gamma(2.5, 1.6, rng)
+                            dur = get_contact_duration_gamma(other_contact_duration_shapes[1], other_contact_duration_scales[1], rng)
                         elseif agent.activity_type == 2
-                            dur = get_contact_duration_gamma(1.78, 1.95, rng)
+                            dur = get_contact_duration_gamma(other_contact_duration_shapes[2], other_contact_duration_scales[2], rng)
                         elseif agent.activity_type == 3
-                            dur = get_contact_duration_gamma(2.0, 1.07, rng)
+                            dur = get_contact_duration_gamma(other_contact_duration_shapes[3], other_contact_duration_scales[3], rng)
                         else
-                            dur = get_contact_duration_gamma(1.81, 1.7, rng)
+                            dur = get_contact_duration_gamma(other_contact_duration_shapes[4], other_contact_duration_scales[4], rng)
                         end
 
                         if dur > 0.01
@@ -274,7 +278,7 @@ function simulate_contacts(
                             (agent.virus_id != 6 || agent2.PIV_days_immune == 0) &&
                             rand(rng, Float64) < 0.25
                                 
-                            dur = get_contact_duration_gamma(1.2, 1.07, rng)
+                            dur = get_contact_duration_gamma(other_contact_duration_shapes[5], other_contact_duration_scales[5], rng)
                             if dur > 0.01
                                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
                                     susceptibility_parameters, temperature_parameters, current_temp, rng)
@@ -310,11 +314,11 @@ function simulate_contacts(
 
             #             dur = 0.0
             #             if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-            #                 (agent.activity_type == 3 && is_university_holiday) ||
+            #                 (agent.activity_type == 3 && is_college_holiday) ||
             #                 (agent.activity_type == 2 && is_school_holiday) ||
             #                 (agent.activity_type == 1 && is_kindergarten_holiday)) &&
             #                 (agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
-            #                 (agent2.activity_type == 3 && is_university_holiday) ||
+            #                 (agent2.activity_type == 3 && is_college_holiday) ||
             #                 (agent2.activity_type == 2 && is_school_holiday) ||
             #                 (agent2.activity_type == 1 && is_kindergarten_holiday))
 
@@ -364,6 +368,8 @@ function update_agent_states(
     end_agent_id::Int,
     agents::Vector{Agent},
     viruses::Vector{Virus},
+    recovered_duration_mean::Float64,
+    recovered_duration_sd::Float64,
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
@@ -604,7 +610,7 @@ function update_agent_states(
         end
 
         agent.attendance = true
-        if agent.activity_type == 3 && !agent.is_teacher && rand(rng, Float64) < 0.5
+        if agent.activity_type == 3 && !agent.is_teacher && rand(rng, Float64) < skip_college_probability
             agent.attendance = false
         end
     end
@@ -622,7 +628,7 @@ end
 #     closest_public_space_id2::Int,
 #     is_kindergarten_holiday::Bool,
 #     is_school_holiday::Bool,
-#     is_university_holiday::Bool,
+#     is_college_holiday::Bool,
 #     is_work_holiday::Bool,
 #     restaurant_visit_time_distribution::MixtureModel,
 #     shop_visit_time_distribution::MixtureModel,
@@ -723,7 +729,7 @@ end
 #     restaurants::Vector{PublicSpace},
 #     is_kindergarten_holiday::Bool,
 #     is_school_holiday::Bool,
-#     is_university_holiday::Bool,
+#     is_college_holiday::Bool,
 #     is_work_holiday::Bool,
 #     restaurant_visit_time_distribution::MixtureModel,
 #     shop_visit_time_distribution::MixtureModel,
@@ -740,7 +746,7 @@ end
 #             if !agent.is_isolated
 #                 prob = 0.0
 #                 if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                     (agent.activity_type == 3 && is_university_holiday) ||
+#                     (agent.activity_type == 3 && is_college_holiday) ||
 #                     (agent.activity_type == 2 && is_school_holiday) ||
 #                     (agent.activity_type == 1 && is_kindergarten_holiday)
 
@@ -776,7 +782,7 @@ end
 
 #             prob = 0.0
 #             if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                 (agent.activity_type == 3 && is_university_holiday) ||
+#                 (agent.activity_type == 3 && is_college_holiday) ||
 #                 (agent.activity_type == 2 && is_school_holiday) ||
 #                 (agent.activity_type == 1 && is_kindergarten_holiday)
 
@@ -795,7 +801,7 @@ end
 #                     households[agent.household_id].closest_shop_id2,
 #                     is_kindergarten_holiday,
 #                     is_school_holiday,
-#                     is_university_holiday,
+#                     is_college_holiday,
 #                     is_work_holiday,
 #                     restaurant_visit_time_distribution,
 #                     shop_visit_time_distribution,
@@ -804,7 +810,7 @@ end
 #             end
 
 #             if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                 (agent.activity_type == 3 && is_university_holiday) ||
+#                 (agent.activity_type == 3 && is_college_holiday) ||
 #                 (agent.activity_type == 2 && is_school_holiday) ||
 #                 (agent.activity_type == 1 && is_kindergarten_holiday)
 
@@ -823,7 +829,7 @@ end
 #                     households[agent.household_id].closest_restaurant_id2,
 #                     is_kindergarten_holiday,
 #                     is_school_holiday,
-#                     is_university_holiday,
+#                     is_college_holiday,
 #                     is_work_holiday,
 #                     restaurant_visit_time_distribution,
 #                     shop_visit_time_distribution,
@@ -852,7 +858,7 @@ end
 #     susceptibility_parameters::Vector{Float64},
 #     is_kindergarten_holiday::Bool,
 #     is_school_holiday::Bool,
-#     is_university_holiday::Bool,
+#     is_college_holiday::Bool,
 #     is_work_holiday::Bool,
 #     current_step::Int,
 #     infected_inside_activity::Array{Int, 3},
@@ -891,11 +897,11 @@ end
 
 #                             dur = 0.0
 #                             if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                                 (agent.activity_type == 3 && is_university_holiday) ||
+#                                 (agent.activity_type == 3 && is_college_holiday) ||
 #                                 (agent.activity_type == 2 && is_school_holiday) ||
 #                                 (agent.activity_type == 1 && is_kindergarten_holiday)) &&
 #                                 (agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
-#                                 (agent2.activity_type == 3 && is_university_holiday) ||
+#                                 (agent2.activity_type == 3 && is_college_holiday) ||
 #                                 (agent2.activity_type == 2 && is_school_holiday) ||
 #                                 (agent2.activity_type == 1 && is_kindergarten_holiday))
 
@@ -927,7 +933,7 @@ end
             
 #                             dur = 0.0
 #                             if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                                 (agent.activity_type == 3 && is_university_holiday) ||
+#                                 (agent.activity_type == 3 && is_college_holiday) ||
 #                                 (agent.activity_type == 2 && is_school_holiday) ||
 #                                 (agent.activity_type == 1 && is_kindergarten_holiday)
             
@@ -967,7 +973,7 @@ end
     
 #                             dur = 0.0
 #                             if agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
-#                                 (agent2.activity_type == 3 && is_university_holiday) ||
+#                                 (agent2.activity_type == 3 && is_college_holiday) ||
 #                                 (agent2.activity_type == 2 && is_school_holiday) ||
 #                                 (agent2.activity_type == 1 && is_kindergarten_holiday)
     
@@ -1038,11 +1044,17 @@ function run_simulation(
     susceptibility_parameters::Vector{Float64},
     temperature_parameters::Vector{Float64},
     temperature::Vector{Float64},
+    mean_household_contact_durations::Vector{Float64},
+    household_contact_duration_sds::Vector{Float64},
+    other_contact_duration_shapes::Vector{Float64},
+    other_contact_duration_scales::Vector{Float64},
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
     random_infection_probabilities::Vector{Float64},
     etiology::Matrix{Float64},
+    recovered_duration_mean::Float64,
+    recovered_duration_sd::Float64,
     is_single_run::Bool,
 )::Array{Float64, 3}
     # День месяца
@@ -1119,17 +1131,17 @@ function run_simulation(
             is_school_holiday = true
         end
 
-        is_university_holiday = is_holiday
+        is_college_holiday = is_holiday
         if month == 7 || month == 8
-            is_university_holiday = true
+            is_college_holiday = true
         elseif month == 1 && day != 11 && day != 15 && day != 19 && day != 23 && day != 27
-            is_university_holiday = true
+            is_college_holiday = true
         elseif month == 6 && day != 11 && day != 15 && day != 19 && day != 23 && day != 27
-            is_university_holiday = true
+            is_college_holiday = true
         elseif month == 2 && (day >= 1 && day <= 10)
-            is_university_holiday = true
+            is_college_holiday = true
         elseif month == 12 && (day >= 22 && day <= 31)
-            is_university_holiday = true
+            is_college_holiday = true
         end
 
         # --------------------------TBD ZONE-----------------------------------
@@ -1152,7 +1164,7 @@ function run_simulation(
         #         restaurants,
         #         is_kindergarten_holiday,
         #         is_school_holiday,
-        #         is_university_holiday,
+        #         is_college_holiday,
         #         is_work_holiday,
         #         restaurant_visit_time_distribution,
         #         shop_visit_time_distribution,
@@ -1169,6 +1181,10 @@ function run_simulation(
                 end_agent_ids[thread_id],
                 agents,
                 households,
+                mean_household_contact_durations,
+                household_contact_duration_sds,
+                other_contact_duration_shapes,
+                other_contact_duration_scales,
                 duration_parameter,
                 susceptibility_parameters,
                 temperature_parameters,
@@ -1177,7 +1193,7 @@ function run_simulation(
                 viruses,
                 is_kindergarten_holiday,
                 is_school_holiday,
-                is_university_holiday,
+                is_college_holiday,
                 is_work_holiday,
                 current_step,
                 (temperature[year_day] - min_temp) / max_min_temp,
@@ -1205,7 +1221,7 @@ function run_simulation(
         #         susceptibility_parameters,
         #         is_kindergarten_holiday,
         #         is_school_holiday,
-        #         is_university_holiday,
+        #         is_college_holiday,
         #         is_work_holiday,
         #         current_step,
         #         infected_inside_activity,
@@ -1230,7 +1246,7 @@ function run_simulation(
         #         susceptibility_parameters,
         #         is_kindergarten_holiday,
         #         is_school_holiday,
-        #         is_university_holiday,
+        #         is_college_holiday,
         #         is_work_holiday,
         #         current_step,
         #         infected_inside_activity,
@@ -1259,6 +1275,8 @@ function run_simulation(
                 end_agent_ids[thread_id],
                 agents,
                 viruses,
+                recovered_duration_mean,
+                recovered_duration_sd,
                 isolation_probabilities_day_1,
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
@@ -1279,6 +1297,7 @@ function run_simulation(
             else
                 week_num += 1
             end
+            # week_num += 1
         end
 
         if week_day == 7
