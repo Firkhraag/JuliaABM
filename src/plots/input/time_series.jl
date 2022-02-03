@@ -80,6 +80,11 @@ function plot_incidence()
     incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
     incidence_data_mean = mean(incidence_data[39:45, 2:53], dims = 1)[1, :] ./ 10072
 
+    stds = zeros(Float64, 52)
+    for i = 1:52
+        stds[i] = std(incidence_data[39:45, i] ./ 10072)
+    end
+
     ticks = range(1, stop = 52, length = 7)
     ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
     incidence_plot = plot(
@@ -92,6 +97,9 @@ function plot_incidence()
         grid = false,
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
+        yerror = stds,
+        ribbon = stds,
+        fillalpha = .5,
         xlabel = "Месяц",
         ylabel = "Число случаев на 1000 ч.",
     )
@@ -161,6 +169,6 @@ end
 
 # plot_temperature()
 # plot_all_data()
-# plot_incidence()
+plot_incidence()
 # plot_incidence_age_groups()
-plot_etiology()
+# plot_etiology()
