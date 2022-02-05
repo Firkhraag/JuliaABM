@@ -142,7 +142,7 @@ function main()
     # Число людей в домохозяйствах по районам
     district_people_households = get_district_people_households()
     # Вероятность случайного инфицирования
-    etiology = get_random_infection_probabilities()
+    etiology = get_etiology()
     # Номера районов для MPI процессов
     district_nums = get_district_nums()
     # Температура воздуха, начиная с 1 января

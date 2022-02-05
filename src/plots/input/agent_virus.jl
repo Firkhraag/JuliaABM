@@ -180,70 +180,7 @@ function plot_ig_levels()
     savefig(ig_levels_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "ig_levels.pdf"))
 end
 
-function plot_asymptomatic_prob()
-    a_flu = 1.6733704390847248
-    b_flu = 0.0636631622345908
-    c_flu = 0.0046687280972995265
-    asymptomatic_prob_flu(x) = a_flu / (1 + exp(b_flu * x)) + c_flu
-
-    a_other = 0.33298289012574717
-    b_other = 0.01874561945990517
-    c_other = 0.3018866213151929
-    asymptomatic_prob_other(x) = a_other / (1 + exp(b_other * x)) + c_other
-
-    age_range = range(0, stop=89, length=90)
-    v_flu = 0
-    v_other = 0
-    v1 = zeros(Float64, 90)
-    v2 = zeros(Float64, 90)
-    for i in age_range
-        v1[trunc(Int, i + 1)] = asymptomatic_prob_flu(i)
-        v2[trunc(Int, i + 1)] = asymptomatic_prob_other(i)
-    end
-    println(mean(v1))
-    println(mean(v2))
-    println(std(v1))
-    println(std(v2))
-
-    asymptomatic_prob_plot = plot(
-        age_range,
-        [asymptomatic_prob_other.(age_range) asymptomatic_prob_flu.(age_range)],
-        lw = 3,
-        label = ["Other" "Flu"],
-        grid = false,
-        # xlabel = L"\textrm{\sffamily Age}",
-        # ylabel = L"\textrm{\sffamily Contact duration influence (} D_{ijc}\textrm{\sffamily )}",
-        xlabel = "Возраст, лет",
-        ylabel = "Вероятность",
-    )
-    savefig(asymptomatic_prob_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "asymptomatic_prob.pdf"))
-
-    # a = 0.5673469387755101
-    # b = 0.005816326530612243
-    # c = 0.3006122448979593
-
-    # v = 0
-    # for i in age_range
-    #     v += asymptomatic_prob(i)
-    # end
-    # println(v / 90.0)
-    # asymptomatic_prob_plot = plot(
-    #     age_range,
-    #     asymptomatic_prob.(age_range),
-    #     lw = 3,
-    #     legend = false,
-    #     color = "blue",
-    #     grid = false,
-    #     # xlabel = L"\textrm{\sffamily Age}",
-    #     # ylabel = L"\textrm{\sffamily Contact duration influence (} D_{ijc}\textrm{\sffamily )}",
-    #     xlabel = "Возраст, лет",
-    #     ylabel = "Вероятность",
-    # )
-    # savefig(asymptomatic_prob_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "asymptomatic_prob_other.pdf"))
-end
-
-# plot_incubation_periods()
-# plot_infection_periods()
-# plot_mean_viral_loads()
-# plot_ig_levels()
-plot_asymptomatic_prob()
+plot_incubation_periods()
+plot_infection_periods()
+plot_mean_viral_loads()
+plot_ig_levels()

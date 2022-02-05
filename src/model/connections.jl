@@ -10,6 +10,7 @@ function set_connections(
     thread_rng::Vector{MersenneTwister},
     num_threads::Int,
     homes_coords_df::DataFrame,
+    min_size_bias::Int,
     firm_max_size::Int,
     num_barabasi_albert_attachments::Int,
 )
@@ -210,7 +211,7 @@ function set_connections(
 
     start_agent_id = 1
     while num_working_agents > 0
-        num_workers = sample_from_zipf_distribution(zipf_parameter, firm_max_size) + num_barabasi_albert_attachments
+        num_workers = sample_from_zipf_distribution(zipf_parameter, firm_max_size) + min_size_bias
         if num_working_agents - num_workers < 0
             num_workers = num_working_agents
         end

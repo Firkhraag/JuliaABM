@@ -7,7 +7,7 @@
 # CoV  => 7
 
 # Вирус
-struct Virus
+mutable struct Virus
     # Средняя продолжительность инкубационного периода
     mean_incubation_period::Float64
     # Дисперсия продолжительности инкубационного периода

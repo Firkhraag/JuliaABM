@@ -1297,7 +1297,6 @@ function run_simulation(
             else
                 week_num += 1
             end
-            # week_num += 1
         end
 
         if week_day == 7
@@ -1328,10 +1327,103 @@ function run_simulation(
     if is_single_run
         writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_activity_data.csv"),
             sum(infected_inside_activity, dims = 3)[:, :, 1], ',')
-        writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "confirmed_daily_new_cases_age_groups_viruses.csv"),
-            sum(sum(confirmed_daily_new_cases_age_groups_viruses, dims = 3)[:, :, :, 1], dims = 3)[:, :, 1], ',')
         writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "rt.csv"), rt, ',')
     end
+
+    # -----------
+
+    # num_agents = zeros(Int, 90)
+
+    # FluA_days_immune = zeros(Float64, 90, 365)
+    # FluB_days_immune = zeros(Float64, 90, 365)
+    # RV_days_immune = zeros(Float64, 90, 365)
+    # RSV_days_immune = zeros(Float64, 90, 365)
+    # AdV_days_immune = zeros(Float64, 90, 365)
+    # PIV_days_immune = zeros(Float64, 90, 365)
+    # CoV_days_immune = zeros(Float64, 90, 365)
+
+    # FluA_immunity_end = zeros(Float64, 90, 600)
+    # FluB_immunity_end = zeros(Float64, 90, 600)
+    # RV_immunity_end = zeros(Float64, 90, 600)
+    # RSV_immunity_end = zeros(Float64, 90, 600)
+    # AdV_immunity_end = zeros(Float64, 90, 600)
+    # PIV_immunity_end = zeros(Float64, 90, 600)
+    # CoV_immunity_end = zeros(Float64, 90, 600)
+
+    # for agent in agents
+    #     num_agents[agent.age] += 1
+    #     if agent.FluA_days_immune > 0
+    #         FluA_days_immune[agent.age, agent.FluA_days_immune] += 1
+    #         FluA_immunity_end[agent.age, agent.FluA_immunity_end] += 1
+    #     end
+    #     if agent.FluB_days_immune > 0
+    #         FluB_days_immune[agent.age, agent.FluB_days_immune] += 1
+    #         FluB_immunity_end[agent.age, agent.FluB_immunity_end] += 1
+    #     end
+    #     if agent.RV_days_immune > 0
+    #         RV_days_immune[agent.age, agent.RV_days_immune] += 1
+    #         RV_immunity_end[agent.age, agent.RV_immunity_end] += 1
+    #     end
+    #     if agent.RSV_days_immune > 0
+    #         RSV_days_immune[agent.age, agent.RSV_days_immune] += 1
+    #         RSV_immunity_end[agent.age, agent.RSV_immunity_end] += 1
+    #     end
+    #     if agent.AdV_days_immune > 0
+    #         AdV_days_immune[agent.age, agent.AdV_days_immune] += 1
+    #         AdV_immunity_end[agent.age, agent.AdV_immunity_end] += 1
+    #     end
+    #     if agent.PIV_days_immune > 0
+    #         PIV_days_immune[agent.age, agent.PIV_days_immune] += 1
+    #         PIV_immunity_end[agent.age, agent.PIV_immunity_end] += 1
+    #     end
+    #     if agent.CoV_days_immune > 0
+    #         CoV_days_immune[agent.age, agent.CoV_days_immune] += 1
+    #         CoV_immunity_end[agent.age, agent.CoV_immunity_end] += 1
+    #     end
+    # end
+
+    # for k = 1:90
+    #     FluA_days_immune[k, :] ./= num_agents[k]
+    #     FluA_immunity_end[k, :] ./= num_agents[k]
+
+    #     FluB_days_immune[k, :] ./= num_agents[k]
+    #     FluB_immunity_end[k, :] ./= num_agents[k]
+
+    #     RV_days_immune[k, :] ./= num_agents[k]
+    #     RV_immunity_end[k, :] ./= num_agents[k]
+
+    #     RSV_days_immune[k, :] ./= num_agents[k]
+    #     RSV_immunity_end[k, :] ./= num_agents[k]
+
+    #     AdV_days_immune[k, :] ./= num_agents[k]
+    #     AdV_immunity_end[k, :] ./= num_agents[k]
+
+    #     PIV_days_immune[k, :] ./= num_agents[k]
+    #     PIV_immunity_end[k, :] ./= num_agents[k]
+
+    #     CoV_days_immune[k, :] ./= num_agents[k]
+    #     CoV_immunity_end[k, :] ./= num_agents[k]
+    # end
+
+    # # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "num_agents.csv"), num_agents, ',')
+
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "FluA_days_immune.csv"), FluA_days_immune, ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "FluB_days_immune.csv"), FluB_days_immune, ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "RV_days_immune.csv"), RV_days_immune, ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "RSV_days_immune.csv"), RSV_days_immune, ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "AdV_days_immune.csv"), AdV_days_immune, ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "PIV_days_immune.csv"), PIV_days_immune, ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "CoV_days_immune.csv"), CoV_days_immune, ',')
+
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "FluA_immunity_end.csv"), FluA_immunity_end, ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "FluB_immunity_end.csv"), FluB_immunity_end, ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "RV_immunity_end.csv"), RV_immunity_end, ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "RSV_immunity_end.csv"), RSV_immunity_end, ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "AdV_immunity_end.csv"), AdV_immunity_end, ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "PIV_immunity_end.csv"), PIV_immunity_end, ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "CoV_immunity_end.csv"), CoV_immunity_end, ',')
+
+    # -----------
 
     return num_infected_age_groups_viruses
 end

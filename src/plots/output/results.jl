@@ -10,7 +10,8 @@ default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
 is_russian = false
 
 function plot_incidence()
-    incidence = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "infected_data.csv"), ',', Float64)
+    age_groups = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "age_groups_data.csv"), ',', Float64)
+    incidence = sum(age_groups, dims = 2)[:, 1]
     # incidence2 = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "deviations", "infected_data2.csv"), ',', Float64)
     # incidence3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "deviations", "infected_data3.csv"), ',', Float64)
     # stds = zeros(Float64, 52)
@@ -266,5 +267,5 @@ end
 plot_incidence()
 plot_incidence_etiology()
 plot_incidence_age_groups()
-plot_rt()
+# plot_rt()
 # plot_r0()
