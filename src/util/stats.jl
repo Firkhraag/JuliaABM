@@ -2,11 +2,7 @@ function get_stats(agents::Vector{Agent})
     println("Stats...")
     age_groups_nums = zeros(Int, 90)
 
-    age_groups_nums_1 = zeros(Int, 90)
-    age_groups_nums_2 = zeros(Int, 90)
-    age_groups_nums_3 = zeros(Int, 90)
-    age_groups_nums_4 = zeros(Int, 90)
-    age_groups_nums_5 = zeros(Int, 90)
+    num_agents_groups = zeros(Int, 4)
 
     collective_nums = Int[0, 0, 0, 0]
     household_nums = Int[0, 0, 0, 0, 0, 0]
@@ -25,27 +21,27 @@ function get_stats(agents::Vector{Agent})
     size_univer_conn = 0
     size_work_conn = 0
 
-    mean_num_of_friend_conn = 0
+    # mean_num_of_friend_conn = 0
 
     t1 = 0
     t2 = 0
     t3 = 0
 
+    age_diff = 0
+    age_diff_num = 0
+
     for agent in agents
+        if agent.age < 3
+            num_agents_groups[1] += 1
+        elseif agent.age < 7
+            num_agents_groups[2] += 1
+        elseif agent.age < 15
+            num_agents_groups[3] += 1
+        else
+            num_agents_groups[4] += 1
+        end
 
         age_groups_nums[agent.age + 1] += 1
-        
-        if length(agent.household_conn_ids) == 1
-            age_groups_nums_1[agent.age + 1] += 1
-        elseif length(agent.household_conn_ids) == 2
-            age_groups_nums_2[agent.age + 1] += 1
-        elseif length(agent.household_conn_ids) == 3
-            age_groups_nums_3[agent.age + 1] += 1
-        elseif length(agent.household_conn_ids) == 4
-            age_groups_nums_4[agent.age + 1] += 1
-        elseif length(agent.household_conn_ids) == 5 || length(agent.household_conn_ids) == 6
-            age_groups_nums_5[agent.age + 1] += 1
-        end
     
         if agent.activity_type == 1
             collective_nums[1] += 1
@@ -75,7 +71,7 @@ function get_stats(agents::Vector{Agent})
             size_work_conn += 1
         end
 
-        # mean_num_of_friend_conn += length(agent.friend_conn_ids)
+        # mean_num_of_friend_conn += length(agent.friend_ids)
 
         household_nums[size(agent.household_conn_ids, 1)] += 1
 
@@ -93,6 +89,11 @@ function get_stats(agents::Vector{Agent})
         if agent.on_parent_leave
             num_of_parent_leave += 1
         end
+
+        if agent.supporter_id != 0
+            age_diff += agents[agent.supporter_id].age - agent.age
+            age_diff_num += 1
+        end
     end
     for i = 1:6
         household_nums[i] /= i
@@ -109,21 +110,15 @@ function get_stats(agents::Vector{Agent})
     #     println("$(5 * i): $(sum)")
     # end
 
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums.csv"), age_groups_nums, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_1.csv"), age_groups_nums_1, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_2.csv"), age_groups_nums_2, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_3.csv"), age_groups_nums_3, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_4.csv"), age_groups_nums_4, ',')
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age", "age_groups_nums_5.csv"), age_groups_nums_5, ',')
-
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_distribution.csv"), age_groups_nums, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "household_size_distribution.csv"), household_nums, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_groups_nums.csv"), age_groups_nums, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "household_size_distribution.csv"), household_nums, ',')
 
     # println("Age groups:")
     # for i = 1:90
     #     println("$(i - 1): $(age_groups_nums[i])")
     # end
 
+    println("Main age groups: $(num_agents_groups)")
     println("Teachers 1: $(t1)")
     println("Teachers 2: $(t2)")
     println("Teachers 3: $(t3)")
@@ -137,5 +132,6 @@ function get_stats(agents::Vector{Agent})
     println("Univer conn: $(mean_num_of_univer_conn / size_univer_conn)")
     println("Univer cross conn: $(mean_num_of_univer_cross_conn / size_univer_conn)")
     println("Work conn: $(mean_num_of_work_conn / size_work_conn)")
+    println("Mean mother child age difference: $(age_diff / age_diff_num)")
     # println("Friends conn: $(mean_num_of_friend_conn / num_agents)")
 end

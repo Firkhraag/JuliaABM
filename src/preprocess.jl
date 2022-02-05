@@ -118,10 +118,10 @@ function preprocess_kindergartens()
     xf = XLSX.readxlsx("census/places/kindergartens.xlsx")
     sh = xf["data"]
 
-    a = string.(sh["A2:A1926"])
+    a = string.(sh["A2:A1928"])
     process_districts(a)
 
-    b = string.(sh["B2:C1926"])
+    b = string.(sh["B2:C1928"])
     b[:, 1] .= replace.(b[:, 1], "," => ".")
     b[:, 2] .= replace.(b[:, 2], "," => ".")
 
@@ -132,17 +132,17 @@ function preprocess_kindergartens()
     df = filter(row -> length(row.dist) < 4, df)
 
     insertcols!(df, 1, :id => 1:nrow(df))
-    CSV.write("input/tables/kindergartens.csv", df)
+    CSV.write("input/tables/space/kindergartens.csv", df)
 end
 
 function preprocess_schools()
     xf = XLSX.readxlsx("census/places/schools.xlsx")
     sh = xf["data"]
 
-    a = string.(sh["A2:A1231"])
+    a = string.(sh["A2:A1232"])
     process_districts(a)
 
-    b = string.(sh["B2:C1231"])
+    b = string.(sh["B2:C1232"])
     b[:, 1] .= replace.(b[:, 1], "," => ".")
     b[:, 2] .= replace.(b[:, 2], "," => ".")
 
@@ -153,11 +153,11 @@ function preprocess_schools()
     df = filter(row -> length(row.dist) < 4, df)
 
     insertcols!(df, 1, :id => 1:nrow(df))
-    CSV.write("input/tables/schools.csv", df)
+    CSV.write("input/tables/space/schools.csv", df)
 end
 
-function preprocess_universities()
-    xf = XLSX.readxlsx("census/places/universities.xlsx")
+function preprocess_colleges()
+    xf = XLSX.readxlsx("census/places/colleges.xlsx")
     sh = xf["data"]
 
     a = string.(sh["A2:A140"])
@@ -174,7 +174,7 @@ function preprocess_universities()
     df = filter(row -> length(row.dist) < 4, df)
 
     insertcols!(df, 1, :id => 1:nrow(df))
-    CSV.write("input/tables/universities.csv", df)
+    CSV.write("input/tables/space/colleges.csv", df)
 end
 
 function preprocess_shops()
@@ -196,7 +196,7 @@ function preprocess_shops()
     df = filter(row -> length(row.dist) < 4, df)
 
     insertcols!(df, 1, :id => 1:nrow(df))
-    CSV.write("input/tables/shops.csv", df[:, ["id", "dist", "x", "y"]])
+    CSV.write("input/tables/space/shops.csv", df[:, ["id", "dist", "x", "y"]])
 end
 
 function preprocess_restaurants()
@@ -219,7 +219,7 @@ function preprocess_restaurants()
     df = filter(row -> length(row.dist) < 4, df)
 
     insertcols!(df, 1, :id => 1:nrow(df))
-    CSV.write("input/tables/restaurants.csv", df)
+    CSV.write("input/tables/space/restaurants.csv", df)
 end
 
 function preprocess_hair_salons()
@@ -244,13 +244,12 @@ function preprocess_hair_salons()
     println(size(df))
 
     insertcols!(df, 1, :id => 1:nrow(df))
-    CSV.write("input/tables/hair_salons.csv", df[:, ["dist", "x", "y"]])
+    CSV.write("input/tables/space/hair_salons.csv", df[:, ["dist", "x", "y"]])
 end
 
 # Don't forget to run partition.jl after applying changes
-
 # preprocess_kindergartens()
 # preprocess_schools()
-# preprocess_universities()
-preprocess_shops()
+# preprocess_colleges()
+# preprocess_shops()
 # preprocess_restaurants()

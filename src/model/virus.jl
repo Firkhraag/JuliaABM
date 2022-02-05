@@ -8,8 +8,6 @@
 
 # Вирус
 struct Virus
-    # Идентификатор
-    id::Int
     # Средняя продолжительность инкубационного периода
     mean_incubation_period::Float64
     # Дисперсия продолжительности инкубационного периода
@@ -37,37 +35,51 @@ struct Virus
     # Максимальная продолжительность периода болезни(ребенок)
     max_infection_period_child::Int
 
-    # Средняя вирусная нагрузка (по умолчанию для младенца)
-    mean_viral_load::Float64
+    # Средние вирусные нагрузки (по умолчанию для младенца)
+    mean_viral_load_toddler::Float64
+    mean_viral_load_child::Float64
+    mean_viral_load_adult::Float64
 
-    # Вероятность бессимптомного протекания болезни
-    asymptomatic_probab_child::Float64
-    asymptomatic_probab_adult::Float64
+    # Вероятность симптомного протекания болезни (ребенок до 10 лет)
+    symptomatic_probability_child::Float64
+    # Вероятность симптомного протекания болезни (ребенок 10-17 лет)
+    symptomatic_probability_teenager::Float64
+    # Вероятность симптомного протекания болезни (взрослый)
+    symptomatic_probability_adult::Float64
 
-    # Продолжительность иммунитета
-    immunity_duration::Int
+    # Средняя продолжительность иммунитета
+    mean_immunity_duration::Float64
+    # Среднеквадратическое отклонение продолжительности иммунитета
+    immunity_duration_sd::Float64
 
     function Virus(
-        id::Int,
         mean_incubation_period::Float64,
         incubation_period_variance::Float64,
         min_incubation_period::Int,
         max_incubation_period::Int,
+
         mean_infection_period_adult::Float64,
         infection_period_variance_adult::Float64,
         min_infection_period_adult::Int,
         max_infection_period_adult::Int,
+
         mean_infection_period_child::Float64,
         infection_period_variance_child::Float64,
         min_infection_period_child::Int,
         max_infection_period_child::Int,
-        mean_viral_load::Float64,
-        asymptomatic_probab_child::Float64,
-        asymptomatic_probab_adult::Float64,
-        immunity_duration::Int
+
+        mean_viral_load_toddler::Float64,
+        mean_viral_load_child::Float64,
+        mean_viral_load_adult::Float64,
+
+        symptomatic_probability_child::Float64,
+        symptomatic_probability_teenager::Float64,
+        symptomatic_probability_adult::Float64,
+
+        mean_immunity_duration::Float64,
+        immunity_duration_sd::Float64,
     )
         new(
-            id,
             mean_incubation_period,
             incubation_period_variance,
             min_incubation_period,
@@ -80,30 +92,14 @@ struct Virus
             infection_period_variance_child,
             min_infection_period_child,
             max_infection_period_child,
-            mean_viral_load,
-            asymptomatic_probab_child,
-            asymptomatic_probab_adult,
-            immunity_duration
+            mean_viral_load_toddler,
+            mean_viral_load_child,
+            mean_viral_load_adult,
+            symptomatic_probability_child,
+            symptomatic_probability_teenager,
+            symptomatic_probability_adult,
+            mean_immunity_duration,
+            immunity_duration_sd,
         )
     end
-end
-
-# Найти значение вирусной нагрузки
-function get_infectivity(
-    days_infected::Int,
-    incubation_period::Int,
-    infection_period::Int,
-    mean_viral_load::Float64
-)::Float64
-    if days_infected < 1
-        if incubation_period == 1
-            return mean_viral_load / 24
-        end
-        k = mean_viral_load / (incubation_period - 1)
-        b = k * (incubation_period - 1)
-        return (k * days_infected + b) / 12
-    end
-    k = 2 * mean_viral_load / (1 - infection_period)
-    b = -k * infection_period
-    return (k * days_infected + b) / 12
 end

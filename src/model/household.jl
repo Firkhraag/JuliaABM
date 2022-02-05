@@ -15,6 +15,10 @@ struct Household
     closest_shop_id::Int
     # Id ближайшего ресторана
     closest_restaurant_id::Int
+    # Id второго ближайшего магазина
+    closest_shop_id2::Int
+    # Id второго ближайшего ресторана
+    closest_restaurant_id2::Int
 
     function Household(
         agent_ids::Vector{Int},
@@ -25,8 +29,11 @@ struct Household
         closest_school_id::Int,
         closest_shop_id::Int,
         closest_restaurant_id::Int,
+        closest_shop_id2::Int,
+        closest_restaurant_id2::Int,
     )
         new(agent_ids, district_id, x, y, closest_kindergarten_id,
-            closest_school_id, closest_shop_id, closest_restaurant_id)
+            closest_school_id, closest_shop_id, closest_restaurant_id,
+            closest_shop_id2, closest_restaurant_id2)
     end
 end

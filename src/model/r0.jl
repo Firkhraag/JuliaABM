@@ -41,7 +41,7 @@ function simulate_contacts_r0(
     is_holiday::Bool,
     is_kindergarten_holiday::Bool,
     is_school_holiday::Bool,
-    is_university_holiday::Bool,
+    is_college_holiday::Bool,
     is_work_holiday::Bool,
     current_step::Int,
     num_people_infected::Vector{Int},
@@ -56,10 +56,10 @@ function simulate_contacts_r0(
             if !(agent2.id in infected_agent_ids)
 
                 agent_at_home = agent.is_isolated || agent.collective_id == 0 ||
-                    (agent.collective_id == 4 && is_work_holiday) || (agent.collective_id == 3 && is_university_holiday) ||
+                    (agent.collective_id == 4 && is_work_holiday) || (agent.collective_id == 3 && is_college_holiday) ||
                     (agent.collective_id == 2 && is_school_holiday) || (agent.collective_id == 1 && is_kindergarten_holiday)
                 agent2_at_home = agent2.collective_id == 0 ||
-                    (agent2.collective_id == 4 && is_work_holiday) || (agent2.collective_id == 3 && is_university_holiday) ||
+                    (agent2.collective_id == 4 && is_work_holiday) || (agent2.collective_id == 3 && is_college_holiday) ||
                     (agent2.collective_id == 2 && is_school_holiday) || (agent2.collective_id == 1 && is_kindergarten_holiday)
 
                 if is_holiday || (agent_at_home && agent2_at_home)
@@ -86,7 +86,7 @@ function simulate_contacts_r0(
                         current_step, duration_parameter, susceptibility_parameters, temp_influences,
                         num_people_infected, infected_agent_ids, rng)
                 elseif ((agent.collective_id == 3 && !agent_at_home) ||
-                    (agent2.collective_id == 3 && !agent2_at_home)) && !is_university_holiday
+                    (agent2.collective_id == 3 && !agent2_at_home)) && !is_college_holiday
                     make_contact_r0(
                         agent, agent2, get_contact_duration_normal(10.0, 3.69, rng),
                         current_step, duration_parameter, susceptibility_parameters, temp_influences,
@@ -97,7 +97,7 @@ function simulate_contacts_r0(
         if !is_holiday && agent.group_num != 0 && !agent.is_isolated &&
             ((agent.collective_id == 1 && !is_kindergarten_holiday) ||
                 (agent.collective_id == 2 && !is_school_holiday) ||
-                (agent.collective_id == 3 && !is_university_holiday) ||
+                (agent.collective_id == 3 && !is_college_holiday) ||
                 (agent.collective_id == 4 && !is_work_holiday))
             for agent2_id in agent.collective_conn_ids
                 agent2 = agents[agent2_id]
@@ -321,17 +321,17 @@ function run_simulation_r0(
             is_school_holiday = true
         end
 
-        is_university_holiday = false
+        is_college_holiday = false
         if month == 7 || month == 8
-            is_university_holiday = true
+            is_college_holiday = true
         elseif month == 1 && day != 11 && day != 15 && day != 19 && day != 23 && day != 27
-            is_university_holiday = true
+            is_college_holiday = true
         elseif month == 6 && day != 11 && day != 15 && day != 19 && day != 23 && day != 27
-            is_university_holiday = true
+            is_college_holiday = true
         elseif month == 2 && (day >= 1 && day <= 10)
-            is_university_holiday = true
+            is_college_holiday = true
         elseif month == 12 && (day >= 22 && day <= 31)
-            is_university_holiday = true
+            is_college_holiday = true
         end
 
         simulate_contacts_r0(
@@ -343,7 +343,7 @@ function run_simulation_r0(
             is_holiday,
             is_kindergarten_holiday,
             is_school_holiday,
-            is_university_holiday,
+            is_college_holiday,
             is_work_holiday,
             current_step,
             num_people_infected,
