@@ -20,7 +20,7 @@ begin
 end
 
 # ╔═╡ efd0dfbb-a321-4c01-8214-ce021c7fc36d
-age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_groups_nums.csv"), ',', Float64)
+age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_nums.csv"), ',', Float64)
 
 # ╔═╡ f96f7e85-367b-4015-a99a-cb261aec1a20
 begin

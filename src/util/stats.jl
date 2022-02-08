@@ -1,4 +1,4 @@
-function get_stats(agents::Vector{Agent})
+function get_stats(agents::Vector{Agent}, workplaces::Vector{Workplace})
     println("Stats...")
 
     age_nums = zeros(Int, 90)
@@ -109,6 +109,11 @@ function get_stats(agents::Vector{Agent})
         household_nums[i] /= i
     end
 
+    workplaces_num_people = Int[]
+    for workplace in workplaces
+        push!(workplaces_num_people, length(workplace.agent_ids))
+    end
+
     # println("Age groups:")
     # for i = 0:17
     #     sum = 0
@@ -124,6 +129,7 @@ function get_stats(agents::Vector{Agent})
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "num_agents_age_groups.csv"), num_agents_age_groups, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "household_size_distribution.csv"), household_nums, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "activity_sizes.csv"), activity_nums, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "workplaces_num_people.csv"), workplaces_num_people, ',')
 
     println("Main age groups: $(num_agents_age_groups)")
     println("Teachers 1: $(t1)")
@@ -139,7 +145,8 @@ function get_stats(agents::Vector{Agent})
     println("School conn: $(mean_num_of_activity_conn / size_activity_conn)")
     println("Univer conn: $(mean_num_of_univer_conn / size_univer_conn)")
     println("Univer cross conn: $(mean_num_of_univer_cross_conn / size_univer_conn)")
-    println("Work conn: $(mean_num_of_work_conn / size_work_conn)")
+    println("Mean work conn: $(mean_num_of_work_conn / size_work_conn)")
+    println("Mean num of people in firms: $(mean(workplaces_num_people))")
     println("Mean mother child age difference: $(age_diff / age_diff_num)")
     # println("Friends conn: $(mean_num_of_friend_conn / num_agents)")
 end

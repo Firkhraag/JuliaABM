@@ -93,7 +93,6 @@ function plot_incidence_etiology()
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         legend = (0.5, 0.97),
-        ylim = (0.0, 0.7),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
         grid = !is_russian,

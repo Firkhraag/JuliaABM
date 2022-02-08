@@ -50,32 +50,37 @@ function main()
     other_contact_duration_shapes = [2.5, 1.78, 2.0, 1.81, 1.2]
     other_contact_duration_scales = [1.6, 1.95, 1.07, 1.7, 1.07]
     # Параметры, отвечающие за связи на рабочих местах
-    min_size_bias = 5
-    firm_max_size = 995
-    num_barabasi_albert_attachments = 6
+    firm_min_size = 0
+    firm_max_size = 1000
+    num_barabasi_albert_attachments = 5
 
-    duration_parameter = 3.685858585858586
-    susceptibility_parameters = [3.793939393939395, 4.027272727272726, 4.34646464646465, 5.878787878787878, 4.522525252525256, 4.414343434343435, 4.7336363636363625]
-    temperature_parameters = [-0.913131313131313, -0.8510101010101009, -0.11515151515151512, -0.07828282828282829, -0.1424242424242424, -0.2287878787878788, -0.6727272727272728]
-    random_infection_probabilities = [0.000116030303030303, 6.821313131313131e-5, 4.8817171717171736e-5, 7.133333333333334e-7]
-    # mean_immunity_durations = [271.57575757575756, 271.8181818181818, 74.81818181818181, 52.484848484848484, 83.27272727272728, 102.42424242424241, 117.45454545454545]
-    mean_immunity_durations = [271.57575757575756, 271.8181818181818, 120.81818181818181, 52.484848484848484, 83.27272727272728, 102.42424242424241, 117.45454545454545]
+    # MAE: 917.5172973873275
+    # MAPE: 0.978220155284301
+    # RMSE: 1733.882970439793
+    # nMAE: 0.5283885060659735
+    # S_abs: 1.3359051849959488e6
+    # S_square: 4.37724582594371e9
+    duration_parameter = 3.603030303030303
+    susceptibility_parameters = [3.6090909090909102, 3.8969696969696956, 3.920202020202024, 5.6686868686868666, 4.164949494949499, 3.8769696969696974, 4.799292929292927]
+    temperature_parameters = [-0.8435353535353535, -0.7156565656565654, -0.1444444444444444, -0.08737373737373738, -0.12828282828282822, -0.25303030303030305, -0.6353535353535353]
+    random_infection_probabilities = [0.00011648484848484845, 6.822222222222223e-5, 4.8945454545454566e-5, 7.164646464646466e-7]
+    mean_immunity_durations = [266.1515151515151, 302.87878787878793, 105.5151515151515, 26.797979797979796, 103.6060606060606, 97.18181818181816, 100.21212121212123]
 
     viruses = Virus[
         # FluA
-        Virus(1.4, 0.09, 1, 7,  4.8, 1.12, 3, 12,  8.8, 3.748, 4, 14,  4.6, 3.5, 2.3,  0.3, 0.45, 0.6,  mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
+        Virus(1.4, 0.09, 1, 7,  4.8, 1.12, 3, 12,  8.8, 3.748, 4, 14,  4.6, 3.5, 2.3,  0.38, 0.47, 0.57,  mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
         # FluB
-        Virus(1.0, 0.0484, 1, 7,  3.7, 0.66, 3, 12,  7.8, 2.94, 4, 14,  4.7, 3.5, 2.4,  0.3, 0.45, 0.6,  mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
+        Virus(1.0, 0.0484, 1, 7,  3.7, 0.66, 3, 12,  7.8, 2.94, 4, 14,  4.7, 3.5, 2.4,  0.38, 0.47, 0.57,  mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
         # RV
-        Virus(1.9, 0.175, 1, 7,  10.1, 4.93, 3, 12,  11.4, 6.25, 4, 14,  3.5, 2.6, 1.8,  0.19, 0.24, 0.28,  mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
+        Virus(1.9, 0.175, 1, 7,  10.1, 4.93, 3, 12,  11.4, 6.25, 4, 14,  3.5, 2.6, 1.8,  0.19, 0.24, 0.29,  mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
         # RSV
-        Virus(4.4, 0.937, 1, 7,  7.4, 2.66, 3, 12,  9.3, 4.0, 4, 14,  6.0, 4.5, 3.0,  0.26, 0.33, 0.39,  mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
+        Virus(4.4, 0.937, 1, 7,  7.4, 2.66, 3, 12,  9.3, 4.0, 4, 14,  6.0, 4.5, 3.0,  0.24, 0.3, 0.36,  mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
         # AdV
-        Virus(5.6, 1.51, 1, 7,  8.0, 3.1, 3, 12,  9.0, 3.92, 4, 14,  4.1, 3.1, 2.1,  0.15, 0.19, 0.22,  mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
+        Virus(5.6, 1.51, 1, 7,  8.0, 3.1, 3, 12,  9.0, 3.92, 4, 14,  4.1, 3.1, 2.1,  0.15, 0.19, 0.23,  mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
         # PIV
         Virus(2.6, 0.327, 1, 7,  7.0, 2.37, 3, 12,  8.0, 3.1, 4, 14,  4.8, 3.6, 2.4,  0.16, 0.2, 0.24,  mean_immunity_durations[6], mean_immunity_durations[6] * 0.33),
         # CoV
-        Virus(3.2, 0.496, 1, 7,  6.5, 2.15, 3, 12,  7.5, 2.9, 4, 14,  4.9, 3.7, 2.5,  0.22, 0.28, 0.33,  mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
+        Virus(3.2, 0.496, 1, 7,  6.5, 2.15, 3, 12,  7.5, 2.9, 4, 14,  4.9, 3.7, 2.5,  0.21, 0.26, 0.32,  mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
 
     # Число домохозяйств каждого типа по районам
     district_households = get_district_households()
@@ -93,6 +98,7 @@ function main()
     agents = Array{Agent, 1}(undef, num_agents)
 
     # With set seed
+    # thread_rng = [MersenneTwister(i + num_threads) for i = 1:num_threads]
     thread_rng = [MersenneTwister(i) for i = 1:num_threads]
 
     homes_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "homes.csv")))
@@ -272,12 +278,17 @@ function main()
             homes_coords_df, district_households, district_people, district_people_households, district_nums)
     end
 
+    # @time set_connections(
+    #     agents, households, kindergartens, schools, colleges,
+    #     workplaces, thread_rng, num_threads, homes_coords_df,
+    #     min_size_bias, firm_max_size, num_barabasi_albert_attachments)
+
     @time set_connections(
         agents, households, kindergartens, schools, colleges,
         workplaces, thread_rng, num_threads, homes_coords_df,
-        min_size_bias, firm_max_size, num_barabasi_albert_attachments)
+        firm_min_size, firm_max_size, num_barabasi_albert_attachments)
 
-    # get_stats(agents)
+    # get_stats(agents, workplaces)
     # return
 
     println("Simulation...")

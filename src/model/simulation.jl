@@ -1081,7 +1081,7 @@ function run_simulation(
 
     # DEBUG
     max_step = 365
-    # max_step = 10
+    # max_step = 21
 
     rt = zeros(Float64, max_step)
 
@@ -1329,6 +1329,25 @@ function run_simulation(
             sum(infected_inside_activity, dims = 3)[:, :, 1], ',')
         writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "rt.csv"), rt, ',')
     end
+
+    # Debug
+    writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "daily_infections.csv"), sum(sum(sum(confirmed_daily_new_cases_age_groups_viruses, dims = 4)[:, :, :, 1], dims = 3)[:, :, 1], dims = 2)[:, 1], ',')
+
+    testing = [0, 0, 0, 0]
+    for agent in agents
+        if agent.virus_id != 0
+            if agent.age < 3
+                testing[1] += 1
+            elseif agent.age < 7
+                testing[2] += 1
+            elseif agent.age < 15
+                testing[3] += 1
+            else
+                testing[4] += 1
+            end
+        end
+    end
+    println(testing)
 
     # -----------
 

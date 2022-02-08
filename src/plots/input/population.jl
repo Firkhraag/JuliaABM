@@ -123,18 +123,11 @@ function household_size_distribution()
 end
 
 function workplace_sizes_distribution()
-    workplaces_num_people1 = vec(readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "workplaces_num_people1.csv"), ',', Int, '\n'))
-    workplaces_num_people2 = vec(readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "workplaces_num_people2.csv"), ',', Int, '\n'))
-    workplaces_num_people3 = vec(readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "workplaces_num_people3.csv"), ',', Int, '\n'))
-    workplaces_num_people4 = vec(readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "workplaces_num_people4.csv"), ',', Int, '\n'))
-
-    workplaces_num_people = append!(workplaces_num_people1, workplaces_num_people2)
-    workplaces_num_people = append!(workplaces_num_people, workplaces_num_people3)
-    workplaces_num_people = append!(workplaces_num_people, workplaces_num_people4)
+    workplaces_num_people = vec(readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "workplaces_num_people.csv"), ',', Int, '\n'))
     workplaces_num_people = sort(workplaces_num_people)
     workplace_size_distribution = [(i, count(==(i), workplaces_num_people)) for i in unique(workplaces_num_people)]
 
-    println(length(workplace_size_distribution))
+    println(workplace_size_distribution)
 
     workplace_size_distribution_plot = plot(
         first.(workplace_size_distribution),
@@ -151,6 +144,7 @@ function workplace_sizes_distribution()
     savefig(workplace_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "workplace_size_distribution.pdf"))
 end
 
-age_distribution_groups()
-age_distribution()
-household_size_distribution()
+# age_distribution_groups()
+# age_distribution()
+# household_size_distribution()
+workplace_sizes_distribution()

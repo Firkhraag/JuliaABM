@@ -31,12 +31,10 @@ function reset_agent_states(
             age_group = 3
         end
 
-        for v = 3:6
-            if rand(rng, Float64) < (num_all_infected_age_groups_viruses_mean[52, v, age_group] + num_all_infected_age_groups_viruses_mean[51, v, age_group]) / num_agents_age_groups[age_group]
-                is_infected = true
-                agent.virus_id = v
-                break
-            end
+        v = rand(3:6)
+        if rand(rng, Float64) < (num_all_infected_age_groups_viruses_mean[52, v, age_group] + num_all_infected_age_groups_viruses_mean[51, v, age_group] + num_all_infected_age_groups_viruses_mean[50, v, age_group]) / num_agents_age_groups[age_group]
+            is_infected = true
+            agent.virus_id = v
         end
 
         # Набор дней после приобретения типоспецифического иммунитета

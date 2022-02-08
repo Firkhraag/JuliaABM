@@ -23,6 +23,7 @@ include("data/district_households.jl")
 include("data/district_people.jl")
 include("data/district_people_households.jl")
 include("data/district_nums.jl")
+include("data/etiology.jl")
 include("data/temperature.jl")
 
 include("util/moving_avg.jl")
@@ -49,9 +50,9 @@ function main()
     other_contact_duration_shapes = [2.5, 1.78, 2.0, 1.81, 1.2]
     other_contact_duration_scales = [1.6, 1.95, 1.07, 1.7, 1.07]
     # Параметры, отвечающие за связи на рабочих местах
-    min_size_bias = 5
-    firm_max_size = 995
-    num_barabasi_albert_attachments = 6
+    firm_min_size = 0
+    firm_max_size = 1000
+    num_barabasi_albert_attachments = 5
 
     mean_immunity_durations = [271.57575757575756, 271.8181818181818, 74.81818181818181, 52.484848484848484, 83.27272727272728, 102.42424242424241, 117.45454545454545]
 
@@ -269,7 +270,7 @@ function main()
     @time set_connections(
         agents, households, kindergartens, schools, colleges,
         workplaces, thread_rng, num_threads, homes_coords_df,
-        min_size_bias, firm_max_size, num_barabasi_albert_attachments)
+        firm_min_size, firm_max_size, num_barabasi_albert_attachments)
 
     println("Simulation...")
 
