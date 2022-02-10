@@ -208,7 +208,7 @@ function plot_rt()
 
     registered_new_cases_plot = plot(
         1:365,
-        rt,
+        rt[1:365],
         lw = 3,
         xticks = (ticks, ticklabels),
         color = :red,
@@ -266,5 +266,5 @@ end
 plot_incidence()
 plot_incidence_etiology()
 plot_incidence_age_groups()
-# plot_rt()
+plot_rt()
 # plot_r0()

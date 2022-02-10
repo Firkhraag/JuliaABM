@@ -1055,7 +1055,7 @@ function run_simulation(
     etiology::Matrix{Float64},
     recovered_duration_mean::Float64,
     recovered_duration_sd::Float64,
-    is_single_run::Bool,
+    is_rt_run::Bool,
 )::Array{Float64, 3}
     # День месяца
     day = 1
@@ -1075,13 +1075,15 @@ function run_simulation(
 
     year_day = 213
 
-    num_infected_age_groups_viruses = zeros(52, 7, 4)
-    confirmed_daily_new_cases_age_groups_viruses = zeros(365, 4, 7, num_threads)
-    infected_inside_activity = zeros(Int, 365, 8, num_threads)
-
-    # DEBUG
     max_step = 365
+    if is_rt_run
+        max_step += 21
+    end
     # max_step = 21
+
+    num_infected_age_groups_viruses = zeros(52, 7, 4)
+    confirmed_daily_new_cases_age_groups_viruses = zeros(max_step, 4, 7, num_threads)
+    infected_inside_activity = zeros(Int, max_step, 8, num_threads)
 
     rt = zeros(Float64, max_step)
 
@@ -1256,7 +1258,7 @@ function run_simulation(
 
         # -------------------------------------------------------------
 
-        if is_single_run
+        if is_rt_run
             rt_count = 0
             for agent in agents
                 if agent.virus_id != 0 && !agent.is_newly_infected
@@ -1286,13 +1288,15 @@ function run_simulation(
 
         # Обновление даты
         if current_step % 7 == 0
-            for i = 1:4
-                for j = 1:7
-                    num_infected_age_groups_viruses[week_num, j, i] = sum(
-                        confirmed_daily_new_cases_age_groups_viruses[current_step - 6:current_step, i, j, :])
+            if week_num < 53
+                for i = 1:4
+                    for j = 1:7
+                        num_infected_age_groups_viruses[week_num, j, i] = sum(
+                            confirmed_daily_new_cases_age_groups_viruses[current_step - 6:current_step, i, j, :])
+                    end
                 end
             end
-            if week_num == 52
+            if week_num == 52 && !is_rt_run
                 break
             else
                 week_num += 1
@@ -1323,126 +1327,12 @@ function run_simulation(
         end
     end
 
-
-    if is_single_run
+    if is_rt_run
         writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_activity_data.csv"),
             sum(infected_inside_activity, dims = 3)[:, :, 1], ',')
         writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "rt.csv"), rt, ',')
+        writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "daily_infections.csv"), sum(sum(sum(confirmed_daily_new_cases_age_groups_viruses, dims = 4)[:, :, :, 1], dims = 3)[:, :, 1], dims = 2)[:, 1], ',')
     end
-
-    # Debug
-    writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "daily_infections.csv"), sum(sum(sum(confirmed_daily_new_cases_age_groups_viruses, dims = 4)[:, :, :, 1], dims = 3)[:, :, 1], dims = 2)[:, 1], ',')
-
-    testing = [0, 0, 0, 0]
-    for agent in agents
-        if agent.virus_id != 0
-            if agent.age < 3
-                testing[1] += 1
-            elseif agent.age < 7
-                testing[2] += 1
-            elseif agent.age < 15
-                testing[3] += 1
-            else
-                testing[4] += 1
-            end
-        end
-    end
-    println(testing)
-
-    # -----------
-
-    # num_agents = zeros(Int, 90)
-
-    # FluA_days_immune = zeros(Float64, 90, 365)
-    # FluB_days_immune = zeros(Float64, 90, 365)
-    # RV_days_immune = zeros(Float64, 90, 365)
-    # RSV_days_immune = zeros(Float64, 90, 365)
-    # AdV_days_immune = zeros(Float64, 90, 365)
-    # PIV_days_immune = zeros(Float64, 90, 365)
-    # CoV_days_immune = zeros(Float64, 90, 365)
-
-    # FluA_immunity_end = zeros(Float64, 90, 600)
-    # FluB_immunity_end = zeros(Float64, 90, 600)
-    # RV_immunity_end = zeros(Float64, 90, 600)
-    # RSV_immunity_end = zeros(Float64, 90, 600)
-    # AdV_immunity_end = zeros(Float64, 90, 600)
-    # PIV_immunity_end = zeros(Float64, 90, 600)
-    # CoV_immunity_end = zeros(Float64, 90, 600)
-
-    # for agent in agents
-    #     num_agents[agent.age] += 1
-    #     if agent.FluA_days_immune > 0
-    #         FluA_days_immune[agent.age, agent.FluA_days_immune] += 1
-    #         FluA_immunity_end[agent.age, agent.FluA_immunity_end] += 1
-    #     end
-    #     if agent.FluB_days_immune > 0
-    #         FluB_days_immune[agent.age, agent.FluB_days_immune] += 1
-    #         FluB_immunity_end[agent.age, agent.FluB_immunity_end] += 1
-    #     end
-    #     if agent.RV_days_immune > 0
-    #         RV_days_immune[agent.age, agent.RV_days_immune] += 1
-    #         RV_immunity_end[agent.age, agent.RV_immunity_end] += 1
-    #     end
-    #     if agent.RSV_days_immune > 0
-    #         RSV_days_immune[agent.age, agent.RSV_days_immune] += 1
-    #         RSV_immunity_end[agent.age, agent.RSV_immunity_end] += 1
-    #     end
-    #     if agent.AdV_days_immune > 0
-    #         AdV_days_immune[agent.age, agent.AdV_days_immune] += 1
-    #         AdV_immunity_end[agent.age, agent.AdV_immunity_end] += 1
-    #     end
-    #     if agent.PIV_days_immune > 0
-    #         PIV_days_immune[agent.age, agent.PIV_days_immune] += 1
-    #         PIV_immunity_end[agent.age, agent.PIV_immunity_end] += 1
-    #     end
-    #     if agent.CoV_days_immune > 0
-    #         CoV_days_immune[agent.age, agent.CoV_days_immune] += 1
-    #         CoV_immunity_end[agent.age, agent.CoV_immunity_end] += 1
-    #     end
-    # end
-
-    # for k = 1:90
-    #     FluA_days_immune[k, :] ./= num_agents[k]
-    #     FluA_immunity_end[k, :] ./= num_agents[k]
-
-    #     FluB_days_immune[k, :] ./= num_agents[k]
-    #     FluB_immunity_end[k, :] ./= num_agents[k]
-
-    #     RV_days_immune[k, :] ./= num_agents[k]
-    #     RV_immunity_end[k, :] ./= num_agents[k]
-
-    #     RSV_days_immune[k, :] ./= num_agents[k]
-    #     RSV_immunity_end[k, :] ./= num_agents[k]
-
-    #     AdV_days_immune[k, :] ./= num_agents[k]
-    #     AdV_immunity_end[k, :] ./= num_agents[k]
-
-    #     PIV_days_immune[k, :] ./= num_agents[k]
-    #     PIV_immunity_end[k, :] ./= num_agents[k]
-
-    #     CoV_days_immune[k, :] ./= num_agents[k]
-    #     CoV_immunity_end[k, :] ./= num_agents[k]
-    # end
-
-    # # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "num_agents.csv"), num_agents, ',')
-
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "FluA_days_immune.csv"), FluA_days_immune, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "FluB_days_immune.csv"), FluB_days_immune, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "RV_days_immune.csv"), RV_days_immune, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "RSV_days_immune.csv"), RSV_days_immune, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "AdV_days_immune.csv"), AdV_days_immune, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "PIV_days_immune.csv"), PIV_days_immune, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "CoV_days_immune.csv"), CoV_days_immune, ',')
-
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "FluA_immunity_end.csv"), FluA_immunity_end, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "FluB_immunity_end.csv"), FluB_immunity_end, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "RV_immunity_end.csv"), RV_immunity_end, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "RSV_immunity_end.csv"), RSV_immunity_end, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "AdV_immunity_end.csv"), AdV_immunity_end, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "PIV_immunity_end.csv"), PIV_immunity_end, ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "immunity", "CoV_immunity_end.csv"), CoV_immunity_end, ',')
-
-    # -----------
 
     return num_infected_age_groups_viruses
 end

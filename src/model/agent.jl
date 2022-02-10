@@ -422,14 +422,6 @@ mutable struct Agent
             virus_id = v
         end
 
-        # for v = 3:6
-        #     if rand(rng, Float64) < (num_all_infected_age_groups_viruses_mean[52, v, age_group] + num_all_infected_age_groups_viruses_mean[51, v, age_group]) / num_agents_age_groups[age_group]
-        #         is_infected = true
-        #         virus_id = v
-        #         break
-        #     end
-        # end
-
         # Если задавать начальное число больных вручную
         # if rand(rng, Float64) < initially_infected[age_group]
         #     is_infected = true
