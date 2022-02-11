@@ -141,7 +141,7 @@ function main()
     district_people = get_district_people()
     # Число людей в домохозяйствах по районам
     district_people_households = get_district_people_households()
-    # Вероятность случайного инфицирования
+    # Распределение вирусов в течение года
     etiology = get_etiology()
     # Номера районов для MPI процессов
     district_nums = get_district_nums()
@@ -222,6 +222,104 @@ function main()
     #     )
     # end
 
+    infected_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
+    infected_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
+    infected_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
+    infected_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
+
+    infected_data_0 = infected_data_0[2:53, 21:27]
+    infected_data_0_1 = etiology[:, 1] .* infected_data_0
+    infected_data_0_2 = etiology[:, 2] .* infected_data_0
+    infected_data_0_3 = etiology[:, 3] .* infected_data_0
+    infected_data_0_4 = etiology[:, 4] .* infected_data_0
+    infected_data_0_5 = etiology[:, 5] .* infected_data_0
+    infected_data_0_6 = etiology[:, 6] .* infected_data_0
+    infected_data_0_7 = etiology[:, 7] .* infected_data_0
+    infected_data_0_viruses = cat(
+        infected_data_0_1,
+        infected_data_0_2,
+        infected_data_0_3,
+        infected_data_0_4,
+        infected_data_0_5,
+        infected_data_0_6,
+        infected_data_0_7,
+        dims = 3)
+
+    infected_data_3 = infected_data_3[2:53, 21:27]
+    infected_data_3_1 = etiology[:, 1] .* infected_data_3
+    infected_data_3_2 = etiology[:, 2] .* infected_data_3
+    infected_data_3_3 = etiology[:, 3] .* infected_data_3
+    infected_data_3_4 = etiology[:, 4] .* infected_data_3
+    infected_data_3_5 = etiology[:, 5] .* infected_data_3
+    infected_data_3_6 = etiology[:, 6] .* infected_data_3
+    infected_data_3_7 = etiology[:, 7] .* infected_data_3
+    infected_data_3_viruses = cat(
+        infected_data_3_1,
+        infected_data_3_2,
+        infected_data_3_3,
+        infected_data_3_4,
+        infected_data_3_5,
+        infected_data_3_6,
+        infected_data_3_7,
+        dims = 3)
+
+    infected_data_7 = infected_data_7[2:53, 21:27]
+    infected_data_7_1 = etiology[:, 1] .* infected_data_7
+    infected_data_7_2 = etiology[:, 2] .* infected_data_7
+    infected_data_7_3 = etiology[:, 3] .* infected_data_7
+    infected_data_7_4 = etiology[:, 4] .* infected_data_7
+    infected_data_7_5 = etiology[:, 5] .* infected_data_7
+    infected_data_7_6 = etiology[:, 6] .* infected_data_7
+    infected_data_7_7 = etiology[:, 7] .* infected_data_7
+    infected_data_7_viruses = cat(
+        infected_data_7_1,
+        infected_data_7_2,
+        infected_data_7_3,
+        infected_data_7_4,
+        infected_data_7_5,
+        infected_data_7_6,
+        infected_data_7_7,
+        dims = 3)
+
+    infected_data_15 = infected_data_15[2:53, 21:27]
+    infected_data_15_1 = etiology[:, 1] .* infected_data_15
+    infected_data_15_2 = etiology[:, 2] .* infected_data_15
+    infected_data_15_3 = etiology[:, 3] .* infected_data_15
+    infected_data_15_4 = etiology[:, 4] .* infected_data_15
+    infected_data_15_5 = etiology[:, 5] .* infected_data_15
+    infected_data_15_6 = etiology[:, 6] .* infected_data_15
+    infected_data_15_7 = etiology[:, 7] .* infected_data_15
+    infected_data_15_viruses = cat(
+        infected_data_15_1,
+        infected_data_15_2,
+        infected_data_15_3,
+        infected_data_15_4,
+        infected_data_15_5,
+        infected_data_15_6,
+        infected_data_15_7,
+        dims = 3)
+
+    infected_data_0_viruses_mean = mean(infected_data_0_viruses, dims = 2)[:, 1, :]
+    infected_data_3_viruses_mean = mean(infected_data_3_viruses, dims = 2)[:, 1, :]
+    infected_data_7_viruses_mean = mean(infected_data_7_viruses, dims = 2)[:, 1, :]
+    infected_data_15_viruses_mean = mean(infected_data_15_viruses, dims = 2)[:, 1, :]
+
+    num_infected_age_groups_viruses_mean = cat(
+        infected_data_0_viruses_mean,
+        infected_data_3_viruses_mean,
+        infected_data_7_viruses_mean,
+        infected_data_15_viruses_mean,
+        dims = 3,
+    )
+
+    num_all_infected_age_groups_viruses_mean = copy(num_infected_age_groups_viruses_mean)
+    for virus_id = 1:length(viruses)
+        num_all_infected_age_groups_viruses_mean[:, virus_id, 1] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[1]) * (1 - isolation_probabilities_day_2[1]) * (1 - isolation_probabilities_day_3[1]))
+        num_all_infected_age_groups_viruses_mean[:, virus_id, 2] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[2]) * (1 - isolation_probabilities_day_2[2]) * (1 - isolation_probabilities_day_3[2]))
+        num_all_infected_age_groups_viruses_mean[:, virus_id, 3] ./= viruses[virus_id].symptomatic_probability_teenager * (1 - (1 - isolation_probabilities_day_1[3]) * (1 - isolation_probabilities_day_2[3]) * (1 - isolation_probabilities_day_3[3]))
+        num_all_infected_age_groups_viruses_mean[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
+    end
+
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
@@ -272,99 +370,6 @@ function main()
         mean(temperature_parameter_6_array[burnin:step:size(temperature_parameter_6_array)[1]]),
         mean(temperature_parameter_7_array[burnin:step:size(temperature_parameter_7_array)[1]])
     ]
-
-    # Runs
-    etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
-    
-    infected_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
-    infected_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
-    infected_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
-    infected_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
-
-    infected_data_0 = infected_data_0[2:53, 21:27]
-    infected_data_0_1 = etiology_data[1, :]' .* infected_data_0'
-    infected_data_0_2 = etiology_data[2, :]' .* infected_data_0'
-    infected_data_0_3 = etiology_data[3, :]' .* infected_data_0'
-    infected_data_0_4 = etiology_data[4, :]' .* infected_data_0'
-    infected_data_0_5 = etiology_data[5, :]' .* infected_data_0'
-    infected_data_0_6 = etiology_data[6, :]' .* infected_data_0'
-    infected_data_0_7 = etiology_data[7, :]' .* infected_data_0'
-    infected_data_0_viruses = cat(
-        infected_data_0_1,
-        infected_data_0_2,
-        infected_data_0_3,
-        infected_data_0_4,
-        infected_data_0_5,
-        infected_data_0_6,
-        infected_data_0_7,
-        dims = 3)
-
-    infected_data_3 = infected_data_3[2:53, 21:27]
-    infected_data_3_1 = etiology_data[1, :]' .* infected_data_3'
-    infected_data_3_2 = etiology_data[2, :]' .* infected_data_3'
-    infected_data_3_3 = etiology_data[3, :]' .* infected_data_3'
-    infected_data_3_4 = etiology_data[4, :]' .* infected_data_3'
-    infected_data_3_5 = etiology_data[5, :]' .* infected_data_3'
-    infected_data_3_6 = etiology_data[6, :]' .* infected_data_3'
-    infected_data_3_7 = etiology_data[7, :]' .* infected_data_3'
-    infected_data_3_viruses = cat(
-        infected_data_3_1,
-        infected_data_3_2,
-        infected_data_3_3,
-        infected_data_3_4,
-        infected_data_3_5,
-        infected_data_3_6,
-        infected_data_3_7,
-        dims = 3)
-
-    infected_data_7 = infected_data_7[2:53, 21:27]
-    infected_data_7_1 = etiology_data[1, :]' .* infected_data_7'
-    infected_data_7_2 = etiology_data[2, :]' .* infected_data_7'
-    infected_data_7_3 = etiology_data[3, :]' .* infected_data_7'
-    infected_data_7_4 = etiology_data[4, :]' .* infected_data_7'
-    infected_data_7_5 = etiology_data[5, :]' .* infected_data_7'
-    infected_data_7_6 = etiology_data[6, :]' .* infected_data_7'
-    infected_data_7_7 = etiology_data[7, :]' .* infected_data_7'
-    infected_data_7_viruses = cat(
-        infected_data_7_1,
-        infected_data_7_2,
-        infected_data_7_3,
-        infected_data_7_4,
-        infected_data_7_5,
-        infected_data_7_6,
-        infected_data_7_7,
-        dims = 3)
-
-    infected_data_15 = infected_data_15[2:53, 21:27]
-    infected_data_15_1 = etiology_data[1, :]' .* infected_data_15'
-    infected_data_15_2 = etiology_data[2, :]' .* infected_data_15'
-    infected_data_15_3 = etiology_data[3, :]' .* infected_data_15'
-    infected_data_15_4 = etiology_data[4, :]' .* infected_data_15'
-    infected_data_15_5 = etiology_data[5, :]' .* infected_data_15'
-    infected_data_15_6 = etiology_data[6, :]' .* infected_data_15'
-    infected_data_15_7 = etiology_data[7, :]' .* infected_data_15'
-    infected_data_15_viruses = cat(
-        infected_data_15_1,
-        infected_data_15_2,
-        infected_data_15_3,
-        infected_data_15_4,
-        infected_data_15_5,
-        infected_data_15_6,
-        infected_data_15_7,
-        dims = 3)
-
-    infected_data_0_viruses_mean = mean(infected_data_0_viruses, dims = 1)[1, :, :]
-    infected_data_3_viruses_mean = mean(infected_data_3_viruses, dims = 1)[1, :, :]
-    infected_data_7_viruses_mean = mean(infected_data_7_viruses, dims = 1)[1, :, :]
-    infected_data_15_viruses_mean = mean(infected_data_15_viruses, dims = 1)[1, :, :]
-
-    num_infected_age_groups_viruses_mean = cat(
-        infected_data_0_viruses_mean,
-        infected_data_3_viruses_mean,
-        infected_data_7_viruses_mean,
-        infected_data_15_viruses_mean,
-        dims = 3,
-    )
 
     num_runs = 500000
     months_threads = [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]

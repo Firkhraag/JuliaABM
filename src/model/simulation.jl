@@ -66,7 +66,6 @@ end
 function infect_randomly(
     agent::Agent,
     current_step::Int,
-    etiology::Matrix{Float64},
     rng::MersenneTwister,
 )
     rand_num = rand(rng, 1:7)
@@ -98,7 +97,6 @@ function simulate_contacts(
     susceptibility_parameters::Vector{Float64},
     temperature_parameters::Vector{Float64},
     random_infection_probabilities::Vector{Float64},
-    etiology::Matrix{Float64},
     viruses::Vector{Virus},
     is_kindergarten_holiday::Bool,
     is_school_holiday::Bool,
@@ -342,19 +340,19 @@ function simulate_contacts(
             # Случайное инфицирование
             if agent.age < 3
                 if rand(rng, Float64) < random_infection_probabilities[1]
-                    infect_randomly(agent, current_step, etiology, rng)
+                    infect_randomly(agent, current_step, rng)
                 end
             elseif agent.age < 7
                 if rand(rng, Float64) < random_infection_probabilities[2]
-                    infect_randomly(agent, current_step, etiology, rng)
+                    infect_randomly(agent, current_step, rng)
                 end
             elseif agent.age < 15
                 if rand(rng, Float64) < random_infection_probabilities[3]
-                    infect_randomly(agent, current_step, etiology, rng)
+                    infect_randomly(agent, current_step, rng)
                 end
             else
                 if rand(rng, Float64) < random_infection_probabilities[4]
-                    infect_randomly(agent, current_step, etiology, rng)
+                    infect_randomly(agent, current_step, rng)
                 end
             end
         end
@@ -1052,11 +1050,10 @@ function run_simulation(
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
     random_infection_probabilities::Vector{Float64},
-    etiology::Matrix{Float64},
     recovered_duration_mean::Float64,
     recovered_duration_sd::Float64,
     is_rt_run::Bool,
-)::Array{Float64, 3}
+)::Tuple{Array{Float64, 3}, Vector{Float64}}
     # День месяца
     day = 1
     # Месяц
@@ -1191,7 +1188,6 @@ function run_simulation(
                 susceptibility_parameters,
                 temperature_parameters,
                 random_infection_probabilities,
-                etiology,
                 viruses,
                 is_kindergarten_holiday,
                 is_school_holiday,
@@ -1327,12 +1323,9 @@ function run_simulation(
         end
     end
 
-    if is_rt_run
-        writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_activity_data.csv"),
-            sum(infected_inside_activity, dims = 3)[:, :, 1], ',')
-        writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "rt.csv"), rt, ',')
-        writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "daily_infections.csv"), sum(sum(sum(confirmed_daily_new_cases_age_groups_viruses, dims = 4)[:, :, :, 1], dims = 3)[:, :, 1], dims = 2)[:, 1], ',')
-    end
+    # writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_activity_data.csv"),
+    #     sum(infected_inside_activity, dims = 3)[:, :, 1], ',')
+    # writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "daily_infections.csv"), sum(sum(sum(confirmed_daily_new_cases_age_groups_viruses, dims = 4)[:, :, :, 1], dims = 3)[:, :, 1], dims = 2)[:, 1], ',')
 
-    return num_infected_age_groups_viruses
+    return num_infected_age_groups_viruses, rt
 end

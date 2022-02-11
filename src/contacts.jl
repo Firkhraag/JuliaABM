@@ -58,19 +58,19 @@ function main()
 
     viruses = Virus[
         # FluA
-        Virus(1.4, 0.09, 1, 7,  4.8, 1.12, 3, 12,  8.8, 3.748, 4, 14,  4.6, 3.5, 2.3,  0.3, 0.45, 0.6,  mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
+        Virus(1.4, 0.09, 1, 7,  4.8, 1.12, 3, 21,  8.8, 3.748, 3, 21,  4.6, 3.5, 2.3,  0.38, 0.47, 0.57,  mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
         # FluB
-        Virus(1.0, 0.0484, 1, 7,  3.7, 0.66, 3, 12,  7.8, 2.94, 4, 14,  4.7, 3.5, 2.4,  0.3, 0.45, 0.6,  mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
+        Virus(1.0, 0.0484, 1, 7,  3.7, 0.66, 3, 21,  7.8, 2.94, 3, 21,  4.7, 3.5, 2.4,  0.38, 0.47, 0.57,  mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
         # RV
-        Virus(1.9, 0.175, 1, 7,  10.1, 4.93, 3, 12,  11.4, 6.25, 4, 14,  3.5, 2.6, 1.8,  0.19, 0.24, 0.28,  mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
+        Virus(1.9, 0.175, 1, 7,  10.1, 4.93, 3, 21,  11.4, 6.25, 3, 21,  3.5, 2.6, 1.8,  0.19, 0.24, 0.29,  mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
         # RSV
-        Virus(4.4, 0.937, 1, 7,  7.4, 2.66, 3, 12,  9.3, 4.0, 4, 14,  6.0, 4.5, 3.0,  0.26, 0.33, 0.39,  mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
+        Virus(4.4, 0.937, 1, 7,  7.4, 2.66, 3, 21,  9.3, 4.0, 3, 21,  6.0, 4.5, 3.0,  0.24, 0.3, 0.36,  mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
         # AdV
-        Virus(5.6, 1.51, 1, 7,  8.0, 3.1, 3, 12,  9.0, 3.92, 4, 14,  4.1, 3.1, 2.1,  0.15, 0.19, 0.22,  mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
+        Virus(5.6, 1.51, 1, 7,  8.0, 3.1, 3, 21,  9.0, 3.92, 3, 21,  4.1, 3.1, 2.1,  0.15, 0.19, 0.23,  mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
         # PIV
-        Virus(2.6, 0.327, 1, 7,  7.0, 2.37, 3, 12,  8.0, 3.1, 4, 14,  4.8, 3.6, 2.4,  0.16, 0.2, 0.24,  mean_immunity_durations[6], mean_immunity_durations[6] * 0.33),
+        Virus(2.6, 0.327, 1, 7,  7.0, 2.37, 3, 21,  8.0, 3.1, 3, 21,  4.8, 3.6, 2.4,  0.16, 0.2, 0.24,  mean_immunity_durations[6], mean_immunity_durations[6] * 0.33),
         # CoV
-        Virus(3.2, 0.496, 1, 7,  6.5, 2.15, 3, 12,  7.5, 2.9, 4, 14,  4.9, 3.7, 2.5,  0.22, 0.28, 0.33,  mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
+        Virus(3.2, 0.496, 1, 7,  6.5, 2.15, 3, 21,  7.5, 2.9, 3, 21,  4.9, 3.7, 2.5,  0.21, 0.26, 0.32,  mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
 
     # Число домохозяйств каждого типа по районам
     district_households = get_district_households()
@@ -78,7 +78,7 @@ function main()
     district_people = get_district_people()
     # Число людей в домохозяйствах по районам
     district_people_households = get_district_people_households()
-    # Вероятность случайного инфицирования
+    # Распределение вирусов в течение года
     etiology = get_etiology()
     # Номера районов для MPI процессов
     district_nums = get_district_nums()
@@ -159,21 +159,19 @@ function main()
     #     )
     # end
 
-    etiology_data = readdlm(joinpath(@__DIR__, "..", "input", "tables", "etiology_ratio.csv"), ',', Float64, '\n')
-    
     infected_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
     infected_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
     infected_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
     infected_data_0 = infected_data_0[2:53, 21:27]
-    infected_data_0_1 = etiology_data[1, :]' .* infected_data_0'
-    infected_data_0_2 = etiology_data[2, :]' .* infected_data_0'
-    infected_data_0_3 = etiology_data[3, :]' .* infected_data_0'
-    infected_data_0_4 = etiology_data[4, :]' .* infected_data_0'
-    infected_data_0_5 = etiology_data[5, :]' .* infected_data_0'
-    infected_data_0_6 = etiology_data[6, :]' .* infected_data_0'
-    infected_data_0_7 = etiology_data[7, :]' .* infected_data_0'
+    infected_data_0_1 = etiology[:, 1] .* infected_data_0
+    infected_data_0_2 = etiology[:, 2] .* infected_data_0
+    infected_data_0_3 = etiology[:, 3] .* infected_data_0
+    infected_data_0_4 = etiology[:, 4] .* infected_data_0
+    infected_data_0_5 = etiology[:, 5] .* infected_data_0
+    infected_data_0_6 = etiology[:, 6] .* infected_data_0
+    infected_data_0_7 = etiology[:, 7] .* infected_data_0
     infected_data_0_viruses = cat(
         infected_data_0_1,
         infected_data_0_2,
@@ -185,13 +183,13 @@ function main()
         dims = 3)
 
     infected_data_3 = infected_data_3[2:53, 21:27]
-    infected_data_3_1 = etiology_data[1, :]' .* infected_data_3'
-    infected_data_3_2 = etiology_data[2, :]' .* infected_data_3'
-    infected_data_3_3 = etiology_data[3, :]' .* infected_data_3'
-    infected_data_3_4 = etiology_data[4, :]' .* infected_data_3'
-    infected_data_3_5 = etiology_data[5, :]' .* infected_data_3'
-    infected_data_3_6 = etiology_data[6, :]' .* infected_data_3'
-    infected_data_3_7 = etiology_data[7, :]' .* infected_data_3'
+    infected_data_3_1 = etiology[:, 1] .* infected_data_3
+    infected_data_3_2 = etiology[:, 2] .* infected_data_3
+    infected_data_3_3 = etiology[:, 3] .* infected_data_3
+    infected_data_3_4 = etiology[:, 4] .* infected_data_3
+    infected_data_3_5 = etiology[:, 5] .* infected_data_3
+    infected_data_3_6 = etiology[:, 6] .* infected_data_3
+    infected_data_3_7 = etiology[:, 7] .* infected_data_3
     infected_data_3_viruses = cat(
         infected_data_3_1,
         infected_data_3_2,
@@ -203,13 +201,13 @@ function main()
         dims = 3)
 
     infected_data_7 = infected_data_7[2:53, 21:27]
-    infected_data_7_1 = etiology_data[1, :]' .* infected_data_7'
-    infected_data_7_2 = etiology_data[2, :]' .* infected_data_7'
-    infected_data_7_3 = etiology_data[3, :]' .* infected_data_7'
-    infected_data_7_4 = etiology_data[4, :]' .* infected_data_7'
-    infected_data_7_5 = etiology_data[5, :]' .* infected_data_7'
-    infected_data_7_6 = etiology_data[6, :]' .* infected_data_7'
-    infected_data_7_7 = etiology_data[7, :]' .* infected_data_7'
+    infected_data_7_1 = etiology[:, 1] .* infected_data_7
+    infected_data_7_2 = etiology[:, 2] .* infected_data_7
+    infected_data_7_3 = etiology[:, 3] .* infected_data_7
+    infected_data_7_4 = etiology[:, 4] .* infected_data_7
+    infected_data_7_5 = etiology[:, 5] .* infected_data_7
+    infected_data_7_6 = etiology[:, 6] .* infected_data_7
+    infected_data_7_7 = etiology[:, 7] .* infected_data_7
     infected_data_7_viruses = cat(
         infected_data_7_1,
         infected_data_7_2,
@@ -221,13 +219,13 @@ function main()
         dims = 3)
 
     infected_data_15 = infected_data_15[2:53, 21:27]
-    infected_data_15_1 = etiology_data[1, :]' .* infected_data_15'
-    infected_data_15_2 = etiology_data[2, :]' .* infected_data_15'
-    infected_data_15_3 = etiology_data[3, :]' .* infected_data_15'
-    infected_data_15_4 = etiology_data[4, :]' .* infected_data_15'
-    infected_data_15_5 = etiology_data[5, :]' .* infected_data_15'
-    infected_data_15_6 = etiology_data[6, :]' .* infected_data_15'
-    infected_data_15_7 = etiology_data[7, :]' .* infected_data_15'
+    infected_data_15_1 = etiology[:, 1] .* infected_data_15
+    infected_data_15_2 = etiology[:, 2] .* infected_data_15
+    infected_data_15_3 = etiology[:, 3] .* infected_data_15
+    infected_data_15_4 = etiology[:, 4] .* infected_data_15
+    infected_data_15_5 = etiology[:, 5] .* infected_data_15
+    infected_data_15_6 = etiology[:, 6] .* infected_data_15
+    infected_data_15_7 = etiology[:, 7] .* infected_data_15
     infected_data_15_viruses = cat(
         infected_data_15_1,
         infected_data_15_2,
@@ -238,10 +236,10 @@ function main()
         infected_data_15_7,
         dims = 3)
 
-    infected_data_0_viruses_mean = mean(infected_data_0_viruses, dims = 1)[1, :, :]
-    infected_data_3_viruses_mean = mean(infected_data_3_viruses, dims = 1)[1, :, :]
-    infected_data_7_viruses_mean = mean(infected_data_7_viruses, dims = 1)[1, :, :]
-    infected_data_15_viruses_mean = mean(infected_data_15_viruses, dims = 1)[1, :, :]
+    infected_data_0_viruses_mean = mean(infected_data_0_viruses, dims = 2)[:, 1, :]
+    infected_data_3_viruses_mean = mean(infected_data_3_viruses, dims = 2)[:, 1, :]
+    infected_data_7_viruses_mean = mean(infected_data_7_viruses, dims = 2)[:, 1, :]
+    infected_data_15_viruses_mean = mean(infected_data_15_viruses, dims = 2)[:, 1, :]
 
     num_infected_age_groups_viruses_mean = cat(
         infected_data_0_viruses_mean,

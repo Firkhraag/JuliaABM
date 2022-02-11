@@ -8,6 +8,53 @@ include("../global/variables.jl")
 
 default(legendfontsize = 18, guidefont = (25, :black), tickfont = (18, :black))
 
+function plot_incidence()
+    age_groups = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "age_groups_data.csv"), ',', Float64)
+    incidence = sum(age_groups, dims = 2)[:, 1]
+    # incidence2 = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "deviations", "infected_data2.csv"), ',', Float64)
+    # incidence3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "deviations", "infected_data3.csv"), ',', Float64)
+    # stds = zeros(Float64, 52)
+    # for i = 1:52
+    #     stds[i] = std([incidence[i], incidence2[i], incidence3[i]])
+    # end
+
+    ticks = range(1, stop = 52, length = 7)
+
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    label_names = ["model" "data"]
+    if is_russian
+        label_names = ["модель" "данные"]
+    end
+
+    xlabel_name = L"\textrm{\sffamily Month}"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = L"\textrm{\sffamily Cases per 1000 people in a week}"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
+    incidence_plot = plot(
+        1:52,
+        [incidence infected_data_mean],
+        lw = 3,
+        xticks = (ticks, ticklabels),
+        label = label_names,
+        grid = !is_russian,
+        # yerror = stds,
+        # ribbon=stds,fillalpha=.5,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence.pdf"))
+end
+
 function plot_incidences()
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     duration_parameter = mean(duration_parameter_array[burnin:step:length(duration_parameter_array)])
