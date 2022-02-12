@@ -29,7 +29,7 @@ const max_agent_age = 89
 
 # MCMC параметры
 const burnin = 1
-const step = 5
+const step = 2
 
 # Размеры групп в детских садах
 const kindergarten_groups_size_1 = 10
