@@ -3,6 +3,8 @@ using Statistics
 using Plots
 using LaTeXStrings
 
+include("../../util/moving_avg.jl")
+
 # default(legendfontsize = 14, guidefont = (20, :black), tickfont = (14, :black))
 # default(legendfontsize = 9, guidefont = (12, :black), tickfont = (9, :black))
 default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
@@ -190,6 +192,8 @@ function plot_rt()
     rt = readdlm(
         joinpath(@__DIR__, "..", "..", "..", "output", "tables", "rt.csv"), ',', Float64)
 
+    rt = moving_average(rt, 10)
+
     ticks = range(1, stop = 365, length = 7)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     if is_russian
@@ -212,6 +216,7 @@ function plot_rt()
         lw = 3,
         xticks = (ticks, ticklabels),
         color = :red,
+        legend = false,
         grid = !is_russian,
         xlabel = xlabel_name,
         ylabel = ylabel_name,
@@ -263,8 +268,7 @@ function plot_r0()
         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "r0.pdf"))
 end
 
-plot_incidence()
-plot_incidence_etiology()
-plot_incidence_age_groups()
+# plot_incidence()
+# plot_incidence_etiology()
+# plot_incidence_age_groups()
 plot_rt()
-# plot_r0()

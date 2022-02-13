@@ -34,7 +34,8 @@ function main()
 
     num_threads = nthreads()
 
-    n = 10
+    starting_bias = 0
+    n = 100
     disturbance = 0.01
 
     isolation_probabilities_day_1_default = [0.406, 0.305, 0.204, 0.101]
@@ -480,12 +481,12 @@ function main()
             recovered_duration_mean, recovered_duration_sd, true)
 
         writedlm(
-            joinpath(@__DIR__, "..", "sensitivity", "tables", "etiology_data_$(i).csv"),
+            joinpath(@__DIR__, "..", "sensitivity", "tables", "etiology_data_$(i + starting_bias).csv"),
             sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
         writedlm(
-            joinpath(@__DIR__, "..", "sensitivity", "tables", "age_groups_data_$(i).csv"),
+            joinpath(@__DIR__, "..", "sensitivity", "tables", "age_groups_data_$(i + starting_bias).csv"),
             sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
-        writedlm(joinpath(@__DIR__, "..", "sensitivity", "tables", "rt_$(i).csv"), rt, ',')
+        writedlm(joinpath(@__DIR__, "..", "sensitivity", "tables", "rt_$(i + starting_bias).csv"), rt, ',')
 
         MAE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / (size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3])
         RMSE = sqrt(sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)) / sqrt((size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3]))

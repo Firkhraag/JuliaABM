@@ -59,7 +59,7 @@ function make_contact(
     if rand(rng, Float64) < infection_probability
         susceptible_agent.virus_id = infected_agent.virus_id
         susceptible_agent.is_newly_infected = true
-        infected_agent.infected_num_agents_on_current_step += 1
+        infected_agent.num_infected_agents += 1
     end
 end
 
@@ -373,6 +373,8 @@ function update_agent_states(
     isolation_probabilities_day_3::Vector{Float64},
     current_step::Int,
     confirmed_daily_new_cases_age_groups_viruses::Array{Float64, 4},
+    rt::Vector{Float64},
+    rt_count::Vector{Float64},
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -437,9 +439,14 @@ function update_agent_states(
         end
 
         if agent.virus_id != 0 && !agent.is_newly_infected
-            agent.infected_num_agents_on_current_step = 0
-
             if agent.days_infected == agent.infection_period
+                infection_time = current_step - agent.infection_period - agent.incubation_period - 1
+                if infection_time > 0
+                    rt[infection_time] += agent.num_infected_agents
+                    rt_count[infection_time] += 1
+                end
+                agent.num_infected_agents = 0
+
                 if agent.virus_id == 1
                     agent.FluA_days_immune = 1
                     agent.FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
@@ -1083,6 +1090,7 @@ function run_simulation(
     infected_inside_activity = zeros(Int, max_step, 8, num_threads)
 
     rt = zeros(Float64, max_step)
+    rt_count = zeros(Float64, max_step)
 
     for current_step = 1:max_step
         # println(current_step)
@@ -1252,18 +1260,7 @@ function run_simulation(
         #     )
         # end
 
-        # -------------------------------------------------------------
-
-        if is_rt_run
-            rt_count = 0
-            for agent in agents
-                if agent.virus_id != 0 && !agent.is_newly_infected
-                    rt[current_step] += agent.infected_num_agents_on_current_step
-                    rt_count += 1
-                end
-            end
-            rt[current_step] /= rt_count
-        end
+        # ------------------------------------------------------------
 
         @threads for thread_id in 1:num_threads
             update_agent_states(
@@ -1279,7 +1276,10 @@ function run_simulation(
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
                 current_step,
-                confirmed_daily_new_cases_age_groups_viruses)
+                confirmed_daily_new_cases_age_groups_viruses,
+                rt,
+                rt_count,
+            )
         end
 
         # Обновление даты
@@ -1326,6 +1326,8 @@ function run_simulation(
     # writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_activity_data.csv"),
     #     sum(infected_inside_activity, dims = 3)[:, :, 1], ',')
     # writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "daily_infections.csv"), sum(sum(sum(confirmed_daily_new_cases_age_groups_viruses, dims = 4)[:, :, :, 1], dims = 3)[:, :, 1], dims = 2)[:, 1], ',')
+
+    rt = rt ./ rt_count
 
     return num_infected_age_groups_viruses, rt
 end
