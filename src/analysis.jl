@@ -4,6 +4,7 @@ using DelimitedFiles
 using Distributions
 using DataFrames
 using CSV
+using JLD
 
 include("global/variables.jl")
 
@@ -35,10 +36,10 @@ function main()
     num_threads = nthreads()
 
     starting_bias = 0
-    n = 10
+    n = 5
     disturbance = 0.02
 
-    num_years = 2
+    num_years = 1
 
     isolation_probabilities_day_1_default = [0.406, 0.305, 0.204, 0.101]
     isolation_probabilities_day_2_default = [0.669, 0.576, 0.499, 0.334]
@@ -299,7 +300,7 @@ function main()
 
     println("Simulation...")
 
-    for i = 1:n
+    for run_num = 1:n
         for k = 1:length(isolation_probabilities_day_1_default)
             isolation_probabilities_day_1[k] = isolation_probabilities_day_1_default[k]
             isolation_probabilities_day_2[k] = isolation_probabilities_day_2_default[k]
@@ -429,12 +430,11 @@ function main()
             isolation_probabilities_day_3, random_infection_probabilities,
             recovered_duration_mean, recovered_duration_sd, num_years, true)
 
-        save(joinpath(@__DIR__, "..", "sensitivity", "tables", "results_$(run_num + 1).jld"),
+        save(joinpath(@__DIR__, "..", "sensitivity", "tables", "results_$(run_num).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "all_cases", num_infected_age_groups_viruses,
             "activities_cases", activities_infections,
             "rt", rt,
-            "random_infection_probabilities", random_infection_probabilities,
             "isolation_probabilities_day_1", isolation_probabilities_day_1,
             "isolation_probabilities_day_2", isolation_probabilities_day_2,
             "isolation_probabilities_day_3", isolation_probabilities_day_3,

@@ -299,8 +299,8 @@ function main()
         workplaces, thread_rng, num_threads, homes_coords_df,
         firm_min_size, firm_max_size, num_barabasi_albert_attachments)
 
-    get_stats(agents, schools, workplaces)
-    return
+    # get_stats(agents, schools, workplaces)
+    # return
 
     println("Simulation...")
 
@@ -402,8 +402,6 @@ function main()
             end
         end
     end
-
-    println(observed_num_infected_age_groups_viruses_mean[25, 1, 4])
 
     MAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses_mean)) / (size(observed_num_infected_age_groups_viruses_mean)[1] * size(observed_num_infected_age_groups_viruses_mean)[2] * size(observed_num_infected_age_groups_viruses_mean)[3])
     RMSE = sqrt(sum((observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses_mean).^2)) / sqrt((size(observed_num_infected_age_groups_viruses_mean)[1] * size(observed_num_infected_age_groups_viruses_mean)[2] * size(observed_num_infected_age_groups_viruses_mean)[3]))

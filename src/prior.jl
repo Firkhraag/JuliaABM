@@ -178,10 +178,28 @@ function multiple_simulations(
             isolation_probabilities_day_3, random_infection_probabilities,
             recovered_duration_mean, recovered_duration_sd, num_years, false)
 
-        MAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / (size(observed_num_infected_age_groups_viruses)[1] * size(observed_num_infected_age_groups_viruses)[2] * size(observed_num_infected_age_groups_viruses)[3])
-        RMSE = sqrt(sum((observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)) / sqrt((size(observed_num_infected_age_groups_viruses)[1] * size(observed_num_infected_age_groups_viruses)[2] * size(observed_num_infected_age_groups_viruses)[3]))
-        nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / sum(num_infected_age_groups_viruses_mean)
-        S_square = sum((observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+        observed_num_infected_age_groups_viruses_mean = zeros(Float64, 52, 7, 4)
+        for i = 1:num_years
+            for j = 1:52
+                for k = 1:7
+                    for z = 1:4
+                        observed_num_infected_age_groups_viruses_mean[j, k, z] += observed_num_infected_age_groups_viruses[52 * (i - 1) + j, k, z]
+                    end
+                end
+            end
+        end
+        for j = 1:52
+            for k = 1:7
+                for z = 1:4
+                    observed_num_infected_age_groups_viruses_mean[j, k, z] /= num_years
+                end
+            end
+        end
+    
+        MAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses_mean)) / (size(observed_num_infected_age_groups_viruses_mean)[1] * size(observed_num_infected_age_groups_viruses_mean)[2] * size(observed_num_infected_age_groups_viruses_mean)[3])
+        RMSE = sqrt(sum((observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses_mean).^2)) / sqrt((size(observed_num_infected_age_groups_viruses_mean)[1] * size(observed_num_infected_age_groups_viruses_mean)[2] * size(observed_num_infected_age_groups_viruses_mean)[3]))
+        nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses_mean)) / sum(num_infected_age_groups_viruses_mean)
+        S_square = sum((observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses_mean).^2)
 
         if MAE < MAE_min
             MAE_min = MAE

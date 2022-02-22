@@ -28,6 +28,7 @@ function get_stats(
 
     # mean_num_of_friend_conn = 0
 
+    mean_num_students = 0.0
     for school in schools
         num_students = 0
         for groups in school.groups
@@ -37,7 +38,10 @@ function get_stats(
                 end
             end
         end
+        mean_num_students += num_students
     end
+
+    println("Mean num of school students: $(mean_num_students / length(schools))")
 
     t1 = 0
     t2 = 0
