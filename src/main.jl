@@ -4,6 +4,7 @@ using DelimitedFiles
 using Distributions
 using DataFrames
 using CSV
+using JLD
 
 include("global/variables.jl")
 
@@ -33,17 +34,19 @@ function main()
 
     # Random seed number
     run_num = 0
-    is_rt_num = false
+    is_rt_run = true
     try
         run_num = parse(Int64, ARGS[1])
     catch
         run_num = 0
     end
-    try
-        is_rt_num = parse(Bool, ARGS[2])
-    catch
-        is_rt_num = false
-    end
+
+    num_years = 2
+
+    school_class_closure_period = 0
+    # school_class_closure_period = 7
+    school_class_closure_threshold = 0.25
+    school_closure_threshold_classes = 3
 
     num_threads = nthreads()
 
@@ -66,21 +69,21 @@ function main()
     firm_max_size = 1000
     num_barabasi_albert_attachments = 5
 
-    # MAE = 799.4749827248887
-    # RMSE = 1417.8593075736128
-    # nMAE = 0.46040918570366185
-    # S_square = 2.9270332234024696e9
+    # MAE: 822.1847542512904
+    # RMSE: 1466.653398254811
+    # nMAE: 0.4734875029017183
+    # S_square: 3.1319611095316324e9
 
-    # MAE: 814.122079557444
-    # RMSE: 1428.423576219705
-    # nMAE: 0.4688442938325175
-    # S_square: 2.970813537474024e9
+    # MAE: 829.6110149941217
+    # RMSE: 1482.085241107007
+    # nMAE: 0.4777642079085172
+    # S_square: 3.1982156197369046e9
 
-    duration_parameter = 3.764265099979386
-    susceptibility_parameters = [3.2580395794681514, 3.884652648938362, 3.817058338486913, 5.678550814265098, 4.145190682333544, 3.8139002267573696, 4.7655782312925155]
-    temperature_parameters = [-0.9220449391877963, -0.7772418058132341, -0.1949804164089878, -0.0393939393939394, -0.08250876108018959, -0.15083487940630802, -0.3359224902082046]
-    random_infection_probabilities = [0.00011537414965986393, 6.832319109461966e-5, 4.910216450216453e-5, 6.985549371263659e-7]
-    mean_immunity_durations = [253.96825396825392, 314.95031952174816, 97.14759843331271, 22.70171098742527, 80.84188827045969, 114.48526077097503, 85.45660688517833]
+    duration_parameter = 3.779416615130901
+    susceptibility_parameters = [3.2610698824984543, 3.8452587095444226, 3.7817048031333775, 5.663399299113583, 4.237109874252735, 3.9098598227169656, 4.5706287363430205]
+    temperature_parameters = [-0.9164893836322408, -0.811080189651618, -0.19548546691403831, -0.03636363636363636, -0.09816532673675527, -0.14426922284065144, -0.18397237682952078]
+    random_infection_probabilities = [0.00011500041228612655, 6.840904968047825e-5, 4.915367965367968e-5, 6.952216037930325e-7]
+    mean_immunity_durations = [256.9682539682539, 312.3745619459906, 99.17790146361574, 25.459286745001027, 81.05400948258091, 116.81859410430836, 98.45660688517833]
 
     viruses = Virus[
         # FluA
@@ -296,8 +299,8 @@ function main()
         workplaces, thread_rng, num_threads, homes_coords_df,
         firm_min_size, firm_max_size, num_barabasi_albert_attachments)
 
-    # get_stats(agents, workplaces)
-    # return
+    get_stats(agents, schools, workplaces)
+    return
 
     println("Simulation...")
 
@@ -360,14 +363,15 @@ function main()
     #     rand(temperature_parameter_7_array[burnin:step:end])
     # ]
 
-    @time num_infected_age_groups_viruses, rt = run_simulation(
-        num_threads, thread_rng, agents, viruses, households, duration_parameter,
+    @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+        num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
         susceptibility_parameters, temperature_parameters, temperature,
         mean_household_contact_durations, household_contact_duration_sds,
         other_contact_duration_shapes, other_contact_duration_scales,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
         isolation_probabilities_day_3, random_infection_probabilities,
-        recovered_duration_mean, recovered_duration_sd, is_rt_num)
+        recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+        school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
 
     # for k = 1:7
     #     println("Virus: $(k)")
@@ -375,20 +379,36 @@ function main()
     #     println(age_dist ./ sum(age_dist))
     # end
 
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", run_num > 0 ? "etiology_$(run_num).csv" : "etiology.csv"),
-        sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
-    writedlm(
-        joinpath(@__DIR__, "..", "output", "tables", run_num > 0 ? "age_groups_data_$(run_num).csv" : "age_groups_data.csv"),
-        sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
-    if is_rt_num
-        writedlm(joinpath(@__DIR__, "..", "output", "tables", "rt.csv"), rt, ',')
+    save(joinpath(@__DIR__, "..", "output", "tables", "results_$(run_num + 1).jld"),
+        "observed_cases", observed_num_infected_age_groups_viruses,
+        "all_cases", num_infected_age_groups_viruses,
+        "activities_cases", activities_infections,
+        "rt", rt)
+
+    observed_num_infected_age_groups_viruses_mean = zeros(Float64, 52, 7, 4)
+    for i = 1:num_years
+        for j = 1:52
+            for k = 1:7
+                for z = 1:4
+                    observed_num_infected_age_groups_viruses_mean[j, k, z] += observed_num_infected_age_groups_viruses[52 * (i - 1) + j, k, z]
+                end
+            end
+        end
+    end
+    for j = 1:52
+        for k = 1:7
+            for z = 1:4
+                observed_num_infected_age_groups_viruses_mean[j, k, z] /= num_years
+            end
+        end
     end
 
-    MAE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / (size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3])
-    RMSE = sqrt(sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)) / sqrt((size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3]))
-    nMAE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / sum(num_infected_age_groups_viruses_mean)
-    S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+    println(observed_num_infected_age_groups_viruses_mean[25, 1, 4])
+
+    MAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses_mean)) / (size(observed_num_infected_age_groups_viruses_mean)[1] * size(observed_num_infected_age_groups_viruses_mean)[2] * size(observed_num_infected_age_groups_viruses_mean)[3])
+    RMSE = sqrt(sum((observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses_mean).^2)) / sqrt((size(observed_num_infected_age_groups_viruses_mean)[1] * size(observed_num_infected_age_groups_viruses_mean)[2] * size(observed_num_infected_age_groups_viruses_mean)[3]))
+    nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses_mean)) / sum(num_infected_age_groups_viruses_mean)
+    S_square = sum((observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses_mean).^2)
 
     println("MAE: ", MAE)
     println("RMSE: ", RMSE)

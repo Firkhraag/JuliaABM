@@ -1,4 +1,8 @@
-function get_stats(agents::Vector{Agent}, workplaces::Vector{Workplace})
+function get_stats(
+    agents::Vector{Agent},
+    schools::Vector{School},
+    workplaces::Vector{Workplace}
+)
     println("Stats...")
 
     age_nums = zeros(Int, 90)
@@ -23,6 +27,17 @@ function get_stats(agents::Vector{Agent}, workplaces::Vector{Workplace})
     size_work_conn = 0
 
     # mean_num_of_friend_conn = 0
+
+    for school in schools
+        num_students = 0
+        for groups in school.groups
+            for group in groups
+                for agent_id in group
+                    num_students += 1
+                end
+            end
+        end
+    end
 
     t1 = 0
     t2 = 0

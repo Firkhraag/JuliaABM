@@ -35,8 +35,10 @@ function main()
     num_threads = nthreads()
 
     starting_bias = 0
-    n = 100
-    disturbance = 0.01
+    n = 10
+    disturbance = 0.02
+
+    num_years = 2
 
     isolation_probabilities_day_1_default = [0.406, 0.305, 0.204, 0.101]
     isolation_probabilities_day_2_default = [0.669, 0.576, 0.499, 0.334]
@@ -47,11 +49,14 @@ function main()
     household_contact_duration_sds_default = [2.2, 2.0, 3.0, 1.5, 4.0]
     other_contact_duration_shapes_default = [2.5, 1.78, 2.0, 1.81, 1.2]
     other_contact_duration_scales_default = [1.6, 1.95, 1.07, 1.7, 1.07]
-    duration_parameter_default = 3.764265099979386
-    susceptibility_parameters_default = [3.2580395794681514, 3.884652648938362, 3.817058338486913, 5.678550814265098, 4.145190682333544, 3.8139002267573696, 4.7655782312925155]
-    temperature_parameters_default = [-0.9220449391877963, -0.7772418058132341, -0.1949804164089878, -0.0393939393939394, -0.08250876108018959, -0.15083487940630802, -0.3359224902082046]
-    random_infection_probabilities_default = [0.00011537414965986393, 6.832319109461966e-5, 4.910216450216453e-5, 6.985549371263659e-7]
-    mean_immunity_durations_default = [253.96825396825392, 314.95031952174816, 97.14759843331271, 22.70171098742527, 80.84188827045969, 114.48526077097503, 85.45660688517833]
+
+    # Parameters add _default
+    duration_parameter_default = 3.779416615130901
+    susceptibility_parameters_default = [3.2610698824984543, 3.8452587095444226, 3.7817048031333775, 5.663399299113583, 4.237109874252735, 3.9098598227169656, 4.5706287363430205]
+    temperature_parameters_default = [-0.9164893836322408, -0.811080189651618, -0.19548546691403831, -0.03636363636363636, -0.09816532673675527, -0.14426922284065144, -0.18397237682952078]
+    random_infection_probabilities_default = [0.00011500041228612655, 6.840904968047825e-5, 4.915367965367968e-5, 6.952216037930325e-7]
+    mean_immunity_durations_default = [256.9682539682539, 312.3745619459906, 99.17790146361574, 25.459286745001027, 81.05400948258091, 116.81859410430836, 98.45660688517833]
+    
     incubation_period_durations_default = [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2]
     incubation_period_duration_variances_default = [0.09, 0.0484, 0.175, 0.937, 1.51, 0.327, 0.496]
     infection_period_durations_child_default = [4.8, 3.7, 10.1, 7.4, 8.0, 7.0, 6.5]
@@ -65,32 +70,32 @@ function main()
     mean_viral_loads_child_default = [3.5, 3.5, 2.6, 4.5, 3.1, 3.6, 3.7]
     mean_viral_loads_adult_default = [2.3, 2.4, 1.8, 3.0, 2.1, 2.4, 2.5]
 
-    isolation_probabilities_day_1 = [0.406, 0.305, 0.204, 0.101]
-    isolation_probabilities_day_2 = [0.669, 0.576, 0.499, 0.334]
-    isolation_probabilities_day_3 = [0.45, 0.325, 0.376, 0.168]
-    recovered_duration_mean = 12.0
-    recovered_duration_sd = 4.0
-    mean_household_contact_durations = [6.5, 5.8, 9.0, 4.5, 12.0]
-    household_contact_duration_sds = [2.2, 2.0, 3.0, 1.5, 4.0]
-    other_contact_duration_shapes = [2.5, 1.78, 2.0, 1.81, 1.2]
-    other_contact_duration_scales = [1.6, 1.95, 1.07, 1.7, 1.07]
-    duration_parameter = 3.764265099979386
-    susceptibility_parameters = [3.2580395794681514, 3.884652648938362, 3.817058338486913, 5.678550814265098, 4.145190682333544, 3.8139002267573696, 4.7655782312925155]
-    temperature_parameters = [-0.9220449391877963, -0.7772418058132341, -0.1949804164089878, -0.0393939393939394, -0.08250876108018959, -0.15083487940630802, -0.3359224902082046]
-    random_infection_probabilities = [0.00011537414965986393, 6.832319109461966e-5, 4.910216450216453e-5, 6.985549371263659e-7]
-    mean_immunity_durations = [253.96825396825392, 314.95031952174816, 97.14759843331271, 22.70171098742527, 80.84188827045969, 114.48526077097503, 85.45660688517833]
-    incubation_period_durations = [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2]
-    incubation_period_duration_variances = [0.09, 0.0484, 0.175, 0.937, 1.51, 0.327, 0.496]
-    infection_period_durations_child = [4.8, 3.7, 10.1, 7.4, 8.0, 7.0, 6.5]
-    infection_period_duration_variances_child = [1.12, 0.66, 4.93, 2.66, 3.1, 2.37, 2.15]
-    infection_period_durations_adult = [8.8, 7.8, 11.4, 9.3, 9.0, 8.0, 7.5]
-    infection_period_duration_variances_adult = [3.748, 2.94, 6.25, 4.0, 3.92, 3.1, 2.9]
-    symptomatic_probabilities_child = [0.38, 0.38, 0.19, 0.24, 0.15, 0.16, 0.21]
-    symptomatic_probabilities_teenager = [0.47, 0.47, 0.24, 0.3, 0.19, 0.2, 0.26]
-    symptomatic_probabilities_adult = [0.57, 0.57, 0.29, 0.36, 0.23, 0.24, 0.32]
-    mean_viral_loads_infant = [4.6, 4.7, 3.5, 6.0, 4.1, 4.8, 4.9]
-    mean_viral_loads_child = [3.5, 3.5, 2.6, 4.5, 3.1, 3.6, 3.7]
-    mean_viral_loads_adult = [2.3, 2.4, 1.8, 3.0, 2.1, 2.4, 2.5]
+    isolation_probabilities_day_1 = copy(isolation_probabilities_day_1_default)
+    isolation_probabilities_day_2 = copy(isolation_probabilities_day_2_default)
+    isolation_probabilities_day_3 = copy(isolation_probabilities_day_3_default)
+    recovered_duration_mean = recovered_duration_mean_default
+    recovered_duration_sd = recovered_duration_sd_default
+    mean_household_contact_durations = copy(mean_household_contact_durations_default)
+    household_contact_duration_sds = copy(household_contact_duration_sds_default)
+    other_contact_duration_shapes = copy(other_contact_duration_shapes_default)
+    other_contact_duration_scales = copy(other_contact_duration_scales_default)
+    duration_parameter = duration_parameter_default
+    susceptibility_parameters = copy(susceptibility_parameters_default)
+    temperature_parameters = copy(temperature_parameters_default)
+    random_infection_probabilities = copy(random_infection_probabilities_default)
+    mean_immunity_durations = copy(mean_immunity_durations_default)
+    incubation_period_durations = copy(incubation_period_durations_default)
+    incubation_period_duration_variances = copy(incubation_period_duration_variances_default)
+    infection_period_durations_child = copy(infection_period_durations_child_default)
+    infection_period_duration_variances_child = copy(infection_period_duration_variances_child_default)
+    infection_period_durations_adult = copy(infection_period_durations_adult_default)
+    infection_period_duration_variances_adult = copy(infection_period_duration_variances_adult_default)
+    symptomatic_probabilities_child = copy(symptomatic_probabilities_child_default)
+    symptomatic_probabilities_teenager = copy(symptomatic_probabilities_teenager_default)
+    symptomatic_probabilities_adult = copy(symptomatic_probabilities_adult_default)
+    mean_viral_loads_infant = copy(mean_viral_loads_infant_default)
+    mean_viral_loads_child = copy(mean_viral_loads_child_default)
+    mean_viral_loads_adult = copy(mean_viral_loads_adult_default)
 
     firm_min_size = 0
     firm_max_size = 1000
@@ -399,63 +404,7 @@ function main()
             viruses[k].mean_viral_load_adult = mean_viral_loads_adult[k]
         end
 
-        # viruses = Virus[
-        #     # FluA
-        #     Virus(
-        #         incubation_period_durations[1], incubation_period_duration_variances[1], 1, 7,
-        #         infection_period_durations_child[1], infection_period_duration_variances_child[1], 3, 21,
-        #         infection_period_durations_adult[1], infection_period_duration_variances_adult[1], 3, 21,
-        #         mean_viral_loads_infant[1], mean_viral_loads_child[1], mean_viral_loads_adult[1],
-        #         symptomatic_probabilities_child[1], symptomatic_probabilities_teenager[1], symptomatic_probabilities_adult[1],
-        #         mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
-        #     # FluB
-        #     Virus(
-        #         incubation_period_durations[2], incubation_period_duration_variances[2], 1, 7,
-        #         infection_period_durations_child[2], infection_period_duration_variances_child[2], 3, 21,
-        #         infection_period_durations_adult[2], infection_period_duration_variances_adult[2], 3, 21,
-        #         mean_viral_loads_infant[2], mean_viral_loads_child[2], mean_viral_loads_adult[2],
-        #         symptomatic_probabilities_child[2], symptomatic_probabilities_teenager[2], symptomatic_probabilities_adult[2],
-        #         mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
-        #     # RV
-        #     Virus(
-        #         incubation_period_durations[3], incubation_period_duration_variances[3], 1, 7,
-        #         infection_period_durations_child[3], infection_period_duration_variances_child[3], 3, 21,
-        #         infection_period_durations_adult[3], infection_period_duration_variances_adult[3], 3, 21,
-        #         mean_viral_loads_infant[3], mean_viral_loads_child[3], mean_viral_loads_adult[3],
-        #         symptomatic_probabilities_child[3], symptomatic_probabilities_teenager[3], symptomatic_probabilities_adult[3],
-        #         mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
-        #     # RSV
-        #     Virus(
-        #         incubation_period_durations[4], incubation_period_duration_variances[4], 1, 7,
-        #         infection_period_durations_child[4], infection_period_duration_variances_child[4], 3, 21,
-        #         infection_period_durations_adult[4], infection_period_duration_variances_adult[4], 3, 21,
-        #         mean_viral_loads_infant[4], mean_viral_loads_child[4], mean_viral_loads_adult[4],
-        #         symptomatic_probabilities_child[4], symptomatic_probabilities_teenager[4], symptomatic_probabilities_adult[4],
-        #         mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
-        #     # AdV
-        #     Virus(
-        #         incubation_period_durations[5], incubation_period_duration_variances[5], 1, 7,
-        #         infection_period_durations_child[5], infection_period_duration_variances_child[5], 3, 21,
-        #         infection_period_durations_adult[5], infection_period_duration_variances_adult[5], 3, 21,
-        #         mean_viral_loads_infant[5], mean_viral_loads_child[5], mean_viral_loads_adult[5],
-        #         symptomatic_probabilities_child[5], symptomatic_probabilities_teenager[5], symptomatic_probabilities_adult[5],
-        #         mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
-        #     # PIV
-        #     Virus(
-        #         incubation_period_durations[6], incubation_period_duration_variances[6], 1, 7,
-        #         infection_period_durations_child[6], infection_period_duration_variances_child[6], 3, 21,
-        #         infection_period_durations_adult[6], infection_period_duration_variances_adult[6], 3, 21,
-        #         mean_viral_loads_infant[6], mean_viral_loads_child[6], mean_viral_loads_adult[6],
-        #         symptomatic_probabilities_child[6], symptomatic_probabilities_teenager[6], symptomatic_probabilities_adult[6],
-        #         mean_immunity_durations[6], mean_immunity_durations[6] * 0.33),
-        #     # CoV
-        #     Virus(
-        #         incubation_period_durations[7], incubation_period_duration_variances[7], 1, 7,
-        #         infection_period_durations_child[7], infection_period_duration_variances_child[7], 3, 21,
-        #         infection_period_durations_adult[7], infection_period_duration_variances_adult[7], 3, 21,
-        #         mean_viral_loads_infant[7], mean_viral_loads_child[7], mean_viral_loads_adult[7],
-        #         symptomatic_probabilities_child[7], symptomatic_probabilities_teenager[7], symptomatic_probabilities_adult[7],
-        #         mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
+        
 
         @threads for thread_id in 1:num_threads
             reset_agent_states(
@@ -471,68 +420,47 @@ function main()
             )
         end
 
-        @time num_infected_age_groups_viruses, rt = run_simulation(
-            num_threads, thread_rng, agents, viruses, households, duration_parameter,
+        @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+            num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
             susceptibility_parameters, temperature_parameters, temperature,
             mean_household_contact_durations, household_contact_duration_sds,
             other_contact_duration_shapes, other_contact_duration_scales,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
             isolation_probabilities_day_3, random_infection_probabilities,
-            recovered_duration_mean, recovered_duration_sd, true)
+            recovered_duration_mean, recovered_duration_sd, num_years, true)
 
-        writedlm(
-            joinpath(@__DIR__, "..", "sensitivity", "tables", "etiology_data_$(i + starting_bias).csv"),
-            sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1] ./ 10072, ',')
-        writedlm(
-            joinpath(@__DIR__, "..", "sensitivity", "tables", "age_groups_data_$(i + starting_bias).csv"),
-            sum(num_infected_age_groups_viruses, dims = 2)[:, 1, :] ./ 10072, ',')
-        writedlm(joinpath(@__DIR__, "..", "sensitivity", "tables", "rt_$(i + starting_bias).csv"), rt, ',')
-
-        MAE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / (size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3])
-        RMSE = sqrt(sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)) / sqrt((size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3]))
-        nMAE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / sum(num_infected_age_groups_viruses_mean)
-        S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
-
-        println("MAE: ", MAE)
-        println("RMSE: ", RMSE)
-        println("nMAE: ", nMAE)
-        println("S_square: ", S_square)
-
-        open("sensitivity/output.txt", "a") do io
-            println(io, "MAE = ", MAE)
-            println(io, "RMSE = ", RMSE)
-            println(io, "nMAE = ", nMAE)
-            println(io, "S_square = ", S_square)
-            println(io)
-            println(io, "random_infection_probabilities = ", random_infection_probabilities)
-            println(io, "isolation_probabilities_day_1 = ", isolation_probabilities_day_1)
-            println(io, "isolation_probabilities_day_2 = ", isolation_probabilities_day_2)
-            println(io, "isolation_probabilities_day_3 = ", isolation_probabilities_day_3)
-            println(io, "recovered_duration_mean = ", recovered_duration_mean)
-            println(io, "recovered_duration_sd = ", recovered_duration_sd)
-            println(io, "mean_household_contact_durations = ", mean_household_contact_durations)
-            println(io, "household_contact_duration_sds = ", household_contact_duration_sds)
-            println(io, "other_contact_duration_shapes = ", other_contact_duration_shapes)
-            println(io, "other_contact_duration_scales = ", other_contact_duration_scales)
-            println(io, "duration_parameter = ", duration_parameter)
-            println(io, "susceptibility_parameters = ", susceptibility_parameters)
-            println(io, "temperature_parameters = ", temperature_parameters)
-            println(io, "random_infection_probabilities = ", random_infection_probabilities)
-            println(io, "mean_immunity_durations = ", mean_immunity_durations)
-            println(io, "incubation_period_durations = ", incubation_period_durations)
-            println(io, "incubation_period_duration_variances = ", incubation_period_duration_variances)
-            println(io, "infection_period_durations_child = ", infection_period_durations_child)
-            println(io, "infection_period_duration_variances_child = ", infection_period_duration_variances_child)
-            println(io, "infection_period_durations_adult = ", infection_period_durations_adult)
-            println(io, "infection_period_duration_variances_adult = ", infection_period_duration_variances_adult)
-            println(io, "symptomatic_probability_child = ", symptomatic_probabilities_child)
-            println(io, "symptomatic_probability_teenager = ", symptomatic_probabilities_teenager)
-            println(io, "symptomatic_probability_adult = ", symptomatic_probabilities_adult)
-            println(io, "mean_viral_loads_infant = ", mean_viral_loads_infant)
-            println(io, "mean_viral_loads_child = ", mean_viral_loads_child)
-            println(io, "mean_viral_loads_adult = ", mean_viral_loads_adult)
-            println(io)
-        end
+        save(joinpath(@__DIR__, "..", "sensitivity", "tables", "results_$(run_num + 1).jld"),
+            "observed_cases", observed_num_infected_age_groups_viruses,
+            "all_cases", num_infected_age_groups_viruses,
+            "activities_cases", activities_infections,
+            "rt", rt,
+            "random_infection_probabilities", random_infection_probabilities,
+            "isolation_probabilities_day_1", isolation_probabilities_day_1,
+            "isolation_probabilities_day_2", isolation_probabilities_day_2,
+            "isolation_probabilities_day_3", isolation_probabilities_day_3,
+            "recovered_duration_mean", recovered_duration_mean,
+            "recovered_duration_sd", recovered_duration_sd,
+            "mean_household_contact_durations", mean_household_contact_durations,
+            "household_contact_duration_sds", household_contact_duration_sds,
+            "other_contact_duration_shapes", other_contact_duration_shapes,
+            "other_contact_duration_scales", other_contact_duration_scales,
+            "duration_parameter", duration_parameter,
+            "susceptibility_parameters", susceptibility_parameters,
+            "temperature_parameters", temperature_parameters,
+            "random_infection_probabilities", random_infection_probabilities,
+            "mean_immunity_durations", mean_immunity_durations,
+            "incubation_period_durations", incubation_period_durations,
+            "incubation_period_duration_variances", incubation_period_duration_variances,
+            "infection_period_durations_child", infection_period_durations_child,
+            "infection_period_duration_variances_child", infection_period_duration_variances_child,
+            "infection_period_durations_adult", infection_period_durations_adult,
+            "infection_period_duration_variances_adult", infection_period_duration_variances_adult,
+            "symptomatic_probability_child", symptomatic_probabilities_child,
+            "symptomatic_probability_teenager", symptomatic_probabilities_teenager,
+            "symptomatic_probability_adult", symptomatic_probabilities_adult,
+            "mean_viral_loads_infant", mean_viral_loads_infant,
+            "mean_viral_loads_child", mean_viral_loads_child,
+            "mean_viral_loads_adult", mean_viral_loads_adult)
     end
 end
 

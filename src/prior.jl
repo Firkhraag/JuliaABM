@@ -33,6 +33,7 @@ include("util/reset.jl")
 function multiple_simulations(
     agents::Vector{Agent},
     households::Vector{Household},
+    schools::Vector{School},
     num_threads::Int,
     thread_rng::Vector{MersenneTwister},
     num_runs::Int,
@@ -57,6 +58,7 @@ function multiple_simulations(
     recovered_duration_sd::Float64,
     random_infection_probabilities_default::Vector{Float64},
     mean_immunity_durations::Vector{Float64},
+    num_years::Int,
 )
     num_parameters = 26
     # num_parameters = 7
@@ -91,13 +93,13 @@ function multiple_simulations(
         (random_infection_probabilities_default[2] - 0.0000001, random_infection_probabilities_default[2] + 0.0000001),
         (random_infection_probabilities_default[3] - 0.0000001, random_infection_probabilities_default[3] + 0.0000001),
         (random_infection_probabilities_default[4] - 0.00000001, random_infection_probabilities_default[4] + 0.00000001),
-        (mean_immunity_durations[1] - 5.0, mean_immunity_durations[1] + 5.0),
-        (mean_immunity_durations[2] - 5.0, mean_immunity_durations[2] + 5.0),
-        (mean_immunity_durations[3] - 5.0, mean_immunity_durations[3] + 5.0),
-        (mean_immunity_durations[4] - 5.0, mean_immunity_durations[4] + 5.0),
-        (mean_immunity_durations[5] - 5.0, mean_immunity_durations[5] + 5.0),
-        (mean_immunity_durations[6] - 5.0, mean_immunity_durations[6] + 5.0),
-        (mean_immunity_durations[7] - 5.0, mean_immunity_durations[7] + 5.0),
+        (mean_immunity_durations[1] - 3.0, mean_immunity_durations[1] + 3.0),
+        (mean_immunity_durations[2] - 3.0, mean_immunity_durations[2] + 3.0),
+        (mean_immunity_durations[3] - 3.0, mean_immunity_durations[3] + 3.0),
+        (mean_immunity_durations[4] - 3.0, mean_immunity_durations[4] + 3.0),
+        (mean_immunity_durations[5] - 3.0, mean_immunity_durations[5] + 3.0),
+        (mean_immunity_durations[6] - 3.0, mean_immunity_durations[6] + 3.0),
+        (mean_immunity_durations[7] - 3.0, mean_immunity_durations[7] + 3.0),
     ])
 
     # points = scaleLHC(latin_hypercube_plan, [
@@ -167,19 +169,19 @@ function multiple_simulations(
             )
         end
 
-        @time num_infected_age_groups_viruses, rt = run_simulation(
-            num_threads, thread_rng, agents, viruses, households, duration_parameter,
+        @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+            num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
             susceptibility_parameters, temperature_parameters, temperature,
             mean_household_contact_durations, household_contact_duration_sds,
             other_contact_duration_shapes, other_contact_duration_scales,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
             isolation_probabilities_day_3, random_infection_probabilities,
-            recovered_duration_mean, recovered_duration_sd, false)
+            recovered_duration_mean, recovered_duration_sd, num_years, false)
 
-        MAE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / (size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3])
-        RMSE = sqrt(sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)) / sqrt((size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3]))
-        nMAE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / sum(num_infected_age_groups_viruses_mean)
-        S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
+        MAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / (size(observed_num_infected_age_groups_viruses)[1] * size(observed_num_infected_age_groups_viruses)[2] * size(observed_num_infected_age_groups_viruses)[3])
+        RMSE = sqrt(sum((observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)) / sqrt((size(observed_num_infected_age_groups_viruses)[1] * size(observed_num_infected_age_groups_viruses)[2] * size(observed_num_infected_age_groups_viruses)[3]))
+        nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / sum(num_infected_age_groups_viruses_mean)
+        S_square = sum((observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
 
         if MAE < MAE_min
             MAE_min = MAE
@@ -223,6 +225,8 @@ end
 
 function main()
     println("Initialization...")
+
+    num_years = 3
 
     num_threads = nthreads()
 
@@ -274,11 +278,59 @@ function main()
     # random_infection_probabilities = [0.00011522263450834878, 6.826763553906411e-5, 4.902236652236655e-5, 6.992620078334365e-7]
     # mean_immunity_durations = [249.4733044733044, 315.5058750773037, 94.16780045351473, 24.065347351061632, 82.91259534116676, 116.65697794269221, 88.84044526901671]
 
+    # duration_parameter = 3.764265099979386
+    # susceptibility_parameters = [3.2580395794681514, 3.884652648938362, 3.817058338486913, 5.678550814265098, 4.145190682333544, 3.8139002267573696, 4.7655782312925155]
+    # temperature_parameters = [-0.9220449391877963, -0.7772418058132341, -0.1949804164089878, -0.0393939393939394, -0.08250876108018959, -0.15083487940630802, -0.3359224902082046]
+    # random_infection_probabilities = [0.00011537414965986393, 6.832319109461966e-5, 4.910216450216453e-5, 6.985549371263659e-7]
+    # mean_immunity_durations = [253.96825396825392, 314.95031952174816, 97.14759843331271, 22.70171098742527, 80.84188827045969, 114.48526077097503, 85.45660688517833]
+
     duration_parameter = 3.764265099979386
-    susceptibility_parameters = [3.2580395794681514, 3.884652648938362, 3.817058338486913, 5.678550814265098, 4.145190682333544, 3.8139002267573696, 4.7655782312925155]
-    temperature_parameters = [-0.9220449391877963, -0.7772418058132341, -0.1949804164089878, -0.0393939393939394, -0.08250876108018959, -0.15083487940630802, -0.3359224902082046]
+    susceptibility_parameters = [3.2580395794681514, 3.884652648938362, 3.817058338486913, 5.678550814265098, 4.145190682333544, 3.8139002267573696, 4.5655782312925155]
+    temperature_parameters = [-0.9220449391877963, -0.7772418058132341, -0.1949804164089878, -0.0393939393939394, -0.08250876108018959, -0.15083487940630802, -0.159224902082046]
     random_infection_probabilities = [0.00011537414965986393, 6.832319109461966e-5, 4.910216450216453e-5, 6.985549371263659e-7]
-    mean_immunity_durations = [253.96825396825392, 314.95031952174816, 97.14759843331271, 22.70171098742527, 80.84188827045969, 114.48526077097503, 85.45660688517833]
+    mean_immunity_durations = [253.96825396825392, 314.95031952174816, 97.14759843331271, 22.70171098742527, 80.84188827045969, 114.48526077097503, 95.45660688517833]
+    
+    # duration_parameter = 5.5
+    # susceptibility_parameters = [2.0580395794681514, 2.684652648938362, 2.617058338486913, 4.478550814265098, 2.945190682333544, 2.6139002267573696, 3.5655782312925155]
+    # temperature_parameters = [-0.9220449391877963, -0.7772418058132341, -0.1949804164089878, -0.0393939393939394, -0.08250876108018959, -0.15083487940630802, -0.3359224902082046]
+    # random_infection_probabilities = [0.00011537414965986393, 6.832319109461966e-5, 4.910216450216453e-5, 6.985549371263659e-7]
+    # mean_immunity_durations = [253.96825396825392, 314.95031952174816, 97.14759843331271, 22.70171098742527, 80.84188827045969, 114.48526077097503, 85.45660688517833]
+
+    # duration_parameter = 5.406060606060606
+    # susceptibility_parameters = [2.0873325087610803, 2.7078849721706852, 2.710997732426307, 4.521985157699442, 2.996705833848696, 2.675516388373531, 3.578709544423829]
+    # temperature_parameters = [-0.9265903937332508, -0.8080498866213149, -0.15104102246959386, -0.0494949494949495, -0.10018552875695727, -0.199824778396207, -0.32531642960214396]
+    # random_infection_probabilities = [0.00011588930117501544, 6.826359513502371e-5, 4.904862914862917e-5, 6.885549371263659e-7]
+    # mean_immunity_durations = [254.96825396825392, 314.79880437023303, 96.3294166151309, 25.095650381364663, 81.5388579674294, 113.00041228612655, 83.66872809729955]
+
+    # duration_parameter = 5.352525252525253
+    # susceptibility_parameters = [2.142888064316636, 2.6301071943929073, 2.6635229849515594, 4.617944753659038, 2.9775139146567766, 2.638142650999794, 3.593861059575344]
+    # temperature_parameters = [-0.9695196866625437, -0.7610801896516179, -0.18992991135848275, -0.06767676767676768, -0.11079158936301789, -0.20841063698206558, -0.28440733869305307]
+    # random_infection_probabilities = [0.00011523273551844979, 6.821612038754895e-5, 4.9077922077922105e-5, 6.949185734900023e-7]
+    # mean_immunity_durations = [254.27128427128423, 313.6775922490209, 97.6324469181612, 22.338074623788906, 83.32673675530818, 112.48526077097503, 80.9111523397238]
+
+    # duration_parameter = 5.284848484848486
+    # susceptibility_parameters = [2.05702947845805, 2.6311172954030084, 2.6382704596990343, 4.693702329416613, 3.01084724799011, 2.7260214388785817, 3.600931766646051]
+    # temperature_parameters = [-0.9929292929292929, -0.7646155431869714, -0.2156874871160585, -0.03787878787878789, -0.10624613481756334, -0.197804576376005, -0.2354174397031541]
+    # random_infection_probabilities = [0.00011437414965986393, 6.812420119562976e-5, 4.9010245310245336e-5, 6.980498866213153e-7]
+    # mean_immunity_durations = [255.08946608946604, 313.0412286126573, 97.5415378272521, 19.64110492681921, 84.14491857348999, 112.21253349824777, 79.66872809729955]
+
+    # duration_parameter = 5.213131313131314
+    # susceptibility_parameters = [2.0620799835085553, 2.5553597196454327, 2.578674500103075, 4.682591218305502, 3.0583219954648575, 2.7654153782725213, 3.698911564625849]
+    # temperature_parameters = [-0.913131313131313, -0.7287569573283855, -0.22124304267161407, -0.08585858585858586, -0.11180169037311889, -0.151844980416409, -0.23289218717790156]
+    # random_infection_probabilities = [0.00011357616986188413, 6.81635951350237e-5, 4.902135642135645e-5, 6.910801896516184e-7]
+    # mean_immunity_durations = [254.57431457431454, 316.0412286126573, 96.66274994846422, 20.277468563182847, 86.78128220985363, 113.33374561945989, 76.97175840032985]
+
+    # duration_parameter = 5.262626262626264
+    # susceptibility_parameters = [2.0045042259327976, 2.6351576994434125, 2.5958462172747923, 4.633096268810553, 2.9765038136466755, 2.746223459080602, 3.7181034838177682]
+    # temperature_parameters = [-0.8803030303030301, -0.727241805813234, -0.25104102246959387, -0.13282828282828282, -0.12644815501958354, -0.1796227581941868, -0.1960235003092147]
+    # random_infection_probabilities = [0.00011328324056895485, 6.826157493300351e-5, 4.899408369408372e-5, 6.81686250257679e-7]
+    # mean_immunity_durations = [252.48340548340545, 318.0109255823543, 96.99608328179755, 22.125953411667695, 88.7509791795506, 114.51556380127808, 77.78994021851166]
+
+    # duration_parameter = 5.259595959595961
+    # susceptibility_parameters = [2.031776953205525, 2.694753659039372, 2.675644197072772, 4.567439703153987, 2.9169078540507156, 2.6805668934240363, 3.62012368583797]
+    # temperature_parameters = [-0.8969696969696969, -0.7095650381364663, -0.21720263863121003, -0.14646464646464646, -0.14614512471655325, -0.20437023294166157, -0.1470336013193157]
+    # random_infection_probabilities = [0.0001129297052154195, 6.822824159967017e-5, 4.90678210678211e-5, 6.728983714698002e-7]
+    # mean_immunity_durations = [252.69552669552667, 316.88971346114215, 94.48093176664604, 23.792620078334362, 91.4479488765203, 117.39435168006595, 76.18387961245105]
 
     viruses = Virus[
         # FluA
@@ -474,6 +526,7 @@ function main()
     multiple_simulations(
         agents,
         households,
+        schools,
         num_threads,
         thread_rng,
         num_runs,
@@ -498,6 +551,7 @@ function main()
         recovered_duration_sd,
         random_infection_probabilities,
         mean_immunity_durations,
+        num_years,
     )
 end
 

@@ -104,7 +104,7 @@ function simulate_contacts(
     is_work_holiday::Bool,
     current_step::Int,
     current_temp::Float64,
-    infected_inside_activity::Array{Int, 3},
+    activities_infections_threads::Array{Int, 3},
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -147,7 +147,7 @@ function simulate_contacts(
             #                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
             #                     susceptibility_parameters, temperature_parameters, current_temp, rng)
             #                 if agent2.is_newly_infected
-            #                     infected_inside_activity[current_step, 8, thread_id] += 1
+            #                     activities_infections_threads[current_step, 8, thread_id] += 1
             #                 end
             #             end
             #         end
@@ -170,10 +170,10 @@ function simulate_contacts(
                     (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
 
                     dur = 0.0
-                    if (agent.is_isolated || agent.on_parent_leave || agent.activity_type == 0 ||
+                    if (agent.is_isolated || agent.quarantine_period > 0 || agent.on_parent_leave || agent.activity_type == 0 ||
                         (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_college_holiday) ||
                         (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)) &&
-                        (agent2.is_isolated || agent2.on_parent_leave || agent2.activity_type == 0 ||
+                        (agent2.is_isolated || agent2.quarantine_period > 0 || agent2.on_parent_leave || agent2.activity_type == 0 ||
                         (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_college_holiday) ||
                         (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday))
 
@@ -182,8 +182,8 @@ function simulate_contacts(
                         (agent2.activity_type == 4 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_work_holiday
 
                         dur = get_contact_duration_normal(mean_household_contact_durations[4], household_contact_duration_sds[4], rng)
-                    elseif ((agent.activity_type == 2 && !(agent.is_isolated || agent.on_parent_leave)) ||
-                        (agent2.activity_type == 2 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_school_holiday
+                    elseif ((agent.activity_type == 2 && !(agent.is_isolated || agent.on_parent_leave || agent.quarantine_period > 0)) ||
+                        (agent2.activity_type == 2 && !(agent2.is_isolated || agent2.on_parent_leave || agent2.quarantine_period > 0))) && !is_school_holiday
 
                         dur = get_contact_duration_normal(mean_household_contact_durations[2], household_contact_duration_sds[2], rng)
                     elseif ((agent.activity_type == 1 && !(agent.is_isolated || agent.on_parent_leave)) ||
@@ -215,7 +215,7 @@ function simulate_contacts(
                         make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
                             susceptibility_parameters, temperature_parameters, current_temp, rng)
                         if agent2.is_newly_infected
-                            infected_inside_activity[current_step, 5, thread_id] += 1
+                            activities_infections_threads[current_step, 5, thread_id] += 1
                         end
                     end
                 end
@@ -225,7 +225,7 @@ function simulate_contacts(
                 ((agent.activity_type == 1 && !is_kindergarten_holiday) ||
                 (agent.activity_type == 2 && !is_school_holiday) ||
                 (agent.activity_type == 3 && !is_college_holiday) ||
-                (agent.activity_type == 4 && !is_work_holiday))
+                (agent.activity_type == 4 && !is_work_holiday)) && agent.quarantine_period == 0
                 
                 for agent2_id in agent.activity_conn_ids
                     agent2 = agents[agent2_id]
@@ -254,7 +254,7 @@ function simulate_contacts(
                             make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
                                 susceptibility_parameters, temperature_parameters, current_temp, rng)
                             if agent2.is_newly_infected
-                                infected_inside_activity[current_step, agent.activity_type, thread_id] += 1
+                                activities_infections_threads[current_step, agent.activity_type, thread_id] += 1
                             end
                         end
                     end
@@ -282,7 +282,7 @@ function simulate_contacts(
                                     susceptibility_parameters, temperature_parameters, current_temp, rng)
     
                                 if agent2.is_newly_infected
-                                    infected_inside_activity[current_step, 3, thread_id] += 1
+                                    activities_infections_threads[current_step, 3, thread_id] += 1
                                 end
                             end
                         end
@@ -328,7 +328,7 @@ function simulate_contacts(
             #                 make_contact(viruses, agent2, agent, dur, current_step, duration_parameter,
             #                     susceptibility_parameters, temperature_parameters, current_temp, rng)
             #                 if agent.is_newly_infected
-            #                     infected_inside_activity[current_step, 8, thread_id] += 1
+            #                     activities_infections_threads[current_step, 8, thread_id] += 1
             #                 end
             #             end
             #         end
@@ -372,12 +372,18 @@ function update_agent_states(
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
     current_step::Int,
-    confirmed_daily_new_cases_age_groups_viruses::Array{Float64, 4},
-    rt::Vector{Float64},
-    rt_count::Vector{Float64},
+    observed_daily_new_cases_age_groups_viruses_threads::Array{Int, 4},
+    daily_new_cases_age_groups_viruses_threads::Array{Int, 4},
+    rt_threads::Matrix{Float64},
+    rt_count_threads::Matrix{Float64},
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
+
+        if agent.quarantine_period > 0
+            agent.quarantine_period -= 1
+        end
+
         if agent.days_immune != 0
             if agent.days_immune == agent.days_immune_end
                 # Переход из резистентного состояния в восприимчивое
@@ -442,8 +448,8 @@ function update_agent_states(
             if agent.days_infected == agent.infection_period
                 infection_time = current_step - agent.infection_period - agent.incubation_period - 1
                 if infection_time > 0
-                    rt[infection_time] += agent.num_infected_agents
-                    rt_count[infection_time] += 1
+                    rt_threads[infection_time, thread_id] += agent.num_infected_agents
+                    rt_count_threads[infection_time, thread_id] += 1
                 end
                 agent.num_infected_agents = 0
 
@@ -555,13 +561,13 @@ function update_agent_states(
                     end
                     if agent.is_isolated
                         if agent.age < 3
-                            confirmed_daily_new_cases_age_groups_viruses[current_step, 1, agent.virus_id, thread_id] += 1
+                            observed_daily_new_cases_age_groups_viruses_threads[current_step, 1, agent.virus_id, thread_id] += 1
                         elseif agent.age < 7
-                            confirmed_daily_new_cases_age_groups_viruses[current_step, 2, agent.virus_id, thread_id] += 1
+                            observed_daily_new_cases_age_groups_viruses_threads[current_step, 2, agent.virus_id, thread_id] += 1
                         elseif agent.age < 15
-                            confirmed_daily_new_cases_age_groups_viruses[current_step, 3, agent.virus_id, thread_id] += 1
+                            observed_daily_new_cases_age_groups_viruses_threads[current_step, 3, agent.virus_id, thread_id] += 1
                         else
-                            confirmed_daily_new_cases_age_groups_viruses[current_step, 4, agent.virus_id, thread_id] += 1
+                            observed_daily_new_cases_age_groups_viruses_threads[current_step, 4, agent.virus_id, thread_id] += 1
                         end
                     end
                 end
@@ -576,6 +582,16 @@ function update_agent_states(
                 end
             end
         elseif agent.is_newly_infected
+            if agent.age < 3
+                daily_new_cases_age_groups_viruses_threads[current_step, 1, agent.virus_id, thread_id] += 1
+            elseif agent.age < 7
+                daily_new_cases_age_groups_viruses_threads[current_step, 2, agent.virus_id, thread_id] += 1
+            elseif agent.age < 15
+                daily_new_cases_age_groups_viruses_threads[current_step, 3, agent.virus_id, thread_id] += 1
+            else
+                daily_new_cases_age_groups_viruses_threads[current_step, 4, agent.virus_id, thread_id] += 1
+            end
+
             # Инкубационный период
             incubation_period = get_period_from_erlang(
                 viruses[agent.virus_id].mean_incubation_period,
@@ -866,7 +882,7 @@ end
 #     is_college_holiday::Bool,
 #     is_work_holiday::Bool,
 #     current_step::Int,
-#     infected_inside_activity::Array{Int, 3},
+#     activities_infections_threads::Array{Int, 3},
 #     is_shopping::Bool,
 # )
 #     for public_space_id in start_public_space_id:end_public_space_id
@@ -918,7 +934,7 @@ end
 #                                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
 #                                     susceptibility_parameters, temperature_parameters, current_temp, rng)
 #                                 if agent2.is_newly_infected
-#                                     infected_inside_activity[current_step, is_shopping ? 7 : 8, thread_id] += 1
+#                                     activities_infections_threads[current_step, is_shopping ? 7 : 8, thread_id] += 1
 #                                 end
 #                             end
 #                         end
@@ -950,7 +966,7 @@ end
 #                                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
 #                                     susceptibility_parameters, temp_influences, rng)
 #                                 if agent2.is_newly_infected
-#                                     infected_inside_activity[current_step, is_shopping ? 7 : 8, thread_id] += 1
+#                                     activities_infections_threads[current_step, is_shopping ? 7 : 8, thread_id] += 1
 #                                 end
 #                             end
 #                         end
@@ -990,7 +1006,7 @@ end
 #                                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
 #                                     susceptibility_parameters, temperature_parameters, current_temp, rng)
 #                                 if agent2.is_newly_infected
-#                                     infected_inside_activity[current_step, is_shopping ? 7 : 8, thread_id] += 1
+#                                     activities_infections_threads[current_step, is_shopping ? 7 : 8, thread_id] += 1
 #                                 end
 #                             end
 #                         end
@@ -1025,7 +1041,7 @@ end
 #                             make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
 #                                 susceptibility_parameters, temperature_parameters, current_temp, rng)
 #                             if agent2.is_newly_infected
-#                                 infected_inside_activity[current_step, is_shopping ? 7 : 8, thread_id] += 1
+#                                 activities_infections_threads[current_step, is_shopping ? 7 : 8, thread_id] += 1
 #                             end
 #                         end
 #                     end
@@ -1043,6 +1059,7 @@ function run_simulation(
     agents::Vector{Agent},
     viruses::Vector{Virus},
     households::Vector{Household},
+    schools::Vector{School},
     # shops::Vector{PublicSpace},
     # restaurants::Vector{PublicSpace},
     duration_parameter::Float64,
@@ -1059,8 +1076,12 @@ function run_simulation(
     random_infection_probabilities::Vector{Float64},
     recovered_duration_mean::Float64,
     recovered_duration_sd::Float64,
+    num_years::Int,
     is_rt_run::Bool,
-)::Tuple{Array{Float64, 3}, Vector{Float64}}
+    school_class_closure_period::Int = 0,
+    school_class_closure_threshold::Float64 = 0.0,
+    school_closure_threshold_classes::Int = 3,
+)::Tuple{Array{Float64, 3}, Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}}
     # День месяца
     day = 1
     # Месяц
@@ -1079,21 +1100,24 @@ function run_simulation(
 
     year_day = 213
 
-    max_step = 365
+    max_step = num_years * 365
     if is_rt_run
         max_step += 21
     end
-    # max_step = 21
+    # max_step = 1
 
-    num_infected_age_groups_viruses = zeros(52, 7, 4)
-    confirmed_daily_new_cases_age_groups_viruses = zeros(max_step, 4, 7, num_threads)
-    infected_inside_activity = zeros(Int, max_step, 8, num_threads)
+    max_weeks = num_years * 52
+    # max_weeks = 1
 
-    rt = zeros(Float64, max_step)
-    rt_count = zeros(Float64, max_step)
+    observed_num_infected_age_groups_viruses = zeros(Int, max_weeks, 7, 4)
+    observed_daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, 7, num_threads)
+    num_infected_age_groups_viruses = zeros(Int, max_weeks, 7, 4)
+    daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, 7, num_threads)
+    activities_infections_threads = zeros(Int, max_step, 5, num_threads)
+    rt_threads = zeros(Float64, max_step, num_threads)
+    rt_count_threads = zeros(Float64, max_step, num_threads)
 
     for current_step = 1:max_step
-        # println(current_step)
         # Выходные, праздники
         is_holiday = false
         if week_day == 7
@@ -1203,7 +1227,7 @@ function run_simulation(
                 is_work_holiday,
                 current_step,
                 (temperature[year_day] - min_temp) / max_min_temp,
-                infected_inside_activity)
+                activities_infections_threads)
         end
 
         # --------------------------TBD ZONE-----------------------------------
@@ -1230,7 +1254,7 @@ function run_simulation(
         #         is_college_holiday,
         #         is_work_holiday,
         #         current_step,
-        #         infected_inside_activity,
+        #         activities_infections_threads,
         #         true,
         #     )
 
@@ -1255,12 +1279,49 @@ function run_simulation(
         #         is_college_holiday,
         #         is_work_holiday,
         #         current_step,
-        #         infected_inside_activity,
+        #         activities_infections_threads,
         #         false,
         #     )
         # end
 
         # ------------------------------------------------------------
+        if school_class_closure_period > 0 && !is_school_holiday
+            @threads for school in schools
+                num_closed_classrooms = 0
+                for groups in school.groups
+                    for group in groups
+                        num_isolated = 0
+                        for agent_id in group
+                            agent = agents[agent_id]
+                            if agent.quarantine_period > 0
+                                num_closed_classrooms += 1
+                                break
+                            end
+                            if agent.is_isolated
+                                num_isolated += 1
+                            end
+                        end
+                        if num_isolated / length(group) > school_class_closure_threshold
+                            for agent_id in group
+                                agent = agents[agent_id]
+                                agent.quarantine_period = school_class_closure_period + 1
+                            end
+                        end
+                    end
+                end
+                if num_closed_classrooms >= school_closure_threshold_classes
+                    for groups in school.groups
+                        for group in groups
+                            num_isolated = 0
+                            for agent_id in group
+                                agent = agents[agent_id]
+                                agent.quarantine_period = school_class_closure_period + 1
+                            end
+                        end
+                    end
+                end
+            end
+        end
 
         @threads for thread_id in 1:num_threads
             update_agent_states(
@@ -1276,23 +1337,26 @@ function run_simulation(
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
                 current_step,
-                confirmed_daily_new_cases_age_groups_viruses,
-                rt,
-                rt_count,
+                observed_daily_new_cases_age_groups_viruses_threads,
+                daily_new_cases_age_groups_viruses_threads,
+                rt_threads,
+                rt_count_threads,
             )
         end
 
         # Обновление даты
         if current_step % 7 == 0
-            if week_num < 53
+            if week_num <= max_weeks
                 for i = 1:4
                     for j = 1:7
+                        observed_num_infected_age_groups_viruses[week_num, j, i] = sum(
+                            observed_daily_new_cases_age_groups_viruses_threads[current_step - 6:current_step, i, j, :])
                         num_infected_age_groups_viruses[week_num, j, i] = sum(
-                            confirmed_daily_new_cases_age_groups_viruses[current_step - 6:current_step, i, j, :])
+                            daily_new_cases_age_groups_viruses_threads[current_step - 6:current_step, i, j, :])
                     end
                 end
             end
-            if week_num == 52 && !is_rt_run
+            if week_num == max_weeks && !is_rt_run
                 break
             else
                 week_num += 1
@@ -1323,11 +1387,9 @@ function run_simulation(
         end
     end
 
-    # writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "infected_inside_activity_data.csv"),
-    #     sum(infected_inside_activity, dims = 3)[:, :, 1], ',')
-    # writedlm(joinpath(@__DIR__, "..", "..", "output", "tables", "daily_infections.csv"), sum(sum(sum(confirmed_daily_new_cases_age_groups_viruses, dims = 4)[:, :, :, 1], dims = 3)[:, :, 1], dims = 2)[:, 1], ',')
-
+    rt = sum(rt_threads, dims = 2)[:, 1]
+    rt_count = sum(rt_count_threads, dims = 2)[:, 1]
     rt = rt ./ rt_count
 
-    return num_infected_age_groups_viruses, rt
+    return observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, sum(activities_infections_threads, dims = 3)[:, :, 1], rt
 end

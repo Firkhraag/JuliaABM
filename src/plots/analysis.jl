@@ -6,7 +6,83 @@ using LaTeXStrings
 include("../data/etiology.jl")
 include("../global/variables.jl")
 
-default(legendfontsize = 18, guidefont = (25, :black), tickfont = (18, :black))
+# default(legendfontsize = 15, guidefont = (22, :black), tickfont = (15, :black))
+default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
+
+const is_russian = false
+
+function plot_deviations()
+    n = 100
+
+    age_groups_data_array = Array{Matrix{Float64}, 1}(undef, 100)
+    etiology_data_array = Array{Matrix{Float64}, 1}(undef, 100)
+    rt_array = Array{Vector{Float64}, 1}(undef, 100)
+    for i = 1:n
+        age_groups_data_array[i] = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "age_groups_data_$(i).csv"), ',', Float64)
+        etiology_data_array[i] = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "etiology_data_$(i).csv"), ',', Float64)
+        rt_array[i] = vec(readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "rt_$(i).csv"), ',', Float64))
+    end
+
+    ticks = range(1, stop = 52, length = 7)
+    ticks_rt = range(1, stop = 365, length = 7)
+
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    xlabel_name = L"\textrm{\sffamily Month}"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = L"\textrm{\sffamily Cases per 1000 people in a week}"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
+    deviations_age_groups_plot = plot(
+        1:52,
+        [age_groups_data_array[i] for i = 1:n],
+        lw = 1,
+        xticks = (ticks, ticklabels),
+        legend = false,
+        grid = !is_russian,
+        # yerror = stds,
+        # ribbon=stds,fillalpha=.5,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(deviations_age_groups_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "deviations_age_groups.pdf"))
+
+    deviations_etiology_plot = plot(
+        1:52,
+        [etiology_data_array[i] for i = 1:n],
+        lw = 1,
+        xticks = (ticks, ticklabels),
+        legend = false,
+        grid = !is_russian,
+        # yerror = stds,
+        # ribbon=stds,fillalpha=.5,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(deviations_etiology_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "deviations_etiology.pdf"))
+
+    deviations_rt_plot = plot(
+        1:365,
+        [rt_array[i][1:365] for i = 1:n],
+        lw = 1,
+        xticks = (ticks_rt, ticklabels),
+        legend = false,
+        grid = !is_russian,
+        # yerror = stds,
+        # ribbon=stds,fillalpha=.5,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(deviations_rt_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "deviations_rt.pdf"))
+end
 
 function plot_incidence()
     age_groups = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "age_groups_data.csv"), ',', Float64)
@@ -419,4 +495,5 @@ function plot_incidences()
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t7.pdf"))
 end
 
-plot_incidences()
+plot_deviations()
+# plot_incidences()

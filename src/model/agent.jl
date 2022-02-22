@@ -78,6 +78,8 @@ mutable struct Agent
     # Число агентов, инфицированных данным агентом на текущем шаге
     num_infected_agents::Int
 
+    quarantine_period::Int
+
     # shopping_time::Int
     # restaurant_time::Int
 
@@ -637,6 +639,8 @@ mutable struct Agent
 
         num_infected_agents = 0
 
+        quarantine_period = 0
+
         new(
             id, age, infant_age, is_male, household_id, household_conn_ids,
             activity_type, school_id, school_group_num, workplace_id, Int[], Int[],
@@ -647,7 +651,7 @@ mutable struct Agent
             RSV_immunity_end, AdV_immunity_end, PIV_immunity_end, CoV_immunity_end,
             incubation_period, infection_period, days_infected, days_immune,
             days_immune_end, is_asymptomatic, is_isolated, attendance, is_teacher,
-            num_infected_agents)
+            num_infected_agents, quarantine_period)
     end
 end
 
