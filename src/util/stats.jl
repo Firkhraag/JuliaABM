@@ -8,7 +8,7 @@ function get_stats(
     age_nums = zeros(Int, 90)
     num_agents_age_groups = zeros(Int, 4)
 
-    activity_nums = Int[0, 0, 0, 0]
+    activity_nums = Int[0, 0, 0, 0, length(agents)]
     household_nums = Int[0, 0, 0, 0, 0, 0]
     mean_ig_level = 0.0
     num_of_infected = 0

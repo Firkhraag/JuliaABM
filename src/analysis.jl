@@ -37,9 +37,9 @@ function main()
 
     starting_bias = 0
     n = 5
-    disturbance = 0.02
+    disturbance = 0.05
 
-    num_years = 1
+    num_years = 2
 
     isolation_probabilities_day_1_default = [0.406, 0.305, 0.204, 0.101]
     isolation_probabilities_day_2_default = [0.669, 0.576, 0.499, 0.334]

@@ -2,7 +2,9 @@ using DelimitedFiles
 using Plots
 using Statistics
 using LaTeXStrings
+using JLD
 
+include("../util/moving_avg.jl")
 include("../data/etiology.jl")
 include("../global/variables.jl")
 
@@ -11,16 +13,47 @@ default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
 
 const is_russian = false
 
-function plot_deviations()
-    n = 100
+function plot_infection_curves()
+    num_runs = 5
+    num_years = 1
 
-    age_groups_data_array = Array{Matrix{Float64}, 1}(undef, 100)
-    etiology_data_array = Array{Matrix{Float64}, 1}(undef, 100)
-    rt_array = Array{Vector{Float64}, 1}(undef, 100)
-    for i = 1:n
-        age_groups_data_array[i] = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "age_groups_data_$(i).csv"), ',', Float64)
-        etiology_data_array[i] = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "etiology_data_$(i).csv"), ',', Float64)
-        rt_array[i] = vec(readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "rt_$(i).csv"), ',', Float64))
+    incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
+    incidence_arr_means = zeros(Float64, 52, num_runs)
+
+    for i = 1:num_runs
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
+        for j = 1:num_years
+            incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+        end
+    end
+
+    for i = 1:52
+        for j = 1:num_runs
+            for k = 1:num_years
+                incidence_arr_means[i, j] += incidence_arr[j, k][i]
+            end
+            incidence_arr_means[i, j] /= num_years
+        end
+    end
+
+    rt_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
+    rt_arr_means = zeros(Float64, 365, num_runs)
+
+    for i = 1:num_runs
+        rt = load(joinpath(@__DIR__, "..", "..", "output", "tables", "results_$(i).jld"))["rt"]
+        for j = 1:num_years
+            rt_arr[i, j] = moving_average(rt, 10)[(365 * (j - 1) + 1):(365 * (j - 1) + 365)]
+        end
+    end
+
+    rt_arr_mean = zeros(Float64, 365)
+    for i = 1:365
+        for j = 1:num_runs
+            for z = 1:num_years
+                rt_arr_means[i, j] += rt_arr[j, z][i]
+            end
+            rt_arr_means[i, j] /= num_years
+        end
     end
 
     ticks = range(1, stop = 52, length = 7)
@@ -41,459 +74,393 @@ function plot_deviations()
         ylabel_name = "Число случаев на 1000 чел. / неделя"
     end
 
-    deviations_age_groups_plot = plot(
+    incidence_plot = plot(
         1:52,
-        [age_groups_data_array[i] for i = 1:n],
+        [incidence_arr_means[:, i] for i = 1:num_runs],
         lw = 1,
         xticks = (ticks, ticklabels),
         legend = false,
         grid = !is_russian,
-        # yerror = stds,
-        # ribbon=stds,fillalpha=.5,
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
-    savefig(deviations_age_groups_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "deviations_age_groups.pdf"))
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "incidence.pdf"))
 
-    deviations_etiology_plot = plot(
-        1:52,
-        [etiology_data_array[i] for i = 1:n],
-        lw = 1,
-        xticks = (ticks, ticklabels),
-        legend = false,
-        grid = !is_russian,
-        # yerror = stds,
-        # ribbon=stds,fillalpha=.5,
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-    )
-    savefig(deviations_etiology_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "deviations_etiology.pdf"))
-
-    deviations_rt_plot = plot(
+    rt_plot = plot(
         1:365,
-        [rt_array[i][1:365] for i = 1:n],
+        [rt_arr_means[1:365, i] for i = 1:num_runs],
         lw = 1,
         xticks = (ticks_rt, ticklabels),
         legend = false,
         grid = !is_russian,
-        # yerror = stds,
-        # ribbon=stds,fillalpha=.5,
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
-    savefig(deviations_rt_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "deviations_rt.pdf"))
+    savefig(rt_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "rt.pdf"))
 end
 
-function plot_incidence()
-    age_groups = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "age_groups_data.csv"), ',', Float64)
-    incidence = sum(age_groups, dims = 2)[:, 1]
-    # incidence2 = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "deviations", "infected_data2.csv"), ',', Float64)
-    # incidence3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "deviations", "infected_data3.csv"), ',', Float64)
-    # stds = zeros(Float64, 52)
-    # for i = 1:52
-    #     stds[i] = std([incidence[i], incidence2[i], incidence3[i]])
-    # end
+# function plot_incidences()
+#     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
+#     duration_parameter = mean(duration_parameter_array[burnin:step:length(duration_parameter_array)])
 
-    ticks = range(1, stop = 52, length = 7)
+#     susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
+#     susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
+#     susceptibility_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_3_array.csv"), ',', Float64, '\n'))
+#     susceptibility_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_4_array.csv"), ',', Float64, '\n'))
+#     susceptibility_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_5_array.csv"), ',', Float64, '\n'))
+#     susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
+#     susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
 
-    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
-    if is_russian
-        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
-    end
+#     susceptibility_parameter_1_array = susceptibility_parameter_1_array[burnin:step:length(susceptibility_parameter_1_array)]
+#     susceptibility_parameter_2_array = susceptibility_parameter_2_array[burnin:step:length(susceptibility_parameter_2_array)]
+#     susceptibility_parameter_3_array = susceptibility_parameter_3_array[burnin:step:length(susceptibility_parameter_3_array)]
+#     susceptibility_parameter_4_array = susceptibility_parameter_4_array[burnin:step:length(susceptibility_parameter_4_array)]
+#     susceptibility_parameter_5_array = susceptibility_parameter_5_array[burnin:step:length(susceptibility_parameter_5_array)]
+#     susceptibility_parameter_6_array = susceptibility_parameter_6_array[burnin:step:length(susceptibility_parameter_6_array)]
+#     susceptibility_parameter_7_array = susceptibility_parameter_7_array[burnin:step:length(susceptibility_parameter_7_array)]
 
-    label_names = ["model" "data"]
-    if is_russian
-        label_names = ["модель" "данные"]
-    end
+#     susceptibility_parameters = [
+#         mean(susceptibility_parameter_1_array),
+#         mean(susceptibility_parameter_2_array),
+#         mean(susceptibility_parameter_3_array),
+#         mean(susceptibility_parameter_4_array),
+#         mean(susceptibility_parameter_5_array),
+#         mean(susceptibility_parameter_6_array),
+#         mean(susceptibility_parameter_7_array)]
 
-    xlabel_name = L"\textrm{\sffamily Month}"
-    if is_russian
-        xlabel_name = "Месяц"
-    end
-
-    ylabel_name = L"\textrm{\sffamily Cases per 1000 people in a week}"
-    if is_russian
-        ylabel_name = "Число случаев на 1000 чел. / неделя"
-    end
-
-    incidence_plot = plot(
-        1:52,
-        [incidence infected_data_mean],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        label = label_names,
-        grid = !is_russian,
-        # yerror = stds,
-        # ribbon=stds,fillalpha=.5,
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence.pdf"))
-end
-
-function plot_incidences()
-    duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
-    duration_parameter = mean(duration_parameter_array[burnin:step:length(duration_parameter_array)])
-
-    susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_3_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_4_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_5_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
-
-    susceptibility_parameter_1_array = susceptibility_parameter_1_array[burnin:step:length(susceptibility_parameter_1_array)]
-    susceptibility_parameter_2_array = susceptibility_parameter_2_array[burnin:step:length(susceptibility_parameter_2_array)]
-    susceptibility_parameter_3_array = susceptibility_parameter_3_array[burnin:step:length(susceptibility_parameter_3_array)]
-    susceptibility_parameter_4_array = susceptibility_parameter_4_array[burnin:step:length(susceptibility_parameter_4_array)]
-    susceptibility_parameter_5_array = susceptibility_parameter_5_array[burnin:step:length(susceptibility_parameter_5_array)]
-    susceptibility_parameter_6_array = susceptibility_parameter_6_array[burnin:step:length(susceptibility_parameter_6_array)]
-    susceptibility_parameter_7_array = susceptibility_parameter_7_array[burnin:step:length(susceptibility_parameter_7_array)]
-
-    susceptibility_parameters = [
-        mean(susceptibility_parameter_1_array),
-        mean(susceptibility_parameter_2_array),
-        mean(susceptibility_parameter_3_array),
-        mean(susceptibility_parameter_4_array),
-        mean(susceptibility_parameter_5_array),
-        mean(susceptibility_parameter_6_array),
-        mean(susceptibility_parameter_7_array)]
-
-    temperature_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_1_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_2_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_3_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_4_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_5_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_6_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_7_array.csv"), ',', Float64, '\n'))
+#     temperature_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_1_array.csv"), ',', Float64, '\n'))
+#     temperature_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_2_array.csv"), ',', Float64, '\n'))
+#     temperature_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_3_array.csv"), ',', Float64, '\n'))
+#     temperature_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_4_array.csv"), ',', Float64, '\n'))
+#     temperature_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_5_array.csv"), ',', Float64, '\n'))
+#     temperature_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_6_array.csv"), ',', Float64, '\n'))
+#     temperature_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "parameters", "tables", "temperature_parameter_7_array.csv"), ',', Float64, '\n'))
  
-    temperature_parameter_1_array = temperature_parameter_1_array[burnin:step:length(temperature_parameter_1_array)]
-    temperature_parameter_2_array = temperature_parameter_2_array[burnin:step:length(temperature_parameter_2_array)]
-    temperature_parameter_3_array = temperature_parameter_3_array[burnin:step:length(temperature_parameter_3_array)]
-    temperature_parameter_4_array = temperature_parameter_4_array[burnin:step:length(temperature_parameter_4_array)]
-    temperature_parameter_5_array = temperature_parameter_5_array[burnin:step:length(temperature_parameter_5_array)]
-    temperature_parameter_6_array = temperature_parameter_6_array[burnin:step:length(temperature_parameter_6_array)]
-    temperature_parameter_7_array = temperature_parameter_7_array[burnin:step:length(temperature_parameter_7_array)]
+#     temperature_parameter_1_array = temperature_parameter_1_array[burnin:step:length(temperature_parameter_1_array)]
+#     temperature_parameter_2_array = temperature_parameter_2_array[burnin:step:length(temperature_parameter_2_array)]
+#     temperature_parameter_3_array = temperature_parameter_3_array[burnin:step:length(temperature_parameter_3_array)]
+#     temperature_parameter_4_array = temperature_parameter_4_array[burnin:step:length(temperature_parameter_4_array)]
+#     temperature_parameter_5_array = temperature_parameter_5_array[burnin:step:length(temperature_parameter_5_array)]
+#     temperature_parameter_6_array = temperature_parameter_6_array[burnin:step:length(temperature_parameter_6_array)]
+#     temperature_parameter_7_array = temperature_parameter_7_array[burnin:step:length(temperature_parameter_7_array)]
 
-    temperature_parameters = [
-        mean(temperature_parameter_1_array),
-        mean(temperature_parameter_2_array),
-        mean(temperature_parameter_3_array),
-        mean(temperature_parameter_4_array),
-        mean(temperature_parameter_5_array),
-        mean(temperature_parameter_6_array),
-        mean(temperature_parameter_7_array)]
+#     temperature_parameters = [
+#         mean(temperature_parameter_1_array),
+#         mean(temperature_parameter_2_array),
+#         mean(temperature_parameter_3_array),
+#         mean(temperature_parameter_4_array),
+#         mean(temperature_parameter_5_array),
+#         mean(temperature_parameter_6_array),
+#         mean(temperature_parameter_7_array)]
 
-    incidence = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data.csv"), ',', Float64)
+#     incidence = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data.csv"), ',', Float64)
 
-    d_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_d_-2.csv"), ',', Float64)
-    d_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_d_-1.csv"), ',', Float64)
-    d_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_d_1.csv"), ',', Float64)
-    d_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_d_2.csv"), ',', Float64)
+#     d_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_d_-2.csv"), ',', Float64)
+#     d_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_d_-1.csv"), ',', Float64)
+#     d_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_d_1.csv"), ',', Float64)
+#     d_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_d_2.csv"), ',', Float64)
 
-    s1_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s1_-2.csv"), ',', Float64)
-    s1_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s1_-1.csv"), ',', Float64)
-    s1_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s1_1.csv"), ',', Float64)
-    s1_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s1_2.csv"), ',', Float64)
+#     s1_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s1_-2.csv"), ',', Float64)
+#     s1_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s1_-1.csv"), ',', Float64)
+#     s1_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s1_1.csv"), ',', Float64)
+#     s1_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s1_2.csv"), ',', Float64)
 
-    s2_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s2_-2.csv"), ',', Float64)
-    s2_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s2_-1.csv"), ',', Float64)
-    s2_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s2_1.csv"), ',', Float64)
-    s2_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s2_2.csv"), ',', Float64)
+#     s2_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s2_-2.csv"), ',', Float64)
+#     s2_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s2_-1.csv"), ',', Float64)
+#     s2_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s2_1.csv"), ',', Float64)
+#     s2_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s2_2.csv"), ',', Float64)
 
-    s3_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s3_-2.csv"), ',', Float64)
-    s3_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s3_-1.csv"), ',', Float64)
-    s3_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s3_1.csv"), ',', Float64)
-    s3_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s3_2.csv"), ',', Float64)
+#     s3_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s3_-2.csv"), ',', Float64)
+#     s3_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s3_-1.csv"), ',', Float64)
+#     s3_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s3_1.csv"), ',', Float64)
+#     s3_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s3_2.csv"), ',', Float64)
 
-    s4_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s4_-2.csv"), ',', Float64)
-    s4_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s4_-1.csv"), ',', Float64)
-    s4_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s4_1.csv"), ',', Float64)
-    s4_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s4_2.csv"), ',', Float64)
+#     s4_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s4_-2.csv"), ',', Float64)
+#     s4_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s4_-1.csv"), ',', Float64)
+#     s4_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s4_1.csv"), ',', Float64)
+#     s4_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s4_2.csv"), ',', Float64)
 
-    s5_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s5_-2.csv"), ',', Float64)
-    s5_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s5_-1.csv"), ',', Float64)
-    s5_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s5_1.csv"), ',', Float64)
-    s5_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s5_2.csv"), ',', Float64)
+#     s5_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s5_-2.csv"), ',', Float64)
+#     s5_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s5_-1.csv"), ',', Float64)
+#     s5_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s5_1.csv"), ',', Float64)
+#     s5_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s5_2.csv"), ',', Float64)
 
-    s6_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s6_-2.csv"), ',', Float64)
-    s6_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s6_-1.csv"), ',', Float64)
-    s6_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s6_1.csv"), ',', Float64)
-    s6_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s6_2.csv"), ',', Float64)
+#     s6_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s6_-2.csv"), ',', Float64)
+#     s6_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s6_-1.csv"), ',', Float64)
+#     s6_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s6_1.csv"), ',', Float64)
+#     s6_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s6_2.csv"), ',', Float64)
 
-    s7_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s7_-2.csv"), ',', Float64)
-    s7_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s7_-1.csv"), ',', Float64)
-    s7_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s7_1.csv"), ',', Float64)
-    s7_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s7_2.csv"), ',', Float64)
+#     s7_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s7_-2.csv"), ',', Float64)
+#     s7_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s7_-1.csv"), ',', Float64)
+#     s7_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s7_1.csv"), ',', Float64)
+#     s7_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_s7_2.csv"), ',', Float64)
 
-    t1_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t1_-2.csv"), ',', Float64)
-    t1_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t1_-1.csv"), ',', Float64)
-    t1_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t1_1.csv"), ',', Float64)
-    t1_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t1_2.csv"), ',', Float64)
+#     t1_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t1_-2.csv"), ',', Float64)
+#     t1_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t1_-1.csv"), ',', Float64)
+#     t1_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t1_1.csv"), ',', Float64)
+#     t1_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t1_2.csv"), ',', Float64)
 
-    t2_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t2_-2.csv"), ',', Float64)
-    t2_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t2_-1.csv"), ',', Float64)
-    t2_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t2_1.csv"), ',', Float64)
-    t2_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t2_2.csv"), ',', Float64)
+#     t2_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t2_-2.csv"), ',', Float64)
+#     t2_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t2_-1.csv"), ',', Float64)
+#     t2_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t2_1.csv"), ',', Float64)
+#     t2_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t2_2.csv"), ',', Float64)
 
-    t3_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t3_-2.csv"), ',', Float64)
-    t3_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t3_-1.csv"), ',', Float64)
-    t3_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t3_1.csv"), ',', Float64)
-    t3_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t3_2.csv"), ',', Float64)
+#     t3_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t3_-2.csv"), ',', Float64)
+#     t3_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t3_-1.csv"), ',', Float64)
+#     t3_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t3_1.csv"), ',', Float64)
+#     t3_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t3_2.csv"), ',', Float64)
 
-    t4_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t4_-2.csv"), ',', Float64)
-    t4_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t4_-1.csv"), ',', Float64)
-    t4_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t4_1.csv"), ',', Float64)
-    t4_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t4_2.csv"), ',', Float64)
+#     t4_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t4_-2.csv"), ',', Float64)
+#     t4_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t4_-1.csv"), ',', Float64)
+#     t4_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t4_1.csv"), ',', Float64)
+#     t4_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t4_2.csv"), ',', Float64)
 
-    t5_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t5_-2.csv"), ',', Float64)
-    t5_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t5_-1.csv"), ',', Float64)
-    t5_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t5_1.csv"), ',', Float64)
-    t5_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t5_2.csv"), ',', Float64)
+#     t5_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t5_-2.csv"), ',', Float64)
+#     t5_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t5_-1.csv"), ',', Float64)
+#     t5_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t5_1.csv"), ',', Float64)
+#     t5_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t5_2.csv"), ',', Float64)
 
-    t6_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t6_-2.csv"), ',', Float64)
-    t6_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t6_-1.csv"), ',', Float64)
-    t6_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t6_1.csv"), ',', Float64)
-    t6_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t6_2.csv"), ',', Float64)
+#     t6_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t6_-2.csv"), ',', Float64)
+#     t6_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t6_-1.csv"), ',', Float64)
+#     t6_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t6_1.csv"), ',', Float64)
+#     t6_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t6_2.csv"), ',', Float64)
 
-    t7_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t7_-2.csv"), ',', Float64)
-    t7_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t7_-1.csv"), ',', Float64)
-    t7_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t7_1.csv"), ',', Float64)
-    t7_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t7_2.csv"), ',', Float64)
+#     t7_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t7_-2.csv"), ',', Float64)
+#     t7_minus_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t7_-1.csv"), ',', Float64)
+#     t7_1 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t7_1.csv"), ',', Float64)
+#     t7_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "infected_data_t7_2.csv"), ',', Float64)
 
-    # ticks = range(1, stop = 52, length = 13)
-    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
-    ticks = range(1, stop = 52, length = 7)
-    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
-    yticks = [2, 6, 10, 14]
-    yticklabels = ["2", "6", "10", "14"]
-    incidence_plot = plot(
-        1:52,
-        [d_minus_2 d_minus_1 incidence d_1 d_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        yticks = (yticks, yticklabels),
-        legend = (0.91, 1.0),
-        ylims = (0, 17),
-        margin = 2Plots.mm,
-        label = ["$(round(duration_parameter * 0.8, digits = 2))" "$(round(duration_parameter * 0.9, digits = 2))" "$(round(duration_parameter, digits = 2))" "$(round(duration_parameter * 1.1, digits = 2))" "$(round(duration_parameter * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "d.pdf"))
+#     # ticks = range(1, stop = 52, length = 13)
+#     # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+#     ticks = range(1, stop = 52, length = 7)
+#     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+#     yticks = [2, 6, 10, 14]
+#     yticklabels = ["2", "6", "10", "14"]
+#     incidence_plot = plot(
+#         1:52,
+#         [d_minus_2 d_minus_1 incidence d_1 d_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         yticks = (yticks, yticklabels),
+#         legend = (0.91, 1.0),
+#         ylims = (0, 17),
+#         margin = 2Plots.mm,
+#         label = ["$(round(duration_parameter * 0.8, digits = 2))" "$(round(duration_parameter * 0.9, digits = 2))" "$(round(duration_parameter, digits = 2))" "$(round(duration_parameter * 1.1, digits = 2))" "$(round(duration_parameter * 1.2, digits = 2))"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "d.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [s1_minus_2 s1_minus_1 incidence s1_1 s1_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        label = ["$(round(susceptibility_parameters[1] * 0.8, digits = 2))" "$(round(susceptibility_parameters[1] * 0.9, digits = 2))" "$(round(susceptibility_parameters[1], digits = 2))" "$(round(susceptibility_parameters[1] * 1.1, digits = 2))" "$(round(susceptibility_parameters[1] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s1.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [s1_minus_2 s1_minus_1 incidence s1_1 s1_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         label = ["$(round(susceptibility_parameters[1] * 0.8, digits = 2))" "$(round(susceptibility_parameters[1] * 0.9, digits = 2))" "$(round(susceptibility_parameters[1], digits = 2))" "$(round(susceptibility_parameters[1] * 1.1, digits = 2))" "$(round(susceptibility_parameters[1] * 1.2, digits = 2))"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s1.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [s2_minus_2 s2_minus_1 incidence s2_1 s2_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        label = ["$(round(susceptibility_parameters[2] * 0.8, digits = 2))" "$(round(susceptibility_parameters[2] * 0.9, digits = 2))" "$(round(susceptibility_parameters[2], digits = 2))" "$(round(susceptibility_parameters[2] * 1.1, digits = 2))" "$(round(susceptibility_parameters[2] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s2.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [s2_minus_2 s2_minus_1 incidence s2_1 s2_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         label = ["$(round(susceptibility_parameters[2] * 0.8, digits = 2))" "$(round(susceptibility_parameters[2] * 0.9, digits = 2))" "$(round(susceptibility_parameters[2], digits = 2))" "$(round(susceptibility_parameters[2] * 1.1, digits = 2))" "$(round(susceptibility_parameters[2] * 1.2, digits = 2))"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s2.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [s3_minus_2 s3_minus_1 incidence s3_1 s3_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        legend = (0.91, 0.95),
-        label = ["$(round(susceptibility_parameters[3] * 0.8, digits = 2))" "$(round(susceptibility_parameters[3] * 0.9, digits = 2))" "$(round(susceptibility_parameters[3], digits = 2))" "$(round(susceptibility_parameters[3] * 1.1, digits = 2))" "$(round(susceptibility_parameters[3] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s3.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [s3_minus_2 s3_minus_1 incidence s3_1 s3_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         legend = (0.91, 0.95),
+#         label = ["$(round(susceptibility_parameters[3] * 0.8, digits = 2))" "$(round(susceptibility_parameters[3] * 0.9, digits = 2))" "$(round(susceptibility_parameters[3], digits = 2))" "$(round(susceptibility_parameters[3] * 1.1, digits = 2))" "$(round(susceptibility_parameters[3] * 1.2, digits = 2))"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s3.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [s4_minus_2 s4_minus_1 incidence s4_1 s4_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        legend = (0.85, 0.95),
-        label = ["$(round(susceptibility_parameters[4] * 0.8, digits = 2))" "$(round(susceptibility_parameters[4] * 0.9, digits = 2))" "$(round(susceptibility_parameters[4], digits = 2))" "$(round(susceptibility_parameters[4] * 1.1, digits = 2))" "$(round(susceptibility_parameters[4] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s4.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [s4_minus_2 s4_minus_1 incidence s4_1 s4_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         legend = (0.85, 0.95),
+#         label = ["$(round(susceptibility_parameters[4] * 0.8, digits = 2))" "$(round(susceptibility_parameters[4] * 0.9, digits = 2))" "$(round(susceptibility_parameters[4], digits = 2))" "$(round(susceptibility_parameters[4] * 1.1, digits = 2))" "$(round(susceptibility_parameters[4] * 1.2, digits = 2))"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s4.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [s5_minus_2 s5_minus_1 incidence s5_1 s5_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        legend = (0.91, 1.0),
-        ylims = (0, 13),
-        label = ["$(round(susceptibility_parameters[5] * 0.8, digits = 2))" "$(round(susceptibility_parameters[5] * 0.9, digits = 2))" "$(round(susceptibility_parameters[5], digits = 2))" "$(round(susceptibility_parameters[5] * 1.1, digits = 2))" "$(round(susceptibility_parameters[5] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s5.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [s5_minus_2 s5_minus_1 incidence s5_1 s5_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         legend = (0.91, 1.0),
+#         ylims = (0, 13),
+#         label = ["$(round(susceptibility_parameters[5] * 0.8, digits = 2))" "$(round(susceptibility_parameters[5] * 0.9, digits = 2))" "$(round(susceptibility_parameters[5], digits = 2))" "$(round(susceptibility_parameters[5] * 1.1, digits = 2))" "$(round(susceptibility_parameters[5] * 1.2, digits = 2))"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s5.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [s6_minus_2 s6_minus_1 incidence s6_1 s6_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        legend = (0.92, 0.98),
-        label = ["$(round(susceptibility_parameters[6] * 0.8, digits = 2))" "$(round(susceptibility_parameters[6] * 0.9, digits = 2))" "$(round(susceptibility_parameters[6], digits = 2))" "$(round(susceptibility_parameters[6] * 1.1, digits = 2))" "$(round(susceptibility_parameters[6] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s6.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [s6_minus_2 s6_minus_1 incidence s6_1 s6_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         legend = (0.92, 0.98),
+#         label = ["$(round(susceptibility_parameters[6] * 0.8, digits = 2))" "$(round(susceptibility_parameters[6] * 0.9, digits = 2))" "$(round(susceptibility_parameters[6], digits = 2))" "$(round(susceptibility_parameters[6] * 1.1, digits = 2))" "$(round(susceptibility_parameters[6] * 1.2, digits = 2))"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s6.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [s7_minus_2 s7_minus_1 incidence s7_1 s7_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        legend = (0.91, 0.95),
-        label = ["$(round(susceptibility_parameters[7] * 0.8, digits = 2))" "$(round(susceptibility_parameters[7] * 0.9, digits = 2))" "$(round(susceptibility_parameters[7], digits = 2))" "$(round(susceptibility_parameters[7] * 1.1, digits = 2))" "$(round(susceptibility_parameters[7] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s7.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [s7_minus_2 s7_minus_1 incidence s7_1 s7_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         legend = (0.91, 0.95),
+#         label = ["$(round(susceptibility_parameters[7] * 0.8, digits = 2))" "$(round(susceptibility_parameters[7] * 0.9, digits = 2))" "$(round(susceptibility_parameters[7], digits = 2))" "$(round(susceptibility_parameters[7] * 1.1, digits = 2))" "$(round(susceptibility_parameters[7] * 1.2, digits = 2))"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "s7.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [t1_minus_2 t1_minus_1 incidence t1_1 t1_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        legend = (0.91, 0.95),
-        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[1], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t1.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [t1_minus_2 t1_minus_1 incidence t1_1 t1_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         legend = (0.91, 0.95),
+#         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[1], digits = 2))" "$(0.75)" "$(1.0)"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t1.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [t2_minus_2 t2_minus_1 incidence t2_1 t2_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        legend = (0.91, 0.95),
-        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[2], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t2.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [t2_minus_2 t2_minus_1 incidence t2_1 t2_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         legend = (0.91, 0.95),
+#         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[2], digits = 2))" "$(0.75)" "$(1.0)"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t2.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [t3_minus_2 t3_minus_1 incidence t3_1 t3_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        legend = (0.91, 0.95),
-        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[3], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t3.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [t3_minus_2 t3_minus_1 incidence t3_1 t3_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         legend = (0.91, 0.95),
+#         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[3], digits = 2))" "$(0.75)" "$(1.0)"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t3.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [t4_minus_2 t4_minus_1 incidence t4_1 t4_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        legend = (0.91, 0.95),
-        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[4], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t4.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [t4_minus_2 t4_minus_1 incidence t4_1 t4_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         legend = (0.91, 0.95),
+#         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[4], digits = 2))" "$(0.75)" "$(1.0)"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t4.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [t5_minus_2 t5_minus_1 incidence t5_1 t5_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        legend = (0.91, 0.95),
-        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[5], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t5.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [t5_minus_2 t5_minus_1 incidence t5_1 t5_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         legend = (0.91, 0.95),
+#         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[5], digits = 2))" "$(0.75)" "$(1.0)"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t5.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [t6_minus_2 t6_minus_1 incidence t6_1 t6_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        legend = (0.91, 0.95),
-        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[6], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t6.pdf"))
+#     incidence_plot = plot(
+#         1:52,
+#         [t6_minus_2 t6_minus_1 incidence t6_1 t6_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         legend = (0.91, 0.95),
+#         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[6], digits = 2))" "$(0.75)" "$(1.0)"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t6.pdf"))
 
-    incidence_plot = plot(
-        1:52,
-        [t7_minus_2 t7_minus_1 incidence t7_1 t7_2],
-        lw = 3,
-        xticks = (ticks, ticklabels),
-        margin = 2Plots.mm,
-        legend = (0.91, 0.95),
-        label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[7], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
-    )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t7.pdf"))
-end
+#     incidence_plot = plot(
+#         1:52,
+#         [t7_minus_2 t7_minus_1 incidence t7_1 t7_2],
+#         lw = 3,
+#         xticks = (ticks, ticklabels),
+#         margin = 2Plots.mm,
+#         legend = (0.91, 0.95),
+#         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[7], digits = 2))" "$(0.75)" "$(1.0)"],
+#         # xlabel = L"\textrm{\sffamily Month}",
+#         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
+#         xlabel = "Month",
+#         ylabel = "Cases per 1000 people",
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "t7.pdf"))
+# end
 
-plot_deviations()
-# plot_incidences()
+plot_infection_curves()

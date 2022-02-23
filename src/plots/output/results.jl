@@ -12,10 +12,9 @@ default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
 const is_russian = false
 const num_runs = 1
-const num_years = 1
+const num_years = 2
 
 function plot_incidence()
-
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52)
 
@@ -82,7 +81,7 @@ function plot_incidence()
         grid = !is_russian,
         legend = (0.9, 0.98),
         color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-        # ribbon = [stds_model stds_data],
+        ribbon = [stds_model stds_data],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -176,7 +175,7 @@ function plot_incidence_age_groups()
             grid = !is_russian,
             legend = (0.9, 0.98),
             color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-            # ribbon = [stds_model[:, i] stds_data[:, i]],
+            ribbon = [stds_model[:, i] stds_data[:, i]],
             foreground_color_legend = nothing,
             background_color_legend = nothing,
             xlabel = xlabel_name,
@@ -839,7 +838,6 @@ end
 # end
 
 function plot_rt()
-
     rt_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
     rt_arr_mean = zeros(Float64, 365)
 
@@ -881,7 +879,7 @@ function plot_rt()
         ylabel_name = "Rt"
     end
 
-    registered_new_cases_plot = plot(
+    rt_plot = plot(
         1:365,
         rt_arr_mean,
         lw = 1,
@@ -894,7 +892,7 @@ function plot_rt()
         ylabel = ylabel_name,
     )
     savefig(
-        registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "rt.pdf"))
+        rt_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "rt.pdf"))
 end
 
 function plot_infection_activities()
@@ -1121,8 +1119,8 @@ end
 
 plot_incidence()
 plot_incidence_age_groups()
-# plot_incidence_viruses()
-# plot_rt()
+plot_incidence_viruses()
+plot_rt()
 plot_infection_activities()
 
 # plot_incidence_age_groups_viruses()

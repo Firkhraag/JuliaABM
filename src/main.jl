@@ -69,21 +69,21 @@ function main()
     firm_max_size = 1000
     num_barabasi_albert_attachments = 5
 
-    # MAE: 822.1847542512904
-    # RMSE: 1466.653398254811
-    # nMAE: 0.4734875029017183
-    # S_square: 3.1319611095316324e9
+    # MAE = 810.1631444158867
+    # RMSE = 1461.7270406040075
+    # nMAE = 0.4665643849621167
+    # S_square = 3.110956490435175e9
 
-    # MAE: 829.6110149941217
-    # RMSE: 1482.085241107007
-    # nMAE: 0.4777642079085172
-    # S_square: 3.1982156197369046e9
+    # MAE: 811.1509791671859
+    # RMSE: 1463.8467180089347
+    # nMAE: 0.46713326854607246
+    # S_square: 3.1199855433299704e9
 
-    duration_parameter = 3.779416615130901
-    susceptibility_parameters = [3.2610698824984543, 3.8452587095444226, 3.7817048031333775, 5.663399299113583, 4.237109874252735, 3.9098598227169656, 4.5706287363430205]
-    temperature_parameters = [-0.9164893836322408, -0.811080189651618, -0.19548546691403831, -0.03636363636363636, -0.09816532673675527, -0.14426922284065144, -0.18397237682952078]
-    random_infection_probabilities = [0.00011500041228612655, 6.840904968047825e-5, 4.915367965367968e-5, 6.952216037930325e-7]
-    mean_immunity_durations = [256.9682539682539, 312.3745619459906, 99.17790146361574, 25.459286745001027, 81.05400948258091, 116.81859410430836, 98.45660688517833]
+    duration_parameter = 3.762244897959184
+    susceptibility_parameters = [3.1954133168418886, 3.886672850958564, 3.6958462172747915, 5.702793238507522, 4.155291692434554, 3.8118800247371674, 4.654467120181404]
+    temperature_parameters = [-0.9200247371675943, -0.77320140177283, -0.15962688105545242, -0.07474747474747476, -0.12695320552463404, -0.12558235415378277, -0.17235621521335917]
+    random_infection_probabilities = [0.00011488930117501543, 6.831713048855906e-5, 4.9166810966810994e-5, 6.908781694495981e-7]
+    mean_immunity_durations = [258.39249639249635, 312.8897134611421, 97.99608328179755, 23.91383219954648, 79.99340342197485, 114.78829107400533, 98.30509173366318]
 
     viruses = Virus[
         # FluA
@@ -379,11 +379,19 @@ function main()
     #     println(age_dist ./ sum(age_dist))
     # end
 
-    save(joinpath(@__DIR__, "..", "output", "tables", "results_$(run_num + 1).jld"),
-        "observed_cases", observed_num_infected_age_groups_viruses,
-        "all_cases", num_infected_age_groups_viruses,
-        "activities_cases", activities_infections,
-        "rt", rt)
+    if school_class_closure_period == 0
+        save(joinpath(@__DIR__, "..", "output", "tables", "results_$(run_num + 1).jld"),
+            "observed_cases", observed_num_infected_age_groups_viruses,
+            "all_cases", num_infected_age_groups_viruses,
+            "activities_cases", activities_infections,
+            "rt", rt)
+    else
+        save(joinpath(@__DIR__, "..", "output", "tables", "results_quarantine_$(run_num + 1).jld"),
+            "observed_cases", observed_num_infected_age_groups_viruses,
+            "all_cases", num_infected_age_groups_viruses,
+            "activities_cases", activities_infections,
+            "rt", rt)
+    end
 
     observed_num_infected_age_groups_viruses_mean = zeros(Float64, 52, 7, 4)
     for i = 1:num_years
