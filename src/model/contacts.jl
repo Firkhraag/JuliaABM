@@ -8,6 +8,10 @@ function simulate_contacts_evaluation(
     kindergartens::Vector{School},
     schools::Vector{School},
     colleges::Vector{School},
+    mean_household_contact_durations::Vector{Float64},
+    household_contact_duration_sds::Vector{Float64},
+    other_contact_duration_shapes::Vector{Float64},
+    other_contact_duration_scales::Vector{Float64},
     is_holiday::Bool,
     is_kindergarten_holiday::Bool,
     is_school_holiday::Bool,
@@ -71,21 +75,21 @@ function simulate_contacts_evaluation(
                     (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_college_holiday) ||
                     (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday)))
 
-                    dur = get_contact_duration_normal(12.0, 4.0, rng)
+                    dur = get_contact_duration_normal(mean_household_contact_durations[5], household_contact_duration_sds[5], rng)
                 elseif ((agent.activity_type == 4) ||
                     (agent2.activity_type == 4)) && !is_work_holiday
 
-                    dur = get_contact_duration_normal(4.5, 1.5, rng)
+                    dur = get_contact_duration_normal(mean_household_contact_durations[4], household_contact_duration_sds[4], rng)
                 elseif ((agent.activity_type == 2) ||
                     (agent2.activity_type == 2)) && !is_school_holiday
 
-                    dur = get_contact_duration_normal(5.8, 2.0, rng)
+                    dur = get_contact_duration_normal(mean_household_contact_durations[2], household_contact_duration_sds[2], rng)
                 elseif ((agent.activity_type == 1) ||
                     (agent2.activity_type == 1)) && !is_kindergarten_holiday
                     
-                    dur = get_contact_duration_normal(6.5, 2.2, rng)
+                    dur = get_contact_duration_normal(mean_household_contact_durations[1], household_contact_duration_sds[1], rng)
                 else
-                    dur = get_contact_duration_normal(9.0, 3.0, rng)
+                    dur = get_contact_duration_normal(mean_household_contact_durations[3], household_contact_duration_sds[3], rng)
                 end
 
                 # --------------------------TBD ZONE-----------------------------------
@@ -125,13 +129,13 @@ function simulate_contacts_evaluation(
                 if agent2.attendance && agent2_id != agent_id
                     dur = 0.0
                     if agent.activity_type == 1
-                        dur = get_contact_duration_gamma(2.5, 1.6, rng)
+                        dur = get_contact_duration_gamma(other_contact_duration_shapes[1], other_contact_duration_scales[1], rng)
                     elseif agent.activity_type == 2
-                        dur = get_contact_duration_gamma(1.78, 1.95, rng)
+                        dur = get_contact_duration_gamma(other_contact_duration_shapes[2], other_contact_duration_scales[2], rng)
                     elseif agent.activity_type == 3
-                        dur = get_contact_duration_gamma(2.0, 1.07, rng)
+                        dur = get_contact_duration_gamma(other_contact_duration_shapes[3], other_contact_duration_scales[3], rng)
                     else
-                        dur = get_contact_duration_gamma(1.81, 1.7, rng)
+                        dur = get_contact_duration_gamma(other_contact_duration_shapes[3], other_contact_duration_scales[3], rng)
                     end
 
                     if dur > 0.01
@@ -150,7 +154,7 @@ function simulate_contacts_evaluation(
                         teacher_id = rand(kindergartens[agent.school_id].teacher_ids)
                         if teacher_id != agent.id
                             agent2 = agents[teacher_id]
-                            dur = get_contact_duration_gamma(1.4, 0.7, rng)
+                            dur = get_contact_duration_gamma(other_contact_duration_shapes[5], other_contact_duration_scales[5], rng)
                             if dur > 0.01
                                 contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
@@ -165,7 +169,7 @@ function simulate_contacts_evaluation(
                         teacher_id = rand(schools[agent.school_id].teacher_ids)
                         if teacher_id != agent.id
                             agent2 = agents[teacher_id]
-                            dur = get_contact_duration_gamma(1.4, 0.7, rng)
+                            dur = get_contact_duration_gamma(other_contact_duration_shapes[5], other_contact_duration_scales[5], rng)
                             if dur > 0.01
                                 contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
@@ -180,7 +184,7 @@ function simulate_contacts_evaluation(
                         teacher_id = rand(colleges[agent.school_id].teacher_ids)
                         if teacher_id != agent.id
                             agent2 = agents[teacher_id]
-                            dur = get_contact_duration_gamma(1.4, 0.7, rng)
+                            dur = get_contact_duration_gamma(other_contact_duration_shapes[5], other_contact_duration_scales[5], rng)
                             if dur > 0.01
                                 contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                                 contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
@@ -198,7 +202,7 @@ function simulate_contacts_evaluation(
                 for agent2_id in agent.activity_cross_conn_ids
                     agent2 = agents[agent2_id]
                     if agent2.attendance && !agent2.is_teacher && rand(rng, Float64) < 0.25
-                        dur = get_contact_duration_gamma(1.2, 1.07, rng)
+                        dur = get_contact_duration_gamma(other_contact_duration_shapes[5], other_contact_duration_scales[5], rng)
                         if dur > 0.01
                             contacts_num_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += 1
                             contacts_dur_matrix_by_age_threads[thread_id, agent.age + 1, agent2.age + 1] += dur
@@ -559,6 +563,10 @@ function run_simulation_evaluation(
     colleges::Vector{School},
     # shops::Vector{PublicSpace},
     # restaurants::Vector{PublicSpace},
+    mean_household_contact_durations::Vector{Float64},
+    household_contact_duration_sds::Vector{Float64},
+    other_contact_duration_shapes::Vector{Float64},
+    other_contact_duration_scales::Vector{Float64},
     is_holiday::Bool,
 )
     contacts_num_matrix_by_age_threads = zeros(Int, num_threads, 90, 90)
@@ -612,6 +620,10 @@ function run_simulation_evaluation(
             kindergartens,
             schools,
             colleges,
+            mean_household_contact_durations,
+            household_contact_duration_sds,
+            other_contact_duration_shapes,
+            other_contact_duration_scales,
             is_holiday,
             is_kindergarten_holiday,
             is_school_holiday,

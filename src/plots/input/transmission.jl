@@ -94,8 +94,6 @@ function plot_temperature_influence_year()
         end
     end
 
-    # ticks = range(1, stop = 365, length = 13)
-    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
     ticks = range(1, stop = 365, length = 7)
     # ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]

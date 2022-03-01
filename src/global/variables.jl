@@ -21,12 +21,15 @@ const num_restaurants = 12843
 const start_restaurant_ids = Int[1, 4002, 8101, 10534]
 const end_restaurant_ids = Int[4001, 8100, 10533, 12843]
 
+# Примерное число агентов в различных возрастных группах
+const num_agents_age_groups = [266648, 304625, 531915, 8969480]
+
 # Максимальный возраст агента
 const max_agent_age = 89
 
 # MCMC параметры
 const burnin = 1
-const step = 5
+const step = 2
 
 # Размеры групп в детских садах
 const kindergarten_groups_size_1 = 10

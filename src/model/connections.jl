@@ -10,6 +10,8 @@ function set_connections(
     thread_rng::Vector{MersenneTwister},
     num_threads::Int,
     homes_coords_df::DataFrame,
+    # min_size_bias::Int,
+    firm_min_size::Int,
     firm_max_size::Int,
     num_barabasi_albert_attachments::Int,
 )
@@ -210,7 +212,11 @@ function set_connections(
 
     start_agent_id = 1
     while num_working_agents > 0
-        num_workers = sample_from_zipf_distribution(zipf_parameter, firm_max_size) + num_barabasi_albert_attachments
+        # num_workers = zipf_distribution(zipf_parameter, firm_max_size)
+        num_workers = round(Int, rand(truncated(LogNormal(1.3, 1.7), firm_min_size, firm_max_size)))
+        if num_workers < 1
+            num_workers = 1
+        end
         if num_working_agents - num_workers < 0
             num_workers = num_working_agents
         end
@@ -353,20 +359,4 @@ function generate_barabasi_albert_network(agents::Vector{Agent}, agent_ids::Vect
         end
         degree_sum += 2m
     end
-end
-
-
-function sample_from_zipf_distribution(
-    parameter::Float64, max_size::Int
-)::Int
-    cumulative = 0.0
-    rand_num = rand(Float64)
-    multiplier = 1 / sum((1:max_size).^(-parameter))
-    for i = 1:max_size
-        cumulative += i^(-parameter) * multiplier
-        if rand_num < cumulative
-            return i
-        end
-    end
-    return max_size
 end

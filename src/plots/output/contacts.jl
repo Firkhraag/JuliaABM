@@ -4,6 +4,32 @@ using DelimitedFiles
 # default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
 default(legendfontsize = 15, guidefont = (19, :black), tickfont = (15, :black))
 
+function plot_num_contacts()
+    age_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_nums.csv"), ',', Float64)
+    contact_counts = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts.csv"), ',', Float64)
+    contact_counts_holiday = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_holiday.csv"), ',', Float64)
+    contact_counts = (contact_counts .* 5 + contact_counts_holiday .* 2) ./ 7
+
+    for i = 1:90
+        contact_counts[i] /= age_nums[i]
+    end
+
+    num_contacts = sum(contact_counts, dims = 1)[1, :]
+    num_contacts_plot = plot(
+        1:90,
+        contact_counts,
+        lw = 3,
+        legend = false,
+        color = "orange",
+        grid = false,
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Temperature, °C}",
+        xlabel = "Возраст",
+        ylabel = "Число контактов",
+    )
+    savefig(num_contacts_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "contacts", "num_contacts.pdf"))
+end
+
 function plot_contacts()
     contact_counts = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts.csv"), ',', Float64)
     contact_counts_holiday = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_holiday.csv"), ',', Float64)
@@ -441,5 +467,6 @@ function plot_contacts_grouped()
     end
 end
 
+plot_num_contacts()
 # plot_contacts()
-plot_contacts_grouped()
+# plot_contacts_grouped()
