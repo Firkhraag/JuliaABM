@@ -36,10 +36,10 @@ function main()
     num_threads = nthreads()
 
     starting_bias = 0
-    n = 5
+    n = 100
     disturbance = 0.05
 
-    num_years = 2
+    num_years = 3
 
     isolation_probabilities_day_1_default = [0.406, 0.305, 0.204, 0.101]
     isolation_probabilities_day_2_default = [0.669, 0.576, 0.499, 0.334]
@@ -52,11 +52,11 @@ function main()
     other_contact_duration_scales_default = [1.6, 1.95, 1.07, 1.7, 1.07]
 
     # Parameters add _default
-    duration_parameter_default = 3.779416615130901
-    susceptibility_parameters_default = [3.2610698824984543, 3.8452587095444226, 3.7817048031333775, 5.663399299113583, 4.237109874252735, 3.9098598227169656, 4.5706287363430205]
-    temperature_parameters_default = [-0.9164893836322408, -0.811080189651618, -0.19548546691403831, -0.03636363636363636, -0.09816532673675527, -0.14426922284065144, -0.18397237682952078]
-    random_infection_probabilities_default = [0.00011500041228612655, 6.840904968047825e-5, 4.915367965367968e-5, 6.952216037930325e-7]
-    mean_immunity_durations_default = [256.9682539682539, 312.3745619459906, 99.17790146361574, 25.459286745001027, 81.05400948258091, 116.81859410430836, 98.45660688517833]
+    duration_parameter_default = 3.711739847454133
+    susceptibility_parameters_default = [3.049958771387343, 3.797783962069675, 3.6978664192949933, 5.583601319315603, 4.070443207586069, 3.957334570191713, 4.612042877757162]
+    temperature_parameters_default = [-0.8786105957534528, -0.7631003916718199, -0.0868996083281797, -0.15656565656565657, -0.1027107812822098, -0.05588538445681307, -0.16932591218305615]
+    random_infection_probabilities_default = [0.00011551556380127805, 6.822016079158936e-5, 4.922135642135645e-5, 6.844135229849516e-7]
+    mean_immunity_durations_default = [255.05916305916304, 312.7078952793239, 101.87487116058544, 27.368377654091933, 77.08431251288393, 117.33374561945988, 103.15357658214802]
     
     incubation_period_durations_default = [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2]
     incubation_period_duration_variances_default = [0.09, 0.0484, 0.175, 0.937, 1.51, 0.327, 0.496]
@@ -285,18 +285,10 @@ function main()
             homes_coords_df, district_households, district_people, district_people_households, district_nums)
     end
 
-    # @time set_connections(
-    #     agents, households, kindergartens, schools, colleges,
-    #     workplaces, thread_rng, num_threads, homes_coords_df,
-    #     min_size_bias, firm_max_size, num_barabasi_albert_attachments)
-
     @time set_connections(
         agents, households, kindergartens, schools, colleges,
         workplaces, thread_rng, num_threads, homes_coords_df,
         firm_min_size, firm_max_size, num_barabasi_albert_attachments)
-
-    # get_stats(agents, workplaces)
-    # return
 
     println("Simulation...")
 
@@ -405,8 +397,6 @@ function main()
             viruses[k].mean_viral_load_adult = mean_viral_loads_adult[k]
         end
 
-        
-
         @threads for thread_id in 1:num_threads
             reset_agent_states(
                 agents,
@@ -430,7 +420,7 @@ function main()
             isolation_probabilities_day_3, random_infection_probabilities,
             recovered_duration_mean, recovered_duration_sd, num_years, true)
 
-        save(joinpath(@__DIR__, "..", "sensitivity", "tables", "results_$(run_num).jld"),
+        save(joinpath(@__DIR__, "..", "sensitivity", "tables", "results_$(run_num + starting_bias).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "all_cases", num_infected_age_groups_viruses,
             "activities_cases", activities_infections,
@@ -455,9 +445,9 @@ function main()
             "infection_period_duration_variances_child", infection_period_duration_variances_child,
             "infection_period_durations_adult", infection_period_durations_adult,
             "infection_period_duration_variances_adult", infection_period_duration_variances_adult,
-            "symptomatic_probability_child", symptomatic_probabilities_child,
-            "symptomatic_probability_teenager", symptomatic_probabilities_teenager,
-            "symptomatic_probability_adult", symptomatic_probabilities_adult,
+            "symptomatic_probabilities_child", symptomatic_probabilities_child,
+            "symptomatic_probabilities_teenager", symptomatic_probabilities_teenager,
+            "symptomatic_probabilities_adult", symptomatic_probabilities_adult,
             "mean_viral_loads_infant", mean_viral_loads_infant,
             "mean_viral_loads_child", mean_viral_loads_child,
             "mean_viral_loads_adult", mean_viral_loads_adult)

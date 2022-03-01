@@ -11,15 +11,15 @@ include("../../data/etiology.jl")
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
 const is_russian = false
-const num_runs = 1
-const num_years = 2
+const num_runs = 10
+const num_years = 3
 
-function plot_incidence()
+function plot_incidence(with_quarantine::Bool)
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ 10072
         for j = 1:num_years
             incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
@@ -87,16 +87,15 @@ function plot_incidence()
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence.pdf"))
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "model_incidence_quarantine.pdf" : "model_incidence.pdf"))
 end
 
-function plot_incidence_age_groups()
-
+function plot_incidence_age_groups(with_quarantine::Bool)
     incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52, 4)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ 10072
         for j = 1:num_years
             incidence_arr[i, j] = sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :][(52 * (j - 1) + 1):(52 * (j - 1) + 52), :]
         end
@@ -181,17 +180,16 @@ function plot_incidence_age_groups()
             xlabel = xlabel_name,
             ylabel = ylabel_name,
         )
-        savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "incidence$(age_groups[i]).pdf"))
+        savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "incidence$(age_groups[i])_quarantine.pdf" : "incidence$(age_groups[i]).pdf"))
     end
 end
 
-function plot_incidence_viruses()
-
+function plot_incidence_viruses(with_quarantine::Bool)
     incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52, 7)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ 10072
         for j = 1:num_years
             incidence_arr[i, j] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52), :]
         end
@@ -417,7 +415,7 @@ function plot_incidence_viruses()
             xlabel = xlabel_name,
             ylabel = ylabel_name,
         )
-        savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "incidence$(viruses[i]).pdf"))
+        savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "incidence$(viruses[i])_quarantine.pdf" : "incidence$(viruses[i]).pdf"))
     end
 end
 
@@ -837,12 +835,12 @@ end
 #     end
 # end
 
-function plot_rt()
+function plot_rt(with_quarantine::Bool)
     rt_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
     rt_arr_mean = zeros(Float64, 365)
 
     for i = 1:num_runs
-        rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["rt"]
+        rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : "results_$(i).jld"))["rt"]
         for j = 1:num_years
             rt_arr[i, j] = moving_average(rt, 10)[(365 * (j - 1) + 1):(365 * (j - 1) + 365)]
         end
@@ -892,10 +890,10 @@ function plot_rt()
         ylabel = ylabel_name,
     )
     savefig(
-        rt_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "rt.pdf"))
+        rt_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "rt_quarantine.pdf" : "rt.pdf"))
 end
 
-function plot_infection_activities()
+function plot_infection_activities(with_quarantine::Bool)
     num_activities = 5
 
     activity_sizes = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "activity_sizes.csv"), ',', Int, '\n')
@@ -904,7 +902,7 @@ function plot_infection_activities()
     activities_cases_arr_mean = zeros(Float64, 365, num_activities)
 
     for i = 1:num_runs
-        activities_cases = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["activities_cases"]
+        activities_cases = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : "results_$(i).jld"))["activities_cases"]
         for j = 1:num_years
             activities_cases_arr[i, j] = activities_cases[(365 * (j - 1) + 1):(365 * (j - 1) + 365), :]
         end
@@ -984,7 +982,7 @@ function plot_infection_activities()
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
-    savefig(activities_cases_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "activities_cases.pdf"))
+    savefig(activities_cases_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "activities_cases_quarantine.pdf" : "activities_cases.pdf"))
 end
 
 # function plot_r0()
@@ -1117,11 +1115,89 @@ end
 #     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence.pdf"))
 # end
 
-plot_incidence()
-plot_incidence_age_groups()
-plot_incidence_viruses()
-plot_rt()
-plot_infection_activities()
+function print_statistics()
+    incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
+    incidence_arr_mean = zeros(Float64, 52)
+
+    for i = 1:num_runs
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"]
+        for j = 1:num_years
+            incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+        end
+    end
+
+    stds_model = zeros(Float64, 52)
+    for i = 1:52
+        stds_model[i] = std([incidence_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
+    end
+
+    for i = 1:52
+        for j = 1:num_years
+            for k = 1:num_runs
+                incidence_arr_mean[i] += incidence_arr[k, j][i]
+            end
+        end
+        incidence_arr_mean[i] /= num_runs * num_years
+    end
+
+    max_value = maximum(incidence_arr_mean)
+    all_number_observed_infections = sum(incidence_arr_mean)
+    pos = argmax(incidence_arr_mean)
+
+    incidence_arr_mean = zeros(Float64, 52)
+    for i = 1:num_runs
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["observed_cases"]
+        for j = 1:num_years
+            incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+        end
+    end
+
+    stds_model = zeros(Float64, 52)
+    for i = 1:52
+        stds_model[i] = std([incidence_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
+    end
+
+    for i = 1:52
+        for j = 1:num_years
+            for k = 1:num_runs
+                incidence_arr_mean[i] += incidence_arr[k, j][i]
+            end
+        end
+        incidence_arr_mean[i] /= num_runs * num_years
+    end
+
+    max_value_quarantine = maximum(incidence_arr_mean)
+    all_number_observed_infections_quarantine = sum(incidence_arr_mean)
+    pos_quarantine = argmax(incidence_arr_mean)
+
+    println(max_value_quarantine / 10072)
+    println(max_value / 10072)
+
+    println("Ratio of the max number of infected: $(max_value_quarantine / max_value)")
+    println("Ratio of the number of observed infections: $(all_number_observed_infections_quarantine / all_number_observed_infections)")
+    println("Pos: $(pos)")
+    println("Pos: $(pos_quarantine)")
+
+    infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
+    infected_data_mean = mean(infected_data[39:45, 2:53], dims = 1)[1, :]
+
+    nMAE = sum(abs.(incidence_arr_mean - infected_data_mean)) / sum(infected_data_mean)
+    println("General nMAE: $(nMAE)")
+end
+
+plot_incidence(true)
+plot_incidence_age_groups(true)
+plot_incidence_viruses(true)
+plot_rt(true)
+plot_infection_activities(true)
+
+plot_incidence(false)
+plot_incidence_age_groups(false)
+plot_incidence_viruses(false)
+plot_rt(false)
+plot_infection_activities(false)
+
+print_statistics()
 
 # plot_incidence_age_groups_viruses()
 # plot_incidence_etiology()
