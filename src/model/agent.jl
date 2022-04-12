@@ -662,21 +662,22 @@ function get_infectivity(
     infection_period::Int,
     mean_viral_load::Float64,
     is_asymptomatic::Bool,
+    max_load::Float64,
 )::Float64
     if days_infected < 1
         if incubation_period == 1
-            return mean_viral_load / 24
+            return mean_viral_load / (2 * max_load)
         end
         k = mean_viral_load / (incubation_period - 1)
         b = k * (incubation_period - 1)
-        return (k * days_infected + b) / 12
+        return (k * days_infected + b) / max_load
     end
     if is_asymptomatic
         mean_viral_load /= 2.0
     end
     k = 2 * mean_viral_load / (1 - infection_period)
     b = -k * infection_period
-    return (k * days_infected + b) / 12
+    return (k * days_infected + b) / max_load
 end
 
 # Получить длительность инкубационного периода или периода болезни

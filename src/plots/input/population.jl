@@ -4,9 +4,11 @@ using Statistics
 using StatsPlots
 using LaTeXStrings
 using CategoricalArrays
+using Distributions
 
-# default(legendfontsize = 9, guidefont = (14, :black), tickfont = (9, :black))
-default(legendfontsize = 11, guidefont = (14, :black), tickfont = (11, :black))
+default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
+
+const is_russian = false
 
 function age_distribution_groups()
     num_people_data_vec = [433175, 420460, 399159, 495506, 869700, 924829, 892794, 831873, 757411,
@@ -48,23 +50,25 @@ function age_distribution_groups()
         linewidth = 0.6,
         # title = "Age distribution",
         size = (1000, 500),
-        color = reshape([:coral2, :dodgerblue], (1, 2)),
+        color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
         margin = 8Plots.mm,
         xrotation = 45,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Age}",
         # ylabel = L"\textrm{\sffamily Number}"
         # xlabel = "Age",
         # ylabel = "Num",
         xlabel = "Возраст",
         ylabel = "Число",
-        grid = false,
+        grid = true,
         yticks = (yticks, yticklabels),
     )
     savefig(age_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "age_distribution_groups.pdf"))
 end
 
 function age_distribution()
-    age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_groups_nums.csv"), ',', Int, '\n')
+    age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_nums.csv"), ',', Int, '\n')
 
     labels = CategoricalArray(string.(collect(0:89)))
     levels!(labels, string.(collect(0:89)))
@@ -78,13 +82,17 @@ function age_distribution()
     age_distribution_plot = groupedbar(
         collect(0:89),
         age_groups_nums,
-        legend = false,
         linewidth = 0.6,
+        # color = :grey,
+        color = RGB(0.267, 0.467, 0.667),
+        legend = false,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Age}",
         # ylabel = L"\textrm{\sffamily Number}"
         xlabel = "Возраст",
         ylabel = "Число",
-        grid = false,
+        grid = true,
         ylim = (0, 200000),
         xticks = (xticks, xticklabels),
         yticks = (yticks, yticklabels),
@@ -112,14 +120,42 @@ function household_size_distribution()
         num_households_data,
         group = legend,
         yticks = (yticks, yticklabels),
-        color = reshape([:coral2, :dodgerblue], (1, 2)),
+        color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Size}",
         # ylabel = L"\textrm{\sffamily Number}"
         xlabel = "Размер",
         ylabel = "Число",
-        grid = false
+        grid = true,
     )
     savefig(household_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "household_size_distribution.pdf"))
+
+
+    # num_households_data = [1118631 1056816 922206 575250 236758 148261]
+
+    # labels = CategoricalArray(["1", "2", "3", "4", "5", "6", "7"])
+    # levels!(labels, ["1", "2", "3", "4", "5", "6", "7"])
+    # legend = repeat(["0-15"], inner = 6)
+
+    # incubation_periods_plot = groupedbar(
+    #     labels,
+    #     num_households_data,
+    #     group = legend,
+    #     color = RGB(0.5, 0.5, 0.5),
+    #     # color = RGB(0.267, 0.467, 0.667),
+    #     markerstrokecolor = :black,
+    #     markercolor = :black,
+    #     legend = false,
+    #     grid = true,
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     # xlabel = L"\textrm{\sffamily Virus}",
+    #     # ylabel = L"\textrm{\sffamily Incubation period duration, days}",
+    #     xxlabel = "Размер",
+    #     ylabel = "Число",
+    # )
+    # savefig(incubation_periods_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "household_size_distribution.pdf"))
 end
 
 function workplace_sizes_distribution()
@@ -133,9 +169,10 @@ function workplace_sizes_distribution()
         first.(workplace_size_distribution),
         last.(workplace_size_distribution),
         lw = 3,
-        legend = false,
         # xticks = (ticks, ticklabels),
-        grid = false,
+        grid = true,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Temperature, °C}",
         xlabel = "Размер фирмы",
@@ -144,7 +181,38 @@ function workplace_sizes_distribution()
     savefig(workplace_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "workplace_size_distribution.pdf"))
 end
 
-# age_distribution_groups()
-# age_distribution()
-# household_size_distribution()
-workplace_sizes_distribution()
+function workplace_sizes_distribution_lognormal()
+    firm_min_size = 0
+    firm_max_size = 1000
+    lognormal = truncated(LogNormal(1.3, 1.7), firm_min_size, firm_max_size)
+
+    yticks = [1e-6, 1e-4, 1e-2, 1.0]
+
+    workplace_size_distribution_plot = plot(
+        x -> pdf(lognormal, x),
+        lw = 1,
+        xaxis=:log,
+        yaxis=:log,
+        legend = false,
+        yticks = yticks,
+        # xticks = (ticks, ticklabels),
+        grid = true,
+        color = :black,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Temperature, °C}",
+        margin = 2Plots.mm,
+        xlims = (1.0, 1000.0),
+        ylims = (1e-6, 1.0),
+        xlabel = "Размер фирмы",
+        ylabel = "Частота",
+    )
+    savefig(workplace_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "workplace_size_distribution.pdf"))
+end
+
+age_distribution_groups()
+age_distribution()
+household_size_distribution()
+# workplace_sizes_distribution()
+# workplace_sizes_distribution_lognormal()

@@ -14,7 +14,7 @@ end
 
 # ╔═╡ 6f1cc10f-a1cb-4d34-8400-fad9dce17386
 begin
-	age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_groups_nums.csv"), ',', Float64)
+	age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_nums.csv"), ',', Float64)
 	
 	home_contacts = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", 		"russia_homes.csv"), ',', Float64)
 	school_contacts = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", 		"russia_schools.csv"), ',', Float64)
@@ -1588,9 +1588,9 @@ version = "1.6.38+0"
 
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
-git-tree-sha1 = "c45f4e40e7aafe9d086379e5578947ec8b95a8fb"
+git-tree-sha1 = "b910cb81ef3fe6e78bf6acee440bda86fd6ae00c"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
-version = "1.3.7+0"
+version = "1.3.7+1"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]

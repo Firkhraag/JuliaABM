@@ -10,9 +10,9 @@ include("../../data/temperature.jl")
 include("../../data/etiology.jl")
 include("../../util/moving_avg.jl")
 
-# default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
-# default(legendfontsize = 9, guidefont = (14, :black), tickfont = (9, :black))
-default(legendfontsize = 12, guidefont = (15, :black), tickfont = (12, :black))
+default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
+
+const is_russian = false
 
 function plot_temperature()
     temperature_data = get_air_temperature()
@@ -25,11 +25,11 @@ function plot_temperature()
     temperature_plot = plot(
         1:365,
         temperature_data_rearranged,
-        lw = 3,
+        lw = 1,
         legend = false,
-        color = "orange",
+        color = :black,
         xticks = (ticks, ticklabels),
-        grid = false,
+        grid = true,
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Temperature, °C}",
         xlabel = "Месяц",
@@ -48,11 +48,40 @@ function plot_all_data()
     xs = [1959, 1970, 1979, 1989, 2002]
     ys = [5085, 7061, 7931, 8875, 10382]
     itp_cubic = interpolate(xs, ys, FritschCarlsonMonotonicInterpolation())
+    mean_values = zeros(Float64, 41)
     for i in 1:length(years)
+        mean_value = 0.0
         for j = 1:52
             incidence_data[(i - 1) * 52 + j] = incidence_data[(i - 1) * 52 + j] / itp_cubic(years[i])
+            mean_value += incidence_data[(i - 1) * 52 + j]
         end
+        mean_values[i] = mean_value / 52
     end
+
+    itp_cubic = interpolate([i * 52 for i = 1:41], mean_values, FritschCarlsonMonotonicInterpolation())
+
+    ticks = range(52, stop = length(incidence_data), length = 11)
+    ticklabels = ["1962" "1966" "1970" "1974" "1978" "1982" "1986" "1990" "1994" "1998" "2002"]
+    # ticks = range(1, stop = length(incidence_data), length = 7)
+    # ticklabels = ["1990" "1992" "1994" "1996" "1998" "2000" "2002"]
+    mean_incidence_plot = plot(
+        52:2132,
+        x -> itp_cubic(x),
+        lw = 1,
+        legend = false,
+        # color = RGB(0.933, 0.4, 0.467),
+        color = :black,
+        xticks = (ticks, ticklabels),
+        grid = true,
+        size = (800, 500),
+        margin = 6Plots.mm,
+        xrotation = 45,
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
+        xlabel = "Год",
+        ylabel = "Число случаев на 1000 чел. / неделя",
+    )
+    savefig(mean_incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "mean_all_data.pdf"))
 
     ticks = range(1, stop = length(incidence_data), length = 11)
     ticklabels = ["1962" "1966" "1970" "1974" "1978" "1982" "1986" "1990" "1994" "1998" "2002"]
@@ -61,11 +90,12 @@ function plot_all_data()
     incidence_plot = plot(
         1:length(incidence_data),
         incidence_data,
-        lw = 3,
+        lw = 1,
         legend = false,
-        color = "red",
+        # color = RGB(0.933, 0.4, 0.467),
+        color = :black,
         xticks = (ticks, ticklabels),
-        grid = false,
+        grid = true,
         size = (800, 500),
         margin = 6Plots.mm,
         xrotation = 45,
@@ -81,6 +111,8 @@ function plot_incidence()
     incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
     incidence_data_mean = mean(incidence_data[39:45, 2:53], dims = 1)[1, :] ./ 10072
 
+    println(incidence_data_mean)
+
     stds = zeros(Float64, 52)
     for i = 1:52
         stds[i] = std(incidence_data[39:45, i] ./ 10072)
@@ -91,11 +123,11 @@ function plot_incidence()
     incidence_plot = plot(
         1:52,
         incidence_data_mean,
-        lw = 3,
+        lw = 1,
         legend = false,
         color = "red",
         xticks = (ticks, ticklabels),
-        grid = false,
+        grid = true,
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
         yerror = stds,
@@ -118,22 +150,22 @@ function plot_incidence_age_groups()
     incidence_data_mean_7 = mean(incidence_data_7[2:53, 21:27], dims = 2)[:, 1] ./ 10072
     incidence_data_mean_15 = mean(incidence_data_15[2:53, 21:27], dims = 2)[:, 1] ./ 10072
 
-    incidence_plot = plot(1:52, incidence_data_mean_0, title = "Incidence", lw = 3, legend = false)
+    incidence_plot = plot(1:52, incidence_data_mean_0, title = "Incidence", lw = 1, legend = false)
     xlabel!("Week")
     ylabel!("Incidence")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "incidence0-2.pdf"))
 
-    incidence_plot = plot(1:52, incidence_data_mean_3, title = "Incidence", lw = 3, legend = false)
+    incidence_plot = plot(1:52, incidence_data_mean_3, title = "Incidence", lw = 1, legend = false)
     xlabel!("Week")
     ylabel!("Incidence")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "incidence3-6.pdf"))
 
-    incidence_plot = plot(1:52, incidence_data_mean_7, title = "Incidence", lw = 3, legend = false)
+    incidence_plot = plot(1:52, incidence_data_mean_7, title = "Incidence", lw = 1, legend = false)
     xlabel!("Week")
     ylabel!("Incidence")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "incidence7-14.pdf"))
 
-    incidence_plot = plot(1:52, incidence_data_mean_15, title = "Incidence", lw = 3, legend = false)
+    incidence_plot = plot(1:52, incidence_data_mean_15, title = "Incidence", lw = 1, legend = false)
     xlabel!("Week")
     ylabel!("Incidence")
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "incidence15+.pdf"))
@@ -153,10 +185,10 @@ function plot_Flu()
     FluA_plot = plot(
         1:52,
         FluA_arr,
-        lw = 3,
+        lw = 1,
         legend = false,
         color = "orange",
-        grid = false,
+        grid = true,
         xlabel = "Месяц",
         ylabel = "Случаи",
     )
@@ -165,10 +197,10 @@ function plot_Flu()
     FluB_plot = plot(
         1:52,
         FluB_arr,
-        lw = 3,
+        lw = 1,
         legend = false,
         color = "orange",
-        grid = false,
+        grid = true,
         xlabel = "Месяц",
         ylabel = "Случаи",
     )
@@ -185,10 +217,10 @@ function plot_RV()
     RV_plot = plot(
         1:52,
         arr,
-        lw = 3,
+        lw = 1,
         legend = false,
         color = "orange",
-        grid = false,
+        grid = true,
         xlabel = "Месяц",
         ylabel = "Случаи",
     )
@@ -205,10 +237,10 @@ function plot_RSV()
     RSV_plot = plot(
         1:52,
         arr,
-        lw = 3,
+        lw = 1,
         legend = false,
         color = "orange",
-        grid = false,
+        grid = true,
         xlabel = "Месяц",
         ylabel = "Случаи",
     )
@@ -225,10 +257,10 @@ function plot_AdV()
     AdV_plot = plot(
         1:52,
         arr,
-        lw = 3,
+        lw = 1,
         legend = false,
         color = "orange",
-        grid = false,
+        grid = true,
         xlabel = "Месяц",
         ylabel = "Случаи",
     )
@@ -245,10 +277,10 @@ function plot_PIV()
     PIV_plot = plot(
         1:52,
         arr,
-        lw = 3,
+        lw = 1,
         legend = false,
         color = "orange",
-        grid = false,
+        grid = true,
         xlabel = "Месяц",
         ylabel = "Случаи",
     )
@@ -265,10 +297,10 @@ function plot_CoV()
     CoV_plot = plot(
         1:52,
         arr,
-        lw = 3,
+        lw = 1,
         legend = false,
         color = "orange",
-        grid = false,
+        grid = true,
         xlabel = "Месяц",
         ylabel = "Случаи",
     )
@@ -333,11 +365,11 @@ function plot_etiology()
         1:52,
         [FluA_ratio, FluB_ratio, RV_ratio, RSV_ratio, AdV_ratio, PIV_ratio, CoV_ratio],
         legend = (0.85, 0.97),
-        lw = 3,
+        lw = 1,
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
         xticks = (ticks, ticklabels),
-        grid = false,
+        grid = true,
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Ratio}",
         xlabel = "Месяц",
@@ -346,16 +378,16 @@ function plot_etiology()
     savefig(etiology_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "etiology.pdf"))
 end
 
-plot_Flu()
-plot_RV()
-plot_RSV()
-plot_AdV()
-plot_PIV()
-plot_CoV()
-plot_etiology()
+# plot_Flu()
+# plot_RV()
+# plot_RSV()
+# plot_AdV()
+# plot_PIV()
+# plot_CoV()
+# plot_etiology()
 
 # plot_temperature()
 # plot_all_data()
-# plot_incidence()
+plot_incidence()
 # plot_incidence_age_groups()
 # plot_etiology()

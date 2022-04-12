@@ -411,6 +411,10 @@ function main()
             )
         end
 
+        max_load = maximum(mean_viral_loads_infant)
+        if maximum(mean_viral_loads_child) > max_load
+            max_load = maximum(mean_viral_loads_child)
+        end
         @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
             susceptibility_parameters, temperature_parameters, temperature,
@@ -418,7 +422,7 @@ function main()
             other_contact_duration_shapes, other_contact_duration_scales,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
             isolation_probabilities_day_3, random_infection_probabilities,
-            recovered_duration_mean, recovered_duration_sd, num_years, true)
+            recovered_duration_mean, recovered_duration_sd, num_years, true, maximum(mean_viral_loads_infant) * 2)
 
         save(joinpath(@__DIR__, "..", "sensitivity", "tables", "results_$(run_num + starting_bias).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
