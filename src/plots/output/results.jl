@@ -15,6 +15,8 @@ const is_russian = true
 const num_runs = 2
 const num_years = 3
 
+const with_quarantine = false
+
 function confidence(x::Vector{Float64})
     alpha = 0.05
     tstar = quantile(TDist(length(x) - 1), 1 - alpha / 2)
@@ -100,7 +102,7 @@ function plot_incidence(with_quarantine::Bool)
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "model_incidence_quarantine.pdf" : "model_incidence.pdf"))
 end
 
-function plot_incidence_age_groups(with_quarantine::Bool)
+function plot_incidence_age_groups()
     incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52, 4)
 
@@ -1533,17 +1535,11 @@ function print_statistics()
     println("CoV nMAE: $(nMAE)")
 end
 
-# plot_incidence(true)
-# plot_incidence_age_groups(true)
-# plot_incidence_viruses(true)
-# plot_rt(true)
-# plot_infection_activities(true)
-
-plot_incidence(false)
-plot_incidence_age_groups(false)
-plot_incidence_viruses(false)
-# plot_rt(false)
-# plot_infection_activities(false)
+plot_incidence()
+plot_incidence_age_groups()
+plot_incidence_viruses()
+plot_rt()
+plot_infection_activities()
 
 # print_statistics()
 

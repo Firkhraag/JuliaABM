@@ -90,9 +90,12 @@ function plot_temperature_influence_year()
     temperature_parameters = [-0.8786105957534528, -0.7631003916718199, -0.0868996083281797, -0.15656565656565657, -0.1027107812822098, -0.05588538445681307, -0.16932591218305615]
     temp_influence(x, v) = temperature_parameters[v] * x + 1.0
 
-    temperature = get_air_temperature()
-    min_temp = minimum(temperature)
-    max_min_temp = maximum(temperature) - minimum(temperature)
+    global_warming = false
+    temperature = get_air_temperature(global_warming)
+    min_temp = -7.2
+    max_min_temp = 26.6
+    # min_temp = minimum(temperature)
+    # max_min_temp = maximum(temperature) - minimum(temperature)
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
     for s in 1:365
@@ -287,7 +290,7 @@ function plot_infectivity_influence()
     savefig(infectivity_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "transmission", "infectivity_influence.pdf"))
 end
 
-plot_duration_influence()
+# plot_duration_influence()
 plot_temperature_influence_year()
-plot_infectivity_influence()
-plot_susceptibility_influence_age()
+# plot_infectivity_influence()
+# plot_susceptibility_influence_age()

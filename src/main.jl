@@ -48,6 +48,9 @@ function main()
     school_class_closure_threshold = 0.25
     school_closure_threshold_classes = 3
 
+    global_warming = false
+    # global_warming = true
+
     num_threads = nthreads()
 
     # Вероятности изолироваться при болезни на 1-й, 2-й и 3-й дни
@@ -85,7 +88,7 @@ function main()
     # RMSE: 1472.1031804717197
     # nMAE: 0.46124400804303295
     # S_square: 3.1552797988784103e9
-
+    
     duration_parameter = 3.970325706039992
     susceptibility_parameters = [3.201473922902495, 3.708895073180786, 3.817058338486913, 5.601783137497422, 4.082564419707281, 4.03612244897959, 4.4968913626056475]
     temperature_parameters = [-0.7745701917130488, -0.769160997732426, -0.09444444444444446, -0.11111111111111113, -0.12291280148423, -0.11346114203257066, -0.24710368996083393]
@@ -135,7 +138,7 @@ function main()
     # Номера районов для MPI процессов
     district_nums = get_district_nums()
     # Температура воздуха, начиная с 1 января
-    temperature = get_air_temperature()
+    temperature = get_air_temperature(global_warming)
 
     agents = Array{Agent, 1}(undef, num_agents)
 
@@ -394,7 +397,7 @@ function main()
         isolation_probabilities_day_1, isolation_probabilities_day_2,
         isolation_probabilities_day_3, random_infection_probabilities,
         recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-        school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes, 12)
+        school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
 
     # for k = 1:7
     #     println("Virus: $(k)")
@@ -402,7 +405,13 @@ function main()
     #     println(age_dist ./ sum(age_dist))
     # end
 
-    if school_class_closure_period == 0
+    if global_warming
+        save(joinpath(@__DIR__, "..", "output", "tables", "results_warming_$(run_num + 1).jld"),
+            "observed_cases", observed_num_infected_age_groups_viruses,
+            "all_cases", num_infected_age_groups_viruses,
+            "activities_cases", activities_infections,
+            "rt", rt)
+    elseif school_class_closure_period == 0
         save(joinpath(@__DIR__, "..", "output", "tables", "results_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "all_cases", num_infected_age_groups_viruses,

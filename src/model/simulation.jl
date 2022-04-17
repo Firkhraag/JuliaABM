@@ -17,7 +17,6 @@ function make_contact(
     temperature_parameters::Vector{Float64},
     current_temp::Float64,
     rng::MersenneTwister,
-    max_load::Float64,
 )
     # Влияние продолжительности контакта на вероятность инфицирования
     duration_influence = 1 / (1 + exp(-contact_duration + duration_parameter))
@@ -36,24 +35,21 @@ function make_contact(
             infected_agent.incubation_period,
             infected_agent.infection_period,
             viruses[infected_agent.virus_id].mean_viral_load_toddler,
-            infected_agent.is_asymptomatic,
-            max_load)
+            infected_agent.is_asymptomatic)
     elseif infected_agent.age < 16
         infectivity_influence = get_infectivity(
             infected_agent.days_infected,
             infected_agent.incubation_period,
             infected_agent.infection_period,
             viruses[infected_agent.virus_id].mean_viral_load_child,
-            infected_agent.is_asymptomatic,
-            max_load)
+            infected_agent.is_asymptomatic)
     else
         infectivity_influence = get_infectivity(
             infected_agent.days_infected,
             infected_agent.incubation_period,
             infected_agent.infection_period,
             viruses[infected_agent.virus_id].mean_viral_load_adult,
-            infected_agent.is_asymptomatic,
-            max_load)
+            infected_agent.is_asymptomatic)
     end
 
     # Вероятность инфицирования
@@ -109,7 +105,6 @@ function simulate_contacts(
     current_step::Int,
     current_temp::Float64,
     activities_infections_threads::Array{Int, 3},
-    max_load::Float64,
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -218,7 +213,7 @@ function simulate_contacts(
 
                     if dur > 0.01
                         make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
-                            susceptibility_parameters, temperature_parameters, current_temp, rng, max_load)
+                            susceptibility_parameters, temperature_parameters, current_temp, rng)
                         if agent2.is_newly_infected
                             activities_infections_threads[current_step, 5, thread_id] += 1
                         end
@@ -257,7 +252,7 @@ function simulate_contacts(
 
                         if dur > 0.01
                             make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
-                                susceptibility_parameters, temperature_parameters, current_temp, rng, max_load)
+                                susceptibility_parameters, temperature_parameters, current_temp, rng)
                             if agent2.is_newly_infected
                                 activities_infections_threads[current_step, agent.activity_type, thread_id] += 1
                             end
@@ -284,7 +279,7 @@ function simulate_contacts(
                             dur = get_contact_duration_gamma(other_contact_duration_shapes[5], other_contact_duration_scales[5], rng)
                             if dur > 0.01
                                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
-                                    susceptibility_parameters, temperature_parameters, current_temp, rng, max_load)
+                                    susceptibility_parameters, temperature_parameters, current_temp, rng)
     
                                 if agent2.is_newly_infected
                                     activities_infections_threads[current_step, 3, thread_id] += 1
@@ -1087,7 +1082,6 @@ function run_simulation(
     school_class_closure_period::Int = 0,
     school_class_closure_threshold::Float64 = 0.0,
     school_closure_threshold_classes::Int = 3,
-    max_load::Float64,
 )::Tuple{Array{Float64, 3}, Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}}
     # День месяца
     day = 1
@@ -1234,8 +1228,7 @@ function run_simulation(
                 is_work_holiday,
                 current_step,
                 (temperature[year_day] - min_temp) / max_min_temp,
-                activities_infections_threads,
-                max_load)
+                activities_infections_threads)
         end
 
         # --------------------------TBD ZONE-----------------------------------
