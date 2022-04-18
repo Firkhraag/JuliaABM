@@ -196,6 +196,7 @@ end
 function stepwise_regression(
     X_params::Matrix{Float64},
     y::Vector{Float64},
+    additional_stop_condition::Int,
 )::Vector{Int}
     X = cat(X_params, [1.0 for i = 1:length(y)], dims = 2)
 
@@ -270,7 +271,11 @@ function stepwise_regression(
             num_params += 1
         end
 
-        println(included_parameters)
+        if length(included_parameters) == additional_stop_condition
+            exit = true
+        end
+
+        # println(included_parameters)
     end
 
     return included_parameters

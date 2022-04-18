@@ -48,8 +48,8 @@ function main()
     school_class_closure_threshold = 0.25
     school_closure_threshold_classes = 3
 
-    global_warming = false
-    # global_warming = true
+    with_global_warming = false
+    # with_global_warming = true
 
     num_threads = nthreads()
 
@@ -138,7 +138,7 @@ function main()
     # Номера районов для MPI процессов
     district_nums = get_district_nums()
     # Температура воздуха, начиная с 1 января
-    temperature = get_air_temperature(global_warming)
+    temperature = get_air_temperature(with_global_warming)
 
     agents = Array{Agent, 1}(undef, num_agents)
 
@@ -405,7 +405,7 @@ function main()
     #     println(age_dist ./ sum(age_dist))
     # end
 
-    if global_warming
+    if with_global_warming
         save(joinpath(@__DIR__, "..", "output", "tables", "results_warming_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "all_cases", num_infected_age_groups_viruses,
