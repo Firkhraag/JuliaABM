@@ -16,10 +16,7 @@ default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
 const is_russian = false
 
 function plot_infection_curves()
-    num_runs = 200
-    # num_runs = 151
-    # num_runs = 70
-    # num_runs = 10
+    num_runs = 300
     num_years = 3
 
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
@@ -742,42 +739,85 @@ function plot_infection_curves()
         "mean_viral_load_adult_7",
     ]
 
-    println("Max")
-    y = incidence_arr_means[argmax(infected_data_mean), :]
-    @time param_ids = stepwise_regression(X, y, 15)
-    println(params_arr[param_ids])
-    # ["susceptibility_parameter_1", "duration_parameter", "mean_viral_load_adult_1", "other_contact_duration_shape_2",
-    # "mean_viral_load_adult_2", "infection_period_duration_adult_1", "recovered_duration_mean",
-    # "infection_period_duration_variance_child_2", "symptomatic_probability_adult_1", "susceptibility_parameter_4",
-    # "mean_viral_load_child_1", "other_contact_duration_scale_2", "other_contact_duration_scale_4",
-    # "susceptibility_parameter_7","infection_period_duration_child_1"]
-
-    println("Sum")
-    y = sum(incidence_arr_means, dims = 1)[1, :]
-    @time param_ids = stepwise_regression(X, y, 15)
-    println(params_arr[param_ids])
-    # ["duration_parameter", "susceptibility_parameter_4", "other_contact_duration_shape_4", "susceptibility_parameter_1",
-    # "other_contact_duration_scale_4", "other_contact_duration_scale_2", "mean_household_contact_duration_4",
-    # "other_contact_duration_shape_2", "mean_viral_load_adult_3", "susceptibility_parameter_2", "susceptibility_parameter_3",
-    # "susceptibility_parameter_6", "mean_viral_load_adult_1", "infection_period_duration_adult_2", "infection_period_duration_adult_1"]
-
     println("First peak")
     y = incidence_arr_means[10, :]
     @time param_ids = stepwise_regression(X, y, 15)
     println(params_arr[param_ids])
-    # ["duration_parameter", "susceptibility_parameter_4", "susceptibility_parameter_5", "other_contact_duration_shape_4",
-    # "susceptibility_parameter_3", "other_contact_duration_scale_2", "other_contact_duration_scale_4", "susceptibility_parameter_6",
-    # "mean_viral_load_adult_3", "other_contact_duration_shape_2", "mean_viral_load_child_6", "infection_period_duration_adult_6",
-    # "mean_immunity_duration_2", "mean_viral_load_adult_7", "mean_household_contact_duration_2"]
+    # ["duration_parameter",
+    # "susceptibility_parameter_4",
+    # "other_contact_duration_scale_4",
+    # "other_contact_duration_shape_4",
+    # "susceptibility_parameter_3",
+    # "other_contact_duration_shape_2",
+    # "susceptibility_parameter_5",
+    # "susceptibility_parameter_6",
+    # "other_contact_duration_scale_2",
+    # "mean_household_contact_duration_4",
+    # "mean_viral_load_child_4",
+    # "other_contact_duration_shape_1", 
+    # "mean_viral_load_adult_4",
+    # "infection_period_duration_adult_4",
+    # "mean_household_contact_duration_2"]
 
     println("Second peak")
     y = incidence_arr_means[13, :]
     @time param_ids = stepwise_regression(X, y, 15)
     println(params_arr[param_ids])
-    # ["duration_parameter", "susceptibility_parameter_4", "susceptibility_parameter_3", "other_contact_duration_scale_2",
-    # "other_contact_duration_shape_4", "mean_viral_load_adult_3", "other_contact_duration_scale_4", "other_contact_duration_shape_2",
-    # "isolation_probability_day_2_4", "mean_household_contact_duration_4", "mean_viral_load_child_3",
-    # "infection_period_duration_adult_3", "mean_viral_load_adult_4", "mean_household_contact_duration_2", "mean_viral_load_adult_7"]
+    # ["duration_parameter",
+    # "susceptibility_parameter_3",
+    # "susceptibility_parameter_4",
+    # "other_contact_duration_scale_4",
+    # "other_contact_duration_scale_2",
+    # "other_contact_duration_shape_4",
+    # "other_contact_duration_shape_2",
+    # "susceptibility_parameter_6",
+    # "susceptibility_parameter_5",
+    # "susceptibility_parameter_7",
+    # "isolation_probability_day_2_4",
+    # "mean_viral_load_adult_3",
+    # "mean_household_contact_duration_2",
+    # "mean_household_contact_duration_4",
+    # "symptomatic_probability_adult_3"]
+
+    println("Max")
+    y = incidence_arr_means[argmax(infected_data_mean), :]
+    @time param_ids = stepwise_regression(X, y, 15)
+    println(params_arr[param_ids])
+    # ["duration_parameter",
+    # "susceptibility_parameter_1",
+    # "mean_viral_load_adult_1",
+    # "mean_viral_load_child_1",
+    # "other_contact_duration_scale_2",
+    # "other_contact_duration_shape_4",
+    # "infection_period_duration_adult_1",
+    # "other_contact_duration_scale_4",
+    # "susceptibility_parameter_2",
+    # "other_contact_duration_shape_2",
+    # "symptomatic_probability_adult_1",
+    # "susceptibility_parameter_4",
+    # "infection_period_duration_child_1",
+    # "mean_household_contact_duration_2",
+    # "mean_household_contact_duration_4"]
+
+    println("Sum")
+    y = sum(incidence_arr_means, dims = 1)[1, :]
+    @time param_ids = stepwise_regression(X, y, 15)
+    println(params_arr[param_ids])
+    # ["duration_parameter",
+    # "susceptibility_parameter_4",
+    # "other_contact_duration_shape_4",
+    # "other_contact_duration_scale_4",
+    # "susceptibility_parameter_1",
+    # "other_contact_duration_scale_2",
+    # "susceptibility_parameter_3",
+    # "other_contact_duration_shape_2",
+    # "susceptibility_parameter_2",
+    # "mean_household_contact_duration_2",
+    # "mean_household_contact_duration_4",
+    # "susceptibility_parameter_5",
+    # "mean_viral_load_adult_1",
+    # "mean_viral_load_child_1",
+    # "other_contact_duration_shape_1"]
 end
 
 function plot_incidences()
@@ -2247,5 +2287,5 @@ function plot_incidences()
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "r7.pdf"))
 end
 
-plot_infection_curves()
-# plot_incidences()
+# plot_infection_curves()
+plot_incidences()

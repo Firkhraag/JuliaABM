@@ -21,19 +21,41 @@ function plot_temperature()
     append!(temperature_data_rearranged, temperature_data[1:212])
 
     ticks = range(1, stop = 365, length = 7)
-    ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    label_names = ["base" "warming"]
+    if is_russian
+        label_names = ["базовый" "потепление"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Temperature, °C"
+    if is_russian
+        ylabel_name = "Температура, °C"
+    end
+
     temperature_plot = plot(
         1:365,
-        temperature_data_rearranged,
-        lw = 1,
-        legend = false,
-        color = :black,
+        [temperature_data_rearranged temperature_data_rearranged .+ 2.0],
+        lw = 1.5,
+        label = label_names,
+        color = [RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2)],
         xticks = (ticks, ticklabels),
         grid = true,
+        legend = (0.51, 0.91),
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Temperature, °C}",
-        xlabel = "Месяц",
-        ylabel = "Температура, °C",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
     )
     savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "temperature.pdf"))
 end
@@ -386,8 +408,8 @@ end
 # plot_CoV()
 # plot_etiology()
 
-# plot_temperature()
+plot_temperature()
 # plot_all_data()
-plot_incidence()
+# plot_incidence()
 # plot_incidence_age_groups()
 # plot_etiology()

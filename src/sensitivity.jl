@@ -35,8 +35,8 @@ function main()
 
     num_threads = nthreads()
 
-    starting_bias = 108
-    n = 92
+    starting_bias = 235
+    n = 65
     disturbance = 0.05
 
     num_years = 3
@@ -44,19 +44,19 @@ function main()
     isolation_probabilities_day_1_default = [0.406, 0.305, 0.204, 0.101]
     isolation_probabilities_day_2_default = [0.669, 0.576, 0.499, 0.334]
     isolation_probabilities_day_3_default = [0.45, 0.325, 0.376, 0.168]
-    recovered_duration_mean_default = 12.0
-    recovered_duration_sd_default = 4.0
+    recovered_duration_mean_default = 6.0
+    recovered_duration_sd_default = 2.0
     mean_household_contact_durations_default = [6.5, 5.8, 9.0, 4.5, 12.0]
     household_contact_duration_sds_default = [2.2, 2.0, 3.0, 1.5, 4.0]
     other_contact_duration_shapes_default = [2.5, 1.78, 2.0, 1.81, 1.2]
     other_contact_duration_scales_default = [1.6, 1.95, 1.07, 1.7, 1.07]
 
     # Parameters add _default
-    duration_parameter_default = 3.711739847454133
-    susceptibility_parameters_default = [3.049958771387343, 3.797783962069675, 3.6978664192949933, 5.583601319315603, 4.070443207586069, 3.957334570191713, 4.612042877757162]
-    temperature_parameters_default = [-0.8786105957534528, -0.7631003916718199, -0.0868996083281797, -0.15656565656565657, -0.1027107812822098, -0.05588538445681307, -0.16932591218305615]
-    random_infection_probabilities_default = [0.00011551556380127805, 6.822016079158936e-5, 4.922135642135645e-5, 6.844135229849516e-7]
-    mean_immunity_durations_default = [255.05916305916304, 312.7078952793239, 101.87487116058544, 27.368377654091933, 77.08431251288393, 117.33374561945988, 103.15357658214802]
+    duration_parameter_default = 3.970325706039992
+    susceptibility_parameters_default = [3.201473922902495, 3.708895073180786, 3.817058338486913, 5.601783137497422, 4.082564419707281, 4.03612244897959, 4.4968913626056475]
+    temperature_parameters_default = [-0.7745701917130488, -0.769160997732426, -0.09444444444444446, -0.11111111111111113, -0.12291280148423, -0.11346114203257066, -0.24710368996083393]
+    random_infection_probabilities_default = [0.00011583879612451038, 6.800197897340754e-5, 4.915064935064938e-5, 6.634034219748507e-7]
+    mean_immunity_durations_default = [252.02886002886, 312.16244073386935, 98.2385075242218, 34.277468563182836, 83.02370645227786, 116.12162440733866, 101.6384250669965]
     
     incubation_period_durations_default = [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2]
     incubation_period_duration_variances_default = [0.09, 0.0484, 0.175, 0.937, 1.51, 0.327, 0.496]

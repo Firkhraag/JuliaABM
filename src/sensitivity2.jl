@@ -55,8 +55,8 @@ function main()
     isolation_probabilities_day_2 = [0.669, 0.576, 0.499, 0.334]
     isolation_probabilities_day_3 = [0.45, 0.325, 0.376, 0.168]
     # Продолжительность резистентного состояния
-    recovered_duration_mean = 12.0
-    recovered_duration_sd = 4.0
+    recovered_duration_mean = 6.0
+    recovered_duration_sd = 2.0
     # Продолжительности контактов в домохозяйствах
     # Укороченные для различных коллективов и полная: Kinder, School, College, Work, Full
     mean_household_contact_durations = [6.5, 5.8, 9.0, 4.5, 12.0]
@@ -69,11 +69,11 @@ function main()
     firm_max_size = 1000
     num_barabasi_albert_attachments = 5
 
-    duration_parameter = 3.711739847454133
-    susceptibility_parameters = [3.049958771387343, 3.797783962069675, 3.6978664192949933, 5.583601319315603, 4.070443207586069, 3.957334570191713, 4.612042877757162]
-    temperature_parameters = [-0.8786105957534528, -0.7631003916718199, -0.0868996083281797, -0.15656565656565657, -0.1027107812822098, -0.05588538445681307, -0.16932591218305615]
-    random_infection_probabilities = [0.00011551556380127805, 6.822016079158936e-5, 4.922135642135645e-5, 6.844135229849516e-7]
-    mean_immunity_durations = [255.05916305916304, 312.7078952793239, 101.87487116058544, 27.368377654091933, 77.08431251288393, 117.33374561945988, 103.15357658214802]
+    duration_parameter = 3.970325706039992
+    susceptibility_parameters = [3.201473922902495, 3.708895073180786, 3.817058338486913, 5.601783137497422, 4.082564419707281, 4.03612244897959, 4.4968913626056475]
+    temperature_parameters = [-0.7745701917130488, -0.769160997732426, -0.09444444444444446, -0.11111111111111113, -0.12291280148423, -0.11346114203257066, -0.24710368996083393]
+    random_infection_probabilities = [0.00011583879612451038, 6.800197897340754e-5, 4.915064935064938e-5, 6.634034219748507e-7]
+    mean_immunity_durations = [252.02886002886, 312.16244073386935, 98.2385075242218, 34.277468563182836, 83.02370645227786, 116.12162440733866, 101.6384250669965]
 
     viruses = Virus[
         # FluA
@@ -268,116 +268,116 @@ function main()
     multipliers = [0.8, 0.9, 1.1, 1.2]
     k = -2
 
-    # for m in multipliers
-    #     duration_parameter_new = duration_parameter * m
-    #     @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
-    #         num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_new,
-    #         susceptibility_parameters, temperature_parameters, temperature,
-    #         mean_household_contact_durations, household_contact_duration_sds,
-    #         other_contact_duration_shapes, other_contact_duration_scales,
-    #         isolation_probabilities_day_1, isolation_probabilities_day_2,
-    #         isolation_probabilities_day_3, random_infection_probabilities,
-    #         recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-    #         school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
-    #     writedlm(
-    #         joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_d_$k.csv"),
-    #         sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
-    #     @threads for thread_id in 1:num_threads
-    #         reset_agent_states(
-    #             agents,
-    #             start_agent_ids[thread_id],
-    #             end_agent_ids[thread_id],
-    #             viruses,
-    #             num_all_infected_age_groups_viruses_mean,
-    #             isolation_probabilities_day_1,
-    #             isolation_probabilities_day_2,
-    #             isolation_probabilities_day_3,
-    #             thread_rng[thread_id],
-    #         )
-    #     end
-    #     if k == -1
-    #         k = 1
-    #     else
-    #         k += 1
-    #     end
-    # end
+    for m in multipliers
+        duration_parameter_new = duration_parameter * m
+        @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+            num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_new,
+            susceptibility_parameters, temperature_parameters, temperature,
+            mean_household_contact_durations, household_contact_duration_sds,
+            other_contact_duration_shapes, other_contact_duration_scales,
+            isolation_probabilities_day_1, isolation_probabilities_day_2,
+            isolation_probabilities_day_3, random_infection_probabilities,
+            recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+            school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
+        writedlm(
+            joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_d_$k.csv"),
+            sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
+        @threads for thread_id in 1:num_threads
+            reset_agent_states(
+                agents,
+                start_agent_ids[thread_id],
+                end_agent_ids[thread_id],
+                viruses,
+                num_all_infected_age_groups_viruses_mean,
+                isolation_probabilities_day_1,
+                isolation_probabilities_day_2,
+                isolation_probabilities_day_3,
+                thread_rng[thread_id],
+            )
+        end
+        if k == -1
+            k = 1
+        else
+            k += 1
+        end
+    end
 
-    # for i in 1:7
-    #     k = -2
-    #     for m in multipliers
-    #         susceptibility_parameters_new = copy(susceptibility_parameters)
-    #         susceptibility_parameters_new[i] *= m
-    #         @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
-    #             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
-    #             susceptibility_parameters_new, temperature_parameters, temperature,
-    #             mean_household_contact_durations, household_contact_duration_sds,
-    #             other_contact_duration_shapes, other_contact_duration_scales,
-    #             isolation_probabilities_day_1, isolation_probabilities_day_2,
-    #             isolation_probabilities_day_3, random_infection_probabilities,
-    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-    #             school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
-    #         writedlm(
-    #             joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_s$(i)_$k.csv"),
-    #             sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
-    #         @threads for thread_id in 1:num_threads
-    #             reset_agent_states(
-    #                 agents,
-    #                 start_agent_ids[thread_id],
-    #                 end_agent_ids[thread_id],
-    #                 viruses,
-    #                 num_all_infected_age_groups_viruses_mean,
-    #                 isolation_probabilities_day_1,
-    #                 isolation_probabilities_day_2,
-    #                 isolation_probabilities_day_3,
-    #                 thread_rng[thread_id],
-    #             )
-    #         end
-    #         if k == -1
-    #             k = 1
-    #         else
-    #             k += 1
-    #         end
-    #     end
-    # end
+    for i in 1:7
+        k = -2
+        for m in multipliers
+            susceptibility_parameters_new = copy(susceptibility_parameters)
+            susceptibility_parameters_new[i] *= m
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+                num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
+                susceptibility_parameters_new, temperature_parameters, temperature,
+                mean_household_contact_durations, household_contact_duration_sds,
+                other_contact_duration_shapes, other_contact_duration_scales,
+                isolation_probabilities_day_1, isolation_probabilities_day_2,
+                isolation_probabilities_day_3, random_infection_probabilities,
+                recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+                school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
+            writedlm(
+                joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_s$(i)_$k.csv"),
+                sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
+            @threads for thread_id in 1:num_threads
+                reset_agent_states(
+                    agents,
+                    start_agent_ids[thread_id],
+                    end_agent_ids[thread_id],
+                    viruses,
+                    num_all_infected_age_groups_viruses_mean,
+                    isolation_probabilities_day_1,
+                    isolation_probabilities_day_2,
+                    isolation_probabilities_day_3,
+                    thread_rng[thread_id],
+                )
+            end
+            if k == -1
+                k = 1
+            else
+                k += 1
+            end
+        end
+    end
 
-    # values = -[0.25, 0.5, 0.75, 1.0]
-    # for i in 1:7
-    #     k = -2
-    #     for v in values
-    #         temperature_parameters_new = copy(temperature_parameters)
-    #         temperature_parameters_new[i] = v
-    #         @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
-    #             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
-    #             susceptibility_parameters, temperature_parameters_new, temperature,
-    #             mean_household_contact_durations, household_contact_duration_sds,
-    #             other_contact_duration_shapes, other_contact_duration_scales,
-    #             isolation_probabilities_day_1, isolation_probabilities_day_2,
-    #             isolation_probabilities_day_3, random_infection_probabilities,
-    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-    #             school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
-    #         writedlm(
-    #             joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_t$(i)_$k.csv"),
-    #             sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
-    #         @threads for thread_id in 1:num_threads
-    #             reset_agent_states(
-    #                 agents,
-    #                 start_agent_ids[thread_id],
-    #                 end_agent_ids[thread_id],
-    #                 viruses,
-    #                 num_all_infected_age_groups_viruses_mean,
-    #                 isolation_probabilities_day_1,
-    #                 isolation_probabilities_day_2,
-    #                 isolation_probabilities_day_3,
-    #                 thread_rng[thread_id],
-    #             )
-    #         end
-    #         if k == -1
-    #             k = 1
-    #         else
-    #             k += 1
-    #         end
-    #     end
-    # end
+    values = -[0.25, 0.5, 0.75, 1.0]
+    for i in 1:7
+        k = -2
+        for v in values
+            temperature_parameters_new = copy(temperature_parameters)
+            temperature_parameters_new[i] = v
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+                num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
+                susceptibility_parameters, temperature_parameters_new, temperature,
+                mean_household_contact_durations, household_contact_duration_sds,
+                other_contact_duration_shapes, other_contact_duration_scales,
+                isolation_probabilities_day_1, isolation_probabilities_day_2,
+                isolation_probabilities_day_3, random_infection_probabilities,
+                recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+                school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
+            writedlm(
+                joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_t$(i)_$k.csv"),
+                sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
+            @threads for thread_id in 1:num_threads
+                reset_agent_states(
+                    agents,
+                    start_agent_ids[thread_id],
+                    end_agent_ids[thread_id],
+                    viruses,
+                    num_all_infected_age_groups_viruses_mean,
+                    isolation_probabilities_day_1,
+                    isolation_probabilities_day_2,
+                    isolation_probabilities_day_3,
+                    thread_rng[thread_id],
+                )
+            end
+            if k == -1
+                k = 1
+            else
+                k += 1
+            end
+        end
+    end
 
     prob_multipliers = [0.1, 0.5, 2.0, 10.0]
     for i in 1:4
@@ -418,50 +418,50 @@ function main()
         end
     end
 
-    # for i in 1:7
-    #     k = -2
-    #     for m in multipliers
-    #         mean_immunity_durations_new = copy(mean_immunity_durations)
-    #         mean_immunity_durations_new[i] *= m
-    #         for k = 1:length(viruses)
-    #             viruses[k].mean_immunity_duration = mean_immunity_durations_new[k]
-    #         end
-    #         @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
-    #             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
-    #             susceptibility_parameters, temperature_parameters, temperature,
-    #             mean_household_contact_durations, household_contact_duration_sds,
-    #             other_contact_duration_shapes, other_contact_duration_scales,
-    #             isolation_probabilities_day_1, isolation_probabilities_day_2,
-    #             isolation_probabilities_day_3, random_infection_probabilities,
-    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-    #             school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
-    #         writedlm(
-    #             joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_r$(i)_$k.csv"),
-    #             sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
-    #         @threads for thread_id in 1:num_threads
-    #             reset_agent_states(
-    #                 agents,
-    #                 start_agent_ids[thread_id],
-    #                 end_agent_ids[thread_id],
-    #                 viruses,
-    #                 num_all_infected_age_groups_viruses_mean,
-    #                 isolation_probabilities_day_1,
-    #                 isolation_probabilities_day_2,
-    #                 isolation_probabilities_day_3,
-    #                 thread_rng[thread_id],
-    #             )
-    #         end
-    #         if k == -1
-    #             k = 1
-    #         else
-    #             k += 1
-    #         end
+    for i in 1:7
+        k = -2
+        for m in multipliers
+            mean_immunity_durations_new = copy(mean_immunity_durations)
+            mean_immunity_durations_new[i] *= m
+            for k = 1:length(viruses)
+                viruses[k].mean_immunity_duration = mean_immunity_durations_new[k]
+            end
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+                num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
+                susceptibility_parameters, temperature_parameters, temperature,
+                mean_household_contact_durations, household_contact_duration_sds,
+                other_contact_duration_shapes, other_contact_duration_scales,
+                isolation_probabilities_day_1, isolation_probabilities_day_2,
+                isolation_probabilities_day_3, random_infection_probabilities,
+                recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+                school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
+            writedlm(
+                joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_r$(i)_$k.csv"),
+                sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
+            @threads for thread_id in 1:num_threads
+                reset_agent_states(
+                    agents,
+                    start_agent_ids[thread_id],
+                    end_agent_ids[thread_id],
+                    viruses,
+                    num_all_infected_age_groups_viruses_mean,
+                    isolation_probabilities_day_1,
+                    isolation_probabilities_day_2,
+                    isolation_probabilities_day_3,
+                    thread_rng[thread_id],
+                )
+            end
+            if k == -1
+                k = 1
+            else
+                k += 1
+            end
 
-    #         for k = 1:length(viruses)
-    #             viruses[k].mean_immunity_duration = mean_immunity_durations[k]
-    #         end
-    #     end
-    # end
+            for k = 1:length(viruses)
+                viruses[k].mean_immunity_duration = mean_immunity_durations[k]
+            end
+        end
+    end
 end
 
 main()

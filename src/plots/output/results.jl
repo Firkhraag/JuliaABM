@@ -105,7 +105,7 @@ function plot_incidence()
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "model_incidence_quarantine.pdf" : with_global_warming ? "model_incidence_warming.pdf" : "model_incidence.pdf"))
 end
 
-function plot_incidence_interventions()
+function plot_incidence_scenarios()
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52)
 
@@ -210,16 +210,15 @@ function plot_incidence_interventions()
         yticks = (yticks, yticklabels),
         label = label_names,
         grid = true,
-        legend = (0.9, 0.98),
+        legend = (0.85, 0.98),
         color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467) RGB(0.133, 0.533, 0.2)],
-        # ribbon = [confidence_model confidence_data],
         ribbon = [confidence_model confidence_model_quarantine confidence_model_warming],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence_interventions.pdf"))
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence_scenarios.pdf"))
 end
 
 function plot_incidence_age_groups()
@@ -1681,15 +1680,15 @@ function print_statistics()
     println("CoV nMAE: $(nMAE)")
 end
 
-plot_incidence()
-plot_incidence_age_groups()
-plot_incidence_viruses()
-plot_rt()
-plot_infection_activities()
+# plot_incidence()
+# plot_incidence_age_groups()
+# plot_incidence_viruses()
+# plot_rt()
+# plot_infection_activities()
 
-# print_statistics()
+print_statistics()
 
-# plot_incidence_interventions()
+# plot_incidence_scenarios()
 
 # plot_incidence_age_groups_viruses()
 # plot_incidence_etiology()
