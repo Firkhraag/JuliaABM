@@ -47,6 +47,7 @@ function main()
     # school_class_closure_period = 7
     school_class_closure_threshold = 0.25
     school_closure_threshold_classes = 3
+    # school_closure_threshold_classes = 99999
 
     with_global_warming = false
     # with_global_warming = true
@@ -423,6 +424,11 @@ function main()
             "all_cases", num_infected_age_groups_viruses,
             "activities_cases", activities_infections,
             "rt", rt)
+        # save(joinpath(@__DIR__, "..", "output", "tables", "results_quarantine_classes_$(run_num + 1).jld"),
+        #     "observed_cases", observed_num_infected_age_groups_viruses,
+        #     "all_cases", num_infected_age_groups_viruses,
+        #     "activities_cases", activities_infections,
+        #     "rt", rt)
     end
 
     observed_num_infected_age_groups_viruses_mean = zeros(Float64, 52, 7, 4)
