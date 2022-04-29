@@ -259,7 +259,8 @@ end
 function plot_infectivity_influence()
     days_infected = collect(-4:10)
     ticks = range(-4, stop = 10, length = 8)
-    ticklabels = ["-4" "-2" "0" "2" "4" "6" "8" "10"]
+    # ticklabels = ["-4" "-2" "0" "2" "4" "6" "8" "10"]
+    ticklabels = ["1" "3" "5" "7" "9" "11" "13" "15"]
 
     xlabel_name = "День"
     if !is_russian
@@ -294,5 +295,5 @@ end
 
 # plot_duration_influence()
 # plot_temperature_influence_year()
-# plot_infectivity_influence()
-plot_susceptibility_influence_age()
+plot_infectivity_influence()
+# plot_susceptibility_influence_age()

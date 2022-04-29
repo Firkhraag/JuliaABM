@@ -270,7 +270,7 @@ function main()
 
     for m in multipliers
         duration_parameter_new = duration_parameter * m
-        @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+        @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_new,
             susceptibility_parameters, temperature_parameters, temperature,
             mean_household_contact_durations, household_contact_duration_sds,
@@ -307,7 +307,7 @@ function main()
         for m in multipliers
             susceptibility_parameters_new = copy(susceptibility_parameters)
             susceptibility_parameters_new[i] *= m
-            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
                 num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
                 susceptibility_parameters_new, temperature_parameters, temperature,
                 mean_household_contact_durations, household_contact_duration_sds,
@@ -346,7 +346,7 @@ function main()
         for v in values
             temperature_parameters_new = copy(temperature_parameters)
             temperature_parameters_new[i] = v
-            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
                 num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
                 susceptibility_parameters, temperature_parameters_new, temperature,
                 mean_household_contact_durations, household_contact_duration_sds,
@@ -385,7 +385,7 @@ function main()
         for m in prob_multipliers
             random_infection_probabilities_new = copy(random_infection_probabilities)
             random_infection_probabilities_new[i] *= m
-            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
                 num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
                 susceptibility_parameters, temperature_parameters, temperature,
                 mean_household_contact_durations, household_contact_duration_sds,
@@ -426,7 +426,7 @@ function main()
             for k = 1:length(viruses)
                 viruses[k].mean_immunity_duration = mean_immunity_durations_new[k]
             end
-            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
                 num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
                 susceptibility_parameters, temperature_parameters, temperature,
                 mean_household_contact_durations, household_contact_duration_sds,

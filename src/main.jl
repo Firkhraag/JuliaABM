@@ -43,8 +43,8 @@ function main()
 
     num_years = 3
 
-    school_class_closure_period = 0
-    # school_class_closure_period = 7
+    # school_class_closure_period = 0
+    school_class_closure_period = 7
     school_class_closure_threshold = 0.25
     school_closure_threshold_classes = 3
     # school_closure_threshold_classes = 99999
@@ -390,7 +390,7 @@ function main()
     #     rand(temperature_parameter_7_array[burnin:step:end])
     # ]
 
-    @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+    @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
         num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
         susceptibility_parameters, temperature_parameters, temperature,
         mean_household_contact_durations, household_contact_duration_sds,
@@ -423,7 +423,8 @@ function main()
             "observed_cases", observed_num_infected_age_groups_viruses,
             "all_cases", num_infected_age_groups_viruses,
             "activities_cases", activities_infections,
-            "rt", rt)
+            "rt", rt,
+            "num_schools_closed", num_schools_closed)
         # save(joinpath(@__DIR__, "..", "output", "tables", "results_quarantine_classes_$(run_num + 1).jld"),
         #     "observed_cases", observed_num_infected_age_groups_viruses,
         #     "all_cases", num_infected_age_groups_viruses,
