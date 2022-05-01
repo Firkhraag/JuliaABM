@@ -45,7 +45,7 @@ function main()
 
     # school_class_closure_period = 0
     school_class_closure_period = 7
-    school_class_closure_threshold = 0.25
+    school_class_closure_threshold = 0.2
     school_closure_threshold_classes = 3
     # school_closure_threshold_classes = 99999
 

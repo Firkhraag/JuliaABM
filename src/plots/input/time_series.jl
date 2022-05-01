@@ -23,10 +23,17 @@ function plot_temperature()
 
     num_years = 3
     num_schools_closed = zeros(Float64, 365)
-    num_schools_closed_temp = incidence_arr = Array{Vector{Int}, 1}(undef, num_years)
+    num_schools_closed_temp = incidence_arr = Array{Vector{Float64}, 1}(undef, num_years)
     
-    num_schools_closed_model = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_1.jld"))["num_schools_closed"]
+    num_schools_closed_model = zeros(Float64, 365 * num_years)
+    # num_schools_closed_model = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_1.jld"))["num_schools_closed"]
     
+    num_runs = 10
+    for i = 1:num_runs
+        num_schools_closed_model += load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["num_schools_closed"][1:365 * num_years]
+    end
+    num_schools_closed_model ./= num_runs
+
     for i = 1:num_years
         num_schools_closed_temp[i] = num_schools_closed_model[(365 * (i - 1) + 1):(365 * (i - 1) + 365)]
     end
@@ -111,7 +118,7 @@ function plot_temperature()
         label = "quarantine",
         color = RGB(0.933, 0.4, 0.467),
         xticks = (ticks, ticklabels),
-        yticks = ([0, 20, 40, 60], ["0", "20", "40", "60"]),
+        # yticks = ([0, 20, 40, 60], ["0", "20", "40", "60"]),
         grid = false,
         legend = (0.74, 0.98),
         # xlabel = L"\textrm{\sffamily Month}",

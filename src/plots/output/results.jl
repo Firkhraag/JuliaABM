@@ -15,8 +15,8 @@ const is_russian = false
 const num_runs = 10
 const num_years = 3
 
-const with_quarantine = false
-# const with_quarantine = true
+# const with_quarantine = false
+const with_quarantine = true
 
 const with_global_warming = false
 # const with_global_warming = true
@@ -95,7 +95,6 @@ function plot_incidence()
         grid = true,
         legend = (0.9, 0.98),
         color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-        # ribbon = [confidence_model confidence_data],
         ribbon = [confidence_model confidence_data],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -110,7 +109,7 @@ function plot_incidence_scenarios()
     incidence_arr_mean = zeros(Float64, 52)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ 10072
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
         for j = 1:num_years
             incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
@@ -1479,10 +1478,10 @@ function print_statistics()
         end
     end
 
-    confidence_model = zeros(Float64, 52)
-    for i = 1:52
-        confidence_model[i] = confidence([incidence_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
-    end
+    # confidence_model = zeros(Float64, 52)
+    # for i = 1:52
+    #     confidence_model[i] = confidence([incidence_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
+    # end
 
     for i = 1:52
         for j = 1:num_years
@@ -1505,10 +1504,10 @@ function print_statistics()
         end
     end
 
-    confidence_model = zeros(Float64, 52)
-    for i = 1:52
-        confidence_model[i] = confidence([incidence_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
-    end
+    # confidence_model = zeros(Float64, 52)
+    # for i = 1:52
+    #     confidence_model[i] = confidence([incidence_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
+    # end
 
     for i = 1:52
         for j = 1:num_years
@@ -1531,10 +1530,10 @@ function print_statistics()
         end
     end
 
-    confidence_model = zeros(Float64, 52)
-    for i = 1:52
-        confidence_model[i] = confidence([incidence_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
-    end
+    # confidence_model = zeros(Float64, 52)
+    # for i = 1:52
+    #     confidence_model[i] = confidence([incidence_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
+    # end
 
     for i = 1:52
         for j = 1:num_years

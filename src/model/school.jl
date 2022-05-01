@@ -1,5 +1,5 @@
 # Детский сад, школа, колледж, университет
-struct School
+mutable struct School
     # Группы
     groups::Vector{Vector{Vector{Int64}}}
     teacher_ids::Vector{Int}
@@ -8,6 +8,7 @@ struct School
     # Координаты
     x::Float64
     y::Float64
+    quarantine_period::Int
 
     function School(
         type::Int,
@@ -16,11 +17,11 @@ struct School
         y::Float64,
     )
         if type == 1
-            new(Vector{Vector{Int64}}[Vector{Int64}[Int[]] for _ in 1:5], Int[], district_id, x, y)
+            new(Vector{Vector{Int64}}[Vector{Int64}[Int[]] for _ in 1:5], Int[], district_id, x, y, 0)
         elseif type == 2
-            new(Vector{Vector{Int64}}[Vector{Int64}[Int[]] for _ in 1:11], Int[], district_id, x, y)
+            new(Vector{Vector{Int64}}[Vector{Int64}[Int[]] for _ in 1:11], Int[], district_id, x, y, 0)
         else
-            new(Vector{Vector{Int64}}[Vector{Int64}[Int[]] for _ in 1:6], Int[], district_id, x, y)
+            new(Vector{Vector{Int64}}[Vector{Int64}[Int[]] for _ in 1:6], Int[], district_id, x, y, 0)
         end
     end
 end
