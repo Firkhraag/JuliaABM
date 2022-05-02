@@ -28,7 +28,8 @@ function plot_temperature()
     num_schools_closed_model = zeros(Float64, 365 * num_years)
     # num_schools_closed_model = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_1.jld"))["num_schools_closed"]
     
-    num_runs = 10
+    # num_runs = 10
+    num_runs = 2
     for i = 1:num_runs
         num_schools_closed_model += load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["num_schools_closed"][1:365 * num_years]
     end

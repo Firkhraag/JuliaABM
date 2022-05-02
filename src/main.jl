@@ -46,8 +46,6 @@ function main()
     # school_class_closure_period = 0
     school_class_closure_period = 7
     school_class_closure_threshold = 0.2
-    school_closure_threshold_classes = 3
-    # school_closure_threshold_classes = 99999
 
     with_global_warming = false
     # with_global_warming = true
@@ -398,7 +396,7 @@ function main()
         isolation_probabilities_day_1, isolation_probabilities_day_2,
         isolation_probabilities_day_3, random_infection_probabilities,
         recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-        school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
+        school_class_closure_period, school_class_closure_threshold)
 
     # for k = 1:7
     #     println("Virus: $(k)")

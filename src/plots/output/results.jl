@@ -12,7 +12,8 @@ include("../../data/etiology.jl")
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
 const is_russian = false
-const num_runs = 10
+# const num_runs = 10
+const num_runs = 2
 const num_years = 3
 
 # const with_quarantine = false
@@ -1679,7 +1680,7 @@ function print_statistics()
     println("CoV nMAE: $(nMAE)")
 end
 
-# plot_incidence()
+plot_incidence()
 # plot_incidence_age_groups()
 # plot_incidence_viruses()
 # plot_rt()
@@ -1687,7 +1688,7 @@ end
 
 print_statistics()
 
-# plot_incidence_scenarios()
+plot_incidence_scenarios()
 
 # plot_incidence_age_groups_viruses()
 # plot_incidence_etiology()
