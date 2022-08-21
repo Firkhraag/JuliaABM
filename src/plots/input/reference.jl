@@ -110,37 +110,16 @@ begin
 end
 
 # ╔═╡ 37bdfcc6-040c-4a17-8c76-2fd6d07ba3f6
-begin
-	sum1 = 0.0
-	for i = 1:15
-		for j = 1:15
-			sum1 += (work_contact_counts[i, j] - work_contacts[i, j])^2
-		end
-	end
-	sum1
-end
+sum(abs.(work_contact_counts[1:16, 1:16] - work_contacts[1:16, 1:16])) / sum(work_contacts[1:16, 1:16])
 
 # ╔═╡ e0cd3c12-011c-4e07-9a42-d89c83f70979
-begin
-	sum2 = 0.0
-	for i = 1:16
-		for j = 1:16
-			sum2 += (school_contact_counts[i, j] - school_contacts[i, j])^2
-		end
-	end
-	sum2
-end
+sum(abs.(school_contact_counts[1:16, 1:16] - school_contacts[1:16, 1:16])) / sum(school_contacts[1:16, 1:16])
 
 # ╔═╡ 2f26bf37-7101-4343-bb48-2ed29f3fd32a
-begin
-	sum3 = 0.0
-	for i = 1:16
-		for j = 1:16
-			sum3 += (home_contact_counts[i, j] - home_contacts[i, j])^2
-		end
-	end
-	sum3
-end
+sum(abs.(home_contact_counts[1:16, 1:16] - home_contacts[1:16, 1:16])) / sum(home_contacts[1:16, 1:16])
+
+# ╔═╡ d7637df7-7c0a-4567-93ec-3b3030873c6e
+sum(abs.((home_contact_counts[1:16, 1:16] .+ work_contact_counts[1:16, 1:16] .+ school_contact_counts[1:16, 1:16]) - (home_contacts[1:16, 1:16] .+ school_contacts[1:16, 1:16] .+ work_contacts[1:16, 1:16]))) / sum(home_contacts[1:16, 1:16] .+ school_contacts[1:16, 1:16] .+ work_contacts[1:16, 1:16])
 
 # ╔═╡ dd254f95-c6dc-4c37-aaaa-4d525a03da5d
 begin
@@ -190,7 +169,9 @@ begin
 	mean = copy(sum_home_contact_counts)
 
 	append!(mean, sum_home_contacts)
-    legend = repeat(["model", "reference"], inner = 16)
+    # legend = repeat(["model", "reference"], inner = 16)
+	# legend = repeat(["модель", "статья"], inner = 16)
+	legend = repeat(["модель", "данные"], inner = 16)
     # std = [1.058, 0.8124, 2.22, 1.63, 1.76, 1.54, 1.54, 1.936, 1.715, 2.5, 2.0, 1.98, 1.76, 1.76]
 
     groupedbar(
@@ -201,12 +182,22 @@ begin
         # yticks = (yticks, yticklabels),
         markerstrokecolor = :black,
         markercolor = :black,
-        grid = false,
-		title = "Home",
+        grid = true,
+		# title = "Home",
+		title = "Дом",
+		xrotation = 45,
+		margin = 2Plots.mm,
+		color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
+		foreground_color_legend = nothing,
+		background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
-        xlabel = "Age group",
-        ylabel = "Contact frequencies",
+		
+        # xlabel = "Age group",
+        # ylabel = "Contact frequencies",
+
+		xlabel = "Возраст",
+        ylabel = "Частота контактов",
     )
 end
 
@@ -223,12 +214,22 @@ begin
         # yticks = (yticks, yticklabels),
         markerstrokecolor = :black,
         markercolor = :black,
-        grid = false,
-		title = "School",
+        grid = true,
+		# title = "School",
+		title = "Школа",
+		xrotation = 45,
+		margin = 2Plots.mm,
+		color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
+		foreground_color_legend = nothing,
+		background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
-        xlabel = "Age group",
-        ylabel = "Contact frequencies",
+		
+        # xlabel = "Age group",
+        # ylabel = "Contact frequencies",
+
+		xlabel = "Возраст",
+        ylabel = "Частота контактов",
     )
 end
 
@@ -245,20 +246,66 @@ begin
         # yticks = (yticks, yticklabels),
         markerstrokecolor = :black,
         markercolor = :black,
-        grid = false,
-		title = "Work",
+        grid = true,
+		# title = "Work",
+		title = "Работа",
+		xrotation = 45,
+		margin = 2Plots.mm,
+		color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
+		foreground_color_legend = nothing,
+		background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
-        xlabel = "Age group",
-        ylabel = "Contact frequencies",
+		
+        # xlabel = "Age group",
+        # ylabel = "Contact frequencies",
+
+		xlabel = "Возраст",
+        ylabel = "Частота контактов",
+    )
+end
+
+# ╔═╡ dcf273cf-2db1-480b-8a43-762c373f93eb
+begin
+	mean4 = copy(sum_work_contact_counts .+ sum_school_contact_counts .+ sum_home_contact_counts)
+	append!(mean4, sum_work_contacts .+ sum_school_contacts .+ sum_home_contacts)
+
+    groupedbar(
+        labels,
+        mean4,
+        # yerr = std,
+        group = legend,
+        # yticks = (yticks, yticklabels),
+        markerstrokecolor = :black,
+        markercolor = :black,
+        grid = true,
+		# title = "Total",
+		title = "Общее",
+		xrotation = 45,
+		margin = 2Plots.mm,
+		color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
+		foreground_color_legend = nothing,
+		background_color_legend = nothing,
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Infection period duration, days}",
+		
+        # xlabel = "Age group",
+        # ylabel = "Contact frequencies",
+
+		xlabel = "Возраст",
+        ylabel = "Частота контактов",
     )
 end
 
 # ╔═╡ ce8ca903-fbec-428b-b780-aa4b78d3cb98
 begin
-	m1 = (home_contact_counts[1:16, 1:16] - home_contacts).^2
-	m2 = (school_contact_counts[1:16, 1:16] - school_contacts).^2
-	m3 = (work_contact_counts[1:16, 1:16] - work_contacts).^2
+	# m1 = (home_contact_counts[1:16, 1:16] - home_contacts).^2
+	# m2 = (school_contact_counts[1:16, 1:16] - school_contacts).^2
+	# m3 = (work_contact_counts[1:16, 1:16] - work_contacts).^2
+	m1 = home_contacts
+	m2 = school_contacts
+	m3 = work_contacts
+	m4 = home_contacts .+ school_contacts .+ work_contacts
 end
 
 # ╔═╡ 134a6c44-3153-4699-8125-15c0bb208e20
@@ -275,21 +322,23 @@ heatmap(
 		# colorbar_guidefont = (29, :black),
 		# colorbar_titlefontsize = 34,
 		# titlefontsize = 36,
+		title = "Дом (данные)",
+		grid = false,
 		legendfontsize = 28,
 		guidefont = (36, :black),
 		tickfont = (27, :black),
 		colorbar_guidefont = (31, :black),
 		colorbar_titlefontsize = 36,
 		titlefontsize = 38,
-		clims = (10^-2, 10.001),
-		# c = :dense,
-		# c = :ice,
-		# c = reverse(cgrad(:ice)),
+		clims = (10^-2, 1.001),
 		c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
 		colorbar_scale = :log10,
-        xlabel = "Age",
-        ylabel = "Age of contact",
-        colorbar_title = "Frequency of contacts",
+        # xlabel = "Age",
+        # ylabel = "Age of contact",
+        # colorbar_title = "Frequency of contacts",
+		xlabel = "Возраст",
+        ylabel = "Возраст контакта",
+        colorbar_title = "Частота контактов",
         size = (1200, 1200),
     )
 
@@ -301,44 +350,8 @@ heatmap(
         yticks = (ticks, ticklabels),
         margin = 6Plots.mm,
         xrotation = 60,
-		# legendfontsize = 25,
-		# guidefont = (34, :black),
-		# tickfont = (25, :black),
-		# colorbar_guidefont = (29, :black),
-		# colorbar_titlefontsize = 34,
-		# titlefontsize = 36,
-		legendfontsize = 28,
-		guidefont = (36, :black),
-		tickfont = (27, :black),
-		colorbar_guidefont = (31, :black),
-		colorbar_titlefontsize = 36,
-		titlefontsize = 38,
-		clims = (10^-2, 100.001),
-		# c = :dense,
-		# c = :ice,
-		# c = reverse(cgrad(:ice)),
-		c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
-		colorbar_scale = :log10,
-        xlabel = "Age",
-        ylabel = "Age of contact",
-        colorbar_title = "Frequency of contacts",
-        size = (1200, 1200),
-    )
-
-# ╔═╡ c951cbfe-9e18-4662-93e9-31115cdb547c
-heatmap(
-        m3,
-        fontfamily = "Times",
-        xticks = (ticks, ticklabels),
-        yticks = (ticks, ticklabels),
-        margin = 6Plots.mm,
-        xrotation = 60,
-		# legendfontsize = 25,
-		# guidefont = (34, :black),
-		# tickfont = (25, :black),
-		# colorbar_guidefont = (29, :black),
-		# colorbar_titlefontsize = 34,
-		# titlefontsize = 36,
+		title = "Школа (данные)",
+		grid = false,
 		legendfontsize = 28,
 		guidefont = (36, :black),
 		tickfont = (27, :black),
@@ -351,9 +364,74 @@ heatmap(
 		# c = reverse(cgrad(:ice)),
 		c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
 		colorbar_scale = :log10,
-        xlabel = "Age",
-        ylabel = "Age of contact",
-        colorbar_title = "Frequency of contacts",
+        # xlabel = "Age",
+        # ylabel = "Age of contact",
+        # colorbar_title = "Frequency of contacts",
+		xlabel = "Возраст",
+        ylabel = "Возраст контакта",
+        colorbar_title = "Частота контактов",
+        size = (1200, 1200),
+    )
+
+# ╔═╡ c951cbfe-9e18-4662-93e9-31115cdb547c
+heatmap(
+        m3,
+		fontfamily = "Times",
+        xticks = (ticks, ticklabels),
+        yticks = (ticks, ticklabels),
+		margin = 6Plots.mm,
+		title = "Работа (данные)",
+		xrotation = 60,
+		grid = false,
+		legendfontsize = 28,
+		guidefont = (36, :black),
+		tickfont = (27, :black),
+		colorbar_guidefont = (31, :black),
+		colorbar_titlefontsize = 36,
+		titlefontsize = 38,
+		clims = (10^-2, 1.001),
+		# c = :dense,
+		# c = :ice,
+		# c = reverse(cgrad(:ice)),
+		c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
+		colorbar_scale = :log10,
+        # xlabel = "Age",
+        # ylabel = "Age of contact",
+        # colorbar_title = "Frequency of contacts",
+		xlabel = "Возраст",
+        ylabel = "Возраст контакта",
+        colorbar_title = "Частота контактов",
+        size = (1200, 1200),
+    )
+
+# ╔═╡ 0af10053-6ee1-4b0c-ac34-36148cfcd0a5
+heatmap(
+        m4,
+        fontfamily = "Times",
+        xticks = (ticks, ticklabels),
+        yticks = (ticks, ticklabels),
+        margin = 6Plots.mm,
+        xrotation = 60,
+		title = "Общее (данные)",
+		grid = false,
+		legendfontsize = 28,
+		guidefont = (36, :black),
+		tickfont = (27, :black),
+		colorbar_guidefont = (31, :black),
+		colorbar_titlefontsize = 36,
+		titlefontsize = 38,
+		clims = (10^-2, 10.001),
+		# c = :dense,
+		# c = :ice,
+		# c = reverse(cgrad(:ice)),
+		c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
+		colorbar_scale = :log10,
+        # xlabel = "Age",
+        # ylabel = "Age of contact",
+        # colorbar_title = "Frequency of contacts",
+		xlabel = "Возраст",
+        ylabel = "Возраст контакта",
+        colorbar_title = "Частота контактов",
         size = (1200, 1200),
     )
 
@@ -889,6 +967,12 @@ git-tree-sha1 = "f6250b16881adf048549549fba48b1161acdac8c"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
 version = "3.100.1+0"
 
+[[deps.LERC_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "bf36f528eec6634efc60d7ec062008f171071434"
+uuid = "88015f11-f218-50d7-93a8-a6af411a945d"
+version = "3.0.0+1"
+
 [[deps.LZO_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "e5b909bcf985c5e2605737d2ce278ed791b89be6"
@@ -966,10 +1050,10 @@ uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
 version = "2.35.0+0"
 
 [[deps.Libtiff_jll]]
-deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Pkg", "Zlib_jll", "Zstd_jll"]
-git-tree-sha1 = "340e257aada13f95f98ee352d316c3bed37c8ab9"
+deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "Pkg", "Zlib_jll", "Zstd_jll"]
+git-tree-sha1 = "c9551dd26e31ab17b86cbd00c2ede019c08758eb"
 uuid = "89763e89-9b03-5906-acba-b20f662cd828"
-version = "4.3.0+0"
+version = "4.3.0+1"
 
 [[deps.Libuuid_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1185,9 +1269,9 @@ uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[deps.Qt5Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Pkg", "Xorg_libXext_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "xkbcommon_jll"]
-git-tree-sha1 = "ad368663a5e20dbb8d6dc2fddeefe4dae0781ae8"
+git-tree-sha1 = "c6c0f690d0cc7caddb74cef7aa847b824a16b256"
 uuid = "ea2cea3b-5b76-57ae-a6ef-0a8af62496e1"
-version = "5.15.3+0"
+version = "5.15.3+1"
 
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
@@ -1626,14 +1710,17 @@ version = "0.9.1+5"
 # ╠═37bdfcc6-040c-4a17-8c76-2fd6d07ba3f6
 # ╠═e0cd3c12-011c-4e07-9a42-d89c83f70979
 # ╠═2f26bf37-7101-4343-bb48-2ed29f3fd32a
+# ╠═d7637df7-7c0a-4567-93ec-3b3030873c6e
 # ╠═dd254f95-c6dc-4c37-aaaa-4d525a03da5d
 # ╠═1f745e9b-81aa-4b30-84d8-a9ddec8963f0
 # ╠═848c0fe9-7119-417e-a62c-b14f7c0d7d98
 # ╠═9cfb6a64-c666-4bc4-989b-038871efff70
+# ╠═dcf273cf-2db1-480b-8a43-762c373f93eb
 # ╠═ce8ca903-fbec-428b-b780-aa4b78d3cb98
 # ╠═134a6c44-3153-4699-8125-15c0bb208e20
 # ╠═1bbaa2a7-6621-4615-8f39-009e57beeb87
 # ╠═c951cbfe-9e18-4662-93e9-31115cdb547c
+# ╠═0af10053-6ee1-4b0c-ac34-36148cfcd0a5
 # ╠═2ff47f0a-f4be-4f42-a02d-09cee7638c37
 # ╠═0873d05b-7ec4-4267-8231-8b3efe658591
 # ╠═03388827-8e6c-4284-86c2-990741388c03

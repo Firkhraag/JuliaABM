@@ -24,24 +24,32 @@ function age_distribution_groups()
         num_people_model_vec[i] += age_groups_nums[(i - 1) * 5 + 5, 1]
     end
 
-    s = 0.0
-    for i = 1:18
-        s += (num_people_model_vec[i] - num_people_data_vec[i])^2
-    end
+    s = sum(abs.(num_people_model_vec - num_people_data_vec)) / sum(num_people_data_vec)
     # 8.427377045e10
     # 2.9657067362e10
     println(s)
 
     num_people_data = append!(num_people_data_vec, num_people_model_vec)
 
-    # legend = repeat(["data", "model"], inner = 18)
-    legend = repeat(["данные", "модель"], inner = 18)
+    legend = repeat(["data", "model"], inner = 18)
+    if is_russian
+        legend = repeat(["данные", "модель"], inner = 18)
+    end
 
     labels = CategoricalArray(repeat(["0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89"], outer = 3))
     levels!(labels, ["0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89"])
 
     yticks = [2.5 * 10^5, 5.0 * 10^5, 7.5 * 10^5, 1.0 * 10^6]
     yticklabels = ["250000" "500000" "750000" "1000000"]
+
+    xlabel_name = "Age"
+    if is_russian
+        xlabel_name = "Возраст"
+    end
+    ylabel_name = "Number"
+    if is_russian
+        ylabel_name = "Число"
+    end
 
     age_distribution_plot = groupedbar(
         labels,
@@ -59,8 +67,8 @@ function age_distribution_groups()
         # ylabel = L"\textrm{\sffamily Number}"
         # xlabel = "Age",
         # ylabel = "Num",
-        xlabel = "Возраст",
-        ylabel = "Число",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
         grid = true,
         yticks = (yticks, yticklabels),
     )
@@ -79,6 +87,15 @@ function age_distribution()
     yticks = [5.0 * 10^4, 1.0 * 10^5, 1.5 * 10^5, 2.0 * 10^5]
     yticklabels = ["50000" "100000" "150000" "200000"]
 
+    xlabel_name = "Age"
+    if is_russian
+        xlabel_name = "Возраст"
+    end
+    ylabel_name = "Number"
+    if is_russian
+        ylabel_name = "Число"
+    end
+
     age_distribution_plot = groupedbar(
         collect(0:89),
         age_groups_nums,
@@ -86,12 +103,13 @@ function age_distribution()
         # color = :grey,
         color = RGB(0.267, 0.467, 0.667),
         legend = false,
+        margin = 8Plots.mm,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Age}",
         # ylabel = L"\textrm{\sffamily Number}"
-        xlabel = "Возраст",
-        ylabel = "Число",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
         grid = true,
         ylim = (0, 200000),
         xticks = (xticks, xticklabels),
@@ -106,14 +124,31 @@ function household_size_distribution()
     num_households_data_vec = [1118631, 1056816, 922206, 575250, 236758, 148261]
     num_households_data = append!(num_households_data_vec, vec(household_size_distribution))
 
+    arr = vec(household_size_distribution)
+    s = sum(abs.(arr - [1118631, 1056816, 922206, 575250, 236758, 148261])) / sum([1118631, 1056816, 922206, 575250, 236758, 148261])
+    # 8.427377045e10
+    # 2.9657067362e10
+    println(s)
+
     labels = CategoricalArray(repeat(["1", "2", "3", "4", "5", "6"], outer = 3))
     levels!(labels, ["1", "2", "3", "4", "5", "6"])
 
-    # legend = repeat(["data", "model"], inner = 6)
-    legend = repeat(["данные", "модель"], inner = 6)
+    legend = repeat(["data", "model"], inner = 6)
+    if is_russian
+        legend = repeat(["данные", "модель"], inner = 6)
+    end
 
     yticks = [2.5 * 10^5, 5.0 * 10^5, 7.5 * 10^5, 1.0 * 10^6]
     yticklabels = ["250000" "500000" "750000" "1000000"]
+
+    xlabel_name = "Size"
+    if is_russian
+        xlabel_name = "Размер"
+    end
+    ylabel_name = "Number"
+    if is_russian
+        ylabel_name = "Число"
+    end
 
     household_size_distribution_plot = groupedbar(
         labels,
@@ -125,8 +160,8 @@ function household_size_distribution()
         background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Size}",
         # ylabel = L"\textrm{\sffamily Number}"
-        xlabel = "Размер",
-        ylabel = "Число",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
         grid = true,
     )
     savefig(household_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "household_size_distribution.pdf"))
@@ -163,7 +198,16 @@ function workplace_sizes_distribution()
     workplaces_num_people = sort(workplaces_num_people)
     workplace_size_distribution = [(i, count(==(i), workplaces_num_people)) for i in unique(workplaces_num_people)]
 
-    println(workplace_size_distribution)
+    # println(workplace_size_distribution)
+
+    xlabel_name = "Size"
+    if is_russian
+        xlabel_name = "Размер"
+    end
+    ylabel_name = "Number"
+    if is_russian
+        ylabel_name = "Число"
+    end
 
     workplace_size_distribution_plot = plot(
         first.(workplace_size_distribution),
@@ -175,22 +219,31 @@ function workplace_sizes_distribution()
         background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Temperature, °C}",
-        xlabel = "Размер фирмы",
-        ylabel = "Количество",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(workplace_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "workplace_size_distribution.pdf"))
 end
 
 function workplace_sizes_distribution_lognormal()
-    firm_min_size = 0
+    firm_min_size = 1
     firm_max_size = 1000
     lognormal = truncated(LogNormal(1.3, 1.7), firm_min_size, firm_max_size)
 
     yticks = [1e-6, 1e-4, 1e-2, 1.0]
 
+    xlabel_name = "Size"
+    if is_russian
+        xlabel_name = "Размер"
+    end
+    ylabel_name = "Number"
+    if is_russian
+        ylabel_name = "Число"
+    end
+
     workplace_size_distribution_plot = plot(
         x -> pdf(lognormal, x),
-        lw = 1,
+        lw = 1.5,
         xaxis=:log,
         yaxis=:log,
         legend = false,
@@ -205,8 +258,8 @@ function workplace_sizes_distribution_lognormal()
         margin = 2Plots.mm,
         xlims = (1.0, 1000.0),
         ylims = (1e-6, 1.0),
-        xlabel = "Размер фирмы",
-        ylabel = "Частота",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(workplace_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "workplace_size_distribution.pdf"))
 end
@@ -214,5 +267,5 @@ end
 age_distribution_groups()
 age_distribution()
 household_size_distribution()
-# workplace_sizes_distribution()
-# workplace_sizes_distribution_lognormal()
+workplace_sizes_distribution()
+workplace_sizes_distribution_lognormal()

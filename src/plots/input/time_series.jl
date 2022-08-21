@@ -173,12 +173,23 @@ function plot_all_data()
 
     ticks = range(52, stop = length(incidence_data), length = 11)
     ticklabels = ["1962" "1966" "1970" "1974" "1978" "1982" "1986" "1990" "1994" "1998" "2002"]
+
+    xlabel_name = "Year"
+    if is_russian
+        xlabel_name = "Год"
+    end
+
+    ylabel_name = "Weekly incidence rate per 1000"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
     # ticks = range(1, stop = length(incidence_data), length = 7)
     # ticklabels = ["1990" "1992" "1994" "1996" "1998" "2000" "2002"]
     mean_incidence_plot = plot(
         52:2132,
         x -> itp_cubic(x),
-        lw = 1,
+        lw = 1.5,
         legend = false,
         # color = RGB(0.933, 0.4, 0.467),
         color = :black,
@@ -189,8 +200,8 @@ function plot_all_data()
         xrotation = 45,
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
-        xlabel = "Год",
-        ylabel = "Число случаев на 1000 чел. / неделя",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(mean_incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "mean_all_data.pdf"))
 
@@ -212,21 +223,19 @@ function plot_all_data()
         xrotation = 45,
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
-        xlabel = "Год",
-        ylabel = "Число случаев на 1000 чел. / неделя",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "all_data.pdf"))
 end
 
-function plot_incidence()
-    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
-    incidence_data_mean = mean(incidence_data[39:45, 2:53], dims = 1)[1, :] ./ 10072
-
-    println(incidence_data_mean)
+function plot_incidence(date_range::UnitRange{Int64}, input_filename::String, output_filename::String, population_coef::Int)
+    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", input_filename), ',', Float64, '\n')
+    incidence_data_mean = mean(incidence_data[date_range, 2:53], dims = 1)[1, :] ./ population_coef
 
     stds = zeros(Float64, 52)
     for i = 1:52
-        stds[i] = std(incidence_data[39:45, i] ./ 10072)
+        stds[i] = std(incidence_data[date_range, i] ./ population_coef)
     end
 
     ticks = range(1, stop = 52, length = 7)
@@ -241,13 +250,13 @@ function plot_incidence()
         grid = true,
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
-        yerror = stds,
+        # yerror = stds,
         ribbon = stds,
         fillalpha = .5,
         xlabel = "Месяц",
         ylabel = "Число случаев на 1000 ч.",
     )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "incidence.pdf"))
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", output_filename))
 end
 
 function plot_incidence_age_groups()
@@ -497,8 +506,9 @@ end
 # plot_CoV()
 # plot_etiology()
 
-plot_temperature()
+# plot_temperature()
 # plot_all_data()
-# plot_incidence()
+# plot_incidence(39:45, "flu.csv", "incidence.pdf", 10072)
+plot_incidence(2:5, "flu_england.csv", "incidence_england.pdf", 1)
 # plot_incidence_age_groups()
 # plot_etiology()

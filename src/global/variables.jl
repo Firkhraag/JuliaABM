@@ -32,12 +32,18 @@ const burnin = 1
 const step = 2
 
 # Размеры групп в детских садах
-const kindergarten_groups_size_1 = 10
-const kindergarten_groups_size_2_3 = 15
-const kindergarten_groups_size_4_5 = 20
+const kindergarten_groups_size_1 = 8
+const kindergarten_groups_size_2_3 = 13
+const kindergarten_groups_size_4_5 = 18
 
 # Размеры групп в школах
-const school_groups_size = 25
+const school_groups_size_5_9 = 20
+const school_groups_size_10_14 = 22
+const school_groups_size_15 = 24
+
+# const school_groups_size_5_9 = 22
+# const school_groups_size_10_14 = 24
+# const school_groups_size_15 = 26
 
 # Размеры групп в институтах
 const college_groups_size_1 = 15

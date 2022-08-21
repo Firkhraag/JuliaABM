@@ -14,13 +14,15 @@ default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 const is_russian = false
 # const num_runs = 10
 const num_runs = 2
+# const num_runs = 1
 const num_years = 3
+# const num_years = 1
 
-# const with_quarantine = false
-const with_quarantine = true
+const with_quarantine = false
+# const with_quarantine = true
 
-const with_global_warming = false
-# const with_global_warming = true
+# const with_global_warming = false
+const with_global_warming = true
 
 function confidence(x::Vector{Float64})
     alpha = 0.05
@@ -994,6 +996,7 @@ function plot_rt()
 
     for i = 1:num_runs
         rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["rt"]
+        # rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i + 1).jld"))["rt"]
         for j = 1:num_years
             rt_arr[i, j] = moving_average(rt, 20)[(365 * (j - 1) + 1):(365 * (j - 1) + 365)]
         end
@@ -1035,7 +1038,7 @@ function plot_rt()
         rt_arr_mean,
         lw = 1,
         xticks = (ticks, ticklabels),
-        yticks = (yticks, yticklabels),
+        # yticks = (yticks, yticklabels),
         legend = false,
         color = RGB(0.0, 0.0, 0.0),
         grid = true,
@@ -1338,48 +1341,48 @@ end
 #     savefig(activities_cases_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "activities_cases_quarantine.pdf" : "activities_cases.pdf"))
 # end
 
-# function plot_r0()
-#     r0 = readdlm(
-#         joinpath(@__DIR__, "..", "..", "..", "output", "tables", "r0.csv"), ',', Float64)
+function plot_r0()
+    r0 = readdlm(
+        joinpath(@__DIR__, "..", "..", "..", "output", "tables", "r0.csv"), ',', Float64)
 
-#     r0 = cat(r0[:, 8:12], r0[:, 1:7], dims=2)
+    r0 = cat(r0[:, 8:12], r0[:, 1:7], dims=2)
 
-#     ticks = [1, 3, 5, 7, 9, 11]
+    ticks = [1, 3, 5, 7, 9, 11]
     
-#     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
-#     if is_russian
-#         ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
-#     end
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
 
-#     label_names = ["model" "data"]
-#     if is_russian
-#         label_names = ["модель" "данные"]
-#     end
+    label_names = ["model" "data"]
+    if is_russian
+        label_names = ["модель" "данные"]
+    end
 
-#     xlabel_name = L"\textrm{\sffamily Month}"
-#     if is_russian
-#         xlabel_name = "Месяц"
-#     end
+    xlabel_name = L"\textrm{\sffamily Month}"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
 
-#     ylabel_name = L"\textrm{\sffamily R0}"
-#     if is_russian
-#         ylabel_name = "R0"
-#     end
+    ylabel_name = L"\textrm{\sffamily R0}"
+    if is_russian
+        ylabel_name = "R0"
+    end
 
-#     registered_new_cases_plot = plot(
-#         1:12,
-#         [r0[i, :] for i = 1:7],
-#         lw = 1,
-#         xticks = (ticks, ticklabels),
-#         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
-#         legend = (0.5, 0.6),
-#         grid = true,
-#         xlabel = xlabel_name,
-#         ylabel = ylabel_name,
-#     )
-#     savefig(
-#         registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "r0.pdf"))
-# end
+    registered_new_cases_plot = plot(
+        1:12,
+        [r0[i, :] for i = 1:7],
+        lw = 1,
+        xticks = (ticks, ticklabels),
+        color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
+        legend = (0.5, 0.6),
+        grid = true,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(
+        registered_new_cases_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "r0.pdf"))
+end
 
 # function plot_incidence()
 #     num_runs = 2
@@ -1685,10 +1688,11 @@ plot_incidence()
 # plot_incidence_viruses()
 # plot_rt()
 # plot_infection_activities()
+# plot_incidence_scenarios()
 
-print_statistics()
+# plot_r0()
 
-plot_incidence_scenarios()
+# print_statistics()
 
 # plot_incidence_age_groups_viruses()
 # plot_incidence_etiology()

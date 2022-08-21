@@ -50,11 +50,15 @@ function main()
     other_contact_duration_shapes = [2.5, 1.78, 2.0, 1.81, 1.2]
     other_contact_duration_scales = [1.6, 1.95, 1.07, 1.7, 1.07]
     # Параметры, отвечающие за связи на рабочих местах
-    firm_min_size = 0
+    firm_min_size = 1
     firm_max_size = 1000
-    num_barabasi_albert_attachments = 5
+    # num_barabasi_albert_attachments = 6
+    # num_barabasi_albert_attachments = 5
+    num_barabasi_albert_attachments = 4
+    # num_barabasi_albert_attachments = 3
+    # num_barabasi_albert_attachments = 2
 
-    mean_immunity_durations = [271.57575757575756, 271.8181818181818, 74.81818181818181, 52.484848484848484, 83.27272727272728, 102.42424242424241, 117.45454545454545]
+    mean_immunity_durations = [252.02886002886, 312.16244073386935, 98.2385075242218, 34.277468563182836, 83.02370645227786, 116.12162440733866, 101.6384250669965]
 
     viruses = Virus[
         # FluA
@@ -272,12 +276,12 @@ function main()
 
     println("Simulation...")
 
-    # println("Holiday")
-    # @time run_simulation_evaluation(
-    #     num_threads, thread_rng, agents, households, kindergartens,
-    #     schools, colleges, mean_household_contact_durations,
-    #     household_contact_duration_sds, other_contact_duration_shapes,
-    #     other_contact_duration_scales, shops, restaurants, true)
+    println("Holiday")
+    @time run_simulation_evaluation(
+        num_threads, thread_rng, agents, households, kindergartens,
+        schools, colleges, mean_household_contact_durations,
+        household_contact_duration_sds, other_contact_duration_shapes,
+        other_contact_duration_scales, true)
     println("Weekday")
     @time run_simulation_evaluation(
         num_threads, thread_rng, agents, households, kindergartens,

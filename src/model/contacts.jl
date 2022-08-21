@@ -131,7 +131,9 @@ function simulate_contacts_evaluation(
                     if agent.activity_type == 1
                         dur = get_contact_duration_gamma(other_contact_duration_shapes[1], other_contact_duration_scales[1], rng)
                     elseif agent.activity_type == 2
+                        # if rand(rng, Float64) < 0.4
                         dur = get_contact_duration_gamma(other_contact_duration_shapes[2], other_contact_duration_scales[2], rng)
+                        # end
                     elseif agent.activity_type == 3
                         dur = get_contact_duration_gamma(other_contact_duration_shapes[3], other_contact_duration_scales[3], rng)
                     else

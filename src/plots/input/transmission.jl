@@ -24,7 +24,7 @@ function plot_duration_influence()
 
     xlabel_name = "Продолжительность, часов"
     if !is_russian
-        xlabel_name = "Duration, hours"
+        xlabel_name = "Contact duration, hours"
     end
     ylabel_name = L"D_{ijc}"
 
@@ -117,8 +117,10 @@ function plot_temperature_influence_year()
     ylabel_name = L"T_{mv}"
 
     ticks = range(1, stop = 365, length = 7)
-    # ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
-    ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
     temperature_plot = plot(
         1:365,
         [temp_influences[i, :] for i = 1:7],
@@ -192,7 +194,7 @@ function plot_susceptibility_influence_age()
 
     xlabel_name = "Возраст, лет"
     if !is_russian
-        xlabel_name = "Age, years"
+        xlabel_name = "Agent's age, years"
     end
     ylabel_name = L"S_{jv}"
 
@@ -264,7 +266,7 @@ function plot_infectivity_influence()
 
     xlabel_name = "День"
     if !is_russian
-        xlabel_name = "Day"
+        xlabel_name = "Days infected"
     end
     ylabel_name = L"I_{iv}"
 
@@ -293,7 +295,7 @@ function plot_infectivity_influence()
     savefig(infectivity_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "transmission", "infectivity_influence.pdf"))
 end
 
-# plot_duration_influence()
-# plot_temperature_influence_year()
+plot_duration_influence()
+plot_temperature_influence_year()
 plot_infectivity_influence()
-# plot_susceptibility_influence_age()
+plot_susceptibility_influence_age()
