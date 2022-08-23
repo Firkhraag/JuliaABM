@@ -52,9 +52,9 @@ function main()
     # Параметры, отвечающие за связи на рабочих местах
     firm_min_size = 1
     firm_max_size = 1000
-    # num_barabasi_albert_attachments = 6
+    num_barabasi_albert_attachments = 6
     # num_barabasi_albert_attachments = 5
-    num_barabasi_albert_attachments = 4
+    # num_barabasi_albert_attachments = 4
     # num_barabasi_albert_attachments = 3
     # num_barabasi_albert_attachments = 2
 
