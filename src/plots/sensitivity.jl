@@ -2727,10 +2727,10 @@ function plot_incidences()
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "r7.pdf"))
 end
 
-plot_incidence_contacts()
+# plot_incidence_contacts()
 # plot_incidence_contacts2()
-plot_rt_contacts()
+# plot_rt_contacts()
 # plot_rt_contacts2()
 
-# plot_infection_curves()
+plot_infection_curves()
 # plot_incidences()

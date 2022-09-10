@@ -47,8 +47,8 @@ function main()
     # school_class_closure_period = 7
     school_class_closure_threshold = 0.2
 
-    # with_global_warming = false
-    with_global_warming = true
+    with_global_warming = false
+    # with_global_warming = true
 
     num_threads = nthreads()
 

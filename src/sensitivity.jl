@@ -35,8 +35,8 @@ function main()
 
     num_threads = nthreads()
 
-    starting_bias = 235
-    n = 65
+    starting_bias = 295
+    n = 5
     disturbance = 0.05
 
     num_years = 3
@@ -52,11 +52,11 @@ function main()
     other_contact_duration_scales_default = [1.6, 1.95, 1.07, 1.7, 1.07]
 
     # Parameters add _default
-    duration_parameter_default = 3.970325706039992
-    susceptibility_parameters_default = [3.201473922902495, 3.708895073180786, 3.817058338486913, 5.601783137497422, 4.082564419707281, 4.03612244897959, 4.4968913626056475]
-    temperature_parameters_default = [-0.7745701917130488, -0.769160997732426, -0.09444444444444446, -0.11111111111111113, -0.12291280148423, -0.11346114203257066, -0.24710368996083393]
-    random_infection_probabilities_default = [0.00011583879612451038, 6.800197897340754e-5, 4.915064935064938e-5, 6.634034219748507e-7]
-    mean_immunity_durations_default = [252.02886002886, 312.16244073386935, 98.2385075242218, 34.277468563182836, 83.02370645227786, 116.12162440733866, 101.6384250669965]
+    duration_parameter_default = 3.431436817151101
+    susceptibility_parameters_default = [3.1262213976499686, 3.346773861059573, 3.5357452071737825, 5.0740053597196475, 3.9547866419295055, 3.868950731807872, 4.72264893836322]
+    temperature_parameters_default = [-0.8053782725211294, -0.8363327149041434, -0.17125252525252527, -0.07122626262626264, -0.23306431663574506, -0.20445104102246967, -0.20505050505050498]
+    random_infection_probabilities_default = [0.00011590950319521746, 6.793026180169036e-5, 4.925670995670998e-5, 7.101710987425276e-7]
+    mean_immunity_durations_default = [253.57431457431454, 300.8594104308391, 99.11729540300969, 47.459286745001016, 89.78128220985364, 116.69738198309626, 107.24448567305714]
     
     incubation_period_durations_default = [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2]
     incubation_period_duration_variances_default = [0.09, 0.0484, 0.175, 0.937, 1.51, 0.327, 0.496]
@@ -98,25 +98,25 @@ function main()
     mean_viral_loads_child = copy(mean_viral_loads_child_default)
     mean_viral_loads_adult = copy(mean_viral_loads_adult_default)
 
-    firm_min_size = 0
+    firm_min_size = 1
     firm_max_size = 1000
-    num_barabasi_albert_attachments = 5
+    num_barabasi_albert_attachments = 6
 
     viruses = Virus[
         # FluA
-        Virus(1.4, 0.09, 1, 7,  4.8, 1.12, 3, 21,  8.8, 3.748, 3, 21,  4.6, 3.5, 2.3,  0.38, 0.47, 0.57,  mean_immunity_durations_default[1], mean_immunity_durations_default[1] * 0.33),
+        Virus(1.4, 0.67, 1, 7,  4.8, 2.04, 1, 28,  8.0, 3.4, 1, 28,  4.6, 3.5, 2.3,  0.38, 0.47, 0.57,  mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
         # FluB
-        Virus(1.0, 0.0484, 1, 7,  3.7, 0.66, 3, 21,  7.8, 2.94, 3, 21,  4.7, 3.5, 2.4,  0.38, 0.47, 0.57,  mean_immunity_durations_default[2], mean_immunity_durations_default[2] * 0.33),
+        Virus(0.6, 0.19, 1, 7,  3.7, 3.0, 1, 28,  6.1, 1.7, 1, 28,  4.7, 3.5, 2.4,  0.38, 0.47, 0.57,  mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
         # RV
-        Virus(1.9, 0.175, 1, 7,  10.1, 4.93, 3, 21,  11.4, 6.25, 3, 21,  3.5, 2.6, 1.8,  0.19, 0.24, 0.29,  mean_immunity_durations_default[3], mean_immunity_durations_default[3] * 0.33),
+        Virus(1.9, 1.11, 1, 7,  10.1, 7.0, 1, 28,  11.4, 7.7, 1, 28,  3.5, 2.6, 1.8,  0.19, 0.24, 0.29,  mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
         # RSV
-        Virus(4.4, 0.937, 1, 7,  7.4, 2.66, 3, 21,  9.3, 4.0, 3, 21,  6.0, 4.5, 3.0,  0.24, 0.3, 0.36,  mean_immunity_durations_default[4], mean_immunity_durations_default[4] * 0.33),
+        Virus(4.4, 1.0, 1, 7,  6.5, 2.7, 1, 28,  6.7, 2.8, 1, 28,  6.0, 4.5, 3.0,  0.24, 0.3, 0.36,  mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
         # AdV
-        Virus(5.6, 1.51, 1, 7,  8.0, 3.1, 3, 21,  9.0, 3.92, 3, 21,  4.1, 3.1, 2.1,  0.15, 0.19, 0.23,  mean_immunity_durations_default[5], mean_immunity_durations_default[5] * 0.33),
+        Virus(5.6, 1.3, 1, 7,  8.0, 5.6, 1, 28,  9.0, 6.3, 1, 28,  4.1, 3.1, 2.1,  0.15, 0.19, 0.23,  mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
         # PIV
-        Virus(2.6, 0.327, 1, 7,  7.0, 2.37, 3, 21,  8.0, 3.1, 3, 21,  4.8, 3.6, 2.4,  0.16, 0.2, 0.24,  mean_immunity_durations_default[6], mean_immunity_durations_default[6] * 0.33),
+        Virus(2.6, 0.85, 1, 7,  7.0, 2.9, 1, 28,  8.0, 3.4, 1, 28,  4.8, 3.6, 2.4,  0.16, 0.2, 0.24,  mean_immunity_durations[6], mean_immunity_durations[6] * 0.33),
         # CoV
-        Virus(3.2, 0.496, 1, 7,  6.5, 2.15, 3, 21,  7.5, 2.9, 3, 21,  4.9, 3.7, 2.5,  0.21, 0.26, 0.32,  mean_immunity_durations_default[7], mean_immunity_durations_default[7] * 0.33)]
+        Virus(3.2, 0.44, 1, 7,  6.5, 4.5, 1, 28,  7.5, 5.2, 1, 28,  4.9, 3.7, 2.5,  0.21, 0.26, 0.32,  mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
 
     # Число домохозяйств каждого типа по районам
     district_households = get_district_households()

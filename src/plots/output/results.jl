@@ -12,8 +12,7 @@ include("../../data/etiology.jl")
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
 const is_russian = false
-# const num_runs = 10
-const num_runs = 2
+const num_runs = 10
 # const num_runs = 1
 const num_years = 3
 # const num_years = 1
@@ -21,8 +20,8 @@ const num_years = 3
 const with_quarantine = false
 # const with_quarantine = true
 
-# const with_global_warming = false
-const with_global_warming = true
+const with_global_warming = false
+# const with_global_warming = true
 
 function confidence(x::Vector{Float64})
     alpha = 0.05
@@ -1684,15 +1683,15 @@ function print_statistics()
 end
 
 plot_incidence()
-# plot_incidence_age_groups()
-# plot_incidence_viruses()
-# plot_rt()
-# plot_infection_activities()
-# plot_incidence_scenarios()
+plot_incidence_age_groups()
+plot_incidence_viruses()
+plot_rt()
+plot_infection_activities()
+plot_incidence_scenarios()
 
 # plot_r0()
 
-# print_statistics()
+print_statistics()
 
 # plot_incidence_age_groups_viruses()
 # plot_incidence_etiology()
