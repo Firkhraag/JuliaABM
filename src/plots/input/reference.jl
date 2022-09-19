@@ -16,9 +16,10 @@ end
 begin
 	age_groups_nums = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "age_nums.csv"), ',', Float64)
 	
-	home_contacts = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", 		"russia_homes.csv"), ',', Float64)
-	school_contacts = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", 		"russia_schools.csv"), ',', Float64)
-	work_contacts = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", 		"russia_work.csv"), ',', Float64)
+	home_contacts = transpose(readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", 		"russia_homes.csv"), ',', Float64))
+	school_contacts = transpose(readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", 		"russia_schools.csv"), ',', Float64))
+	work_contacts = transpose(readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", 		"russia_work.csv"), ',', Float64))
+	all_contacts = transpose(readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", 		"russia_all.csv"), ',', Float64))
 
 	home_contact_counts_matrix = readdlm(joinpath(
             @__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_activity_5.csv"), ',', Float64)
@@ -138,6 +139,11 @@ begin
 		sum_work_contacts[i] = sum(work_contacts[:, i])
 	end
 
+	sum_all_contacts = zeros(Float64, 16)
+	for i = 1:16
+		sum_all_contacts[i] = sum(all_contacts[:, i])
+	end
+
 	sum_home_contact_counts = zeros(Float64, 16)
 	for i = 1:16
 		sum_home_contact_counts[i] = sum(home_contact_counts[:, i])
@@ -156,7 +162,20 @@ begin
 	diff1 = sum_home_contact_counts - sum_home_contacts
 	diff2 = sum_school_contact_counts - sum_school_contacts
 	diff3 = sum_work_contact_counts - sum_work_contacts
+	diff4 = sum_home_contact_counts .+ sum_school_contact_counts .+ sum_work_contact_counts - sum_work_contacts
 end
+
+# ╔═╡ d19814cc-91cf-4e27-b011-fe4c7f48705b
+nMAE1 = sum(abs.(sum_home_contact_counts - sum_home_contacts)) / sum(sum_home_contacts)
+
+# ╔═╡ 2e7762a1-492a-4199-b21b-8775ca723cbd
+nMAE2 = sum(abs.(sum_school_contact_counts - sum_school_contacts)) / sum(sum_school_contacts)
+
+# ╔═╡ 76f6fb82-6037-4554-8891-4e0d943c0316
+nMAE3 = sum(abs.(sum_work_contact_counts - sum_work_contacts)) / sum(sum_work_contacts)
+
+# ╔═╡ b49583d7-8bd7-4fa9-af0f-db0b006992c1
+nMAE4 = sum(abs.(sum_home_contact_counts .+ sum_school_contact_counts .+ sum_work_contact_counts - sum_all_contacts)) / sum(sum_all_contacts)
 
 # ╔═╡ 1f745e9b-81aa-4b30-84d8-a9ddec8963f0
 begin
@@ -169,9 +188,8 @@ begin
 	mean = copy(sum_home_contact_counts)
 
 	append!(mean, sum_home_contacts)
-    # legend = repeat(["model", "reference"], inner = 16)
-	# legend = repeat(["модель", "статья"], inner = 16)
-	legend = repeat(["модель", "данные"], inner = 16)
+	# legend = repeat(["модель", "данные"], inner = 16)
+	legend = repeat(["model", "data"], inner = 16)
     # std = [1.058, 0.8124, 2.22, 1.63, 1.76, 1.54, 1.54, 1.936, 1.715, 2.5, 2.0, 1.98, 1.76, 1.76]
 
     groupedbar(
@@ -183,8 +201,8 @@ begin
         markerstrokecolor = :black,
         markercolor = :black,
         grid = true,
-		# title = "Home",
-		title = "Дом",
+		title = "Home",
+		# title = "Дом",
 		xrotation = 45,
 		margin = 2Plots.mm,
 		color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
@@ -193,11 +211,11 @@ begin
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
 		
-        # xlabel = "Age group",
-        # ylabel = "Contact frequencies",
+        xlabel = "Age group",
+        ylabel = "Contact frequencies",
 
-		xlabel = "Возраст",
-        ylabel = "Частота контактов",
+		# xlabel = "Возраст",
+        # ylabel = "Частота контактов",
     )
 end
 
@@ -215,8 +233,8 @@ begin
         markerstrokecolor = :black,
         markercolor = :black,
         grid = true,
-		# title = "School",
-		title = "Школа",
+		title = "School",
+		# title = "Школа",
 		xrotation = 45,
 		margin = 2Plots.mm,
 		color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
@@ -225,11 +243,11 @@ begin
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
 		
-        # xlabel = "Age group",
-        # ylabel = "Contact frequencies",
+        xlabel = "Age group",
+        ylabel = "Contact frequencies",
 
-		xlabel = "Возраст",
-        ylabel = "Частота контактов",
+		# xlabel = "Возраст",
+        # ylabel = "Частота контактов",
     )
 end
 
@@ -247,8 +265,8 @@ begin
         markerstrokecolor = :black,
         markercolor = :black,
         grid = true,
-		# title = "Work",
-		title = "Работа",
+		title = "Work",
+		# title = "Работа",
 		xrotation = 45,
 		margin = 2Plots.mm,
 		color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
@@ -257,18 +275,18 @@ begin
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
 		
-        # xlabel = "Age group",
-        # ylabel = "Contact frequencies",
+        xlabel = "Age group",
+        ylabel = "Contact frequencies",
 
-		xlabel = "Возраст",
-        ylabel = "Частота контактов",
+		# xlabel = "Возраст",
+        # ylabel = "Частота контактов",
     )
 end
 
 # ╔═╡ dcf273cf-2db1-480b-8a43-762c373f93eb
 begin
 	mean4 = copy(sum_work_contact_counts .+ sum_school_contact_counts .+ sum_home_contact_counts)
-	append!(mean4, sum_work_contacts .+ sum_school_contacts .+ sum_home_contacts)
+	append!(mean4, sum_all_contacts)
 
     groupedbar(
         labels,
@@ -280,7 +298,7 @@ begin
         markercolor = :black,
         grid = true,
 		# title = "Total",
-		title = "Общее",
+		title = "All contacts",
 		xrotation = 45,
 		margin = 2Plots.mm,
 		color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
@@ -289,23 +307,30 @@ begin
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
 		
-        # xlabel = "Age group",
-        # ylabel = "Contact frequencies",
+        xlabel = "Age group",
+        ylabel = "Contact frequencies",
 
-		xlabel = "Возраст",
-        ylabel = "Частота контактов",
+		# xlabel = "Возраст",
+        # ylabel = "Частота контактов",
     )
 end
 
 # ╔═╡ ce8ca903-fbec-428b-b780-aa4b78d3cb98
 begin
-	# m1 = (home_contact_counts[1:16, 1:16] - home_contacts).^2
-	# m2 = (school_contact_counts[1:16, 1:16] - school_contacts).^2
-	# m3 = (work_contact_counts[1:16, 1:16] - work_contacts).^2
-	m1 = home_contacts
-	m2 = school_contacts
-	m3 = work_contacts
-	m4 = home_contacts .+ school_contacts .+ work_contacts
+	m1 = (home_contacts)
+	m2 = (school_contacts)
+	m3 = (work_contacts)
+	m4 = (all_contacts)
+	
+	# m1 = transpose(home_contacts)
+	# m2 = transpose(school_contacts)
+	# m3 = transpose(work_contacts)
+	# m4 = transpose(all_contacts)
+
+	# m1 = (home_contact_counts[1:16, 1:16] - m1).^2
+	# m2 = (school_contact_counts[1:16, 1:16] - m2).^2
+	# m3 = (work_contact_counts[1:16, 1:16] - m3).^2
+	# m4 = (home_contact_counts[1:16, 1:16] .+ school_contact_counts[1:16, 1:16] .+ work_contact_counts[1:16, 1:16] - m4).^2
 end
 
 # ╔═╡ 134a6c44-3153-4699-8125-15c0bb208e20
@@ -1712,6 +1737,10 @@ version = "0.9.1+5"
 # ╠═2f26bf37-7101-4343-bb48-2ed29f3fd32a
 # ╠═d7637df7-7c0a-4567-93ec-3b3030873c6e
 # ╠═dd254f95-c6dc-4c37-aaaa-4d525a03da5d
+# ╠═d19814cc-91cf-4e27-b011-fe4c7f48705b
+# ╠═2e7762a1-492a-4199-b21b-8775ca723cbd
+# ╠═76f6fb82-6037-4554-8891-4e0d943c0316
+# ╠═b49583d7-8bd7-4fa9-af0f-db0b006992c1
 # ╠═1f745e9b-81aa-4b30-84d8-a9ddec8963f0
 # ╠═848c0fe9-7119-417e-a62c-b14f7c0d7d98
 # ╠═9cfb6a64-c666-4bc4-989b-038871efff70

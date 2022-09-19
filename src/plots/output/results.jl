@@ -1682,12 +1682,12 @@ function print_statistics()
     println("CoV nMAE: $(nMAE)")
 end
 
-plot_incidence()
-plot_incidence_age_groups()
-plot_incidence_viruses()
-plot_rt()
-plot_infection_activities()
-plot_incidence_scenarios()
+# plot_incidence()
+# plot_incidence_age_groups()
+# plot_incidence_viruses()
+# plot_rt()
+# plot_infection_activities()
+# plot_incidence_scenarios()
 
 # plot_r0()
 

@@ -506,9 +506,9 @@ end
 # plot_CoV()
 # plot_etiology()
 
-# plot_temperature()
+plot_temperature()
 # plot_all_data()
 # plot_incidence(39:45, "flu.csv", "incidence.pdf", 10072)
-plot_incidence(2:5, "flu_england.csv", "incidence_england.pdf", 1)
+# plot_incidence(2:5, "flu_england.csv", "incidence_england.pdf", 1)
 # plot_incidence_age_groups()
 # plot_etiology()
