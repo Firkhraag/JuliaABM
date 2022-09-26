@@ -54,8 +54,10 @@ begin
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
         yticks = (ticks, ticklabels),
-        title = "(a) Total",
+        # title = "(a) Total",
+		title = "Общее (модель)",
         margin = 6Plots.mm,
+		# right_margin = 11Plots.mm,
         xrotation = 60,
 		# legendfontsize = 25,
 		# guidefont = (34, :black),
@@ -75,9 +77,12 @@ begin
 		# c = reverse(cgrad(:ice)),
 		c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
 		colorbar_scale = :log10,
-        xlabel = "Age",
-        ylabel = "Age of contact",
-        colorbar_title = "Frequency of contacts",
+        # xlabel = "Age",
+        # ylabel = "Age of contact",
+        # colorbar_title = "Frequency of contacts",
+		xlabel = "Возраст",
+		ylabel = "Возраст контакта",
+		colorbar_title = "Частота контактов",
         size = (1200, 1200),
     )
 
@@ -145,12 +150,24 @@ begin
         #     plot_title = "Public space contact patterns"
         # end
 
+		# if activity_num == 3
+  #           plot_title = "(c) School"
+  #       elseif activity_num == 4
+  #           plot_title = "(d) Workplace"
+  #       elseif activity_num == 5
+  #           plot_title = "(b) Household"
+  #       elseif activity_num == 6
+  #           plot_title = "Visiting contact patterns"
+  #       elseif activity_num == 7
+  #           plot_title = "Public space contact patterns"
+  #       end
+
 		if activity_num == 3
-            plot_title = "(c) School"
+            plot_title = "Школа (модель)"
         elseif activity_num == 4
-            plot_title = "(d) Workplace"
+            plot_title = "Работа (модель)"
         elseif activity_num == 5
-            plot_title = "(b) Household"
+            plot_title = "Дом (модель)"
         elseif activity_num == 6
             plot_title = "Visiting contact patterns"
         elseif activity_num == 7
@@ -159,7 +176,8 @@ begin
 
 		clim = (10^-2, 1.001)
         if activity_num == 3
-            clim = (10^-2, 10.001)
+            # clim = (10^-2, 25.001)
+			clim = (10^-2, 15.001)
         elseif activity_num == 6
             clim = (10^-2, 0.101)
         end
@@ -180,10 +198,14 @@ begin
 			colorbar_titlefontsize = 34,
 			titlefontsize = 36,
 			c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
+			# c = cgrad([:white, :aquamarine2, :black], [0.25, 0.5, 0.75]),
 			clims = clim,
-			xlabel = "Age",
-			ylabel = "Age of contact",
-			colorbar_title = "Frequency of contacts",
+			# xlabel = "Age",
+			# ylabel = "Age of contact",
+			# colorbar_title = "Frequency of contacts",
+			xlabel = "Возраст",
+	        ylabel = "Возраст контакта",
+	        colorbar_title = "Частота контактов",
 			size = (1200, 1200),
 		)
 		
@@ -239,23 +261,91 @@ begin
         fontfamily = "Times",
         xticks = (ticks, ticklabels),
         yticks = (ticks, ticklabels),
-        title = "Contact duration patterns",
+        # title = "Contact duration patterns",
+		title = "Продолжительность контактов (модель)",
         margin = 6Plots.mm,
-        xrotation = 45,
-		legendfontsize = 15,
-		guidefont = (19, :black),
-		tickfont = (15, :black),
-		colorbar_guidefont = (19, :black),
-		colorbar_titlefontsize = 19,
-		titlefontsize = 24,
-		# clims = (1.0, 6.0001),
-		clims = (1.0, 10.0001),
+		xrotation = 60,
+		legendfontsize = 25,
+		guidefont = (34, :black),
+		tickfont = (25, :black),
+		colorbar_guidefont = (29, :black),
+		colorbar_titlefontsize = 34,
+		titlefontsize = 36,
 		c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
+		# clims = (1.0, 6.0001),
+		clims = (3.0, 12.0001),
 		# c = cgrad([:dodgerblue, :seagreen1, :yellow, :white], [0.2, 0.4, 0.6, 0.8]),
 		# colorbar_scale = :log10,
-        xlabel = "Age",
-        ylabel = "Age of contacts",
-        colorbar_title = "Duration of contacts, hours",
+        # xlabel = "Age",
+        # ylabel = "Age of contacts",
+        # colorbar_title = "Duration of contacts, hours",
+		xlabel = "Возраст",
+		ylabel = "Возраст контакта",
+		colorbar_title = "Продолжительность контактов, часов",
+        size = (1200, 1200),
+    )
+
+end
+
+# ╔═╡ 5297a1b8-d329-47c9-a03e-cee0bb213d2d
+begin
+    contact_durations_matrix_5 = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_durations_activity_5.csv"), ',', Float64)
+	# contact_durations_matrix_holiday = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_durations_holiday.csv"), ',', Float64)
+
+	contact_counts_matrix_5 = readdlm(joinpath(
+            @__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_activity_5.csv"), ',', Float64)
+
+	contact_durations_matrix_5 ./= contact_counts_matrix_5
+
+	# contact_durations_matrix ./= contact_counts_matrix_5
+	# # contact_durations_matrix_holiday ./= contact_counts_matrix_holiday
+
+	# contact_durations_matrix_5 += transpose(contact_durations_matrix_5)
+	# contact_durations_matrix_5 ./= 2
+	# # contact_durations_matrix_holiday += transpose(contact_durations_matrix_holiday)
+	# # contact_durations_matrix_holiday ./= 2
+
+	# # contact_durations_matrix = 5 .* contact_durations_matrix + 2 .* contact_durations_matrix_holiday
+	# contact_durations_matrix ./= 7
+
+	contact_durations_5 = zeros(Float64, 18, 18)
+	for i = 1:18
+        for j = 1:18
+            for k = 0:4
+                for l = 0:4
+                    contact_durations_5[i, j] += contact_durations_matrix_5[(i - 1) * 5 + 1 + k, (j - 1) * 5 + 1 + l]
+                end
+            end
+            contact_durations_5[i, j] /= 25.0
+        end
+    end
+
+    heatmap(
+        contact_durations_5,
+        fontfamily = "Times",
+        xticks = (ticks, ticklabels),
+        yticks = (ticks, ticklabels),
+        # title = "Contact duration patterns",
+		title = "Продолжительность контактов",
+        margin = 6Plots.mm,
+		xrotation = 60,
+		legendfontsize = 25,
+		guidefont = (34, :black),
+		tickfont = (25, :black),
+		colorbar_guidefont = (29, :black),
+		colorbar_titlefontsize = 34,
+		titlefontsize = 36,
+		c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
+		# clims = (1.0, 6.0001),
+		# clims = (8.0, 22.0001),
+		# c = cgrad([:dodgerblue, :seagreen1, :yellow, :white], [0.2, 0.4, 0.6, 0.8]),
+		# colorbar_scale = :log10,
+        # xlabel = "Age",
+        # ylabel = "Age of contacts",
+        # colorbar_title = "Duration of contacts, hours",
+		xlabel = "Возраст",
+		ylabel = "Возраст контакта",
+		colorbar_title = "Продолжительность контактов, часов",
         size = (1200, 1200),
     )
 
@@ -548,6 +638,12 @@ git-tree-sha1 = "f6250b16881adf048549549fba48b1161acdac8c"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
 version = "3.100.1+0"
 
+[[LERC_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "bf36f528eec6634efc60d7ec062008f171071434"
+uuid = "88015f11-f218-50d7-93a8-a6af411a945d"
+version = "3.0.0+1"
+
 [[LZO_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "e5b909bcf985c5e2605737d2ce278ed791b89be6"
@@ -621,10 +717,10 @@ uuid = "4b2f31a3-9ecc-558c-b454-b3730dcb73e9"
 version = "2.35.0+0"
 
 [[Libtiff_jll]]
-deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Pkg", "Zlib_jll", "Zstd_jll"]
-git-tree-sha1 = "340e257aada13f95f98ee352d316c3bed37c8ab9"
+deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "LERC_jll", "Libdl", "Pkg", "Zlib_jll", "Zstd_jll"]
+git-tree-sha1 = "c9551dd26e31ab17b86cbd00c2ede019c08758eb"
 uuid = "89763e89-9b03-5906-acba-b20f662cd828"
-version = "4.3.0+0"
+version = "4.3.0+1"
 
 [[Libuuid_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -769,9 +865,9 @@ uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[Qt5Base_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "OpenSSL_jll", "Pkg", "Xorg_libXext_jll", "Xorg_libxcb_jll", "Xorg_xcb_util_image_jll", "Xorg_xcb_util_keysyms_jll", "Xorg_xcb_util_renderutil_jll", "Xorg_xcb_util_wm_jll", "Zlib_jll", "xkbcommon_jll"]
-git-tree-sha1 = "ad368663a5e20dbb8d6dc2fddeefe4dae0781ae8"
+git-tree-sha1 = "c6c0f690d0cc7caddb74cef7aa847b824a16b256"
 uuid = "ea2cea3b-5b76-57ae-a6ef-0a8af62496e1"
-version = "5.15.3+0"
+version = "5.15.3+1"
 
 [[REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
@@ -1134,5 +1230,6 @@ version = "0.9.1+5"
 # ╠═fbf2f696-17c9-43de-b02b-daa66048b8f0
 # ╠═bea2c608-ef90-425f-bb25-8999cad5254c
 # ╠═f54a2c78-1912-4b43-8d58-afaa1d8d3f3f
+# ╠═5297a1b8-d329-47c9-a03e-cee0bb213d2d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

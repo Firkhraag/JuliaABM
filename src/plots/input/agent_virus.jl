@@ -5,8 +5,9 @@ using StatsPlots
 using LaTeXStrings
 using CategoricalArrays
 
-# default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
-default(legendfontsize = 9, guidefont = (14, :black), tickfont = (9, :black))
+default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
+
+const is_russian = false
 
 function plot_incubation_periods()
     labels = CategoricalArray(["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"])
@@ -21,11 +22,14 @@ function plot_incubation_periods()
         mean,
         yerr = std,
         group = legend,
-        color=:dodgerblue,
+        # color = RGB(0.5, 0.5, 0.5),
+        color = RGB(0.267, 0.467, 0.667),
         markerstrokecolor = :black,
         markercolor = :black,
         legend = false,
-        grid = false,
+        grid = true,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Incubation period duration, days}",
         xlabel = "Вирус",
@@ -51,9 +55,14 @@ function plot_infection_periods()
         yerr = std,
         group = legend,
         yticks = (yticks, yticklabels),
+        legend = (0.9, 0.98),
+        color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+        # color = [RGB(0.33, 0.33, 0.33) RGB(0.66, 0.66, 0.66)],
         markerstrokecolor = :black,
         markercolor = :black,
-        grid = false,
+        grid = true,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
         xlabel = "Вирус",
@@ -80,7 +89,12 @@ function plot_mean_viral_loads()
         group = legend,
         yticks = (yticks, yticklabels),
         ylim = (0, 7.0),
-        grid = false,
+        legend = (0.9, 0.98),
+        # color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467) RGB(0.133, 0.533, 0.2)],
+        color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467) RGB(0.5, 0.5, 0.5)],
+        grid = true,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Viral load, log(cp/ml)}",
         xlabel = "Вирус",
@@ -168,7 +182,11 @@ function plot_ig_levels()
         group = legend,
         markerstrokecolor = :black,
         markercolor = :black,
-        grid = false,
+        grid = true,
+        color = RGB(0.267, 0.467, 0.667),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        margin = 5Plots.mm,
         legend = false,
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
@@ -180,7 +198,7 @@ function plot_ig_levels()
     savefig(ig_levels_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "ig_levels.pdf"))
 end
 
-plot_incubation_periods()
-plot_infection_periods()
+# plot_incubation_periods()
+# plot_infection_periods()
 plot_mean_viral_loads()
-plot_ig_levels()
+# plot_ig_levels()

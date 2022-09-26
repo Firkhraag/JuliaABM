@@ -53,17 +53,17 @@ mutable struct Virus
 
     function Virus(
         mean_incubation_period::Float64,
-        incubation_period_variance::Float64,
+        incubation_period_sd::Float64,
         min_incubation_period::Int,
         max_incubation_period::Int,
 
         mean_infection_period_adult::Float64,
-        infection_period_variance_adult::Float64,
+        infection_period_sd_adult::Float64,
         min_infection_period_adult::Int,
         max_infection_period_adult::Int,
 
         mean_infection_period_child::Float64,
-        infection_period_variance_child::Float64,
+        infection_period_sd_child::Float64,
         min_infection_period_child::Int,
         max_infection_period_child::Int,
 
@@ -80,15 +80,15 @@ mutable struct Virus
     )
         new(
             mean_incubation_period,
-            incubation_period_variance,
+            incubation_period_sd^2,
             min_incubation_period,
             max_incubation_period,
             mean_infection_period_adult,
-            infection_period_variance_adult,
+            infection_period_sd_adult^2,
             min_infection_period_adult,
             max_infection_period_adult,
             mean_infection_period_child,
-            infection_period_variance_child,
+            infection_period_sd_child^2,
             min_infection_period_child,
             max_infection_period_child,
             mean_viral_load_toddler,

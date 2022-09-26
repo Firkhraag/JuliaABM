@@ -1,26 +1,50 @@
 function make_contact_r0(
+    num_people_infected::Vector{Int},
+    infected_agent_ids::Vector{Int},
+    viruses::Vector{Virus},
     infected_agent::Agent,
     susceptible_agent::Agent,
     contact_duration::Float64,
     current_step::Int,
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
-    temp_influences::Array{Float64, 2},
-    num_people_infected::Vector{Int},
-    infected_agent_ids::Vector{Int},
+    temperature_parameters::Vector{Float64},
+    current_temp::Float64,
     rng::MersenneTwister,
 )
     # Влияние продолжительности контакта на вероятность инфицирования
     duration_influence = 1 / (1 + exp(-contact_duration + duration_parameter))
             
     # Влияние температуры воздуха на вероятность инфицирования
-    temperature_influence = temp_influences[infected_agent.virus_id, current_step]
+    temperature_influence = temperature_parameters[infected_agent.virus_id] * current_temp + 1.0
 
     # Влияние восприимчивости агента на вероятность инфицирования
     susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus_id] * susceptible_agent.ig_level))
 
     # Влияние силы инфекции на вероятность инфицирования
-    infectivity_influence = infected_agent.infectivity
+    infectivity_influence = 0.0
+    if infected_agent.age < 3
+        infectivity_influence = get_infectivity(
+            infected_agent.days_infected,
+            infected_agent.incubation_period,
+            infected_agent.infection_period,
+            viruses[infected_agent.virus_id].mean_viral_load_toddler,
+            infected_agent.is_asymptomatic)
+    elseif infected_agent.age < 16
+        infectivity_influence = get_infectivity(
+            infected_agent.days_infected,
+            infected_agent.incubation_period,
+            infected_agent.infection_period,
+            viruses[infected_agent.virus_id].mean_viral_load_child,
+            infected_agent.is_asymptomatic)
+    else
+        infectivity_influence = get_infectivity(
+            infected_agent.days_infected,
+            infected_agent.incubation_period,
+            infected_agent.infection_period,
+            viruses[infected_agent.virus_id].mean_viral_load_adult,
+            infected_agent.is_asymptomatic)
+    end
 
     # Вероятность инфицирования
     infection_probability = infectivity_influence * susceptibility_influence *
@@ -35,111 +59,100 @@ end
 function simulate_contacts_r0(
     infected_agent_id::Int,
     agents::Vector{Agent},
-    temp_influences::Array{Float64, 2},
+    households::Vector{Household},
+    mean_household_contact_durations::Vector{Float64},
+    household_contact_duration_sds::Vector{Float64},
+    other_contact_duration_shapes::Vector{Float64},
+    other_contact_duration_scales::Vector{Float64},
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
-    is_holiday::Bool,
+    temperature_parameters::Vector{Float64},
+    random_infection_probabilities::Vector{Float64},
+    viruses::Vector{Virus},
     is_kindergarten_holiday::Bool,
     is_school_holiday::Bool,
     is_college_holiday::Bool,
     is_work_holiday::Bool,
     current_step::Int,
+    current_temp::Float64,
     num_people_infected::Vector{Int},
     infected_agent_ids::Vector{Int},
     rng::MersenneTwister,
 )
     agent = agents[infected_agent_id]
-    if agent.infectivity > 0.0001
-        for agent2_id in agent.household_conn_ids
+    for agent2_id in agent.household_conn_ids
+        agent2 = agents[agent2_id]
+        if !(agent2.id in infected_agent_ids)
+            dur = 0.0
+            if (agent.is_isolated || agent.quarantine_period > 0 || agent.on_parent_leave || agent.activity_type == 0 ||
+                (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_college_holiday) ||
+                (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)) &&
+                (agent2.is_isolated || agent2.quarantine_period > 0 || agent2.on_parent_leave || agent2.activity_type == 0 ||
+                (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_college_holiday) ||
+                (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday))
+
+                dur = get_contact_duration_normal(mean_household_contact_durations[5], household_contact_duration_sds[5], rng)
+            elseif ((agent.activity_type == 4 && !(agent.is_isolated || agent.on_parent_leave)) ||
+                (agent2.activity_type == 4 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_work_holiday
+
+                dur = get_contact_duration_normal(mean_household_contact_durations[4], household_contact_duration_sds[4], rng)
+            elseif ((agent.activity_type == 2 && !(agent.is_isolated || agent.on_parent_leave || agent.quarantine_period > 0)) ||
+                (agent2.activity_type == 2 && !(agent2.is_isolated || agent2.on_parent_leave || agent2.quarantine_period > 0))) && !is_school_holiday
+
+                dur = get_contact_duration_normal(mean_household_contact_durations[2], household_contact_duration_sds[2], rng)
+            elseif ((agent.activity_type == 1 && !(agent.is_isolated || agent.on_parent_leave)) ||
+                (agent2.activity_type == 1 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_kindergarten_holiday
+                
+                dur = get_contact_duration_normal(mean_household_contact_durations[1], household_contact_duration_sds[1], rng)
+            else
+                dur = get_contact_duration_normal(mean_household_contact_durations[3], household_contact_duration_sds[3], rng)
+            end
+
+            if dur > 0.01
+                make_contact_r0(num_people_infected, infected_agent_ids,
+                    viruses, agent, agent2, dur, current_step, duration_parameter,
+                    susceptibility_parameters, temperature_parameters,
+                    current_temp, rng)
+            end
+        end
+    end
+    if agent.attendance && !agent.is_isolated &&
+        ((agent.activity_type == 1 && !is_kindergarten_holiday) ||
+            (agent.activity_type == 2 && !is_school_holiday) ||
+            (agent.activity_type == 3 && !is_college_holiday) ||
+            (agent.activity_type == 4 && !is_work_holiday))
+        for agent2_id in agent.activity_conn_ids
             agent2 = agents[agent2_id]
-            # Проверка восприимчивости агента к вирусу
-            if !(agent2.id in infected_agent_ids)
+            if !(agent2.id in infected_agent_ids) && agent2.attendance
+                dur = 0.0
+                if agent.activity_type == 1
+                    dur = get_contact_duration_gamma(other_contact_duration_shapes[1], other_contact_duration_scales[1], rng)
+                elseif agent.activity_type == 2
+                    dur = get_contact_duration_gamma(other_contact_duration_shapes[2], other_contact_duration_scales[2], rng)
+                elseif agent.activity_type == 3
+                    dur = get_contact_duration_gamma(other_contact_duration_shapes[3], other_contact_duration_scales[3], rng)
+                else
+                    dur = get_contact_duration_gamma(other_contact_duration_shapes[4], other_contact_duration_scales[4], rng)
+                end
 
-                agent_at_home = agent.is_isolated || agent.collective_id == 0 ||
-                    (agent.collective_id == 4 && is_work_holiday) || (agent.collective_id == 3 && is_college_holiday) ||
-                    (agent.collective_id == 2 && is_school_holiday) || (agent.collective_id == 1 && is_kindergarten_holiday)
-                agent2_at_home = agent2.collective_id == 0 ||
-                    (agent2.collective_id == 4 && is_work_holiday) || (agent2.collective_id == 3 && is_college_holiday) ||
-                    (agent2.collective_id == 2 && is_school_holiday) || (agent2.collective_id == 1 && is_kindergarten_holiday)
-
-                if is_holiday || (agent_at_home && agent2_at_home)
-                    make_contact_r0(
-                        agent, agent2, get_contact_duration_normal(12.5, 5.5, rng),
-                        current_step, duration_parameter, susceptibility_parameters, temp_influences,
-                        num_people_infected, infected_agent_ids, rng)
-                elseif ((agent.collective_id == 4 && !agent_at_home) ||
-                    (agent2.collective_id == 4 && !agent2_at_home)) && !is_work_holiday
-                    make_contact_r0(
-                        agent, agent2, get_contact_duration_normal(4.5, 2.0, rng),
-                        current_step, duration_parameter, susceptibility_parameters, temp_influences,
-                        num_people_infected, infected_agent_ids, rng)
-                elseif ((agent.collective_id == 2 && !agent_at_home) ||
-                    (agent2.collective_id == 2 && !agent2_at_home)) && !is_school_holiday
-                    make_contact_r0(
-                        agent, agent2, get_contact_duration_normal(5.86, 2.65, rng),
-                        current_step, duration_parameter, susceptibility_parameters, temp_influences,
-                        num_people_infected, infected_agent_ids, rng)
-                elseif ((agent.collective_id == 1 && !agent_at_home) ||
-                    (agent2.collective_id == 1 && !agent2_at_home)) && !is_kindergarten_holiday
-                    make_contact_r0(
-                        agent, agent2, get_contact_duration_normal(6.5, 2.46, rng),
-                        current_step, duration_parameter, susceptibility_parameters, temp_influences,
-                        num_people_infected, infected_agent_ids, rng)
-                elseif ((agent.collective_id == 3 && !agent_at_home) ||
-                    (agent2.collective_id == 3 && !agent2_at_home)) && !is_college_holiday
-                    make_contact_r0(
-                        agent, agent2, get_contact_duration_normal(10.0, 3.69, rng),
-                        current_step, duration_parameter, susceptibility_parameters, temp_influences,
-                        num_people_infected, infected_agent_ids, rng)
+                if dur > 0.01
+                    make_contact_r0(num_people_infected, infected_agent_ids,
+                        viruses, agent, agent2, dur, current_step, duration_parameter,
+                        susceptibility_parameters, temperature_parameters,
+                        current_temp, rng)
                 end
             end
         end
-        if !is_holiday && agent.group_num != 0 && !agent.is_isolated &&
-            ((agent.collective_id == 1 && !is_kindergarten_holiday) ||
-                (agent.collective_id == 2 && !is_school_holiday) ||
-                (agent.collective_id == 3 && !is_college_holiday) ||
-                (agent.collective_id == 4 && !is_work_holiday))
-            for agent2_id in agent.collective_conn_ids
-                agent2 = agents[agent2_id]
-                if !(agent2.id in infected_agent_ids)
-                    if agent.collective_id == 1
-                        make_contact_r0(
-                            agent, agent2, get_contact_duration_normal(4.5, 2.66, rng),
-                            current_step, duration_parameter,
-                            susceptibility_parameters, temp_influences,
-                            num_people_infected, infected_agent_ids, rng)
-                    elseif agent.collective_id == 2
-                        make_contact_r0(
-                            agent, agent2, get_contact_duration_normal(3.783, 2.67, rng),
-                            current_step, duration_parameter,
-                            susceptibility_parameters, temp_influences,
-                            num_people_infected, infected_agent_ids, rng)
-                    elseif agent.collective_id == 3
-                        make_contact_r0(
-                            agent, agent2, get_contact_duration_normal(2.5, 1.62, rng),
-                            current_step, duration_parameter,
-                            susceptibility_parameters, temp_influences,
-                            num_people_infected, infected_agent_ids, rng)
-                    else
-                        make_contact_r0(
-                            agent, agent2, get_contact_duration_normal(3.07, 2.5, rng),
-                            current_step, duration_parameter,
-                            susceptibility_parameters, temp_influences,
-                            num_people_infected, infected_agent_ids, rng)
-                    end
-                end
-            end
 
-            if agent.collective_id == 3
-                for agent2_id in agent.collective_cross_conn_ids
-                    agent2 = agents[agent2_id]
-                    if !(agent2.id in infected_agent_ids)
-                        make_contact_r0(
-                            agent, agent2, get_contact_duration_gamma(1.0, 1.6, rng),
-                            current_step, duration_parameter,
-                            susceptibility_parameters, temp_influences,
-                            num_people_infected, infected_agent_ids, rng)
-                    end
+        if agent.activity_type == 3
+            for agent2_id in agent.activity_cross_conn_ids
+                agent2 = agents[agent2_id]
+                if !(agent2.id in infected_agent_ids) && rand(rng, Float64) < 0.25
+                    dur = get_contact_duration_gamma(other_contact_duration_shapes[5], other_contact_duration_scales[5], rng)
+                    make_contact_r0(num_people_infected, infected_agent_ids,
+                        viruses, agent, agent2, dur, current_step, duration_parameter,
+                        susceptibility_parameters, temperature_parameters,
+                        current_temp, rng)
                 end
             end
         end
@@ -149,7 +162,6 @@ end
 function update_agent_states_r0(
     infected_agent_id::Int,
     agents::Vector{Agent},
-    infectivities::Array{Float64, 4},
     rng::MersenneTwister,
 )::Bool
     agent = agents[infected_agent_id]
@@ -208,12 +220,12 @@ function update_agent_states_r0(
             end
         end
         
-        agent.infectivity = find_agent_infectivity(
-            agent.age,
-            infectivities[agent.virus_id, agent.incubation_period, agent.infection_period - 1, agent.days_infected + 7],
-            agent.is_asymptomatic && agent.days_infected > 0)
+        agent.attendance = true
+        if agent.activity_type == 3 && !agent.is_teacher && rand(rng, Float64) < skip_college_probability
+            agent.attendance = false
+        end
+        return true
     end
-    return true
 end
 
 # Without parent leave to be truly parallel
@@ -221,10 +233,23 @@ function run_simulation_r0(
     month_num::Int,
     infected_agent_id::Int,
     agents::Vector{Agent},
-    infectivities::Array{Float64, 4},
-    temp_influences::Array{Float64, 2},
+    viruses::Vector{Virus},
+    households::Vector{Household},
+    schools::Vector{School},
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
+    temperature_parameters::Vector{Float64},
+    temperature::Vector{Float64},
+    mean_household_contact_durations::Vector{Float64},
+    household_contact_duration_sds::Vector{Float64},
+    other_contact_duration_shapes::Vector{Float64},
+    other_contact_duration_scales::Vector{Float64},
+    isolation_probabilities_day_1::Vector{Float64},
+    isolation_probabilities_day_2::Vector{Float64},
+    isolation_probabilities_day_3::Vector{Float64},
+    random_infection_probabilities::Vector{Float64},
+    recovered_duration_mean::Float64,
+    recovered_duration_sd::Float64,
     rng::MersenneTwister,
 )::Int
     # Месяц
@@ -232,29 +257,46 @@ function run_simulation_r0(
 
     infected_agent_ids = Int[]
 
-    current_step = 0
+    # Минимальная температура воздуха
+    min_temp = -7.2
+    # Max - Min температура
+    max_min_temp = 26.6
+
+    current_step = 1
+    year_day = 212
     if month == 9
         current_step = 31
+        year_day = 243
     elseif month == 10
         current_step = 61
+        year_day = 273
     elseif month == 11
         current_step = 92
+        year_day = 304
     elseif month == 12
         current_step = 122
+        year_day = 334
     elseif month == 1
         current_step = 153
+        year_day = 365
     elseif month == 2
         current_step = 184
+        year_day = 31
     elseif month == 3
         current_step = 212
+        year_day = 59
     elseif month == 4
         current_step = 243
+        year_day = 90
     elseif month == 5
         current_step = 273
+        year_day = 120
     elseif month == 6
         current_step = 304
+        year_day = 151
     elseif month == 7
         current_step = 334
+        year_day = 181
     end
 
 
@@ -293,7 +335,7 @@ function run_simulation_r0(
             is_holiday = true
         end
 
-        is_work_holiday = false
+        is_work_holiday = is_holiday
         if week_day == 6
             is_work_holiday = true
         end
@@ -306,9 +348,9 @@ function run_simulation_r0(
         # Каникулы
         # Летние - 01.06.yyyy - 31.08.yyyy
         # Осенние - 05.11.yyyy - 11.11.yyyy
-        # Зимние - 28.12.yyyy - 09.03.yyyy
+        # Зимние - 28.12.yyyy - 09.01.yyyy
         # Весенние - 22.03.yyyy - 31.03.yyyy
-        is_school_holiday = false
+        is_school_holiday = is_holiday
         if month == 6 || month == 7 || month == 8
             is_school_holiday = true
         elseif month == 11 && day >= 5 && day <= 11
@@ -321,7 +363,7 @@ function run_simulation_r0(
             is_school_holiday = true
         end
 
-        is_college_holiday = false
+        is_college_holiday = is_holiday
         if month == 7 || month == 8
             is_college_holiday = true
         elseif month == 1 && day != 11 && day != 15 && day != 19 && day != 23 && day != 27
@@ -337,24 +379,32 @@ function run_simulation_r0(
         simulate_contacts_r0(
             infected_agent_id,
             agents,
-            temp_influences,
+            households,
+            mean_household_contact_durations,
+            household_contact_duration_sds,
+            other_contact_duration_shapes,
+            other_contact_duration_scales,
             duration_parameter,
             susceptibility_parameters,
-            is_holiday,
+            temperature_parameters,
+            random_infection_probabilities,
+            viruses,
             is_kindergarten_holiday,
             is_school_holiday,
             is_college_holiday,
             is_work_holiday,
             current_step,
+            (temperature[year_day] - min_temp) / max_min_temp,
             num_people_infected,
             infected_agent_ids,
-            rng)
+            rng,
+        )
         
         agent_infected = update_agent_states_r0(
             infected_agent_id,
             agents,
-            infectivities,
-            rng)
+            rng,
+        )
 
         # Обновление даты
         if week_day == 7

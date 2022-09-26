@@ -50,17 +50,26 @@ function set_connections(
                 group_id += 1
             end
             push!(groups[group_id], agent.id)
-            agent.activity_conn_ids = groups[group_id]
+
+            # agent.activity_conn_ids = groups[group_id]
+
         elseif agent.activity_type == 2
             agent.school_id = households[agent.household_id].closest_school_id
             groups = schools[agent.school_id].groups[agent.school_group_num]
             group_id = length(groups)
-            if size(groups[group_id], 1) == school_groups_size
+
+            if (agent.school_group_num < 5 && 
+                size(groups[group_id], 1) == school_groups_size_5_9) ||
+                (agent.school_group_num < 9 && size(groups[group_id], 1) == school_groups_size_10_14) ||
+                (agent.school_group_num < 12 && size(groups[group_id], 1) == school_groups_size_15)
+                
                 push!(groups, Int[])
                 group_id += 1
             end
             push!(groups[group_id], agent.id)
-            agent.activity_conn_ids = groups[group_id]
+
+            # agent.activity_conn_ids = groups[group_id]
+
         elseif agent.activity_type == 3
             agent.school_id = rand(1:num_colleges)
             groups = colleges[agent.school_id].groups[agent.school_group_num]
@@ -75,7 +84,9 @@ function set_connections(
                 group_id += 1
             end
             push!(groups[group_id], agent.id)
-            agent.activity_conn_ids = groups[group_id]
+
+            # agent.activity_conn_ids = groups[group_id]
+
         elseif agent.activity_type == 4
             num_working_agents += 1
         end
@@ -102,9 +113,16 @@ function set_connections(
                 agents[agent_id].is_teacher = true
                 agents[agent_id].school_id = kindergarten_id
                 agents[agent_id].school_group_num = school_group_num
+
                 agents[agent_id].activity_conn_ids = group
+                for agent2_id in group
+                    if agent2_id == agent_id
+                        continue
+                    end
+                    push!(agents[agent2_id].activity_conn_ids, agent_id)
+                end
+
                 push!(kindergarten.teacher_ids, agent_id)
-                # agents[agent_id].school_group_id = group_id
             end
             num_working_agents -= groups_size
         end
@@ -131,9 +149,16 @@ function set_connections(
                 agents[agent_id].is_teacher = true
                 agents[agent_id].school_id = school_id
                 agents[agent_id].school_group_num = school_group_num
+
                 agents[agent_id].activity_conn_ids = group
+                for agent2_id in group
+                    if agent2_id == agent_id
+                        continue
+                    end
+                    push!(agents[agent2_id].activity_conn_ids, agent_id)
+                end
+
                 push!(school.teacher_ids, agent_id)
-                # agents[agent_id].school_group_id = group_id
             end
             num_working_agents -= groups_size
         end
@@ -160,9 +185,16 @@ function set_connections(
                 agents[agent_id].is_teacher = true
                 agents[agent_id].school_id = college_id
                 agents[agent_id].school_group_num = school_group_num
+
                 agents[agent_id].activity_conn_ids = group
+                for agent2_id in group
+                    if agent2_id == agent_id
+                        continue
+                    end
+                    push!(agents[agent2_id].activity_conn_ids, agent_id)
+                end
+
                 push!(college.teacher_ids, agent_id)
-                # agents[agent_id].school_group_id = group_id
             end
             num_working_agents -= groups_size
         end
@@ -287,6 +319,36 @@ function set_connections(
             end
         end
 
+        for kindergarten_id in start_kindergarten_ids[thread_id]:end_kindergarten_ids[thread_id]
+            kindergarten = kindergartens[kindergarten_id]
+            for groups in kindergarten.groups
+                for group in groups
+                    generate_barabasi_albert_network(
+                        agents, group, 10, thread_rng[thread_id])
+                end
+            end
+        end
+
+        for school_id in start_school_ids[thread_id]:end_school_ids[thread_id]
+            school = schools[school_id]
+            for groups in school.groups
+                for group in groups
+                    generate_barabasi_albert_network(
+                        agents, group, 10, thread_rng[thread_id])
+                end
+            end
+        end
+
+        for college_id in start_college_ids[thread_id]:end_college_ids[thread_id]
+            college = colleges[college_id]
+            for groups in college.groups
+                for group in groups
+                    generate_barabasi_albert_network(
+                        agents, group, 10, thread_rng[thread_id])
+                end
+            end
+        end
+
         for workplace_id in start_workplace_ids[thread_id]:end_workplace_ids[thread_id]
             generate_barabasi_albert_network(
                 agents, workplaces[workplace_id].agent_ids, num_barabasi_albert_attachments, thread_rng[thread_id])
@@ -329,7 +391,15 @@ function generate_barabasi_albert_network(agents::Vector{Agent}, agent_ids::Vect
     end
     # Связный граф с m вершинами
     for i = 1:m
+        agent = agents[agent_ids[i]]
+        if agent.is_teacher
+            continue
+        end
         for j = (i + 1):m
+            agent2 = agents[agent_ids[j]]
+            if agent2.is_teacher
+                continue
+            end
             push!(agents[agent_ids[i]].activity_conn_ids, agent_ids[j])
             push!(agents[agent_ids[j]].activity_conn_ids, agent_ids[i])
         end
@@ -339,6 +409,11 @@ function generate_barabasi_albert_network(agents::Vector{Agent}, agent_ids::Vect
     # Добавление новых вершин
     for i = (m + 1):length(agent_ids)
         agent = agents[agent_ids[i]]
+
+        if agent.is_teacher
+            continue
+        end
+
         degree_sum_temp = degree_sum
         for _ = 1:m
             cumulative = 0.0

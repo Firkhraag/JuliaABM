@@ -210,13 +210,23 @@ mutable struct Agent
                     activity_type = 4
                 end
             end
-        elseif age < 60
+        elseif age < 55
             if is_male
                 if rand(rng, Float64) < 0.88
                     activity_type = 4
                 end
             else
                 if rand(rng, Float64) < 0.7
+                    activity_type = 4
+                end
+            end
+        elseif age < 60
+            if is_male
+                if rand(rng, Float64) < 0.695
+                    activity_type = 4
+                end
+            else
+                if rand(rng, Float64) < 0.495
                     activity_type = 4
                 end
             end

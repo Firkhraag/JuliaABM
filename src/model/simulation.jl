@@ -476,7 +476,8 @@ function update_agent_states(
                     agent.CoV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[7].mean_immunity_duration, viruses[7].immunity_duration_sd), 1.0, 1000.0)))
                 end
                 agent.days_immune = 1
-                agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), 1.0, 1000.0)))
+                # agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), 1.0, 10.0)))
+                agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), 1.0, 12.0)))
                 agent.virus_id = 0
                 agent.is_isolated = false
 
@@ -1080,8 +1081,7 @@ function run_simulation(
     is_rt_run::Bool,
     school_class_closure_period::Int = 0,
     school_class_closure_threshold::Float64 = 0.0,
-    school_closure_threshold_classes::Int = 3,
-)::Tuple{Array{Float64, 3}, Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}}
+)::Tuple{Array{Float64, 3}, Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
     # День месяца
     day = 1
     # Месяц
@@ -1116,6 +1116,8 @@ function run_simulation(
     activities_infections_threads = zeros(Int, max_step, 5, num_threads)
     rt_threads = zeros(Float64, max_step, num_threads)
     rt_count_threads = zeros(Float64, max_step, num_threads)
+
+    num_schools_closed_threads = zeros(Float64, max_step, num_threads)
 
     for current_step = 1:max_step
         # Выходные, праздники
@@ -1285,39 +1287,103 @@ function run_simulation(
         # end
 
         # ------------------------------------------------------------
-        if school_class_closure_period > 0 && !is_school_holiday
-            @threads for school in schools
-                num_closed_classrooms = 0
-                for groups in school.groups
-                    for group in groups
-                        num_isolated = 0
-                        for agent_id in group
-                            agent = agents[agent_id]
-                            if agent.quarantine_period > 0
-                                num_closed_classrooms += 1
-                                break
-                            end
-                            if agent.is_isolated
-                                num_isolated += 1
+        if school_class_closure_period > 0
+            @threads for thread_id in 1:num_threads
+                for school_id in start_school_ids[thread_id]:end_school_ids[thread_id]
+                    school = schools[school_id]
+                    if school.quarantine_period == 0
+                        school_num_isolated = 0
+                        school_num_people = 0
+                        # num_closed_classrooms = 0
+                        for groups_id in 1:length(school.groups)
+                            groups = school.groups[groups_id]
+                            if school.quarantine_period_groups[groups_id] == 0
+                                groups_num_isolated = 0
+                                groups_num_people = 0
+                                for group in groups
+                                    num_isolated = 0
+                                    for agent_id in group
+                                        agent = agents[agent_id]
+                                        if !agent.is_teacher
+                                            if agent.quarantine_period > 0
+                                                # num_closed_classrooms += 1
+                                                if agent.quarantine_period > 1
+                                                    school_num_isolated += length(group) - 1
+                                                    school_num_people += length(group) - 1
+
+                                                    groups_num_isolated += length(group) - 1
+                                                    groups_num_people += length(group) - 1
+                                                end
+                                                break
+                                            end
+                                            if agent.is_isolated
+                                                num_isolated += 1
+                                                school_num_isolated += 1
+                                                groups_num_isolated += 1
+                                            end
+                                            school_num_people += 1
+                                            groups_num_people += 1
+                                        end
+                                    end
+                                    if length(group) > 1 && num_isolated / (length(group) - 1) > school_class_closure_threshold
+                                        for agent_id in group
+                                            agent = agents[agent_id]
+                                            agent.quarantine_period = school_class_closure_period + 1
+                                            if !agent.is_isolated
+                                                school_num_isolated += 1
+                                                groups_num_people += 1
+                                            end
+                                        end
+                                    end
+                                end
+
+                                if groups_num_isolated / groups_num_people > school_class_closure_threshold
+                                    for group in groups
+                                        for agent_id in group
+                                            agent = agents[agent_id]
+                                            agent.quarantine_period = school_class_closure_period + 1
+                                        end
+                                    end
+                                    school.quarantine_period_groups[groups_id] = school_class_closure_period
+                                end
+                            else
+                                school.quarantine_period_groups[groups_id] -= 1
+                                if school.quarantine_period_groups[groups_id] > 0
+                                    for group in groups
+                                        school_num_isolated += length(group) - 1
+                                        school_num_people += length(group) - 1
+                                    end
+                                end
                             end
                         end
-                        if num_isolated / length(group) > school_class_closure_threshold
-                            for agent_id in group
-                                agent = agents[agent_id]
-                                agent.quarantine_period = school_class_closure_period + 1
+                        # println(school_num_isolated / school_num_people)
+
+                        # if num_closed_classrooms >= school_closure_threshold_classes
+                        #     for groups in school.groups
+                        #         for group in groups
+                        #             for agent_id in group
+                        #                 agent = agents[agent_id]
+                        #                 agent.quarantine_period = school_class_closure_period + 1
+                        #             end
+                        #         end
+                        #     end
+                        #     school.quarantine_period = school_class_closure_period
+                        #     num_schools_closed_threads[current_step] += 1
+                        # end
+                        if school_num_isolated / school_num_people > school_class_closure_threshold
+                            for groups in school.groups
+                                for group in groups
+                                    for agent_id in group
+                                        agent = agents[agent_id]
+                                        agent.quarantine_period = school_class_closure_period + 1
+                                    end
+                                end
                             end
+                            school.quarantine_period = school_class_closure_period
+                            num_schools_closed_threads[current_step] += 1
                         end
-                    end
-                end
-                if num_closed_classrooms >= school_closure_threshold_classes
-                    for groups in school.groups
-                        for group in groups
-                            num_isolated = 0
-                            for agent_id in group
-                                agent = agents[agent_id]
-                                agent.quarantine_period = school_class_closure_period + 1
-                            end
-                        end
+                    else
+                        school.quarantine_period -= 1
                     end
                 end
             end
@@ -1391,5 +1457,5 @@ function run_simulation(
     rt_count = sum(rt_count_threads, dims = 2)[:, 1]
     rt = rt ./ rt_count
 
-    return observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, sum(activities_infections_threads, dims = 3)[:, :, 1], rt
+    return observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, sum(activities_infections_threads, dims = 3)[:, :, 1], rt, sum(num_schools_closed_threads, dims = 2)[:, 1]
 end

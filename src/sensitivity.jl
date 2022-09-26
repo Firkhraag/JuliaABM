@@ -35,8 +35,8 @@ function main()
 
     num_threads = nthreads()
 
-    starting_bias = 0
-    n = 100
+    starting_bias = 295
+    n = 5
     disturbance = 0.05
 
     num_years = 3
@@ -44,19 +44,19 @@ function main()
     isolation_probabilities_day_1_default = [0.406, 0.305, 0.204, 0.101]
     isolation_probabilities_day_2_default = [0.669, 0.576, 0.499, 0.334]
     isolation_probabilities_day_3_default = [0.45, 0.325, 0.376, 0.168]
-    recovered_duration_mean_default = 12.0
-    recovered_duration_sd_default = 4.0
+    recovered_duration_mean_default = 6.0
+    recovered_duration_sd_default = 2.0
     mean_household_contact_durations_default = [6.5, 5.8, 9.0, 4.5, 12.0]
     household_contact_duration_sds_default = [2.2, 2.0, 3.0, 1.5, 4.0]
     other_contact_duration_shapes_default = [2.5, 1.78, 2.0, 1.81, 1.2]
     other_contact_duration_scales_default = [1.6, 1.95, 1.07, 1.7, 1.07]
 
     # Parameters add _default
-    duration_parameter_default = 3.711739847454133
-    susceptibility_parameters_default = [3.049958771387343, 3.797783962069675, 3.6978664192949933, 5.583601319315603, 4.070443207586069, 3.957334570191713, 4.612042877757162]
-    temperature_parameters_default = [-0.8786105957534528, -0.7631003916718199, -0.0868996083281797, -0.15656565656565657, -0.1027107812822098, -0.05588538445681307, -0.16932591218305615]
-    random_infection_probabilities_default = [0.00011551556380127805, 6.822016079158936e-5, 4.922135642135645e-5, 6.844135229849516e-7]
-    mean_immunity_durations_default = [255.05916305916304, 312.7078952793239, 101.87487116058544, 27.368377654091933, 77.08431251288393, 117.33374561945988, 103.15357658214802]
+    duration_parameter_default = 3.431436817151101
+    susceptibility_parameters_default = [3.1262213976499686, 3.346773861059573, 3.5357452071737825, 5.0740053597196475, 3.9547866419295055, 3.868950731807872, 4.72264893836322]
+    temperature_parameters_default = [-0.8053782725211294, -0.8363327149041434, -0.17125252525252527, -0.07122626262626264, -0.23306431663574506, -0.20445104102246967, -0.20505050505050498]
+    random_infection_probabilities_default = [0.00011590950319521746, 6.793026180169036e-5, 4.925670995670998e-5, 7.101710987425276e-7]
+    mean_immunity_durations_default = [253.57431457431454, 300.8594104308391, 99.11729540300969, 47.459286745001016, 89.78128220985364, 116.69738198309626, 107.24448567305714]
     
     incubation_period_durations_default = [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2]
     incubation_period_duration_variances_default = [0.09, 0.0484, 0.175, 0.937, 1.51, 0.327, 0.496]
@@ -98,25 +98,25 @@ function main()
     mean_viral_loads_child = copy(mean_viral_loads_child_default)
     mean_viral_loads_adult = copy(mean_viral_loads_adult_default)
 
-    firm_min_size = 0
+    firm_min_size = 1
     firm_max_size = 1000
-    num_barabasi_albert_attachments = 5
+    num_barabasi_albert_attachments = 6
 
     viruses = Virus[
         # FluA
-        Virus(1.4, 0.09, 1, 7,  4.8, 1.12, 3, 21,  8.8, 3.748, 3, 21,  4.6, 3.5, 2.3,  0.38, 0.47, 0.57,  mean_immunity_durations_default[1], mean_immunity_durations_default[1] * 0.33),
+        Virus(1.4, 0.67, 1, 7,  4.8, 2.04, 1, 28,  8.0, 3.4, 1, 28,  4.6, 3.5, 2.3,  0.38, 0.47, 0.57,  mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
         # FluB
-        Virus(1.0, 0.0484, 1, 7,  3.7, 0.66, 3, 21,  7.8, 2.94, 3, 21,  4.7, 3.5, 2.4,  0.38, 0.47, 0.57,  mean_immunity_durations_default[2], mean_immunity_durations_default[2] * 0.33),
+        Virus(0.6, 0.19, 1, 7,  3.7, 3.0, 1, 28,  6.1, 1.7, 1, 28,  4.7, 3.5, 2.4,  0.38, 0.47, 0.57,  mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
         # RV
-        Virus(1.9, 0.175, 1, 7,  10.1, 4.93, 3, 21,  11.4, 6.25, 3, 21,  3.5, 2.6, 1.8,  0.19, 0.24, 0.29,  mean_immunity_durations_default[3], mean_immunity_durations_default[3] * 0.33),
+        Virus(1.9, 1.11, 1, 7,  10.1, 7.0, 1, 28,  11.4, 7.7, 1, 28,  3.5, 2.6, 1.8,  0.19, 0.24, 0.29,  mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
         # RSV
-        Virus(4.4, 0.937, 1, 7,  7.4, 2.66, 3, 21,  9.3, 4.0, 3, 21,  6.0, 4.5, 3.0,  0.24, 0.3, 0.36,  mean_immunity_durations_default[4], mean_immunity_durations_default[4] * 0.33),
+        Virus(4.4, 1.0, 1, 7,  6.5, 2.7, 1, 28,  6.7, 2.8, 1, 28,  6.0, 4.5, 3.0,  0.24, 0.3, 0.36,  mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
         # AdV
-        Virus(5.6, 1.51, 1, 7,  8.0, 3.1, 3, 21,  9.0, 3.92, 3, 21,  4.1, 3.1, 2.1,  0.15, 0.19, 0.23,  mean_immunity_durations_default[5], mean_immunity_durations_default[5] * 0.33),
+        Virus(5.6, 1.3, 1, 7,  8.0, 5.6, 1, 28,  9.0, 6.3, 1, 28,  4.1, 3.1, 2.1,  0.15, 0.19, 0.23,  mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
         # PIV
-        Virus(2.6, 0.327, 1, 7,  7.0, 2.37, 3, 21,  8.0, 3.1, 3, 21,  4.8, 3.6, 2.4,  0.16, 0.2, 0.24,  mean_immunity_durations_default[6], mean_immunity_durations_default[6] * 0.33),
+        Virus(2.6, 0.85, 1, 7,  7.0, 2.9, 1, 28,  8.0, 3.4, 1, 28,  4.8, 3.6, 2.4,  0.16, 0.2, 0.24,  mean_immunity_durations[6], mean_immunity_durations[6] * 0.33),
         # CoV
-        Virus(3.2, 0.496, 1, 7,  6.5, 2.15, 3, 21,  7.5, 2.9, 3, 21,  4.9, 3.7, 2.5,  0.21, 0.26, 0.32,  mean_immunity_durations_default[7], mean_immunity_durations_default[7] * 0.33)]
+        Virus(3.2, 0.44, 1, 7,  6.5, 4.5, 1, 28,  7.5, 5.2, 1, 28,  4.9, 3.7, 2.5,  0.21, 0.26, 0.32,  mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
 
     # Число домохозяйств каждого типа по районам
     district_households = get_district_households()
@@ -411,7 +411,7 @@ function main()
             )
         end
 
-        @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt = run_simulation(
+        @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
             susceptibility_parameters, temperature_parameters, temperature,
             mean_household_contact_durations, household_contact_duration_sds,
