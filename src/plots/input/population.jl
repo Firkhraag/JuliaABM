@@ -8,7 +8,8 @@ using Distributions
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
-const is_russian = false
+# const is_russian = false
+const is_russian = true
 
 function age_distribution_groups()
     num_people_data_vec = [433175, 420460, 399159, 495506, 869700, 924829, 892794, 831873, 757411,
@@ -81,8 +82,10 @@ function age_distribution()
     labels = CategoricalArray(string.(collect(0:89)))
     levels!(labels, string.(collect(0:89)))
 
-    xticks = [0, 20, 40, 60, 80]
-    xticklabels = ["0", "20", "40", "60", "80"]
+    # xticks = [0, 20, 40, 60, 80]
+    # xticklabels = ["0", "20", "40", "60", "80"]
+    xticks = [0, 10, 20, 30, 40, 50, 60, 70, 80]
+    xticklabels = ["0", "10", "20", "30", "40", "50", "60", "70", "80"]
 
     yticks = [5.0 * 10^4, 1.0 * 10^5, 1.5 * 10^5, 2.0 * 10^5]
     yticklabels = ["50000" "100000" "150000" "200000"]
@@ -91,9 +94,9 @@ function age_distribution()
     if is_russian
         xlabel_name = "Возраст"
     end
-    ylabel_name = "Number"
+    ylabel_name = "Number of agents"
     if is_russian
-        ylabel_name = "Число"
+        ylabel_name = "Число агентов"
     end
 
     age_distribution_plot = groupedbar(
@@ -110,6 +113,7 @@ function age_distribution()
         # ylabel = L"\textrm{\sffamily Number}"
         xlabel = xlabel_name,
         ylabel = ylabel_name,
+        size=(800,400),
         grid = true,
         ylim = (0, 200000),
         xticks = (xticks, xticklabels),
@@ -236,9 +240,9 @@ function workplace_sizes_distribution_lognormal()
     if is_russian
         xlabel_name = "Размер"
     end
-    ylabel_name = "Number"
+    ylabel_name = "Frequency"
     if is_russian
-        ylabel_name = "Число"
+        ylabel_name = "Частота"
     end
 
     workplace_size_distribution_plot = plot(
@@ -264,8 +268,8 @@ function workplace_sizes_distribution_lognormal()
     savefig(workplace_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "workplace_size_distribution.pdf"))
 end
 
-age_distribution_groups()
+# age_distribution_groups()
 age_distribution()
-household_size_distribution()
-workplace_sizes_distribution()
-workplace_sizes_distribution_lognormal()
+# household_size_distribution()
+# workplace_sizes_distribution()
+# workplace_sizes_distribution_lognormal()

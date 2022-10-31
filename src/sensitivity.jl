@@ -35,8 +35,8 @@ function main()
 
     num_threads = nthreads()
 
-    starting_bias = 295
-    n = 5
+    starting_bias = 181
+    n = 119
     disturbance = 0.05
 
     num_years = 3
@@ -52,11 +52,11 @@ function main()
     other_contact_duration_scales_default = [1.6, 1.95, 1.07, 1.7, 1.07]
 
     # Parameters add _default
-    duration_parameter_default = 3.431436817151101
-    susceptibility_parameters_default = [3.1262213976499686, 3.346773861059573, 3.5357452071737825, 5.0740053597196475, 3.9547866419295055, 3.868950731807872, 4.72264893836322]
-    temperature_parameters_default = [-0.8053782725211294, -0.8363327149041434, -0.17125252525252527, -0.07122626262626264, -0.23306431663574506, -0.20445104102246967, -0.20505050505050498]
-    random_infection_probabilities_default = [0.00011590950319521746, 6.793026180169036e-5, 4.925670995670998e-5, 7.101710987425276e-7]
-    mean_immunity_durations_default = [253.57431457431454, 300.8594104308391, 99.11729540300969, 47.459286745001016, 89.78128220985364, 116.69738198309626, 107.24448567305714]
+    duration_parameter_default = 3.2773964131106976
+    susceptibility_parameters_default = [3.1125850340136045, 3.376571840857553, 3.5534219748505502, 5.038146773861062, 3.9956957328385956, 3.9007689136260537, 4.6524469181612]
+    temperature_parameters_default = [-0.729115646258503, -0.945928674500103, -0.19397979797979797, -0.12122626262626261, -0.13760977118119966, -0.16354195011337874, -0.20555555555555546]
+    random_infection_probabilities_default = [0.00011640445269016696, 6.788884766027622e-5, 4.9130447330447355e-5, 6.997670583384872e-7]
+    mean_immunity_durations_default = [254.75613275613273, 298.2230467944754, 106.60214388785818, 43.368377654091915, 90.5388579674294, 119.93980622552051, 117.15357658214805]
     
     incubation_period_durations_default = [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2]
     incubation_period_duration_variances_default = [0.09, 0.0484, 0.175, 0.937, 1.51, 0.327, 0.496]
@@ -100,13 +100,13 @@ function main()
 
     firm_min_size = 1
     firm_max_size = 1000
-    num_barabasi_albert_attachments = 6
+    num_barabasi_albert_attachments = 5
 
     viruses = Virus[
         # FluA
         Virus(1.4, 0.67, 1, 7,  4.8, 2.04, 1, 28,  8.0, 3.4, 1, 28,  4.6, 3.5, 2.3,  0.38, 0.47, 0.57,  mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
         # FluB
-        Virus(0.6, 0.19, 1, 7,  3.7, 3.0, 1, 28,  6.1, 1.7, 1, 28,  4.7, 3.5, 2.4,  0.38, 0.47, 0.57,  mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
+        Virus(0.6, 0.19, 1, 7,  3.7, 3.0, 1, 28,  6.1, 4.8, 1, 28,  4.7, 3.5, 2.4,  0.38, 0.47, 0.57,  mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
         # RV
         Virus(1.9, 1.11, 1, 7,  10.1, 7.0, 1, 28,  11.4, 7.7, 1, 28,  3.5, 2.6, 1.8,  0.19, 0.24, 0.29,  mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
         # RSV
@@ -362,10 +362,6 @@ function main()
         for k = 1:length(random_infection_probabilities)
             random_infection_probabilities[k] += rand(Normal(0.0, disturbance * random_infection_probabilities[k]))
         end
-
-        # for k = 1:length(initially_infected)
-        #     initially_infected[k] += rand(Normal(0.0, disturbance * initially_infected[k]))
-        # end
 
         for k = 1:length(incubation_period_durations)
             incubation_period_durations[k] += rand(Normal(0.0, disturbance * incubation_period_durations[k]))

@@ -188,8 +188,10 @@ begin
 	mean = copy(sum_home_contact_counts)
 
 	append!(mean, sum_home_contacts)
-	# legend = repeat(["модель", "данные"], inner = 16)
-	legend = repeat(["model", "data"], inner = 16)
+	
+	legend = repeat(["модель", "данные"], inner = 16)
+	# legend = repeat(["model", "data"], inner = 16)
+	
     # std = [1.058, 0.8124, 2.22, 1.63, 1.76, 1.54, 1.54, 1.936, 1.715, 2.5, 2.0, 1.98, 1.76, 1.76]
 
     groupedbar(
@@ -201,21 +203,22 @@ begin
         markerstrokecolor = :black,
         markercolor = :black,
         grid = true,
-		title = "Home",
+		# title = "Home",
 		# title = "Дом",
 		xrotation = 45,
 		margin = 2Plots.mm,
+		legend = :topleft,
 		color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
 		foreground_color_legend = nothing,
 		background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
 		
-        xlabel = "Age group",
-        ylabel = "Contact frequencies",
+        # xlabel = "Age group",
+        # ylabel = "Contact frequencies",
 
-		# xlabel = "Возраст",
-        # ylabel = "Частота контактов",
+		xlabel = "Возраст",
+        ylabel = "Частота контактов",
     )
 end
 
@@ -233,7 +236,7 @@ begin
         markerstrokecolor = :black,
         markercolor = :black,
         grid = true,
-		title = "School",
+		# title = "School",
 		# title = "Школа",
 		xrotation = 45,
 		margin = 2Plots.mm,
@@ -243,11 +246,11 @@ begin
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
 		
-        xlabel = "Age group",
-        ylabel = "Contact frequencies",
+        # xlabel = "Age group",
+        # ylabel = "Contact frequencies",
 
-		# xlabel = "Возраст",
-        # ylabel = "Частота контактов",
+		xlabel = "Возраст",
+        ylabel = "Частота контактов",
     )
 end
 
@@ -265,7 +268,7 @@ begin
         markerstrokecolor = :black,
         markercolor = :black,
         grid = true,
-		title = "Work",
+		# title = "Work",
 		# title = "Работа",
 		xrotation = 45,
 		margin = 2Plots.mm,
@@ -275,11 +278,11 @@ begin
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
 		
-        xlabel = "Age group",
-        ylabel = "Contact frequencies",
+        # xlabel = "Age group",
+        # ylabel = "Contact frequencies",
 
-		# xlabel = "Возраст",
-        # ylabel = "Частота контактов",
+		xlabel = "Возраст",
+        ylabel = "Частота контактов",
     )
 end
 
@@ -298,7 +301,7 @@ begin
         markercolor = :black,
         grid = true,
 		# title = "Total",
-		title = "All contacts",
+		# title = "All contacts",
 		xrotation = 45,
 		margin = 2Plots.mm,
 		color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
@@ -307,11 +310,11 @@ begin
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Infection period duration, days}",
 		
-        xlabel = "Age group",
-        ylabel = "Contact frequencies",
+        # xlabel = "Age group",
+        # ylabel = "Contact frequencies",
 
-		# xlabel = "Возраст",
-        # ylabel = "Частота контактов",
+		xlabel = "Возраст",
+        ylabel = "Частота контактов",
     )
 end
 

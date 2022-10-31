@@ -8,6 +8,13 @@ function reset_agent_states(
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
     rng::MersenneTwister,
+    FluA_immune_memory_susceptibility_level::Float64,
+    FluB_immune_memory_susceptibility_level::Float64,
+    RV_immune_memory_susceptibility_level::Float64,
+    RSV_immune_memory_susceptibility_level::Float64,
+    AdV_immune_memory_susceptibility_level::Float64,
+    PIV_immune_memory_susceptibility_level::Float64,
+    CoV_immune_memory_susceptibility_level::Float64,
 )
     for agent_id in start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -55,6 +62,14 @@ function reset_agent_states(
         agent.PIV_immunity_end = 0
         agent.CoV_immunity_end = 0
 
+        agent.FluA_immunity_susceptibility_level = 1.0
+        agent.FluB_immunity_susceptibility_level = 1.0
+        agent.RV_immunity_susceptibility_level = 1.0
+        agent.RSV_immunity_susceptibility_level = 1.0
+        agent.AdV_immunity_susceptibility_level = 1.0
+        agent.PIV_immunity_susceptibility_level = 1.0
+        agent.CoV_immunity_susceptibility_level = 1.0
+
         if agent.virus_id != 1
             for week_num = 17:43
                 if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 1, age_group] / num_agents_age_groups[age_group]
@@ -64,6 +79,8 @@ function reset_agent_states(
                         agent.FluA_immunity_end = 0
                         agent.FluA_days_immune = 0
                     end
+                else
+                    agent.FluA_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.FluA_days_immune, agent.FluA_immunity_end, FluA_immune_memory_susceptibility_level)
                 end
             end
         elseif agent.virus_id != 2
@@ -75,6 +92,8 @@ function reset_agent_states(
                         agent.FluB_immunity_end = 0
                         agent.FluB_days_immune = 0
                     end
+                else
+                    agent.FluB_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.FluB_days_immune, agent.FluB_immunity_end, FluB_immune_memory_susceptibility_level)
                 end
             end
         elseif agent.virus_id != 3
@@ -86,6 +105,8 @@ function reset_agent_states(
                         agent.RV_immunity_end = 0
                         agent.RV_days_immune = 0
                     end
+                else
+                    agent.RV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.RV_days_immune, agent.RV_immunity_end, RV_immune_memory_susceptibility_level)
                 end
             end
         elseif agent.virus_id != 4
@@ -97,6 +118,8 @@ function reset_agent_states(
                         agent.RSV_immunity_end = 0
                         agent.RSV_days_immune = 0
                     end
+                else
+                    agent.RSV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.RSV_days_immune, agent.RSV_immunity_end, RSV_immune_memory_susceptibility_level)
                 end
             end
         elseif agent.virus_id != 5
@@ -108,6 +131,8 @@ function reset_agent_states(
                         agent.AdV_immunity_end = 0
                         agent.AdV_days_immune = 0
                     end
+                else
+                    agent.AdV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.AdV_days_immune, agent.AdV_immunity_end, AdV_immune_memory_susceptibility_level)
                 end
             end
         elseif agent.virus_id != 6
@@ -119,6 +144,8 @@ function reset_agent_states(
                         agent.PIV_immunity_end = 0
                         agent.PIV_days_immune = 0
                     end
+                else
+                    agent.PIV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.PIV_days_immune, agent.PIV_immunity_end, PIV_immune_memory_susceptibility_level)
                 end
             end
         elseif agent.virus_id != 7
@@ -130,6 +157,8 @@ function reset_agent_states(
                         agent.CoV_immunity_end = 0
                         agent.CoV_days_immune = 0
                     end
+                else
+                    agent.CoV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.CoV_days_immune, agent.CoV_immunity_end, CoV_immune_memory_susceptibility_level)
                 end
             end
         end

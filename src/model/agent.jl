@@ -80,8 +80,13 @@ mutable struct Agent
 
     quarantine_period::Int
 
-    # shopping_time::Int
-    # restaurant_time::Int
+    FluA_immunity_susceptibility_level::Float64
+    FluB_immunity_susceptibility_level::Float64
+    RV_immunity_susceptibility_level::Float64
+    RSV_immunity_susceptibility_level::Float64
+    AdV_immunity_susceptibility_level::Float64
+    PIV_immunity_susceptibility_level::Float64
+    CoV_immunity_susceptibility_level::Float64
 
     function Agent(
         id::Int,
@@ -96,6 +101,13 @@ mutable struct Agent
         is_male::Bool,
         age::Int,
         rng::MersenneTwister,
+        FluA_immune_memory_susceptibility_level::Float64,
+        FluB_immune_memory_susceptibility_level::Float64,
+        RV_immune_memory_susceptibility_level::Float64,
+        RSV_immune_memory_susceptibility_level::Float64,
+        AdV_immune_memory_susceptibility_level::Float64,
+        PIV_immune_memory_susceptibility_level::Float64,
+        CoV_immune_memory_susceptibility_level::Float64,
     )
         # Возраст новорожденного
         infant_age = 0
@@ -457,6 +469,14 @@ mutable struct Agent
         PIV_immunity_end = 0
         CoV_immunity_end = 0
 
+        FluA_immunity_susceptibility_level = 1.0
+        FluB_immunity_susceptibility_level = 1.0
+        RV_immunity_susceptibility_level = 1.0
+        RSV_immunity_susceptibility_level = 1.0
+        AdV_immunity_susceptibility_level = 1.0
+        PIV_immunity_susceptibility_level = 1.0
+        CoV_immunity_susceptibility_level = 1.0
+
         if virus_id != 1
             for week_num = 17:43
                 if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 1, age_group] / num_agents_age_groups[age_group]
@@ -465,6 +485,8 @@ mutable struct Agent
                     if FluA_days_immune > FluA_immunity_end
                         FluA_immunity_end = 0
                         FluA_days_immune = 0
+                    else
+                        FluA_immunity_susceptibility_level = find_immunity_susceptibility_level(FluA_days_immune, FluA_immunity_end, FluA_immune_memory_susceptibility_level)
                     end
                 end
             end
@@ -476,6 +498,8 @@ mutable struct Agent
                     if FluB_days_immune > FluB_immunity_end
                         FluB_immunity_end = 0
                         FluB_days_immune = 0
+                    else
+                        FluB_immunity_susceptibility_level = find_immunity_susceptibility_level(FluB_days_immune, FluB_immunity_end, FluB_immune_memory_susceptibility_level)
                     end
                 end
             end
@@ -487,6 +511,8 @@ mutable struct Agent
                     if RV_days_immune > RV_immunity_end
                         RV_immunity_end = 0
                         RV_days_immune = 0
+                    else
+                        RV_immunity_susceptibility_level = find_immunity_susceptibility_level(RV_days_immune, RV_immunity_end, RV_immune_memory_susceptibility_level)
                     end
                 end
             end
@@ -498,6 +524,8 @@ mutable struct Agent
                     if RSV_days_immune > RSV_immunity_end
                         RSV_immunity_end = 0
                         RSV_days_immune = 0
+                    else
+                        RSV_immunity_susceptibility_level = find_immunity_susceptibility_level(RSV_days_immune, RSV_immunity_end, RSV_immune_memory_susceptibility_level)
                     end
                 end
             end
@@ -509,6 +537,8 @@ mutable struct Agent
                     if AdV_days_immune > AdV_immunity_end
                         AdV_immunity_end = 0
                         AdV_days_immune = 0
+                    else
+                        AdV_immunity_susceptibility_level = find_immunity_susceptibility_level(AdV_days_immune, AdV_immunity_end, AdV_immune_memory_susceptibility_level)
                     end
                 end
             end
@@ -520,6 +550,8 @@ mutable struct Agent
                     if PIV_days_immune > PIV_immunity_end
                         PIV_immunity_end = 0
                         PIV_days_immune = 0
+                    else
+                        PIV_immunity_susceptibility_level = find_immunity_susceptibility_level(PIV_days_immune, PIV_immunity_end, PIV_immune_memory_susceptibility_level)
                     end
                 end
             end
@@ -531,6 +563,8 @@ mutable struct Agent
                     if CoV_days_immune > CoV_immunity_end
                         CoV_immunity_end = 0
                         CoV_days_immune = 0
+                    else
+                        CoV_immunity_susceptibility_level = find_immunity_susceptibility_level(CoV_days_immune, CoV_immunity_end, CoV_immune_memory_susceptibility_level)
                     end
                 end
             end
@@ -661,7 +695,10 @@ mutable struct Agent
             RSV_immunity_end, AdV_immunity_end, PIV_immunity_end, CoV_immunity_end,
             incubation_period, infection_period, days_infected, days_immune,
             days_immune_end, is_asymptomatic, is_isolated, attendance, is_teacher,
-            num_infected_agents, quarantine_period)
+            num_infected_agents, quarantine_period, FluA_immunity_susceptibility_level,
+            FluB_immunity_susceptibility_level, RV_immunity_susceptibility_level,
+            RSV_immunity_susceptibility_level, AdV_immunity_susceptibility_level,
+            PIV_immunity_susceptibility_level, CoV_immunity_susceptibility_level)
     end
 end
 
@@ -702,4 +739,14 @@ function get_period_from_erlang(
     return round(
         rand(rng, truncated(
             Erlang(shape, scale), low, upper)))
+end
+
+function find_immunity_susceptibility_level(
+    days_immune::Int,
+    immunity_end::Int,
+    immune_memory_susceptibility_level::Float64,
+)::Float64
+    # return 0.0
+    k = immune_memory_susceptibility_level / (immunity_end - 1)
+    return k * days_immune - k
 end

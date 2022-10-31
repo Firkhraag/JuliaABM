@@ -7,7 +7,8 @@ using CategoricalArrays
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
-const is_russian = false
+# const is_russian = false
+const is_russian = true
 
 function plot_incubation_periods()
     labels = CategoricalArray(["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"])

@@ -241,6 +241,13 @@ function create_parents_with_children(
     num_of_other_people::Int,
     index::Int,
     rng::MersenneTwister,
+    FluA_immune_memory_susceptibility_level::Float64,
+    FluB_immune_memory_susceptibility_level::Float64,
+    RV_immune_memory_susceptibility_level::Float64,
+    RSV_immune_memory_susceptibility_level::Float64,
+    AdV_immune_memory_susceptibility_level::Float64,
+    PIV_immune_memory_susceptibility_level::Float64,
+    CoV_immune_memory_susceptibility_level::Float64,
     with_others::Bool = false,
     with_grandparent::Bool = false,
 )::Vector{Agent}
@@ -271,7 +278,11 @@ function create_parents_with_children(
 
     agent_female = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, agent_female_sex, agent_female_age, rng)
+        isolation_probabilities_day_3, household_conn_ids, agent_female_sex, agent_female_age, rng,
+        FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+        RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+        AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+        CoV_immune_memory_susceptibility_level)
     agent_id += 1
 
     agent_male_sex, agent_male_age = get_agent_sex_and_age(
@@ -290,7 +301,11 @@ function create_parents_with_children(
     end
     agent_male = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, agent_male_sex, agent_male_age, rng)
+        isolation_probabilities_day_3, household_conn_ids, agent_male_sex, agent_male_age, rng,
+        FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+        RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+        AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+        CoV_immune_memory_susceptibility_level)
     agent_id += 1
     if num_of_other_people == 0
         if num_of_children > 0
@@ -308,7 +323,11 @@ function create_parents_with_children(
             end
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
             check_parent_leave(no_one_at_home, agent_female, child)
@@ -329,7 +348,11 @@ function create_parents_with_children(
             end
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -349,7 +372,11 @@ function create_parents_with_children(
             end
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, child, child2, child3]
         end
@@ -381,7 +408,11 @@ function create_parents_with_children(
         end
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -398,7 +429,11 @@ function create_parents_with_children(
             end
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
             if agent_other.activity_type == 0
@@ -422,7 +457,11 @@ function create_parents_with_children(
             end
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -442,7 +481,11 @@ function create_parents_with_children(
             end
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, child, child2, child3]
         end
@@ -474,7 +517,11 @@ function create_parents_with_children(
         end
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
@@ -492,7 +539,11 @@ function create_parents_with_children(
         end
         agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -509,7 +560,11 @@ function create_parents_with_children(
             end
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
             if agent_other.activity_type == 0 || agent_other2.activity_type == 0
@@ -533,7 +588,11 @@ function create_parents_with_children(
             end
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -553,7 +612,11 @@ function create_parents_with_children(
             end
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, agent_other2, child, child2, child3]
         end
@@ -584,7 +647,11 @@ function create_parents_with_children(
         end
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
@@ -602,8 +669,11 @@ function create_parents_with_children(
         end
         agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age,
-            rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index,
@@ -622,7 +692,11 @@ function create_parents_with_children(
         end
         agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -639,7 +713,11 @@ function create_parents_with_children(
             end
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
             if agent_other.activity_type == 0 || agent_other2.activity_type == 0 || agent_other3.activity_type == 0
@@ -663,7 +741,11 @@ function create_parents_with_children(
             end
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -683,7 +765,11 @@ function create_parents_with_children(
             end
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
@@ -714,7 +800,11 @@ function create_parents_with_children(
         end
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
@@ -732,7 +822,11 @@ function create_parents_with_children(
         end
         agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
@@ -751,7 +845,11 @@ function create_parents_with_children(
         end
         agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other4_sex, agent_other4_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
@@ -770,7 +868,11 @@ function create_parents_with_children(
         end
         agent_other4 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other4_sex, agent_other4_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other4_sex, agent_other4_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -787,7 +889,11 @@ function create_parents_with_children(
             end
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
             if agent_other.activity_type == 0 || agent_other2.activity_type == 0 ||
@@ -812,7 +918,11 @@ function create_parents_with_children(
             end
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -832,7 +942,11 @@ function create_parents_with_children(
             end
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
@@ -856,6 +970,13 @@ function create_two_pairs_with_children_with_others(
     num_of_other_people::Int,
     index::Int,
     rng::MersenneTwister,
+    FluA_immune_memory_susceptibility_level::Float64,
+    FluB_immune_memory_susceptibility_level::Float64,
+    RV_immune_memory_susceptibility_level::Float64,
+    RSV_immune_memory_susceptibility_level::Float64,
+    AdV_immune_memory_susceptibility_level::Float64,
+    PIV_immune_memory_susceptibility_level::Float64,
+    CoV_immune_memory_susceptibility_level::Float64,
 )::Vector{Agent}
     agent_female_sex, agent_female_age = get_agent_sex_and_age(
         index, district_people,
@@ -876,7 +997,11 @@ function create_two_pairs_with_children_with_others(
 
     agent_female = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, agent_female_sex, agent_female_age, rng)
+        isolation_probabilities_day_3, household_conn_ids, agent_female_sex, agent_female_age, rng,
+        FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+        RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+        AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+        CoV_immune_memory_susceptibility_level)
 
     agent_id += 1
     agent_male_sex, agent_male_age = get_agent_sex_and_age(
@@ -895,7 +1020,11 @@ function create_two_pairs_with_children_with_others(
     end
     agent_male = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, agent_male_sex, agent_male_age, rng)
+        isolation_probabilities_day_3, household_conn_ids, agent_male_sex, agent_male_age, rng,
+        FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+        RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+        AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+        CoV_immune_memory_susceptibility_level)
     agent_id += 1
 
     agent_female_old_sex, agent_female_old_age = get_agent_sex_and_age(
@@ -913,7 +1042,11 @@ function create_two_pairs_with_children_with_others(
     end
     agent_female_old = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_female_old_sex, agent_female_old_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_female_old_sex, agent_female_old_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
 
     agent_id += 1
     agent_male_old_sex, agent_male_old_age = get_agent_sex_and_age(
@@ -932,7 +1065,11 @@ function create_two_pairs_with_children_with_others(
     end
     agent_male_old = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, agent_male_old_sex, agent_male_old_age, rng)
+        isolation_probabilities_day_3, household_conn_ids, agent_male_old_sex, agent_male_old_age, rng,
+        FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+        RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+        AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+        CoV_immune_memory_susceptibility_level)
     agent_id += 1
 
     if num_of_other_people == 0
@@ -951,7 +1088,11 @@ function create_two_pairs_with_children_with_others(
             end
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
             check_parent_leave(no_one_at_home, agent_female, child)
@@ -972,7 +1113,11 @@ function create_two_pairs_with_children_with_others(
             end
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -992,7 +1137,11 @@ function create_two_pairs_with_children_with_others(
             end
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_male_old, agent_female_old, child, child2, child3]
         end
@@ -1002,7 +1151,11 @@ function create_two_pairs_with_children_with_others(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1019,7 +1172,11 @@ function create_two_pairs_with_children_with_others(
             end
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
             if agent_other.activity_type == 0
@@ -1043,7 +1200,11 @@ function create_two_pairs_with_children_with_others(
             end
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -1063,7 +1224,11 @@ function create_two_pairs_with_children_with_others(
             end
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_male_old, agent_female_old, agent_other, child, child2, child3]
         end
@@ -1073,13 +1238,21 @@ function create_two_pairs_with_children_with_others(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1096,7 +1269,11 @@ function create_two_pairs_with_children_with_others(
             end
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
             if agent_other.activity_type == 0 || agent_other2.activity_type == 0
@@ -1120,7 +1297,11 @@ function create_two_pairs_with_children_with_others(
             end
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
@@ -1140,7 +1321,11 @@ function create_two_pairs_with_children_with_others(
             end
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent_female, child3)
             return Agent[agent_male, agent_female, agent_male_old, agent_female_old, agent_other, agent_other2, child, child2, child3]
         end
@@ -1164,6 +1349,13 @@ function create_parent_with_children(
     num_of_other_people::Int,
     index::Int,
     rng::MersenneTwister,
+    FluA_immune_memory_susceptibility_level::Float64,
+    FluB_immune_memory_susceptibility_level::Float64,
+    RV_immune_memory_susceptibility_level::Float64,
+    RSV_immune_memory_susceptibility_level::Float64,
+    AdV_immune_memory_susceptibility_level::Float64,
+    PIV_immune_memory_susceptibility_level::Float64,
+    CoV_immune_memory_susceptibility_level::Float64,
     is_male_parent::Union{Bool, Nothing} = nothing,
     with_others::Bool = false,
     with_grandparent::Bool = false,
@@ -1194,7 +1386,11 @@ function create_parent_with_children(
 
     parent = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, parent_sex, parent_age, rng)
+        isolation_probabilities_day_3, household_conn_ids, parent_sex, parent_age, rng,
+        FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+        RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+        AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+        CoV_immune_memory_susceptibility_level)
 
     agent_id += 1
     if num_of_other_people == 0
@@ -1212,7 +1408,11 @@ function create_parent_with_children(
         end
         child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         no_one_at_home = parent.activity_type != 0
         check_parent_leave(no_one_at_home, parent, child)
@@ -1234,7 +1434,11 @@ function create_parent_with_children(
         end
         child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         check_parent_leave(no_one_at_home, parent, child2)
         if num_of_children == 2
@@ -1255,7 +1459,11 @@ function create_parent_with_children(
         end
         child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         check_parent_leave(no_one_at_home, parent, child3)
         return Agent[parent, child, child2, child3]
     elseif num_of_other_people == 1
@@ -1282,7 +1490,11 @@ function create_parent_with_children(
         end
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1299,7 +1511,11 @@ function create_parent_with_children(
             end
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = parent.activity_type != 0
             if agent_other.activity_type == 0
@@ -1323,7 +1539,11 @@ function create_parent_with_children(
             end
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
@@ -1343,7 +1563,11 @@ function create_parent_with_children(
             end
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, child, child2, child3]
         end
@@ -1376,7 +1600,11 @@ function create_parent_with_children(
         end
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
@@ -1395,7 +1623,11 @@ function create_parent_with_children(
         end
         agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1412,7 +1644,11 @@ function create_parent_with_children(
             end
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = parent.activity_type != 0
             if agent_other.activity_type == 0 || agent_other2.activity_type == 0
@@ -1436,7 +1672,11 @@ function create_parent_with_children(
             end
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
@@ -1456,7 +1696,11 @@ function create_parent_with_children(
             end
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, agent_other2, child, child2, child3]
         end
@@ -1485,7 +1729,11 @@ function create_parent_with_children(
         end
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
@@ -1504,7 +1752,11 @@ function create_parent_with_children(
         end
         agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
@@ -1523,7 +1775,11 @@ function create_parent_with_children(
         end
         agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1540,7 +1796,11 @@ function create_parent_with_children(
             end
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = parent.activity_type != 0
             if agent_other.activity_type == 0 || agent_other2.activity_type == 0 || agent_other3.activity_type == 0
@@ -1564,7 +1824,11 @@ function create_parent_with_children(
             end
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
@@ -1584,7 +1848,11 @@ function create_parent_with_children(
             end
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
@@ -1614,7 +1882,11 @@ function create_parent_with_children(
         end
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
@@ -1633,7 +1905,11 @@ function create_parent_with_children(
         end
         agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
@@ -1653,7 +1929,11 @@ function create_parent_with_children(
         end
         agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other4_sex, agent_other4_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
@@ -1673,7 +1953,11 @@ function create_parent_with_children(
         end
         agent_other4 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other4_sex, agent_other4_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other4_sex, agent_other4_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1690,7 +1974,11 @@ function create_parent_with_children(
             end
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = parent.activity_type != 0
             if agent_other.activity_type == 0 || agent_other2.activity_type == 0 ||
@@ -1715,7 +2003,11 @@ function create_parent_with_children(
             end
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
@@ -1735,7 +2027,11 @@ function create_parent_with_children(
             end
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, parent, child3)
             return Agent[parent, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
@@ -1759,12 +2055,23 @@ function create_others(
     num_of_other_people::Int,
     index::Int,
     rng::MersenneTwister,
+    FluA_immune_memory_susceptibility_level::Float64,
+    FluB_immune_memory_susceptibility_level::Float64,
+    RV_immune_memory_susceptibility_level::Float64,
+    RSV_immune_memory_susceptibility_level::Float64,
+    AdV_immune_memory_susceptibility_level::Float64,
+    PIV_immune_memory_susceptibility_level::Float64,
+    CoV_immune_memory_susceptibility_level::Float64,
 )::Vector{Agent}
     agent_sex, agent_age = get_agent_sex_and_age(
         index, district_people, district_people_households, district_household_index, rng)
     agent = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, agent_sex, agent_age, rng)
+        isolation_probabilities_day_3, household_conn_ids, agent_sex, agent_age, rng,
+        FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+        RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+        AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+        CoV_immune_memory_susceptibility_level)
     agent_id += 1
     if num_of_other_people == 0
         if num_of_children > 0
@@ -1773,7 +2080,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent.activity_type != 0
             check_parent_leave(no_one_at_home, agent, child)
@@ -1785,7 +2096,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
@@ -1796,7 +2111,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, child, child2, child3]
         end
@@ -1806,7 +2125,11 @@ function create_others(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1814,7 +2137,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent.activity_type != 0
             if agent_other.activity_type == 0
@@ -1829,7 +2156,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
@@ -1840,7 +2171,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, agent_other, child, child2, child3]
         end
@@ -1850,13 +2185,21 @@ function create_others(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1864,7 +2207,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent.activity_type != 0
             if agent_other.activity_type == 0 || agent_other2.activity_type == 0
@@ -1879,7 +2226,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
@@ -1890,7 +2241,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, agent_other, agent_other2, child, child2, child3]
         end
@@ -1900,19 +2255,31 @@ function create_others(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1920,7 +2287,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent.activity_type != 0
             if agent_other.activity_type == 0 || agent_other2.activity_type == 0 ||
@@ -1936,7 +2307,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
@@ -1947,7 +2322,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
@@ -1957,25 +2336,41 @@ function create_others(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other4_sex, agent_other4_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other4 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other4_sex, agent_other4_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other4_sex, agent_other4_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1983,7 +2378,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             no_one_at_home = agent.activity_type != 0
             if agent_other.activity_type == 0 || agent_other2.activity_type == 0 ||
@@ -1999,7 +2398,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
@@ -2010,7 +2413,11 @@ function create_others(
                 district_household_index, rng, nothing, true)
             child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
+                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng,
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             check_parent_leave(no_one_at_home, agent, child3)
             return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
@@ -2020,31 +2427,51 @@ function create_others(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other4_sex, agent_other4_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other4 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other4_sex, agent_other4_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other4_sex, agent_other4_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         agent_other5_sex, agent_other5_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
         agent_other5 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other5_sex, agent_other5_age, rng)
+            isolation_probabilities_day_3, household_conn_ids, agent_other5_sex, agent_other5_age, rng,
+            FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+            RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+            AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+            CoV_immune_memory_susceptibility_level)
         agent_id += 1
         return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4, agent_other5]
     end
@@ -2068,7 +2495,14 @@ function create_population(
     district_households::Matrix{Int},
     district_people::Matrix{Float64},
     district_people_households::Matrix{Float64},
-    district_nums::Vector{Int}
+    district_nums::Vector{Int},
+    FluA_immune_memory_susceptibility_level::Float64 = 1.0,
+    FluB_immune_memory_susceptibility_level::Float64 = 1.0,
+    RV_immune_memory_susceptibility_level::Float64 = 1.0,
+    RSV_immune_memory_susceptibility_level::Float64 = 1.0,
+    AdV_immune_memory_susceptibility_level::Float64 = 1.0,
+    PIV_immune_memory_susceptibility_level::Float64 = 1.0,
+    CoV_immune_memory_susceptibility_level::Float64 = 1.0,
 )
     agent_id = start_agent_id
     household_id = start_household_id
@@ -2093,7 +2527,10 @@ function create_population(
             all_agents[agent_id] = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, household.agent_ids, agent_sex, agent_age,
-                thread_rng[thread_id])
+                thread_rng[thread_id], FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id += 1
             households[household_id] = household
             household_id += 1
@@ -2111,17 +2548,29 @@ function create_population(
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 0, index, thread_rng[thread_id])
+                    district_people_households, index_for_2_people, 0, 0, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level)
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 0, index, thread_rng[thread_id], false, true)
+                    district_people_households, index_for_2_people, 0, 0, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, false, true)
             else
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 0, index, thread_rng[thread_id], true)
+                    district_people_households, index_for_2_people, 0, 0, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, true)
             end
             agent_id = new_agent_id + 1
             for agent in agents
@@ -2143,17 +2592,29 @@ function create_population(
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id])
+                    district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level)
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id], false, true)
+                    district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, false, true)
             else
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id], true)
+                    district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, true)
             end
             agent_id = new_agent_id + 1
             for agent in agents
@@ -2172,8 +2633,11 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 1, 0, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_2_people, 1, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2194,17 +2658,29 @@ function create_population(
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 2, index, thread_rng[thread_id])
+                    district_people_households, index_for_2_people, 0, 2, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level)
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 2, index, thread_rng[thread_id], false, true)
+                    district_people_households, index_for_2_people, 0, 2, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, false, true)
             else
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 2, index, thread_rng[thread_id], true)
+                    district_people_households, index_for_2_people, 0, 2, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, true)
             end 
             agent_id = new_agent_id + 1
             for agent in agents
@@ -2226,17 +2702,29 @@ function create_population(
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 1, 1, index, thread_rng[thread_id])
+                    district_people_households, index_for_2_people, 1, 1, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level)
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 1, 1, index, thread_rng[thread_id], false, true)
+                    district_people_households, index_for_2_people, 1, 1, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, false, true)
             else
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 1, 1, index, thread_rng[thread_id], true)
+                    district_people_households, index_for_2_people, 1, 1, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, true)
             end
             agent_id = new_agent_id + 1
             for agent in agents
@@ -2255,8 +2743,11 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 2, 0, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_4_people, 2, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2277,17 +2768,29 @@ function create_population(
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 3, index, thread_rng[thread_id])
+                    district_people_households, index_for_2_people, 0, 3, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level)
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 3, index, thread_rng[thread_id], false, true)
+                    district_people_households, index_for_2_people, 0, 3, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, false, true)
             else
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 3, index, thread_rng[thread_id], true)
+                    district_people_households, index_for_2_people, 0, 3, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, true)
             end
             agent_id = new_agent_id + 1
             for agent in agents
@@ -2309,17 +2812,29 @@ function create_population(
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 1, 2, index, thread_rng[thread_id])
+                    district_people_households, index_for_2_people, 1, 2, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level)
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 1, 2, index, thread_rng[thread_id], false, true)
+                    district_people_households, index_for_2_people, 1, 2, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, false, true)
             else
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 1, 2, index, thread_rng[thread_id], true)
+                    district_people_households, index_for_2_people, 1, 2, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, true)
             end
             agent_id = new_agent_id + 1
             for agent in agents
@@ -2341,17 +2856,29 @@ function create_population(
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 2, 1, index, thread_rng[thread_id])
+                    district_people_households, index_for_2_people, 2, 1, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level)
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 2, 1, index, thread_rng[thread_id], false, true)
+                    district_people_households, index_for_2_people, 2, 1, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, false, true)
             else
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 2, 1, index, thread_rng[thread_id], true)
+                    district_people_households, index_for_2_people, 2, 1, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, true)
             end
             agent_id = new_agent_id + 1
             for agent in agents
@@ -2370,8 +2897,11 @@ function create_population(
             agents = create_parents_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 3, 0, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_5_people, 3, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2392,17 +2922,29 @@ function create_population(
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 4, index, thread_rng[thread_id])
+                    district_people_households, index_for_2_people, 0, 4, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level)
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 4, index, thread_rng[thread_id], false, true)
+                    district_people_households, index_for_2_people, 0, 4, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, false, true)
             else
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 0, 4, index, thread_rng[thread_id], true)
+                    district_people_households, index_for_2_people, 0, 4, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, true)
             end
             agent_id = new_agent_id + 1
             for agent in agents
@@ -2424,17 +2966,29 @@ function create_population(
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 1, 3, index, thread_rng[thread_id])
+                    district_people_households, index_for_2_people, 1, 3, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level)
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 1, 3, index, thread_rng[thread_id], false, true)
+                    district_people_households, index_for_2_people, 1, 3, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, false, true)
             else
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 1, 3, index, thread_rng[thread_id], true)
+                    district_people_households, index_for_2_people, 1, 3, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, true)
             end
             agent_id = new_agent_id + 1
             for agent in agents
@@ -2456,17 +3010,29 @@ function create_population(
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 2, 2, index, thread_rng[thread_id])
+                    district_people_households, index_for_2_people, 2, 2, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level,)
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 2, 2, index, thread_rng[thread_id], false, true)
+                    district_people_households, index_for_2_people, 2, 2, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, false, true)
             else
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 2, 2, index, thread_rng[thread_id], true)
+                    district_people_households, index_for_2_people, 2, 2, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, true)
             end
             agent_id = new_agent_id + 1
             for agent in agents
@@ -2488,17 +3054,29 @@ function create_population(
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 3, 1, index, thread_rng[thread_id])
+                    district_people_households, index_for_2_people, 3, 1, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level)
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 3, 1, index, thread_rng[thread_id], false, true)
+                    district_people_households, index_for_2_people, 3, 1, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, false, true)
             else
                 agents = create_parents_with_children(
                     agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                     isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                    district_people_households, index_for_2_people, 3, 1, index, thread_rng[thread_id], true)
+                    district_people_households, index_for_2_people, 3, 1, index, thread_rng[thread_id],
+                    FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                    RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                    AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                    CoV_immune_memory_susceptibility_level, true)
             end
             agent_id = new_agent_id + 1
             for agent in agents
@@ -2518,8 +3096,11 @@ function create_population(
             agents = create_two_pairs_with_children_with_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 0, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_4_people, 0, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2537,8 +3118,11 @@ function create_population(
             agents = create_two_pairs_with_children_with_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 1, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_4_people, 0, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2556,8 +3140,11 @@ function create_population(
             agents = create_two_pairs_with_children_with_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 1, 0, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_4_people, 1, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2575,8 +3162,11 @@ function create_population(
             agents = create_two_pairs_with_children_with_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 2, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_4_people, 0, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2594,8 +3184,11 @@ function create_population(
             agents = create_two_pairs_with_children_with_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 1, 1, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_4_people, 1, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2613,8 +3206,11 @@ function create_population(
             agents = create_two_pairs_with_children_with_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 2, 0, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_4_people, 2, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2633,8 +3229,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 0, 1, index,
-                thread_rng[thread_id], false)
+                district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2652,8 +3251,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 1, 0, index,
-                thread_rng[thread_id], false)
+                district_people_households, index_for_2_people, 1, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2671,8 +3273,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 0, 2, index,
-                thread_rng[thread_id], false)
+                district_people_households, index_for_3_people, 0, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2690,8 +3295,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 1, 1, index,
-                thread_rng[thread_id], false)
+                district_people_households, index_for_3_people, 1, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2709,8 +3317,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 2, 0, index,
-                thread_rng[thread_id], false)
+                district_people_households, index_for_3_people, 2, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2728,8 +3339,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 3, index,
-                thread_rng[thread_id], false)
+                district_people_households, index_for_4_people, 0, 3, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2747,8 +3361,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 1, 2, index,
-                thread_rng[thread_id], false)
+                district_people_households, index_for_4_people, 1, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2766,8 +3383,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 2, 1, index,
-                thread_rng[thread_id], false)
+                district_people_households, index_for_4_people, 2, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2785,8 +3405,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 3, 0, index,
-                thread_rng[thread_id], false)
+                district_people_households, index_for_4_people, 3, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2804,8 +3427,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 0, 1, index,
-                thread_rng[thread_id], true)
+                district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2823,8 +3449,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 1, 0, index,
-                thread_rng[thread_id], true)
+                district_people_households, index_for_2_people, 1, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2842,8 +3471,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 0, 2, index,
-                thread_rng[thread_id], true)
+                district_people_households, index_for_3_people, 0, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2861,8 +3493,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 1, 1, index,
-                thread_rng[thread_id], true)
+                district_people_households, index_for_3_people, 1, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2880,8 +3515,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 2, 0, index,
-                thread_rng[thread_id], true)
+                district_people_households, index_for_3_people, 2, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2900,8 +3538,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 0, 2, index,
-                thread_rng[thread_id], false, true)
+                district_people_households, index_for_3_people, 0, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2919,8 +3560,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 1, 1, index,
-                thread_rng[thread_id], false, true)
+                district_people_households, index_for_3_people, 1, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2938,8 +3582,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 3, index,
-                thread_rng[thread_id], false, true)
+                district_people_households, index_for_4_people, 0, 3, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2957,8 +3604,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 1, 2, index,
-                thread_rng[thread_id], false, true)
+                district_people_households, index_for_4_people, 1, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2976,8 +3626,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 2, 1, index,
-                thread_rng[thread_id], false, true)
+                district_people_households, index_for_4_people, 2, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, false, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2996,8 +3649,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 0, 2, index,
-                thread_rng[thread_id], true, true)
+                district_people_households, index_for_3_people, 0, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3015,8 +3671,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 1, 1, index,
-                thread_rng[thread_id], true, true)
+                district_people_households, index_for_3_people, 1, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3034,8 +3693,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 3, index,
-                thread_rng[thread_id], true, true)
+                district_people_households, index_for_4_people, 0, 3, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3053,8 +3715,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 1, 2, index,
-                thread_rng[thread_id], true, true)
+                district_people_households, index_for_4_people, 1, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3072,8 +3737,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 2, 1, index,
-                thread_rng[thread_id], true, true)
+                district_people_households, index_for_4_people, 2, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3091,8 +3759,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 0, 4, index,
-                thread_rng[thread_id], true, true)
+                district_people_households, index_for_5_people, 0, 4, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3110,8 +3781,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 1, 3, index,
-                thread_rng[thread_id], true, true)
+                district_people_households, index_for_5_people, 1, 3, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3129,8 +3803,11 @@ function create_population(
             agents = create_parent_with_children(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 2, 2, index,
-                thread_rng[thread_id], true, true)
+                district_people_households, index_for_5_people, 2, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level, true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3149,8 +3826,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 0, 1, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3168,8 +3848,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 1, 0, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_2_people, 1, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3187,8 +3870,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 0, 2, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_3_people, 0, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3206,8 +3892,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 1, 1, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_3_people, 1, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3225,8 +3914,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 2, 0, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_3_people, 2, 0, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3244,8 +3936,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 3, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_4_people, 0, 3, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3263,8 +3958,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 1, 2, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_4_people, 1, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3282,8 +3980,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 2, 1, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_4_people, 2, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3301,8 +4002,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 3, 1, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_4_people, 3, 1, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3320,8 +4024,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 0, 4, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_5_people, 0, 4, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3339,8 +4046,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 1, 3, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_5_people, 1, 3, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3358,8 +4068,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 2, 2, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_5_people, 2, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3377,8 +4090,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 3, 2, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_5_people, 3, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3396,8 +4112,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 0, 5, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_5_people, 0, 5, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3415,8 +4134,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 1, 4, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_5_people, 1, 4, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3434,8 +4156,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 2, 3, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_5_people, 2, 3, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3453,8 +4178,11 @@ function create_population(
             agents = create_others(
                 agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 3, 2, index,
-                thread_rng[thread_id])
+                district_people_households, index_for_5_people, 3, 2, index, thread_rng[thread_id],
+                FluA_immune_memory_susceptibility_level, FluB_immune_memory_susceptibility_level,
+                RV_immune_memory_susceptibility_level, RSV_immune_memory_susceptibility_level,
+                AdV_immune_memory_susceptibility_level, PIV_immune_memory_susceptibility_level,
+                CoV_immune_memory_susceptibility_level)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent

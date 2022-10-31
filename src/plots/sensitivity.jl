@@ -456,7 +456,8 @@ function plot_rt_contacts2()
 end
 
 function plot_infection_curves()
-    num_runs = 300
+    # num_runs = 300
+    num_runs = 182
     num_years = 3
 
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
@@ -1181,7 +1182,7 @@ function plot_infection_curves()
 
     println("First peak")
     y = incidence_arr_means[10, :]
-    @time param_ids = stepwise_regression(X, y, 15)
+    @time param_ids = stepwise_regression(X, y, 12)
     println(params_arr[param_ids])
     # ["duration_parameter",
     # "susceptibility_parameter_4",
@@ -1201,7 +1202,7 @@ function plot_infection_curves()
 
     println("Second peak")
     y = incidence_arr_means[13, :]
-    @time param_ids = stepwise_regression(X, y, 15)
+    @time param_ids = stepwise_regression(X, y, 12)
     println(params_arr[param_ids])
     # ["duration_parameter",
     # "susceptibility_parameter_3",
@@ -1221,7 +1222,7 @@ function plot_infection_curves()
 
     println("Max")
     y = incidence_arr_means[argmax(infected_data_mean), :]
-    @time param_ids = stepwise_regression(X, y, 15)
+    @time param_ids = stepwise_regression(X, y, 12)
     println(params_arr[param_ids])
     # ["duration_parameter",
     # "susceptibility_parameter_1",
@@ -1241,7 +1242,7 @@ function plot_infection_curves()
 
     println("Sum")
     y = sum(incidence_arr_means, dims = 1)[1, :]
-    @time param_ids = stepwise_regression(X, y, 15)
+    @time param_ids = stepwise_regression(X, y, 12)
     println(params_arr[param_ids])
     # ["duration_parameter",
     # "susceptibility_parameter_4",

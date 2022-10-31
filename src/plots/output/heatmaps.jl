@@ -52,38 +52,28 @@ begin
     heatmap(
         contact_counts,
         fontfamily = "Times",
-        xticks = (ticks, ticklabels),
-        yticks = (ticks, ticklabels),
-        # title = "(a) Total",
-		title = "Общее (модель)",
-        margin = 6Plots.mm,
-		# right_margin = 11Plots.mm,
-        xrotation = 60,
-		# legendfontsize = 25,
-		# guidefont = (34, :black),
-		# tickfont = (25, :black),
-		# colorbar_guidefont = (29, :black),
-		# colorbar_titlefontsize = 34,
-		# titlefontsize = 36,
-		legendfontsize = 28,
-		guidefont = (36, :black),
-		tickfont = (27, :black),
-		colorbar_guidefont = (31, :black),
-		colorbar_titlefontsize = 36,
-		titlefontsize = 38,
-		clims = (10^-2, 10.001),
-		# c = :dense,
-		# c = :ice,
-		# c = reverse(cgrad(:ice)),
-		c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
-		colorbar_scale = :log10,
-        # xlabel = "Age",
-        # ylabel = "Age of contact",
-        # colorbar_title = "Frequency of contacts",
-		xlabel = "Возраст",
-		ylabel = "Возраст контакта",
-		colorbar_title = "Частота контактов",
-        size = (1200, 1200),
+			xticks = (ticks, ticklabels),
+			yticks = (ticks, ticklabels),
+			colorbar_scale = :log10,
+			title = "Overall",
+			margin = 6Plots.mm,
+			xrotation = 60,
+			legendfontsize = 25,
+			guidefont = (34, :black),
+			tickfont = (25, :black),
+			colorbar_guidefont = (29, :black),
+			colorbar_titlefontsize = 34,
+			titlefontsize = 36,
+			c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
+			# c = cgrad([:white, :aquamarine2, :black], [0.25, 0.5, 0.75]),
+			clims = (10^-2, 15.001),
+			xlabel = "Age",
+			ylabel = "Age of contact",
+			colorbar_title = "Frequency of contacts",
+			# xlabel = "Возраст",
+	  #       ylabel = "Возраст контакта",
+	  #       colorbar_title = "Частота контактов",
+			size = (1200, 1200),
     )
 
 end
@@ -150,29 +140,29 @@ begin
         #     plot_title = "Public space contact patterns"
         # end
 
-		# if activity_num == 3
-  #           plot_title = "(c) School"
-  #       elseif activity_num == 4
-  #           plot_title = "(d) Workplace"
-  #       elseif activity_num == 5
-  #           plot_title = "(b) Household"
-  #       elseif activity_num == 6
-  #           plot_title = "Visiting contact patterns"
-  #       elseif activity_num == 7
-  #           plot_title = "Public space contact patterns"
-  #       end
-
 		if activity_num == 3
-            plot_title = "Школа (модель)"
+            plot_title = "(c) School"
         elseif activity_num == 4
-            plot_title = "Работа (модель)"
+            plot_title = "(d) Workplace"
         elseif activity_num == 5
-            plot_title = "Дом (модель)"
+            plot_title = "(b) Household"
         elseif activity_num == 6
             plot_title = "Visiting contact patterns"
         elseif activity_num == 7
             plot_title = "Public space contact patterns"
         end
+
+		# if activity_num == 3
+  #           plot_title = "Школа (модель)"
+  #       elseif activity_num == 4
+  #           plot_title = "Работа (модель)"
+  #       elseif activity_num == 5
+  #           plot_title = "Дом (модель)"
+  #       elseif activity_num == 6
+  #           plot_title = "Visiting contact patterns"
+  #       elseif activity_num == 7
+  #           plot_title = "Public space contact patterns"
+  #       end
 
 		clim = (10^-2, 1.001)
         if activity_num == 3
@@ -200,12 +190,12 @@ begin
 			c = cgrad([:white, :dodgerblue, :black], [0.25, 0.5, 0.75]),
 			# c = cgrad([:white, :aquamarine2, :black], [0.25, 0.5, 0.75]),
 			clims = clim,
-			# xlabel = "Age",
-			# ylabel = "Age of contact",
-			# colorbar_title = "Frequency of contacts",
-			xlabel = "Возраст",
-	        ylabel = "Возраст контакта",
-	        colorbar_title = "Частота контактов",
+			xlabel = "Age",
+			ylabel = "Age of contact",
+			colorbar_title = "Frequency of contacts",
+			# xlabel = "Возраст",
+	  #       ylabel = "Возраст контакта",
+	  #       colorbar_title = "Частота контактов",
 			size = (1200, 1200),
 		)
 		
