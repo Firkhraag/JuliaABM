@@ -41,10 +41,6 @@ const school_groups_size_5_9 = 20
 const school_groups_size_10_14 = 22
 const school_groups_size_15 = 24
 
-# const school_groups_size_5_9 = 22
-# const school_groups_size_10_14 = 24
-# const school_groups_size_15 = 26
-
 # Размеры групп в институтах
 const college_groups_size_1 = 15
 const college_groups_size_2_3 = 14

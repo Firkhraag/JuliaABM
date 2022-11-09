@@ -29,6 +29,27 @@ function get_stats(
     num_immunity = zeros(Int, 7)
     num_infected = zeros(Int, 7)
 
+
+
+    # const kindergarten_groups_size_1 = 8
+    # const kindergarten_groups_size_2_3 = 13
+    # const kindergarten_groups_size_4_5 = 18
+
+    # const school_groups_size_5_9 = 20
+    # const school_groups_size_10_14 = 22
+    # const school_groups_size_15 = 24
+
+    # const college_groups_size_1 = 15
+    # const college_groups_size_2_3 = 14
+    # const college_groups_size_4 = 13
+    # const college_groups_size_5 = 11
+    # const college_groups_size_6 = 10
+
+    kindergaten_contacts = zeros(zeros, 19)
+    school_contacts = zeros(zeros, 25)
+    college_contacts = zeros(zeros, 16)
+    work_contacts = zeros(zeros, 1001)
+
     # mean_num_of_friend_conn = 0
 
     mean_num_students = 0.0
@@ -171,6 +192,16 @@ function get_stats(
             num_infected[7] += 1
         end
 
+        if agent.activity_type == 1
+            kindergaten_contacts[length(agent.activity_conn_ids)] += 1
+        elseif agent.activity_type == 2
+            school_contacts[length(agent.activity_conn_ids)] += 1
+        elseif agent.activity_type == 3
+            college_contacts[length(agent.activity_conn_ids)] += 1
+        elseif agent.activity_type == 4
+            work_contacts[length(agent.activity_conn_ids)] += 1
+        end
+
     end
     for i = 1:6
         household_nums[i] /= i
@@ -191,6 +222,11 @@ function get_stats(
     #     sum += age_nums[5 * i + 5]
     #     println("$(5 * i): $(sum)")
     # end
+
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "kindergaten_contacts.csv"), kindergaten_contacts, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "school_contacts.csv"), school_contacts, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "college_contacts.csv"), college_contacts, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "work_contacts.csv"), work_contacts, ',')
 
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_nums.csv"), age_nums, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "num_agents_age_groups.csv"), num_agents_age_groups, ',')
