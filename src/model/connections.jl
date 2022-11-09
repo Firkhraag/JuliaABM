@@ -15,6 +15,11 @@ function set_connections(
     firm_max_size::Int,
     num_barabasi_albert_attachments::Int,
 )
+    # num_barabasi_albert_attachments_schools = 11
+    num_barabasi_albert_attachments_schools = 10
+    # num_barabasi_albert_attachments_schools = 9
+    # num_barabasi_albert_attachments_schools = 100
+
     num_working_agents = 0
     for agent_id in 1:length(agents)
         agent = agents[agent_id]
@@ -324,7 +329,7 @@ function set_connections(
             for groups in kindergarten.groups
                 for group in groups
                     generate_barabasi_albert_network(
-                        agents, group, 10, thread_rng[thread_id])
+                        agents, group, num_barabasi_albert_attachments_schools, thread_rng[thread_id])
                 end
             end
         end
@@ -334,7 +339,7 @@ function set_connections(
             for groups in school.groups
                 for group in groups
                     generate_barabasi_albert_network(
-                        agents, group, 10, thread_rng[thread_id])
+                        agents, group, num_barabasi_albert_attachments_schools, thread_rng[thread_id])
                 end
             end
         end
@@ -344,7 +349,7 @@ function set_connections(
             for groups in college.groups
                 for group in groups
                     generate_barabasi_albert_network(
-                        agents, group, 10, thread_rng[thread_id])
+                        agents, group, num_barabasi_albert_attachments_schools, thread_rng[thread_id])
                 end
             end
         end

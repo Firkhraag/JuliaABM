@@ -14,8 +14,8 @@ default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 # const is_russian = false
 const is_russian = true
 
-# const num_runs = 10
-const num_runs = 1
+const num_runs = 10
+# const num_runs = 1
 const num_years = 3
 # const num_years = 1
 
@@ -41,10 +41,10 @@ function plot_incidence_time_series()
         incidence_arr[i] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
     end
 
-    # confidence_model = zeros(Float64, 52 * num_years)
-    # for i = 1:(52 * num_years)
-    #     confidence_model[i] = confidence([incidence_arr[k][i] for k = 1:num_runs])
-    # end
+    confidence_model = zeros(Float64, 52 * num_years)
+    for i = 1:(52 * num_years)
+        confidence_model[i] = confidence([incidence_arr[k][i] for k = 1:num_runs])
+    end
 
     for i = 1:(52 * num_years)
         for k = 1:num_runs
@@ -84,7 +84,7 @@ function plot_incidence_time_series()
     # incidence_plot = plot(
     #     1:52,
     #     [incidence_arr_mean infected_data_mean],
-    #     lw = 1,
+    #     lw = 1.5,
     #     xticks = (ticks, ticklabels),
     #     yticks = (yticks, yticklabels),
     #     label = label_names,
@@ -100,7 +100,7 @@ function plot_incidence_time_series()
     incidence_plot = plot(
         1:(52 * num_years),
         [incidence_arr_mean infected_data],
-        lw = 1,
+        lw = 1.5,
         xticks = (ticks, ticklabels),
         # yticks = (yticks, yticklabels),
         label = label_names,
@@ -108,6 +108,7 @@ function plot_incidence_time_series()
         xrotation = 45,
         grid = true,
         legend = (0.9, 0.98),
+        size = (800, 500),
         color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
         # ribbon = confidence_model,
         foreground_color_legend = nothing,
@@ -136,12 +137,12 @@ function plot_incidence_age_groups_time_series()
         end
     end
 
-    # confidence_model = zeros(Float64, 52 * num_years, 4)
-    # for i = 1:(52 * num_years)
-    #     for k = 1:4
-    #         confidence_model[i, k] = confidence([incidence_arr[j][i, k] for j = 1:num_runs])
-    #     end
-    # end
+    confidence_model = zeros(Float64, 52 * num_years, 4)
+    for i = 1:(52 * num_years)
+        for k = 1:4
+            confidence_model[i, k] = confidence([incidence_arr[j][i, k] for j = 1:num_runs])
+        end
+    end
 
     infected_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n') ./ 10072
     infected_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n') ./ 10072
@@ -182,15 +183,16 @@ function plot_incidence_age_groups_time_series()
         incidence_plot = plot(
             1:(52 * num_years),
             [incidence_arr_mean[:, i] infected_data_mean[:, i]],
-            lw = 1,
+            lw = 1.5,
             xticks = (ticks, ticklabels),
             label = label_names,
             margin = 6Plots.mm,
             xrotation = 45,
             grid = true,
+            size = (800, 500),
             legend = (0.9, 0.98),
             color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-            # ribbon = [confidence_model[:, i] confidence_data[:, i]],
+            # ribbon = [confidence_model[:, i]],
             foreground_color_legend = nothing,
             background_color_legend = nothing,
             xlabel = xlabel_name,
@@ -218,12 +220,12 @@ function plot_incidence_viruses_time_series()
         end
     end
 
-    # confidence_model = zeros(Float64, (52 * num_years), 7)
-    # for i = 1:(52 * num_years)
-    #     for k = 1:7
-    #         confidence_model[i, k] = confidence([incidence_arr[j, z][i, k] for j = 1:num_runs for z = 1:num_years])
-    #     end
-    # end
+    confidence_model = zeros(Float64, (52 * num_years), 7)
+    for i = 1:(52 * num_years)
+        for k = 1:7
+            confidence_model[i, k] = confidence([incidence_arr[j][i, k] for j = 1:num_runs])
+        end
+    end
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
 
@@ -384,15 +386,16 @@ function plot_incidence_viruses_time_series()
         incidence_plot = plot(
             1:(52 * num_years),
             [incidence_arr_mean[:, i] infected_data_viruses[:, i]],
-            lw = 1,
+            lw = 1.5,
             xticks = (ticks, ticklabels),
             label = label_names,
             margin = 6Plots.mm,
             xrotation = 45,
             grid = true,
+            size = (800, 500),
             legend = (0.9, 0.98),
             color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-            # ribbon = [confidence_model[:, i] infected_data_viruses_confidence[:, i]],
+            # ribbon = [confidence_model[:, i]],
             foreground_color_legend = nothing,
             background_color_legend = nothing,
             xlabel = xlabel_name,
@@ -400,6 +403,65 @@ function plot_incidence_viruses_time_series()
         )
         savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "incidence$(viruses[i])_quarantine_time_series.pdf" : with_global_warming ? "incidence$(viruses[i])_warming_time_series.pdf" : "incidence$(viruses[i])_time_series.pdf"))
     end
+end
+
+function plot_rt_time_series()
+    rt_arr = Array{Vector{Float64}, 1}(undef, num_runs)
+    rt_arr_mean = zeros(Float64, (365 * num_years))
+
+    for i = 1:num_runs
+        rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["rt"]
+        # rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i + 1).jld"))["rt"]
+            rt_arr[i] = moving_average(rt, 20)
+    end
+
+    rt_arr_mean = zeros(Float64, (365 * num_years))
+    for i = 1:(365 * num_years)
+        for j = 1:num_runs
+            rt_arr_mean[i] += rt_arr[j][i]
+        end
+        rt_arr_mean[i] /= num_runs
+    end
+
+    # confidence_model = zeros(Float64, (365 * num_years))
+    # for i = 1:(365 * num_years)
+    #     confidence_model[i] = confidence([rt_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
+    # end
+
+    ticks = range(1, stop = (365 * num_years), length = 19)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = L"R_t"
+    
+    yticks = [0.8, 1.0, 1.2, 1.4]
+    yticklabels = ["0.8", "1.0", "1.2", "1.4"]
+
+    rt_plot = plot(
+        1:(365 * num_years),
+        rt_arr_mean,
+        lw = 1.5,
+        xticks = (ticks, ticklabels),
+        # yticks = (yticks, yticklabels),
+        margin = 6Plots.mm,
+        xrotation = 45,
+        legend = false,
+        color = RGB(0.0, 0.0, 0.0),
+        grid = true,
+        size = (800, 500),
+        # ribbon = confidence_model,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(
+        rt_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "rt_quarantine_time_series.pdf" : with_global_warming ? "rt_warming_time_series.pdf" : "rt_time_series.pdf"))
 end
 
 function print_statistics_time_series()
@@ -562,11 +624,11 @@ function plot_incidence()
     end    
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
-    infected_data_mean = mean(infected_data[39:45, 2:53], dims = 1)[1, :]
+    infected_data_mean = mean(infected_data[42:44, 2:53], dims = 1)[1, :]
 
     confidence_data = zeros(Float64, 52)
     for i = 1:52
-        confidence_data[i] = confidence(infected_data[39:45, i + 1])
+        confidence_data[i] = confidence(infected_data[42:44, i + 1])
     end
 
     ticks = range(1, stop = 52, length = 7)
@@ -596,14 +658,14 @@ function plot_incidence()
     incidence_plot = plot(
         1:52,
         [incidence_arr_mean infected_data_mean],
-        lw = 1,
+        lw = 1.5,
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         label = label_names,
         grid = true,
         legend = (0.9, 0.98),
         color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-        ribbon = [confidence_model confidence_data],
+        # ribbon = [confidence_model confidence_data],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -712,7 +774,7 @@ function plot_incidence_scenarios()
     incidence_plot = plot(
         1:52,
         [incidence_arr_mean incidence_arr_mean_quarantine incidence_arr_mean_warming],
-        lw = 1,
+        lw = 1.5,
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         label = label_names,
@@ -804,7 +866,7 @@ function plot_incidence_scenarios_quaranteen()
     incidence_plot = plot(
         1:52,
         [incidence_arr_mean incidence_arr_mean_quarantine],
-        lw = 1,
+        lw = 1.5,
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         label = label_names,
@@ -896,7 +958,7 @@ function plot_incidence_scenarios_warming()
     incidence_plot = plot(
         1:52,
         [incidence_arr_mean incidence_arr_mean_warming],
-        lw = 1,
+        lw = 1.5,
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         label = label_names,
@@ -947,19 +1009,19 @@ function plot_incidence_age_groups()
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n') ./ 10072
 
     infected_data_mean = cat(
-        mean(infected_data_0[2:53, 22:27], dims = 2)[:, 1],
-        mean(infected_data_3[2:53, 22:27], dims = 2)[:, 1],
-        mean(infected_data_7[2:53, 22:27], dims = 2)[:, 1],
-        mean(infected_data_15[2:53, 22:27], dims = 2)[:, 1],
+        mean(infected_data_0[2:53, 24:26], dims = 2)[:, 1],
+        mean(infected_data_3[2:53, 24:26], dims = 2)[:, 1],
+        mean(infected_data_7[2:53, 24:26], dims = 2)[:, 1],
+        mean(infected_data_15[2:53, 24:26], dims = 2)[:, 1],
         dims = 2,
     )
 
     confidence_data = zeros(Float64, 52, 4)
     for i = 1:52
-        confidence_data[i, 1] = confidence(infected_data_0[i + 1, 22:27])
-        confidence_data[i, 2] = confidence(infected_data_3[i + 1, 22:27])
-        confidence_data[i, 3] = confidence(infected_data_7[i + 1, 22:27])
-        confidence_data[i, 4] = confidence(infected_data_15[i + 1, 22:27])
+        confidence_data[i, 1] = confidence(infected_data_0[i + 1, 24:26])
+        confidence_data[i, 2] = confidence(infected_data_3[i + 1, 24:26])
+        confidence_data[i, 3] = confidence(infected_data_7[i + 1, 24:26])
+        confidence_data[i, 4] = confidence(infected_data_15[i + 1, 24:26])
     end
 
     ticks = range(1, stop = 52, length = 7)
@@ -989,13 +1051,13 @@ function plot_incidence_age_groups()
         incidence_plot = plot(
             1:52,
             [incidence_arr_mean[:, i] infected_data_mean[:, i]],
-            lw = 1,
+            lw = 1.5,
             xticks = (ticks, ticklabels),
             label = label_names,
             grid = true,
             legend = (0.9, 0.98),
             color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-            ribbon = [confidence_model[:, i] confidence_data[:, i]],
+            # ribbon = [confidence_model[:, i] confidence_data[:, i]],
             foreground_color_legend = nothing,
             background_color_legend = nothing,
             xlabel = xlabel_name,
@@ -1133,7 +1195,7 @@ function plot_incidence_viruses()
     etiology = hcat(FluA_ratio, FluB_ratio, RV_ratio, RSV_ratio, AdV_ratio, PIV_ratio, CoV_ratio)
     etiology2 = hcat(FluA_ratio2, FluB_ratio2, RV_ratio2, RSV_ratio2, AdV_ratio2, PIV_ratio2, CoV_ratio2)
 
-    infected_data = infected_data[39:45, 2:53]'
+    infected_data = infected_data[42:44, 2:53]'
 
     etiology = get_etiology()
 
@@ -1227,14 +1289,14 @@ function plot_incidence_viruses()
         incidence_plot = plot(
             1:52,
             [incidence_arr_mean[:, i] infected_data_viruses_mean[:, i]],
-            lw = 1,
+            lw = 1.5,
             xticks = (ticks, ticklabels),
             label = label_names,
             grid = true,
             legend = (0.9, 0.98),
             color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
             # color = [RGB(0.5, 0.5, 0.5) RGB(0.933, 0.4, 0.467)],
-            ribbon = [confidence_model[:, i] infected_data_viruses_confidence[:, i]],
+            # ribbon = [confidence_model[:, i] infected_data_viruses_confidence[:, i]],
             foreground_color_legend = nothing,
             background_color_legend = nothing,
             xlabel = xlabel_name,
@@ -1247,7 +1309,7 @@ function plot_incidence_viruses()
     # incidence_plot = plot(
     #     1:52,
     #     [incidence_arr_mean[:, i] infected_data_viruses_mean[:, i]],
-    #     lw = 1,
+    #     lw = 1.5,
     #     xticks = (ticks, ticklabels),
     #     label = label_names,
     #     grid = true,
@@ -1293,7 +1355,7 @@ end
 #     etiology_incidence_plot = plot(
 #         1:52,
 #         [etiology[:, i] for i = 1:7],
-#         lw = 1,
+#         lw = 1.5,
 #         xticks = (ticks, ticklabels),
 #         yticks = (yticks, yticklabels),
 #         legend = (0.5, 0.97),
@@ -1663,7 +1725,7 @@ end
 #                 1:52,
 #                 # [age_groups[:, 1] infected_data_mean_0],
 #                 num_infected_age_groups_viruses_mean[:, j, i],
-#                 lw = 1,
+#                 lw = 1.5,
 #                 xticks = (ticks, ticklabels),
 #                 label = label_names,
 #                 grid = true,
@@ -1725,7 +1787,7 @@ function plot_rt()
     rt_plot = plot(
         1:365,
         rt_arr_mean,
-        lw = 1,
+        lw = 1.5,
         xticks = (ticks, ticklabels),
         # yticks = (yticks, yticklabels),
         legend = false,
@@ -1796,7 +1858,7 @@ function plot_infection_activities()
     # activities_cases_plot = plot(
     #     1:365,
     #     [activities_cases_arr_mean[:, i] for i = 1:num_activities],
-    #     lw = 1,
+    #     lw = 1.5,
     #     xticks = (ticks, ticklabels),
     #     label = label_names,
     #     grid = true,
@@ -1889,7 +1951,7 @@ function plot_infection_activities_2()
     # activities_cases_plot = plot(
     #     1:365,
     #     [activities_cases_arr_mean[:, i] for i = 1:num_activities],
-    #     lw = 1,
+    #     lw = 1.5,
     #     xticks = (ticks, ticklabels),
     #     label = label_names,
     #     grid = true,
@@ -1983,7 +2045,7 @@ end
 #     # activities_cases_plot = plot(
 #     #     1:365,
 #     #     [activities_cases_arr_mean[:, i] for i = 1:num_activities],
-#     #     lw = 1,
+#     #     lw = 1.5,
 #     #     xticks = (ticks, ticklabels),
 #     #     label = label_names,
 #     #     grid = true,
@@ -2061,7 +2123,7 @@ function plot_r0()
     registered_new_cases_plot = plot(
         1:12,
         [r0[i, :] for i = 1:7],
-        lw = 1,
+        lw = 1.5,
         xticks = (ticks, ticklabels),
         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
         legend = (0.5, 0.6),
@@ -2145,7 +2207,7 @@ end
 #     incidence_plot = plot(
 #         1:52,
 #         [observed_incidence infected_data_mean incidence],
-#         lw = 1,
+#         lw = 1.5,
 #         xticks = (ticks, ticklabels),
 #         label = label_names,
 #         grid = true,
@@ -2372,12 +2434,13 @@ function print_statistics()
     println("CoV nMAE: $(nMAE)")
 end
 
-# plot_incidence()
 # plot_incidence_time_series()
 # plot_incidence_age_groups_time_series()
 # plot_incidence_viruses_time_series()
+# plot_rt_time_series()
 print_statistics_time_series()
 
+# plot_incidence()
 # plot_incidence_age_groups()
 # plot_incidence_viruses()
 # plot_rt()

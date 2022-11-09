@@ -26,6 +26,9 @@ function get_stats(
     size_univer_conn = 0
     size_work_conn = 0
 
+    num_immunity = zeros(Int, 7)
+    num_infected = zeros(Int, 7)
+
     # mean_num_of_friend_conn = 0
 
     mean_num_students = 0.0
@@ -123,6 +126,51 @@ function get_stats(
             age_diff += agents[agent.supporter_id].age - agent.age
             age_diff_num += 1
         end
+
+        if agent.FluA_immunity_susceptibility_level < 0.999
+            num_immunity[1] += 1
+        end
+        if agent.FluB_immunity_susceptibility_level < 0.999
+            num_immunity[2] += 1
+        end
+        if agent.RV_immunity_susceptibility_level < 0.999
+            num_immunity[3] += 1
+        end
+        if agent.RSV_immunity_susceptibility_level < 0.999
+            num_immunity[4] += 1
+        end
+        if agent.AdV_immunity_susceptibility_level < 0.999
+            num_immunity[5] += 1
+        end
+        if agent.PIV_immunity_susceptibility_level < 0.999
+            num_immunity[6] += 1
+        end
+        if agent.CoV_immunity_susceptibility_level < 0.999
+            num_immunity[7] += 1
+        end
+
+        if agent.virus_id == 1
+            num_infected[1] += 1
+        end
+        if agent.virus_id == 2
+            num_infected[2] += 1
+        end
+        if agent.virus_id == 3
+            num_infected[3] += 1
+        end
+        if agent.virus_id == 4
+            num_infected[4] += 1
+        end
+        if agent.virus_id == 5
+            num_infected[5] += 1
+        end
+        if agent.virus_id == 6
+            num_infected[6] += 1
+        end
+        if agent.virus_id == 7
+            num_infected[7] += 1
+        end
+
     end
     for i = 1:6
         household_nums[i] /= i
@@ -168,4 +216,6 @@ function get_stats(
     println("Mean num of people in firms: $(mean(workplaces_num_people))")
     println("Mean mother child age difference: $(age_diff / age_diff_num)")
     # println("Friends conn: $(mean_num_of_friend_conn / num_agents)")
+    println("Initial immunity: $(num_immunity)")
+    println("Initial infected: $(num_infected)")
 end

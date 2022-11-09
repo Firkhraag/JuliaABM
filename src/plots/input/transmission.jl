@@ -14,37 +14,44 @@ default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 # const is_russian = false
 const is_russian = true
 
+function check_threshold(value::Int, mean_immunity_duration::Int, immune_memory_susceptibility_level::Float64)
+    return value < mean_immunity_duration ? 0.0 : immune_memory_susceptibility_level
+end
+
 function plot_immunity_protection_influence()
-    days_infected = collect(-4:10)
-    ticks = range(-4, stop = 10, length = 8)
-    # ticklabels = ["-4" "-2" "0" "2" "4" "6" "8" "10"]
-    ticklabels = ["1" "3" "5" "7" "9" "11" "13" "15"]
+    immune_memory_susceptibility_levels = [0.8659281154680671, 0.9648299319727879, 0.9616326530612245, 0.9726530612244898, 0.9628571428571429, 0.9738775510204082, 0.8885714285714285]
+    mean_immunity_durations = [round(Int, 336.32831252685975), round(Int, 308.6526629141642), round(Int, 132.1112562498035), round(Int, 92.83376833013635), round(Int, 100.85806526000232), round(Int, 141.48287440297122), round(Int, 160.4937231184206)]
+
+    # mean_immunity_duration = 160
+    # immune_memory_susceptibility_level = 1.0
+
+    ticks = range(1, stop = 360, length = 7)
+    ticklabels = ["1" "60" "120" "180" "240" "300" "360"]
+
+    values = zeros(Float64, 360)
 
     xlabel_name = "День"
     if !is_russian
-        xlabel_name = "Days infected"
+        xlabel_name = "Days"
     end
-    ylabel_name = L"I_{iv}"
+    ylabel_name = L"M_{jv}"
+
+    arr = collect(1:365)
 
     infectivity_plot = plot(
-        days_infected,
-        [get_infectivity.(
-            days_infected,
-            5,
-            10,
-            i,
-            false,
-        ) for i in [4.6, 4.7, 3.5, 6.0, 4.1, 4.8, 4.93]],
+        1:365,
+        # check_threshold.(arr, mean_immunity_duration, immune_memory_susceptibility_level),
+        [find_immunity_susceptibility_level.(arr, mean_immunity_durations[i], immune_memory_susceptibility_levels[i]) for i = 1:7],
         xticks = (ticks, ticklabels),
-        legend = (0.92, 0.95),
         lw = 1.5,
+        # legend = false,
+        # color = :black,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
         grid = true,
+        legend = (0.9, 0.6),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Day}",
-        # ylabel = L"\textrm{\sffamily Agent infectivity (} I_{iv}\textrm{\sffamily )}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -333,7 +340,8 @@ function plot_infectivity_influence()
     savefig(infectivity_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "transmission", "infectivity_influence.pdf"))
 end
 
-plot_duration_influence()
-plot_temperature_influence_year()
-plot_infectivity_influence()
+# plot_duration_influence()
+# plot_temperature_influence_year()
+# plot_infectivity_influence()
 plot_susceptibility_influence_age()
+# plot_immunity_protection_influence()

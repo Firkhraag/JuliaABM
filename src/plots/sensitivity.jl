@@ -22,6 +22,431 @@ function confidence(x::Vector{Float64})
     return tstar * SE
 end
 
+function plot_work_contacts()
+    num_runs = 1
+    num_years = 3
+    num_var = 3
+
+    incidence_arr = Array{Vector{Float64}, 3}(undef, num_var, num_runs, num_years)
+    incidence_arr_mean = zeros(Float64, num_var, 52)
+
+    for z = 1:num_var
+        for i = 1:num_runs
+            observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "sensitivity", "contacts", "results_w_$(z + 3).jld"))["observed_cases"] ./ 10072
+            for j = 1:num_years
+                incidence_arr[z, i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+            end
+        end
+    end
+
+    # confidence_model = zeros(Float64, 4, 52)
+    # for z = 1:4
+    #     for i = 1:52
+    #         confidence_model[z, i] = confidence([incidence_arr[z, k, j][i] for j = 1:num_years for k = 1:num_runs])
+    #     end
+    # end
+
+    for z = 1:num_var
+        for i = 1:52
+            for j = 1:num_years
+                for k = 1:num_runs
+                    incidence_arr_mean[z, i] += incidence_arr[z, k, j][i]
+                end
+            end
+            incidence_arr_mean[z, i] /= num_runs * num_years
+        end
+    end
+
+    sum_4 = sum(incidence_arr_mean[1, :])
+    sum_5 = sum(incidence_arr_mean[2, :])
+    sum_6 = sum(incidence_arr_mean[3, :])
+
+    println("Work")
+    println(1 - sum_4 / sum_5)
+    println(sum_6 / sum_5 - 1)
+
+    maximum_4 = maximum(incidence_arr_mean[1, :])
+    maximum_5 = maximum(incidence_arr_mean[2, :])
+    maximum_6 = maximum(incidence_arr_mean[3, :])
+
+    println()
+    println(1 - maximum_4 / maximum_5)
+    println(maximum_6 / maximum_5 - 1)
+
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    yticks = [0, 4, 8, 12]
+    yticklabels = ["0" "4" "8" "12"]
+
+    label_names = ["n = 4" "n = 5" "n = 6"]
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Weekly incidence rate per 1000"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
+    incidence_plot = plot(
+        1:52,
+        [incidence_arr_mean[i, :] for i = 1:num_var],
+        lw = 1.5,
+        xticks = (ticks, ticklabels),
+        yticks = (yticks, yticklabels),
+        label = label_names,
+        grid = true,
+        legend = (0.9, 0.98),
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2)],
+        # color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        # color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+        # ribbon = [confidence_model[i, :] for i = 1:4],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "contacts", "work_contacts_incidence.pdf"))
+
+
+
+
+    rt_arr = Array{Vector{Float64}, 3}(undef, 4, num_runs, num_years)
+    rt_arr_mean = zeros(Float64, num_var, 365)
+
+    for z = 1:num_var
+        for i = 1:num_runs
+            rt = load(joinpath(@__DIR__, "..", "..", "sensitivity", "contacts", "results_w_$(z + 3).jld"))["rt"]
+            for j = 1:num_years
+                rt_arr[z, i, j] = moving_average(rt, 20)[(365 * (j - 1) + 1):(365 * (j - 1) + 365)]
+            end
+        end
+    end
+
+    rt_arr_mean = zeros(Float64, num_var, 365)
+    for l = 1:num_var
+        for i = 1:365
+            for j = 1:num_runs
+                for z = 1:num_years
+                    rt_arr_mean[l, i] += rt_arr[l, j, z][i]
+                end
+            end
+            rt_arr_mean[l, i] /= num_runs * num_years
+        end
+    end
+
+    # confidence_model = zeros(Float64, 365)
+    # for i = 1:365
+    #     confidence_model[i] = confidence([rt_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
+    # end
+
+    ticks = range(1, stop = 365, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = L"R_t"
+    
+    yticks = [0.8, 1.0, 1.2, 1.4]
+    yticklabels = ["0.8", "1.0", "1.2", "1.4"]
+
+    rt_plot = plot(
+        1:365,
+        [rt_arr_mean[i, :] for i = 1:num_var],
+        lw = 1.5,
+        xticks = (ticks, ticklabels),
+        yticks = (yticks, yticklabels),
+        label = label_names,
+        # color = RGB(0.0, 0.0, 0.0),
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2)],
+        grid = true,
+        # ribbon = confidence_model,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    savefig(
+        rt_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "contacts", "work_contacts_rt.pdf"))
+
+
+
+    num_activities = 5
+    activity_sizes = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "activity_sizes.csv"), ',', Int, '\n')
+
+    activities_cases_arr = Array{Matrix{Float64}, 3}(undef, num_var, num_runs, num_years)
+
+    for z = 1:num_var
+        for i = 1:num_runs
+            activities_cases = load(joinpath(@__DIR__, "..", "..", "sensitivity", "contacts", "results_w_$(z + 3).jld"))["activities_cases"]
+            for j = 1:num_years
+                activities_cases_arr[z, i, j] = activities_cases[(365 * (j - 1) + 1):(365 * (j - 1) + 365), :]
+            end
+        end
+    end
+
+    activities_cases_arr_mean = zeros(Float64, num_var, 365, num_activities)
+    for l = 1:num_var
+        for i = 1:365
+            for k = 1:num_activities
+                for j = 1:num_runs
+                    for z = 1:num_years
+                        activities_cases_arr_mean[l, i, k] += activities_cases_arr[l, j, z][i, k]
+                    end
+                end
+                activities_cases_arr_mean[l, i, k] /= num_runs * num_years
+            end
+        end
+    end
+
+    for l = 1:num_var
+        for i = 1:num_activities
+            activities_cases_arr_mean[l, :, i] ./= activity_sizes[i]
+            activities_cases_arr_mean[l, :, i] .*= 100
+            # activities_cases_arr_mean[:, i] = moving_average(activities_cases_arr_mean[:, i], 10)
+        end
+    end
+
+    mean_values = zeros(Float64, num_var, num_activities)
+    for l = 1:num_var
+        for i = 1:num_activities
+            mean_values[l, i] = mean(activities_cases_arr_mean[l, :, i])
+        end
+    end
+
+    println()
+    println(mean_values[2, 4] / mean_values[1, 4])
+    println(mean_values[3, 4] / mean_values[2, 4])
+end
+
+function plot_school_contacts()
+    num_runs = 1
+    num_years = 3
+    num_var = 4
+
+    incidence_arr = Array{Vector{Float64}, 3}(undef, num_var, num_runs, num_years)
+    incidence_arr_mean = zeros(Float64, num_var, 52)
+
+    for z = 1:num_var
+        for i = 1:num_runs
+            observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "sensitivity", "contacts", "results_s_$(z + 8).jld"))["observed_cases"] ./ 10072
+            for j = 1:num_years
+                incidence_arr[z, i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+            end
+        end
+    end
+
+    # confidence_model = zeros(Float64, 4, 52)
+    # for z = 1:4
+    #     for i = 1:52
+    #         confidence_model[z, i] = confidence([incidence_arr[z, k, j][i] for j = 1:num_years for k = 1:num_runs])
+    #     end
+    # end
+
+    for z = 1:num_var
+        for i = 1:52
+            for j = 1:num_years
+                for k = 1:num_runs
+                    incidence_arr_mean[z, i] += incidence_arr[z, k, j][i]
+                end
+            end
+            incidence_arr_mean[z, i] /= num_runs * num_years
+        end
+    end
+
+    println("School")
+
+    sum_9 = sum(incidence_arr_mean[1, :])
+    sum_10 = sum(incidence_arr_mean[2, :])
+    sum_11 = sum(incidence_arr_mean[3, :])
+    sum_max = sum(incidence_arr_mean[4, :])
+
+    println(1 - sum_9 / sum_10)
+    println(sum_11 / sum_10 - 1)
+    println(sum_max / sum_10 - 1)
+
+    println()
+
+    maximum_9 = maximum(incidence_arr_mean[1, :])
+    maximum_10 = maximum(incidence_arr_mean[2, :])
+    maximum_11 = maximum(incidence_arr_mean[3, :])
+    maximum_max = maximum(incidence_arr_mean[4, :])
+
+    println(1 - maximum_9 / maximum_10)
+    println(maximum_11 / maximum_10 - 1)
+    println(maximum_max / maximum_10 - 1)
+
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    yticks = [0, 4, 8, 12]
+    yticklabels = ["0" "4" "8" "12"]
+
+    label_names = ["m = 9" "m = 10" "m = 11" "m = max"]
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Weekly incidence rate per 1000"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
+    incidence_plot = plot(
+        1:52,
+        [incidence_arr_mean[i, :] for i = 1:num_var],
+        lw = 1.5,
+        xticks = (ticks, ticklabels),
+        yticks = (yticks, yticklabels),
+        label = label_names,
+        grid = true,
+        # legend = (0.9, 0.98),
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467)],
+        # color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        # color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+        # ribbon = [confidence_model[i, :] for i = 1:4],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "contacts", "school_contacts_incidence.pdf"))
+
+
+
+
+    rt_arr = Array{Vector{Float64}, 3}(undef, num_var, num_runs, num_years)
+    rt_arr_mean = zeros(Float64, num_var, 365)
+
+    for z = 1:num_var
+        for i = 1:num_runs
+            rt = load(joinpath(@__DIR__, "..", "..", "sensitivity", "contacts", "results_s_$(z + 8).jld"))["rt"]
+            for j = 1:num_years
+                rt_arr[z, i, j] = moving_average(rt, 20)[(365 * (j - 1) + 1):(365 * (j - 1) + 365)]
+            end
+        end
+    end
+
+    rt_arr_mean = zeros(Float64, num_var, 365)
+    for l = 1:num_var
+        for i = 1:365
+            for j = 1:num_runs
+                for z = 1:num_years
+                    rt_arr_mean[l, i] += rt_arr[l, j, z][i]
+                end
+            end
+            rt_arr_mean[l, i] /= num_runs * num_years
+        end
+    end
+
+    # confidence_model = zeros(Float64, 365)
+    # for i = 1:365
+    #     confidence_model[i] = confidence([rt_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
+    # end
+
+    ticks = range(1, stop = 365, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = L"R_t"
+    
+    yticks = [0.8, 1.0, 1.2, 1.4]
+    yticklabels = ["0.8", "1.0", "1.2", "1.4"]
+
+    rt_plot = plot(
+        1:365,
+        [rt_arr_mean[i, :] for i = 1:num_var],
+        lw = 1.5,
+        xticks = (ticks, ticklabels),
+        yticks = (yticks, yticklabels),
+        label = label_names,
+        # color = RGB(0.0, 0.0, 0.0),
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467)],
+        grid = true,
+        # ribbon = confidence_model,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    savefig(
+        rt_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "contacts", "school_contacts_rt.pdf"))
+
+
+
+    num_activities = 5
+    activity_sizes = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "activity_sizes.csv"), ',', Int, '\n')
+
+    activities_cases_arr = Array{Matrix{Float64}, 3}(undef, num_var, num_runs, num_years)
+
+    for z = 1:num_var
+        for i = 1:num_runs
+            activities_cases = load(joinpath(@__DIR__, "..", "..", "sensitivity", "contacts", "results_s_$(z + 8).jld"))["activities_cases"]
+            for j = 1:num_years
+                activities_cases_arr[z, i, j] = activities_cases[(365 * (j - 1) + 1):(365 * (j - 1) + 365), :]
+            end
+        end
+    end
+
+    activities_cases_arr_mean = zeros(Float64, num_var, 365, num_activities)
+    for l = 1:num_var
+        for i = 1:365
+            for k = 1:num_activities
+                for j = 1:num_runs
+                    for z = 1:num_years
+                        activities_cases_arr_mean[l, i, k] += activities_cases_arr[l, j, z][i, k]
+                    end
+                end
+                activities_cases_arr_mean[l, i, k] /= num_runs * num_years
+            end
+        end
+    end
+
+    for l = 1:num_var
+        for i = 1:num_activities
+            activities_cases_arr_mean[l, :, i] ./= activity_sizes[i]
+            activities_cases_arr_mean[l, :, i] .*= 100
+            # activities_cases_arr_mean[:, i] = moving_average(activities_cases_arr_mean[:, i], 10)
+        end
+    end
+
+    mean_values = zeros(Float64, num_var, num_activities)
+    for l = 1:num_var
+        for i = 1:num_activities
+            mean_values[l, i] = mean(activities_cases_arr_mean[l, :, i])
+        end
+    end
+
+    println()
+    println(mean_values[2, 4] / mean_values[1, 4])
+    println(mean_values[3, 4] / mean_values[2, 4])
+    println(mean_values[4, 4] / mean_values[2, 4])
+end
+
 # function plot_incidence_contacts_55()
 #     num_runs = 2
 #     num_years = 3
@@ -2728,10 +3153,13 @@ function plot_incidences()
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "r7.pdf"))
 end
 
+# plot_work_contacts()
+plot_school_contacts()
+
 # plot_incidence_contacts()
 # plot_incidence_contacts2()
 # plot_rt_contacts()
 # plot_rt_contacts2()
 
-plot_infection_curves()
+# plot_infection_curves()
 # plot_incidences()

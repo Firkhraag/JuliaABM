@@ -71,94 +71,107 @@ function reset_agent_states(
         agent.CoV_immunity_susceptibility_level = 1.0
 
         if agent.virus_id != 1
-            for week_num = 17:43
+            for week_num = 1:51
                 if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 1, age_group] / num_agents_age_groups[age_group]
                     agent.FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
-                    agent.FluA_days_immune = 365 - (week_num + 1) * 7 + 1
+                    agent.FluA_days_immune = 365 - week_num * 7 + 1
                     if agent.FluA_days_immune > agent.FluA_immunity_end
                         agent.FluA_immunity_end = 0
                         agent.FluA_days_immune = 0
+                        agent.FluA_immunity_susceptibility_level = FluA_immune_memory_susceptibility_level
+                    else
+                        agent.FluA_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.FluA_days_immune, agent.FluA_immunity_end, FluA_immune_memory_susceptibility_level)
                     end
-                else
-                    agent.FluA_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.FluA_days_immune, agent.FluA_immunity_end, FluA_immune_memory_susceptibility_level)
                 end
             end
-        elseif agent.virus_id != 2
-            for week_num = 17:43
+        end
+        if agent.virus_id != 2
+            for week_num = 1:51
                 if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 2, age_group] / num_agents_age_groups[age_group]
                     agent.FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
-                    agent.FluB_days_immune = 365 - (week_num + 1) * 7 + 1
+                    agent.FluB_days_immune = 365 - week_num * 7 + 1
                     if agent.FluB_days_immune > agent.FluB_immunity_end
                         agent.FluB_immunity_end = 0
                         agent.FluB_days_immune = 0
+                        agent.FluB_immunity_susceptibility_level = FluB_immune_memory_susceptibility_level
+                    else
+                        agent.FluB_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.FluB_days_immune, agent.FluB_immunity_end, FluB_immune_memory_susceptibility_level)
                     end
-                else
-                    agent.FluB_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.FluB_days_immune, agent.FluB_immunity_end, FluB_immune_memory_susceptibility_level)
                 end
             end
-        elseif agent.virus_id != 3
-            for week_num = 25:51
+        end
+        if agent.virus_id != 3
+            for week_num = 1:51
                 if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 3, age_group] / num_agents_age_groups[age_group]
                     agent.RV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[3].mean_immunity_duration, viruses[3].immunity_duration_sd), 1.0, 1000.0)))
-                    agent.RV_days_immune = 365 - (week_num + 1) * 7 + 1
+                    agent.RV_days_immune = 365 - week_num * 7 + 1
                     if agent.RV_days_immune > agent.RV_immunity_end
                         agent.RV_immunity_end = 0
                         agent.RV_days_immune = 0
+                        agent.RV_immunity_susceptibility_level = RV_immune_memory_susceptibility_level
+                    else
+                        agent.RV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.RV_days_immune, agent.RV_immunity_end, RV_immune_memory_susceptibility_level)
                     end
-                else
-                    agent.RV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.RV_days_immune, agent.RV_immunity_end, RV_immune_memory_susceptibility_level)
                 end
             end
-        elseif agent.virus_id != 4
-            for week_num = 25:51
+        end
+        if agent.virus_id != 4
+            for week_num = 1:51
                 if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 4, age_group] / num_agents_age_groups[age_group]
                     agent.RSV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[4].mean_immunity_duration, viruses[4].immunity_duration_sd), 1.0, 1000.0)))
-                    agent.RSV_days_immune = 365 - (week_num + 1) * 7 + 1
+                    agent.RSV_days_immune = 365 - week_num * 7 + 1
                     if agent.RSV_days_immune > agent.RSV_immunity_end
                         agent.RSV_immunity_end = 0
                         agent.RSV_days_immune = 0
+                        agent.RSV_immunity_susceptibility_level = RSV_immune_memory_susceptibility_level
+                    else
+                        agent.RSV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.RSV_days_immune, agent.RSV_immunity_end, RSV_immune_memory_susceptibility_level)
                     end
-                else
-                    agent.RSV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.RSV_days_immune, agent.RSV_immunity_end, RSV_immune_memory_susceptibility_level)
                 end
             end
-        elseif agent.virus_id != 5
-            for week_num = 25:51
+        end
+        if agent.virus_id != 5
+            for week_num = 1:51
                 if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 5, age_group] / num_agents_age_groups[age_group]
                     agent.AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
-                    agent.AdV_days_immune = 365 - (week_num + 1) * 7 + 1
+                    agent.AdV_days_immune = 365 - week_num * 7 + 1
                     if agent.AdV_days_immune > agent.AdV_immunity_end
                         agent.AdV_immunity_end = 0
                         agent.AdV_days_immune = 0
+                        agent.AdV_immunity_susceptibility_level = AdV_immune_memory_susceptibility_level
+                    else
+                        agent.AdV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.AdV_days_immune, agent.AdV_immunity_end, AdV_immune_memory_susceptibility_level)
                     end
-                else
-                    agent.AdV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.AdV_days_immune, agent.AdV_immunity_end, AdV_immune_memory_susceptibility_level)
                 end
             end
-        elseif agent.virus_id != 6
-            for week_num = 25:51
+        end
+        if agent.virus_id != 6
+            for week_num = 1:51
                 if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 6, age_group] / num_agents_age_groups[age_group]
                     agent.PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
-                    agent.PIV_days_immune = 365 - (week_num + 1) * 7 + 1
+                    agent.PIV_days_immune = 365 - week_num * 7 + 1
                     if agent.PIV_days_immune > agent.PIV_immunity_end
                         agent.PIV_immunity_end = 0
                         agent.PIV_days_immune = 0
+                        agent.PIV_immunity_susceptibility_level = PIV_immune_memory_susceptibility_level
+                    else
+                        agent.PIV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.PIV_days_immune, agent.PIV_immunity_end, PIV_immune_memory_susceptibility_level)
                     end
-                else
-                    agent.PIV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.PIV_days_immune, agent.PIV_immunity_end, PIV_immune_memory_susceptibility_level)
                 end
             end
-        elseif agent.virus_id != 7
-            for week_num = 17:43
+        end
+        if agent.virus_id != 7
+            for week_num = 1:51
                 if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 7, age_group] / num_agents_age_groups[age_group]
                     agent.CoV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[7].mean_immunity_duration, viruses[7].immunity_duration_sd), 1.0, 1000.0)))
-                    agent.CoV_days_immune = 365 - (week_num + 1) * 7 + 1
+                    agent.CoV_days_immune = 365 - week_num * 7 + 1
                     if agent.CoV_days_immune > agent.CoV_immunity_end
                         agent.CoV_immunity_end = 0
                         agent.CoV_days_immune = 0
+                        agent.CoV_immunity_susceptibility_level = CoV_immune_memory_susceptibility_level
+                    else
+                        agent.CoV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.CoV_days_immune, agent.CoV_immunity_end, CoV_immune_memory_susceptibility_level)
                     end
-                else
-                    agent.CoV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.CoV_days_immune, agent.CoV_immunity_end, CoV_immune_memory_susceptibility_level)
                 end
             end
         end
