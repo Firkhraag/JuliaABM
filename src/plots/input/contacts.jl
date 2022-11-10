@@ -1,0 +1,126 @@
+using DelimitedFiles
+using Plots
+using Statistics
+using StatsPlots
+using LaTeXStrings
+using CategoricalArrays
+
+default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
+
+function plot_num_contacts()
+    # kindergarten_contacts = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "kindergarten_contacts.csv"), ',', Float64, '\n')
+    # labels = collect(1:19)
+    # ticks = [1, 4, 7, 10, 13, 16, 19]
+    # ticklabels = ["1", "4", "7", "10", "13", "16", "19"]
+    
+    # num_contacts_plot = groupedbar(
+    #     labels,
+    #     kindergarten_contacts,
+    #     xticks = (ticks, ticklabels),
+    #     color = RGB(0.5, 0.5, 0.5),
+    #     markerstrokecolor = :black,
+    #     markercolor = :black,
+    #     legend = false,
+    #     grid = true,
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     # xlabel = L"\textrm{\sffamily Virus}",
+    #     # ylabel = L"\textrm{\sffamily Incubation period duration, days}",
+    #     xlabel = "Число контактов",
+    #     ylabel = "Число агентов",
+    # )
+    # savefig(num_contacts_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "contacts", "kindergarten_num_contacts.pdf"))
+
+    kindergarten_contacts = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "kindergarten_contacts.csv"), ',', Float64, '\n')
+    labels = collect(7:19)
+    ticks = [7, 10, 13, 16, 19]
+    ticklabels = ["7", "10", "13", "16", "19"]
+    
+    num_contacts_plot = groupedbar(
+        labels,
+        kindergarten_contacts[7:19, :],
+        xticks = (ticks, ticklabels),
+        color = RGB(0.5, 0.5, 0.5),
+        markerstrokecolor = :black,
+        markercolor = :black,
+        legend = false,
+        grid = true,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}",
+        xlabel = "Число контактов",
+        ylabel = "Число агентов",
+    )
+    savefig(num_contacts_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "contacts", "kindergarten_num_contacts.pdf"))
+
+    school_contacts = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "school_contacts.csv"), ',', Float64, '\n')
+    labels = collect(10:25)
+    ticks = [10, 13, 16, 19, 22, 25]
+    ticklabels = ["10", "13", "16", "19", "22", "25"]
+
+    num_contacts_plot = groupedbar(
+        labels,
+        school_contacts[10:25, :],
+        xticks = (ticks, ticklabels),
+        color = RGB(0.5, 0.5, 0.5),
+        markerstrokecolor = :black,
+        markercolor = :black,
+        legend = false,
+        grid = true,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}",
+        xlabel = "Число контактов",
+        ylabel = "Число агентов",
+    )
+    savefig(num_contacts_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "contacts", "school_num_contacts.pdf"))
+
+#     college_contacts = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "college_contacts.csv"), ',', Float64, '\n')
+#     labels = collect(1:16)
+#     ticks = [1, 4, 7, 10, 13, 16]
+#     ticklabels = ["1", "4", "7", "10", "13", "16"]
+
+#     num_contacts_plot = groupedbar(
+#         labels,
+#         college_contacts,
+#         xticks = (ticks, ticklabels),
+#         color = RGB(0.5, 0.5, 0.5),
+#         markerstrokecolor = :black,
+#         markercolor = :black,
+#         legend = false,
+#         grid = true,
+#         foreground_color_legend = nothing,
+#         background_color_legend = nothing,
+#         # xlabel = L"\textrm{\sffamily Virus}",
+#         # ylabel = L"\textrm{\sffamily Incubation period duration, days}",
+#         xlabel = "Число контактов",
+#         ylabel = "Число агентов",
+#     )
+#     savefig(num_contacts_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "contacts", "college_num_contacts.pdf"))
+    college_contacts = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "college_contacts.csv"), ',', Float64, '\n')
+    labels = collect(10:16)
+    ticks = [10, 13, 16]
+    ticklabels = ["10", "13", "16"]
+
+    num_contacts_plot = groupedbar(
+        labels,
+        college_contacts[10:16, :],
+        xticks = (ticks, ticklabels),
+        color = RGB(0.5, 0.5, 0.5),
+        markerstrokecolor = :black,
+        markercolor = :black,
+        legend = false,
+        grid = true,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}",
+        xlabel = "Число контактов",
+        ylabel = "Число агентов",
+    )
+    savefig(num_contacts_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "contacts", "college_num_contacts.pdf"))
+end
+
+plot_num_contacts()

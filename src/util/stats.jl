@@ -29,10 +29,6 @@ function get_stats(
     num_immunity = zeros(Int, 7)
     num_infected = zeros(Int, 7)
 
-
-
-    # const kindergarten_groups_size_1 = 8
-    # const kindergarten_groups_size_2_3 = 13
     # const kindergarten_groups_size_4_5 = 18
 
     # const school_groups_size_5_9 = 20
@@ -45,10 +41,10 @@ function get_stats(
     # const college_groups_size_5 = 11
     # const college_groups_size_6 = 10
 
-    kindergaten_contacts = zeros(zeros, 19)
-    school_contacts = zeros(zeros, 25)
-    college_contacts = zeros(zeros, 16)
-    work_contacts = zeros(zeros, 1001)
+    kindergarten_contacts = zeros(Int, kindergarten_groups_size_4_5 + 1)
+    school_contacts = zeros(Int, school_groups_size_15 + 1)
+    college_contacts = zeros(Int, college_groups_size_1 + 1)
+    work_contacts = zeros(Int, 1000)
 
     # mean_num_of_friend_conn = 0
 
@@ -193,13 +189,13 @@ function get_stats(
         end
 
         if agent.activity_type == 1
-            kindergaten_contacts[length(agent.activity_conn_ids)] += 1
+            kindergarten_contacts[length(agent.activity_conn_ids)] += 1
         elseif agent.activity_type == 2
             school_contacts[length(agent.activity_conn_ids)] += 1
         elseif agent.activity_type == 3
             college_contacts[length(agent.activity_conn_ids)] += 1
         elseif agent.activity_type == 4
-            work_contacts[length(agent.activity_conn_ids)] += 1
+            work_contacts[length(agent.activity_conn_ids) + 1] += 1
         end
 
     end
@@ -223,7 +219,7 @@ function get_stats(
     #     println("$(5 * i): $(sum)")
     # end
 
-    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "kindergaten_contacts.csv"), kindergaten_contacts, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "kindergarten_contacts.csv"), kindergarten_contacts, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "school_contacts.csv"), school_contacts, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "college_contacts.csv"), college_contacts, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "work_contacts.csv"), work_contacts, ',')
