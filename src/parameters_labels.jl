@@ -67,13 +67,13 @@ function multiple_simulations(
         (1.0, 8.0),
         (1.0, 8.0),
         (1.0, 8.0),
-        (0.01, 1.0), # temperature_parameters
-        (0.01, 1.0),
-        (0.01, 1.0),
-        (0.01, 1.0),
-        (0.01, 1.0),
-        (0.01, 1.0),
-        (0.01, 1.0),
+        (-1.0, -0.01), # temperature_parameters
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
         (0.5, 1.0), # immune_memory_susceptibility_levels
         (0.5, 1.0),
         (0.5, 1.0),
@@ -81,21 +81,20 @@ function multiple_simulations(
         (0.5, 1.0),
         (0.5, 1.0),
         (0.5, 1.0),
-        (30, 365), # mean_immunity_durations
-        (30, 365),
-        (30, 365),
-        (30, 365),
-        (30, 365),
-        (30, 365),
-        (30, 365),
+        (21, 365), # mean_immunity_durations
+        (21, 365),
+        (21, 365),
+        (21, 365),
+        (21, 365),
+        (21, 365),
+        (21, 365),
         (0.001, 0.002), # random_infection_probabilities
         (0.0005, 0.001),
-        (0.0003, 0.0005),
+        (0.0002, 0.0005),
         (0.000005, 0.000015),
     ])
 
-    # for i = 1:num_runs
-    for i = 128:num_runs
+    for i = 1:num_runs
         println(i)
 
         duration_parameter = points[i, 1]
@@ -157,7 +156,8 @@ end
 function main()
     println("Initialization...")
 
-    num_years = 3
+    # num_years = 3
+    num_years = 2
     # num_years = 1
 
     num_threads = nthreads()
