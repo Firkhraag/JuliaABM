@@ -642,8 +642,8 @@ function main()
         workplaces, thread_rng, num_threads, homes_coords_df,
         firm_min_size, firm_max_size, num_barabasi_albert_attachments)
 
-    # get_stats(agents, schools, workplaces)
-    # return
+    get_stats(agents, schools, workplaces)
+    return
     # println()
 
     println("Simulation...")

@@ -59,10 +59,14 @@ function plot_num_contacts()
     ticks = [10, 13, 16, 19, 22, 25]
     ticklabels = ["10", "13", "16", "19", "22", "25"]
 
+    yticks = [0.5 * 10^4, 1.0 * 10^5, 1.5 * 10^5]
+    yticklabels = [L"0.5 * 10^4", L"1.0 * 10^5", L"1.5 * 10^5"]
+
     num_contacts_plot = groupedbar(
         labels,
         school_contacts[10:25, :],
         xticks = (ticks, ticklabels),
+        # yticks = (yticks, yticklabels),
         color = RGB(0.5, 0.5, 0.5),
         markerstrokecolor = :black,
         markercolor = :black,
@@ -121,6 +125,29 @@ function plot_num_contacts()
         ylabel = "Число агентов",
     )
     savefig(num_contacts_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "contacts", "college_num_contacts.pdf"))
+
+    work_contacts = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "work_contacts.csv"), ',', Float64, '\n')
+    labels = collect(0:100)
+    # ticks = [10, 13, 16]
+    # ticklabels = ["10", "13", "16"]
+
+    num_contacts_plot = groupedbar(
+        labels,
+        work_contacts[1:101, :],
+        # xticks = (ticks, ticklabels),
+        color = RGB(0.5, 0.5, 0.5),
+        markerstrokecolor = :black,
+        markercolor = :black,
+        legend = false,
+        grid = true,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Incubation period duration, days}",
+        xlabel = "Число контактов",
+        ylabel = "Число агентов",
+    )
+    savefig(num_contacts_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "contacts", "work_num_contacts.pdf"))
 end
 
 plot_num_contacts()

@@ -265,6 +265,7 @@ function set_connections(
             if agent.activity_type == 4 && agent.workplace_id == 0
                 j += 1
                 agent_ids[j] = agent.id
+                agent.workplace_id = length(workplaces) + 1
             end
             if j == num_workers
                 break

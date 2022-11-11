@@ -202,7 +202,7 @@ function workplace_sizes_distribution()
     workplaces_num_people = sort(workplaces_num_people)
     workplace_size_distribution = [(i, count(==(i), workplaces_num_people)) for i in unique(workplaces_num_people)]
 
-    # println(workplace_size_distribution)
+    println(workplace_size_distribution)
 
     xlabel_name = "Size"
     if is_russian
@@ -213,20 +213,20 @@ function workplace_sizes_distribution()
         ylabel_name = "Число"
     end
 
-    workplace_size_distribution_plot = plot(
-        first.(workplace_size_distribution),
-        last.(workplace_size_distribution),
-        lw = 3,
-        # xticks = (ticks, ticklabels),
-        grid = true,
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Temperature, °C}",
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-    )
-    savefig(workplace_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "workplace_size_distribution.pdf"))
+    # workplace_size_distribution_plot = plot(
+    #     first.(workplace_size_distribution),
+    #     last.(workplace_size_distribution),
+    #     lw = 3,
+    #     # xticks = (ticks, ticklabels),
+    #     grid = true,
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     # xlabel = L"\textrm{\sffamily Month}",
+    #     # ylabel = L"\textrm{\sffamily Temperature, °C}",
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    # )
+    # savefig(workplace_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "workplace_size_distribution.pdf"))
 end
 
 function workplace_sizes_distribution_lognormal()
@@ -269,7 +269,7 @@ function workplace_sizes_distribution_lognormal()
 end
 
 # age_distribution_groups()
-age_distribution()
+# age_distribution()
 # household_size_distribution()
-# workplace_sizes_distribution()
+workplace_sizes_distribution()
 # workplace_sizes_distribution_lognormal()

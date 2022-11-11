@@ -16,8 +16,8 @@ const is_russian = true
 
 const num_runs = 10
 # const num_runs = 1
+# const num_years = 2
 const num_years = 3
-# const num_years = 1
 
 const with_quarantine = false
 # const with_quarantine = true
@@ -468,10 +468,16 @@ function print_statistics_time_series()
     incidence_arr = Array{Vector{Float64}, 1}(undef, num_runs)
     incidence_arr_mean = zeros(Float64, (52 * num_years))
 
+    observed_num_infected_age_groups_viruses = Array{Array{Float64, 3}, 1}(undef, num_runs)
+
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"]
-        incidence_arr[i] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
+        observed_num_infected_age_groups_viruses[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
+        incidence_arr[i] = sum(sum(observed_num_infected_age_groups_viruses[i], dims = 3)[:, :, 1], dims = 2)[:, 1]
     end
+    # for i = 1:1
+    #     observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "parameters_labels", "tables", "results_60.jld"))["observed_cases"]
+    #     incidence_arr[i] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
+    # end
 
     for i = 1:(52 * num_years)
         for j = 1:num_runs
@@ -480,7 +486,7 @@ function print_statistics_time_series()
         incidence_arr_mean[i] /= num_runs
     end
 
-    infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
+    infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
     infected_data_mean = vec(transpose(infected_data[42:44, 2:53]))
 
     
@@ -494,8 +500,7 @@ function print_statistics_time_series()
     incidence_arr_mean = zeros(Float64, (52 * num_years), 4)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"]
-        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :]
+        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses[i], dims = 2)[:, 1, :]
     end
 
     incidence_arr_mean = zeros(Float64, (52 * num_years), 4)
@@ -508,10 +513,10 @@ function print_statistics_time_series()
         end
     end
 
-    infected_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
-    infected_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
-    infected_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
-    infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
+    infected_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n') ./ 10072
+    infected_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n') ./ 10072
+    infected_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n') ./ 10072
+    infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n') ./ 10072
 
     infected_data_mean = cat(
         vec(infected_data_0[2:53, 24:26]),
@@ -537,8 +542,7 @@ function print_statistics_time_series()
 
     incidence_arr = Array{Matrix{Float64}, 1}(undef, num_runs)
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"]
-        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1]
+        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses[i], dims = 3)[:, :, 1]
     end
 
     incidence_arr_mean = zeros(Float64, (52 * num_years), 7)
@@ -551,7 +555,7 @@ function print_statistics_time_series()
         end
     end
 
-    infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
+    infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
     infected_data = transpose(infected_data[42:44, 2:53])
 
     etiology = get_etiology()
@@ -596,6 +600,108 @@ function print_statistics_time_series()
 
     averaged_nMAE = nMAE_FluA + nMAE_FluB + nMAE_RV + nMAE_RSV + nMAE_AdV + nMAE_PIV + nMAE_CoV + nMAE_general + nMAE_0_2 + nMAE_3_6 + nMAE_7_14 + nMAE_15
     println("Averaged nMAE: $(averaged_nMAE / 12)")
+
+
+
+
+
+    etiology = get_etiology()
+
+    infected_data_0_all = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n') ./ 10072
+    infected_data_3_all = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n') ./ 10072
+    infected_data_7_all = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n') ./ 10072
+    infected_data_15_all = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n') ./ 10072
+
+    infected_data_0 = infected_data_0_all[2:53, 24:(23 + num_years)]
+    infected_data_0_1 = etiology[:, 1] .* infected_data_0
+    infected_data_0_2 = etiology[:, 2] .* infected_data_0
+    infected_data_0_3 = etiology[:, 3] .* infected_data_0
+    infected_data_0_4 = etiology[:, 4] .* infected_data_0
+    infected_data_0_5 = etiology[:, 5] .* infected_data_0
+    infected_data_0_6 = etiology[:, 6] .* infected_data_0
+    infected_data_0_7 = etiology[:, 7] .* infected_data_0
+    infected_data_0_viruses = cat(
+        vec(infected_data_0_1),
+        vec(infected_data_0_2),
+        vec(infected_data_0_3),
+        vec(infected_data_0_4),
+        vec(infected_data_0_5),
+        vec(infected_data_0_6),
+        vec(infected_data_0_7),
+        dims = 2)
+
+    infected_data_3 = infected_data_3_all[2:53, 24:(23 + num_years)]
+    infected_data_3_1 = etiology[:, 1] .* infected_data_3
+    infected_data_3_2 = etiology[:, 2] .* infected_data_3
+    infected_data_3_3 = etiology[:, 3] .* infected_data_3
+    infected_data_3_4 = etiology[:, 4] .* infected_data_3
+    infected_data_3_5 = etiology[:, 5] .* infected_data_3
+    infected_data_3_6 = etiology[:, 6] .* infected_data_3
+    infected_data_3_7 = etiology[:, 7] .* infected_data_3
+    infected_data_3_viruses = cat(
+        vec(infected_data_3_1),
+        vec(infected_data_3_2),
+        vec(infected_data_3_3),
+        vec(infected_data_3_4),
+        vec(infected_data_3_5),
+        vec(infected_data_3_6),
+        vec(infected_data_3_7),
+        dims = 2)
+
+    infected_data_7 = infected_data_7_all[2:53, 24:(23 + num_years)]
+    infected_data_7_1 = etiology[:, 1] .* infected_data_7
+    infected_data_7_2 = etiology[:, 2] .* infected_data_7
+    infected_data_7_3 = etiology[:, 3] .* infected_data_7
+    infected_data_7_4 = etiology[:, 4] .* infected_data_7
+    infected_data_7_5 = etiology[:, 5] .* infected_data_7
+    infected_data_7_6 = etiology[:, 6] .* infected_data_7
+    infected_data_7_7 = etiology[:, 7] .* infected_data_7
+    infected_data_7_viruses = cat(
+        vec(infected_data_7_1),
+        vec(infected_data_7_2),
+        vec(infected_data_7_3),
+        vec(infected_data_7_4),
+        vec(infected_data_7_5),
+        vec(infected_data_7_6),
+        vec(infected_data_7_7),
+        dims = 2)
+
+    infected_data_15 = infected_data_15_all[2:53, 24:(23 + num_years)]
+    infected_data_15_1 = etiology[:, 1] .* infected_data_15
+    infected_data_15_2 = etiology[:, 2] .* infected_data_15
+    infected_data_15_3 = etiology[:, 3] .* infected_data_15
+    infected_data_15_4 = etiology[:, 4] .* infected_data_15
+    infected_data_15_5 = etiology[:, 5] .* infected_data_15
+    infected_data_15_6 = etiology[:, 6] .* infected_data_15
+    infected_data_15_7 = etiology[:, 7] .* infected_data_15
+    infected_data_15_viruses = cat(
+        vec(infected_data_15_1),
+        vec(infected_data_15_2),
+        vec(infected_data_15_3),
+        vec(infected_data_15_4),
+        vec(infected_data_15_5),
+        vec(infected_data_15_6),
+        vec(infected_data_15_7),
+        dims = 2)
+
+    num_infected_age_groups_viruses = cat(
+        infected_data_0_viruses,
+        infected_data_3_viruses,
+        infected_data_7_viruses,
+        infected_data_15_viruses,
+        dims = 3,
+    )
+
+    sum_value = 0.0
+    for w = 1:size(num_infected_age_groups_viruses)[1]
+        for v = 1:size(num_infected_age_groups_viruses)[2]
+            for a = 1:size(num_infected_age_groups_viruses)[3]
+                sum_value += (num_infected_age_groups_viruses[w, v, a] - observed_num_infected_age_groups_viruses[1][w, v, a])^2
+            end
+        end
+    end
+    # sum_value /= size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3]
+    println(sum_value)
 end
 
 function plot_incidence()
