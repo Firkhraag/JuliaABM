@@ -195,14 +195,10 @@ function get_stats(
         elseif agent.activity_type == 3
             college_contacts[length(agent.activity_conn_ids)] += 1
         elseif agent.activity_type == 4
-            if agent.workplace_id == 0
-                println("Hmmmm")
-                return
-            end
-            if agent.workplace_id != 0 && length(workplaces[agent.workplace_id].agent_ids) > 1
-                println(length(workplaces[agent.workplace_id].agent_ids))
-                return
-            end
+            # if agent.workplace_id == 0
+            #     println("Hmmmm")
+            #     return
+            # end
             work_contacts[length(agent.activity_conn_ids) + 1] += 1
         end
 

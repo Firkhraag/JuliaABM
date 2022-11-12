@@ -260,6 +260,7 @@ function set_connections(
 
         agent_ids = Array{Int, 1}(undef, num_workers)
         j = 0
+        num_agent_passed = 0
         for agent_id in start_agent_id:num_agents
             agent = agents[agent_id]
             if agent.activity_type == 4 && agent.workplace_id == 0
@@ -267,11 +268,12 @@ function set_connections(
                 agent_ids[j] = agent.id
                 agent.workplace_id = length(workplaces) + 1
             end
+            num_agent_passed += 1
             if j == num_workers
                 break
             end
         end
-        start_agent_id += j
+        start_agent_id += num_agent_passed
 
         home_id = rand(1:size(homes_coords_df, 1))
         workplace = Workplace(agent_ids, homes_coords_df[home_id, "x"], homes_coords_df[home_id, "y"])

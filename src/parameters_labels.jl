@@ -142,7 +142,7 @@ function multiple_simulations(
             immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
             immune_memory_susceptibility_levels[7])
 
-        save(joinpath(@__DIR__, "..", "parameters_labels", "tables", "results_$(i).jld"),
+        save(joinpath(@__DIR__, "..", "parameters_labels", "tables", "results_$(i + 100).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "duration_parameter", duration_parameter,
             "susceptibility_parameters", susceptibility_parameters,
@@ -453,7 +453,9 @@ function main()
 
     println("Simulation...")
 
-    num_runs = 500
+    # num_runs = 500
+    # num_runs = 100
+    num_runs = 10
     multiple_simulations(
         agents,
         households,

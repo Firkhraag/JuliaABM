@@ -9,7 +9,7 @@ include("util/moving_avg.jl")
 include("util/regression.jl")
 
 function main()
-    num_runs = 183
+    num_runs = 100
     num_years = 2
 
     forest_num_rounds = 100
@@ -156,6 +156,11 @@ function main()
         # sum /= size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3]
         y[i] = sum
     end
+
+    println(minimum(y))
+    println(argmin(y))
+    println(maximum(y))
+    println(argmax(y))
 
     bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror")
 
