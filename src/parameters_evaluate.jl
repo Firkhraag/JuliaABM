@@ -14,10 +14,12 @@ function main()
     with_prediction = true
     # with_prediction = false
 
-    num_runs_1 = 220
+    num_runs_1 = 218
     num_runs_2 = 132
-    num_runs_3 = 70
+    num_runs_3 = 60
     num_runs = num_runs_1 + num_runs_2 + num_runs_3
+
+    num_runs = 175
     num_years = 2
 
     forest_num_rounds = 100
@@ -59,6 +61,17 @@ function main()
         immune_memory_susceptibility_levels[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "3", "tables", "results_$(i).jld"))["immune_memory_susceptibility_levels"]
         mean_immunity_durations[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "3", "tables", "results_$(i).jld"))["mean_immunity_durations"]
         random_infection_probabilities[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "3", "tables", "results_$(i).jld"))["random_infection_probabilities"]
+    end
+
+    # Test points
+    for i = 1:10
+        incidence_arr[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
+        duration_parameters[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["duration_parameter"]
+        susceptibility_parameters[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["susceptibility_parameters"]
+        temperature_parameters[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["temperature_parameters"]
+        immune_memory_susceptibility_levels[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["immune_memory_susceptibility_levels"]
+        mean_immunity_durations[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["mean_immunity_durations"]
+        random_infection_probabilities[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["random_infection_probabilities"]
     end
 
     num_params = 33
@@ -219,26 +232,6 @@ function main()
 
 
 
-    duration_parameter = 3.7208884
-    susceptibility_parameters = [3.60367488861084, 4.7758259773254395, 1.5442054271697998, 4.042706489562988, 3.077371597290039, 3.4204025268554688, 3.1331827640533447]
-    temperature_parameters = [-0.7385919094085693, -0.8168496489524841, -0.13755765557289124, -0.2612091898918152, -0.22924920916557312, -0.2423945814371109, -0.13344940543174744]
-    immune_memory_susceptibility_levels = [0.7320742011070251, 0.6778073906898499, 0.892433226108551, 0.9269858002662659, 0.7774124145507812, 0.8221585154533386, 0.787509024143219]
-    mean_immunity_durations = [153.3936767578125, 117.25450897216797, 178.3994598388672, 179.27105712890625, 229.07518005371094, 142.44207763671875, 181.32508850097656]
-    random_infection_probabilities = [0.0013024280779063702, 0.0007512732991017401, 0.0003460852021817118, 9.996540029533207e-6]
-
-    par_vec = [duration_parameter]
-    append!(par_vec, susceptibility_parameters)
-    append!(par_vec, temperature_parameters)
-    append!(par_vec, immune_memory_susceptibility_levels)
-    append!(par_vec, mean_immunity_durations)
-    append!(par_vec, random_infection_probabilities)
-
-    r = reshape(par_vec, 1, :)
-
-    SSE = predict(bst, r)[1]
-    println(SSE)
-    return
-
 
 
     if with_prediction
@@ -279,13 +272,13 @@ function main()
             (0.5, 1.0),
             (0.5, 1.0),
             (0.5, 1.0),
-            (21, 365), # mean_immunity_durations
-            (21, 365),
-            (21, 365),
-            (21, 365),
-            (21, 365),
-            (21, 365),
-            (21, 365),
+            (30, 365), # mean_immunity_durations
+            (30, 365),
+            (30, 365),
+            (30, 365),
+            (30, 365),
+            (30, 365),
+            (30, 365),
             (0.001, 0.002), # random_infection_probabilities
             (0.0005, 0.001),
             (0.0002, 0.0005),

@@ -59,7 +59,7 @@ function multiple_simulations(
     latin_hypercube_plan, _ = LHCoptim(num_runs, 33, 1000)
 
     points = scaleLHC(latin_hypercube_plan, [
-        (2.0, 5.0), # duration_parameter
+        (2.5, 5.0), # duration_parameter
         (1.0, 8.0), # susceptibility_parameters
         (1.0, 8.0),
         (1.0, 8.0),
@@ -81,13 +81,13 @@ function multiple_simulations(
         (0.5, 1.0),
         (0.5, 1.0),
         (0.5, 1.0),
-        (21, 365), # mean_immunity_durations
-        (21, 365),
-        (21, 365),
-        (21, 365),
-        (21, 365),
-        (21, 365),
-        (21, 365),
+        (30, 365), # mean_immunity_durations
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
         (0.001, 0.002), # random_infection_probabilities
         (0.0005, 0.001),
         (0.0002, 0.0005),
@@ -455,7 +455,7 @@ function main()
 
     # num_runs = 500
     # num_runs = 100
-    num_runs = 60
+    num_runs = 50
     multiple_simulations(
         agents,
         households,
