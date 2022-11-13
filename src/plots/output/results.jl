@@ -14,10 +14,10 @@ default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 # const is_russian = false
 const is_russian = true
 
-const num_runs = 10
-# const num_runs = 1
-# const num_years = 2
-const num_years = 3
+# const num_runs = 10
+const num_runs = 1
+const num_years = 2
+# const num_years = 3
 
 const with_quarantine = false
 # const with_quarantine = true
@@ -55,7 +55,7 @@ function plot_incidence_time_series()
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
     # infected_data = vec(transpose(infected_data[43:45, 2:53]))
-    infected_data = vec(transpose(infected_data[42:44, 2:53]))
+    infected_data = vec(transpose(infected_data[42:(41 + num_years), 2:53]))
 
     ticks = range(1, stop = (52.14285 * num_years), length = 19)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
@@ -150,10 +150,10 @@ function plot_incidence_age_groups_time_series()
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n') ./ 10072
 
     infected_data_mean = cat(
-        vec(infected_data_0[2:53, 24:26]),
-        vec(infected_data_3[2:53, 24:26]),
-        vec(infected_data_7[2:53, 24:26]),
-        vec(infected_data_15[2:53, 24:26]),
+        vec(infected_data_0[2:53, 24:(23 + num_years)]),
+        vec(infected_data_3[2:53, 24:(23 + num_years)]),
+        vec(infected_data_7[2:53, 24:(23 + num_years)]),
+        vec(infected_data_15[2:53, 24:(23 + num_years)]),
         dims = 2,
     )
 
@@ -302,7 +302,7 @@ function plot_incidence_viruses_time_series()
     etiology = hcat(FluA_ratio, FluB_ratio, RV_ratio, RSV_ratio, AdV_ratio, PIV_ratio, CoV_ratio)
     etiology2 = hcat(FluA_ratio2, FluB_ratio2, RV_ratio2, RSV_ratio2, AdV_ratio2, PIV_ratio2, CoV_ratio2)
 
-    infected_data = transpose(infected_data[42:44, 2:53])
+    infected_data = transpose(infected_data[42:(41 + num_years), 2:53])
     etiology = get_etiology()
 
     infected_data_1 = etiology[:, 1] .* infected_data
@@ -487,7 +487,7 @@ function print_statistics_time_series()
     end
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
-    infected_data_mean = vec(transpose(infected_data[42:44, 2:53]))
+    infected_data_mean = vec(transpose(infected_data[42:(41 + num_years), 2:53]))
 
     
 
@@ -519,10 +519,10 @@ function print_statistics_time_series()
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n') ./ 10072
 
     infected_data_mean = cat(
-        vec(infected_data_0[2:53, 24:26]),
-        vec(infected_data_3[2:53, 24:26]),
-        vec(infected_data_7[2:53, 24:26]),
-        vec(infected_data_15[2:53, 24:26]),
+        vec(infected_data_0[2:53, 24:(23 + num_years)]),
+        vec(infected_data_3[2:53, 24:(23 + num_years)]),
+        vec(infected_data_7[2:53, 24:(23 + num_years)]),
+        vec(infected_data_15[2:53, 24:(23 + num_years)]),
         dims = 2,
     )
 
@@ -556,7 +556,7 @@ function print_statistics_time_series()
     end
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
-    infected_data = transpose(infected_data[42:44, 2:53])
+    infected_data = transpose(infected_data[42:(41 + num_years), 2:53])
 
     etiology = get_etiology()
 
