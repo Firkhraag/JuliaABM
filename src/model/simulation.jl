@@ -1176,7 +1176,7 @@ function run_simulation(
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
     temperature_parameters::Vector{Float64},
-    temperature::Vector{Float64},
+    temperature_base::Vector{Float64},
     mean_household_contact_durations::Vector{Float64},
     household_contact_duration_sds::Vector{Float64},
     other_contact_duration_shapes::Vector{Float64},
@@ -1198,6 +1198,7 @@ function run_simulation(
     CoV_immune_memory_susceptibility_level::Float64 = 1.0,
     school_class_closure_period::Int = 0,
     school_class_closure_threshold::Float64 = 0.0,
+    with_global_warming = false,
 )::Tuple{Array{Float64, 3}, Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
     # День месяца
     day = 1
@@ -1208,10 +1209,21 @@ function run_simulation(
     # Номер недели
     week_num = 1
 
+    temperature = copy(temperature_base)
+    if with_global_warming
+        for i = 1:length(temperature)
+            temperature += rand(Normal(2.0, 0.5))
+        end
+    end
     # Минимальная температура воздуха
-    min_temp = -7.2
+    min_temp = minimum(temperature)
     # Max - Min температура
-    max_min_temp = 26.6
+    max_min_temp = maximum(temperature) - minimum(temperature)
+
+    # # Минимальная температура воздуха
+    # min_temp = -7.2
+    # # Max - Min температура
+    # max_min_temp = 26.6
 
     num_viruses = 7
 
@@ -1563,6 +1575,21 @@ function run_simulation(
         if year_day > 365
             year_day = 1
         end
+
+        if with_global_warming && current_step % 365 == 0
+            temperature = copy(temperature_base)
+            for i = 1:length(temperature)
+                temperature += rand(Normal(2.0, 0.5))
+            end
+            # Минимальная температура воздуха
+            min_temp = minimum(temperature)
+            # Max - Min температура
+            max_min_temp = maximum(temperature) - minimum(temperature)
+        end
+    end
+
+    if with_global_warming
+
     end
 
     rt = sum(rt_threads, dims = 2)[:, 1]

@@ -882,14 +882,14 @@ end
 
 function plot_infection_curves()
     # num_runs = 300
-    num_runs = 182
+    num_runs = 60
     num_years = 3
 
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
-    incidence_arr_means = zeros(Float64, 52, num_runs)
+    incidence_arr_means = zeros(Float64, (52 * num_years), num_runs)
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
-    infected_data_mean = mean(infected_data[39:45, 2:53], dims = 1)[1, :]
+    infected_data_mean = mean(infected_data[42:(41 + num_years), 2:53], dims = 1)[1, :]
 
     # isolation_probabilities_day_1 = Array{Vector{Float64}, 1}(undef, num_runs)
     isolation_probability_day_1_1 = Array{Float64, 1}(undef, num_runs)
@@ -1086,9 +1086,7 @@ function plot_infection_curves()
     for i = 1:num_runs
         println("Run: $(i)")
         observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
-        for j = 1:num_years
-            incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
-        end
+        incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
 
         # isolation_probabilities_day_1[i] = load(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "results_$(i).jld"))["isolation_probabilities_day_1"]
         isolation_probability_day_1_1[i] = load(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "results_$(i).jld"))["isolation_probabilities_day_1"][1]
@@ -1283,106 +1281,84 @@ function plot_infection_curves()
         mean_viral_load_adult_7[i] = load(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "results_$(i).jld"))["mean_viral_loads_adult"][7]
     end
 
-    for i = 1:52
+    for i = 1:(52 * num_years)
         for j = 1:num_runs
-            for k = 1:num_years
-                incidence_arr_means[i, j] += incidence_arr[j, k][i]
-            end
-            incidence_arr_means[i, j] /= num_years
+            incidence_arr_means[i, j] = incidence_arr[j, k][i]
         end
     end
 
-    incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs, num_years)
-    incidence_arr_mean = zeros(Float64, 52, 4)
+    incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs)
+    incidence_arr_mean = zeros(Float64, (52 * num_years), 4)
 
     for i = 1:num_runs
         observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "results_$(i).jld"))["observed_cases"]
-        for j = 1:num_years
-            incidence_arr[i, j] = sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :][(52 * (j - 1) + 1):(52 * (j - 1) + 52), :]
-        end
+        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :]
     end
 
-    incidence_arr_mean_age_groups = zeros(Float64, 52, 4, num_runs)
-    for i = 1:52
+    incidence_arr_mean_age_groups = zeros(Float64, (52 * num_years), 4, num_runs)
+    for i = 1:(52 * num_years)
         for k = 1:4
             for j = 1:num_runs
-                for z = 1:num_years
-                    incidence_arr_mean_age_groups[i, k, j] += incidence_arr[j, z][i, k]
-                end
-                incidence_arr_mean_age_groups[i, k, j] /= num_years
+                incidence_arr_mean_age_groups[i, k, j] = incidence_arr[j][i, k]
             end
         end
     end
 
     # General age groups
-    incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs, num_years)
-    viruses_mean = zeros(Float64, 52, 7)
+    incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs)
+    viruses_mean = zeros(Float64, (52 * num_years), 7)
 
     for i = 1:10
         observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
-        for j = 1:num_years
-            incidence_arr[i, j] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52), :]
-        end
+        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1]
     end
 
-    for i = 1:52
+    for i = 1:(52 * num_years)
         for k = 1:7
             for j = 1:10
-                for z = 1:num_years
-                    viruses_mean[i, k] += incidence_arr[j, z][i, k]
-                end
+                viruses_mean[i, k] += incidence_arr[j][i, k]
             end
-            viruses_mean[i, k] /= num_runs * num_years
+            viruses_mean[i, k] /= num_runs
         end
     end
 
-    incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs, num_years)
-    incidence_arr_mean_viruses = zeros(Float64, 52, 7, num_runs)
+    incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs)
+    incidence_arr_mean_viruses = zeros(Float64, (52 * num_years), 7, num_runs)
 
     for i = 1:num_runs
         observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "results_$(i).jld"))["observed_cases"]
-        for j = 1:num_years
-            incidence_arr[i, j] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52), :]
-        end
+        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1]
     end
 
-    for i = 1:52
+    for i = 1:(52 * num_years)
         for k = 1:7
             for j = 1:num_runs
-                for z = 1:num_years
-                    incidence_arr_mean_viruses[i, k, j] += incidence_arr[j, z][i, k]
-                end
-                incidence_arr_mean_viruses[i, k, j] /= num_years
+                incidence_arr_mean_viruses[i, k, j] = incidence_arr[j][i, k]
             end
         end
     end
 
-    rt_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
-    rt_arr_means = zeros(Float64, 365, num_runs)
+    rt_arr = Array{Vector{Float64}, 2}(undef, num_runs)
+    rt_arr_means = zeros(Float64, (365 * num_years), num_runs)
 
     for i = 1:num_runs
         rt = load(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "results_$(i).jld"))["rt"]
-        for j = 1:num_years
-            rt_arr[i, j] = moving_average(rt, 10)[(365 * (j - 1) + 1):(365 * (j - 1) + 365)]
-        end
+        rt_arr[i] = moving_average(rt, 10)
     end
 
     rt_arr_mean = zeros(Float64, 365)
-    for i = 1:365
+    for i = 1:(365 * num_years)
         for j = 1:num_runs
-            for z = 1:num_years
-                rt_arr_means[i, j] += rt_arr[j, z][i]
-            end
-            rt_arr_means[i, j] /= num_years
+            rt_arr_means[i, j] = rt_arr[j][i]
         end
     end
 
-    ticks = range(1, stop = 52, length = 7)
-    ticks_rt = range(1, stop = 365, length = 7)
+    ticks = range(1, stop = (52.14285 * num_years), length = 19)
+    ticks_rt = range(1, stop = (365 * num_years), length = 19)
 
-    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     if is_russian
-        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
     end
 
     xlabel_name = "Month"
@@ -1396,7 +1372,7 @@ function plot_infection_curves()
     end
 
     incidence_plot = plot(
-        1:52,
+        1:(365 * num_years),
         [incidence_arr_means[:, i] for i = 1:num_runs],
         lw = 1,
         xticks = (ticks, ticklabels),
@@ -1407,6 +1383,8 @@ function plot_infection_curves()
         ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "incidence.pdf"))
+
+    return
 
     # xlabel_name = "Month"
     # if is_russian
@@ -1690,30 +1668,33 @@ function plot_incidences()
     num_runs = 1
     num_years = 3
 
-    incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
-    incidence = zeros(Float64, 52)
+    incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs)
+    incidence = zeros(Float64, (52 * num_years))
 
     for i = 1:num_runs
         observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
-        for j = 1:num_years
-            incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
-        end
+        incidence_arr[i] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
     end
 
-    for i = 1:52
-        for j = 1:num_years
-            for k = 1:num_runs
-                incidence[i] += incidence_arr[k, j][i]
-            end
+    for i = 1:(52 * num_years)
+        for k = 1:num_runs
+            incidence[i] += incidence_arr[k][i]
         end
-        incidence[i] /= num_runs * num_years
+        incidence[i] /= num_runs
     end
 
-    duration_parameter = 3.711739847454133
-    susceptibility_parameters = [3.049958771387343, 3.797783962069675, 3.6978664192949933, 5.583601319315603, 4.070443207586069, 3.957334570191713, 4.612042877757162]
-    temperature_parameters = -[-0.8786105957534528, -0.7631003916718199, -0.0868996083281797, -0.15656565656565657, -0.1027107812822098, -0.05588538445681307, -0.16932591218305615]
-    random_infection_probabilities = [0.00011551556380127805, 6.822016079158936e-5, 4.922135642135645e-5, 6.844135229849516e-7]
-    mean_immunity_durations = [255.05916305916304, 312.7078952793239, 101.87487116058544, 27.368377654091933, 77.08431251288393, 117.33374561945988, 103.15357658214802]
+    # duration_parameter = 3.711739847454133
+    # susceptibility_parameters = [3.049958771387343, 3.797783962069675, 3.6978664192949933, 5.583601319315603, 4.070443207586069, 3.957334570191713, 4.612042877757162]
+    # temperature_parameters = -[-0.8786105957534528, -0.7631003916718199, -0.0868996083281797, -0.15656565656565657, -0.1027107812822098, -0.05588538445681307, -0.16932591218305615]
+    # random_infection_probabilities = [0.00011551556380127805, 6.822016079158936e-5, 4.922135642135645e-5, 6.844135229849516e-7]
+    # mean_immunity_durations = [255.05916305916304, 312.7078952793239, 101.87487116058544, 27.368377654091933, 77.08431251288393, 117.33374561945988, 103.15357658214802]
+
+    duration_parameter = 3.3695943816524907
+    susceptibility_parameters = [3.0307005776255167, 3.1607934669677986, 3.4273238632802836, 4.3725990337370515, 3.67390987352247, 3.8281846882573243, 4.746937978511825]
+    temperature_parameters = [-0.95, -0.8874797488598941, -0.05, -0.11936936936936937, -0.11488698235671589, -0.17735457724319717, -0.31083867585078234]
+    immune_memory_susceptibility_levels = [0.9381002876402393, 0.95, 0.9278778778778778, 0.8938438438438437, 0.9185685685685685, 0.8678178178178176, 0.9288288288288288]  
+    mean_immunity_durations = [346.6586428571901, 313.6876979491992, 143.00214714069438, 94.5655000618681, 113.27047767241473, 139.89128281137963, 161.06429368899117]    
+    random_infection_probabilities = [0.0013770303094598375, 0.0007744184671858813, 0.00041302869187678077, 9.182178576371385e-6]
 
     d_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "2nd", "infected_data_d_-2.csv"), ',', Float64) ./ 10072
     if num_years > 1
@@ -3154,12 +3135,12 @@ function plot_incidences()
 end
 
 # plot_work_contacts()
-plot_school_contacts()
+# plot_school_contacts()
 
 # plot_incidence_contacts()
 # plot_incidence_contacts2()
 # plot_rt_contacts()
 # plot_rt_contacts2()
 
-# plot_infection_curves()
+plot_infection_curves()
 # plot_incidences()

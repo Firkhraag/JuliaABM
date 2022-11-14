@@ -16,8 +16,9 @@ const is_russian = true
 
 # const num_runs = 10
 const num_runs = 1
-const num_years = 2
-# const num_years = 3
+# const num_runs = 5
+# const num_years = 2
+const num_years = 3
 
 const with_quarantine = false
 # const with_quarantine = true
@@ -30,6 +31,7 @@ function confidence(x::Vector{Float64})
     tstar = quantile(TDist(length(x) - 1), 1 - alpha / 2)
     SE = std(x) / sqrt(length(x))
     return tstar * SE
+    # return std(x)
 end
 
 function plot_incidence_time_series()
@@ -41,10 +43,10 @@ function plot_incidence_time_series()
         incidence_arr[i] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
     end
 
-    confidence_model = zeros(Float64, 52 * num_years)
-    for i = 1:(52 * num_years)
-        confidence_model[i] = confidence([incidence_arr[k][i] for k = 1:num_runs])
-    end
+    # confidence_model = zeros(Float64, 52 * num_years)
+    # for i = 1:(52 * num_years)
+    #     confidence_model[i] = confidence([incidence_arr[k][i] for k = 1:num_runs])
+    # end
 
     for i = 1:(52 * num_years)
         for k = 1:num_runs
@@ -137,12 +139,12 @@ function plot_incidence_age_groups_time_series()
         end
     end
 
-    confidence_model = zeros(Float64, 52 * num_years, 4)
-    for i = 1:(52 * num_years)
-        for k = 1:4
-            confidence_model[i, k] = confidence([incidence_arr[j][i, k] for j = 1:num_runs])
-        end
-    end
+    # confidence_model = zeros(Float64, 52 * num_years, 4)
+    # for i = 1:(52 * num_years)
+    #     for k = 1:4
+    #         confidence_model[i, k] = confidence([incidence_arr[j][i, k] for j = 1:num_runs])
+    #     end
+    # end
 
     infected_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n') ./ 10072
     infected_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n') ./ 10072
@@ -220,12 +222,12 @@ function plot_incidence_viruses_time_series()
         end
     end
 
-    confidence_model = zeros(Float64, (52 * num_years), 7)
-    for i = 1:(52 * num_years)
-        for k = 1:7
-            confidence_model[i, k] = confidence([incidence_arr[j][i, k] for j = 1:num_runs])
-        end
-    end
+    # confidence_model = zeros(Float64, (52 * num_years), 7)
+    # for i = 1:(52 * num_years)
+    #     for k = 1:7
+    #         confidence_model[i, k] = confidence([incidence_arr[j][i, k] for j = 1:num_runs])
+    #     end
+    # end
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
 
@@ -386,6 +388,7 @@ function plot_incidence_viruses_time_series()
         incidence_plot = plot(
             1:(52 * num_years),
             [incidence_arr_mean[:, i] infected_data_viruses[:, i]],
+            # lw = 1.5,
             lw = 1.5,
             xticks = (ticks, ticklabels),
             label = label_names,
@@ -474,10 +477,6 @@ function print_statistics_time_series()
         observed_num_infected_age_groups_viruses[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
         incidence_arr[i] = sum(sum(observed_num_infected_age_groups_viruses[i], dims = 3)[:, :, 1], dims = 2)[:, 1]
     end
-    # for i = 1:1
-    #     observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "parameters_labels", "tables", "results_60.jld"))["observed_cases"]
-    #     incidence_arr[i] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
-    # end
 
     for i = 1:(52 * num_years)
         for j = 1:num_runs
@@ -539,7 +538,6 @@ function print_statistics_time_series()
     println("15+ nMAE: $(nMAE_15)")
 
     # ------------------
-
     incidence_arr = Array{Matrix{Float64}, 1}(undef, num_runs)
     for i = 1:num_runs
         incidence_arr[i] = sum(observed_num_infected_age_groups_viruses[i], dims = 3)[:, :, 1]
@@ -601,11 +599,18 @@ function print_statistics_time_series()
     averaged_nMAE = nMAE_FluA + nMAE_FluB + nMAE_RV + nMAE_RSV + nMAE_AdV + nMAE_PIV + nMAE_CoV + nMAE_general + nMAE_0_2 + nMAE_3_6 + nMAE_7_14 + nMAE_15
     println("Averaged nMAE: $(averaged_nMAE / 12)")
 
-
-
-
-
-    etiology = get_etiology()
+    # ---
+    incidence_arr_mean = zeros(Float64, (52 * num_years), 7, 4)
+    for i = 1:(52 * num_years)
+        for v = 1:7
+            for k = 1:4
+                for j = 1:num_runs
+                    incidence_arr_mean[i, v, k] += observed_num_infected_age_groups_viruses[j][i, v, k]
+                end
+                incidence_arr_mean[i, v, k] /= num_runs
+            end
+        end
+    end
 
     infected_data_0_all = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n') ./ 10072
     infected_data_3_all = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n') ./ 10072
@@ -692,16 +697,8 @@ function print_statistics_time_series()
         dims = 3,
     )
 
-    sum_value = 0.0
-    for w = 1:size(num_infected_age_groups_viruses)[1]
-        for v = 1:size(num_infected_age_groups_viruses)[2]
-            for a = 1:size(num_infected_age_groups_viruses)[3]
-                sum_value += (num_infected_age_groups_viruses[w, v, a] - observed_num_infected_age_groups_viruses[1][w, v, a])^2
-            end
-        end
-    end
-    # sum_value /= size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3]
-    println(sum_value)
+    println("nMAE = $(sum(abs.(incidence_arr_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses))")
+    println("RSS = $(sum((num_infected_age_groups_viruses - incidence_arr_mean).^2))")
 end
 
 function plot_incidence()
@@ -1869,10 +1866,10 @@ function plot_rt()
         rt_arr_mean[i] /= num_runs * num_years
     end
 
-    confidence_model = zeros(Float64, 365)
-    for i = 1:365
-        confidence_model[i] = confidence([rt_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
-    end
+    # confidence_model = zeros(Float64, 365)
+    # for i = 1:365
+    #     confidence_model[i] = confidence([rt_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
+    # end
 
     ticks = range(1, stop = 365, length = 7)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
@@ -1899,7 +1896,7 @@ function plot_rt()
         legend = false,
         color = RGB(0.0, 0.0, 0.0),
         grid = true,
-        ribbon = confidence_model,
+        # ribbon = confidence_model,
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2540,17 +2537,18 @@ function print_statistics()
     println("CoV nMAE: $(nMAE)")
 end
 
-# plot_incidence_time_series()
-# plot_incidence_age_groups_time_series()
-# plot_incidence_viruses_time_series()
-# plot_rt_time_series()
-print_statistics_time_series()
+plot_incidence_time_series()
+plot_incidence_age_groups_time_series()
+plot_incidence_viruses_time_series()
+plot_rt_time_series()
+# print_statistics_time_series()
 
-# plot_incidence()
-# plot_incidence_age_groups()
-# plot_incidence_viruses()
-# plot_rt()
-# plot_infection_activities()
+plot_incidence()
+plot_incidence_age_groups()
+plot_incidence_viruses()
+plot_rt()
+plot_infection_activities()
+
 # plot_incidence_scenarios()
 # plot_incidence_scenarios_quaranteen()
 # plot_incidence_scenarios_warming()

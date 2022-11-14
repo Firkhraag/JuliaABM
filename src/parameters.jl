@@ -11,16 +11,13 @@ include("util/moving_avg.jl")
 include("util/regression.jl")
 
 function main()
-    with_prediction = true
-    # with_prediction = false
-
-    num_runs_1 = 220
-    num_runs_2 = 132
-    num_runs_3 = 70
+    num_runs_1 = 219
+    num_runs_2 = 147
+    num_runs_3 = 84
     num_runs = num_runs_1 + num_runs_2 + num_runs_3
     num_years = 2
 
-    forest_num_rounds = 100
+    forest_num_rounds = 150
     forest_max_depth = 7
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_runs)
@@ -185,17 +182,29 @@ function main()
         y[i] = sum
     end
 
+    # y = zeros(Float64, num_runs)
+    # for i = 1:num_runs
+    #     sum = 0.0
+    #     sum_data = 0.0
+    #     for w = 1:size(num_infected_age_groups_viruses)[1]
+    #         for v = 1:size(num_infected_age_groups_viruses)[2]
+    #             for a = 1:size(num_infected_age_groups_viruses)[3]
+    #                 sum += abs(num_infected_age_groups_viruses[w, v, a] - incidence_arr[i][w, v, a])
+    #                 sum_data += incidence_arr[i][w, v, a]
+    #             end
+    #         end
+    #     end
+    #     sum /= sum_data
+    #     # sum /= size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3]
+    #     y[i] = sum
+    # end
+
     println(minimum(y))
     println(argmin(y))
     println(maximum(y))
     println(argmax(y))
 
     bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror")
-
-
-
-
-
 
 
     # duration_parameter = 3.4981229101810194
@@ -218,44 +227,23 @@ function main()
     # println(SSE)
 
 
+    S = 7
+    # num_samples = 1000
+    num_samples = 5000
+    num_tries = 1
+    min_values = zeros(Float64, S) .+ 99999.0
+    duration_parameters_min = zeros(Float64, S)
+    susceptibility_parameters_min = zeros(Float64, num_viruses, S)
+    temperature_parameters_min = zeros(Float64, num_viruses, S)
+    immune_memory_susceptibility_levels_min = zeros(Float64, num_viruses, S)
+    mean_immunity_durations_min = zeros(Float64, num_viruses, S)
+    random_infection_probabilities_min = zeros(Float64, 4, S)
 
-    duration_parameter = 3.7208884
-    susceptibility_parameters = [3.60367488861084, 4.7758259773254395, 1.5442054271697998, 4.042706489562988, 3.077371597290039, 3.4204025268554688, 3.1331827640533447]
-    temperature_parameters = [-0.7385919094085693, -0.8168496489524841, -0.13755765557289124, -0.2612091898918152, -0.22924920916557312, -0.2423945814371109, -0.13344940543174744]
-    immune_memory_susceptibility_levels = [0.7320742011070251, 0.6778073906898499, 0.892433226108551, 0.9269858002662659, 0.7774124145507812, 0.8221585154533386, 0.787509024143219]
-    mean_immunity_durations = [153.3936767578125, 117.25450897216797, 178.3994598388672, 179.27105712890625, 229.07518005371094, 142.44207763671875, 181.32508850097656]
-    random_infection_probabilities = [0.0013024280779063702, 0.0007512732991017401, 0.0003460852021817118, 9.996540029533207e-6]
+    num_parameters = 33
+    # @time latin_hypercube_plan, _ = LHCoptim(num_samples, num_parameters, 10)
+    @time latin_hypercube_plan, _ = LHCoptim(num_samples, num_parameters, 2)
 
-    par_vec = [duration_parameter]
-    append!(par_vec, susceptibility_parameters)
-    append!(par_vec, temperature_parameters)
-    append!(par_vec, immune_memory_susceptibility_levels)
-    append!(par_vec, mean_immunity_durations)
-    append!(par_vec, random_infection_probabilities)
-
-    r = reshape(par_vec, 1, :)
-
-    SSE = predict(bst, r)[1]
-    println(SSE)
-    return
-
-
-
-    if with_prediction
-        S = 20
-        num_samples = 3000
-        # num_samples = 100
-        min_values = zeros(Float64, S) .+ 99999.0
-        duration_parameters_min = zeros(Float64, S)
-        susceptibility_parameters_min = zeros(Float64, num_viruses, S)
-        temperature_parameters_min = zeros(Float64, num_viruses, S)
-        immune_memory_susceptibility_levels_min = zeros(Float64, num_viruses, S)
-        mean_immunity_durations_min = zeros(Float64, num_viruses, S)
-        random_infection_probabilities_min = zeros(Float64, 4, S)
-
-        num_parameters = 33
-        @time latin_hypercube_plan, _ = LHCoptim(num_samples, num_parameters, 5)
-
+    for i = 1:num_tries
         points = scaleLHC(latin_hypercube_plan, [
             (2.5, 5.0), # duration_parameter
             (1.0, 8.0), # susceptibility_parameters
@@ -279,13 +267,13 @@ function main()
             (0.5, 1.0),
             (0.5, 1.0),
             (0.5, 1.0),
-            (21, 365), # mean_immunity_durations
-            (21, 365),
-            (21, 365),
-            (21, 365),
-            (21, 365),
-            (21, 365),
-            (21, 365),
+            (30, 365), # mean_immunity_durations
+            (30, 365),
+            (30, 365),
+            (30, 365),
+            (30, 365),
+            (30, 365),
+            (30, 365),
             (0.001, 0.002), # random_infection_probabilities
             (0.0005, 0.001),
             (0.0002, 0.0005),
@@ -333,20 +321,20 @@ function main()
                 end
             end
         end
-        for i = 1:S
-            println()
-            println("---------------------------------------------------")
-            println(i)
-            println(min_values[i])
-            println("Real: ")
-            println("duration_parameter = $(duration_parameters_min[i])")
-            println("susceptibility_parameters = $(susceptibility_parameters_min[:, i])")
-            println("temperature_parameters = $(temperature_parameters_min[:, i])")
-            println("immune_memory_susceptibility_levels = $(immune_memory_susceptibility_levels_min[:, i])")
-            println("mean_immunity_durations = $(mean_immunity_durations_min[:, i])")
-            println("random_infection_probabilities = $(random_infection_probabilities_min[:, i])")
-            println("---------------------------------------------------")
-        end
+    end
+    for i = 1:S
+        println()
+        println("---------------------------------------------------")
+        println(i)
+        println(min_values[i])
+        println("Real: ")
+        println("duration_parameter = $(duration_parameters_min[i])")
+        println("susceptibility_parameters = $(susceptibility_parameters_min[:, i])")
+        println("temperature_parameters = $(temperature_parameters_min[:, i])")
+        println("immune_memory_susceptibility_levels = $(immune_memory_susceptibility_levels_min[:, i])")
+        println("mean_immunity_durations = $(mean_immunity_durations_min[:, i])")
+        println("random_infection_probabilities = $(random_infection_probabilities_min[:, i])")
+        println("---------------------------------------------------")
     end
 end
 
