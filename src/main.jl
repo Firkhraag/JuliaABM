@@ -49,9 +49,13 @@ function main()
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # CHANGE
     school_class_closure_period = 0
-    # school_class_closure_period = 7
+    # # school_class_closure_period = 7
     school_class_closure_threshold = 0.2
-    # school_class_closure_threshold = 1.0
+    # # school_class_closure_threshold = 1.0
+
+    # 0.2  0.1  0.3  0.2_14  0.1_14  0.3_14
+    # school_class_closure_period = 14
+    # school_class_closure_threshold = 0.3
 
     # with_global_warming = false
     with_global_warming = true

@@ -230,81 +230,8 @@ function plot_incidence_viruses_time_series()
     # end
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
-
-    FluA_arr = [1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 25, 50, 60, 75, 310, 1675, 1850, 1500, 1250, 900, 375, 350, 290, 220, 175, 165, 100, 50, 40, 25, 15, 9, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1]
-    FluA_arr2 = [1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 15, 44, 72, 50, 10, 80, 266, 333, 480, 588, 625, 575, 622, 423, 450, 269, 190, 138, 89, 60, 30, 20, 12, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-
-    RV_arr = [50.0, 50, 86, 90, 70, 74, 97, 115, 158, 130, 131, 103, 112, 112, 136, 90, 111, 128, 130, 140, 118, 152, 49, 22, 51, 80, 82, 100, 78, 57, 70, 73, 102, 101, 80, 62, 68, 60, 66, 52, 42, 69, 74, 38, 50, 42, 36, 38, 24, 44, 45, 40]
-    RV_arr2 = [11.0, 10, 20, 24, 10, 20, 41, 42, 43, 54, 42, 52, 39, 37, 20, 15, 20, 38, 41, 28, 30, 21, 9, 1, 10, 50, 62, 52, 31, 40, 36, 41, 42, 32, 84, 71, 78, 72, 32, 28, 39, 37, 72, 67, 41, 52, 40, 24, 40, 39, 36, 30]
-    
-    RSV_arr = [8.0, 8, 8, 8, 8, 5, 7, 8, 11, 11, 18, 14, 15, 18, 35, 55, 53, 70, 90, 130, 45, 30, 80, 140, 100, 120, 145, 180, 150, 68, 72, 60, 80, 75, 55, 60, 65, 62, 50, 45, 50, 20, 24, 19, 15, 10, 10, 9, 11, 10, 9, 8]
-    RSV_arr2 = [8.0, 9, 9, 4, 4, 10, 9, 10, 3, 12, 8, 10, 12, 7, 10, 13, 9, 15, 21, 25, 30, 10, 2, 22, 18, 30, 77, 72, 48, 61, 90, 120, 150, 145, 92, 119, 78, 69, 49, 57, 49, 43, 46, 24, 40, 24, 24, 10, 10, 9, 7, 11]
-
-    AdV_arr = [20.0, 30, 40, 20, 30, 25, 15, 19, 17, 18, 20, 25, 30, 21, 38, 40, 42, 30, 40, 50, 51, 41, 10, 8, 30, 40, 38, 70, 67, 20, 28, 20, 29, 20, 28, 16, 10, 20, 18, 27, 19, 19, 32, 31, 20, 20, 15, 8, 20, 35, 35, 35]
-    AdV_arr2 = [9.0, 11, 13, 5, 7, 12, 12, 18, 16, 22, 18, 22, 31, 32, 33, 17, 28, 39, 29, 40, 30, 56, 11, 1, 38, 30, 39, 28, 59, 19, 46, 20, 22, 47, 38, 40, 25, 17, 18, 10, 6, 6, 21, 11, 19, 12, 27, 18, 10, 27, 10, 10]
-
-    PIV_arr = [15.0, 18, 20, 33, 15, 36, 33, 38, 38, 50, 40, 43, 46, 75, 55, 35, 85, 53, 65, 40, 70, 20, 10, 45, 32, 33, 51, 34, 22, 12, 12, 14, 16, 18, 20, 8, 24, 20, 15, 5, 20, 15, 15, 20, 19, 18, 31, 18, 18, 17, 15, 14]
-    PIV_arr2 = [10.0, 11, 6, 8, 12, 19, 22, 20, 20, 22, 28, 32, 47, 29, 31, 38, 17, 40, 31, 36, 32, 48, 11, 6, 30, 38, 12, 30, 22, 12, 20, 17, 30, 45, 11, 14, 17, 15, 15, 10, 15, 20, 17, 18, 23, 10, 10, 18, 17, 16, 17, 14]
-
-    CoV_arr = [1.0, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 8, 10, 5, 7, 7, 14, 8, 25, 35, 30, 1, 5, 16, 14, 25, 35, 32, 50, 10, 18, 12, 30, 36, 25, 14, 16, 5, 3, 1, 3, 6, 3, 2, 1, 1, 1, 1, 1, 1, 1]
-    CoV_arr2 = [5.0, 1, 1, 2, 1, 1, 6, 1, 3, 1, 1, 5, 9, 1, 5, 1, 1, 5, 1, 3, 2, 1, 5, 1, 3, 1, 1, 9, 5, 5, 9, 3, 4, 3, 12, 18, 16, 15, 7, 1, 13, 3, 3, 10, 2, 1, 1, 1, 1, 1, 1, 1]
-
-    FluA_arr = moving_average(FluA_arr, 3)
-    RV_arr = moving_average(RV_arr, 3)
-    RSV_arr = moving_average(RSV_arr, 3)
-    AdV_arr = moving_average(AdV_arr, 3)
-    PIV_arr = moving_average(PIV_arr, 3)
-    CoV_arr = moving_average(CoV_arr, 3)
-
-    FluA_arr2 = moving_average(FluA_arr2, 3)
-    RV_arr2 = moving_average(RV_arr2, 3)
-    RSV_arr2 = moving_average(RSV_arr2, 3)
-    AdV_arr2 = moving_average(AdV_arr2, 3)
-    PIV_arr2 = moving_average(PIV_arr2, 3)
-    CoV_arr2 = moving_average(CoV_arr2, 3)
-
-    FluB_arr = FluA_arr .* 1/3
-    FluB_arr2 = FluA_arr2 .* 1/3
-
-    sum_arr = FluA_arr + FluB_arr + RV_arr + RSV_arr + AdV_arr + PIV_arr + CoV_arr
-    sum_arr2 = FluA_arr2 + FluB_arr2 + RV_arr2 + RSV_arr2 + AdV_arr2 + PIV_arr2 + CoV_arr2
-
-    FluA_ratio = FluA_arr ./ sum_arr
-    FluB_ratio = FluB_arr ./ sum_arr
-    RV_ratio = RV_arr ./ sum_arr
-    RSV_ratio = RSV_arr ./ sum_arr
-    AdV_ratio = AdV_arr ./ sum_arr
-    PIV_ratio = PIV_arr ./ sum_arr
-    CoV_ratio = CoV_arr ./ sum_arr
-
-    FluA_ratio2 = FluA_arr2 ./ sum_arr2
-    FluB_ratio2 = FluB_arr2 ./ sum_arr2
-    RV_ratio2 = RV_arr2 ./ sum_arr2
-    RSV_ratio2 = RSV_arr2 ./ sum_arr2
-    AdV_ratio2 = AdV_arr2 ./ sum_arr2
-    PIV_ratio2 = PIV_arr2 ./ sum_arr2
-    CoV_ratio2 = CoV_arr2 ./ sum_arr2
-
-    FluA_ratio = moving_average(FluA_ratio, 3)
-    FluB_ratio = moving_average(FluB_ratio, 3)
-    RV_ratio = moving_average(RV_ratio, 3)
-    RSV_ratio = moving_average(RSV_ratio, 3)
-    AdV_ratio = moving_average(AdV_ratio, 3)
-    PIV_ratio = moving_average(PIV_ratio, 3)
-    CoV_ratio = moving_average(CoV_ratio, 3)
-
-    FluA_ratio2 = moving_average(FluA_ratio2, 3)
-    FluB_ratio2 = moving_average(FluB_ratio2, 3)
-    RV_ratio2 = moving_average(RV_ratio2, 3)
-    RSV_ratio2 = moving_average(RSV_ratio2, 3)
-    AdV_ratio2 = moving_average(AdV_ratio2, 3)
-    PIV_ratio2 = moving_average(PIV_ratio2, 3)
-    CoV_ratio2 = moving_average(CoV_ratio2, 3)
-
-    etiology = hcat(FluA_ratio, FluB_ratio, RV_ratio, RSV_ratio, AdV_ratio, PIV_ratio, CoV_ratio)
-    etiology2 = hcat(FluA_ratio2, FluB_ratio2, RV_ratio2, RSV_ratio2, AdV_ratio2, PIV_ratio2, CoV_ratio2)
-
     infected_data = transpose(infected_data[42:(41 + num_years), 2:53])
+    
     etiology = get_etiology()
 
     infected_data_1 = etiology[:, 1] .* infected_data
@@ -314,7 +241,7 @@ function plot_incidence_viruses_time_series()
     infected_data_5 = etiology[:, 5] .* infected_data
     infected_data_6 = etiology[:, 6] .* infected_data
     infected_data_7 = etiology[:, 7] .* infected_data
-    infected_data_viruses_1 = cat(
+    infected_data_viruses = cat(
         vec(infected_data_1),
         vec(infected_data_2),
         vec(infected_data_3),
@@ -342,24 +269,24 @@ function plot_incidence_viruses_time_series()
     #     infected_data_7,
     #     dims = 3)
 
-    infected_data_1_2 = etiology2[:, 1] .* infected_data
-    infected_data_2_2 = etiology2[:, 2] .* infected_data
-    infected_data_3_2 = etiology2[:, 3] .* infected_data
-    infected_data_4_2 = etiology2[:, 4] .* infected_data
-    infected_data_5_2 = etiology2[:, 5] .* infected_data
-    infected_data_6_2 = etiology2[:, 6] .* infected_data
-    infected_data_7_2 = etiology2[:, 7] .* infected_data
-    infected_data_viruses_2 = cat(
-        vec(infected_data_1_2),
-        vec(infected_data_2_2),
-        vec(infected_data_3_2),
-        vec(infected_data_4_2),
-        vec(infected_data_5_2),
-        vec(infected_data_6_2),
-        vec(infected_data_7_2),
-        dims = 2)
+    # infected_data_1_2 = etiology2[:, 1] .* infected_data
+    # infected_data_2_2 = etiology2[:, 2] .* infected_data
+    # infected_data_3_2 = etiology2[:, 3] .* infected_data
+    # infected_data_4_2 = etiology2[:, 4] .* infected_data
+    # infected_data_5_2 = etiology2[:, 5] .* infected_data
+    # infected_data_6_2 = etiology2[:, 6] .* infected_data
+    # infected_data_7_2 = etiology2[:, 7] .* infected_data
+    # infected_data_viruses_2 = cat(
+    #     vec(infected_data_1_2),
+    #     vec(infected_data_2_2),
+    #     vec(infected_data_3_2),
+    #     vec(infected_data_4_2),
+    #     vec(infected_data_5_2),
+    #     vec(infected_data_6_2),
+    #     vec(infected_data_7_2),
+    #     dims = 2)
 
-    infected_data_viruses = (infected_data_viruses_1 + infected_data_viruses_2) ./ 2
+    # infected_data_viruses = (infected_data_viruses_1 + infected_data_viruses_2) ./ 2
     # infected_data_viruses = cat(infected_data_viruses_1, infected_data_viruses_2, dims = 2)
 
     ticks = range(1, stop = (52.14285 * num_years), length = 19)
@@ -699,6 +626,156 @@ function print_statistics_time_series()
 
     println("nMAE = $(sum(abs.(incidence_arr_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses))")
     println("RSS = $(sum((num_infected_age_groups_viruses - incidence_arr_mean).^2))")
+end
+
+function plot_incidence_quarantine_time_series()
+    num_runs_quarantine = 5
+    incidence_arr = Array{Vector{Float64}, 1}(undef, num_runs_quarantine + 1)
+
+    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld"))["observed_cases"] ./ 10072
+    incidence_arr[1] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
+
+    for i = 1:num_runs_quarantine
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["observed_cases"] ./ 10072
+        incidence_arr[i + 1] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
+    end
+
+    # confidence_model = zeros(Float64, 52 * num_years)
+    # for i = 1:(52 * num_years)
+    #     confidence_model[i] = confidence([incidence_arr[k][i] for k = 1:num_runs_quarantine])
+    # end
+
+    # for i = 1:(52 * num_years)
+    #     for k = 1:num_runs_quarantine
+    #         incidence_arr_mean[i] += incidence_arr[k][i]
+    #     end
+    #     incidence_arr_mean[i] /= num_runs_quarantine
+    # end    
+
+    infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
+    # infected_data = vec(transpose(infected_data[43:45, 2:53]))
+    infected_data = vec(transpose(infected_data[42:(41 + num_years), 2:53]))
+
+    ticks = range(1, stop = (52.14285 * num_years), length = 19)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    yticks = [0, 4, 8, 12]
+    yticklabels = ["0" "4" "8" "12"]
+
+    # 0.2  0.1  0.3  0.2_14  0.1_14  0.3_14
+    label_names = ["базовый" "порог 0.2" "порог 0.1" "порог 0.3" "порог 0.2, 14 дней" "порог 0.1, 14 дней"]
+    if is_russian
+        label_names = ["базовый" "порог 0.2" "порог 0.1" "порог 0.3" "порог 0.2, 14 дней" "порог 0.1, 14 дней"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Weekly incidence rate per 1000"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
+    incidence_plot = plot(
+        1:(52 * num_years),
+        [incidence_arr[i] for i = 1:(num_runs_quarantine + 1)],
+        lw = 1.5,
+        xticks = (ticks, ticklabels),
+        # yticks = (yticks, yticklabels),
+        label = label_names,
+        margin = 6Plots.mm,
+        xrotation = 45,
+        grid = true,
+        legend = (0.61, 0.98),
+        size = (800, 500),
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        # ribbon = confidence_model,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence_quarantine_time_series.pdf"))
+end
+
+function plot_incidence_warming_time_series()
+    num_runs_warming = 2
+    incidence_arr = Array{Vector{Float64}, 1}(undef, num_runs_warming + 1)
+
+    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld"))["observed_cases"] ./ 10072
+    incidence_arr[1] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
+
+    for i = 1:num_runs_warming
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_warming_$(i).jld"))["observed_cases"] ./ 10072
+        incidence_arr[i + 1] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
+    end
+
+    # confidence_model = zeros(Float64, 52 * num_years)
+    # for i = 1:(52 * num_years)
+    #     confidence_model[i] = confidence([incidence_arr[k][i] for k = 1:num_runs_warming])
+    # end
+
+    # for i = 1:(52 * num_years)
+    #     for k = 1:num_runs_warming
+    #         incidence_arr_mean[i] += incidence_arr[k][i]
+    #     end
+    #     incidence_arr_mean[i] /= num_runs_warming
+    # end    
+
+    infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
+    # infected_data = vec(transpose(infected_data[43:45, 2:53]))
+    infected_data = vec(transpose(infected_data[42:(41 + num_years), 2:53]))
+
+    ticks = range(1, stop = (52.14285 * num_years), length = 19)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    yticks = [0, 4, 8, 12]
+    yticklabels = ["0" "4" "8" "12"]
+
+    # 0.2  0.1  0.3  0.2_14  0.1_14  0.3_14
+    label_names = ["базовый" "+2 °С" "+1 °С"]
+    if is_russian
+        label_names = ["базовый" "+2 °С" "+1 °С"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Weekly incidence rate per 1000"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
+    incidence_plot = plot(
+        1:(52 * num_years),
+        [incidence_arr[i] for i = 1:(num_runs_warming + 1)],
+        lw = 1.5,
+        xticks = (ticks, ticklabels),
+        # yticks = (yticks, yticklabels),
+        label = label_names,
+        margin = 6Plots.mm,
+        xrotation = 45,
+        grid = true,
+        legend = (0.61, 0.98),
+        size = (800, 500),
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        # ribbon = confidence_model,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence_warming_time_series.pdf"))
 end
 
 function plot_incidence()
@@ -1170,6 +1247,264 @@ function plot_incidence_age_groups()
     end
 end
 
+# function plot_incidence_viruses()
+#     incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs, num_years)
+#     incidence_arr_mean = zeros(Float64, 52, 7)
+
+#     for i = 1:num_runs
+#         observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ 10072
+#         for j = 1:num_years
+#             incidence_arr[i, j] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52), :]
+#         end
+#     end
+
+#     for i = 1:52
+#         for k = 1:7
+#             for j = 1:num_runs
+#                 for z = 1:num_years
+#                     incidence_arr_mean[i, k] += incidence_arr[j, z][i, k]
+#                 end
+#             end
+#             incidence_arr_mean[i, k] /= num_runs * num_years
+#         end
+#     end
+
+#     confidence_model = zeros(Float64, 52, 7)
+#     for i = 1:52
+#         for k = 1:7
+#             confidence_model[i, k] = confidence([incidence_arr[j, z][i, k] for j = 1:num_runs for z = 1:num_years])
+#         end
+#     end
+
+#     # incidence_arr = Array{Matrix{Float64}, 1}(undef, num_runs)
+
+#     # for i = 1:num_runs
+#     #     observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
+#     #     incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1]
+#     # end
+
+#     # incidence = zeros(Float64, 52, 7)
+#     # for i = 1:52
+#     #     for k = 1:7
+#     #         for j = 1:num_runs
+#     #             incidence[i, k] += incidence_arr[j][i, k]
+#     #         end
+#     #         incidence[i, k] /= num_runs
+#     #     end
+#     # end
+
+#     # confidence_model = zeros(Float64, 52, 7)
+#     # for i = 1:52
+#     #     for k = 1:7
+#     #         confidence_model[i, k] = confidence([incidence_arr[j][i, k] for j = 1:num_runs])
+#     #     end
+#     # end
+
+#     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
+
+#     FluA_arr = [1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 25, 50, 60, 75, 310, 1675, 1850, 1500, 1250, 900, 375, 350, 290, 220, 175, 165, 100, 50, 40, 25, 15, 9, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1]
+#     FluA_arr2 = [1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 15, 44, 72, 50, 10, 80, 266, 333, 480, 588, 625, 575, 622, 423, 450, 269, 190, 138, 89, 60, 30, 20, 12, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+
+#     RV_arr = [50.0, 50, 86, 90, 70, 74, 97, 115, 158, 130, 131, 103, 112, 112, 136, 90, 111, 128, 130, 140, 118, 152, 49, 22, 51, 80, 82, 100, 78, 57, 70, 73, 102, 101, 80, 62, 68, 60, 66, 52, 42, 69, 74, 38, 50, 42, 36, 38, 24, 44, 45, 40]
+#     RV_arr2 = [11.0, 10, 20, 24, 10, 20, 41, 42, 43, 54, 42, 52, 39, 37, 20, 15, 20, 38, 41, 28, 30, 21, 9, 1, 10, 50, 62, 52, 31, 40, 36, 41, 42, 32, 84, 71, 78, 72, 32, 28, 39, 37, 72, 67, 41, 52, 40, 24, 40, 39, 36, 30]
+    
+#     RSV_arr = [8.0, 8, 8, 8, 8, 5, 7, 8, 11, 11, 18, 14, 15, 18, 35, 55, 53, 70, 90, 130, 45, 30, 80, 140, 100, 120, 145, 180, 150, 68, 72, 60, 80, 75, 55, 60, 65, 62, 50, 45, 50, 20, 24, 19, 15, 10, 10, 9, 11, 10, 9, 8]
+#     RSV_arr2 = [8.0, 9, 9, 4, 4, 10, 9, 10, 3, 12, 8, 10, 12, 7, 10, 13, 9, 15, 21, 25, 30, 10, 2, 22, 18, 30, 77, 72, 48, 61, 90, 120, 150, 145, 92, 119, 78, 69, 49, 57, 49, 43, 46, 24, 40, 24, 24, 10, 10, 9, 7, 11]
+
+#     AdV_arr = [20.0, 30, 40, 20, 30, 25, 15, 19, 17, 18, 20, 25, 30, 21, 38, 40, 42, 30, 40, 50, 51, 41, 10, 8, 30, 40, 38, 70, 67, 20, 28, 20, 29, 20, 28, 16, 10, 20, 18, 27, 19, 19, 32, 31, 20, 20, 15, 8, 20, 35, 35, 35]
+#     AdV_arr2 = [9.0, 11, 13, 5, 7, 12, 12, 18, 16, 22, 18, 22, 31, 32, 33, 17, 28, 39, 29, 40, 30, 56, 11, 1, 38, 30, 39, 28, 59, 19, 46, 20, 22, 47, 38, 40, 25, 17, 18, 10, 6, 6, 21, 11, 19, 12, 27, 18, 10, 27, 10, 10]
+
+#     PIV_arr = [15.0, 18, 20, 33, 15, 36, 33, 38, 38, 50, 40, 43, 46, 75, 55, 35, 85, 53, 65, 40, 70, 20, 10, 45, 32, 33, 51, 34, 22, 12, 12, 14, 16, 18, 20, 8, 24, 20, 15, 5, 20, 15, 15, 20, 19, 18, 31, 18, 18, 17, 15, 14]
+#     PIV_arr2 = [10.0, 11, 6, 8, 12, 19, 22, 20, 20, 22, 28, 32, 47, 29, 31, 38, 17, 40, 31, 36, 32, 48, 11, 6, 30, 38, 12, 30, 22, 12, 20, 17, 30, 45, 11, 14, 17, 15, 15, 10, 15, 20, 17, 18, 23, 10, 10, 18, 17, 16, 17, 14]
+
+#     CoV_arr = [1.0, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 8, 10, 5, 7, 7, 14, 8, 25, 35, 30, 1, 5, 16, 14, 25, 35, 32, 50, 10, 18, 12, 30, 36, 25, 14, 16, 5, 3, 1, 3, 6, 3, 2, 1, 1, 1, 1, 1, 1, 1]
+#     CoV_arr2 = [5.0, 1, 1, 2, 1, 1, 6, 1, 3, 1, 1, 5, 9, 1, 5, 1, 1, 5, 1, 3, 2, 1, 5, 1, 3, 1, 1, 9, 5, 5, 9, 3, 4, 3, 12, 18, 16, 15, 7, 1, 13, 3, 3, 10, 2, 1, 1, 1, 1, 1, 1, 1]
+
+#     FluA_arr = moving_average(FluA_arr, 3)
+#     RV_arr = moving_average(RV_arr, 3)
+#     RSV_arr = moving_average(RSV_arr, 3)
+#     AdV_arr = moving_average(AdV_arr, 3)
+#     PIV_arr = moving_average(PIV_arr, 3)
+#     CoV_arr = moving_average(CoV_arr, 3)
+
+#     FluA_arr2 = moving_average(FluA_arr2, 3)
+#     RV_arr2 = moving_average(RV_arr2, 3)
+#     RSV_arr2 = moving_average(RSV_arr2, 3)
+#     AdV_arr2 = moving_average(AdV_arr2, 3)
+#     PIV_arr2 = moving_average(PIV_arr2, 3)
+#     CoV_arr2 = moving_average(CoV_arr2, 3)
+
+#     FluB_arr = FluA_arr .* 1/3
+#     FluB_arr2 = FluA_arr2 .* 1/3
+
+#     sum_arr = FluA_arr + FluB_arr + RV_arr + RSV_arr + AdV_arr + PIV_arr + CoV_arr
+#     sum_arr2 = FluA_arr2 + FluB_arr2 + RV_arr2 + RSV_arr2 + AdV_arr2 + PIV_arr2 + CoV_arr2
+
+#     FluA_ratio = FluA_arr ./ sum_arr
+#     FluB_ratio = FluB_arr ./ sum_arr
+#     RV_ratio = RV_arr ./ sum_arr
+#     RSV_ratio = RSV_arr ./ sum_arr
+#     AdV_ratio = AdV_arr ./ sum_arr
+#     PIV_ratio = PIV_arr ./ sum_arr
+#     CoV_ratio = CoV_arr ./ sum_arr
+
+#     FluA_ratio2 = FluA_arr2 ./ sum_arr2
+#     FluB_ratio2 = FluB_arr2 ./ sum_arr2
+#     RV_ratio2 = RV_arr2 ./ sum_arr2
+#     RSV_ratio2 = RSV_arr2 ./ sum_arr2
+#     AdV_ratio2 = AdV_arr2 ./ sum_arr2
+#     PIV_ratio2 = PIV_arr2 ./ sum_arr2
+#     CoV_ratio2 = CoV_arr2 ./ sum_arr2
+
+#     FluA_ratio = moving_average(FluA_ratio, 3)
+#     FluB_ratio = moving_average(FluB_ratio, 3)
+#     RV_ratio = moving_average(RV_ratio, 3)
+#     RSV_ratio = moving_average(RSV_ratio, 3)
+#     AdV_ratio = moving_average(AdV_ratio, 3)
+#     PIV_ratio = moving_average(PIV_ratio, 3)
+#     CoV_ratio = moving_average(CoV_ratio, 3)
+
+#     FluA_ratio2 = moving_average(FluA_ratio2, 3)
+#     FluB_ratio2 = moving_average(FluB_ratio2, 3)
+#     RV_ratio2 = moving_average(RV_ratio2, 3)
+#     RSV_ratio2 = moving_average(RSV_ratio2, 3)
+#     AdV_ratio2 = moving_average(AdV_ratio2, 3)
+#     PIV_ratio2 = moving_average(PIV_ratio2, 3)
+#     CoV_ratio2 = moving_average(CoV_ratio2, 3)
+
+#     etiology = hcat(FluA_ratio, FluB_ratio, RV_ratio, RSV_ratio, AdV_ratio, PIV_ratio, CoV_ratio)
+#     etiology2 = hcat(FluA_ratio2, FluB_ratio2, RV_ratio2, RSV_ratio2, AdV_ratio2, PIV_ratio2, CoV_ratio2)
+
+#     infected_data = infected_data[42:44, 2:53]'
+
+#     etiology = get_etiology()
+
+#     infected_data_1 = etiology[:, 1] .* infected_data
+#     infected_data_2 = etiology[:, 2] .* infected_data
+#     infected_data_3 = etiology[:, 3] .* infected_data
+#     infected_data_4 = etiology[:, 4] .* infected_data
+#     infected_data_5 = etiology[:, 5] .* infected_data
+#     infected_data_6 = etiology[:, 6] .* infected_data
+#     infected_data_7 = etiology[:, 7] .* infected_data
+#     infected_data_viruses = cat(
+#         infected_data_1,
+#         infected_data_2,
+#         infected_data_3,
+#         infected_data_4,
+#         infected_data_5,
+#         infected_data_6,
+#         infected_data_7,
+#         dims = 3)
+
+#     infected_data_viruses_mean = mean(infected_data_viruses, dims = 2)[:, 1, :]
+
+#     infected_data_1 = etiology[:, 1] .* infected_data
+#     infected_data_2 = etiology[:, 2] .* infected_data
+#     infected_data_3 = etiology[:, 3] .* infected_data
+#     infected_data_4 = etiology[:, 4] .* infected_data
+#     infected_data_5 = etiology[:, 5] .* infected_data
+#     infected_data_6 = etiology[:, 6] .* infected_data
+#     infected_data_7 = etiology[:, 7] .* infected_data
+
+#     infected_data_viruses_1 = cat(
+#         infected_data_1,
+#         infected_data_2,
+#         infected_data_3,
+#         infected_data_4,
+#         infected_data_5,
+#         infected_data_6,
+#         infected_data_7,
+#         dims = 3)
+#     infected_data_1_2 = etiology2[:, 1] .* infected_data
+#     infected_data_2_2 = etiology2[:, 2] .* infected_data
+#     infected_data_3_2 = etiology2[:, 3] .* infected_data
+#     infected_data_4_2 = etiology2[:, 4] .* infected_data
+#     infected_data_5_2 = etiology2[:, 5] .* infected_data
+#     infected_data_6_2 = etiology2[:, 6] .* infected_data
+#     infected_data_7_2 = etiology2[:, 7] .* infected_data
+#     infected_data_viruses_2 = cat(
+#         infected_data_1_2,
+#         infected_data_2_2,
+#         infected_data_3_2,
+#         infected_data_4_2,
+#         infected_data_5_2,
+#         infected_data_6_2,
+#         infected_data_7_2,
+#         dims = 3)
+
+#     infected_data_viruses = (infected_data_viruses_1 + infected_data_viruses_2) ./ 2
+#     infected_data_viruses = cat(infected_data_viruses_1, infected_data_viruses_2, dims = 2)
+
+#     infected_data_viruses_confidence = zeros(Float64, 52, 7)
+#     for i = 1:52
+#         for j = 1:7
+#             infected_data_viruses_confidence[i, j] = confidence(infected_data_viruses[i, :, j])
+#         end
+#     end
+
+#     ticks = range(1, stop = 52, length = 7)
+
+#     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+#     if is_russian
+#         ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+#     end
+
+#     label_names = ["model" "data"]
+#     if is_russian
+#         label_names = ["модель" "данные"]
+#     end
+
+#     xlabel_name = "Month"
+#     if is_russian
+#         xlabel_name = "Месяц"
+#     end
+
+#     ylabel_name = "Weekly incidence rate per 1000"
+#     if is_russian
+#         ylabel_name = "Число случаев на 1000 чел. / неделя"
+#     end
+
+#     viruses = ["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"]
+#     for i in 1:7
+#         incidence_plot = plot(
+#             1:52,
+#             [incidence_arr_mean[:, i] infected_data_viruses_mean[:, i]],
+#             lw = 1.5,
+#             xticks = (ticks, ticklabels),
+#             label = label_names,
+#             grid = true,
+#             legend = (0.9, 0.98),
+#             color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+#             # color = [RGB(0.5, 0.5, 0.5) RGB(0.933, 0.4, 0.467)],
+#             # ribbon = [confidence_model[:, i] infected_data_viruses_confidence[:, i]],
+#             foreground_color_legend = nothing,
+#             background_color_legend = nothing,
+#             xlabel = xlabel_name,
+#             ylabel = ylabel_name,
+#         )
+#         savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "incidence$(viruses[i])_quarantine.pdf" : with_global_warming ? "incidence$(viruses[i])_warming.pdf" : "incidence$(viruses[i]).pdf"))
+#     end
+
+
+#     # incidence_plot = plot(
+#     #     1:52,
+#     #     [incidence_arr_mean[:, i] infected_data_viruses_mean[:, i]],
+#     #     lw = 1.5,
+#     #     xticks = (ticks, ticklabels),
+#     #     label = label_names,
+#     #     grid = true,
+#     #     legend = (0.9, 0.98),
+#     #     color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+#     #     # color = [RGB(0.5, 0.5, 0.5) RGB(0.933, 0.4, 0.467)],
+#     #     ribbon = [confidence_model[:, i] infected_data_viruses_confidence[:, i]],
+#     #     foreground_color_legend = nothing,
+#     #     background_color_legend = nothing,
+#     #     xlabel = xlabel_name,
+#     #     ylabel = ylabel_name,
+#     # )
+#     # savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "incidence$(viruses[i])_quarantine.pdf" : "incidence$(viruses[i]).pdf"))
+# end
+
 function plot_incidence_viruses()
     incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52, 7)
@@ -1192,12 +1527,12 @@ function plot_incidence_viruses()
         end
     end
 
-    confidence_model = zeros(Float64, 52, 7)
-    for i = 1:52
-        for k = 1:7
-            confidence_model[i, k] = confidence([incidence_arr[j, z][i, k] for j = 1:num_runs for z = 1:num_years])
-        end
-    end
+    # confidence_model = zeros(Float64, 52, 7)
+    # for i = 1:52
+    #     for k = 1:7
+    #         confidence_model[i, k] = confidence([incidence_arr[j, z][i, k] for j = 1:num_runs for z = 1:num_years])
+    #     end
+    # end
 
     # incidence_arr = Array{Matrix{Float64}, 1}(undef, num_runs)
 
@@ -1223,83 +1558,224 @@ function plot_incidence_viruses()
     #     end
     # end
 
+    # infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
+
+    # FluA_arr = [1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 25, 50, 60, 75, 310, 1675, 1850, 1500, 1250, 900, 375, 350, 290, 220, 175, 165, 100, 50, 40, 25, 15, 9, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1]
+    # FluA_arr2 = [1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 15, 44, 72, 50, 10, 80, 266, 333, 480, 588, 625, 575, 622, 423, 450, 269, 190, 138, 89, 60, 30, 20, 12, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+
+    # RV_arr = [50.0, 50, 86, 90, 70, 74, 97, 115, 158, 130, 131, 103, 112, 112, 136, 90, 111, 128, 130, 140, 118, 152, 49, 22, 51, 80, 82, 100, 78, 57, 70, 73, 102, 101, 80, 62, 68, 60, 66, 52, 42, 69, 74, 38, 50, 42, 36, 38, 24, 44, 45, 40]
+    # RV_arr2 = [11.0, 10, 20, 24, 10, 20, 41, 42, 43, 54, 42, 52, 39, 37, 20, 15, 20, 38, 41, 28, 30, 21, 9, 1, 10, 50, 62, 52, 31, 40, 36, 41, 42, 32, 84, 71, 78, 72, 32, 28, 39, 37, 72, 67, 41, 52, 40, 24, 40, 39, 36, 30]
+    
+    # RSV_arr = [8.0, 8, 8, 8, 8, 5, 7, 8, 11, 11, 18, 14, 15, 18, 35, 55, 53, 70, 90, 130, 45, 30, 80, 140, 100, 120, 145, 180, 150, 68, 72, 60, 80, 75, 55, 60, 65, 62, 50, 45, 50, 20, 24, 19, 15, 10, 10, 9, 11, 10, 9, 8]
+    # RSV_arr2 = [8.0, 9, 9, 4, 4, 10, 9, 10, 3, 12, 8, 10, 12, 7, 10, 13, 9, 15, 21, 25, 30, 10, 2, 22, 18, 30, 77, 72, 48, 61, 90, 120, 150, 145, 92, 119, 78, 69, 49, 57, 49, 43, 46, 24, 40, 24, 24, 10, 10, 9, 7, 11]
+
+    # AdV_arr = [20.0, 30, 40, 20, 30, 25, 15, 19, 17, 18, 20, 25, 30, 21, 38, 40, 42, 30, 40, 50, 51, 41, 10, 8, 30, 40, 38, 70, 67, 20, 28, 20, 29, 20, 28, 16, 10, 20, 18, 27, 19, 19, 32, 31, 20, 20, 15, 8, 20, 35, 35, 35]
+    # AdV_arr2 = [9.0, 11, 13, 5, 7, 12, 12, 18, 16, 22, 18, 22, 31, 32, 33, 17, 28, 39, 29, 40, 30, 56, 11, 1, 38, 30, 39, 28, 59, 19, 46, 20, 22, 47, 38, 40, 25, 17, 18, 10, 6, 6, 21, 11, 19, 12, 27, 18, 10, 27, 10, 10]
+
+    # PIV_arr = [15.0, 18, 20, 33, 15, 36, 33, 38, 38, 50, 40, 43, 46, 75, 55, 35, 85, 53, 65, 40, 70, 20, 10, 45, 32, 33, 51, 34, 22, 12, 12, 14, 16, 18, 20, 8, 24, 20, 15, 5, 20, 15, 15, 20, 19, 18, 31, 18, 18, 17, 15, 14]
+    # PIV_arr2 = [10.0, 11, 6, 8, 12, 19, 22, 20, 20, 22, 28, 32, 47, 29, 31, 38, 17, 40, 31, 36, 32, 48, 11, 6, 30, 38, 12, 30, 22, 12, 20, 17, 30, 45, 11, 14, 17, 15, 15, 10, 15, 20, 17, 18, 23, 10, 10, 18, 17, 16, 17, 14]
+
+    # CoV_arr = [1.0, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 8, 10, 5, 7, 7, 14, 8, 25, 35, 30, 1, 5, 16, 14, 25, 35, 32, 50, 10, 18, 12, 30, 36, 25, 14, 16, 5, 3, 1, 3, 6, 3, 2, 1, 1, 1, 1, 1, 1, 1]
+    # CoV_arr2 = [5.0, 1, 1, 2, 1, 1, 6, 1, 3, 1, 1, 5, 9, 1, 5, 1, 1, 5, 1, 3, 2, 1, 5, 1, 3, 1, 1, 9, 5, 5, 9, 3, 4, 3, 12, 18, 16, 15, 7, 1, 13, 3, 3, 10, 2, 1, 1, 1, 1, 1, 1, 1]
+
+    # FluA_arr = moving_average(FluA_arr, 3)
+    # RV_arr = moving_average(RV_arr, 3)
+    # RSV_arr = moving_average(RSV_arr, 3)
+    # AdV_arr = moving_average(AdV_arr, 3)
+    # PIV_arr = moving_average(PIV_arr, 3)
+    # CoV_arr = moving_average(CoV_arr, 3)
+
+    # FluA_arr2 = moving_average(FluA_arr2, 3)
+    # RV_arr2 = moving_average(RV_arr2, 3)
+    # RSV_arr2 = moving_average(RSV_arr2, 3)
+    # AdV_arr2 = moving_average(AdV_arr2, 3)
+    # PIV_arr2 = moving_average(PIV_arr2, 3)
+    # CoV_arr2 = moving_average(CoV_arr2, 3)
+
+    # FluB_arr = FluA_arr .* 1/3
+    # FluB_arr2 = FluA_arr2 .* 1/3
+
+    # sum_arr = FluA_arr + FluB_arr + RV_arr + RSV_arr + AdV_arr + PIV_arr + CoV_arr
+    # sum_arr2 = FluA_arr2 + FluB_arr2 + RV_arr2 + RSV_arr2 + AdV_arr2 + PIV_arr2 + CoV_arr2
+
+    # FluA_ratio = FluA_arr ./ sum_arr
+    # FluB_ratio = FluB_arr ./ sum_arr
+    # RV_ratio = RV_arr ./ sum_arr
+    # RSV_ratio = RSV_arr ./ sum_arr
+    # AdV_ratio = AdV_arr ./ sum_arr
+    # PIV_ratio = PIV_arr ./ sum_arr
+    # CoV_ratio = CoV_arr ./ sum_arr
+
+    # FluA_ratio2 = FluA_arr2 ./ sum_arr2
+    # FluB_ratio2 = FluB_arr2 ./ sum_arr2
+    # RV_ratio2 = RV_arr2 ./ sum_arr2
+    # RSV_ratio2 = RSV_arr2 ./ sum_arr2
+    # AdV_ratio2 = AdV_arr2 ./ sum_arr2
+    # PIV_ratio2 = PIV_arr2 ./ sum_arr2
+    # CoV_ratio2 = CoV_arr2 ./ sum_arr2
+
+    # FluA_ratio = moving_average(FluA_ratio, 3)
+    # FluB_ratio = moving_average(FluB_ratio, 3)
+    # RV_ratio = moving_average(RV_ratio, 3)
+    # RSV_ratio = moving_average(RSV_ratio, 3)
+    # AdV_ratio = moving_average(AdV_ratio, 3)
+    # PIV_ratio = moving_average(PIV_ratio, 3)
+    # CoV_ratio = moving_average(CoV_ratio, 3)
+
+    # FluA_ratio2 = moving_average(FluA_ratio2, 3)
+    # FluB_ratio2 = moving_average(FluB_ratio2, 3)
+    # RV_ratio2 = moving_average(RV_ratio2, 3)
+    # RSV_ratio2 = moving_average(RSV_ratio2, 3)
+    # AdV_ratio2 = moving_average(AdV_ratio2, 3)
+    # PIV_ratio2 = moving_average(PIV_ratio2, 3)
+    # CoV_ratio2 = moving_average(CoV_ratio2, 3)
+
+    # etiology = hcat(FluA_ratio, FluB_ratio, RV_ratio, RSV_ratio, AdV_ratio, PIV_ratio, CoV_ratio)
+    # etiology2 = hcat(FluA_ratio2, FluB_ratio2, RV_ratio2, RSV_ratio2, AdV_ratio2, PIV_ratio2, CoV_ratio2)
+
+    # infected_data = infected_data[42:44, 2:53]'
+
+    # etiology = get_etiology()
+
+    # infected_data_1 = etiology[:, 1] .* infected_data
+    # infected_data_2 = etiology[:, 2] .* infected_data
+    # infected_data_3 = etiology[:, 3] .* infected_data
+    # infected_data_4 = etiology[:, 4] .* infected_data
+    # infected_data_5 = etiology[:, 5] .* infected_data
+    # infected_data_6 = etiology[:, 6] .* infected_data
+    # infected_data_7 = etiology[:, 7] .* infected_data
+    # infected_data_viruses = cat(
+    #     infected_data_1,
+    #     infected_data_2,
+    #     infected_data_3,
+    #     infected_data_4,
+    #     infected_data_5,
+    #     infected_data_6,
+    #     infected_data_7,
+    #     dims = 3)
+
+    # infected_data_viruses_mean = mean(infected_data_viruses, dims = 2)[:, 1, :]
+
+    # infected_data_1 = etiology[:, 1] .* infected_data
+    # infected_data_2 = etiology[:, 2] .* infected_data
+    # infected_data_3 = etiology[:, 3] .* infected_data
+    # infected_data_4 = etiology[:, 4] .* infected_data
+    # infected_data_5 = etiology[:, 5] .* infected_data
+    # infected_data_6 = etiology[:, 6] .* infected_data
+    # infected_data_7 = etiology[:, 7] .* infected_data
+
+    # infected_data_viruses_1 = cat(
+    #     infected_data_1,
+    #     infected_data_2,
+    #     infected_data_3,
+    #     infected_data_4,
+    #     infected_data_5,
+    #     infected_data_6,
+    #     infected_data_7,
+    #     dims = 3)
+    # infected_data_1_2 = etiology2[:, 1] .* infected_data
+    # infected_data_2_2 = etiology2[:, 2] .* infected_data
+    # infected_data_3_2 = etiology2[:, 3] .* infected_data
+    # infected_data_4_2 = etiology2[:, 4] .* infected_data
+    # infected_data_5_2 = etiology2[:, 5] .* infected_data
+    # infected_data_6_2 = etiology2[:, 6] .* infected_data
+    # infected_data_7_2 = etiology2[:, 7] .* infected_data
+    # infected_data_viruses_2 = cat(
+    #     infected_data_1_2,
+    #     infected_data_2_2,
+    #     infected_data_3_2,
+    #     infected_data_4_2,
+    #     infected_data_5_2,
+    #     infected_data_6_2,
+    #     infected_data_7_2,
+    #     dims = 3)
+
+    # infected_data_viruses = (infected_data_viruses_1 + infected_data_viruses_2) ./ 2
+    # infected_data_viruses = cat(infected_data_viruses_1, infected_data_viruses_2, dims = 2)
+
+    # infected_data_viruses_confidence = zeros(Float64, 52, 7)
+    # for i = 1:52
+    #     for j = 1:7
+    #         infected_data_viruses_confidence[i, j] = confidence(infected_data_viruses[i, :, j])
+    #     end
+    # end
+
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
 
-    FluA_arr = [1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 25, 50, 60, 75, 310, 1675, 1850, 1500, 1250, 900, 375, 350, 290, 220, 175, 165, 100, 50, 40, 25, 15, 9, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1]
-    FluA_arr2 = [1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 15, 44, 72, 50, 10, 80, 266, 333, 480, 588, 625, 575, 622, 423, 450, 269, 190, 138, 89, 60, 30, 20, 12, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    # FluA_arr = [1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 25, 50, 60, 75, 310, 1675, 1850, 1500, 1250, 900, 375, 350, 290, 220, 175, 165, 100, 50, 40, 25, 15, 9, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1]
+    # FluA_arr2 = [1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 15, 44, 72, 50, 10, 80, 266, 333, 480, 588, 625, 575, 622, 423, 450, 269, 190, 138, 89, 60, 30, 20, 12, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
-    RV_arr = [50.0, 50, 86, 90, 70, 74, 97, 115, 158, 130, 131, 103, 112, 112, 136, 90, 111, 128, 130, 140, 118, 152, 49, 22, 51, 80, 82, 100, 78, 57, 70, 73, 102, 101, 80, 62, 68, 60, 66, 52, 42, 69, 74, 38, 50, 42, 36, 38, 24, 44, 45, 40]
-    RV_arr2 = [11.0, 10, 20, 24, 10, 20, 41, 42, 43, 54, 42, 52, 39, 37, 20, 15, 20, 38, 41, 28, 30, 21, 9, 1, 10, 50, 62, 52, 31, 40, 36, 41, 42, 32, 84, 71, 78, 72, 32, 28, 39, 37, 72, 67, 41, 52, 40, 24, 40, 39, 36, 30]
+    # RV_arr = [50.0, 50, 86, 90, 70, 74, 97, 115, 158, 130, 131, 103, 112, 112, 136, 90, 111, 128, 130, 140, 118, 152, 49, 22, 51, 80, 82, 100, 78, 57, 70, 73, 102, 101, 80, 62, 68, 60, 66, 52, 42, 69, 74, 38, 50, 42, 36, 38, 24, 44, 45, 40]
+    # RV_arr2 = [11.0, 10, 20, 24, 10, 20, 41, 42, 43, 54, 42, 52, 39, 37, 20, 15, 20, 38, 41, 28, 30, 21, 9, 1, 10, 50, 62, 52, 31, 40, 36, 41, 42, 32, 84, 71, 78, 72, 32, 28, 39, 37, 72, 67, 41, 52, 40, 24, 40, 39, 36, 30]
     
-    RSV_arr = [8.0, 8, 8, 8, 8, 5, 7, 8, 11, 11, 18, 14, 15, 18, 35, 55, 53, 70, 90, 130, 45, 30, 80, 140, 100, 120, 145, 180, 150, 68, 72, 60, 80, 75, 55, 60, 65, 62, 50, 45, 50, 20, 24, 19, 15, 10, 10, 9, 11, 10, 9, 8]
-    RSV_arr2 = [8.0, 9, 9, 4, 4, 10, 9, 10, 3, 12, 8, 10, 12, 7, 10, 13, 9, 15, 21, 25, 30, 10, 2, 22, 18, 30, 77, 72, 48, 61, 90, 120, 150, 145, 92, 119, 78, 69, 49, 57, 49, 43, 46, 24, 40, 24, 24, 10, 10, 9, 7, 11]
+    # RSV_arr = [8.0, 8, 8, 8, 8, 5, 7, 8, 11, 11, 18, 14, 15, 18, 35, 55, 53, 70, 90, 130, 45, 30, 80, 140, 100, 120, 145, 180, 150, 68, 72, 60, 80, 75, 55, 60, 65, 62, 50, 45, 50, 20, 24, 19, 15, 10, 10, 9, 11, 10, 9, 8]
+    # RSV_arr2 = [8.0, 9, 9, 4, 4, 10, 9, 10, 3, 12, 8, 10, 12, 7, 10, 13, 9, 15, 21, 25, 30, 10, 2, 22, 18, 30, 77, 72, 48, 61, 90, 120, 150, 145, 92, 119, 78, 69, 49, 57, 49, 43, 46, 24, 40, 24, 24, 10, 10, 9, 7, 11]
 
-    AdV_arr = [20.0, 30, 40, 20, 30, 25, 15, 19, 17, 18, 20, 25, 30, 21, 38, 40, 42, 30, 40, 50, 51, 41, 10, 8, 30, 40, 38, 70, 67, 20, 28, 20, 29, 20, 28, 16, 10, 20, 18, 27, 19, 19, 32, 31, 20, 20, 15, 8, 20, 35, 35, 35]
-    AdV_arr2 = [9.0, 11, 13, 5, 7, 12, 12, 18, 16, 22, 18, 22, 31, 32, 33, 17, 28, 39, 29, 40, 30, 56, 11, 1, 38, 30, 39, 28, 59, 19, 46, 20, 22, 47, 38, 40, 25, 17, 18, 10, 6, 6, 21, 11, 19, 12, 27, 18, 10, 27, 10, 10]
+    # AdV_arr = [20.0, 30, 40, 20, 30, 25, 15, 19, 17, 18, 20, 25, 30, 21, 38, 40, 42, 30, 40, 50, 51, 41, 10, 8, 30, 40, 38, 70, 67, 20, 28, 20, 29, 20, 28, 16, 10, 20, 18, 27, 19, 19, 32, 31, 20, 20, 15, 8, 20, 35, 35, 35]
+    # AdV_arr2 = [9.0, 11, 13, 5, 7, 12, 12, 18, 16, 22, 18, 22, 31, 32, 33, 17, 28, 39, 29, 40, 30, 56, 11, 1, 38, 30, 39, 28, 59, 19, 46, 20, 22, 47, 38, 40, 25, 17, 18, 10, 6, 6, 21, 11, 19, 12, 27, 18, 10, 27, 10, 10]
 
-    PIV_arr = [15.0, 18, 20, 33, 15, 36, 33, 38, 38, 50, 40, 43, 46, 75, 55, 35, 85, 53, 65, 40, 70, 20, 10, 45, 32, 33, 51, 34, 22, 12, 12, 14, 16, 18, 20, 8, 24, 20, 15, 5, 20, 15, 15, 20, 19, 18, 31, 18, 18, 17, 15, 14]
-    PIV_arr2 = [10.0, 11, 6, 8, 12, 19, 22, 20, 20, 22, 28, 32, 47, 29, 31, 38, 17, 40, 31, 36, 32, 48, 11, 6, 30, 38, 12, 30, 22, 12, 20, 17, 30, 45, 11, 14, 17, 15, 15, 10, 15, 20, 17, 18, 23, 10, 10, 18, 17, 16, 17, 14]
+    # PIV_arr = [15.0, 18, 20, 33, 15, 36, 33, 38, 38, 50, 40, 43, 46, 75, 55, 35, 85, 53, 65, 40, 70, 20, 10, 45, 32, 33, 51, 34, 22, 12, 12, 14, 16, 18, 20, 8, 24, 20, 15, 5, 20, 15, 15, 20, 19, 18, 31, 18, 18, 17, 15, 14]
+    # PIV_arr2 = [10.0, 11, 6, 8, 12, 19, 22, 20, 20, 22, 28, 32, 47, 29, 31, 38, 17, 40, 31, 36, 32, 48, 11, 6, 30, 38, 12, 30, 22, 12, 20, 17, 30, 45, 11, 14, 17, 15, 15, 10, 15, 20, 17, 18, 23, 10, 10, 18, 17, 16, 17, 14]
 
-    CoV_arr = [1.0, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 8, 10, 5, 7, 7, 14, 8, 25, 35, 30, 1, 5, 16, 14, 25, 35, 32, 50, 10, 18, 12, 30, 36, 25, 14, 16, 5, 3, 1, 3, 6, 3, 2, 1, 1, 1, 1, 1, 1, 1]
-    CoV_arr2 = [5.0, 1, 1, 2, 1, 1, 6, 1, 3, 1, 1, 5, 9, 1, 5, 1, 1, 5, 1, 3, 2, 1, 5, 1, 3, 1, 1, 9, 5, 5, 9, 3, 4, 3, 12, 18, 16, 15, 7, 1, 13, 3, 3, 10, 2, 1, 1, 1, 1, 1, 1, 1]
+    # CoV_arr = [1.0, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 8, 10, 5, 7, 7, 14, 8, 25, 35, 30, 1, 5, 16, 14, 25, 35, 32, 50, 10, 18, 12, 30, 36, 25, 14, 16, 5, 3, 1, 3, 6, 3, 2, 1, 1, 1, 1, 1, 1, 1]
+    # CoV_arr2 = [5.0, 1, 1, 2, 1, 1, 6, 1, 3, 1, 1, 5, 9, 1, 5, 1, 1, 5, 1, 3, 2, 1, 5, 1, 3, 1, 1, 9, 5, 5, 9, 3, 4, 3, 12, 18, 16, 15, 7, 1, 13, 3, 3, 10, 2, 1, 1, 1, 1, 1, 1, 1]
 
-    FluA_arr = moving_average(FluA_arr, 3)
-    RV_arr = moving_average(RV_arr, 3)
-    RSV_arr = moving_average(RSV_arr, 3)
-    AdV_arr = moving_average(AdV_arr, 3)
-    PIV_arr = moving_average(PIV_arr, 3)
-    CoV_arr = moving_average(CoV_arr, 3)
+    # FluA_arr = moving_average(FluA_arr, 3)
+    # RV_arr = moving_average(RV_arr, 3)
+    # RSV_arr = moving_average(RSV_arr, 3)
+    # AdV_arr = moving_average(AdV_arr, 3)
+    # PIV_arr = moving_average(PIV_arr, 3)
+    # CoV_arr = moving_average(CoV_arr, 3)
 
-    FluA_arr2 = moving_average(FluA_arr2, 3)
-    RV_arr2 = moving_average(RV_arr2, 3)
-    RSV_arr2 = moving_average(RSV_arr2, 3)
-    AdV_arr2 = moving_average(AdV_arr2, 3)
-    PIV_arr2 = moving_average(PIV_arr2, 3)
-    CoV_arr2 = moving_average(CoV_arr2, 3)
+    # FluA_arr2 = moving_average(FluA_arr2, 3)
+    # RV_arr2 = moving_average(RV_arr2, 3)
+    # RSV_arr2 = moving_average(RSV_arr2, 3)
+    # AdV_arr2 = moving_average(AdV_arr2, 3)
+    # PIV_arr2 = moving_average(PIV_arr2, 3)
+    # CoV_arr2 = moving_average(CoV_arr2, 3)
 
-    FluB_arr = FluA_arr .* 1/3
-    FluB_arr2 = FluA_arr2 .* 1/3
+    # FluB_arr = FluA_arr .* 1/3
+    # FluB_arr2 = FluA_arr2 .* 1/3
 
-    sum_arr = FluA_arr + FluB_arr + RV_arr + RSV_arr + AdV_arr + PIV_arr + CoV_arr
-    sum_arr2 = FluA_arr2 + FluB_arr2 + RV_arr2 + RSV_arr2 + AdV_arr2 + PIV_arr2 + CoV_arr2
+    # sum_arr = FluA_arr + FluB_arr + RV_arr + RSV_arr + AdV_arr + PIV_arr + CoV_arr
+    # sum_arr2 = FluA_arr2 + FluB_arr2 + RV_arr2 + RSV_arr2 + AdV_arr2 + PIV_arr2 + CoV_arr2
 
-    FluA_ratio = FluA_arr ./ sum_arr
-    FluB_ratio = FluB_arr ./ sum_arr
-    RV_ratio = RV_arr ./ sum_arr
-    RSV_ratio = RSV_arr ./ sum_arr
-    AdV_ratio = AdV_arr ./ sum_arr
-    PIV_ratio = PIV_arr ./ sum_arr
-    CoV_ratio = CoV_arr ./ sum_arr
+    # FluA_ratio = FluA_arr ./ sum_arr
+    # FluB_ratio = FluB_arr ./ sum_arr
+    # RV_ratio = RV_arr ./ sum_arr
+    # RSV_ratio = RSV_arr ./ sum_arr
+    # AdV_ratio = AdV_arr ./ sum_arr
+    # PIV_ratio = PIV_arr ./ sum_arr
+    # CoV_ratio = CoV_arr ./ sum_arr
 
-    FluA_ratio2 = FluA_arr2 ./ sum_arr2
-    FluB_ratio2 = FluB_arr2 ./ sum_arr2
-    RV_ratio2 = RV_arr2 ./ sum_arr2
-    RSV_ratio2 = RSV_arr2 ./ sum_arr2
-    AdV_ratio2 = AdV_arr2 ./ sum_arr2
-    PIV_ratio2 = PIV_arr2 ./ sum_arr2
-    CoV_ratio2 = CoV_arr2 ./ sum_arr2
+    # FluA_ratio2 = FluA_arr2 ./ sum_arr2
+    # FluB_ratio2 = FluB_arr2 ./ sum_arr2
+    # RV_ratio2 = RV_arr2 ./ sum_arr2
+    # RSV_ratio2 = RSV_arr2 ./ sum_arr2
+    # AdV_ratio2 = AdV_arr2 ./ sum_arr2
+    # PIV_ratio2 = PIV_arr2 ./ sum_arr2
+    # CoV_ratio2 = CoV_arr2 ./ sum_arr2
 
-    FluA_ratio = moving_average(FluA_ratio, 3)
-    FluB_ratio = moving_average(FluB_ratio, 3)
-    RV_ratio = moving_average(RV_ratio, 3)
-    RSV_ratio = moving_average(RSV_ratio, 3)
-    AdV_ratio = moving_average(AdV_ratio, 3)
-    PIV_ratio = moving_average(PIV_ratio, 3)
-    CoV_ratio = moving_average(CoV_ratio, 3)
+    # FluA_ratio = moving_average(FluA_ratio, 3)
+    # FluB_ratio = moving_average(FluB_ratio, 3)
+    # RV_ratio = moving_average(RV_ratio, 3)
+    # RSV_ratio = moving_average(RSV_ratio, 3)
+    # AdV_ratio = moving_average(AdV_ratio, 3)
+    # PIV_ratio = moving_average(PIV_ratio, 3)
+    # CoV_ratio = moving_average(CoV_ratio, 3)
 
-    FluA_ratio2 = moving_average(FluA_ratio2, 3)
-    FluB_ratio2 = moving_average(FluB_ratio2, 3)
-    RV_ratio2 = moving_average(RV_ratio2, 3)
-    RSV_ratio2 = moving_average(RSV_ratio2, 3)
-    AdV_ratio2 = moving_average(AdV_ratio2, 3)
-    PIV_ratio2 = moving_average(PIV_ratio2, 3)
-    CoV_ratio2 = moving_average(CoV_ratio2, 3)
+    # FluA_ratio2 = moving_average(FluA_ratio2, 3)
+    # FluB_ratio2 = moving_average(FluB_ratio2, 3)
+    # RV_ratio2 = moving_average(RV_ratio2, 3)
+    # RSV_ratio2 = moving_average(RSV_ratio2, 3)
+    # AdV_ratio2 = moving_average(AdV_ratio2, 3)
+    # PIV_ratio2 = moving_average(PIV_ratio2, 3)
+    # CoV_ratio2 = moving_average(CoV_ratio2, 3)
 
-    etiology = hcat(FluA_ratio, FluB_ratio, RV_ratio, RSV_ratio, AdV_ratio, PIV_ratio, CoV_ratio)
-    etiology2 = hcat(FluA_ratio2, FluB_ratio2, RV_ratio2, RSV_ratio2, AdV_ratio2, PIV_ratio2, CoV_ratio2)
+    # etiology = hcat(FluA_ratio, FluB_ratio, RV_ratio, RSV_ratio, AdV_ratio, PIV_ratio, CoV_ratio)
+    # etiology2 = hcat(FluA_ratio2, FluB_ratio2, RV_ratio2, RSV_ratio2, AdV_ratio2, PIV_ratio2, CoV_ratio2)
 
-    infected_data = infected_data[42:44, 2:53]'
-
+    infected_data = transpose(infected_data[42:(41 + num_years), 2:53])
     etiology = get_etiology()
 
     infected_data_1 = etiology[:, 1] .* infected_data
@@ -1310,60 +1786,65 @@ function plot_incidence_viruses()
     infected_data_6 = etiology[:, 6] .* infected_data
     infected_data_7 = etiology[:, 7] .* infected_data
     infected_data_viruses = cat(
-        infected_data_1,
-        infected_data_2,
-        infected_data_3,
-        infected_data_4,
-        infected_data_5,
-        infected_data_6,
-        infected_data_7,
-        dims = 3)
+        vec(infected_data_1),
+        vec(infected_data_2),
+        vec(infected_data_3),
+        vec(infected_data_4),
+        vec(infected_data_5),
+        vec(infected_data_6),
+        vec(infected_data_7),
+        dims = 2)
 
-    infected_data_viruses_mean = mean(infected_data_viruses, dims = 2)[:, 1, :]
+    # infected_data_1 = etiology[:, 1] .* infected_data
+    # infected_data_2 = etiology[:, 2] .* infected_data
+    # infected_data_3 = etiology[:, 3] .* infected_data
+    # infected_data_4 = etiology[:, 4] .* infected_data
+    # infected_data_5 = etiology[:, 5] .* infected_data
+    # infected_data_6 = etiology[:, 6] .* infected_data
+    # infected_data_7 = etiology[:, 7] .* infected_data
 
-    infected_data_1 = etiology[:, 1] .* infected_data
-    infected_data_2 = etiology[:, 2] .* infected_data
-    infected_data_3 = etiology[:, 3] .* infected_data
-    infected_data_4 = etiology[:, 4] .* infected_data
-    infected_data_5 = etiology[:, 5] .* infected_data
-    infected_data_6 = etiology[:, 6] .* infected_data
-    infected_data_7 = etiology[:, 7] .* infected_data
+    # infected_data_viruses_1 = cat(
+    #     infected_data_1,
+    #     infected_data_2,
+    #     infected_data_3,
+    #     infected_data_4,
+    #     infected_data_5,
+    #     infected_data_6,
+    #     infected_data_7,
+    #     dims = 3)
 
-    infected_data_viruses_1 = cat(
-        infected_data_1,
-        infected_data_2,
-        infected_data_3,
-        infected_data_4,
-        infected_data_5,
-        infected_data_6,
-        infected_data_7,
-        dims = 3)
-    infected_data_1_2 = etiology2[:, 1] .* infected_data
-    infected_data_2_2 = etiology2[:, 2] .* infected_data
-    infected_data_3_2 = etiology2[:, 3] .* infected_data
-    infected_data_4_2 = etiology2[:, 4] .* infected_data
-    infected_data_5_2 = etiology2[:, 5] .* infected_data
-    infected_data_6_2 = etiology2[:, 6] .* infected_data
-    infected_data_7_2 = etiology2[:, 7] .* infected_data
-    infected_data_viruses_2 = cat(
-        infected_data_1_2,
-        infected_data_2_2,
-        infected_data_3_2,
-        infected_data_4_2,
-        infected_data_5_2,
-        infected_data_6_2,
-        infected_data_7_2,
-        dims = 3)
+    # infected_data_1_2 = etiology2[:, 1] .* infected_data
+    # infected_data_2_2 = etiology2[:, 2] .* infected_data
+    # infected_data_3_2 = etiology2[:, 3] .* infected_data
+    # infected_data_4_2 = etiology2[:, 4] .* infected_data
+    # infected_data_5_2 = etiology2[:, 5] .* infected_data
+    # infected_data_6_2 = etiology2[:, 6] .* infected_data
+    # infected_data_7_2 = etiology2[:, 7] .* infected_data
+    # infected_data_viruses_2 = cat(
+    #     vec(infected_data_1_2),
+    #     vec(infected_data_2_2),
+    #     vec(infected_data_3_2),
+    #     vec(infected_data_4_2),
+    #     vec(infected_data_5_2),
+    #     vec(infected_data_6_2),
+    #     vec(infected_data_7_2),
+    #     dims = 2)
 
-    infected_data_viruses = (infected_data_viruses_1 + infected_data_viruses_2) ./ 2
-    infected_data_viruses = cat(infected_data_viruses_1, infected_data_viruses_2, dims = 2)
+    # infected_data_viruses = (infected_data_viruses_1 + infected_data_viruses_2) ./ 2
 
-    infected_data_viruses_confidence = zeros(Float64, 52, 7)
-    for i = 1:52
-        for j = 1:7
-            infected_data_viruses_confidence[i, j] = confidence(infected_data_viruses[i, :, j])
-        end
-    end
+    infected_data_viruses_mean = copy(infected_data_viruses[1:52, :])
+    infected_data_viruses_mean .+= infected_data_viruses[53:104, :]
+    infected_data_viruses_mean .+= infected_data_viruses[105:156, :]
+    infected_data_viruses_mean ./= 3
+
+    # for i = 1:52
+    #     for v = 1:7
+    #         for j = 1:num_years
+    #             infected_data_viruses[i, v] += infected_data_viruses[(52 * (j - 1) + i), v]
+    #         end
+    #         infected_data_viruses[i, v] /= num_years
+    #     end
+    # end
 
     ticks = range(1, stop = 52, length = 7)
 
@@ -2537,17 +3018,151 @@ function print_statistics()
     println("CoV nMAE: $(nMAE)")
 end
 
-plot_incidence_time_series()
-plot_incidence_age_groups_time_series()
-plot_incidence_viruses_time_series()
-plot_rt_time_series()
+function plot_closures_time_series()
+    num_years = 3
+    num_runs_quarantine = 5
+    num_schools_closed = Array{Vector{Float64}, 1}(undef, num_runs_quarantine + 1)
+    
+    # num_schools_closed_model = zeros(Float64, 365 * num_years)
+    # num_schools_closed_model = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_1.jld"))["num_schools_closed"]
+    
+    num_schools_closed[1] = zeros(Float64, (365 * num_years))
+    for i = 1:num_runs_quarantine
+        num_schools_closed[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["num_schools_closed"][1:(365 * num_years)]
+        num_schools_closed[i + 1] = moving_average(num_schools_closed[i + 1], 20)
+    end
+
+    ticks = range(1, stop = 365, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Number of school closures"
+    if is_russian
+        ylabel_name = "Число закрытий"
+    end
+
+    label_names = ["базовый" "порог 0.2" "порог 0.1" "порог 0.3" "порог 0.2, 14 дней" "порог 0.1, 14 дней"]
+    if is_russian
+        label_names = ["базовый" "порог 0.2" "порог 0.1" "порог 0.3" "порог 0.2, 14 дней" "порог 0.1, 14 дней"]
+    end
+
+    for i = 1:(num_runs_quarantine + 1)
+        num_schools_closed[i] = moving_average(num_schools_closed[i], 3)
+    end
+
+    closures_plot = plot(
+        1:(365 * num_years),
+        [num_schools_closed[i] for i = 1:(num_runs_quarantine + 1)],
+        lw = 1.5,
+        label = label_names,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        xticks = (ticks, ticklabels),
+        # yticks = ([0, 20, 40, 60], ["0", "20", "40", "60"]),
+        grid = true,
+        # legend = false,
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Temperature, °C}",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    savefig(closures_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "num_closures_time_series.pdf"))
+end
+
+function plot_temperature_time_series()
+    num_years = 3
+    num_runs_temp = 2
+    temperature = Array{Vector{Float64}, 1}(undef, num_runs_temp + 1)
+    temperature_data_rearranged = Array{Vector{Float64}, 1}(undef, num_runs_temp + 1)
+    
+    # temperature_model = zeros(Float64, 365 * num_years)
+    # temperature_model = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_1.jld"))["temperature"]
+    
+    temperature[1] = get_air_temperature()
+    temperature_data_rearranged[1] = Float64[]
+    append!(temperature_data_rearranged[1], temperature_data[1][213:end])
+    append!(temperature_data_rearranged[1], temperature_data[1][1:212])
+
+    for i = 1:num_runs_temp
+        temperature[i + 1] = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "temperature.csv"), ',', Float64, '\n')
+        temperature[i + 1] = moving_average(temperature[i + 1], 20)
+    end
+
+    temperature_data = get_air_temperature()
+    temperature_data_rearranged = Float64[]
+    append!(temperature_data_rearranged, temperature_data[213:end])
+    append!(temperature_data_rearranged, temperature_data[1:212])
+
+    ticks = range(1, stop = 365, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    label_names = ["warming" "base"]
+    if is_russian
+        label_names = ["потепление" "базовый"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Temperature, °C"
+    if is_russian
+        ylabel_name = "Температура, °C"
+    end
+
+    temperature_plot = plot(
+        1:365,
+        [temperature_data_rearranged .+ 2.0 temperature_data_rearranged],
+        lw = 1.5,
+        label = label_names,
+        color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+        xticks = (ticks, ticklabels),
+        grid = true,
+        # legend = (0.51, 0.91),
+        legend = (0.42, 0.98),
+        right_margin = 14Plots.mm,
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Temperature, °C}",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "temperature.pdf"))
+end
+
+# plot_incidence_time_series()
+# plot_incidence_age_groups_time_series()
+# plot_incidence_viruses_time_series()
+# plot_rt_time_series()
 # print_statistics_time_series()
 
-plot_incidence()
-plot_incidence_age_groups()
-plot_incidence_viruses()
-plot_rt()
-plot_infection_activities()
+# plot_incidence()
+# plot_incidence_age_groups()
+# plot_incidence_viruses()
+# plot_rt()
+# plot_infection_activities()
+
+# plot_incidence_quarantine_time_series()
+# plot_closures_time_series()
+
+plot_incidence_warming_time_series()
+# plot_temperature_time_series()
+
 
 # plot_incidence_scenarios()
 # plot_incidence_scenarios_quaranteen()

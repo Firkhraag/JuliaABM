@@ -882,7 +882,7 @@ end
 
 function plot_infection_curves()
     # num_runs = 300
-    num_runs = 60
+    num_runs = 10
     num_years = 3
 
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
@@ -1372,12 +1372,14 @@ function plot_infection_curves()
     end
 
     incidence_plot = plot(
-        1:(365 * num_years),
+        1:(52 * num_years),
         [incidence_arr_means[:, i] for i = 1:num_runs],
         lw = 1,
         xticks = (ticks, ticklabels),
         legend = false,
         grid = true,
+        xrotation = 45,
+        size = (800, 500),
         color = [:grey for i = 1:num_runs],
         xlabel = xlabel_name,
         ylabel = ylabel_name,

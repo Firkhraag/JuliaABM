@@ -1213,17 +1213,14 @@ function run_simulation(
     if with_global_warming
         for i = 1:length(temperature)
             temperature[i] += rand(Normal(2.0, 0.5))
+            # temperature[i] += rand(Normal(1.0, 0.25))
         end
     end
-    # Минимальная температура воздуха
-    min_temp = minimum(temperature)
-    # Max - Min температура
-    max_min_temp = maximum(temperature) - minimum(temperature)
-
+    temperature_record = copy(temperature)
     # # Минимальная температура воздуха
-    # min_temp = -7.2
+    min_temp = -7.2
     # # Max - Min температура
-    # max_min_temp = 26.6
+    max_min_temp = 26.6
 
     num_viruses = 7
 
@@ -1580,17 +1577,15 @@ function run_simulation(
             temperature = copy(temperature_base)
             for i = 1:length(temperature)
                 temperature[i] += rand(Normal(2.0, 0.5))
+                # temperature[i] += rand(Normal(1.0, 0.25))
             end
-            # Минимальная температура воздуха
-            min_temp = minimum(temperature)
-            # Max - Min температура
-            max_min_temp = maximum(temperature) - minimum(temperature)
+            append!(temperature_record, temperature)
         end
     end
 
     if with_global_warming
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "temperature.csv"), temperature, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "temperature_2.csv"), temperature_record, ',')
     end
 
     rt = sum(rt_threads, dims = 2)[:, 1]
