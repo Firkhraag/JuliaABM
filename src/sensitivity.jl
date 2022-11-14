@@ -35,8 +35,8 @@ function main()
 
     num_threads = nthreads()
 
-    starting_bias = 48
-    n = 300
+    starting_bias = 60
+    n = 40
     disturbance = 0.05
 
     num_years = 3

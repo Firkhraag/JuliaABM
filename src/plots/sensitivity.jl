@@ -1086,7 +1086,7 @@ function plot_infection_curves()
     for i = 1:num_runs
         println("Run: $(i)")
         observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
-        incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
+        incidence_arr[i] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[1:(52 * num_years), :, 1], dims = 2)[:, 1]
 
         # isolation_probabilities_day_1[i] = load(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "results_$(i).jld"))["isolation_probabilities_day_1"]
         isolation_probability_day_1_1[i] = load(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "results_$(i).jld"))["isolation_probabilities_day_1"][1]
@@ -1283,16 +1283,16 @@ function plot_infection_curves()
 
     for i = 1:(52 * num_years)
         for j = 1:num_runs
-            incidence_arr_means[i, j] = incidence_arr[j, k][i]
+            incidence_arr_means[i, j] = incidence_arr[j][i]
         end
     end
 
-    incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs)
+    incidence_arr = Array{Matrix{Float64}, 1}(undef, num_runs)
     incidence_arr_mean = zeros(Float64, (52 * num_years), 4)
 
     for i = 1:num_runs
         observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "results_$(i).jld"))["observed_cases"]
-        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :]
+        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 2)[1:(52 * num_years), 1, :]
     end
 
     incidence_arr_mean_age_groups = zeros(Float64, (52 * num_years), 4, num_runs)
@@ -1305,12 +1305,12 @@ function plot_infection_curves()
     end
 
     # General age groups
-    incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs)
+    incidence_arr = Array{Matrix{Float64}, 1}(undef, num_runs)
     viruses_mean = zeros(Float64, (52 * num_years), 7)
 
     for i = 1:10
         observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
-        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1]
+        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 3)[1:(52 * num_years), :, 1]
     end
 
     for i = 1:(52 * num_years)
@@ -1322,12 +1322,12 @@ function plot_infection_curves()
         end
     end
 
-    incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs)
+    incidence_arr = Array{Matrix{Float64}, 1}(undef, num_runs)
     incidence_arr_mean_viruses = zeros(Float64, (52 * num_years), 7, num_runs)
 
     for i = 1:num_runs
         observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "results_$(i).jld"))["observed_cases"]
-        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1]
+        incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 3)[1:(52 * num_years), :, 1]
     end
 
     for i = 1:(52 * num_years)
@@ -1338,7 +1338,7 @@ function plot_infection_curves()
         end
     end
 
-    rt_arr = Array{Vector{Float64}, 2}(undef, num_runs)
+    rt_arr = Array{Vector{Float64}, 1}(undef, num_runs)
     rt_arr_means = zeros(Float64, (365 * num_years), num_runs)
 
     for i = 1:num_runs
@@ -1668,7 +1668,7 @@ function plot_incidences()
     num_runs = 1
     num_years = 3
 
-    incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs)
+    incidence_arr = Array{Vector{Float64}, 1}(undef, num_runs)
     incidence = zeros(Float64, (52 * num_years))
 
     for i = 1:num_runs

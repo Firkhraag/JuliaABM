@@ -1212,7 +1212,7 @@ function run_simulation(
     temperature = copy(temperature_base)
     if with_global_warming
         for i = 1:length(temperature)
-            temperature += rand(Normal(2.0, 0.5))
+            temperature[i] += rand(Normal(2.0, 0.5))
         end
     end
     # Минимальная температура воздуха
@@ -1579,7 +1579,7 @@ function run_simulation(
         if with_global_warming && current_step % 365 == 0
             temperature = copy(temperature_base)
             for i = 1:length(temperature)
-                temperature += rand(Normal(2.0, 0.5))
+                temperature[i] += rand(Normal(2.0, 0.5))
             end
             # Минимальная температура воздуха
             min_temp = minimum(temperature)
@@ -1589,7 +1589,8 @@ function run_simulation(
     end
 
     if with_global_warming
-
+        writedlm(
+            joinpath(@__DIR__, "..", "..", "output", "tables", "temperature.csv"), temperature, ',')
     end
 
     rt = sum(rt_threads, dims = 2)[:, 1]
