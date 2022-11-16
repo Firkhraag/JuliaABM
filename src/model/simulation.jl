@@ -1212,8 +1212,8 @@ function run_simulation(
     temperature = copy(temperature_base)
     if with_global_warming
         for i = 1:length(temperature)
-            temperature[i] += rand(Normal(2.0, 0.5))
-            # temperature[i] += rand(Normal(1.0, 0.25))
+            # temperature[i] += rand(Normal(2.0, 0.5))
+            temperature[i] += rand(Normal(1.0, 0.25))
         end
     end
     temperature_record = copy(temperature)
@@ -1576,8 +1576,8 @@ function run_simulation(
         if with_global_warming && current_step % 365 == 0
             temperature = copy(temperature_base)
             for i = 1:length(temperature)
-                temperature[i] += rand(Normal(2.0, 0.5))
-                # temperature[i] += rand(Normal(1.0, 0.25))
+                # temperature[i] += rand(Normal(2.0, 0.5))
+                temperature[i] += rand(Normal(1.0, 0.25))
             end
             append!(temperature_record, temperature)
         end
@@ -1585,7 +1585,7 @@ function run_simulation(
 
     if with_global_warming
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "temperature_2.csv"), temperature_record, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "temperature_4.csv"), temperature_record, ',')
     end
 
     rt = sum(rt_threads, dims = 2)[:, 1]

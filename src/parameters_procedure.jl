@@ -13,14 +13,18 @@ include("util/regression.jl")
 function main()
     with_prediction = true
 
-    num_runs_1 = 220
+    # num_runs_1 = 220
+    num_runs_1 = 219
     num_runs_2 = 147
-    num_runs_3 = 98
-    num_runs = num_runs_1 + num_runs_2 + num_runs_3
+    # num_runs_3 = 98
+    num_runs_3 = 85
+    num_runs_4 = 312
+    num_runs_5 = 2 + 1
+    num_runs = num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4 + num_runs_5
     num_years = 2
 
-    forest_num_rounds = 120
-    forest_max_depth = 7
+    forest_num_rounds = 100
+    forest_max_depth = 5
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_runs)
     duration_parameters = Array{Float64, 1}(undef, num_runs)
@@ -58,6 +62,26 @@ function main()
         immune_memory_susceptibility_levels[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "3", "tables", "results_$(i).jld"))["immune_memory_susceptibility_levels"]
         mean_immunity_durations[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "3", "tables", "results_$(i).jld"))["mean_immunity_durations"]
         random_infection_probabilities[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "3", "tables", "results_$(i).jld"))["random_infection_probabilities"]
+    end
+
+    for i = 1:num_runs_4
+        incidence_arr[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
+        duration_parameters[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["duration_parameter"]
+        susceptibility_parameters[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["susceptibility_parameters"]
+        temperature_parameters[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["temperature_parameters"]
+        immune_memory_susceptibility_levels[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["immune_memory_susceptibility_levels"]
+        mean_immunity_durations[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["mean_immunity_durations"]
+        random_infection_probabilities[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["random_infection_probabilities"]
+    end
+
+    for i = 1:num_runs_5
+        incidence_arr[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
+        duration_parameters[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["duration_parameter"]
+        susceptibility_parameters[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["susceptibility_parameters"]
+        temperature_parameters[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["temperature_parameters"]
+        immune_memory_susceptibility_levels[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["immune_memory_susceptibility_levels"]
+        mean_immunity_durations[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["mean_immunity_durations"]
+        random_infection_probabilities[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["random_infection_probabilities"]
     end
 
     num_params = 33
@@ -172,17 +196,22 @@ function main()
 
     y = zeros(Float64, num_runs)
     for i = 1:num_runs
-        sum = 0.0
-        for w = 1:size(num_infected_age_groups_viruses)[1]
-            for v = 1:size(num_infected_age_groups_viruses)[2]
-                for a = 1:size(num_infected_age_groups_viruses)[3]
-                    sum += (num_infected_age_groups_viruses[w, v, a] - incidence_arr[i][w, v, a])^2
-                end
-            end
-        end
-        # sum /= size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3]
-        y[i] = sum
+        y[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
     end
+
+    # y = zeros(Float64, num_runs)
+    # for i = 1:num_runs
+    #     sum = 0.0
+    #     for w = 1:size(num_infected_age_groups_viruses)[1]
+    #         for v = 1:size(num_infected_age_groups_viruses)[2]
+    #             for a = 1:size(num_infected_age_groups_viruses)[3]
+    #                 sum += (num_infected_age_groups_viruses[w, v, a] - incidence_arr[i][w, v, a])^2
+    #             end
+    #         end
+    #     end
+    #     # sum /= size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3]
+    #     y[i] = sum
+    # end
 
     # y = zeros(Float64, num_runs)
     # for i = 1:num_runs
@@ -208,6 +237,14 @@ function main()
 
     pos_min_y = argmin(y)
 
+    println(duration_parameters[pos_min_y])
+    println(susceptibility_parameters[pos_min_y])
+    println(temperature_parameters[pos_min_y])
+    println(immune_memory_susceptibility_levels[pos_min_y])
+    println(mean_immunity_durations[pos_min_y])
+    println(random_infection_probabilities[pos_min_y])
+    # return
+
     # if in3_4 && duration_parameters[pos_min_y] > 4
     #     min_v = 999999.0
     #     for i = 1:length(y)
@@ -223,10 +260,10 @@ function main()
     bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror")
 
     if with_prediction
-        num_global_iterations = 200
-        num_samples = 1500
+        num_global_iterations = 300
+        num_samples = 1000
         num_parameters = 33
-        @time latin_hypercube_plan, _ = LHCoptim(num_samples, num_parameters, 5)
+        @time latin_hypercube_plan, _ = LHCoptim(num_samples, num_parameters, 10)
 
         duration_parameter_default = duration_parameters[pos_min_y]
         susceptibility_parameters_default = susceptibility_parameters[pos_min_y]
@@ -337,9 +374,9 @@ function main()
 
                 r = reshape(par_vec, 1, :)
 
-                SSE = predict(bst, r)[1]
-                if SSE < min_value
-                    min_value = SSE
+                nMAE = predict(bst, r)[1]
+                if nMAE < min_value
+                    min_value = nMAE
                     duration_parameter_default = duration_parameter
                     for j = 1:num_viruses
                         susceptibility_parameters_default[j] = susceptibility_parameters[j]

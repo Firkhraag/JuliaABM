@@ -42,8 +42,8 @@ function main()
         run_num = 0
     end
 
-    num_years = 3
-    # num_years = 2
+    # num_years = 3
+    num_years = 2
     # num_years = 1
 
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -57,8 +57,8 @@ function main()
     # school_class_closure_period = 14
     # school_class_closure_threshold = 0.3
 
-    # with_global_warming = false
-    with_global_warming = true
+    with_global_warming = false
+    # with_global_warming = true
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     num_threads = nthreads()
@@ -924,15 +924,60 @@ function main()
     # random_infection_probabilities = [0.001583765738871807, 0.0008196130504390182, 0.00037839292077847757, 9.342970302294002e-6]
 
     # CHANGE THE INDEX OF OUTPUT FILE!!!!!!!!!!
-    surrogate_index = 99
+    # surrogate_index = 99
+    surrogate_index = 5
     # ------------------------
 
-    duration_parameter = 3.3695943816524907
-    susceptibility_parameters = [3.0307005776255167, 3.1607934669677986, 3.4273238632802836, 4.3725990337370515, 3.67390987352247, 3.8281846882573243, 4.746937978511825]
-    temperature_parameters = [-0.95, -0.8874797488598941, -0.05, -0.11936936936936937, -0.11488698235671589, -0.17735457724319717, -0.31083867585078234]
-    immune_memory_susceptibility_levels = [0.9381002876402393, 0.95, 0.9278778778778778, 0.8938438438438437, 0.9185685685685685, 0.8678178178178176, 0.9288288288288288]  
-    mean_immunity_durations = [346.6586428571901, 313.6876979491992, 143.00214714069438, 94.5655000618681, 113.27047767241473, 139.89128281137963, 161.06429368899117]    
-    random_infection_probabilities = [0.0013770303094598375, 0.0007744184671858813, 0.00041302869187678077, 9.182178576371385e-6]
+    duration_parameter = 4.8033859771334715
+    susceptibility_parameters = [2.1302565209235693, 7.908934908934909, 1.717611386692406, 3.068929126329641, 7.575414973124677, 2.433205512650116, 3.234138346763598]
+    temperature_parameters = [-0.878933514922636, -0.7678062369015706, -0.20908534137849918, -0.28115928250483085, -0.4879432716277838, -0.23045727015380618, -0.7669755539351877]
+    random_infection_probabilities = [0.0012870609379716652, 0.0012453901003999473, 0.0004477505283300794, 4.280009068589645e-6]
+    immune_memory_susceptibility_levels = [0.8218802390717649, 0.5529608458179887, 0.778577452754378, 0.9474747474747475, 0.544997966426538, 0.9534944963516391, 0.5196440410726125]
+    mean_immunity_durations = [154.61125519241753, 124.19119518088888, 135.54720262478634, 307.23641821408785, 286.74767719113566, 298.5839902275631, 197.43664265765608]
+
+    # 4
+    # 0.62713546
+    duration_parameter = 4.940523114270608
+    susceptibility_parameters = [2.189515780182829, 7.757857857857859, 1.7360298051108247, 3.105966163366678, 7.7277673254770285, 2.53730961675422, 3.2011053137305647]
+    temperature_parameters = [-0.9501046860938073, -0.7207591898545235, -0.21969595198910977, -0.29287099421654256, -0.48954487322938545, -0.2804072201037561, -0.7011096880693217]
+    immune_memory_susceptibility_levels = [0.7257841429756687, 0.5805805805805806, 0.7858847600616852, 0.8947219947219947, 0.6341841841841842, 0.9358358358358357, 0.5633633633633635]
+    mean_immunity_durations = [160.15680073796307, 147.1941981838919, 151.72337880096254, 301.6708526485223, 284.4453748888334, 293.8392454828184, 206.62583184684524]    
+    random_infection_probabilities = [0.001112909891612994, 0.0010581409277449162, 0.0004904879215270107, 3.811982917527814e-6]
+
+    # 3
+    # 0.6584484
+    # duration_parameter = 4.728684002431497
+    # susceptibility_parameters = [2.1412584319254804, 7.8076791076791086, 1.6284403975214168, 3.1222278796283947, 7.68913778684749, 2.4156151950597984, 3.154394967020218]
+    # temperature_parameters = [-0.8869824729715942, -0.778266697362031, -0.2254881077812656, -0.2618718132173615, -0.46109369477820694, -0.20691099660753265, -0.8127986497582834]
+    # immune_memory_susceptibility_levels = [0.8211112883028141, 0.5605912034483463, 0.7291871533640786, 0.9648648648648648, 0.538031909460481, 0.9477569406140833, 0.5493493493493494]
+    # mean_immunity_durations = [145.90027148143383, 112.45900844870215, 127.83357991116362, 303.383929361599, 286.2858517293102, 306.1829528265257, 206.5571267781402]     
+    # random_infection_probabilities = [0.001260938486878583, 0.0013152146707368297, 0.0005208346560739824, 4.4720401221044715e-6]
+
+    # 2
+    # 0.6635672
+    # duration_parameter = 4.838677669568021
+    # susceptibility_parameters = [2.142171589981496, 7.810810810810811, 1.5359581193248528, 3.054932012332527, 7.554202851912556, 2.5761451127325734, 3.1624417893527546]
+    # temperature_parameters = [-0.8517329377220588, -0.8100964863346771, -0.20031395403568328, -0.2736969036138805, -0.47544069483949264, -0.23019959132469878, -0.7509582379178716]
+    # immune_memory_susceptibility_levels = [0.7807443907930594, 0.5898398398398399, 0.7357100027440707, 0.9164838849207587, 0.5615615615615617, 0.943043043043043, 0.5264570693142121]
+    # mean_immunity_durations = [155.31111089227323, 126.49896677437476, 132.8611585101708, 306.5489310980293, 291.9929874364459, 307.1595416602574, 204.19813513343428]    
+    # random_infection_probabilities = [0.0013105878953824344, 0.001230945333728642, 0.00045769050755017416, 4.687217753836495e-6]
+
+    # 1
+    # nMAE = 0.693222 0.71836257
+    # duration_parameter = 4.882795256542751
+    # susceptibility_parameters = [2.25350537274385, 7.851251251251251, 1.4807600641267977, 3.14082402679597, 7.367881837020114, 2.6350407430567753, 3.2414820541073053]
+    # temperature_parameters = [-0.8562844279878348, -0.8244669792765985, -0.3103535855038861, -0.3026442182754809, -0.5322975516963494, -0.1796878550986768, -0.831180296711359]
+    # immune_memory_susceptibility_levels = [0.7768353797411912, 0.5106106106106106, 0.7206520876861557, 0.8401933086301824, 0.5467467467467468, 0.9361861861861862, 0.5548048048048049]
+    # mean_immunity_durations = [165.4762760574384, 118.3810529421752, 129.94007416051505, 313.6302981793964, 285.5400038406051, 302.39733046947475, 214.97472805288436]    
+    # random_infection_probabilities = [0.0013005098977000589, 0.0011099867118351437, 0.0005365039459596167, 5.8868704985090726e-6]
+
+    # duration_parameter = 3.3695943816524907
+    # susceptibility_parameters = [3.0307005776255167, 3.1607934669677986, 3.4273238632802836, 4.3725990337370515, 3.67390987352247, 3.8281846882573243, 4.746937978511825]
+    # temperature_parameters = [-0.95, -0.8874797488598941, -0.05, -0.11936936936936937, -0.11488698235671589, -0.17735457724319717, -0.31083867585078234]
+    # # immune_memory_susceptibility_levels = [0.9381002876402393, 0.95, 0.9278778778778778, 0.8938438438438437, 0.9185685685685685, 0.8678178178178176, 0.9288288288288288]  
+    # immune_memory_susceptibility_levels = [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]  
+    # mean_immunity_durations = [346.6586428571901, 313.6876979491992, 143.00214714069438, 94.5655000618681, 113.27047767241473, 139.89128281137963, 161.06429368899117]    
+    # random_infection_probabilities = [0.0013770303094598375, 0.0007744184671858813, 0.00041302869187678077, 9.182178576371385e-6]
 
     viruses = Virus[
         # FluA
@@ -1110,7 +1155,7 @@ function main()
     infected_data_7_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
     infected_data_15_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    infected_data_0 = infected_data_0_all[2:53, 24:26]
+    infected_data_0 = infected_data_0_all[2:53, 24:(23 + num_years)]
     infected_data_0_1 = etiology[:, 1] .* infected_data_0
     infected_data_0_2 = etiology[:, 2] .* infected_data_0
     infected_data_0_3 = etiology[:, 3] .* infected_data_0
@@ -1129,7 +1174,7 @@ function main()
         dims = 2)
 
     # infected_data_3 = infected_data_3[2:53, 21:27]
-    infected_data_3 = infected_data_3_all[2:53, 24:26]
+    infected_data_3 = infected_data_3_all[2:53, 24:(23 + num_years)]
     infected_data_3_1 = etiology[:, 1] .* infected_data_3
     infected_data_3_2 = etiology[:, 2] .* infected_data_3
     infected_data_3_3 = etiology[:, 3] .* infected_data_3
@@ -1148,7 +1193,7 @@ function main()
         dims = 2)
 
     # infected_data_7 = infected_data_7[2:53, 21:27]
-    infected_data_7 = infected_data_7_all[2:53, 24:26]
+    infected_data_7 = infected_data_7_all[2:53, 24:(23 + num_years)]
     infected_data_7_1 = etiology[:, 1] .* infected_data_7
     infected_data_7_2 = etiology[:, 2] .* infected_data_7
     infected_data_7_3 = etiology[:, 3] .* infected_data_7
@@ -1167,7 +1212,7 @@ function main()
         dims = 2)
 
     # infected_data_15 = infected_data_15[2:53, 21:27]
-    infected_data_15 = infected_data_15_all[2:53, 24:26]
+    infected_data_15 = infected_data_15_all[2:53, 24:(23 + num_years)]
     infected_data_15_1 = etiology[:, 1] .* infected_data_15
     infected_data_15_2 = etiology[:, 2] .* infected_data_15
     infected_data_15_3 = etiology[:, 3] .* infected_data_15
@@ -1269,7 +1314,7 @@ function main()
         vec(infected_data_15_7_prev),
         dims = 2)
 
-    num_all_infected_age_groups_viruses = cat(
+    num_infected_age_groups_viruses_prev = cat(
         infected_data_0_viruses_prev,
         infected_data_3_viruses_prev,
         infected_data_7_viruses_prev,
@@ -1278,19 +1323,19 @@ function main()
     )
 
     for virus_id = 1:length(viruses)
-        num_all_infected_age_groups_viruses[:, virus_id, 1] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[1]) * (1 - isolation_probabilities_day_2[1]) * (1 - isolation_probabilities_day_3[1]))
-        num_all_infected_age_groups_viruses[:, virus_id, 2] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[2]) * (1 - isolation_probabilities_day_2[2]) * (1 - isolation_probabilities_day_3[2]))
-        num_all_infected_age_groups_viruses[:, virus_id, 3] ./= viruses[virus_id].symptomatic_probability_teenager * (1 - (1 - isolation_probabilities_day_1[3]) * (1 - isolation_probabilities_day_2[3]) * (1 - isolation_probabilities_day_3[3]))
-        num_all_infected_age_groups_viruses[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 1] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[1]) * (1 - isolation_probabilities_day_2[1]) * (1 - isolation_probabilities_day_3[1]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 2] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[2]) * (1 - isolation_probabilities_day_2[2]) * (1 - isolation_probabilities_day_3[2]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 3] ./= viruses[virus_id].symptomatic_probability_teenager * (1 - (1 - isolation_probabilities_day_1[3]) * (1 - isolation_probabilities_day_2[3]) * (1 - isolation_probabilities_day_3[3]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
     end
 
-    # println(num_all_infected_age_groups_viruses[17, 3, 4] / num_agents_age_groups[4])
+    # println(num_infected_age_groups_viruses_prev[17, 3, 4] / num_agents_age_groups[4])
     # return
 
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, households, viruses, num_all_infected_age_groups_viruses, isolation_probabilities_day_1,
+            agents, households, viruses, num_infected_age_groups_viruses_prev, isolation_probabilities_day_1,
             isolation_probabilities_day_2, isolation_probabilities_day_3, start_household_ids[thread_id],
             homes_coords_df, district_households, district_people, district_people_households, district_nums,
             immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
@@ -1384,7 +1429,7 @@ function main()
     #     end
     # end
 
-    @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+    @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed = run_simulation(
         num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
         susceptibility_parameters, temperature_parameters, temperature,
         mean_household_contact_durations, household_contact_duration_sds,
@@ -1407,43 +1452,45 @@ function main()
     if with_global_warming
         save(joinpath(@__DIR__, "..", "output", "tables", "results_warming_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
-            "all_cases", num_infected_age_groups_viruses,
+            "all_cases", num_infected_age_groups_viruses_model,
             "activities_cases", activities_infections,
             "rt", rt)
     elseif school_class_closure_period == 0
         save(joinpath(@__DIR__, "..", "output", "tables", "results_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
-            "all_cases", num_infected_age_groups_viruses,
+            "all_cases", num_infected_age_groups_viruses_model,
             "activities_cases", activities_infections,
             "rt", rt)
     elseif school_class_closure_threshold > 0.99
         save(joinpath(@__DIR__, "..", "output", "tables", "results_class_quarantine_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
-            "all_cases", num_infected_age_groups_viruses,
+            "all_cases", num_infected_age_groups_viruses_model,
             "activities_cases", activities_infections,
             "rt", rt,
             "num_schools_closed", num_schools_closed)
     else
         save(joinpath(@__DIR__, "..", "output", "tables", "results_quarantine_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
-            "all_cases", num_infected_age_groups_viruses,
+            "all_cases", num_infected_age_groups_viruses_model,
             "activities_cases", activities_infections,
             "rt", rt,
             "num_schools_closed", num_schools_closed)
     end
 
-
     # !!!!!!!!!!!!!!!!!!!!!!!!
     # Surrogate model training
-    # save(joinpath(@__DIR__, "..", "parameters_labels", "3", "tables", "results_$(surrogate_index).jld"),
-    #     "observed_cases", observed_num_infected_age_groups_viruses,
-    #     "duration_parameter", duration_parameter,
-    #     "susceptibility_parameters", susceptibility_parameters,
-    #     "temperature_parameters", temperature_parameters,
-    #     "random_infection_probabilities", random_infection_probabilities,
-    #     "immune_memory_susceptibility_levels", immune_memory_susceptibility_levels,
-    #     "mean_immunity_durations", [viruses[1].mean_immunity_duration, viruses[2].mean_immunity_duration, viruses[3].mean_immunity_duration, viruses[4].mean_immunity_duration, viruses[5].mean_immunity_duration, viruses[6].mean_immunity_duration, viruses[7].mean_immunity_duration])
+    save(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(surrogate_index).jld"),
+        "observed_cases", observed_num_infected_age_groups_viruses,
+        "duration_parameter", duration_parameter,
+        "susceptibility_parameters", susceptibility_parameters,
+        "temperature_parameters", temperature_parameters,
+        "random_infection_probabilities", random_infection_probabilities,
+        "immune_memory_susceptibility_levels", immune_memory_susceptibility_levels,
+        "mean_immunity_durations", [viruses[1].mean_immunity_duration, viruses[2].mean_immunity_duration, viruses[3].mean_immunity_duration, viruses[4].mean_immunity_duration, viruses[5].mean_immunity_duration, viruses[6].mean_immunity_duration, viruses[7].mean_immunity_duration])
     # !!!!!!!!!!!!!!!!!!!!!!!!
+
+    nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    println(nMAE)
 
 
 

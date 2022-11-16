@@ -50,7 +50,7 @@ function plot_num_contacts()
         # xlabel = L"\textrm{\sffamily Virus}",
         # ylabel = L"\textrm{\sffamily Incubation period duration, days}",
         xlabel = "Число контактов",
-        ylabel = "Число агентов",
+        ylabel = "Число агентов, совершающих заданное число контактов",
     )
     savefig(num_contacts_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "contacts", "kindergarten_num_contacts.pdf"))
 

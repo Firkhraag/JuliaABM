@@ -6,6 +6,7 @@ using LaTeXStrings
 using JLD
 using Distributions
 
+include("../../data/temperature.jl")
 include("../../util/moving_avg.jl")
 include("../../data/etiology.jl")
 
@@ -17,8 +18,8 @@ const is_russian = true
 # const num_runs = 10
 const num_runs = 1
 # const num_runs = 5
-# const num_years = 2
-const num_years = 3
+const num_years = 2
+# const num_years = 3
 
 const with_quarantine = false
 # const with_quarantine = true
@@ -704,7 +705,7 @@ function plot_incidence_quarantine_time_series()
 end
 
 function plot_incidence_warming_time_series()
-    num_runs_warming = 2
+    num_runs_warming = 4
     incidence_arr = Array{Vector{Float64}, 1}(undef, num_runs_warming + 1)
 
     observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld"))["observed_cases"] ./ 10072
@@ -740,10 +741,9 @@ function plot_incidence_warming_time_series()
     yticks = [0, 4, 8, 12]
     yticklabels = ["0" "4" "8" "12"]
 
-    # 0.2  0.1  0.3  0.2_14  0.1_14  0.3_14
-    label_names = ["базовый" "+2 °С" "+1 °С"]
+    label_names = ["базовый" "+4 °С" "+3 °С" "+2 °С" "+1 °С"]
     if is_russian
-        label_names = ["базовый" "+2 °С" "+1 °С"]
+        label_names = ["базовый" "+4 °С" "+3 °С" "+2 °С" "+1 °С"]
     end
 
     xlabel_name = "Month"
@@ -766,7 +766,7 @@ function plot_incidence_warming_time_series()
         margin = 6Plots.mm,
         xrotation = 45,
         grid = true,
-        legend = (0.61, 0.98),
+        legend = (0.71, 0.98),
         size = (800, 500),
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         # ribbon = confidence_model,
@@ -3080,37 +3080,50 @@ end
 
 function plot_temperature_time_series()
     num_years = 3
-    num_runs_temp = 2
-    temperature = Array{Vector{Float64}, 1}(undef, num_runs_temp + 1)
+    num_runs_temp = 4
+    # temperature_data = Array{Vector{Float64}, 2}(undef, num_runs_temp + 1)
     temperature_data_rearranged = Array{Vector{Float64}, 1}(undef, num_runs_temp + 1)
     
     # temperature_model = zeros(Float64, 365 * num_years)
     # temperature_model = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_1.jld"))["temperature"]
     
-    temperature[1] = get_air_temperature()
+    temperature_data = get_air_temperature()
+    append!(temperature_data, temperature_data)
+    append!(temperature_data, temperature_data)
     temperature_data_rearranged[1] = Float64[]
-    append!(temperature_data_rearranged[1], temperature_data[1][213:end])
-    append!(temperature_data_rearranged[1], temperature_data[1][1:212])
+    append!(temperature_data_rearranged[1], temperature_data[213:365])
+    append!(temperature_data_rearranged[1], temperature_data[1:212])
+
+    append!(temperature_data_rearranged[1], temperature_data[578:730])
+    append!(temperature_data_rearranged[1], temperature_data[366:577])
+
+    append!(temperature_data_rearranged[1], temperature_data[943:1095])
+    append!(temperature_data_rearranged[1], temperature_data[731:942])
 
     for i = 1:num_runs_temp
-        temperature[i + 1] = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "temperature.csv"), ',', Float64, '\n')
-        temperature[i + 1] = moving_average(temperature[i + 1], 20)
+        temperature_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "temperature_$(i).csv"), ',', Float64, '\n')
+        temperature_data = moving_average(temperature_data, 10)
+
+        temperature_data_rearranged[i + 1] = Float64[]
+        append!(temperature_data_rearranged[i + 1], temperature_data[213:365])
+        append!(temperature_data_rearranged[i + 1], temperature_data[1:212])
+
+        append!(temperature_data_rearranged[i + 1], temperature_data[578:730])
+        append!(temperature_data_rearranged[i + 1], temperature_data[366:577])
+
+        append!(temperature_data_rearranged[i + 1], temperature_data[943:1095])
+        append!(temperature_data_rearranged[i + 1], temperature_data[731:942])
     end
 
-    temperature_data = get_air_temperature()
-    temperature_data_rearranged = Float64[]
-    append!(temperature_data_rearranged, temperature_data[213:end])
-    append!(temperature_data_rearranged, temperature_data[1:212])
-
-    ticks = range(1, stop = 365, length = 7)
-    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    ticks = range(1, stop = (365 * num_years), length = 19)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     if is_russian
-        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
     end
 
-    label_names = ["warming" "base"]
+    label_names = ["базовый" "+4 °С" "+3 °С" "+2 °С" "+1 °С"]
     if is_russian
-        label_names = ["потепление" "базовый"]
+        label_names = ["базовый" "+4 °С" "+3 °С" "+2 °С" "+1 °С"]
     end
 
     xlabel_name = "Month"
@@ -3124,16 +3137,18 @@ function plot_temperature_time_series()
     end
 
     temperature_plot = plot(
-        1:365,
-        [temperature_data_rearranged .+ 2.0 temperature_data_rearranged],
+        1:(365 * num_years),
+        [temperature_data_rearranged[i] for i = 1:(num_runs_temp + 1)],
         lw = 1.5,
         label = label_names,
-        color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         xticks = (ticks, ticklabels),
         grid = true,
+        margin = 6Plots.mm,
+        xrotation = 45,
         # legend = (0.51, 0.91),
-        legend = (0.42, 0.98),
-        right_margin = 14Plots.mm,
+        # legend = (0.42, 0.98),
+        # right_margin = 14Plots.mm,
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Temperature, °C}",
         xlabel = xlabel_name,
@@ -3149,7 +3164,7 @@ end
 # plot_incidence_age_groups_time_series()
 # plot_incidence_viruses_time_series()
 # plot_rt_time_series()
-# print_statistics_time_series()
+print_statistics_time_series()
 
 # plot_incidence()
 # plot_incidence_age_groups()
@@ -3160,7 +3175,7 @@ end
 # plot_incidence_quarantine_time_series()
 # plot_closures_time_series()
 
-plot_incidence_warming_time_series()
+# plot_incidence_warming_time_series()
 # plot_temperature_time_series()
 
 
