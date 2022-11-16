@@ -3160,7 +3160,7 @@ function plot_temperature_time_series()
     savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "temperature.pdf"))
 end
 
-# plot_incidence_time_series()
+plot_incidence_time_series()
 # plot_incidence_age_groups_time_series()
 # plot_incidence_viruses_time_series()
 # plot_rt_time_series()

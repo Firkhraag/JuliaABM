@@ -1,0 +1,332 @@
+Initialization...
+ 32.982502 seconds (96.03 M allocations: 7.512 GiB, 6.28% gc time, 34.51% compilation time)
+  5.650101 seconds (14.55 M allocations: 1.699 GiB, 6.04% compilation time)
+Simulation...
+391.221326 seconds (773.64 k allocations: 47.076 MiB, 14.72% compilation time)
+0.7219197308548266
+PS D:\Github\JuliaABM_after> julia -t 4 src/prior.jl
+Initialization...
+ 34.708443 seconds (96.03 M allocations: 7.512 GiB, 13.18% gc time, 31.92% compilation time)
+  3.979287 seconds (14.57 M allocations: 1.700 GiB, 6.41% compilation time)
+Simulation...
+1
+PS D:\Github\JuliaABM_after> julia -t 4 src/prior.jl
+Initialization...
+ 34.375603 seconds (96.02 M allocations: 7.512 GiB, 13.08% gc time, 32.24% compilation time)
+  4.037257 seconds (14.59 M allocations: 1.699 GiB, 7.27% compilation time)
+Simulation...
+1
+304.489181 seconds (765.38 k allocations: 46.495 MiB, 0.03% gc time, 0.26% compilation time)
+nMAE_cur = 0.6785493242558431
+nMAE_min = 0.6785493242558431
+2
+296.918352 seconds (91.95 k allocations: 10.159 MiB)
+nMAE_cur = 0.6711513668031596
+nMAE_min = 0.6711513668031596
+3
+302.918149 seconds (91.97 k allocations: 10.160 MiB)
+nMAE_cur = 0.666992036893049
+nMAE_min = 0.666992036893049
+4
+298.755417 seconds (91.95 k allocations: 10.159 MiB)
+nMAE_cur = 0.6754232065330517
+nMAE_min = 0.666992036893049
+5
+292.628932 seconds (91.94 k allocations: 10.159 MiB)
+nMAE_cur = 0.6912051771033317
+nMAE_min = 0.666992036893049
+6
+302.912933 seconds (91.94 k allocations: 10.159 MiB)
+nMAE_cur = 0.6757544407359584
+nMAE_min = 0.666992036893049
+7
+296.416728 seconds (91.97 k allocations: 10.160 MiB)
+nMAE_cur = 0.6718915150370298
+nMAE_min = 0.666992036893049
+8
+298.481730 seconds (91.92 k allocations: 10.158 MiB, 0.01% gc time)
+nMAE_cur = 0.6662814323914997
+nMAE_min = 0.6662814323914997
+9
+290.709588 seconds (91.92 k allocations: 10.158 MiB)
+nMAE_cur = 0.6802699340844872
+nMAE_min = 0.6662814323914997
+10
+299.891248 seconds (92.02 k allocations: 10.161 MiB)
+nMAE_cur = 0.6645515535912739
+nMAE_min = 0.6645515535912739
+11
+292.324059 seconds (91.93 k allocations: 10.159 MiB)
+nMAE_cur = 0.6847339910208445
+nMAE_min = 0.6645515535912739
+12
+291.011258 seconds (92.00 k allocations: 10.161 MiB, 0.01% gc time)
+nMAE_cur = 0.6837599509948433
+nMAE_min = 0.6645515535912739
+13
+294.680965 seconds (91.94 k allocations: 10.159 MiB)
+nMAE_cur = 0.6866291283364688
+nMAE_min = 0.6645515535912739
+14
+296.791624 seconds (92.03 k allocations: 10.162 MiB)
+nMAE_cur = 0.6827942288073987
+nMAE_min = 0.6645515535912739
+15
+302.446205 seconds (91.99 k allocations: 10.161 MiB)
+nMAE_cur = 0.6862554722141665
+nMAE_min = 0.6645515535912739
+16
+296.156082 seconds (92.02 k allocations: 10.161 MiB, 0.01% gc time)
+nMAE_cur = 0.6984858069231857
+nMAE_min = 0.6645515535912739
+17
+293.379113 seconds (91.99 k allocations: 10.160 MiB)
+nMAE_cur = 0.7107549716755736
+nMAE_min = 0.6645515535912739
+18
+298.374865 seconds (91.99 k allocations: 10.161 MiB)
+nMAE_cur = 0.6768225113230935
+nMAE_min = 0.6645515535912739
+19
+304.436703 seconds (91.97 k allocations: 10.160 MiB)
+nMAE_cur = 0.6807149797157229
+nMAE_min = 0.6645515535912739
+20
+291.665589 seconds (91.87 k allocations: 10.157 MiB)
+nMAE_cur = 0.6924204042241108
+nMAE_min = 0.6645515535912739
+21
+299.961682 seconds (91.97 k allocations: 10.160 MiB, 0.01% gc time)
+nMAE_cur = 0.663614619637782
+nMAE_min = 0.663614619637782
+22
+301.489932 seconds (91.87 k allocations: 10.157 MiB)
+nMAE_cur = 0.6722647077880853
+nMAE_min = 0.663614619637782
+23
+301.385409 seconds (91.97 k allocations: 10.160 MiB)
+nMAE_cur = 0.6740713389930576
+nMAE_min = 0.663614619637782
+24
+293.849910 seconds (91.91 k allocations: 10.158 MiB)
+nMAE_cur = 0.6735389979845807
+nMAE_min = 0.663614619637782
+25
+299.386220 seconds (91.86 k allocations: 10.157 MiB, 0.01% gc time)
+nMAE_cur = 0.697073105052397
+nMAE_min = 0.663614619637782
+26
+297.979038 seconds (91.94 k allocations: 10.159 MiB)
+nMAE_cur = 0.6646538436469973
+nMAE_min = 0.663614619637782
+27
+295.118427 seconds (91.94 k allocations: 10.159 MiB)
+nMAE_cur = 0.6669894908811481
+nMAE_min = 0.663614619637782
+28
+299.535671 seconds (91.91 k allocations: 10.158 MiB)
+nMAE_cur = 0.6726280762336588
+nMAE_min = 0.663614619637782
+29
+297.835385 seconds (91.89 k allocations: 10.157 MiB)
+nMAE_cur = 0.6821438147582674
+nMAE_min = 0.663614619637782
+30
+305.305777 seconds (91.96 k allocations: 10.160 MiB, 0.00% gc time)
+nMAE_cur = 0.6716404994544063
+nMAE_min = 0.663614619637782
+31
+304.009150 seconds (91.97 k allocations: 10.160 MiB)
+nMAE_cur = 0.6583070341009184
+nMAE_min = 0.6583070341009184
+32
+298.596903 seconds (91.87 k allocations: 10.157 MiB)
+nMAE_cur = 0.6652436667745067
+nMAE_min = 0.6583070341009184
+33
+304.671360 seconds (91.92 k allocations: 10.158 MiB)
+nMAE_cur = 0.6834305135871136
+nMAE_min = 0.6583070341009184
+34
+294.429911 seconds (91.85 k allocations: 10.156 MiB, 0.00% gc time)
+nMAE_cur = 0.6959849211297746
+nMAE_min = 0.6583070341009184
+35
+299.667186 seconds (91.89 k allocations: 10.157 MiB)
+nMAE_cur = 0.6781950050343488
+nMAE_min = 0.6583070341009184
+36
+301.715114 seconds (91.91 k allocations: 10.158 MiB)
+nMAE_cur = 0.6695048980644388
+nMAE_min = 0.6583070341009184
+37
+297.162542 seconds (91.88 k allocations: 10.157 MiB)
+nMAE_cur = 0.6857858722078811
+nMAE_min = 0.6583070341009184
+38
+297.975065 seconds (91.85 k allocations: 10.156 MiB, 0.01% gc time)
+nMAE_cur = 0.6842969783412787
+nMAE_min = 0.6583070341009184
+39
+305.456114 seconds (91.96 k allocations: 10.160 MiB)
+nMAE_cur = 0.6694499315114286
+nMAE_min = 0.6583070341009184
+40
+295.497710 seconds (91.91 k allocations: 10.158 MiB)
+nMAE_cur = 0.7042355086290142
+nMAE_min = 0.6583070341009184
+41
+306.304199 seconds (91.83 k allocations: 10.156 MiB)
+nMAE_cur = 0.675300121036121
+nMAE_min = 0.6583070341009184
+42
+308.990792 seconds (91.84 k allocations: 10.156 MiB)
+nMAE_cur = 0.6646971805863665
+nMAE_min = 0.6583070341009184
+43
+298.253359 seconds (91.88 k allocations: 10.157 MiB, 0.00% gc time)
+nMAE_cur = 0.6871881745998445
+nMAE_min = 0.6583070341009184
+44
+297.849279 seconds (91.89 k allocations: 10.157 MiB)
+nMAE_cur = 0.6681419563406169
+nMAE_min = 0.6583070341009184
+45
+309.047384 seconds (91.92 k allocations: 10.158 MiB)
+nMAE_cur = 0.6616861635417184
+nMAE_min = 0.6583070341009184
+46
+298.951137 seconds (91.88 k allocations: 10.157 MiB)
+nMAE_cur = 0.6653972755168861
+nMAE_min = 0.6583070341009184
+47
+297.600994 seconds (91.86 k allocations: 10.156 MiB, 0.00% gc time)
+nMAE_cur = 0.6672410073482127
+nMAE_min = 0.6583070341009184
+48
+296.884585 seconds (91.90 k allocations: 10.158 MiB)
+nMAE_cur = 0.6943847031701681
+nMAE_min = 0.6583070341009184
+49
+305.537783 seconds (91.89 k allocations: 10.157 MiB)
+nMAE_cur = 0.6779573030754764
+nMAE_min = 0.6583070341009184
+50
+307.000745 seconds (91.87 k allocations: 10.157 MiB)
+nMAE_cur = 0.6781501820512368
+nMAE_min = 0.6583070341009184
+51
+303.836780 seconds (91.89 k allocations: 10.157 MiB)
+nMAE_cur = 0.6728502904374492
+nMAE_min = 0.6583070341009184
+52
+301.898316 seconds (91.84 k allocations: 10.156 MiB, 0.00% gc time)
+nMAE_cur = 0.673266148208396
+nMAE_min = 0.6583070341009184
+53
+306.696320 seconds (91.87 k allocations: 10.157 MiB)
+nMAE_cur = 0.691186263407434
+nMAE_min = 0.6583070341009184
+54
+310.364269 seconds (91.89 k allocations: 10.157 MiB)
+nMAE_cur = 0.6786012459881977
+nMAE_min = 0.6583070341009184
+55
+301.573849 seconds (91.79 k allocations: 10.154 MiB)
+nMAE_cur = 0.6625016870467093
+nMAE_min = 0.6583070341009184
+56
+302.921358 seconds (91.85 k allocations: 10.156 MiB, 0.01% gc time)
+nMAE_cur = 0.666975419063793
+nMAE_min = 0.6583070341009184
+57
+303.504067 seconds (91.86 k allocations: 10.157 MiB)
+nMAE_cur = 0.6916848498817332
+nMAE_min = 0.6583070341009184
+58
+295.742515 seconds (91.93 k allocations: 10.159 MiB)
+nMAE_cur = 0.6709226693429186
+nMAE_min = 0.6583070341009184
+59
+306.584038 seconds (91.86 k allocations: 10.156 MiB)
+nMAE_cur = 0.6794332953776879
+nMAE_min = 0.6583070341009184
+60
+309.471628 seconds (91.93 k allocations: 10.159 MiB, 0.01% gc time)
+nMAE_cur = 0.7039982037319468
+nMAE_min = 0.6583070341009184
+61
+308.263139 seconds (91.89 k allocations: 10.157 MiB)
+nMAE_cur = 0.6821435955916021
+nMAE_min = 0.6583070341009184
+62
+302.048986 seconds (91.81 k allocations: 10.155 MiB)
+nMAE_cur = 0.6774113823171706
+nMAE_min = 0.6583070341009184
+63
+308.412765 seconds (91.94 k allocations: 10.159 MiB)
+nMAE_cur = 0.6775275755289509
+nMAE_min = 0.6583070341009184
+64
+301.249398 seconds (91.86 k allocations: 10.157 MiB)
+nMAE_cur = 0.6734564168232389
+nMAE_min = 0.6583070341009184
+65
+304.521182 seconds (91.86 k allocations: 10.157 MiB, 0.00% gc time)
+nMAE_cur = 0.6678191956262335
+nMAE_min = 0.6583070341009184
+66
+300.030237 seconds (91.94 k allocations: 10.159 MiB)
+nMAE_cur = 0.6857419334274902
+nMAE_min = 0.6583070341009184
+67
+305.470167 seconds (91.84 k allocations: 10.156 MiB)
+nMAE_cur = 0.664424785927361
+nMAE_min = 0.6583070341009184
+68
+301.759634 seconds (91.79 k allocations: 10.154 MiB)
+nMAE_cur = 0.6913900205827094
+nMAE_min = 0.6583070341009184
+69
+321.675886 seconds (91.75 k allocations: 10.153 MiB, 0.00% gc time)
+nMAE_cur = 0.6737800952776198
+nMAE_min = 0.6583070341009184
+70
+322.911700 seconds (91.78 k allocations: 10.154 MiB)
+nMAE_cur = 0.6815745112559024
+nMAE_min = 0.6583070341009184
+71
+312.933982 seconds (91.95 k allocations: 10.159 MiB)
+nMAE_cur = 0.6837997626651817
+nMAE_min = 0.6583070341009184
+72
+309.183152 seconds (92.00 k allocations: 10.161 MiB)
+nMAE_cur = 0.6888535663457579
+nMAE_min = 0.6583070341009184
+73
+309.143854 seconds (91.99 k allocations: 10.160 MiB)
+nMAE_cur = 0.6716398863941426
+nMAE_min = 0.6583070341009184
+74
+300.217275 seconds (91.95 k allocations: 10.159 MiB, 0.01% gc time)
+nMAE_cur = 0.676634858899316
+nMAE_min = 0.6583070341009184
+75
+302.032050 seconds (91.96 k allocations: 10.160 MiB)
+nMAE_cur = 0.6870594833717477
+nMAE_min = 0.6583070341009184
+76
+316.356865 seconds (92.03 k allocations: 10.162 MiB)
+nMAE_cur = 0.667651865103861
+nMAE_min = 0.6583070341009184
+299.500321 seconds (92.02 k allocations: 10.161 MiB)
+nMAE_cur = 0.6914317549314025
+nMAE_min = 0.6583070341009184
+78
+317.150393 seconds (91.98 k allocations: 10.160 MiB, 0.00% gc time)
+nMAE_cur = 0.6765953161753212
+nMAE_min = 0.6583070341009184
+79
+320.244615 seconds (91.89 k allocations: 10.157 MiB)
+nMAE_cur = 0.6693978335652969
+nMAE_min = 0.6583070341009184

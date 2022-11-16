@@ -31,7 +31,7 @@ function plot_all_data_time_series()
     ticks = range(1, stop = (52.14285 * 3), length = 19)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     if is_russian
-        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+        ticklabels = ["Авг 1999" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг 2000" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг 2001"]
     end
 
     yticks = [0, 4, 8, 12]
@@ -1332,11 +1332,11 @@ end
 # plot_temperature_scenarios()
 # plot_closures()
 
-# plot_all_data_time_series()
+plot_all_data_time_series()
 # plot_all_data()
 # plot_incidence(42:44, "flu.csv", "incidence.pdf", 10072)
-plot_incidence_age_groups(24:26, 10072)
-plot_incidence_age_groups_time_series()
+# plot_incidence_age_groups(24:26, 10072)
+# plot_incidence_age_groups_time_series()
 
 # plot_incidence(39:45, "flu.csv", "incidence.pdf", 10072)
 # plot_incidence(2:5, "flu_england.csv", "incidence_england.pdf", 1)

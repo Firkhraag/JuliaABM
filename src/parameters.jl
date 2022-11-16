@@ -11,14 +11,18 @@ include("util/moving_avg.jl")
 include("util/regression.jl")
 
 function main()
+    # num_runs_1 = 220
     num_runs_1 = 219
     num_runs_2 = 147
-    num_runs_3 = 84
-    num_runs = num_runs_1 + num_runs_2 + num_runs_3
+    # num_runs_3 = 98
+    num_runs_3 = 85
+    num_runs_4 = 312
+    num_runs_5 = 2 + 2
+    num_runs = num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4 + num_runs_5
     num_years = 2
 
-    forest_num_rounds = 150
-    forest_max_depth = 7
+    forest_num_rounds = 100
+    forest_max_depth = 5
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_runs)
     duration_parameters = Array{Float64, 1}(undef, num_runs)
@@ -56,6 +60,26 @@ function main()
         immune_memory_susceptibility_levels[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "3", "tables", "results_$(i).jld"))["immune_memory_susceptibility_levels"]
         mean_immunity_durations[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "3", "tables", "results_$(i).jld"))["mean_immunity_durations"]
         random_infection_probabilities[i + num_runs_1 + num_runs_2] = load(joinpath(@__DIR__, "..", "parameters_labels", "3", "tables", "results_$(i).jld"))["random_infection_probabilities"]
+    end
+
+    for i = 1:num_runs_4
+        incidence_arr[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
+        duration_parameters[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["duration_parameter"]
+        susceptibility_parameters[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["susceptibility_parameters"]
+        temperature_parameters[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["temperature_parameters"]
+        immune_memory_susceptibility_levels[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["immune_memory_susceptibility_levels"]
+        mean_immunity_durations[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["mean_immunity_durations"]
+        random_infection_probabilities[i + num_runs_1 + num_runs_2 + num_runs_3] = load(joinpath(@__DIR__, "..", "parameters_labels", "test", "tables", "results_$(i).jld"))["random_infection_probabilities"]
+    end
+
+    for i = 1:num_runs_5
+        incidence_arr[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
+        duration_parameters[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["duration_parameter"]
+        susceptibility_parameters[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["susceptibility_parameters"]
+        temperature_parameters[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["temperature_parameters"]
+        immune_memory_susceptibility_levels[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["immune_memory_susceptibility_levels"]
+        mean_immunity_durations[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["mean_immunity_durations"]
+        random_infection_probabilities[i + num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4] = load(joinpath(@__DIR__, "..", "parameters_labels", "surrogate", "tables", "results_$(i).jld"))["random_infection_probabilities"]
     end
 
     num_params = 33
@@ -229,7 +253,7 @@ function main()
 
     S = 7
     # num_samples = 1000
-    num_samples = 5000
+    num_samples = 3000
     num_tries = 1
     min_values = zeros(Float64, S) .+ 99999.0
     duration_parameters_min = zeros(Float64, S)
