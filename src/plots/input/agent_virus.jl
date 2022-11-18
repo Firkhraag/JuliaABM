@@ -194,12 +194,12 @@ function plot_ig_levels()
         size = (800, 500),
         xrotation = 45,
         xlabel = "Возраст",
-        ylabel = "Уровень иммуноглобулина, мг/дл",
+        ylabel = "Уровень иммуноглобулинов, мг/дл",
     )
     savefig(ig_levels_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "ig_levels.pdf"))
 end
 
 # plot_incubation_periods()
 # plot_infection_periods()
-plot_mean_viral_loads()
-# plot_ig_levels()
+# plot_mean_viral_loads()
+plot_ig_levels()

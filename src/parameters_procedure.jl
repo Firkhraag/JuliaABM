@@ -16,19 +16,20 @@ function main()
     # num_runs_1 = 220
     # num_runs_2 = 147
     # num_runs_3 = 98
-    # num_runs_4 = 400
-    # num_runs_5 = 6
+    # num_runs_4 = 628
+    # num_runs_5 = 9
 
     num_runs_1 = 219
     num_runs_2 = 147
     num_runs_3 = 85
     num_runs_4 = 400
-    num_runs_5 = 6
+    num_runs_5 = 0
 
     num_runs = num_runs_1 + num_runs_2 + num_runs_3 + num_runs_4 + num_runs_5
     num_years = 2
 
-    # 0.06593633291168932
+    # 0.06593633291168932 - 0.013 ошибка на одну симуляцию
+    # forest_num_rounds = 30000
     forest_num_rounds = 15000
     forest_max_depth = 4
 
@@ -236,8 +237,9 @@ function main()
     #     y[i] = sum
     # end
 
-    # println(minimum(y))
-    # println(argmin(y))
+    println(minimum(y))
+    println(argmin(y))
+    # return
     # println(maximum(y))
     # println(argmax(y))
 
@@ -249,6 +251,15 @@ function main()
     # println(immune_memory_susceptibility_levels[pos_min_y])
     # println(mean_immunity_durations[pos_min_y])
     # println(random_infection_probabilities[pos_min_y])
+
+    println("duration_parameter = $(duration_parameters[pos_min_y])")
+    println("susceptibility_parameters = $(susceptibility_parameters[pos_min_y])")
+    println("temperature_parameters = $(temperature_parameters[pos_min_y])")
+    println("immune_memory_susceptibility_levels = $(immune_memory_susceptibility_levels[pos_min_y])")
+    println("mean_immunity_durations = $(mean_immunity_durations[pos_min_y])")
+    println("random_infection_probabilities = $(random_infection_probabilities[pos_min_y])")
+    return
+
 
     # println(size(X))
     # println(size(y))
@@ -439,4 +450,4 @@ function main()
     end
 end
 
-main()
+@time main()

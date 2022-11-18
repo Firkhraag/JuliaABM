@@ -30,11 +30,12 @@ function plot_immunity_protection_influence()
 
     values = zeros(Float64, 360)
 
-    xlabel_name = "День"
+    xlabel_name = "Число дней после выздоровления"
     if !is_russian
         xlabel_name = "Days"
     end
-    ylabel_name = L"M_{jv}"
+    # ylabel_name = L"M_{jv}"
+    ylabel_name = "Влияние специфического иммунитета"
 
     arr = collect(1:365)
 
@@ -48,7 +49,7 @@ function plot_immunity_protection_influence()
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         lw = 1.5,
-        margin = 2Plots.mm,
+        margin = 6Plots.mm,
         # legend = false,
         # color = :black,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
@@ -77,7 +78,8 @@ function plot_duration_influence()
     if !is_russian
         xlabel_name = "Contact duration, hours"
     end
-    ylabel_name = L"D_{ijc}"
+    # ylabel_name = L"D_{ijc}"
+    ylabel_name = "Влияние продолжительности"
 
     duration_plot = plot(
         duration_range,
@@ -86,6 +88,7 @@ function plot_duration_influence()
         legend = false,
         color = :black,
         grid = true,
+        margin = 6Plots.mm,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         # xlabel = L"\textrm{\sffamily Hours}",
@@ -165,7 +168,8 @@ function plot_temperature_influence_year()
     if !is_russian
         xlabel_name = "Month"
     end
-    ylabel_name = L"T_{mv}"
+    # ylabel_name = L"T_{mv}"
+    ylabel_name = "Влияние температуры воздуха"
 
     ticks = range(1, stop = 365, length = 7)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
@@ -180,6 +184,7 @@ function plot_temperature_influence_year()
         # legend = (0.5, 0.64),
         legend = (0.5, 0.7),
         lw = 1.5,
+        margin = 6Plots.mm,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
         grid = true,
@@ -247,7 +252,9 @@ function plot_susceptibility_influence_age()
     if !is_russian
         xlabel_name = "Agent's age, years"
     end
-    ylabel_name = L"S_{jv}"
+    # ylabel_name = L"S_{jv}"
+    # ylabel_name = "Влияние неспецифического иммунитета"
+    ylabel_name = "Влияние неспецифической защиты"
 
     susceptibility_plot = plot(
         0:89,
@@ -255,7 +262,8 @@ function plot_susceptibility_influence_age()
         # legend=:top,
         lw = 1.5,
         # legend = (0.95, 1.0),
-        legend = (0.92, 1.0),
+        legend = (0.92, 1.02),
+        margin = 4Plots.mm,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
         yticks = (yticks, yticklabels),
@@ -315,11 +323,12 @@ function plot_infectivity_influence()
     # ticklabels = ["-4" "-2" "0" "2" "4" "6" "8" "10"]
     ticklabels = ["1" "3" "5" "7" "9" "11" "13" "15"]
 
-    xlabel_name = "День"
+    xlabel_name = "Число дней после инфицирования"
     if !is_russian
         xlabel_name = "Days infected"
     end
-    ylabel_name = L"I_{iv}"
+    # ylabel_name = L"I_{iv}"
+    ylabel_name = "Влияние скорости продукции вируса"
 
     infectivity_plot = plot(
         days_infected,
@@ -333,6 +342,7 @@ function plot_infectivity_influence()
         xticks = (ticks, ticklabels),
         legend = (0.92, 0.95),
         lw = 1.5,
+        margin = 6Plots.mm,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
         grid = true,
@@ -346,8 +356,8 @@ function plot_infectivity_influence()
     savefig(infectivity_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "transmission", "infectivity_influence.pdf"))
 end
 
-plot_duration_influence()
+# plot_duration_influence()
 # plot_temperature_influence_year()
 # plot_infectivity_influence()
-# plot_susceptibility_influence_age()
+plot_susceptibility_influence_age()
 # plot_immunity_protection_influence()

@@ -20,6 +20,7 @@ const num_runs = 1
 # const num_runs = 5
 const num_years = 2
 # const num_years = 3
+# const num_years = 3
 
 const with_quarantine = false
 # const with_quarantine = true
@@ -657,19 +658,25 @@ function plot_incidence_quarantine_time_series()
     # infected_data = vec(transpose(infected_data[43:45, 2:53]))
     infected_data = vec(transpose(infected_data[42:(41 + num_years), 2:53]))
 
-    ticks = range(1, stop = (52.14285 * num_years), length = 19)
-    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    # ticks = range(1, stop = (52.14285 * num_years), length = 19)
+    # ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    # if is_russian
+    #     ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    # end
+
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     if is_russian
-        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
     end
 
     yticks = [0, 4, 8, 12]
     yticklabels = ["0" "4" "8" "12"]
 
     # 0.2  0.1  0.3  0.2_14  0.1_14  0.3_14
-    label_names = ["базовый" "порог 0.2" "порог 0.1" "порог 0.3" "порог 0.2, 14 дней" "порог 0.1, 14 дней"]
+    label_names = ["без карантина" "порог 0.2" "порог 0.1" "порог 0.3" "порог 0.2, 14 дней" "порог 0.1, 14 дней"]
     if is_russian
-        label_names = ["базовый" "порог 0.2" "порог 0.1" "порог 0.3" "порог 0.2, 14 дней" "порог 0.1, 14 дней"]
+        label_names = ["без карантина" "порог 0.2" "порог 0.1" "порог 0.3" "порог 0.2, 14 дней" "порог 0.1, 14 дней"]
     end
 
     xlabel_name = "Month"
@@ -682,18 +689,37 @@ function plot_incidence_quarantine_time_series()
         ylabel_name = "Число случаев на 1000 чел. / неделя"
     end
 
+    # incidence_plot = plot(
+    #     1:(52 * num_years),
+    #     [incidence_arr[i] for i = 1:(num_runs_quarantine + 1)],
+    #     lw = 1.5,
+    #     xticks = (ticks, ticklabels),
+    #     # yticks = (yticks, yticklabels),
+    #     label = label_names,
+    #     margin = 6Plots.mm,
+    #     xrotation = 45,
+    #     grid = true,
+    #     legend = (0.61, 0.98),
+    #     size = (800, 500),
+    #     color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+    #     # ribbon = confidence_model,
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    # )
     incidence_plot = plot(
-        1:(52 * num_years),
-        [incidence_arr[i] for i = 1:(num_runs_quarantine + 1)],
+        1:52,
+        [incidence_arr[i][1:52] for i = 1:(num_runs_quarantine + 1)],
         lw = 1.5,
         xticks = (ticks, ticklabels),
         # yticks = (yticks, yticklabels),
         label = label_names,
-        margin = 6Plots.mm,
+        margin = 4Plots.mm,
         xrotation = 45,
         grid = true,
-        legend = (0.61, 0.98),
-        size = (800, 500),
+        legend = (0.68, 0.98),
+        # size = (800, 500),
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         # ribbon = confidence_model,
         foreground_color_legend = nothing,
@@ -732,18 +758,24 @@ function plot_incidence_warming_time_series()
     # infected_data = vec(transpose(infected_data[43:45, 2:53]))
     infected_data = vec(transpose(infected_data[42:(41 + num_years), 2:53]))
 
-    ticks = range(1, stop = (52.14285 * num_years), length = 19)
-    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    # ticks = range(1, stop = (52.14285 * num_years), length = 19)
+    # ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    # if is_russian
+    #     ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    # end
+
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     if is_russian
-        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
     end
 
     yticks = [0, 4, 8, 12]
     yticklabels = ["0" "4" "8" "12"]
 
-    label_names = ["базовый" "+4 °С" "+3 °С" "+2 °С" "+1 °С"]
+    label_names = ["+0 °С" "+4 °С" "+3 °С" "+2 °С" "+1 °С"]
     if is_russian
-        label_names = ["базовый" "+4 °С" "+3 °С" "+2 °С" "+1 °С"]
+        label_names = ["+0 °С" "+4 °С" "+3 °С" "+2 °С" "+1 °С"]
     end
 
     xlabel_name = "Month"
@@ -756,18 +788,37 @@ function plot_incidence_warming_time_series()
         ylabel_name = "Число случаев на 1000 чел. / неделя"
     end
 
+    # incidence_plot = plot(
+    #     1:(52 * num_years),
+    #     [incidence_arr[i] for i = 1:(num_runs_warming + 1)],
+    #     lw = 1.5,
+    #     xticks = (ticks, ticklabels),
+    #     # yticks = (yticks, yticklabels),
+    #     label = label_names,
+    #     margin = 6Plots.mm,
+    #     xrotation = 45,
+    #     grid = true,
+    #     legend = (0.71, 0.98),
+    #     size = (800, 500),
+    #     color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+    #     # ribbon = confidence_model,
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    # )
     incidence_plot = plot(
-        1:(52 * num_years),
-        [incidence_arr[i] for i = 1:(num_runs_warming + 1)],
+        1:52,
+        [incidence_arr[i][1:52] for i = 1:(num_runs_warming + 1)],
         lw = 1.5,
         xticks = (ticks, ticklabels),
         # yticks = (yticks, yticklabels),
         label = label_names,
-        margin = 6Plots.mm,
+        margin = 4Plots.mm,
         xrotation = 45,
         grid = true,
-        legend = (0.71, 0.98),
-        size = (800, 500),
+        legend = (0.75, 0.98),
+        # size = (800, 500),
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         # ribbon = confidence_model,
         foreground_color_legend = nothing,
@@ -3058,8 +3109,9 @@ function plot_closures_time_series()
     end
 
     closures_plot = plot(
-        1:(365 * num_years),
-        [num_schools_closed[i] for i = 1:(num_runs_quarantine + 1)],
+        # 1:(365 * num_years),
+        1:365,
+        [num_schools_closed[i][1:365] for i = 1:(num_runs_quarantine + 1)],
         lw = 1.5,
         label = label_names,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
@@ -3137,8 +3189,9 @@ function plot_temperature_time_series()
     end
 
     temperature_plot = plot(
-        1:(365 * num_years),
-        [temperature_data_rearranged[i] for i = 1:(num_runs_temp + 1)],
+        # 1:(365 * num_years),
+        1:365,
+        [temperature_data_rearranged[i][1:365] for i = 1:(num_runs_temp + 1)],
         lw = 1.5,
         label = label_names,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
@@ -3160,7 +3213,7 @@ function plot_temperature_time_series()
     savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "temperature.pdf"))
 end
 
-plot_incidence_time_series()
+# plot_incidence_time_series()
 # plot_incidence_age_groups_time_series()
 # plot_incidence_viruses_time_series()
 # plot_rt_time_series()
@@ -3177,11 +3230,12 @@ print_statistics_time_series()
 
 # plot_incidence_warming_time_series()
 # plot_temperature_time_series()
+# plot_incidence_scenarios_quaranteen()
+# plot_incidence_scenarios_warming()
 
 
 # plot_incidence_scenarios()
-# plot_incidence_scenarios_quaranteen()
-# plot_incidence_scenarios_warming()
+
 
 # plot_r0()
 
