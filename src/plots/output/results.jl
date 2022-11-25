@@ -18,9 +18,8 @@ const is_russian = true
 # const num_runs = 10
 const num_runs = 1
 # const num_runs = 5
-const num_years = 2
-# const num_years = 3
-# const num_years = 3
+# const num_years = 2
+const num_years = 3
 
 const with_quarantine = false
 # const with_quarantine = true
@@ -2857,7 +2856,7 @@ end
 #     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence.pdf"))
 # end
 
-function print_statistics()
+function print_statistics(quarantine_index::Int, warming_index::Int)
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52)
 
@@ -2887,8 +2886,8 @@ function print_statistics()
     pos = argmax(incidence_arr_mean)
 
     incidence_arr_mean = zeros(Float64, 52)
-    for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["observed_cases"]
+    for i = 1:1
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(quarantine_index).jld"))["observed_cases"]
         for j = 1:num_years
             incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
@@ -2914,7 +2913,7 @@ function print_statistics()
 
     incidence_arr_mean = zeros(Float64, 52)
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_warming_$(i).jld"))["observed_cases"]
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_warming_$(warming_index).jld"))["observed_cases"]
         for j = 1:num_years
             incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
@@ -2945,6 +2944,8 @@ function print_statistics()
     println("Max pos: $(pos)")
     println("Max pos quaranteen: $(pos_quarantine)")
     println("Max pos warming: $(pos_warming)")
+
+    return
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n')
     infected_data_mean = mean(infected_data[39:45, 2:53], dims = 1)[1, :]
@@ -3217,7 +3218,7 @@ end
 # plot_incidence_age_groups_time_series()
 # plot_incidence_viruses_time_series()
 # plot_rt_time_series()
-print_statistics_time_series()
+# print_statistics_time_series()
 
 # plot_incidence()
 # plot_incidence_age_groups()
@@ -3239,7 +3240,18 @@ print_statistics_time_series()
 
 # plot_r0()
 
-# print_statistics()
+# ["порог 0.2" "порог 0.1" "порог 0.3" "порог 0.2, 14 дней" "порог 0.1, 14 дней"]
+# ["+4 °С" "+3 °С" "+2 °С" "+1 °С"]
+println()
+print_statistics(1, 1)
+println()
+print_statistics(2, 2)
+println()
+print_statistics(3, 3)
+println()
+print_statistics(4, 4)
+println()
+print_statistics(5, 4)
 
 # plot_incidence_age_groups_viruses()
 # plot_incidence_etiology()

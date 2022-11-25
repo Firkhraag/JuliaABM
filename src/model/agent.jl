@@ -857,5 +857,6 @@ function find_immunity_susceptibility_level(
         return immune_memory_susceptibility_level
     end
     k = immune_memory_susceptibility_level / (immunity_end - 1)
-    return k * days_immune - k
+    # return k * days_immune - k
+    return immune_memory_susceptibility_level / (immunity_end - 1) * (days_immune - 1)
 end

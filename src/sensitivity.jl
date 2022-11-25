@@ -35,11 +35,11 @@ function main()
 
     num_threads = nthreads()
 
-    starting_bias = 60
-    n = 40
+    starting_bias = 146
+    n = 200
     disturbance = 0.05
 
-    num_years = 3
+    num_years = 2
 
     isolation_probabilities_day_1_default = [0.406, 0.305, 0.204, 0.101]
     isolation_probabilities_day_2_default = [0.669, 0.576, 0.499, 0.334]

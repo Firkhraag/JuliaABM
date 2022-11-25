@@ -24,7 +24,8 @@ function main()
     # 422: 603352.515866496
 
     num_runs_1 = 219
-    num_runs_2 = 132
+    # num_runs_2 = 132
+    num_runs_2 = 147
     num_runs_3 = 71
     num_runs = num_runs_1 + num_runs_2 + num_runs_3
 
