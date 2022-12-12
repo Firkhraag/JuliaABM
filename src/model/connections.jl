@@ -20,6 +20,8 @@ function set_connections(
     # num_barabasi_albert_attachments_schools = 9
     # num_barabasi_albert_attachments_schools = 100
 
+    # 9 11 100
+
     num_working_agents = 0
     for agent_id in 1:length(agents)
         agent = agents[agent_id]

@@ -35,18 +35,13 @@ function main()
 
     # Random seed number
     run_num = 0
-    is_rt_run = true
+    is_rt_run = false
     try
         run_num = parse(Int64, ARGS[1])
     catch
         run_num = 0
     end
     num_years = 3
-
-    school_class_closure_period = 0
-    # school_class_closure_period = 7
-    school_class_closure_threshold = 0.25
-    school_closure_threshold_classes = 3
 
     num_threads = nthreads()
 
@@ -69,11 +64,12 @@ function main()
     firm_max_size = 1000
     num_barabasi_albert_attachments = 5
 
-    duration_parameter = 3.970325706039992
-    susceptibility_parameters = [3.201473922902495, 3.708895073180786, 3.817058338486913, 5.601783137497422, 4.082564419707281, 4.03612244897959, 4.4968913626056475]
-    temperature_parameters = [-0.7745701917130488, -0.769160997732426, -0.09444444444444446, -0.11111111111111113, -0.12291280148423, -0.11346114203257066, -0.24710368996083393]
-    random_infection_probabilities = [0.00011583879612451038, 6.800197897340754e-5, 4.915064935064938e-5, 6.634034219748507e-7]
-    mean_immunity_durations = [252.02886002886, 312.16244073386935, 98.2385075242218, 34.277468563182836, 83.02370645227786, 116.12162440733866, 101.6384250669965]
+    duration_parameter = 0.23703365311405514
+    susceptibility_parameters = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.558457619595636, 3.9627987624113588, 3.751417011489648, 4.552998584572433]
+    temperature_parameters = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
+    immune_memory_susceptibility_levels = [0.8944639240038756, 0.9430303030303029, 0.9336363636363636, 0.9363636363636363, 0.8876594776594775, 0.8817572117572116, 0.946060606060606]
+    mean_immunity_durations = [357.979797979798, 326.2129504744517, 133.30517744372466, 99.91903541540344, 105.99775039968745, 148.27512119521802, 162.6804553051528]
+    random_infection_probabilities = [0.00138, 0.00077, 0.0004, 9.2e-6]
 
     viruses = Virus[
         # FluA
@@ -152,12 +148,12 @@ function main()
     # Массив для хранения фирм
     workplaces = Workplace[]
 
-    infected_data_0 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
-    infected_data_3 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
-    infected_data_7 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
-    infected_data_15 = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
+    infected_data_0_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
+    infected_data_3_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
+    infected_data_7_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
+    infected_data_15_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    infected_data_0 = infected_data_0[2:53, 21:27]
+    infected_data_0 = infected_data_0_all[2:53, 24:(23 + num_years)]
     infected_data_0_1 = etiology[:, 1] .* infected_data_0
     infected_data_0_2 = etiology[:, 2] .* infected_data_0
     infected_data_0_3 = etiology[:, 3] .* infected_data_0
@@ -166,16 +162,17 @@ function main()
     infected_data_0_6 = etiology[:, 6] .* infected_data_0
     infected_data_0_7 = etiology[:, 7] .* infected_data_0
     infected_data_0_viruses = cat(
-        infected_data_0_1,
-        infected_data_0_2,
-        infected_data_0_3,
-        infected_data_0_4,
-        infected_data_0_5,
-        infected_data_0_6,
-        infected_data_0_7,
-        dims = 3)
+        vec(infected_data_0_1),
+        vec(infected_data_0_2),
+        vec(infected_data_0_3),
+        vec(infected_data_0_4),
+        vec(infected_data_0_5),
+        vec(infected_data_0_6),
+        vec(infected_data_0_7),
+        dims = 2)
 
-    infected_data_3 = infected_data_3[2:53, 21:27]
+    # infected_data_3 = infected_data_3[2:53, 21:27]
+    infected_data_3 = infected_data_3_all[2:53, 24:(23 + num_years)]
     infected_data_3_1 = etiology[:, 1] .* infected_data_3
     infected_data_3_2 = etiology[:, 2] .* infected_data_3
     infected_data_3_3 = etiology[:, 3] .* infected_data_3
@@ -184,16 +181,17 @@ function main()
     infected_data_3_6 = etiology[:, 6] .* infected_data_3
     infected_data_3_7 = etiology[:, 7] .* infected_data_3
     infected_data_3_viruses = cat(
-        infected_data_3_1,
-        infected_data_3_2,
-        infected_data_3_3,
-        infected_data_3_4,
-        infected_data_3_5,
-        infected_data_3_6,
-        infected_data_3_7,
-        dims = 3)
+        vec(infected_data_3_1),
+        vec(infected_data_3_2),
+        vec(infected_data_3_3),
+        vec(infected_data_3_4),
+        vec(infected_data_3_5),
+        vec(infected_data_3_6),
+        vec(infected_data_3_7),
+        dims = 2)
 
-    infected_data_7 = infected_data_7[2:53, 21:27]
+    # infected_data_7 = infected_data_7[2:53, 21:27]
+    infected_data_7 = infected_data_7_all[2:53, 24:(23 + num_years)]
     infected_data_7_1 = etiology[:, 1] .* infected_data_7
     infected_data_7_2 = etiology[:, 2] .* infected_data_7
     infected_data_7_3 = etiology[:, 3] .* infected_data_7
@@ -202,16 +200,17 @@ function main()
     infected_data_7_6 = etiology[:, 6] .* infected_data_7
     infected_data_7_7 = etiology[:, 7] .* infected_data_7
     infected_data_7_viruses = cat(
-        infected_data_7_1,
-        infected_data_7_2,
-        infected_data_7_3,
-        infected_data_7_4,
-        infected_data_7_5,
-        infected_data_7_6,
-        infected_data_7_7,
-        dims = 3)
+        vec(infected_data_7_1),
+        vec(infected_data_7_2),
+        vec(infected_data_7_3),
+        vec(infected_data_7_4),
+        vec(infected_data_7_5),
+        vec(infected_data_7_6),
+        vec(infected_data_7_7),
+        dims = 2)
 
-    infected_data_15 = infected_data_15[2:53, 21:27]
+    # infected_data_15 = infected_data_15[2:53, 21:27]
+    infected_data_15 = infected_data_15_all[2:53, 24:(23 + num_years)]
     infected_data_15_1 = etiology[:, 1] .* infected_data_15
     infected_data_15_2 = etiology[:, 2] .* infected_data_15
     infected_data_15_3 = etiology[:, 3] .* infected_data_15
@@ -220,42 +219,127 @@ function main()
     infected_data_15_6 = etiology[:, 6] .* infected_data_15
     infected_data_15_7 = etiology[:, 7] .* infected_data_15
     infected_data_15_viruses = cat(
-        infected_data_15_1,
-        infected_data_15_2,
-        infected_data_15_3,
-        infected_data_15_4,
-        infected_data_15_5,
-        infected_data_15_6,
-        infected_data_15_7,
-        dims = 3)
+        vec(infected_data_15_1),
+        vec(infected_data_15_2),
+        vec(infected_data_15_3),
+        vec(infected_data_15_4),
+        vec(infected_data_15_5),
+        vec(infected_data_15_6),
+        vec(infected_data_15_7),
+        dims = 2)
 
-    infected_data_0_viruses_mean = mean(infected_data_0_viruses, dims = 2)[:, 1, :]
-    infected_data_3_viruses_mean = mean(infected_data_3_viruses, dims = 2)[:, 1, :]
-    infected_data_7_viruses_mean = mean(infected_data_7_viruses, dims = 2)[:, 1, :]
-    infected_data_15_viruses_mean = mean(infected_data_15_viruses, dims = 2)[:, 1, :]
-
-    num_infected_age_groups_viruses_mean = cat(
-        infected_data_0_viruses_mean,
-        infected_data_3_viruses_mean,
-        infected_data_7_viruses_mean,
-        infected_data_15_viruses_mean,
+    num_infected_age_groups_viruses = cat(
+        infected_data_0_viruses,
+        infected_data_3_viruses,
+        infected_data_7_viruses,
+        infected_data_15_viruses,
         dims = 3,
     )
 
-    num_all_infected_age_groups_viruses_mean = copy(num_infected_age_groups_viruses_mean)
+
+    infected_data_0_prev = infected_data_0_all[2:53, 23]
+    infected_data_0_1_prev = etiology[:, 1] .* infected_data_0_prev
+    infected_data_0_2_prev = etiology[:, 2] .* infected_data_0_prev
+    infected_data_0_3_prev = etiology[:, 3] .* infected_data_0_prev
+    infected_data_0_4_prev = etiology[:, 4] .* infected_data_0_prev
+    infected_data_0_5_prev = etiology[:, 5] .* infected_data_0_prev
+    infected_data_0_6_prev = etiology[:, 6] .* infected_data_0_prev
+    infected_data_0_7_prev = etiology[:, 7] .* infected_data_0_prev
+    infected_data_0_viruses_prev = cat(
+        vec(infected_data_0_1_prev),
+        vec(infected_data_0_2_prev),
+        vec(infected_data_0_3_prev),
+        vec(infected_data_0_4_prev),
+        vec(infected_data_0_5_prev),
+        vec(infected_data_0_6_prev),
+        vec(infected_data_0_7_prev),
+        dims = 2)
+
+    # infected_data_3 = infected_data_3[2:53, 21:27]
+    infected_data_3_prev = infected_data_3_all[2:53, 23]
+    infected_data_3_1_prev = etiology[:, 1] .* infected_data_3_prev
+    infected_data_3_2_prev = etiology[:, 2] .* infected_data_3_prev
+    infected_data_3_3_prev = etiology[:, 3] .* infected_data_3_prev
+    infected_data_3_4_prev = etiology[:, 4] .* infected_data_3_prev
+    infected_data_3_5_prev = etiology[:, 5] .* infected_data_3_prev
+    infected_data_3_6_prev = etiology[:, 6] .* infected_data_3_prev
+    infected_data_3_7_prev = etiology[:, 7] .* infected_data_3_prev
+    infected_data_3_viruses_prev = cat(
+        vec(infected_data_3_1_prev),
+        vec(infected_data_3_2_prev),
+        vec(infected_data_3_3_prev),
+        vec(infected_data_3_4_prev),
+        vec(infected_data_3_5_prev),
+        vec(infected_data_3_6_prev),
+        vec(infected_data_3_7_prev),
+        dims = 2)
+
+    # infected_data_7 = infected_data_7[2:53, 21:27]
+    infected_data_7_prev = infected_data_7_all[2:53, 23]
+    infected_data_7_1_prev = etiology[:, 1] .* infected_data_7_prev
+    infected_data_7_2_prev = etiology[:, 2] .* infected_data_7_prev
+    infected_data_7_3_prev = etiology[:, 3] .* infected_data_7_prev
+    infected_data_7_4_prev = etiology[:, 4] .* infected_data_7_prev
+    infected_data_7_5_prev = etiology[:, 5] .* infected_data_7_prev
+    infected_data_7_6_prev = etiology[:, 6] .* infected_data_7_prev
+    infected_data_7_7_prev = etiology[:, 7] .* infected_data_7_prev
+    infected_data_7_viruses_prev = cat(
+        vec(infected_data_7_1_prev),
+        vec(infected_data_7_2_prev),
+        vec(infected_data_7_3_prev),
+        vec(infected_data_7_4_prev),
+        vec(infected_data_7_5_prev),
+        vec(infected_data_7_6_prev),
+        vec(infected_data_7_7_prev),
+        dims = 2)
+
+    # infected_data_15 = infected_data_15[2:53, 21:27]
+    infected_data_15_prev = infected_data_15_all[2:53, 23]
+    infected_data_15_1_prev = etiology[:, 1] .* infected_data_15_prev
+    infected_data_15_2_prev = etiology[:, 2] .* infected_data_15_prev
+    infected_data_15_3_prev = etiology[:, 3] .* infected_data_15_prev
+    infected_data_15_4_prev = etiology[:, 4] .* infected_data_15_prev
+    infected_data_15_5_prev = etiology[:, 5] .* infected_data_15_prev
+    infected_data_15_6_prev = etiology[:, 6] .* infected_data_15_prev
+    infected_data_15_7_prev = etiology[:, 7] .* infected_data_15_prev
+    infected_data_15_viruses_prev = cat(
+        vec(infected_data_15_1_prev),
+        vec(infected_data_15_2_prev),
+        vec(infected_data_15_3_prev),
+        vec(infected_data_15_4_prev),
+        vec(infected_data_15_5_prev),
+        vec(infected_data_15_6_prev),
+        vec(infected_data_15_7_prev),
+        dims = 2)
+
+    num_infected_age_groups_viruses_prev = cat(
+        infected_data_0_viruses_prev,
+        infected_data_3_viruses_prev,
+        infected_data_7_viruses_prev,
+        infected_data_15_viruses_prev,
+        dims = 3,
+    )
+
     for virus_id = 1:length(viruses)
-        num_all_infected_age_groups_viruses_mean[:, virus_id, 1] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[1]) * (1 - isolation_probabilities_day_2[1]) * (1 - isolation_probabilities_day_3[1]))
-        num_all_infected_age_groups_viruses_mean[:, virus_id, 2] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[2]) * (1 - isolation_probabilities_day_2[2]) * (1 - isolation_probabilities_day_3[2]))
-        num_all_infected_age_groups_viruses_mean[:, virus_id, 3] ./= viruses[virus_id].symptomatic_probability_teenager * (1 - (1 - isolation_probabilities_day_1[3]) * (1 - isolation_probabilities_day_2[3]) * (1 - isolation_probabilities_day_3[3]))
-        num_all_infected_age_groups_viruses_mean[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 1] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[1]) * (1 - isolation_probabilities_day_2[1]) * (1 - isolation_probabilities_day_3[1]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 2] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[2]) * (1 - isolation_probabilities_day_2[2]) * (1 - isolation_probabilities_day_3[2]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 3] ./= viruses[virus_id].symptomatic_probability_teenager * (1 - (1 - isolation_probabilities_day_1[3]) * (1 - isolation_probabilities_day_2[3]) * (1 - isolation_probabilities_day_3[3]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
     end
+
+    # println(num_infected_age_groups_viruses_prev[17, 3, 4] / num_agents_age_groups[4])
+    # return
 
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, households, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+            agents, households, viruses, num_infected_age_groups_viruses_prev, isolation_probabilities_day_1,
             isolation_probabilities_day_2, isolation_probabilities_day_3, start_household_ids[thread_id],
-            homes_coords_df, district_households, district_people, district_people_households, district_nums)
+            homes_coords_df, district_households, district_people, district_people_households, district_nums,
+            immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
+            immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
+            immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
+            immune_memory_susceptibility_levels[7])
     end
 
     @time set_connections(
@@ -267,7 +351,6 @@ function main()
 
     multipliers = [0.8, 0.9, 1.1, 1.2]
     k = -2
-
     for m in multipliers
         duration_parameter_new = duration_parameter * m
         @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
@@ -278,7 +361,10 @@ function main()
             isolation_probabilities_day_1, isolation_probabilities_day_2,
             isolation_probabilities_day_3, random_infection_probabilities,
             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-            school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
+            immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
+            immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
+            immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
+            immune_memory_susceptibility_levels[7])
         writedlm(
             joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_d_$k.csv"),
             sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
@@ -288,11 +374,18 @@ function main()
                 start_agent_ids[thread_id],
                 end_agent_ids[thread_id],
                 viruses,
-                num_all_infected_age_groups_viruses_mean,
+                num_infected_age_groups_viruses_prev,
                 isolation_probabilities_day_1,
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
                 thread_rng[thread_id],
+                immune_memory_susceptibility_levels[1],
+                immune_memory_susceptibility_levels[2],
+                immune_memory_susceptibility_levels[3],
+                immune_memory_susceptibility_levels[4],
+                immune_memory_susceptibility_levels[5],
+                immune_memory_susceptibility_levels[6],
+                immune_memory_susceptibility_levels[7],
             )
         end
         if k == -1
@@ -315,7 +408,10 @@ function main()
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities,
                 recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-                school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
+                immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
+                immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
+                immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
+                immune_memory_susceptibility_levels[7])
             writedlm(
                 joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_s$(i)_$k.csv"),
                 sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
@@ -325,11 +421,18 @@ function main()
                     start_agent_ids[thread_id],
                     end_agent_ids[thread_id],
                     viruses,
-                    num_all_infected_age_groups_viruses_mean,
+                    num_infected_age_groups_viruses_prev,
                     isolation_probabilities_day_1,
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
+                    immune_memory_susceptibility_levels[1],
+                    immune_memory_susceptibility_levels[2],
+                    immune_memory_susceptibility_levels[3],
+                    immune_memory_susceptibility_levels[4],
+                    immune_memory_susceptibility_levels[5],
+                    immune_memory_susceptibility_levels[6],
+                    immune_memory_susceptibility_levels[7],
                 )
             end
             if k == -1
@@ -354,7 +457,10 @@ function main()
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities,
                 recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-                school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
+                immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
+                immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
+                immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
+                immune_memory_susceptibility_levels[7])
             writedlm(
                 joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_t$(i)_$k.csv"),
                 sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
@@ -364,11 +470,18 @@ function main()
                     start_agent_ids[thread_id],
                     end_agent_ids[thread_id],
                     viruses,
-                    num_all_infected_age_groups_viruses_mean,
+                    num_infected_age_groups_viruses_prev,
                     isolation_probabilities_day_1,
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
+                    immune_memory_susceptibility_levels[1],
+                    immune_memory_susceptibility_levels[2],
+                    immune_memory_susceptibility_levels[3],
+                    immune_memory_susceptibility_levels[4],
+                    immune_memory_susceptibility_levels[5],
+                    immune_memory_susceptibility_levels[6],
+                    immune_memory_susceptibility_levels[7],
                 )
             end
             if k == -1
@@ -393,7 +506,10 @@ function main()
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities_new,
                 recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-                school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
+                immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
+                immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
+                immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
+                immune_memory_susceptibility_levels[7])
             writedlm(
                 joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_p$(i)_$k.csv"),
                 sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
@@ -403,11 +519,18 @@ function main()
                     start_agent_ids[thread_id],
                     end_agent_ids[thread_id],
                     viruses,
-                    num_all_infected_age_groups_viruses_mean,
+                    num_infected_age_groups_viruses_prev,
                     isolation_probabilities_day_1,
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
+                    immune_memory_susceptibility_levels[1],
+                    immune_memory_susceptibility_levels[2],
+                    immune_memory_susceptibility_levels[3],
+                    immune_memory_susceptibility_levels[4],
+                    immune_memory_susceptibility_levels[5],
+                    immune_memory_susceptibility_levels[6],
+                    immune_memory_susceptibility_levels[7],
                 )
             end
             if k == -1
@@ -434,7 +557,10 @@ function main()
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities,
                 recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-                school_class_closure_period, school_class_closure_threshold, school_closure_threshold_classes)
+                immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
+                immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
+                immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
+                immune_memory_susceptibility_levels[7])
             writedlm(
                 joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_r$(i)_$k.csv"),
                 sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
@@ -444,11 +570,18 @@ function main()
                     start_agent_ids[thread_id],
                     end_agent_ids[thread_id],
                     viruses,
-                    num_all_infected_age_groups_viruses_mean,
+                    num_infected_age_groups_viruses_prev,
                     isolation_probabilities_day_1,
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
+                    immune_memory_susceptibility_levels[1],
+                    immune_memory_susceptibility_levels[2],
+                    immune_memory_susceptibility_levels[3],
+                    immune_memory_susceptibility_levels[4],
+                    immune_memory_susceptibility_levels[5],
+                    immune_memory_susceptibility_levels[6],
+                    immune_memory_susceptibility_levels[7],
                 )
             end
             if k == -1
@@ -459,6 +592,55 @@ function main()
 
             for k = 1:length(viruses)
                 viruses[k].mean_immunity_duration = mean_immunity_durations[k]
+            end
+        end
+    end
+
+    values = [1.0, 0.8, 0.6, 0.4]
+    for i in 1:7
+        k = -2
+        for v in values
+            immune_memory_susceptibility_levels_new = copy(immune_memory_susceptibility_levels)
+            immune_memory_susceptibility_levels_new[i] = v
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+                num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
+                susceptibility_parameters, temperature_parameters, temperature,
+                mean_household_contact_durations, household_contact_duration_sds,
+                other_contact_duration_shapes, other_contact_duration_scales,
+                isolation_probabilities_day_1, isolation_probabilities_day_2,
+                isolation_probabilities_day_3, random_infection_probabilities,
+                recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+                immune_memory_susceptibility_levels_new[1], immune_memory_susceptibility_levels_new[2],
+                immune_memory_susceptibility_levels_new[3], immune_memory_susceptibility_levels_new[4],
+                immune_memory_susceptibility_levels_new[5], immune_memory_susceptibility_levels_new[6],
+                immune_memory_susceptibility_levels_new[7])
+            writedlm(
+                joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_alpha$(i)_$k.csv"),
+                sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
+            @threads for thread_id in 1:num_threads
+                reset_agent_states(
+                    agents,
+                    start_agent_ids[thread_id],
+                    end_agent_ids[thread_id],
+                    viruses,
+                    num_infected_age_groups_viruses_prev,
+                    isolation_probabilities_day_1,
+                    isolation_probabilities_day_2,
+                    isolation_probabilities_day_3,
+                    thread_rng[thread_id],
+                    immune_memory_susceptibility_levels[1],
+                    immune_memory_susceptibility_levels[2],
+                    immune_memory_susceptibility_levels[3],
+                    immune_memory_susceptibility_levels[4],
+                    immune_memory_susceptibility_levels[5],
+                    immune_memory_susceptibility_levels[6],
+                    immune_memory_susceptibility_levels[7],
+                )
+            end
+            if k == -1
+                k = 1
+            else
+                k += 1
             end
         end
     end

@@ -82,7 +82,7 @@ function plot_work_contacts()
     yticks = [0, 4, 8, 12]
     yticklabels = ["0" "4" "8" "12"]
 
-    label_names = ["n = 4" "n = 5" "n = 6"]
+    label_names = ["m = 4" "m = 5" "m = 6"]
 
     xlabel_name = "Month"
     if is_russian
@@ -104,7 +104,6 @@ function plot_work_contacts()
         grid = true,
         legend = (0.9, 0.98),
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2)],
-        # color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         # color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
         # ribbon = [confidence_model[i, :] for i = 1:4],
         foreground_color_legend = nothing,
@@ -319,7 +318,6 @@ function plot_school_contacts()
         grid = true,
         # legend = (0.9, 0.98),
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467)],
-        # color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         # color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
         # ribbon = [confidence_model[i, :] for i = 1:4],
         foreground_color_legend = nothing,
@@ -726,6 +724,7 @@ function plot_incidence_contacts2()
         1:52,
         [incidence_arr_mean[i, :] for i = 1:4],
         lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         label = label_names,
@@ -867,6 +866,9 @@ function plot_rt_contacts2()
         1:365,
         [rt_arr_mean[i, :] for i = 1:4],
         lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         label = label_names,
@@ -881,9 +883,8 @@ function plot_rt_contacts2()
 end
 
 function plot_infection_curves()
-    # num_runs = 300
-    num_runs = 100
-    num_years = 3
+    num_runs = 315
+    num_years = 2
 
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_means = zeros(Float64, (52 * num_years), num_runs)
@@ -1353,12 +1354,20 @@ function plot_infection_curves()
         end
     end
 
-    ticks = range(1, stop = (52.14285 * num_years), length = 19)
-    ticks_rt = range(1, stop = (365 * num_years), length = 19)
+    # ticks = range(1, stop = (52.14285 * num_years), length = 19)
+    # ticks_rt = range(1, stop = (365 * num_years), length = 19)
 
-    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    # ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    # if is_russian
+    #     ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    # end
+
+    ticks = range(1, stop = (52.14285 * num_years), length = 13)
+    ticks_rt = range(1, stop = (365 * num_years), length = 13)
+
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     if is_russian
-        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
     end
 
     xlabel_name = "Month"
@@ -1387,7 +1396,7 @@ function plot_infection_curves()
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "incidence.pdf"))
 
-    return
+    # return
 
     # xlabel_name = "Month"
     # if is_russian
@@ -1590,61 +1599,54 @@ function plot_infection_curves()
     y = incidence_arr_means[10, :]
     @time param_ids = stepwise_regression(X, y, 12)
     println(params_arr[param_ids])
-    # ["duration_parameter",
-    # "susceptibility_parameter_4",
-    # "other_contact_duration_scale_4",
-    # "other_contact_duration_shape_4",
-    # "susceptibility_parameter_3",
-    # "other_contact_duration_shape_2",
-    # "susceptibility_parameter_5",
-    # "susceptibility_parameter_6",
-    # "other_contact_duration_scale_2",
-    # "mean_household_contact_duration_4",
-    # "mean_viral_load_child_4",
-    # "other_contact_duration_shape_1", 
+    # ["susceptibility_parameter_4",
+    # "duration_parameter",
     # "mean_viral_load_adult_4",
+    # "susceptibility_parameter_3",
     # "infection_period_duration_adult_4",
-    # "mean_household_contact_duration_2"]
+    # "other_contact_duration_scale_4",
+    # "symptomatic_probability_adult_3", ++++
+    # "isolation_probability_day_2_4",
+    # "mean_viral_load_child_4",
+    # "mean_viral_load_adult_3",
+    # "other_contact_duration_shape_4",
+    # "infection_period_duration_child_4"]
 
     println("Second peak")
     y = incidence_arr_means[13, :]
     @time param_ids = stepwise_regression(X, y, 12)
     println(params_arr[param_ids])
-    # ["duration_parameter",
-    # "susceptibility_parameter_3",
-    # "susceptibility_parameter_4",
-    # "other_contact_duration_scale_4",
-    # "other_contact_duration_scale_2",
+    # ["susceptibility_parameter_4",
+    # "duration_parameter",
+    # "mean_viral_load_child_4",
+    # "mean_viral_load_adult_4",
+    # "infection_period_duration_adult_4",
+    # "infection_period_duration_child_4",
     # "other_contact_duration_shape_4",
+    # "other_contact_duration_scale_4",
     # "other_contact_duration_shape_2",
-    # "susceptibility_parameter_6",
-    # "susceptibility_parameter_5",
-    # "susceptibility_parameter_7",
+    # "susceptibility_parameter_3",
     # "isolation_probability_day_2_4",
-    # "mean_viral_load_adult_3",
-    # "mean_household_contact_duration_2",
-    # "mean_household_contact_duration_4",
     # "symptomatic_probability_adult_3"]
+    
 
     println("Max")
     y = incidence_arr_means[argmax(infected_data_mean), :]
     @time param_ids = stepwise_regression(X, y, 12)
     println(params_arr[param_ids])
     # ["duration_parameter",
-    # "susceptibility_parameter_1",
-    # "mean_viral_load_adult_1",
-    # "mean_viral_load_child_1",
-    # "other_contact_duration_scale_2",
-    # "other_contact_duration_shape_4",
-    # "infection_period_duration_adult_1",
-    # "other_contact_duration_scale_4",
-    # "susceptibility_parameter_2",
-    # "other_contact_duration_shape_2",
     # "symptomatic_probability_adult_1",
-    # "susceptibility_parameter_4",
-    # "infection_period_duration_child_1",
+    # "symptomatic_probability_adult_2",
+    # "mean_viral_load_adult_2",
+    # "isolation_probability_day_2_4",
+    # "infection_period_duration_adult_2",
+    # "susceptibility_parameter_2",
+    # "mean_viral_load_adult_1",
     # "mean_household_contact_duration_2",
-    # "mean_household_contact_duration_4"]
+    # "symptomatic_probability_teenager_1",
+    # "infection_period_duration_adult_1",
+    # "other_contact_duration_shape_4"]
+    
 
     println("Sum")
     y = sum(incidence_arr_means, dims = 1)[1, :]
@@ -1652,38 +1654,40 @@ function plot_infection_curves()
     println(params_arr[param_ids])
     # ["duration_parameter",
     # "susceptibility_parameter_4",
-    # "other_contact_duration_shape_4",
     # "other_contact_duration_scale_4",
+    # "other_contact_duration_shape_4",
     # "susceptibility_parameter_1",
-    # "other_contact_duration_scale_2",
-    # "susceptibility_parameter_3",
-    # "other_contact_duration_shape_2",
     # "susceptibility_parameter_2",
-    # "mean_household_contact_duration_2",
-    # "mean_household_contact_duration_4",
-    # "susceptibility_parameter_5",
+    # "susceptibility_parameter_3",
     # "mean_viral_load_adult_1",
-    # "mean_viral_load_child_1",
-    # "other_contact_duration_shape_1"]
+    # "infection_period_duration_adult_1",
+    # "isolation_probability_day_2_4",
+    # "other_contact_duration_shape_2",
+    # "infection_period_duration_adult_2"]
+    
 end
 
 function plot_incidences()
     num_runs = 1
     num_years = 3
 
-    incidence_arr = Array{Vector{Float64}, 1}(undef, num_runs)
-    incidence = zeros(Float64, (52 * num_years))
+    incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
+    incidence = zeros(Float64, 52)
 
     for i = 1:num_runs
         observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
-        incidence_arr[i] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
+        for j = 1:num_years
+            incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+        end
     end
 
-    for i = 1:(52 * num_years)
-        for k = 1:num_runs
-            incidence[i] += incidence_arr[k][i]
+    for i = 1:52
+        for j = 1:num_years
+            for k = 1:num_runs
+                incidence[i] += incidence_arr[k, j][i]
+            end
         end
-        incidence[i] /= num_runs
+        incidence[i] /= num_runs * num_years
     end
 
     # duration_parameter = 3.711739847454133
@@ -1692,12 +1696,12 @@ function plot_incidences()
     # random_infection_probabilities = [0.00011551556380127805, 6.822016079158936e-5, 4.922135642135645e-5, 6.844135229849516e-7]
     # mean_immunity_durations = [255.05916305916304, 312.7078952793239, 101.87487116058544, 27.368377654091933, 77.08431251288393, 117.33374561945988, 103.15357658214802]
 
-    duration_parameter = 3.3695943816524907
-    susceptibility_parameters = [3.0307005776255167, 3.1607934669677986, 3.4273238632802836, 4.3725990337370515, 3.67390987352247, 3.8281846882573243, 4.746937978511825]
-    temperature_parameters = [-0.95, -0.8874797488598941, -0.05, -0.11936936936936937, -0.11488698235671589, -0.17735457724319717, -0.31083867585078234]
-    immune_memory_susceptibility_levels = [0.9381002876402393, 0.95, 0.9278778778778778, 0.8938438438438437, 0.9185685685685685, 0.8678178178178176, 0.9288288288288288]  
-    mean_immunity_durations = [346.6586428571901, 313.6876979491992, 143.00214714069438, 94.5655000618681, 113.27047767241473, 139.89128281137963, 161.06429368899117]    
-    random_infection_probabilities = [0.0013770303094598375, 0.0007744184671858813, 0.00041302869187678077, 9.182178576371385e-6]
+    duration_parameter = 0.23703365311405514
+    susceptibility_parameters = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.558457619595636, 3.9627987624113588, 3.751417011489648, 4.552998584572433]
+    temperature_parameters = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
+    immune_memory_susceptibility_levels = [0.8944639240038756, 0.9430303030303029, 0.9336363636363636, 0.9363636363636363, 0.8876594776594775, 0.8817572117572116, 0.946060606060606]
+    mean_immunity_durations = [357.979797979798, 326.2129504744517, 133.30517744372466, 99.91903541540344, 105.99775039968745, 148.27512119521802, 162.6804553051528]
+    random_infection_probabilities = [0.00138, 0.00077, 0.0004, 9.2e-6]
 
     d_minus_2 = readdlm(joinpath(@__DIR__, "..", "..", "sensitivity", "tables", "2nd", "infected_data_d_-2.csv"), ',', Float64) ./ 10072
     if num_years > 1
@@ -2741,398 +2745,502 @@ function plot_incidences()
 
     # ticks = range(1, stop = 52, length = 13)
     # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
+    
+    # ticks = range(1, stop = 52, length = 7)
+    # ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    # yticks = [2, 6, 10, 14]
+    # yticklabels = ["2", "6", "10", "14"]
+
     ticks = range(1, stop = 52, length = 7)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
-    yticks = [2, 6, 10, 14]
-    yticklabels = ["2", "6", "10", "14"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    yticks = [0, 4, 8, 12]
+    yticklabels = ["0" "4" "8" "12"]
+
+    label_names = ["model" "data"]
+    if is_russian
+        label_names = ["модель" "данные"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Weekly incidence rate per 1000"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
     incidence_plot = plot(
         1:52,
         [d_minus_2 d_minus_1 incidence d_1 d_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
-        legend = (0.91, 1.0),
-        ylims = (0, 17),
+        legend = (0.86, 1.0),
+        # ylims = (0, 17),
         margin = 2Plots.mm,
-        label = ["$(round(duration_parameter * 0.8, digits = 2))" "$(round(duration_parameter * 0.9, digits = 2))" "$(round(duration_parameter, digits = 2))" "$(round(duration_parameter * 1.1, digits = 2))" "$(round(duration_parameter * 1.2, digits = 2))"],
+        label = ["d = $(round(duration_parameter * 0.8, digits = 2))" "d = $(round(duration_parameter * 0.9, digits = 2))" "d = $(round(duration_parameter, digits = 2))" "d = $(round(duration_parameter * 1.1, digits = 2))" "d = $(round(duration_parameter * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "d.pdf"))
 
     incidence_plot = plot(
         1:52,
         [s1_minus_2 s1_minus_1 incidence s1_1 s1_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         label = ["$(round(susceptibility_parameters[1] * 0.8, digits = 2))" "$(round(susceptibility_parameters[1] * 0.9, digits = 2))" "$(round(susceptibility_parameters[1], digits = 2))" "$(round(susceptibility_parameters[1] * 1.1, digits = 2))" "$(round(susceptibility_parameters[1] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "s1.pdf"))
 
     incidence_plot = plot(
         1:52,
         [s2_minus_2 s2_minus_1 incidence s2_1 s2_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         label = ["$(round(susceptibility_parameters[2] * 0.8, digits = 2))" "$(round(susceptibility_parameters[2] * 0.9, digits = 2))" "$(round(susceptibility_parameters[2], digits = 2))" "$(round(susceptibility_parameters[2] * 1.1, digits = 2))" "$(round(susceptibility_parameters[2] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "s2.pdf"))
 
     incidence_plot = plot(
         1:52,
         [s3_minus_2 s3_minus_1 incidence s3_1 s3_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(susceptibility_parameters[3] * 0.8, digits = 2))" "$(round(susceptibility_parameters[3] * 0.9, digits = 2))" "$(round(susceptibility_parameters[3], digits = 2))" "$(round(susceptibility_parameters[3] * 1.1, digits = 2))" "$(round(susceptibility_parameters[3] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "s3.pdf"))
 
     incidence_plot = plot(
         1:52,
         [s4_minus_2 s4_minus_1 incidence s4_1 s4_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.85, 0.95),
         label = ["$(round(susceptibility_parameters[4] * 0.8, digits = 2))" "$(round(susceptibility_parameters[4] * 0.9, digits = 2))" "$(round(susceptibility_parameters[4], digits = 2))" "$(round(susceptibility_parameters[4] * 1.1, digits = 2))" "$(round(susceptibility_parameters[4] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "s4.pdf"))
 
     incidence_plot = plot(
         1:52,
         [s5_minus_2 s5_minus_1 incidence s5_1 s5_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 1.0),
-        ylims = (0, 13),
+        # ylims = (0, 13),
         label = ["$(round(susceptibility_parameters[5] * 0.8, digits = 2))" "$(round(susceptibility_parameters[5] * 0.9, digits = 2))" "$(round(susceptibility_parameters[5], digits = 2))" "$(round(susceptibility_parameters[5] * 1.1, digits = 2))" "$(round(susceptibility_parameters[5] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "s5.pdf"))
 
     incidence_plot = plot(
         1:52,
         [s6_minus_2 s6_minus_1 incidence s6_1 s6_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.92, 0.98),
         label = ["$(round(susceptibility_parameters[6] * 0.8, digits = 2))" "$(round(susceptibility_parameters[6] * 0.9, digits = 2))" "$(round(susceptibility_parameters[6], digits = 2))" "$(round(susceptibility_parameters[6] * 1.1, digits = 2))" "$(round(susceptibility_parameters[6] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "s6.pdf"))
 
     incidence_plot = plot(
         1:52,
         [s7_minus_2 s7_minus_1 incidence s7_1 s7_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(susceptibility_parameters[7] * 0.8, digits = 2))" "$(round(susceptibility_parameters[7] * 0.9, digits = 2))" "$(round(susceptibility_parameters[7], digits = 2))" "$(round(susceptibility_parameters[7] * 1.1, digits = 2))" "$(round(susceptibility_parameters[7] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "s7.pdf"))
 
     incidence_plot = plot(
         1:52,
         [t1_minus_2 t1_minus_1 incidence t1_1 t1_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[1], digits = 2))" "$(0.75)" "$(1.0)"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "t1.pdf"))
 
     incidence_plot = plot(
         1:52,
         [t2_minus_2 t2_minus_1 incidence t2_1 t2_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[2], digits = 2))" "$(0.75)" "$(1.0)"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "t2.pdf"))
 
     incidence_plot = plot(
         1:52,
         [t3_minus_2 t3_minus_1 incidence t3_1 t3_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[3], digits = 2))" "$(0.75)" "$(1.0)"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "t3.pdf"))
 
     incidence_plot = plot(
         1:52,
         [t4_minus_2 t4_minus_1 incidence t4_1 t4_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[4], digits = 2))" "$(0.75)" "$(1.0)"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "t4.pdf"))
 
     incidence_plot = plot(
         1:52,
         [t5_minus_2 t5_minus_1 incidence t5_1 t5_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[5], digits = 2))" "$(0.75)" "$(1.0)"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "t5.pdf"))
 
     incidence_plot = plot(
         1:52,
         [t6_minus_2 t6_minus_1 incidence t6_1 t6_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[6], digits = 2))" "$(0.75)" "$(1.0)"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "t6.pdf"))
 
     incidence_plot = plot(
         1:52,
         [t7_minus_2 t7_minus_1 incidence t7_1 t7_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[7], digits = 2))" "$(0.75)" "$(1.0)"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "t7.pdf"))
 
     incidence_plot = plot(
         1:52,
         [p1_minus_2 p1_minus_1 incidence p1_1 p1_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(random_infection_probabilities[1] * 0.1, digits = 6))" "$(round(random_infection_probabilities[1] * 0.5, digits = 6))" "$(round(random_infection_probabilities[1], digits = 6))" "$(round(random_infection_probabilities[1] * 2.0, digits = 6))" "$(round(random_infection_probabilities[1] * 10.0, digits = 6))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "p1.pdf"))
 
     incidence_plot = plot(
         1:52,
         [p2_minus_2 p2_minus_1 incidence p2_1 p2_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(random_infection_probabilities[2] * 0.1, digits = 6))" "$(round(random_infection_probabilities[2] * 0.5, digits = 6))" "$(round(random_infection_probabilities[2], digits = 6))" "$(round(random_infection_probabilities[2] * 2.0, digits = 6))" "$(round(random_infection_probabilities[2] * 10.0, digits = 6))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "p2.pdf"))
 
     incidence_plot = plot(
         1:52,
         [p3_minus_2 p3_minus_1 incidence p3_1 p3_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(random_infection_probabilities[3] * 0.1, digits = 6))" "$(round(random_infection_probabilities[3] * 0.5, digits = 6))" "$(round(random_infection_probabilities[3], digits = 6))" "$(round(random_infection_probabilities[3] * 2.0, digits = 6))" "$(round(random_infection_probabilities[3] * 10.0, digits = 6))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "p3.pdf"))
 
     incidence_plot = plot(
         1:52,
         [p4_minus_2 p4_minus_1 incidence p4_1 p4_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(random_infection_probabilities[4] * 0.1, digits = 7))" "$(round(random_infection_probabilities[4] * 0.5, digits = 7))" "$(round(random_infection_probabilities[4], digits = 7))" "$(round(random_infection_probabilities[4] * 2.0, digits = 7))" "$(round(random_infection_probabilities[4] * 10.0, digits = 7))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "p4.pdf"))
 
     incidence_plot = plot(
         1:52,
         [r1_minus_2 r1_minus_1 incidence r1_1 r1_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[1] * 0.8, digits = 2))" "$(round(mean_immunity_durations[1] * 0.9, digits = 2))" "$(round(mean_immunity_durations[1], digits = 2))" "$(round(mean_immunity_durations[1] * 1.1, digits = 2))" "$(round(mean_immunity_durations[1] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "r1.pdf"))
 
     incidence_plot = plot(
         1:52,
         [r2_minus_2 r2_minus_1 incidence r2_1 r2_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[2] * 0.8, digits = 2))" "$(round(mean_immunity_durations[2] * 0.9, digits = 2))" "$(round(mean_immunity_durations[2], digits = 2))" "$(round(mean_immunity_durations[2] * 1.1, digits = 2))" "$(round(mean_immunity_durations[2] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "r2.pdf"))
 
     incidence_plot = plot(
         1:52,
         [r3_minus_2 r3_minus_1 incidence r3_1 r3_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[3] * 0.8, digits = 2))" "$(round(mean_immunity_durations[3] * 0.9, digits = 2))" "$(round(mean_immunity_durations[3], digits = 2))" "$(round(mean_immunity_durations[3] * 1.1, digits = 2))" "$(round(mean_immunity_durations[3] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "r3.pdf"))
 
     incidence_plot = plot(
         1:52,
         [r4_minus_2 r4_minus_1 incidence r4_1 r4_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[4] * 0.8, digits = 2))" "$(round(mean_immunity_durations[4] * 0.9, digits = 2))" "$(round(mean_immunity_durations[4], digits = 2))" "$(round(mean_immunity_durations[4] * 1.1, digits = 2))" "$(round(mean_immunity_durations[4] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "r4.pdf"))
 
     incidence_plot = plot(
         1:52,
         [r5_minus_2 r5_minus_1 incidence r5_1 r5_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[5] * 0.8, digits = 2))" "$(round(mean_immunity_durations[5] * 0.9, digits = 2))" "$(round(mean_immunity_durations[5], digits = 2))" "$(round(mean_immunity_durations[5] * 1.1, digits = 2))" "$(round(mean_immunity_durations[5] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "r5.pdf"))
 
     incidence_plot = plot(
         1:52,
         [r6_minus_2 r6_minus_1 incidence r6_1 r6_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[6] * 0.8, digits = 2))" "$(round(mean_immunity_durations[6] * 0.9, digits = 2))" "$(round(mean_immunity_durations[6], digits = 2))" "$(round(mean_immunity_durations[6] * 1.1, digits = 2))" "$(round(mean_immunity_durations[6] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "r6.pdf"))
 
     incidence_plot = plot(
         1:52,
         [r7_minus_2 r7_minus_1 incidence r7_1 r7_2],
-        lw = 3,
+        lw = 1.5,
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[7] * 0.8, digits = 2))" "$(round(mean_immunity_durations[7] * 0.9, digits = 2))" "$(round(mean_immunity_durations[7], digits = 2))" "$(round(mean_immunity_durations[7] * 1.1, digits = 2))" "$(round(mean_immunity_durations[7] * 1.2, digits = 2))"],
         # xlabel = L"\textrm{\sffamily Month}",
         # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
-        xlabel = "Month",
-        ylabel = "Cases per 1000 people",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "sensitivity", "plots", "2nd", "r7.pdf"))
 end
@@ -3145,5 +3253,5 @@ end
 # plot_rt_contacts()
 # plot_rt_contacts2()
 
-plot_infection_curves()
-# plot_incidences()
+# plot_infection_curves()
+plot_incidences()

@@ -18,10 +18,12 @@ function plot_performance()
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     duration_parameter = mean(duration_parameter_array[burnin:step:length(duration_parameter_array)])
     # duration_parameter = 3.3695943816524907
-    v = [0.7424240360316214, 0.7202259373358402, 0.6932226020101293, 0.6784047573049448, 0.6738306633624289, 0.658307, 0.658307]
 
-    ticks = [1, 2, 3, 4, 5, 6, 7]
-    ticklabels = ["1", "100 LHS", "SM", "100 LHS", "SM", "100 LHS", "SM"]
+    # v = [0.7424240360316214, 0.7202259373358402, 0.6932226020101293, 0.6784047573049448, 0.658307, 0.658307]
+    v = [0.5424788116516213, 0.5349980458940209, 0.5244722462925852, 0.5189713551481547, 0.5128575932033336, 0.5127395196087101]
+
+    ticks = [1, 2, 3, 4, 5, 6]
+    ticklabels = ["1", "100 LHS", "200 LHS", "300 LHS", "400 LHS", "500 LHS"]
 
     xlabel_name = "Шаг"
     if !is_russian
@@ -30,7 +32,7 @@ function plot_performance()
     ylabel_name = L"nMAE"
 
     duration_plot = plot(
-        1:7,
+        1:6,
         v,
         lw = 1.5,
         xticks = (ticks, ticklabels),

@@ -645,9 +645,9 @@ function plot_temperature()
         xlabel_name = "Месяц"
     end
 
-    ylabel_name = "Temperature, °C"
+    ylabel_name = "Air temperature, °C"
     if is_russian
-        ylabel_name = "Температура, °C"
+        ylabel_name = "Температура воздуха, °C"
     end
 
     temperature_plot = plot(
@@ -944,7 +944,7 @@ function plot_Flu()
         color = "orange",
         grid = true,
         xlabel = "Месяц",
-        ylabel = "Число инфекций",
+        ylabel = "Число выявленных случаев",
     )
     savefig(FluA_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "FluA_plot.pdf"))
 
@@ -956,7 +956,7 @@ function plot_Flu()
         color = "orange",
         grid = true,
         xlabel = "Месяц",
-        ylabel = "Число инфекций",
+        ylabel = "Число выявленных случаев",
     )
     savefig(FluB_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "FluB_plot.pdf"))
 end
@@ -976,7 +976,7 @@ function plot_RV()
         color = "orange",
         grid = true,
         xlabel = "Месяц",
-        ylabel = "Число инфекций",
+        ylabel = "Число выявленных случаев",
     )
     savefig(RV_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "RV_plot.pdf"))
 end
@@ -996,7 +996,7 @@ function plot_RSV()
         color = "orange",
         grid = true,
         xlabel = "Месяц",
-        ylabel = "Число инфекций",
+        ylabel = "Число выявленных случаев",
     )
     savefig(RSV_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "RSV_plot.pdf"))
 end
@@ -1016,7 +1016,7 @@ function plot_AdV()
         color = "orange",
         grid = true,
         xlabel = "Месяц",
-        ylabel = "Число инфекций",
+        ylabel = "Число выявленных случаев",
     )
     savefig(AdV_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "AdV_plot.pdf"))
 end
@@ -1036,7 +1036,7 @@ function plot_PIV()
         color = "orange",
         grid = true,
         xlabel = "Месяц",
-        ylabel = "Число инфекций",
+        ylabel = "Число выявленных случаев",
     )
     savefig(PIV_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "PIV_plot.pdf"))
 end
@@ -1056,7 +1056,7 @@ function plot_CoV()
         color = "orange",
         grid = true,
         xlabel = "Месяц",
-        ylabel = "Число инфекций",
+        ylabel = "Число выявленных случаев",
     )
     savefig(CoV_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "CoV_plot.pdf"))
 end
@@ -1137,7 +1137,7 @@ function plot_all_infections()
         background_color_legend = nothing,
         # ribbon = [confidence_arr[:, 1] confidence_arr[:, 2] confidence_arr[:, 3] confidence_arr[:, 4] confidence_arr[:, 5] confidence_arr[:, 6] confidence_arr[:, 7]],
         xlabel = "Месяц",
-        ylabel = "Число инфекций",
+        ylabel = "Число выявленных случаев",
     )
     savefig(all_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "all_infections.pdf"))
 
@@ -1153,7 +1153,7 @@ function plot_all_infections()
         background_color_legend = nothing,
         # ribbon = [confidence_arr[:, 1] confidence_arr[:, 2]],
         xlabel = "Месяц",
-        ylabel = "Число инфекций",
+        ylabel = "Число выявленных случаев",
     )
     savefig(Flu_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "flu_infections.pdf"))
 
@@ -1169,7 +1169,7 @@ function plot_all_infections()
         background_color_legend = nothing,
         # ribbon = [confidence_arr[:, 3] confidence_arr[:, 4] confidence_arr[:, 5] confidence_arr[:, 6] confidence_arr[:, 7]],
         xlabel = "Месяц",
-        ylabel = "Число инфекций",
+        ylabel = "Число выявленных случаев",
     )
     savefig(non_Flu_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "non_flu_infections.pdf"))
 end
@@ -1324,7 +1324,7 @@ end
 # plot_AdV()
 # plot_PIV()
 # plot_CoV()
-# plot_all_infections()
+plot_all_infections()
 # plot_etiology()
 
 # plot_temperature()
@@ -1332,7 +1332,7 @@ end
 # plot_temperature_scenarios()
 # plot_closures()
 
-plot_all_data_time_series()
+# plot_all_data_time_series()
 # plot_all_data()
 # plot_incidence(42:44, "flu.csv", "incidence.pdf", 10072)
 # plot_incidence_age_groups(24:26, 10072)

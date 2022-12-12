@@ -19,7 +19,8 @@ function make_contact(
     rng::MersenneTwister,
 )
     # Влияние продолжительности контакта на вероятность инфицирования
-    duration_influence = 1 / (1 + exp(-contact_duration + duration_parameter))
+    # duration_influence = 1 / (1 + exp(-contact_duration + duration_parameter))
+    duration_influence = 1 - exp(-duration_parameter * contact_duration)
             
     # Влияние температуры воздуха на вероятность инфицирования
     temperature_influence = temperature_parameters[infected_agent.virus_id] * current_temp + 1.0
@@ -1212,6 +1213,8 @@ function run_simulation(
     temperature = copy(temperature_base)
     if with_global_warming
         for i = 1:length(temperature)
+            # temperature[i] += rand(Normal(4.0, 1.0))
+            # temperature[i] += rand(Normal(3.0, 0.75))
             # temperature[i] += rand(Normal(2.0, 0.5))
             temperature[i] += rand(Normal(1.0, 0.25))
         end
@@ -1493,6 +1496,7 @@ function run_simulation(
                         #     school.quarantine_period = school_class_closure_period
                         #     num_schools_closed_threads[current_step] += 1
                         # end
+                        
                         if school_num_isolated / school_num_people > school_class_closure_threshold
                             for groups in school.groups
                                 for group in groups
@@ -1576,6 +1580,8 @@ function run_simulation(
         if with_global_warming && current_step % 365 == 0
             temperature = copy(temperature_base)
             for i = 1:length(temperature)
+                # temperature[i] += rand(Normal(4.0, 1.0))
+                # temperature[i] += rand(Normal(3.0, 0.75))
                 # temperature[i] += rand(Normal(2.0, 0.5))
                 temperature[i] += rand(Normal(1.0, 0.25))
             end
