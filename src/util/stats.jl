@@ -29,18 +29,6 @@ function get_stats(
     num_immunity = zeros(Int, 7)
     num_infected = zeros(Int, 7)
 
-    # const kindergarten_groups_size_4_5 = 18
-
-    # const school_groups_size_5_9 = 20
-    # const school_groups_size_10_14 = 22
-    # const school_groups_size_15 = 24
-
-    # const college_groups_size_1 = 15
-    # const college_groups_size_2_3 = 14
-    # const college_groups_size_4 = 13
-    # const college_groups_size_5 = 11
-    # const college_groups_size_6 = 10
-
     kindergarten_contacts = zeros(Int, kindergarten_groups_size_4_5 + 1)
     school_contacts = zeros(Int, school_groups_size_15 + 1)
     college_contacts = zeros(Int, college_groups_size_1 + 1)
@@ -195,10 +183,6 @@ function get_stats(
         elseif agent.activity_type == 3
             college_contacts[length(agent.activity_conn_ids)] += 1
         elseif agent.activity_type == 4
-            # if agent.workplace_id == 0
-            #     println("Hmmmm")
-            #     return
-            # end
             work_contacts[length(agent.activity_conn_ids) + 1] += 1
         end
 

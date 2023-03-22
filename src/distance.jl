@@ -67,9 +67,6 @@ function main()
                 closest_id = shops_coords_district_df[j, "id"]
             end
         end
-        # if closest_id == 0
-        #     closest_id = rand(1:size(shops_coords_df, 1))
-        # end
         if closest_id2 == 0
             closest_id2 = closest_id
         end
@@ -92,9 +89,6 @@ function main()
                 closest_id = restaurants_coords_district_df[j, "id"]
             end
         end
-        # if closest_id == 0
-        #     closest_id = rand(1:size(shops_coords_df, 1))
-        # end
         if closest_id2 == 0
             closest_id2 = closest_id
         end

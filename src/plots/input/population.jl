@@ -57,17 +57,12 @@ function age_distribution_groups()
         num_people_data,
         group = legend,
         linewidth = 0.6,
-        # title = "Age distribution",
         size = (1000, 500),
         color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
         margin = 8Plots.mm,
         xrotation = 45,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Age}",
-        # ylabel = L"\textrm{\sffamily Number}"
-        # xlabel = "Age",
-        # ylabel = "Num",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
         grid = true,
@@ -82,8 +77,6 @@ function age_distribution()
     labels = CategoricalArray(string.(collect(0:89)))
     levels!(labels, string.(collect(0:89)))
 
-    # xticks = [0, 20, 40, 60, 80]
-    # xticklabels = ["0", "20", "40", "60", "80"]
     xticks = [0, 10, 20, 30, 40, 50, 60, 70, 80]
     xticklabels = ["0", "10", "20", "30", "40", "50", "60", "70", "80"]
 
@@ -103,14 +96,11 @@ function age_distribution()
         collect(0:89),
         age_groups_nums,
         linewidth = 0.6,
-        # color = :grey,
         color = RGB(0.267, 0.467, 0.667),
         legend = false,
         margin = 8Plots.mm,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Age}",
-        # ylabel = L"\textrm{\sffamily Number}"
         xlabel = xlabel_name,
         ylabel = ylabel_name,
         size=(800,400),
@@ -130,8 +120,6 @@ function household_size_distribution()
 
     arr = vec(household_size_distribution)
     s = sum(abs.(arr - [1118631, 1056816, 922206, 575250, 236758, 148261])) / sum([1118631, 1056816, 922206, 575250, 236758, 148261])
-    # 8.427377045e10
-    # 2.9657067362e10
     println(s)
 
     labels = CategoricalArray(repeat(["1", "2", "3", "4", "5", "6"], outer = 3))
@@ -162,39 +150,11 @@ function household_size_distribution()
         color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Size}",
-        # ylabel = L"\textrm{\sffamily Number}"
         xlabel = xlabel_name,
         ylabel = ylabel_name,
         grid = true,
     )
     savefig(household_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "household_size_distribution.pdf"))
-
-
-    # num_households_data = [1118631 1056816 922206 575250 236758 148261]
-
-    # labels = CategoricalArray(["1", "2", "3", "4", "5", "6", "7"])
-    # levels!(labels, ["1", "2", "3", "4", "5", "6", "7"])
-    # legend = repeat(["0-15"], inner = 6)
-
-    # incubation_periods_plot = groupedbar(
-    #     labels,
-    #     num_households_data,
-    #     group = legend,
-    #     color = RGB(0.5, 0.5, 0.5),
-    #     # color = RGB(0.267, 0.467, 0.667),
-    #     markerstrokecolor = :black,
-    #     markercolor = :black,
-    #     legend = false,
-    #     grid = true,
-    #     foreground_color_legend = nothing,
-    #     background_color_legend = nothing,
-    #     # xlabel = L"\textrm{\sffamily Virus}",
-    #     # ylabel = L"\textrm{\sffamily Incubation period duration, days}",
-    #     xxlabel = "Размер",
-    #     ylabel = "Число",
-    # )
-    # savefig(incubation_periods_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "household_size_distribution.pdf"))
 end
 
 function workplace_sizes_distribution()
@@ -212,21 +172,6 @@ function workplace_sizes_distribution()
     if is_russian
         ylabel_name = "Число"
     end
-
-    # workplace_size_distribution_plot = plot(
-    #     first.(workplace_size_distribution),
-    #     last.(workplace_size_distribution),
-    #     lw = 3,
-    #     # xticks = (ticks, ticklabels),
-    #     grid = true,
-    #     foreground_color_legend = nothing,
-    #     background_color_legend = nothing,
-    #     # xlabel = L"\textrm{\sffamily Month}",
-    #     # ylabel = L"\textrm{\sffamily Temperature, °C}",
-    #     xlabel = xlabel_name,
-    #     ylabel = ylabel_name,
-    # )
-    # savefig(workplace_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "workplace_size_distribution.pdf"))
 end
 
 function workplace_sizes_distribution_lognormal()
@@ -252,13 +197,10 @@ function workplace_sizes_distribution_lognormal()
         yaxis=:log,
         legend = false,
         yticks = yticks,
-        # xticks = (ticks, ticklabels),
         grid = true,
         color = :black,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Temperature, °C}",
         margin = 2Plots.mm,
         xlims = (1.0, 1000.0),
         ylims = (1e-6, 1.0),

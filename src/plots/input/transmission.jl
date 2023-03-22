@@ -35,32 +35,17 @@ function get_infectivity_transmission(
         if incubation_period == 1
             return mean_viral_load / 24
         end
-        # k = mean_viral_load / (incubation_period - 1)
-        # b = k * (incubation_period - 1)
-        # return (k * days_infected + b) / 12
-
-        # return mean_viral_load / 12 * (1 / (incubation_period - 1) * days_infected + 1)
         return mean_viral_load / 12 * (days_infected / (incubation_period - 1) - 1 / (incubation_period - 1))
     end
     if is_asymptomatic
         mean_viral_load /= 2.0
     end
-    # k = 2 * mean_viral_load / (1 - infection_period)
-    # b = -k * infection_period
-    # return (k * days_infected + b) / 12
-    # return mean_viral_load / 6 * (days_infected / (incubation_period + 1 - infection_period) - (incubation_period + infection_period) / (incubation_period + 1 - infection_period))
     return mean_viral_load / 6 * (days_infected / (1 - infection_period) - (incubation_period + infection_period) / (1 - infection_period))
 end
 
 function plot_immunity_protection_influence()
-    # immune_memory_susceptibility_levels = [0.9381002876402393, 0.95, 0.9278778778778778, 0.8938438438438437, 0.9185685685685685, 0.8678178178178176, 0.9288288288288288]  
-    # mean_immunity_durations = [round(Int, 346.6586428571901), round(Int, 313.6876979491992), round(Int, 143.00214714069438), round(Int, 94.5655000618681), round(Int, 113.27047767241473), round(Int, 139.89128281137963), round(Int, 161.06429368899117)]    
-
     immune_memory_susceptibility_levels = [0.8944639240038756, 0.9430303030303029, 0.9336363636363636, 0.9363636363636363, 0.8876594776594775, 0.8817572117572116, 0.946060606060606]
     mean_immunity_durations = [358, 326, 133, 100, 106, 148, 163]
-
-    # mean_immunity_duration = 160
-    # immune_memory_susceptibility_level = 1.0
 
     ticks = range(1, stop = 360, length = 7)
     ticklabels = ["1" "60" "120" "180" "240" "300" "360"]
@@ -82,14 +67,11 @@ function plot_immunity_protection_influence()
 
     infectivity_plot = plot(
         1:365,
-        # check_threshold.(arr, mean_immunity_duration, immune_memory_susceptibility_level),
         [find_immunity_susceptibility_level.(arr, mean_immunity_durations[i], immune_memory_susceptibility_levels[i]) for i = 1:7],
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         lw = 1.5,
         margin = 6Plots.mm,
-        # legend = false,
-        # color = :black,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
         grid = true,
@@ -279,7 +261,7 @@ function plot_susceptibility_influence()
         [susceptibility_influence.(susceptibility_range, i) for i = 1:7],
         lw = 1.5,
         # legend = (0.95, 1.0),
-        legend = (0.92, 1.02),
+        legend = (0.92, 0.95),
         margin = 4Plots.mm,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
@@ -347,7 +329,7 @@ function plot_susceptibility_influence_age()
         lw = 1.5,
         # legend = (0.95, 1.0),
         legend = (0.92, 1.02),
-        margin = 4Plots.mm,
+        margin = 5Plots.mm,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
         yticks = (yticks, yticklabels),
@@ -464,7 +446,7 @@ end
 # plot_duration_influence()
 # plot_temperature_influence_year()
 # plot_temperature_influence()
-plot_infectivity_influence()
+# plot_infectivity_influence()
 plot_susceptibility_influence()
 plot_susceptibility_influence_age()
 # plot_immunity_protection_influence()

@@ -57,15 +57,12 @@ function plot_all_data_time_series()
         incidence_data,
         lw = 1.5,
         legend = false,
-        # color = RGB(0.933, 0.4, 0.467),
         color = :black,
         xticks = (ticks, ticklabels),
         grid = true,
         size = (800, 500),
         margin = 6Plots.mm,
         xrotation = 45,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -75,17 +72,11 @@ end
 function plot_all_data()
     incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu_original.csv"), ',', Float64, '\n')
     incidence_data = vec(transpose(incidence_data[2:45, 2:53]))
-    # incidence_data = [(incidence_data[2:45, 2:53]...)...]
-    # incidence_data = vec(incidence_data[5:45, 2:53])
-    # incidence_data = vec(incidence_data[33:45, 2:53])
 
-    # years = collect(1962:2002)
     years = collect(1959:2002)
-    # years = collect(1990:2002)
     xs = [1959, 1970, 1979, 1989, 2002]
     ys = [5085, 7061, 7931, 8875, 10382]
     itp_cubic = interpolate(xs, ys, FritschCarlsonMonotonicInterpolation())
-    # mean_values = zeros(Float64, 41)
     mean_values = zeros(Float64, 44)
     for i in 1:length(years)
         mean_value = 0.0
@@ -96,56 +87,7 @@ function plot_all_data()
         mean_values[i] = mean_value / 52
     end
 
-    
-    # println(itp_cubic(1959))
-    # println(incidence_data[5])
-    # return
-
-    # itp_cubic = interpolate([i * 52 for i = 1:41], mean_values, FritschCarlsonMonotonicInterpolation())
-    # println(length(incidence_data))
-    # return
-
-    # # ticks = [52 * ((i - 1) * 4 + 3) + 1 for i = 1:11]
-    # # ticks = [1 105 209]
-    # ticks = [52 * (i - 1) * 2 + 1 for i = 1:22]
-    # # range(52, stop = length(incidence_data), length = 11)
-    # # ticklabels = ["1962" "1966" "1970" "1974" "1978" "1982" "1986" "1990" "1994" "1998" "2002"]
-    # ticklabels = ["1959" "1961" "1963" "1965" "1967" "1969" "1971" "1973" "1975" "1977" "1979" "1981" "1983" "1985" "1987" "1989" "1991" "1993" "1995" "1997" "1999" "2001"]
-
-    # xlabel_name = "Year"
-    # if is_russian
-    #     xlabel_name = "Год"
-    # end
-
-    # ylabel_name = "Weekly incidence rate per 1000"
-    # if is_russian
-    #     ylabel_name = "Число случаев на 1000 чел. / неделя"
-    # end
-
-    # # ticks = range(1, stop = length(incidence_data), length = 7)
-    # # ticklabels = ["1990" "1992" "1994" "1996" "1998" "2000" "2002"]
-    # mean_incidence_plot = plot(
-    #     1:2132,
-    #     # 1:2288,
-    #     incidence_data[1:2132],
-    #     lw = 1.5,
-    #     legend = false,
-    #     # color = RGB(0.933, 0.4, 0.467),
-    #     color = :black,
-    #     # xticks = (ticks, ticklabels),
-    #     grid = true,
-    #     size = (800, 500),
-    #     margin = 6Plots.mm,
-    #     xrotation = 45,
-    #     # xlabel = L"\textrm{\sffamily Month}",
-    #     # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
-    #     xlabel = "xlabel_name",
-    #     ylabel = ylabel_name,
-    # )
-
-
     ticks = [52 * ((i - 1) * 4 + 3) + 1 for i = 1:11]
-    # range(52, stop = length(incidence_data), length = 11)
     ticks = range(157, stop = length(incidence_data) - 51, length = 11)
     ticklabels = ["1962" "1966" "1970" "1974" "1978" "1982" "1986" "1990" "1994" "1998" "2002"]
 
@@ -159,24 +101,17 @@ function plot_all_data()
         ylabel_name = "Число случаев на 1000 чел. / неделя"
     end
 
-    # ticks = range(1, stop = length(incidence_data), length = 7)
-    # ticklabels = ["1990" "1992" "1994" "1996" "1998" "2000" "2002"]
     mean_incidence_plot = plot(
-        # 1:2132,
-        # 157:2132,
         157:length(incidence_data) - 13,
         incidence_data[157:end - 13],
         lw = 1.5,
         legend = false,
-        # color = RGB(0.933, 0.4, 0.467),
         color = :black,
         xticks = (ticks, ticklabels),
         grid = true,
         size = (800, 500),
         margin = 6Plots.mm,
         xrotation = 45,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -184,25 +119,17 @@ function plot_all_data()
     savefig(mean_incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "all_data.pdf"))
 
     itp_cubic = interpolate([i * 52 for i = 1:44], mean_values, FritschCarlsonMonotonicInterpolation())
-    # ticks = range(157, stop = length(incidence_data), length = 11)
-    # ticklabels = ["1962" "1966" "1970" "1974" "1978" "1982" "1986" "1990" "1994" "1998" "2002"]
-    # ticks = range(1, stop = length(incidence_data), length = 7)
-    # ticklabels = ["1990" "1992" "1994" "1996" "1998" "2000" "2002"]
     incidence_plot = plot(
-        # 1:44,
         157:length(incidence_data) - 52,
         x -> itp_cubic(x),
         lw = 1.5,
         legend = false,
-        # color = RGB(0.933, 0.4, 0.467),
         color = :black,
         xticks = (ticks, ticklabels),
         grid = true,
         size = (800, 500),
         margin = 6Plots.mm,
         xrotation = 45,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -228,10 +155,6 @@ function plot_incidence(date_range::UnitRange{Int64}, input_filename::String, ou
         color = RGB(0.0, 0.0, 0.0),
         xticks = (ticks, ticklabels),
         grid = true,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
-        # yerror = stds,
-        # ribbon = confidence_arr,
         fillalpha = .5,
         xlabel = "Месяц",
         ylabel = "Число случаев на 1000 чел. / неделя",
@@ -265,11 +188,6 @@ function plot_incidence_age_groups(date_range::UnitRange{Int64}, population_coef
         color = RGB(0.0, 0.0, 0.0),
         xticks = (ticks, ticklabels),
         grid = true,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
-        # yerror = stds,
-        # ribbon = confidence_arr,
-        # fillalpha = .5,
         xlabel = "Месяц",
         ylabel = "Число случаев на 1000 чел. / неделя",
     )
@@ -287,11 +205,6 @@ function plot_incidence_age_groups(date_range::UnitRange{Int64}, population_coef
         color = RGB(0.0, 0.0, 0.0),
         xticks = (ticks, ticklabels),
         grid = true,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
-        # yerror = stds,
-        # ribbon = confidence_arr,
-        # fillalpha = .5,
         xlabel = "Месяц",
         ylabel = "Число случаев на 1000 чел. / неделя",
     )
@@ -309,11 +222,6 @@ function plot_incidence_age_groups(date_range::UnitRange{Int64}, population_coef
         color = RGB(0.0, 0.0, 0.0),
         xticks = (ticks, ticklabels),
         grid = true,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
-        # yerror = stds,
-        # ribbon = confidence_arr,
-        # fillalpha = .5,
         xlabel = "Месяц",
         ylabel = "Число случаев на 1000 чел. / неделя",
     )
@@ -331,11 +239,6 @@ function plot_incidence_age_groups(date_range::UnitRange{Int64}, population_coef
         color = RGB(0.0, 0.0, 0.0),
         xticks = (ticks, ticklabels),
         grid = true,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Num of cases per 1000 people}",
-        # yerror = stds,
-        # ribbon = confidence_arr,
-        # fillalpha = .5,
         xlabel = "Месяц",
         ylabel = "Число случаев на 1000 чел. / неделя",
     )
@@ -391,7 +294,6 @@ function plot_incidence_age_groups_time_series()
             xrotation = 45,
             grid = true,
             size = (800, 500),
-            # legend = (0.9, 0.98),
             legend = false,
             color = :black,
             foreground_color_legend = nothing,
@@ -523,24 +425,6 @@ function plot_incidence_viruses_time_series()
         vec(infected_data_7),
         dims = 2)
 
-    # infected_data_1 = etiology[:, 1] .* infected_data
-    # infected_data_2 = etiology[:, 2] .* infected_data
-    # infected_data_3 = etiology[:, 3] .* infected_data
-    # infected_data_4 = etiology[:, 4] .* infected_data
-    # infected_data_5 = etiology[:, 5] .* infected_data
-    # infected_data_6 = etiology[:, 6] .* infected_data
-    # infected_data_7 = etiology[:, 7] .* infected_data
-
-    # infected_data_viruses_1 = cat(
-    #     infected_data_1,
-    #     infected_data_2,
-    #     infected_data_3,
-    #     infected_data_4,
-    #     infected_data_5,
-    #     infected_data_6,
-    #     infected_data_7,
-    #     dims = 3)
-
     infected_data_1_2 = etiology2[:, 1] .* infected_data
     infected_data_2_2 = etiology2[:, 2] .* infected_data
     infected_data_3_2 = etiology2[:, 3] .* infected_data
@@ -559,7 +443,6 @@ function plot_incidence_viruses_time_series()
         dims = 2)
 
     infected_data_viruses = (infected_data_viruses_1 + infected_data_viruses_2) ./ 2
-    # infected_data_viruses = cat(infected_data_viruses_1, infected_data_viruses_2, dims = 2)
 
     ticks = range(1, stop = (52.14285 * num_years), length = 19)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
@@ -595,7 +478,6 @@ function plot_incidence_viruses_time_series()
             grid = true,
             legend = (0.9, 0.98),
             color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-            # ribbon = [confidence_model[:, i]],
             foreground_color_legend = nothing,
             background_color_legend = nothing,
             xlabel = xlabel_name,
@@ -604,9 +486,6 @@ function plot_incidence_viruses_time_series()
         savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "incidence$(viruses[i])_quarantine_time_series.pdf" : with_global_warming ? "incidence$(viruses[i])_warming_time_series.pdf" : "incidence$(viruses[i])_time_series.pdf"))
     end
 end
-
-
-
 
 function incidence_temperature_corr()
     temperature_data = get_air_temperature()
@@ -654,15 +533,11 @@ function plot_temperature()
         1:365,
         temperature_data_rearranged,
         lw = 1.5,
-        # label = label_names,
         color = RGB(0.0, 0.0, 0.0),
         xticks = (ticks, ticklabels),
         grid = true,
-        # legend = (0.51, 0.91),
         legend = false,
         right_margin = 14Plots.mm,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Temperature, °C}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
         foreground_color_legend = nothing,
@@ -1247,76 +1122,88 @@ function plot_etiology()
     savefig(etiology_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "etiology.pdf"))
 end
 
-# function plot_etiology()
-#     FluA_arr = [0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 50, 60, 75, 310, 1675, 1850, 1500, 1250, 900, 375, 350, 290, 220, 175, 165, 100, 50, 40, 25, 15, 9, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0]
-#     FluA_arr2 = [0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 15, 44, 72, 50, 10, 80, 266, 333, 480, 588, 625, 575, 622, 423, 450, 269, 190, 138, 89, 60, 30, 20, 12, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-#     FluA_arr = (FluA_arr + FluA_arr2) ./ 2
+function plot_incidence_etiology(date_range::UnitRange{Int64}, input_filename::String, output_filename::String, population_coef::Int)
+    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", input_filename), ',', Float64, '\n')
+    incidence_data_mean = mean(incidence_data[date_range, 2:53], dims = 1)[1, :] ./ population_coef
 
-#     RV_arr = [50.0, 50, 86, 90, 70, 74, 97, 115, 158, 130, 131, 103, 112, 112, 136, 90, 111, 128, 130, 140, 118, 152, 49, 22, 51, 80, 82, 100, 78, 57, 70, 73, 102, 101, 80, 62, 68, 60, 66, 52, 42, 69, 74, 38, 50, 42, 36, 38, 24, 44, 45, 40]
-#     RV_arr2 = [11.0, 10, 20, 24, 10, 20, 41, 42, 43, 54, 42, 52, 39, 37, 20, 15, 20, 38, 41, 28, 30, 21, 9, 1, 10, 50, 62, 52, 31, 40, 36, 41, 42, 32, 84, 71, 78, 72, 32, 28, 39, 37, 72, 67, 41, 52, 40, 24, 40, 39, 36, 30]
-#     RV_arr = (RV_arr + RV_arr2) ./ 2
-    
-#     RSV_arr = [8.0, 8, 8, 8, 8, 5, 7, 8, 11, 11, 18, 14, 15, 18, 35, 55, 53, 70, 90, 130, 45, 30, 80, 140, 100, 120, 145, 180, 150, 68, 72, 60, 80, 75, 55, 60, 65, 62, 50, 45, 50, 20, 24, 19, 15, 10, 10, 9, 11, 10, 9, 8]
-#     RSV_arr2 = [8.0, 9, 9, 4, 4, 10, 9, 10, 3, 12, 8, 10, 12, 7, 10, 13, 9, 15, 21, 25, 30, 10, 2, 22, 18, 30, 77, 72, 48, 61, 90, 120, 150, 145, 92, 119, 78, 69, 49, 57, 49, 43, 46, 24, 40, 24, 24, 10, 10, 9, 7, 11]
-#     RSV_arr = (RSV_arr + RSV_arr2) ./ 2
+    confidence_arr = zeros(Float64, 52)
+    for i = 1:52
+        confidence_arr[i] = confidence(incidence_data[date_range, i + 1] ./ population_coef)
+    end
 
-#     AdV_arr = [20.0, 30, 40, 20, 30, 25, 15, 19, 17, 18, 20, 25, 30, 21, 38, 40, 42, 30, 40, 50, 51, 41, 10, 8, 30, 40, 38, 70, 67, 20, 28, 20, 29, 20, 28, 16, 10, 20, 18, 27, 19, 19, 32, 31, 20, 20, 15, 8, 20, 35, 35, 35]
-#     AdV_arr2 = [9.0, 11, 13, 5, 7, 12, 12, 18, 16, 22, 18, 22, 31, 32, 33, 17, 28, 39, 29, 40, 30, 56, 11, 1, 38, 30, 39, 28, 59, 19, 46, 20, 22, 47, 38, 40, 25, 17, 18, 10, 6, 6, 21, 11, 19, 12, 27, 18, 10, 27, 10, 10]
-#     AdV_arr = (AdV_arr + AdV_arr2) ./ 2
+    # ticks = range(1, stop = 52, length = 7)
+    # ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    # incidence_plot = plot(
+    #     1:52,
+    #     incidence_data_mean,
+    #     lw = 1.5,
+    #     legend = false,
+    #     color = RGB(0.0, 0.0, 0.0),
+    #     xticks = (ticks, ticklabels),
+    #     grid = true,
+    #     fillalpha = .5,
+    #     xlabel = "Месяц",
+    #     ylabel = "Число случаев на 1000 чел. / неделя",
+    # )
 
-#     PIV_arr = [15.0, 18, 20, 33, 15, 36, 33, 38, 38, 50, 40, 43, 46, 75, 55, 35, 85, 53, 65, 40, 70, 20, 10, 45, 32, 33, 51, 34, 22, 12, 12, 14, 16, 18, 20, 8, 24, 20, 15, 5, 20, 15, 15, 20, 19, 18, 31, 18, 18, 17, 15, 14]
-#     PIV_arr2 = [10.0, 11, 6, 8, 12, 19, 22, 20, 20, 22, 28, 32, 47, 29, 31, 38, 17, 40, 31, 36, 32, 48, 11, 6, 30, 38, 12, 30, 22, 12, 20, 17, 30, 45, 11, 14, 17, 15, 15, 10, 15, 20, 17, 18, 23, 10, 10, 18, 17, 16, 17, 14]
-#     PIV_arr = (PIV_arr + PIV_arr2) ./ 2
+    etiology = get_etiology()
 
-#     CoV_arr = [1.0, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 8, 10, 5, 7, 7, 14, 8, 25, 35, 30, 1, 5, 16, 14, 25, 35, 32, 50, 10, 18, 12, 30, 36, 25, 14, 16, 5, 3, 1, 3, 6, 3, 2, 1, 1, 1, 1, 1, 1, 1]
-#     CoV_arr2 = [5.0, 1, 1, 2, 1, 1, 6, 1, 3, 1, 1, 5, 9, 1, 5, 1, 1, 5, 1, 3, 2, 1, 5, 1, 3, 1, 1, 9, 5, 5, 9, 3, 4, 3, 12, 18, 16, 15, 7, 1, 13, 3, 3, 10, 2, 1, 1, 1, 1, 1, 1, 1]
-#     CoV_arr = (CoV_arr + CoV_arr2) ./ 2
+    infected_data_1 = etiology[:, 1] .* incidence_data_mean
+    infected_data_2 = etiology[:, 2] .* incidence_data_mean
+    infected_data_3 = etiology[:, 3] .* incidence_data_mean
+    infected_data_4 = etiology[:, 4] .* incidence_data_mean
+    infected_data_5 = etiology[:, 5] .* incidence_data_mean
+    infected_data_6 = etiology[:, 6] .* incidence_data_mean
+    infected_data_7 = etiology[:, 7] .* incidence_data_mean
+    infected_data_viruses = cat(
+        vec(infected_data_1),
+        vec(infected_data_2),
+        vec(infected_data_3),
+        vec(infected_data_4),
+        vec(infected_data_5),
+        vec(infected_data_6),
+        vec(infected_data_7),
+        dims = 2)
 
-#     FluA_arr = moving_average(FluA_arr, 3)
-#     RV_arr = moving_average(RV_arr, 3)
-#     RSV_arr = moving_average(RSV_arr, 3)
-#     AdV_arr = moving_average(AdV_arr, 3)
-#     PIV_arr = moving_average(PIV_arr, 3)
-#     CoV_arr = moving_average(CoV_arr, 3)
+    # legend = repeat(["0-89"], inner = 52)
+    # labels = CategoricalArray(["Авг", "", "", "", "Сен", "", "", "", "Окт", "", "", "", "Ноя", "", "", "", "Дек", "", "", "", "Янв", "", "", "", "Фев", "", "", "", "Мар", "", "", "", "Апр", "", "", "", "Май", "", "", "", "Июн", "", "", "", "Июл", "", "", "", "Авг", "", "", ""])
+    # levels!(labels, ["Авг", "", "", "", "Сен", "", "", "", "Окт", "", "", "", "Ноя", "", "", "", "Дек", "", "", "", "Янв", "", "", "", "Фев", "", "", "", "Мар", "", "", "", "Апр", "", "", "", "Май", "", "", "", "Июн", "", "", "", "Июл", "", "", "", "Авг", "", "", ""])
 
-#     FluB_arr = FluA_arr .* 1/3
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
 
-#     # sum_arr = FluA_arr + FluB_arr + RV_arr + RSV_arr + AdV_arr + PIV_arr + CoV_arr
+    incidence_plot = groupedbar(
+        # labels,
+        infected_data_viruses,
+        # group = legend,
+        bar_position = :stack,
+        markerstrokecolor = :black,
+        markercolor = :black,
+        grid = false,
+        color = cat(RGB(0.933, 0.4, 0.467), RGB(0.267, 0.467, 0.667), RGB(0.133, 0.533, 0.2), RGB(0.667, 0.2, 0.467), RGB(0.8, 0.733, 0.267), RGB(0.5, 0.5, 0.5), RGB(0.4, 0.8, 0.933), dims = 2),
+        label = ["Грипп A" "Грипп B" "Риновирус" "РСВ" "Аденовирус" "Парагрипп" "Коронавирус"],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        margin = 5Plots.mm,
+        # xlabel = L"\textrm{\sffamily Virus}",
+        # ylabel = L"\textrm{\sffamily Infection period duration, days}",
+        size = (800, 500),
+        xticks = (ticks, ticklabels),
+        xlabel = "Месяц",
+        ylabel = "Число случаев на 1000 чел. / неделя",
+    )
 
-#     # FluA_ratio = FluA_arr ./ sum_arr
-#     # FluB_ratio = FluB_arr ./ sum_arr
-#     # RV_ratio = RV_arr ./ sum_arr
-#     # RSV_ratio = RSV_arr ./ sum_arr
-#     # AdV_ratio = AdV_arr ./ sum_arr
-#     # PIV_ratio = PIV_arr ./ sum_arr
-#     # CoV_ratio = CoV_arr ./ sum_arr
+    # arr1 = [1.0 for _ = 1:10]
+    # arr2 = [1.0 for _ = 1:10]
 
-#     # FluA_ratio = moving_average(FluA_ratio, 3)
-#     # FluB_ratio = moving_average(FluB_ratio, 3)
-#     # RV_ratio = moving_average(RV_ratio, 3)
-#     # RSV_ratio = moving_average(RSV_ratio, 3)
-#     # AdV_ratio = moving_average(AdV_ratio, 3)
-#     # PIV_ratio = moving_average(PIV_ratio, 3)
-#     # CoV_ratio = moving_average(CoV_ratio, 3)
+    # arr3 = cat(arr1, arr2, dims = 2)
+    # println(size(arr3))
+    # return
 
-#     ticks = range(1, stop = 52, length = 7)
-#     ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
-#     etiology_plot = plot(
-#         1:52,
-#         [FluA_arr, FluB_arr, RV_arr, RSV_arr, AdV_arr, PIV_arr, CoV_arr],
-#         legend = (0.85, 0.97),
-#         lw = 1,
-#         color = [:red :royalblue :green4 :darkorchid :orange :grey30 :darkturquoise],
-#         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
-#         xticks = (ticks, ticklabels),
-#         grid = true,
-#         # xlabel = L"\textrm{\sffamily Month}",
-#         # ylabel = L"\textrm{\sffamily Ratio}",
-#         xlabel = "Месяц",
-#         ylabel = "Доля",
-#     )
-#     savefig(etiology_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "etiology.pdf"))
-# end
+    # incidence_plot = groupedbar(rand(10,3), bar_position = :stack, bar_width=0.7)
+
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", output_filename))
+end
 
 # plot_Flu()
 # plot_RV()
@@ -1324,7 +1211,7 @@ end
 # plot_AdV()
 # plot_PIV()
 # plot_CoV()
-plot_all_infections()
+# plot_all_infections()
 # plot_etiology()
 
 # plot_temperature()
@@ -1335,6 +1222,7 @@ plot_all_infections()
 # plot_all_data_time_series()
 # plot_all_data()
 # plot_incidence(42:44, "flu.csv", "incidence.pdf", 10072)
+# plot_incidence(42:43, "flu.csv", "incidence.pdf", 10072)
 # plot_incidence_age_groups(24:26, 10072)
 # plot_incidence_age_groups_time_series()
 
@@ -1344,3 +1232,5 @@ plot_all_infections()
 # plot_etiology()
 
 # incidence_temperature_corr()
+
+plot_incidence_etiology(42:43, "flu.csv", "incidence_etiology_bars.pdf", 10072)

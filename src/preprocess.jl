@@ -247,7 +247,8 @@ function preprocess_hair_salons()
     CSV.write("input/tables/space/hair_salons.csv", df[:, ["dist", "x", "y"]])
 end
 
-# Don't forget to run partition.jl after applying changes
+# Run partition.jl after applying changes
+
 # preprocess_kindergartens()
 # preprocess_schools()
 # preprocess_colleges()

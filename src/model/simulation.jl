@@ -19,7 +19,6 @@ function make_contact(
     rng::MersenneTwister,
 )
     # Влияние продолжительности контакта на вероятность инфицирования
-    # duration_influence = 1 / (1 + exp(-contact_duration + duration_parameter))
     duration_influence = 1 - exp(-duration_parameter * contact_duration)
             
     # Влияние температуры воздуха на вероятность инфицирования
@@ -44,10 +43,6 @@ function make_contact(
     else
         immunity_influence = susceptible_agent.CoV_immunity_susceptibility_level
     end
-
-    # if immunity_influence < 1.0
-    #     println("Wrong")
-    # end
 
     # Влияние силы инфекции на вероятность инфицирования
     infectivity_influence = 0.0
@@ -335,116 +330,24 @@ function simulate_contacts(
             # end
 
             # -------------------------------------------------------------
-
             # Случайное инфицирование
             if agent.age < 3
-                # if is_school_holiday || is_kindergarten_holiday
-                #     if rand(rng, Float64) < random_infection_probabilities[1] * 50
-                #         infect_randomly(agent, current_step, rng)
-                #     end
-                # else
-                #     if rand(rng, Float64) < random_infection_probabilities[1]
-                #         infect_randomly(agent, current_step, rng)
-                #     end
-                # end
                 if rand(rng, Float64) < random_infection_probabilities[1]
                     infect_randomly(agent, current_step, rng)
                 end
             elseif agent.age < 7
-                # if (current_step >= 1 && current_step <= 31) || (current_step >= 304 && current_step <= 396) || (current_step >= 669 && current_step <= 761) || (current_step >= 1034 && current_step <= 1126)
-                #     if rand(rng, Float64) < random_infection_probabilities[2] * 50
-                #         infect_randomly(agent, current_step, rng)
-                #     end
-                # else
-                #     if rand(rng, Float64) < random_infection_probabilities[2]
-                #         infect_randomly(agent, current_step, rng)
-                #     end
-                # end
                 if rand(rng, Float64) < random_infection_probabilities[2]
                     infect_randomly(agent, current_step, rng)
                 end
             elseif agent.age < 15
-                # if (current_step >= 1 && current_step <= 31) || (current_step >= 304 && current_step <= 396) || (current_step >= 669 && current_step <= 761) || (current_step >= 1034 && current_step <= 1126)
-                #     if rand(rng, Float64) < random_infection_probabilities[3] * 50
-                #         infect_randomly(agent, current_step, rng)
-                #     end
-                # else
-                #     if rand(rng, Float64) < random_infection_probabilities[3]
-                #         infect_randomly(agent, current_step, rng)
-                #     end
-                # end
                 if rand(rng, Float64) < random_infection_probabilities[3]
                     infect_randomly(agent, current_step, rng)
                 end
             else
-                # if (current_step >= 1 && current_step <= 31) || (current_step >= 304 && current_step <= 396) || (current_step >= 669 && current_step <= 761) || (current_step >= 1034 && current_step <= 1126)
-                #     if rand(rng, Float64) < random_infection_probabilities[4] * 50
-                #         infect_randomly(agent, current_step, rng)
-                #     end
-                # else
-                #     if rand(rng, Float64) < random_infection_probabilities[4]
-                #         infect_randomly(agent, current_step, rng)
-                #     end
-                # end
                 if rand(rng, Float64) < random_infection_probabilities[4]
                     infect_randomly(agent, current_step, rng)
                 end
             end
-
-
-            # if agent.age < 3
-            #     if is_school_holiday || is_kindergarten_holiday
-            #         if rand(rng, Float64) < random_infection_probabilities[1] * 10
-            #             infect_randomly(agent, current_step, rng)
-            #         end
-            #     else
-            #         if rand(rng, Float64) < random_infection_probabilities[1]
-            #             infect_randomly(agent, current_step, rng)
-            #         end
-            #     end
-            #     # if rand(rng, Float64) < random_infection_probabilities[1]
-            #     #     infect_randomly(agent, current_step, rng)
-            #     # end
-            # elseif agent.age < 7
-            #     if is_school_holiday || is_kindergarten_holiday
-            #         if rand(rng, Float64) < random_infection_probabilities[2] * 10
-            #             infect_randomly(agent, current_step, rng)
-            #         end
-            #     else
-            #         if rand(rng, Float64) < random_infection_probabilities[2]
-            #             infect_randomly(agent, current_step, rng)
-            #         end
-            #     end
-            #     # if rand(rng, Float64) < random_infection_probabilities[2]
-            #     #     infect_randomly(agent, current_step, rng)
-            #     # end
-            # elseif agent.age < 15
-            #     if is_school_holiday || is_kindergarten_holiday
-            #         if rand(rng, Float64) < random_infection_probabilities[3] * 10
-            #             infect_randomly(agent, current_step, rng)
-            #         end
-            #     else
-            #         if rand(rng, Float64) < random_infection_probabilities[3]
-            #             infect_randomly(agent, current_step, rng)
-            #         end
-            #     end
-            #     # if rand(rng, Float64) < random_infection_probabilities[3]
-            #     #     infect_randomly(agent, current_step, rng)
-            #     # end
-            # else
-            #     if is_school_holiday || is_kindergarten_holiday
-            #         if rand(rng, Float64) < random_infection_probabilities[4] * 10
-            #             infect_randomly(agent, current_step, rng)
-            #         end
-            #     else
-            #         if rand(rng, Float64) < random_infection_probabilities[4]
-            #             infect_randomly(agent, current_step, rng)
-            #         end
-            #     end
-            #     # if rand(rng, Float64) < random_infection_probabilities[4]
-            #     #     infect_randomly(agent, current_step, rng)
-            #     # end
-            # end
         end
     end
 end
@@ -455,6 +358,7 @@ function update_agent_states(
     start_agent_id::Int,
     end_agent_id::Int,
     agents::Vector{Agent},
+    households::Vector{Household},
     viruses::Vector{Virus},
     recovered_duration_mean::Float64,
     recovered_duration_sd::Float64,
@@ -466,6 +370,7 @@ function update_agent_states(
     daily_new_cases_age_groups_viruses_threads::Array{Int, 4},
     rt_threads::Matrix{Float64},
     rt_count_threads::Matrix{Float64},
+    num_infected_districts_threads::Array{Int, 3},
     FluA_immune_memory_susceptibility_level::Float64 = 1.0,
     FluB_immune_memory_susceptibility_level::Float64 = 1.0,
     RV_immune_memory_susceptibility_level::Float64 = 1.0,
@@ -587,7 +492,6 @@ function update_agent_states(
                     agent.CoV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[7].mean_immunity_duration, viruses[7].immunity_duration_sd), 1.0, 1000.0)))
                 end
                 agent.days_immune = 1
-                # agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), 1.0, 10.0)))
                 agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), 1.0, 12.0)))
                 agent.virus_id = 0
                 agent.is_isolated = false
@@ -681,6 +585,7 @@ function update_agent_states(
                         else
                             observed_daily_new_cases_age_groups_viruses_threads[current_step, 4, agent.virus_id, thread_id] += 1
                         end
+                        num_infected_districts_threads[households[agent.household_id].district_id, current_step, thread_id] += 1
                     end
                 end
 
@@ -1200,7 +1105,7 @@ function run_simulation(
     school_class_closure_period::Int = 0,
     school_class_closure_threshold::Float64 = 0.0,
     with_global_warming = false,
-)::Tuple{Array{Float64, 3}, Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
+)::Tuple{Array{Float64, 3}, Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}, Array{Float64, 2}}
     # День месяца
     day = 1
     # Месяц
@@ -1213,10 +1118,10 @@ function run_simulation(
     temperature = copy(temperature_base)
     if with_global_warming
         for i = 1:length(temperature)
-            # temperature[i] += rand(Normal(4.0, 1.0))
-            # temperature[i] += rand(Normal(3.0, 0.75))
-            # temperature[i] += rand(Normal(2.0, 0.5))
             temperature[i] += rand(Normal(1.0, 0.25))
+            # temperature[i] += rand(Normal(2.0, 0.5))
+            # temperature[i] += rand(Normal(3.0, 0.75))
+            # temperature[i] += rand(Normal(4.0, 1.0))
         end
     end
     temperature_record = copy(temperature)
@@ -1233,7 +1138,7 @@ function run_simulation(
     if is_rt_run
         max_step += 21
     end
-    # max_step = 1
+    num_weeks = 52 * num_years
 
     observed_num_infected_age_groups_viruses = zeros(Int, max_step, 7, 4)
     observed_daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, 7, num_threads)
@@ -1244,6 +1149,8 @@ function run_simulation(
     rt_count_threads = zeros(Float64, max_step, num_threads)
 
     num_schools_closed_threads = zeros(Float64, max_step, num_threads)
+
+    num_infected_districts_threads = zeros(Int, 107, max_step, num_threads)
 
     for current_step = 1:max_step
         # Выходные, праздники
@@ -1523,6 +1430,7 @@ function run_simulation(
                 start_agent_ids[thread_id],
                 end_agent_ids[thread_id],
                 agents,
+                households,
                 viruses,
                 recovered_duration_mean,
                 recovered_duration_sd,
@@ -1534,6 +1442,7 @@ function run_simulation(
                 daily_new_cases_age_groups_viruses_threads,
                 rt_threads,
                 rt_count_threads,
+                num_infected_districts_threads,
                 FluA_immune_memory_susceptibility_level,
                 FluB_immune_memory_susceptibility_level,
                 RV_immune_memory_susceptibility_level,
@@ -1580,10 +1489,10 @@ function run_simulation(
         if with_global_warming && current_step % 365 == 0
             temperature = copy(temperature_base)
             for i = 1:length(temperature)
-                # temperature[i] += rand(Normal(4.0, 1.0))
-                # temperature[i] += rand(Normal(3.0, 0.75))
-                # temperature[i] += rand(Normal(2.0, 0.5))
                 temperature[i] += rand(Normal(1.0, 0.25))
+                # temperature[i] += rand(Normal(2.0, 0.5))
+                # temperature[i] += rand(Normal(3.0, 0.75))
+                # temperature[i] += rand(Normal(4.0, 1.0))
             end
             append!(temperature_record, temperature)
         end
@@ -1598,15 +1507,15 @@ function run_simulation(
     rt_count = sum(rt_count_threads, dims = 2)[:, 1]
     rt = rt ./ rt_count
 
-    observed_num_infected_age_groups_viruses_weekly = zeros(Int, (52 * num_years), 7, 4)
-    for i = 1:(52 * num_years)
+    observed_num_infected_age_groups_viruses_weekly = zeros(Int, (num_weeks), 7, 4)
+    for i = 1:(num_weeks)
         observed_num_infected_age_groups_viruses_weekly[i, :, :] = sum(observed_num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :], dims = 1)
     end
 
-    num_infected_age_groups_viruses_weekly = zeros(Int, (52 * num_years), 7, 4)
-    for i = 1:(52 * num_years)
+    num_infected_age_groups_viruses_weekly = zeros(Int, (num_weeks), 7, 4)
+    for i = 1:(num_weeks)
         num_infected_age_groups_viruses_weekly[i, :, :] = sum(num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :], dims = 1)
     end
 
-    return observed_num_infected_age_groups_viruses_weekly, num_infected_age_groups_viruses_weekly, sum(activities_infections_threads, dims = 3)[:, :, 1], rt, sum(num_schools_closed_threads, dims = 2)[:, 1]
+    return observed_num_infected_age_groups_viruses_weekly, num_infected_age_groups_viruses_weekly, sum(activities_infections_threads, dims = 3)[:, :, 1], rt, sum(num_schools_closed_threads, dims = 2)[:, 1], sum(num_infected_districts_threads, dims = 3)[:, :, 1]
 end

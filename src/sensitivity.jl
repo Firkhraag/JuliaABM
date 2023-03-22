@@ -551,6 +551,304 @@ function main()
             "mean_viral_loads_child", mean_viral_loads_child,
             "mean_viral_loads_adult", mean_viral_loads_adult)
     end
+
+    # Second section
+    # --------------------
+    # multipliers = [0.8, 0.9, 1.1, 1.2]
+    # k = -2
+    # for m in multipliers
+    #     duration_parameter_new = duration_parameter * m
+    #     @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+    #         num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_new,
+    #         susceptibility_parameters, temperature_parameters, temperature,
+    #         mean_household_contact_durations, household_contact_duration_sds,
+    #         other_contact_duration_shapes, other_contact_duration_scales,
+    #         isolation_probabilities_day_1, isolation_probabilities_day_2,
+    #         isolation_probabilities_day_3, random_infection_probabilities,
+    #         recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+    #         immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
+    #         immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
+    #         immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
+    #         immune_memory_susceptibility_levels[7])
+    #     writedlm(
+    #         joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_d_$k.csv"),
+    #         sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
+    #     @threads for thread_id in 1:num_threads
+    #         reset_agent_states(
+    #             agents,
+    #             start_agent_ids[thread_id],
+    #             end_agent_ids[thread_id],
+    #             viruses,
+    #             num_infected_age_groups_viruses_prev,
+    #             isolation_probabilities_day_1,
+    #             isolation_probabilities_day_2,
+    #             isolation_probabilities_day_3,
+    #             thread_rng[thread_id],
+    #             immune_memory_susceptibility_levels[1],
+    #             immune_memory_susceptibility_levels[2],
+    #             immune_memory_susceptibility_levels[3],
+    #             immune_memory_susceptibility_levels[4],
+    #             immune_memory_susceptibility_levels[5],
+    #             immune_memory_susceptibility_levels[6],
+    #             immune_memory_susceptibility_levels[7],
+    #         )
+    #     end
+    #     if k == -1
+    #         k = 1
+    #     else
+    #         k += 1
+    #     end
+    # end
+
+    # for i in 1:7
+    #     k = -2
+    #     for m in multipliers
+    #         susceptibility_parameters_new = copy(susceptibility_parameters)
+    #         susceptibility_parameters_new[i] *= m
+    #         @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+    #             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
+    #             susceptibility_parameters_new, temperature_parameters, temperature,
+    #             mean_household_contact_durations, household_contact_duration_sds,
+    #             other_contact_duration_shapes, other_contact_duration_scales,
+    #             isolation_probabilities_day_1, isolation_probabilities_day_2,
+    #             isolation_probabilities_day_3, random_infection_probabilities,
+    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+    #             immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
+    #             immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
+    #             immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
+    #             immune_memory_susceptibility_levels[7])
+    #         writedlm(
+    #             joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_s$(i)_$k.csv"),
+    #             sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
+    #         @threads for thread_id in 1:num_threads
+    #             reset_agent_states(
+    #                 agents,
+    #                 start_agent_ids[thread_id],
+    #                 end_agent_ids[thread_id],
+    #                 viruses,
+    #                 num_infected_age_groups_viruses_prev,
+    #                 isolation_probabilities_day_1,
+    #                 isolation_probabilities_day_2,
+    #                 isolation_probabilities_day_3,
+    #                 thread_rng[thread_id],
+    #                 immune_memory_susceptibility_levels[1],
+    #                 immune_memory_susceptibility_levels[2],
+    #                 immune_memory_susceptibility_levels[3],
+    #                 immune_memory_susceptibility_levels[4],
+    #                 immune_memory_susceptibility_levels[5],
+    #                 immune_memory_susceptibility_levels[6],
+    #                 immune_memory_susceptibility_levels[7],
+    #             )
+    #         end
+    #         if k == -1
+    #             k = 1
+    #         else
+    #             k += 1
+    #         end
+    #     end
+    # end
+
+    # values = -[0.25, 0.5, 0.75, 1.0]
+    # for i in 1:7
+    #     k = -2
+    #     for v in values
+    #         temperature_parameters_new = copy(temperature_parameters)
+    #         temperature_parameters_new[i] = v
+    #         @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+    #             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
+    #             susceptibility_parameters, temperature_parameters_new, temperature,
+    #             mean_household_contact_durations, household_contact_duration_sds,
+    #             other_contact_duration_shapes, other_contact_duration_scales,
+    #             isolation_probabilities_day_1, isolation_probabilities_day_2,
+    #             isolation_probabilities_day_3, random_infection_probabilities,
+    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+    #             immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
+    #             immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
+    #             immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
+    #             immune_memory_susceptibility_levels[7])
+    #         writedlm(
+    #             joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_t$(i)_$k.csv"),
+    #             sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
+    #         @threads for thread_id in 1:num_threads
+    #             reset_agent_states(
+    #                 agents,
+    #                 start_agent_ids[thread_id],
+    #                 end_agent_ids[thread_id],
+    #                 viruses,
+    #                 num_infected_age_groups_viruses_prev,
+    #                 isolation_probabilities_day_1,
+    #                 isolation_probabilities_day_2,
+    #                 isolation_probabilities_day_3,
+    #                 thread_rng[thread_id],
+    #                 immune_memory_susceptibility_levels[1],
+    #                 immune_memory_susceptibility_levels[2],
+    #                 immune_memory_susceptibility_levels[3],
+    #                 immune_memory_susceptibility_levels[4],
+    #                 immune_memory_susceptibility_levels[5],
+    #                 immune_memory_susceptibility_levels[6],
+    #                 immune_memory_susceptibility_levels[7],
+    #             )
+    #         end
+    #         if k == -1
+    #             k = 1
+    #         else
+    #             k += 1
+    #         end
+    #     end
+    # end
+
+    # prob_multipliers = [0.1, 0.5, 2.0, 10.0]
+    # for i in 1:4
+    #     k = -2
+    #     for m in prob_multipliers
+    #         random_infection_probabilities_new = copy(random_infection_probabilities)
+    #         random_infection_probabilities_new[i] *= m
+    #         @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+    #             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
+    #             susceptibility_parameters, temperature_parameters, temperature,
+    #             mean_household_contact_durations, household_contact_duration_sds,
+    #             other_contact_duration_shapes, other_contact_duration_scales,
+    #             isolation_probabilities_day_1, isolation_probabilities_day_2,
+    #             isolation_probabilities_day_3, random_infection_probabilities_new,
+    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+    #             immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
+    #             immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
+    #             immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
+    #             immune_memory_susceptibility_levels[7])
+    #         writedlm(
+    #             joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_p$(i)_$k.csv"),
+    #             sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
+    #         @threads for thread_id in 1:num_threads
+    #             reset_agent_states(
+    #                 agents,
+    #                 start_agent_ids[thread_id],
+    #                 end_agent_ids[thread_id],
+    #                 viruses,
+    #                 num_infected_age_groups_viruses_prev,
+    #                 isolation_probabilities_day_1,
+    #                 isolation_probabilities_day_2,
+    #                 isolation_probabilities_day_3,
+    #                 thread_rng[thread_id],
+    #                 immune_memory_susceptibility_levels[1],
+    #                 immune_memory_susceptibility_levels[2],
+    #                 immune_memory_susceptibility_levels[3],
+    #                 immune_memory_susceptibility_levels[4],
+    #                 immune_memory_susceptibility_levels[5],
+    #                 immune_memory_susceptibility_levels[6],
+    #                 immune_memory_susceptibility_levels[7],
+    #             )
+    #         end
+    #         if k == -1
+    #             k = 1
+    #         else
+    #             k += 1
+    #         end
+    #     end
+    # end
+
+    # for i in 1:7
+    #     k = -2
+    #     for m in multipliers
+    #         mean_immunity_durations_new = copy(mean_immunity_durations)
+    #         mean_immunity_durations_new[i] *= m
+    #         for k = 1:length(viruses)
+    #             viruses[k].mean_immunity_duration = mean_immunity_durations_new[k]
+    #         end
+    #         @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+    #             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
+    #             susceptibility_parameters, temperature_parameters, temperature,
+    #             mean_household_contact_durations, household_contact_duration_sds,
+    #             other_contact_duration_shapes, other_contact_duration_scales,
+    #             isolation_probabilities_day_1, isolation_probabilities_day_2,
+    #             isolation_probabilities_day_3, random_infection_probabilities,
+    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+    #             immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
+    #             immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
+    #             immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
+    #             immune_memory_susceptibility_levels[7])
+    #         writedlm(
+    #             joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_r$(i)_$k.csv"),
+    #             sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
+    #         @threads for thread_id in 1:num_threads
+    #             reset_agent_states(
+    #                 agents,
+    #                 start_agent_ids[thread_id],
+    #                 end_agent_ids[thread_id],
+    #                 viruses,
+    #                 num_infected_age_groups_viruses_prev,
+    #                 isolation_probabilities_day_1,
+    #                 isolation_probabilities_day_2,
+    #                 isolation_probabilities_day_3,
+    #                 thread_rng[thread_id],
+    #                 immune_memory_susceptibility_levels[1],
+    #                 immune_memory_susceptibility_levels[2],
+    #                 immune_memory_susceptibility_levels[3],
+    #                 immune_memory_susceptibility_levels[4],
+    #                 immune_memory_susceptibility_levels[5],
+    #                 immune_memory_susceptibility_levels[6],
+    #                 immune_memory_susceptibility_levels[7],
+    #             )
+    #         end
+    #         if k == -1
+    #             k = 1
+    #         else
+    #             k += 1
+    #         end
+
+    #         for k = 1:length(viruses)
+    #             viruses[k].mean_immunity_duration = mean_immunity_durations[k]
+    #         end
+    #     end
+    # end
+
+    # values = [1.0, 0.8, 0.6, 0.4]
+    # for i in 1:7
+    #     k = -2
+    #     for v in values
+    #         immune_memory_susceptibility_levels_new = copy(immune_memory_susceptibility_levels)
+    #         immune_memory_susceptibility_levels_new[i] = v
+    #         @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+    #             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
+    #             susceptibility_parameters, temperature_parameters, temperature,
+    #             mean_household_contact_durations, household_contact_duration_sds,
+    #             other_contact_duration_shapes, other_contact_duration_scales,
+    #             isolation_probabilities_day_1, isolation_probabilities_day_2,
+    #             isolation_probabilities_day_3, random_infection_probabilities,
+    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+    #             immune_memory_susceptibility_levels_new[1], immune_memory_susceptibility_levels_new[2],
+    #             immune_memory_susceptibility_levels_new[3], immune_memory_susceptibility_levels_new[4],
+    #             immune_memory_susceptibility_levels_new[5], immune_memory_susceptibility_levels_new[6],
+    #             immune_memory_susceptibility_levels_new[7])
+    #         writedlm(
+    #             joinpath(@__DIR__, "..", "sensitivity", "tables", "2nd", "infected_data_alpha$(i)_$k.csv"),
+    #             sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
+    #         @threads for thread_id in 1:num_threads
+    #             reset_agent_states(
+    #                 agents,
+    #                 start_agent_ids[thread_id],
+    #                 end_agent_ids[thread_id],
+    #                 viruses,
+    #                 num_infected_age_groups_viruses_prev,
+    #                 isolation_probabilities_day_1,
+    #                 isolation_probabilities_day_2,
+    #                 isolation_probabilities_day_3,
+    #                 thread_rng[thread_id],
+    #                 immune_memory_susceptibility_levels[1],
+    #                 immune_memory_susceptibility_levels[2],
+    #                 immune_memory_susceptibility_levels[3],
+    #                 immune_memory_susceptibility_levels[4],
+    #                 immune_memory_susceptibility_levels[5],
+    #                 immune_memory_susceptibility_levels[6],
+    #                 immune_memory_susceptibility_levels[7],
+    #             )
+    #         end
+    #         if k == -1
+    #             k = 1
+    #         else
+    #             k += 1
+    #         end
+    #     end
+    # end
 end
 
 main()

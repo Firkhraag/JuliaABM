@@ -1,7 +1,6 @@
 using Plots
 using DelimitedFiles
 
-# default(legendfontsize = 10, guidefont = (14, :black), tickfont = (10, :black))
 default(legendfontsize = 15, guidefont = (19, :black), tickfont = (15, :black))
 
 function plot_num_contacts()
@@ -143,8 +142,6 @@ function plot_contacts()
             contact_counts += readdlm(joinpath(
                 @__DIR__, "..", "..", "..", "output", "tables", "contacts", "contact_counts_activity_8.csv"), ',', Float64)
         end
-
-        # contact_counts ./= 2
 
         xticks = [0, 20, 40, 60, 80]
         xticklabels = ["0", "20", "40", "60", "80"]
