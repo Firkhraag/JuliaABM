@@ -108,85 +108,87 @@ function multiple_simulations(
         end
     end
 
-    points = scaleLHC(latin_hypercube_plan, [
-        (duration_parameter_default - 0.05, duration_parameter_default + 0.05),
-        (susceptibility_parameters_default[1] - 0.1, susceptibility_parameters_default[1] + 0.1),
-        (susceptibility_parameters_default[2] - 0.1, susceptibility_parameters_default[2] + 0.1),
-        (susceptibility_parameters_default[3] - 0.1, susceptibility_parameters_default[3] + 0.1),
-        (susceptibility_parameters_default[4] - 0.1, susceptibility_parameters_default[4] + 0.1),
-        (susceptibility_parameters_default[5] - 0.1, susceptibility_parameters_default[5] + 0.1),
-        (susceptibility_parameters_default[6] - 0.1, susceptibility_parameters_default[6] + 0.1),
-        (susceptibility_parameters_default[7] - 0.1, susceptibility_parameters_default[7] + 0.1),
-        (temperature_parameters_default[1] - 0.05, temperature_parameters_default[1] + 0.05),
-        (temperature_parameters_default[2] - 0.05, temperature_parameters_default[2] + 0.05),
-        (temperature_parameters_default[3] - 0.05, temperature_parameters_default[3] + 0.05),
-        (temperature_parameters_default[4] - 0.05, temperature_parameters_default[4] + 0.05),
-        (temperature_parameters_default[5] - 0.05, temperature_parameters_default[5] + 0.05),
-        (temperature_parameters_default[6] - 0.05, temperature_parameters_default[6] + 0.05),
-        (temperature_parameters_default[7] - 0.05, temperature_parameters_default[7] + 0.05),
-        (immune_memory_susceptibility_levels_default[1] - 0.03, immune_memory_susceptibility_levels_default[1] + 0.03),
-        (immune_memory_susceptibility_levels_default[2] - 0.03, immune_memory_susceptibility_levels_default[2] + 0.03),
-        (immune_memory_susceptibility_levels_default[3] - 0.03, immune_memory_susceptibility_levels_default[3] + 0.03),
-        (immune_memory_susceptibility_levels_default[4] - 0.03, immune_memory_susceptibility_levels_default[4] + 0.03),
-        (immune_memory_susceptibility_levels_default[5] - 0.03, immune_memory_susceptibility_levels_default[5] + 0.03),
-        (immune_memory_susceptibility_levels_default[6] - 0.03, immune_memory_susceptibility_levels_default[6] + 0.03),
-        (immune_memory_susceptibility_levels_default[7] - 0.03, immune_memory_susceptibility_levels_default[7] + 0.03),
-        (mean_immunity_durations[1] - 5.0, mean_immunity_durations[1] + 5.0),
-        (mean_immunity_durations[2] - 5.0, mean_immunity_durations[2] + 5.0),
-        (mean_immunity_durations[3] - 5.0, mean_immunity_durations[3] + 5.0),
-        (mean_immunity_durations[4] - 5.0, mean_immunity_durations[4] + 5.0),
-        (mean_immunity_durations[5] - 5.0, mean_immunity_durations[5] + 5.0),
-        (mean_immunity_durations[6] - 5.0, mean_immunity_durations[6] + 5.0),
-        (mean_immunity_durations[7] - 5.0, mean_immunity_durations[7] + 5.0),
-        (random_infection_probabilities_default[1] - random_infection_probabilities_default[1] * 0.05, random_infection_probabilities_default[1] + random_infection_probabilities_default[1] * 0.05),
-        (random_infection_probabilities_default[2] - random_infection_probabilities_default[2] * 0.05, random_infection_probabilities_default[2] + random_infection_probabilities_default[2] * 0.05),
-        (random_infection_probabilities_default[3] - random_infection_probabilities_default[3] * 0.05, random_infection_probabilities_default[3] + random_infection_probabilities_default[3] * 0.05),
-        (random_infection_probabilities_default[4] - random_infection_probabilities_default[4] * 0.05, random_infection_probabilities_default[4] + random_infection_probabilities_default[4] * 0.05),
-    ])
+    # points = scaleLHC(latin_hypercube_plan, [
+    #     (duration_parameter_default - 0.05, duration_parameter_default + 0.05),
+    #     (susceptibility_parameters_default[1] - 0.1, susceptibility_parameters_default[1] + 0.1),
+    #     (susceptibility_parameters_default[2] - 0.1, susceptibility_parameters_default[2] + 0.1),
+    #     (susceptibility_parameters_default[3] - 0.1, susceptibility_parameters_default[3] + 0.1),
+    #     (susceptibility_parameters_default[4] - 0.1, susceptibility_parameters_default[4] + 0.1),
+    #     (susceptibility_parameters_default[5] - 0.1, susceptibility_parameters_default[5] + 0.1),
+    #     (susceptibility_parameters_default[6] - 0.1, susceptibility_parameters_default[6] + 0.1),
+    #     (susceptibility_parameters_default[7] - 0.1, susceptibility_parameters_default[7] + 0.1),
+    #     (temperature_parameters_default[1] - 0.05, temperature_parameters_default[1] + 0.05),
+    #     (temperature_parameters_default[2] - 0.05, temperature_parameters_default[2] + 0.05),
+    #     (temperature_parameters_default[3] - 0.05, temperature_parameters_default[3] + 0.05),
+    #     (temperature_parameters_default[4] - 0.05, temperature_parameters_default[4] + 0.05),
+    #     (temperature_parameters_default[5] - 0.05, temperature_parameters_default[5] + 0.05),
+    #     (temperature_parameters_default[6] - 0.05, temperature_parameters_default[6] + 0.05),
+    #     (temperature_parameters_default[7] - 0.05, temperature_parameters_default[7] + 0.05),
+    #     (immune_memory_susceptibility_levels_default[1] - 0.03, immune_memory_susceptibility_levels_default[1] + 0.03),
+    #     (immune_memory_susceptibility_levels_default[2] - 0.03, immune_memory_susceptibility_levels_default[2] + 0.03),
+    #     (immune_memory_susceptibility_levels_default[3] - 0.03, immune_memory_susceptibility_levels_default[3] + 0.03),
+    #     (immune_memory_susceptibility_levels_default[4] - 0.03, immune_memory_susceptibility_levels_default[4] + 0.03),
+    #     (immune_memory_susceptibility_levels_default[5] - 0.03, immune_memory_susceptibility_levels_default[5] + 0.03),
+    #     (immune_memory_susceptibility_levels_default[6] - 0.03, immune_memory_susceptibility_levels_default[6] + 0.03),
+    #     (immune_memory_susceptibility_levels_default[7] - 0.03, immune_memory_susceptibility_levels_default[7] + 0.03),
+    #     (mean_immunity_durations[1] - 5.0, mean_immunity_durations[1] + 5.0),
+    #     (mean_immunity_durations[2] - 5.0, mean_immunity_durations[2] + 5.0),
+    #     (mean_immunity_durations[3] - 5.0, mean_immunity_durations[3] + 5.0),
+    #     (mean_immunity_durations[4] - 5.0, mean_immunity_durations[4] + 5.0),
+    #     (mean_immunity_durations[5] - 5.0, mean_immunity_durations[5] + 5.0),
+    #     (mean_immunity_durations[6] - 5.0, mean_immunity_durations[6] + 5.0),
+    #     (mean_immunity_durations[7] - 5.0, mean_immunity_durations[7] + 5.0),
+    #     (random_infection_probabilities_default[1] - random_infection_probabilities_default[1] * 0.05, random_infection_probabilities_default[1] + random_infection_probabilities_default[1] * 0.05),
+    #     (random_infection_probabilities_default[2] - random_infection_probabilities_default[2] * 0.05, random_infection_probabilities_default[2] + random_infection_probabilities_default[2] * 0.05),
+    #     (random_infection_probabilities_default[3] - random_infection_probabilities_default[3] * 0.05, random_infection_probabilities_default[3] + random_infection_probabilities_default[3] * 0.05),
+    #     (random_infection_probabilities_default[4] - random_infection_probabilities_default[4] * 0.05, random_infection_probabilities_default[4] + random_infection_probabilities_default[4] * 0.05),
+    # ])
 
-    if surrogate_training
-        points = scaleLHC(latin_hypercube_plan, [
-            (0.1, 1.0), # duration_parameter
-            (1.0, 7.0), # susceptibility_parameters
-            (1.0, 7.0),
-            (1.0, 7.0),
-            (1.0, 7.0),
-            (1.0, 7.0),
-            (1.0, 7.0),
-            (1.0, 7.0),
-            (-1.0, -0.01), # temperature_parameters
-            (-1.0, -0.01),
-            (-1.0, -0.01),
-            (-1.0, -0.01),
-            (-1.0, -0.01),
-            (-1.0, -0.01),
-            (-1.0, -0.01),
-            (0.5, 1.0), # immune_memory_susceptibility_levels
-            (0.5, 1.0),
-            (0.5, 1.0),
-            (0.5, 1.0),
-            (0.5, 1.0),
-            (0.5, 1.0),
-            (0.5, 1.0),
-            (30, 365), # mean_immunity_durations
-            (30, 365),
-            (30, 365),
-            (30, 365),
-            (30, 365),
-            (30, 365),
-            (30, 365),
-            (0.001, 0.002), # random_infection_probabilities
-            (0.0005, 0.001),
-            (0.0002, 0.0005),
-            (0.000005, 0.00001),
-        ])
+    # if surrogate_training
+    #     points = scaleLHC(latin_hypercube_plan, [
+    #         (0.1, 1.0), # duration_parameter
+    #         (1.0, 7.0), # susceptibility_parameters
+    #         (1.0, 7.0),
+    #         (1.0, 7.0),
+    #         (1.0, 7.0),
+    #         (1.0, 7.0),
+    #         (1.0, 7.0),
+    #         (1.0, 7.0),
+    #         (-1.0, -0.01), # temperature_parameters
+    #         (-1.0, -0.01),
+    #         (-1.0, -0.01),
+    #         (-1.0, -0.01),
+    #         (-1.0, -0.01),
+    #         (-1.0, -0.01),
+    #         (-1.0, -0.01),
+    #         (0.5, 1.0), # immune_memory_susceptibility_levels
+    #         (0.5, 1.0),
+    #         (0.5, 1.0),
+    #         (0.5, 1.0),
+    #         (0.5, 1.0),
+    #         (0.5, 1.0),
+    #         (0.5, 1.0),
+    #         (30, 365), # mean_immunity_durations
+    #         (30, 365),
+    #         (30, 365),
+    #         (30, 365),
+    #         (30, 365),
+    #         (30, 365),
+    #         (30, 365),
+    #         (0.001, 0.002), # random_infection_probabilities
+    #         (0.0005, 0.001),
+    #         (0.0002, 0.0005),
+    #         (0.000005, 0.00001),
+    #     ])
 
-        writedlm(joinpath(@__DIR__, "..", "surrogate", "tables", "parameters.csv"), points, ',')
-    end
+    #     writedlm(joinpath(@__DIR__, "..", "surrogate", "tables", "parameters.csv"), points, ',')
+    # end
+
+    points = DataFrame(CSV.File(joinpath(@__DIR__, "..", "surrogate", "tables", "parameters.csv")))
 
     nMAE_min = 1.0e12
 
-    for i = 1:num_runs
+    for i = (num_files + 1):num_runs
         println(i)
 
         duration_parameter = points[i, 1]
