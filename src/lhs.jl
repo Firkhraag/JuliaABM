@@ -66,14 +66,11 @@ function multiple_simulations(
     num_files = 0
     if surrogate_training
         for i in readdir(joinpath(@__DIR__, "..", "surrogate", "tables", "initial"))
-            if isfile(i)
-                num_files +=1
-            end
+            num_files +=1
         end
     end
 
     num_parameters = 33
-    latin_hypercube_plan, _ = LHCoptim(num_runs, num_parameters, 500)
 
     if duration_parameter_default > 0.95
         duration_parameter_default = 0.95
@@ -107,6 +104,8 @@ function multiple_simulations(
             mean_immunity_durations[i] = 35.0
         end
     end
+
+    # latin_hypercube_plan, _ = LHCoptim(num_runs, num_parameters, 500)
 
     # points = scaleLHC(latin_hypercube_plan, [
     #     (duration_parameter_default - 0.05, duration_parameter_default + 0.05),
@@ -184,7 +183,7 @@ function multiple_simulations(
     #     writedlm(joinpath(@__DIR__, "..", "surrogate", "tables", "parameters.csv"), points, ',')
     # end
 
-    points = DataFrame(CSV.File(joinpath(@__DIR__, "..", "surrogate", "tables", "parameters.csv")))
+    points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "surrogate", "tables", "parameters.csv"), header = false)))
 
     nMAE_min = 1.0e12
 
@@ -256,7 +255,7 @@ function multiple_simulations(
         end
 
         if surrogate_training
-            save(joinpath(@__DIR__, "..", "surrogate", "tables", "initial", "results_$(i + num_files).jld"),
+            save(joinpath(@__DIR__, "..", "surrogate", "tables", "initial", "results_$(i).jld"),
                 "observed_cases", observed_num_infected_age_groups_viruses,
                 "duration_parameter", duration_parameter,
                 "susceptibility_parameters", susceptibility_parameters,
@@ -270,6 +269,8 @@ end
 
 function main()
     println("Initialization...")
+
+    # 823!!! 837??
 
     num_years = 2
     # num_years = 1
