@@ -42,8 +42,8 @@ function main()
         run_num = 0
     end
 
-    num_years = 3
-    # num_years = 2
+    # num_years = 3
+    num_years = 2
     # num_years = 1
 
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -63,13 +63,6 @@ function main()
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     num_threads = nthreads()
-
-    duration_parameter = 0.79009009
-    susceptibility_parameters = [1.132132132, 4.657657658, 1.648648649, 6.195195195, 6.363363363, 3.774774775, 6.393393393]
-    temperature_parameters = [-0.183423423, -0.906846847, -0.243873874, -0.107117117, -0.335045045, -0.66009009, -0.462882883]
-    immune_memory_susceptibility_levels = [0.532032032, 0.743243243, 0.746246246, 0.954954955, 0.603103103, 0.901401401, 0.675175175]
-    mean_immunity_durations = [298.2682683, 186.2662663, 326.7717718, 73.92892893, 240.9259259, 60.85085085, 140.6606607]
-    random_infection_probabilities = [0.001824825, 0.000982482, 0.000206607, 7.49E-06]
 
     # Вероятности изолироваться при болезни на 1-й, 2-й и 3-й дни
     isolation_probabilities_day_1 = [0.406, 0.305, 0.204, 0.101]
@@ -93,12 +86,19 @@ function main()
     # num_barabasi_albert_attachments = 6
 
     # nMAE = 0.5146137805717983
-    duration_parameter = 0.23703365311405514
-    susceptibility_parameters = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.558457619595636, 3.9627987624113588, 3.751417011489648, 4.552998584572433]
-    temperature_parameters = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
-    immune_memory_susceptibility_levels = [0.8944639240038756, 0.9430303030303029, 0.9336363636363636, 0.9363636363636363, 0.8876594776594775, 0.8817572117572116, 0.946060606060606]
-    mean_immunity_durations = [357.979797979798, 326.2129504744517, 133.30517744372466, 99.91903541540344, 105.99775039968745, 148.27512119521802, 162.6804553051528]
-    random_infection_probabilities = [0.00138, 0.00077, 0.0004, 9.2e-6]
+    # duration_parameter = 0.23703365311405514
+    # susceptibility_parameters = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.558457619595636, 3.9627987624113588, 3.751417011489648, 4.552998584572433]
+    # temperature_parameters = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
+    # immune_memory_susceptibility_levels = [0.8944639240038756, 0.9430303030303029, 0.9336363636363636, 0.9363636363636363, 0.8876594776594775, 0.8817572117572116, 0.946060606060606]
+    # mean_immunity_durations = [357.979797979798, 326.2129504744517, 133.30517744372466, 99.91903541540344, 105.99775039968745, 148.27512119521802, 162.6804553051528]
+    # random_infection_probabilities = [0.00138, 0.00077, 0.0004, 9.2e-6]
+
+    duration_parameter = 0.967567568
+    susceptibility_parameters = [1.42042042, 4.993993994, 1.582582583, 3.750750751, 3.108108108, 1.750750751, 5.192192192]
+    temperature_parameters = [-0.496576577, -0.783963964, -0.505495495, -0.649189189, -0.576846847, -0.91972973, -0.378648649]
+    immune_memory_susceptibility_levels = [0.824324324, 0.83983984, 0.728728729, 0.688188188, 0.680680681, 0.902902903, 0.887887888]
+    mean_immunity_durations = [240.2552553, 167.8228228, 65.21021021, 32.34734735, 363.3233233, 355.9459459, 46.43143143]
+    random_infection_probabilities = [0.001179179, 0.000941942, 0.000471471, 9.88E-06]
 
     viruses = Virus[
         # FluA
@@ -396,8 +396,8 @@ function main()
         workplaces, thread_rng, num_threads, homes_coords_df,
         firm_min_size, firm_max_size, num_barabasi_albert_attachments)
 
-    get_stats(agents, schools, workplaces)
-    return
+    # get_stats(agents, schools, workplaces)
+    # return
 
     println("Simulation...")
 
@@ -453,8 +453,29 @@ function main()
             "rt", rt,
             "num_schools_closed", num_schools_closed)
     end
+
     nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
     println(nMAE)
+
+    # open("output/output.txt", "a") do io
+    #     println(io, "nMAE = ", nMAE)
+    #     println(io, "duration_parameter = ", duration_parameter)
+    #     println(io, "susceptibility_parameters = ", susceptibility_parameters)
+    #     println(io, "temperature_parameters = ", temperature_parameters)
+    #     println(io, "immune_memory_susceptibility_levels = ", immune_memory_susceptibility_levels)
+    #     println(io, "mean_immunity_durations = ", mean_immunity_durations)
+    #     println(io, "random_infection_probabilities = ", random_infection_probabilities)
+    #     println(io)
+    # end
+
+    # save(joinpath(@__DIR__, "..", "surrogate", "tables", "initial", "results_1000.jld"),
+    #     "observed_cases", observed_num_infected_age_groups_viruses,
+    #     "duration_parameter", duration_parameter,
+    #     "susceptibility_parameters", susceptibility_parameters,
+    #     "temperature_parameters", temperature_parameters,
+    #     "immune_memory_susceptibility_levels", immune_memory_susceptibility_levels,
+    #     "mean_immunity_durations", mean_immunity_durations,
+    #     "random_infection_probabilities", random_infection_probabilities)
 end
 
 main()
