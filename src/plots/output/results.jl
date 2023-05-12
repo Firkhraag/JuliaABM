@@ -1825,6 +1825,271 @@ function print_scenario_statistics(quarantine_index::Int, warming_index::Int)
     println("Max pos warming: $(pos_warming)")
 end
 
+# function plot_incidence_with_without_recovered()
+#     incidence_arr = Array{Vector{Float64}, 1}(undef, 2)
+
+#     observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_0.jld"))["observed_cases"] ./ 10072
+#     incidence_arr[1] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
+
+#     observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld"))["observed_cases"] ./ 10072
+#     incidence_arr[2] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
+
+#     ticks = range(1, stop = 52, length = 7)
+#     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+#     if is_russian
+#         ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+#     end
+
+#     label_names = ["резист." "без резист."]
+#     if is_russian
+#         label_names = ["резист." "без резист."]
+#     end
+
+#     xlabel_name = "Month"
+#     if is_russian
+#         xlabel_name = "Месяц"
+#     end
+
+#     ylabel_name = "Weekly incidence rate per 1000"
+#     if is_russian
+#         ylabel_name = "Число случаев на 1000 чел. / неделя"
+#     end
+
+#     # println("Ratio of the max number of infected")
+#     # println(1 - maximum(incidence_arr[2]) / maximum(incidence_arr[1]))
+#     # println(1 - maximum(incidence_arr[3]) / maximum(incidence_arr[1]))
+#     # println(1 - maximum(incidence_arr[4]) / maximum(incidence_arr[1]))
+#     # println(1 - maximum(incidence_arr[5]) / maximum(incidence_arr[1]))
+
+#     # println("Max pos")
+#     # println(argmax(incidence_arr[1]))
+#     # println(argmax(incidence_arr[2]))
+#     # println(argmax(incidence_arr[3]))
+#     # println(argmax(incidence_arr[4]))
+#     # println(argmax(incidence_arr[5]))
+
+#     incidence_arr_mean = Array{Vector{Float64}, 1}(undef, 2)
+#     for i = 1:2
+#         incidence_arr_mean[i] = zeros(Float64, 52)
+#         for j = 1:52
+#             for k = 1:num_years
+#                 incidence_arr_mean[i][j] += incidence_arr[i][52 * (k - 1) + j]
+#             end
+#         end
+#         incidence_arr_mean[i] /= num_years
+#     end
+    
+#     incidence_plot = plot(
+#         1:52,
+#         [incidence_arr_mean[i][1:52] for i = 2:-1:1],
+#         lw = 1.5,
+#         xticks = (ticks, ticklabels),
+#         label = label_names,
+#         margin = 4Plots.mm,
+#         grid = true,
+#         legend = (0.75, 0.98),
+#         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667)],
+#         # ribbon = confidence_model,
+#         foreground_color_legend = nothing,
+#         background_color_legend = nothing,
+#         xlabel = xlabel_name,
+#         ylabel = ylabel_name,
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence_recovered.pdf"))
+# end
+
+function plot_incidence_with_without_recovered()
+    incidence_arr = Array{Matrix{Float64}, 1}(undef, 2)
+
+    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_0.jld"))["observed_cases"] ./ 10072
+    for j = 1:num_years
+        incidence_arr[1] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+    end
+
+    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld"))["observed_cases"] ./ 10072
+    for j = 1:num_years
+        incidence_arr[2] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+    end
+
+    return
+
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    label_names = ["резист." "без резист."]
+    if is_russian
+        label_names = ["резист." "без резист."]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Weekly incidence rate per 1000"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
+    # println("Ratio of the max number of infected")
+    # println(1 - maximum(incidence_arr[2]) / maximum(incidence_arr[1]))
+    # println(1 - maximum(incidence_arr[3]) / maximum(incidence_arr[1]))
+    # println(1 - maximum(incidence_arr[4]) / maximum(incidence_arr[1]))
+    # println(1 - maximum(incidence_arr[5]) / maximum(incidence_arr[1]))
+
+    # println("Max pos")
+    # println(argmax(incidence_arr[1]))
+    # println(argmax(incidence_arr[2]))
+    # println(argmax(incidence_arr[3]))
+    # println(argmax(incidence_arr[4]))
+    # println(argmax(incidence_arr[5]))
+
+    incidence_arr_mean = Array{Vector{Float64}, 1}(undef, 2)
+    for i = 1:2
+        incidence_arr_mean[i] = zeros(Float64, 52)
+        for j = 1:52
+            for k = 1:num_years
+                incidence_arr_mean[i][j] += incidence_arr[i][52 * (k - 1) + j]
+            end
+        end
+        incidence_arr_mean[i] /= num_years
+    end
+
+    confidence_model_0 = zeros(Float64, 52)
+    for i = 1:52
+        confidence_model_0[i] = confidence([incidence_arr[1, j][i] for j = 1:num_years for k = 1:num_runs])
+    end
+
+    confidence_model_1 = zeros(Float64, 52)
+    for i = 1:52
+        confidence_model_1[i] = confidence([incidence_arr[2, j][i] for j = 1:num_years for k = 1:num_runs])
+    end
+    
+    incidence_plot = plot(
+        1:52,
+        [incidence_arr_mean[i][1:52] for i = 2:-1:1],
+        lw = 1.5,
+        xticks = (ticks, ticklabels),
+        label = label_names,
+        margin = 4Plots.mm,
+        grid = true,
+        legend = (0.75, 0.98),
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667)],
+        ribbon = [confidence_model_1 confidence_model_0],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence_recovered.pdf"))
+end
+
+
+
+
+function plot_incidence_kek(
+    type::String = "observed_cases",
+)
+    incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
+    incidence_arr_mean = zeros(Float64, 52)
+
+    for i = 1:num_runs
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))[type] ./ 10072
+        for j = 1:num_years
+            incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+        end
+    end
+
+    confidence_model = zeros(Float64, 52)
+    for i = 1:52
+        confidence_model[i] = confidence([incidence_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
+    end
+
+    for i = 1:52
+        for j = 1:num_years
+            for k = 1:num_runs
+                incidence_arr_mean[i] += incidence_arr[k, j][i]
+            end
+        end
+        incidence_arr_mean[i] /= num_runs * num_years
+    end
+
+    incidence_arr_2 = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
+    incidence_arr_mean_2 = zeros(Float64, 52)
+
+    for i = 1:num_runs
+        observed_num_infected_age_groups_viruses_2 = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_0.jld"))[type] ./ 10072
+        for j = 1:num_years
+            incidence_arr_2[i, j] = sum(sum(observed_num_infected_age_groups_viruses_2, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+        end
+    end
+
+    confidence_model_2 = zeros(Float64, 52)
+    for i = 1:52
+        confidence_model_2[i] = confidence([incidence_arr_2[k, j][i] for j = 1:num_years for k = 1:num_runs])
+    end
+
+    for i = 1:52
+        for j = 1:num_years
+            for k = 1:num_runs
+                incidence_arr_mean_2[i] += incidence_arr_2[k, j][i]
+            end
+        end
+        incidence_arr_mean_2[i] /= num_runs * num_years
+    end
+
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    yticks = [0, 4, 8, 12]
+    yticklabels = ["0" "4" "8" "12"]
+
+    label_names = ["model" "data"]
+    if is_russian
+        label_names = ["с предп. соед." "без предп. соед."]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Weekly incidence rate per 1000"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
+    incidence_plot = plot(
+        1:52,
+        [incidence_arr_mean incidence_arr_mean_2],
+        lw = 1.5,
+        xticks = (ticks, ticklabels),
+        # yticks = (yticks, yticklabels),
+        label = label_names,
+        grid = true,
+        # legend = (0.85, 0.98),
+        legend = (0.78, 0.98),
+        color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+        ribbon = [confidence_model confidence_model_2],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots","model_incidence_kek.pdf"))
+end
+
+
+
+plot_incidence_kek()
+# plot_incidence_with_without_recovered()
+
 # plot_incidence_time_series()
 # plot_incidence_age_groups_time_series()
 # plot_incidence_viruses_time_series()
@@ -1835,7 +2100,8 @@ end
 # print_statistics_time_series(2)
 # print_statistics_time_series(3)
 
-plot_incidence("all_cases")
+# plot_incidence()
+# plot_incidence("all_cases")
 # plot_incidence_age_groups()
 # plot_incidence_viruses()
 # plot_rt()

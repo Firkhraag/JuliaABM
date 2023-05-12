@@ -248,6 +248,7 @@ function set_connections(
     # -------------------------------------------------------------
 
     start_agent_id = 1
+    # agents_shuffled = shuffle(agents)
     while num_working_agents > 0
         # num_workers = zipf_distribution(zipf_parameter, firm_max_size)
         num_workers = round(Int, rand(truncated(LogNormal(1.3, 1.7), firm_min_size, firm_max_size)))
@@ -263,6 +264,7 @@ function set_connections(
         num_agent_passed = 0
         for agent_id in start_agent_id:num_agents
             agent = agents[agent_id]
+            # agent = agents_shuffled[agent_id]
             if agent.activity_type == 4 && agent.workplace_id == 0
                 j += 1
                 agent_ids[j] = agent.id
@@ -422,24 +424,36 @@ function generate_barabasi_albert_network(agents::Vector{Agent}, agent_ids::Vect
             continue
         end
 
-        degree_sum_temp = degree_sum
         for _ = 1:m
-            cumulative = 0.0
-            rand_num = rand(rng, Float64)
-            for j = 1:(i - 1)
-                if agent_ids[j] in agent.activity_conn_ids
-                    continue
-                end
-                agent2 = agents[agent_ids[j]]
-                cumulative += length(agent2.activity_conn_ids) / degree_sum_temp
-                if rand_num < cumulative
-                    degree_sum_temp -= length(agent2.activity_conn_ids)
-                    push!(agent.activity_conn_ids, agent2.id)
-                    push!(agent2.activity_conn_ids, agent.id)
-                    break
-                end
+            j = rand(rng, 1:(i - 1))
+            while agent_ids[j] in agent.activity_conn_ids
+                j = rand(rng, 1:(i - 1))
             end
+
+            agent2 = agents[agent_ids[j]]
+            push!(agent.activity_conn_ids, agent2.id)
+            push!(agent2.activity_conn_ids, agent.id)
         end
-        degree_sum += 2m
+        
+
+        # degree_sum_temp = degree_sum
+        # for _ = 1:m
+        #     cumulative = 0.0
+        #     rand_num = rand(rng, Float64)
+        #     for j = 1:(i - 1)
+        #         if agent_ids[j] in agent.activity_conn_ids
+        #             continue
+        #         end
+        #         agent2 = agents[agent_ids[j]]
+        #         cumulative += length(agent2.activity_conn_ids) / degree_sum_temp
+        #         if rand_num < cumulative
+        #             degree_sum_temp -= length(agent2.activity_conn_ids)
+        #             push!(agent.activity_conn_ids, agent2.id)
+        #             push!(agent2.activity_conn_ids, agent.id)
+        #             break
+        #         end
+        #     end
+        # end
+        # degree_sum += 2m
     end
 end
