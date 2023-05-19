@@ -1243,19 +1243,19 @@ function plot_incidence_age_groups()
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n') ./ 10072
 
     infected_data_mean = cat(
-        mean(infected_data_0[2:53, 24:26], dims = 2)[:, 1],
-        mean(infected_data_3[2:53, 24:26], dims = 2)[:, 1],
-        mean(infected_data_7[2:53, 24:26], dims = 2)[:, 1],
-        mean(infected_data_15[2:53, 24:26], dims = 2)[:, 1],
+        mean(infected_data_0[2:53, 24:(23 + num_years)], dims = 2)[:, 1],
+        mean(infected_data_3[2:53, 24:(23 + num_years)], dims = 2)[:, 1],
+        mean(infected_data_7[2:53, 24:(23 + num_years)], dims = 2)[:, 1],
+        mean(infected_data_15[2:53, 24:(23 + num_years)], dims = 2)[:, 1],
         dims = 2,
     )
 
     confidence_data = zeros(Float64, 52, 4)
     for i = 1:52
-        confidence_data[i, 1] = confidence(infected_data_0[i + 1, 24:26])
-        confidence_data[i, 2] = confidence(infected_data_3[i + 1, 24:26])
-        confidence_data[i, 3] = confidence(infected_data_7[i + 1, 24:26])
-        confidence_data[i, 4] = confidence(infected_data_15[i + 1, 24:26])
+        confidence_data[i, 1] = confidence(infected_data_0[i + 1, 24:(23 + num_years)])
+        confidence_data[i, 2] = confidence(infected_data_3[i + 1, 24:(23 + num_years)])
+        confidence_data[i, 3] = confidence(infected_data_7[i + 1, 24:(23 + num_years)])
+        confidence_data[i, 4] = confidence(infected_data_15[i + 1, 24:(23 + num_years)])
     end
 
     ticks = range(1, stop = 52, length = 7)
@@ -1414,6 +1414,229 @@ function plot_incidence_viruses()
             ylabel = ylabel_name,
         )
         savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", with_quarantine ? "incidence$(viruses[i])_quarantine.pdf" : with_global_warming ? "incidence$(viruses[i])_warming.pdf" : "incidence$(viruses[i]).pdf"))
+    end
+end
+
+function plot_incidence_age_groups_viruses()
+    incidence_arr = Array{Array{Float64, 3}, 2}(undef, num_runs, num_years)
+    incidence_arr_mean = zeros(Float64, 52, 7, 4)
+
+    for i = 1:num_runs
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ 10072
+        for j = 1:num_years
+            incidence_arr[i, j] = observed_num_infected_age_groups_viruses[(52 * (j - 1) + 1):(52 * (j - 1) + 52), :, :]
+        end
+    end
+
+    for i = 1:52
+        for k = 1:7
+            for m = 1:4
+                for j = 1:num_runs
+                    for z = 1:num_years
+                        incidence_arr_mean[i, k, m] += incidence_arr[j, z][i, k, m]
+                    end
+                end
+                incidence_arr_mean[i, k, m] /= num_runs * num_years
+            end
+        end
+    end
+
+    confidence_model = zeros(Float64, 52, 7, 4)
+    for i = 1:52
+        for k = 1:7
+            for m = 1:4
+                confidence_model[i, k, m] = confidence([incidence_arr[j, z][i, k, m] for j = 1:num_runs for z = 1:num_years])
+            end
+        end
+    end
+
+    infected_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n') ./ 10072
+    infected_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n') ./ 10072
+    infected_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n') ./ 10072
+    infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n') ./ 10072
+
+    infected_data_mean = cat(
+        mean(infected_data_0[2:53, 24:(23 + num_years)], dims = 2)[:, 1],
+        mean(infected_data_3[2:53, 24:(23 + num_years)], dims = 2)[:, 1],
+        mean(infected_data_7[2:53, 24:(23 + num_years)], dims = 2)[:, 1],
+        mean(infected_data_15[2:53, 24:(23 + num_years)], dims = 2)[:, 1],
+        dims = 2,
+    )
+
+    # infected_data = transpose(infected_data[42:(41 + num_years), 2:53])
+    etiology = get_etiology()
+
+    infected_data_0_1 = etiology[:, 1] .* infected_data_mean[:, 1]
+    infected_data_0_2 = etiology[:, 2] .* infected_data_mean[:, 1]
+    infected_data_0_3 = etiology[:, 3] .* infected_data_mean[:, 1]
+    infected_data_0_4 = etiology[:, 4] .* infected_data_mean[:, 1]
+    infected_data_0_5 = etiology[:, 5] .* infected_data_mean[:, 1]
+    infected_data_0_6 = etiology[:, 6] .* infected_data_mean[:, 1]
+    infected_data_0_7 = etiology[:, 7] .* infected_data_mean[:, 1]
+    infected_data_0_viruses_conf = cat(
+        infected_data_0_1,
+        infected_data_0_2,
+        infected_data_0_3,
+        infected_data_0_4,
+        infected_data_0_5,
+        infected_data_0_6,
+        infected_data_0_7,
+        dims = 3)
+    infected_data_0_viruses = cat(
+        vec(infected_data_0_1),
+        vec(infected_data_0_2),
+        vec(infected_data_0_3),
+        vec(infected_data_0_4),
+        vec(infected_data_0_5),
+        vec(infected_data_0_6),
+        vec(infected_data_0_7),
+        dims = 2)
+
+    infected_data_3_1 = etiology[:, 1] .* infected_data_mean[:, 2]
+    infected_data_3_2 = etiology[:, 2] .* infected_data_mean[:, 2]
+    infected_data_3_3 = etiology[:, 3] .* infected_data_mean[:, 2]
+    infected_data_3_4 = etiology[:, 4] .* infected_data_mean[:, 2]
+    infected_data_3_5 = etiology[:, 5] .* infected_data_mean[:, 2]
+    infected_data_3_6 = etiology[:, 6] .* infected_data_mean[:, 2]
+    infected_data_3_7 = etiology[:, 7] .* infected_data_mean[:, 2]
+    infected_data_3_viruses_conf = cat(
+        infected_data_3_1,
+        infected_data_3_2,
+        infected_data_3_3,
+        infected_data_3_4,
+        infected_data_3_5,
+        infected_data_3_6,
+        infected_data_3_7,
+        dims = 3)
+    infected_data_3_viruses = cat(
+        vec(infected_data_3_1),
+        vec(infected_data_3_2),
+        vec(infected_data_3_3),
+        vec(infected_data_3_4),
+        vec(infected_data_3_5),
+        vec(infected_data_3_6),
+        vec(infected_data_3_7),
+        dims = 2)
+
+    infected_data_7_1 = etiology[:, 1] .* infected_data_mean[:, 3]
+    infected_data_7_2 = etiology[:, 2] .* infected_data_mean[:, 3]
+    infected_data_7_3 = etiology[:, 3] .* infected_data_mean[:, 3]
+    infected_data_7_4 = etiology[:, 4] .* infected_data_mean[:, 3]
+    infected_data_7_5 = etiology[:, 5] .* infected_data_mean[:, 3]
+    infected_data_7_6 = etiology[:, 6] .* infected_data_mean[:, 3]
+    infected_data_7_7 = etiology[:, 7] .* infected_data_mean[:, 3]
+    infected_data_7_viruses_conf = cat(
+        infected_data_7_1,
+        infected_data_7_2,
+        infected_data_7_3,
+        infected_data_7_4,
+        infected_data_7_5,
+        infected_data_7_6,
+        infected_data_7_7,
+        dims = 3)
+    infected_data_7_viruses = cat(
+        vec(infected_data_7_1),
+        vec(infected_data_7_2),
+        vec(infected_data_7_3),
+        vec(infected_data_7_4),
+        vec(infected_data_7_5),
+        vec(infected_data_7_6),
+        vec(infected_data_7_7),
+        dims = 2)
+
+    infected_data_15_1 = etiology[:, 1] .* infected_data_mean[:, 4]
+    infected_data_15_2 = etiology[:, 2] .* infected_data_mean[:, 4]
+    infected_data_15_3 = etiology[:, 3] .* infected_data_mean[:, 4]
+    infected_data_15_4 = etiology[:, 4] .* infected_data_mean[:, 4]
+    infected_data_15_5 = etiology[:, 5] .* infected_data_mean[:, 4]
+    infected_data_15_6 = etiology[:, 6] .* infected_data_mean[:, 4]
+    infected_data_15_7 = etiology[:, 7] .* infected_data_mean[:, 4]
+    infected_data_15_viruses_conf = cat(
+        infected_data_15_1,
+        infected_data_15_2,
+        infected_data_15_3,
+        infected_data_15_4,
+        infected_data_15_5,
+        infected_data_15_6,
+        infected_data_15_7,
+        dims = 3)
+    infected_data_15_viruses = cat(
+        vec(infected_data_15_1),
+        vec(infected_data_15_2),
+        vec(infected_data_15_3),
+        vec(infected_data_15_4),
+        vec(infected_data_15_5),
+        vec(infected_data_15_6),
+        vec(infected_data_15_7),
+        dims = 2)
+
+    infected_data_viruses_age_groups = cat(
+        infected_data_0_viruses,
+        infected_data_3_viruses,
+        infected_data_7_viruses,
+        infected_data_15_viruses,
+        dims = 3)
+
+    # println(size(infected_data_viruses_age_groups))
+    # return
+
+    # infected_data_viruses_confidence = zeros(Float64, 52, 7, 4)
+    # for i = 1:52
+    #     for j = 1:7
+    #         for k = 1:4
+    #             infected_data_viruses_confidence[i, j, k] = confidence(infected_data_viruses_conf[i, :, j])
+    #         end
+    #     end
+    # end
+
+    # infected_data_viruses_mean = copy(infected_data_viruses[1:52, :])
+    # infected_data_viruses_mean .+= infected_data_viruses[53:104, :]
+    # infected_data_viruses_mean .+= infected_data_viruses[105:156, :]
+    # infected_data_viruses_mean ./= 3
+
+    ticks = range(1, stop = 52, length = 7)
+
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    label_names = ["model" "data"]
+    if is_russian
+        label_names = ["модель" "данные"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Weekly incidence rate per 1000"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
+    viruses = ["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"]
+    age_groups = ["0", "3", "7", "15"]
+    for i in 1:7
+        for j = 1:4
+            incidence_plot = plot(
+                1:52,
+                [incidence_arr_mean[:, i, j] infected_data_viruses_age_groups[:, i, j]],
+                lw = 1.5,
+                xticks = (ticks, ticklabels),
+                label = label_names,
+                grid = true,
+                legend = (0.9, 0.98),
+                color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+                # ribbon = [confidence_model[:, i, j] infected_data_viruses_confidence[:, i, j]],
+                foreground_color_legend = nothing,
+                background_color_legend = nothing,
+                xlabel = xlabel_name,
+                ylabel = ylabel_name,
+            )
+            savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "age_viruses", with_quarantine ? "incidence$(viruses[i])_$(age_groups[j])_quarantine.pdf" : with_global_warming ? "incidence$(viruses[i])_$(age_groups[j])_warming.pdf" : "incidence$(viruses[i])_$(age_groups[j]).pdf"))
+        end
     end
 end
 
@@ -1990,7 +2213,7 @@ end
 
 
 
-function plot_incidence_kek(
+function plot_incidence_preferential_attachment(
     type::String = "observed_cases",
 )
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
@@ -2082,12 +2305,12 @@ function plot_incidence_kek(
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
-    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots","model_incidence_kek.pdf"))
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots","model_incidence_preferential_attachment.pdf"))
 end
 
 
-
-plot_incidence_kek()
+plot_incidence_age_groups_viruses()
+# plot_incidence_preferential_attachment()
 # plot_incidence_with_without_recovered()
 
 # plot_incidence_time_series()

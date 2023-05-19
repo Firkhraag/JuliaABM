@@ -43,7 +43,7 @@ function multiple_simulations(
     etiology::Matrix{Float64},
     temperature::Vector{Float64},
     viruses::Vector{Virus},
-    num_infected_age_groups_viruses_prev_data::Array{Float64, 3},
+    num_infected_age_groups_viruses_prev::Array{Float64, 3},
     mean_household_contact_durations::Vector{Float64},
     household_contact_duration_sds::Vector{Float64},
     other_contact_duration_shapes::Vector{Float64},
@@ -215,7 +215,7 @@ function multiple_simulations(
                 start_agent_ids[thread_id],
                 end_agent_ids[thread_id],
                 viruses,
-                num_infected_age_groups_viruses_prev_data,
+                num_infected_age_groups_viruses_prev,
                 isolation_probabilities_day_1,
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
@@ -768,7 +768,7 @@ function main()
         vec(infected_data_15_7_prev),
         dims = 2)
 
-    num_infected_age_groups_viruses_prev_data = cat(
+    num_infected_age_groups_viruses_prev = cat(
         infected_data_0_viruses_prev,
         infected_data_3_viruses_prev,
         infected_data_7_viruses_prev,
@@ -777,16 +777,16 @@ function main()
     )
 
     for virus_id = 1:length(viruses)
-        num_infected_age_groups_viruses_prev_data[:, virus_id, 1] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[1]) * (1 - isolation_probabilities_day_2[1]) * (1 - isolation_probabilities_day_3[1]))
-        num_infected_age_groups_viruses_prev_data[:, virus_id, 2] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[2]) * (1 - isolation_probabilities_day_2[2]) * (1 - isolation_probabilities_day_3[2]))
-        num_infected_age_groups_viruses_prev_data[:, virus_id, 3] ./= viruses[virus_id].symptomatic_probability_teenager * (1 - (1 - isolation_probabilities_day_1[3]) * (1 - isolation_probabilities_day_2[3]) * (1 - isolation_probabilities_day_3[3]))
-        num_infected_age_groups_viruses_prev_data[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 1] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[1]) * (1 - isolation_probabilities_day_2[1]) * (1 - isolation_probabilities_day_3[1]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 2] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[2]) * (1 - isolation_probabilities_day_2[2]) * (1 - isolation_probabilities_day_3[2]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 3] ./= viruses[virus_id].symptomatic_probability_teenager * (1 - (1 - isolation_probabilities_day_1[3]) * (1 - isolation_probabilities_day_2[3]) * (1 - isolation_probabilities_day_3[3]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
     end
 
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
-            agents, households, viruses, num_infected_age_groups_viruses_prev_data, isolation_probabilities_day_1,
+            agents, households, viruses, num_infected_age_groups_viruses_prev, isolation_probabilities_day_1,
             isolation_probabilities_day_2, isolation_probabilities_day_3, start_household_ids[thread_id],
             homes_coords_df, district_households, district_people, district_people_households, district_nums,
             immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
@@ -814,7 +814,7 @@ function main()
         etiology,
         temperature,
         viruses,
-        num_infected_age_groups_viruses_prev_data,
+        num_infected_age_groups_viruses_prev,
         mean_household_contact_durations,
         household_contact_duration_sds,
         other_contact_duration_shapes,

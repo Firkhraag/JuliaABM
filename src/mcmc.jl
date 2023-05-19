@@ -28,11 +28,6 @@ include("data/etiology.jl")
 include("util/moving_avg.jl")
 include("util/reset.jl")
 
-function f(x, mu, sigma)
-    dist = Normal(mu, sigma)
-    return cdf(dist, x + 0.5) - cdf(dist, x - 0.5)
-end
-
 function log_g(x, mu, sigma)
     return -log(sqrt(2 * pi) * sigma) - 0.5 * ((x - mu) / sigma)^2
 end
@@ -43,7 +38,7 @@ function main()
 
     num_threads = nthreads()
 
-    num_years = 2
+    num_years = 1
 
     # Вероятности изолироваться при болезни на 1-й, 2-й и 3-й дни
     isolation_probabilities_day_1 = [0.406, 0.305, 0.204, 0.101]
@@ -71,6 +66,22 @@ function main()
     # immune_memory_susceptibility_level = [0.8944639240038756, 0.9430303030303029, 0.9336363636363636, 0.9363636363636363, 0.8876594776594775, 0.8817572117572116, 0.946060606060606]
     # mean_immunity_duration = [357.979797979798, 326.2129504744517, 133.30517744372466, 99.91903541540344, 105.99775039968745, 148.27512119521802, 162.6804553051528]
     # random_infection_probability = [0.00138, 0.00077, 0.0004, 9.2e-6]
+
+
+    # 0.844341073010478
+    # 0.6891394882784254
+    # 0.6124775009090876
+    # 0.5964802510558316
+    # 0.5819206614642499
+    # 0.5675548810778043
+
+
+    # Dur: 0.2650438619552923
+    # Suscept: [3.6433511521367454, 3.3168576850125047, 3.5355742617472266, 4.270434008400693, 3.808848922096886, 4.903505020407575, 4.8087924732680145]
+    # Imm mem susc lvl: [0.9929571333458245, 0.7371440466628617, 0.7520424358334441, 0.8667517754579, 0.810720272322192, 0.8198455891572074, 0.5600762318047444]
+    # Temp: [0.8776924376093859, 0.8648615346364421, 0.1665298811896958, 0.48520557758548144, 0.29165347167441513, 0.9974125624128285, 0.03178074473191338]
+    # Immunity dur: [72.52719329203795, 96.50602649410996, 98.87109533467387, 246.75602978371035, 83.39124480922891, 266.88006846520943, 288.18976818775616]
+    # Rand inf prob: [0.0011950656645745936, 0.0008553075112566531, 0.0002907664798315337, 5.4980642918194155e-6]
 
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     duration_parameter = duration_parameter_array[end]
@@ -153,266 +164,6 @@ function main()
         random_infection_probability_3_array[end],
         random_infection_probability_4_array[end],
     ]
-
-
-
-
-
-
-
-
-    duration_parameter_delta = 0.15
-    susceptibility_parameter_deltas = [0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
-    temperature_parameter_deltas = [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]
-    immune_memory_susceptibility_level_deltas = [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]
-    mean_immunity_duration_deltas = [0.33, 0.33, 0.33, 0.33, 0.33, 0.33, 0.33]
-    random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
-
-
-    arr = [duration_parameter]
-
-    for i = 1:10
-        duration_parameter_candidate = rand(Normal(duration_parameter, 0.05 * duration_parameter))
-        while duration_parameter_candidate > 1.0 || duration_parameter_candidate < 0.1
-            duration_parameter_candidate = rand(Normal(duration_parameter, 0.05 * duration_parameter))
-        end
-        println(duration_parameter_candidate)
-        append!(arr, duration_parameter_candidate)
-    end
-
-    # 0.22
-    println(std(arr) / duration_parameter)
-    return
-
-
-
-    # arr = [duration_parameter]
-
-    # for i = 1:100
-    #     x = duration_parameter_array[end]
-    #     y = rand(Normal(log((x - 0.1) / (1 - x)), duration_parameter_delta))
-    #     duration_parameter_candidate = (exp(y) + 0.1) / (1 + exp(y))
-
-    #     append!(arr, duration_parameter_candidate)
-    # end
-
-    # # 0.22
-    # println(std(arr) / duration_parameter)
-    # return
-
-
-    # Susceptibility parameter
-    # x = susceptibility_parameter_1_array[end]
-    # y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[1]))
-    # susceptibility_parameter_1_candidate = (7 * exp(y) + 1) / (1 + exp(y))
-
-    # arr = [susceptibility_parameter_1_array[end]]
-
-    # for i = 1:100
-    #     x = susceptibility_parameter_1_array[end]
-    #     y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[1]))
-    #     susceptibility_parameter_1_candidate = (7 * exp(y) + 1) / (1 + exp(y))
-
-    #     append!(arr, susceptibility_parameter_1_candidate)
-    # end
-
-    # # 0.22
-    # println(std(arr) / susceptibility_parameter_1_array[end])
-    # return
-
-    # x = susceptibility_parameter_2_array[end]
-    # y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[2]))
-    # susceptibility_parameter_2_candidate = (7 * exp(y) + 1) / (1 + exp(y))
-
-    # x = susceptibility_parameter_3_array[end]
-    # y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[3]))
-    # susceptibility_parameter_3_candidate = (7 * exp(y) + 1) / (1 + exp(y))
-
-    # x = susceptibility_parameter_4_array[end]
-    # y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[4]))
-    # susceptibility_parameter_4_candidate = (7 * exp(y) + 1) / (1 + exp(y))
-
-    # x = susceptibility_parameter_4_array[end]
-    # y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[4]))
-    # susceptibility_parameter_4_candidate = (7 * exp(y) + 1) / (1 + exp(y))
-
-    # x = susceptibility_parameter_5_array[end]
-    # y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[5]))
-    # susceptibility_parameter_5_candidate = (7 * exp(y) + 1) / (1 + exp(y))
-
-    # x = susceptibility_parameter_6_array[end]
-    # y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[6]))
-    # susceptibility_parameter_6_candidate = (7 * exp(y) + 1) / (1 + exp(y))
-
-    # x = susceptibility_parameter_7_array[end]
-    # y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[7]))
-    # susceptibility_parameter_7_candidate = (7 * exp(y) + 1) / (1 + exp(y))
-
-
-    # x = temperature_parameter_1_array[end]
-    # y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[1]))
-    # temperature_parameter_1_candidate = (exp(y) + 0.01) / (1 + exp(y))
-
-    # arr = [temperature_parameter_4_array[end]]
-
-    # for i = 1:100
-    #     x = temperature_parameter_4_array[end]
-    #     y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[1]))
-    #     temperature_parameter_4_candidate = (exp(y) + 0.01) / (1 + exp(y))
-
-    #     append!(arr, temperature_parameter_4_candidate)
-    # end
-
-    # # 0.22
-    # println(std(arr) / temperature_parameter_1_array[end])
-    # return
-
-    # x = temperature_parameter_2_array[end]
-    # y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[2]))
-    # temperature_parameter_2_candidate = (exp(y) + 0.01) / (1 + exp(y))
-
-    # x = temperature_parameter_3_array[end]
-    # y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[3]))
-    # temperature_parameter_3_candidate = (exp(y) + 0.01) / (1 + exp(y))
-
-    # x = temperature_parameter_4_array[end]
-    # y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[4]))
-    # temperature_parameter_4_candidate = (exp(y) + 0.01) / (1 + exp(y))
-
-    # x = temperature_parameter_5_array[end]
-    # y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[5]))
-    # temperature_parameter_5_candidate = (exp(y) + 0.01) / (1 + exp(y))
-
-    # x = temperature_parameter_6_array[end]
-    # y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[6]))
-    # temperature_parameter_6_candidate = (exp(y) + 0.01) / (1 + exp(y))
-
-    # x = temperature_parameter_7_array[end]
-    # y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[7]))
-    # temperature_parameter_7_candidate = (exp(y) + 0.01) / (1 + exp(y))
-
-
-    # Immune memory susceptibility
-    # x = immune_memory_susceptibility_level_1_array[end]
-    # y = rand(Normal(log((x - 0.5) / (1 - x)), immune_memory_susceptibility_level_deltas[1]))
-    # immune_memory_susceptibility_level_1_candidate = (exp(y) + 0.5) / (1 + exp(y))
-
-    # arr = [immune_memory_susceptibility_level_1_array[end]]
-
-    # for i = 1:100
-    #     x = immune_memory_susceptibility_level_1_array[end]
-    #     y = rand(Normal(log((x - 0.5) / (1 - x)), immune_memory_susceptibility_level_deltas[1]))
-    #     immune_memory_susceptibility_level_1_candidate = (exp(y) + 0.5) / (1 + exp(y))
-
-    #     append!(arr, immune_memory_susceptibility_level_1_candidate)
-    # end
-
-    # # 0.22
-    # println(std(arr) / immune_memory_susceptibility_level_1_array[end])
-    # return
-
-    # x = immune_memory_susceptibility_level_2_array[end]
-    # y = rand(Normal(log((x - 0.5) / (1 - x)), immune_memory_susceptibility_level_deltas[2]))
-    # immune_memory_susceptibility_level_2_candidate = (exp(y) + 0.5) / (1 + exp(y))
-
-    # x = immune_memory_susceptibility_level_3_array[end]
-    # y = rand(Normal(log((x - 0.5) / (1 - x)), immune_memory_susceptibility_level_deltas[3]))
-    # immune_memory_susceptibility_level_3_candidate = (exp(y) + 0.5) / (1 + exp(y))
-
-    # x = immune_memory_susceptibility_level_4_array[end]
-    # y = rand(Normal(log((x - 0.5) / (1 - x)), immune_memory_susceptibility_level_deltas[4]))
-    # immune_memory_susceptibility_level_4_candidate = (exp(y) + 0.5) / (1 + exp(y))
-
-    # x = immune_memory_susceptibility_level_5_array[end]
-    # y = rand(Normal(log((x - 0.5) / (1 - x)), immune_memory_susceptibility_level_deltas[5]))
-    # immune_memory_susceptibility_level_5_candidate = (exp(y) + 0.5) / (1 + exp(y))
-
-    # x = immune_memory_susceptibility_level_6_array[end]
-    # y = rand(Normal(log((x - 0.5) / (1 - x)), immune_memory_susceptibility_level_deltas[6]))
-    # immune_memory_susceptibility_level_6_candidate = (exp(y) + 0.5) / (1 + exp(y))
-
-    # x = immune_memory_susceptibility_level_7_array[end]
-    # y = rand(Normal(log((x - 0.5) / (1 - x)), immune_memory_susceptibility_level_deltas[7]))
-    # immune_memory_susceptibility_level_7_candidate = (exp(y) + 0.5) / (1 + exp(y))
-
-
-    # Mean immunity duration
-    # x = mean_immunity_duration_1_array[end]
-    # y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[1]))
-    # mean_immunity_duration_1_candidate = (365 * exp(y) + 30) / (1 + exp(y))
-
-    arr = [mean_immunity_duration_5_array[end]]
-
-    for i = 1:100
-        x = mean_immunity_duration_5_array[end]
-        y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[1]))
-        mean_immunity_duration_5_candidate = (365 * exp(y) + 30) / (1 + exp(y))
-
-        append!(arr, mean_immunity_duration_5_candidate)
-    end
-
-    # 0.22
-    println(std(arr) / mean_immunity_duration_1_array[end])
-    return
-
-    x = mean_immunity_duration_2_array[end]
-    y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[2]))
-    mean_immunity_duration_2_candidate = (365 * exp(y) + 30) / (1 + exp(y))
-
-    x = mean_immunity_duration_3_array[end]
-    y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[3]))
-    mean_immunity_duration_3_candidate = (365 * exp(y) + 30) / (1 + exp(y))
-
-    x = mean_immunity_duration_4_array[end]
-    y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[4]))
-    mean_immunity_duration_4_candidate = (365 * exp(y) + 30) / (1 + exp(y))
-
-    x = mean_immunity_duration_5_array[end]
-    y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[5]))
-    mean_immunity_duration_5_candidate = (365 * exp(y) + 30) / (1 + exp(y))
-
-    x = mean_immunity_duration_6_array[end]
-    y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[6]))
-    mean_immunity_duration_6_candidate = (365 * exp(y) + 30) / (1 + exp(y))
-
-    x = mean_immunity_duration_7_array[end]
-    y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[7]))
-    mean_immunity_duration_7_candidate = (365 * exp(y) + 30) / (1 + exp(y))
-    
-
-    # Random infection probability
-    x = random_infection_probability_1_array[end]
-    y = rand(Normal(log((x - 0.001) / (0.002 - x)), random_infection_probability_deltas[1]))
-    random_infection_probability_1_candidate = (0.002 * exp(y) + 0.001) / (1 + exp(y))
-
-    x = random_infection_probability_2_array[end]
-    y = rand(Normal(log((x - 0.0005) / (0.001 - x)), random_infection_probability_deltas[2]))
-    random_infection_probability_2_candidate = (0.001 * exp(y) + 0.0005) / (1 + exp(y))
-
-    x = random_infection_probability_3_array[end]
-    y = rand(Normal(log((x - 0.0002) / (0.0005 - x)), random_infection_probability_deltas[3]))
-    random_infection_probability_3_candidate = (0.0005 * exp(y) + 0.0002) / (1 + exp(y))
-
-    x = random_infection_probability_4_array[end]
-    y = rand(Normal(log((x - 0.000005) / (0.00001 - x)), random_infection_probability_deltas[4]))
-    random_infection_probability_4_candidate = (0.00001 * exp(y) + 0.000005) / (1 + exp(y))
-
-    # println(duration_parameter)
-    # println(susceptibility_parameters)
-    # println(temperature_parameters)
-    # println(immune_memory_susceptibility_level)
-    # println(mean_immunity_duration)
-    # println(random_infection_probability)
-    # return
-
-
-
-
-
-
-
-
-
 
     viruses = Virus[
         # FluA
@@ -576,6 +327,93 @@ function main()
         dims = 3,
     )
 
+    # infected_data_0_sd = infected_data_0_all[2:53, 18:27]
+    # infected_data_0_sd_1 = std(etiology[:, 1] .* infected_data_0_sd, dims = 2)[:, 1]
+    # # infected_data_0_sd_1 = etiology[:, 1] .* infected_data_0_sd
+    # # println()
+    # # println(infected_data_0_sd_1[1, 1])
+    # # return
+    # infected_data_0_sd_2 = std(etiology[:, 2] .* infected_data_0_sd, dims = 2)[:, 1]
+    # infected_data_0_sd_3 = std(etiology[:, 3] .* infected_data_0_sd, dims = 2)[:, 1]
+    # infected_data_0_sd_4 = std(etiology[:, 4] .* infected_data_0_sd, dims = 2)[:, 1]
+    # infected_data_0_sd_5 = std(etiology[:, 5] .* infected_data_0_sd, dims = 2)[:, 1]
+    # infected_data_0_sd_6 = std(etiology[:, 6] .* infected_data_0_sd, dims = 2)[:, 1]
+    # infected_data_0_sd_7 = std(etiology[:, 7] .* infected_data_0_sd, dims = 2)[:, 1]
+    # infected_data_sd_0 = cat(
+    #     vec(infected_data_0_sd_1),
+    #     vec(infected_data_0_sd_2),
+    #     vec(infected_data_0_sd_3),
+    #     vec(infected_data_0_sd_4),
+    #     vec(infected_data_0_sd_5),
+    #     vec(infected_data_0_sd_6),
+    #     vec(infected_data_0_sd_7),
+    #     dims = 2)
+
+    # infected_data_3_sd = infected_data_3_all[2:53, 18:27]
+    # infected_data_3_sd_1 = std(etiology[:, 1] .* infected_data_3_sd, dims = 2)[:, 1]
+    # infected_data_3_sd_2 = std(etiology[:, 2] .* infected_data_3_sd, dims = 2)[:, 1]
+    # infected_data_3_sd_3 = std(etiology[:, 3] .* infected_data_3_sd, dims = 2)[:, 1]
+    # infected_data_3_sd_4 = std(etiology[:, 4] .* infected_data_3_sd, dims = 2)[:, 1]
+    # infected_data_3_sd_5 = std(etiology[:, 5] .* infected_data_3_sd, dims = 2)[:, 1]
+    # infected_data_3_sd_6 = std(etiology[:, 6] .* infected_data_3_sd, dims = 2)[:, 1]
+    # infected_data_3_sd_7 = std(etiology[:, 7] .* infected_data_3_sd, dims = 2)[:, 1]
+    # infected_data_sd_3 = cat(
+    #     vec(infected_data_3_sd_1),
+    #     vec(infected_data_3_sd_2),
+    #     vec(infected_data_3_sd_3),
+    #     vec(infected_data_3_sd_4),
+    #     vec(infected_data_3_sd_5),
+    #     vec(infected_data_3_sd_6),
+    #     vec(infected_data_3_sd_7),
+    #     dims = 2)
+
+    # infected_data_7_sd = infected_data_7_all[2:53, 18:27]
+    # infected_data_7_sd_1 = std(etiology[:, 1] .* infected_data_7_sd, dims = 2)[:, 1]
+    # infected_data_7_sd_2 = std(etiology[:, 2] .* infected_data_7_sd, dims = 2)[:, 1]
+    # infected_data_7_sd_3 = std(etiology[:, 3] .* infected_data_7_sd, dims = 2)[:, 1]
+    # infected_data_7_sd_4 = std(etiology[:, 4] .* infected_data_7_sd, dims = 2)[:, 1]
+    # infected_data_7_sd_5 = std(etiology[:, 5] .* infected_data_7_sd, dims = 2)[:, 1]
+    # infected_data_7_sd_6 = std(etiology[:, 6] .* infected_data_7_sd, dims = 2)[:, 1]
+    # infected_data_7_sd_7 = std(etiology[:, 7] .* infected_data_7_sd, dims = 2)[:, 1]
+    # infected_data_sd_7 = cat(
+    #     vec(infected_data_7_sd_1),
+    #     vec(infected_data_7_sd_2),
+    #     vec(infected_data_7_sd_3),
+    #     vec(infected_data_7_sd_4),
+    #     vec(infected_data_7_sd_5),
+    #     vec(infected_data_7_sd_6),
+    #     vec(infected_data_7_sd_7),
+    #     dims = 2)
+
+    # infected_data_15_sd = infected_data_15_all[2:53, 18:27]
+    # infected_data_15_sd_1 = std(etiology[:, 1] .* infected_data_15_sd, dims = 2)[:, 1]
+    # infected_data_15_sd_2 = std(etiology[:, 2] .* infected_data_15_sd, dims = 2)[:, 1]
+    # infected_data_15_sd_3 = std(etiology[:, 3] .* infected_data_15_sd, dims = 2)[:, 1]
+    # infected_data_15_sd_4 = std(etiology[:, 4] .* infected_data_15_sd, dims = 2)[:, 1]
+    # infected_data_15_sd_5 = std(etiology[:, 5] .* infected_data_15_sd, dims = 2)[:, 1]
+    # infected_data_15_sd_6 = std(etiology[:, 6] .* infected_data_15_sd, dims = 2)[:, 1]
+    # infected_data_15_sd_7 = std(etiology[:, 7] .* infected_data_15_sd, dims = 2)[:, 1]
+    # infected_data_sd_15 = cat(
+    #     vec(infected_data_15_sd_1),
+    #     vec(infected_data_15_sd_2),
+    #     vec(infected_data_15_sd_3),
+    #     vec(infected_data_15_sd_4),
+    #     vec(infected_data_15_sd_5),
+    #     vec(infected_data_15_sd_6),
+    #     vec(infected_data_15_sd_7),
+    #     dims = 2)
+
+    # num_infected_age_groups_viruses_sd = cat(
+    #     infected_data_sd_0,
+    #     infected_data_sd_3,
+    #     infected_data_sd_7,
+    #     infected_data_sd_15,
+    #     dims = 3,
+    # )
+
+    # println(num_infected_age_groups_viruses_sd[3, 3, 3])
+    # println(num_infected_age_groups_viruses_sd[4, 4, 4])
+    # return
 
     infected_data_0_prev = infected_data_0_all[2:53, 23]
     infected_data_0_1_prev = etiology[:, 1] .* infected_data_0_prev
@@ -700,47 +538,45 @@ function main()
         immune_memory_susceptibility_level[7])
 
 
-    # MAE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / (size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3])
-    # RMSE = sqrt(sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)) / sqrt((size(num_infected_age_groups_viruses)[1] * size(num_infected_age_groups_viruses)[2] * size(num_infected_age_groups_viruses)[3]))
-    # nMAE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / sum(num_infected_age_groups_viruses_mean)
-    # S_square = sum((num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean).^2)
-    
     accept_num = 0
     local_rejected_num = 0
 
-    duration_parameter_delta = 0.1
-    susceptibility_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    temperature_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    immune_memory_susceptibility_level_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    mean_immunity_duration_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
+    # duration_parameter_delta = 0.1
+    # susceptibility_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    # temperature_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    # immune_memory_susceptibility_level_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    # mean_immunity_duration_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    # random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
 
-    prob_prev_age_groups = zeros(Float64, 7, 4, 52 * num_years)
-    for i in 1:(52 * num_years)
-        for j in 1:4
-            for k in 1:7
-                prob_prev_age_groups[k, j, i] = log_g(num_infected_age_groups_viruses[i, k, j], observed_num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
-            end
-        end
-    end
+    duration_parameter_delta = 0.03
+    susceptibility_parameter_deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
+    temperature_parameter_deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
+    immune_memory_susceptibility_level_deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
+    mean_immunity_duration_deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
+    random_infection_probability_deltas = [0.03, 0.03, 0.03, 0.03]
+
     # prob_prev_age_groups = zeros(Float64, 7, 4, 52 * num_years)
+    # prob_prev = 0.0
     # for i in 1:(52 * num_years)
     #     for j in 1:4
     #         for k in 1:7
-    #             prob_prev_age_groups[k, j, i] = f(num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
+    #             prob_prev += log_g(num_infected_age_groups_viruses[i, k, j], observed_num_infected_age_groups_viruses[i, k, j], sqrt(observed_num_infected_age_groups_viruses[i, k, j]) + 0.001)
     #         end
     #     end
     # end
 
     nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    nMAE_prev = nMAE
 
-    open("parameters/output.txt", "a") do io
-        println(io, "n = ", 0)
-        println(io, "nMAE = ", nMAE)
-        println(io)
-    end
+    # open("parameters/output.txt", "a") do io
+    #     println(io, "n = ", 0)
+    #     println(io, "nMAE = ", nMAE)
+    #     println(io)
+    # end
 
-    n = 1
+    # n = 1
+    # n = 51
+    n = 541
     N = 1000
     while n <= N
         # Duration parameter
@@ -788,22 +624,11 @@ function main()
 
 
 
-        # x = duration_parameter_array[end]
-        # y = rand(Normal(log(x / (1 - x)), duration_parameter_delta))
-        # duration_parameter_candidate = exp(y) / (1 + exp(y))
-
+        # Duration parameter
         x = duration_parameter_array[end]
         y = rand(Normal(log((x - 0.1) / (1 - x)), duration_parameter_delta))
         duration_parameter_candidate = (exp(y) + 0.1) / (1 + exp(y))
 
-        # # Susceptibility parameter
-        # susceptibility_parameter_1_candidate = exp(rand(Normal(log(susceptibility_parameter_1_array[end]), susceptibility_parameter_deltas[1])))
-        # susceptibility_parameter_2_candidate = exp(rand(Normal(log(susceptibility_parameter_2_array[end]), susceptibility_parameter_deltas[2])))
-        # susceptibility_parameter_3_candidate = exp(rand(Normal(log(susceptibility_parameter_3_array[end]), susceptibility_parameter_deltas[3])))
-        # susceptibility_parameter_4_candidate = exp(rand(Normal(log(susceptibility_parameter_4_array[end]), susceptibility_parameter_deltas[4])))
-        # susceptibility_parameter_5_candidate = exp(rand(Normal(log(susceptibility_parameter_5_array[end]), susceptibility_parameter_deltas[5])))
-        # susceptibility_parameter_6_candidate = exp(rand(Normal(log(susceptibility_parameter_6_array[end]), susceptibility_parameter_deltas[6])))
-        # susceptibility_parameter_7_candidate = exp(rand(Normal(log(susceptibility_parameter_7_array[end]), susceptibility_parameter_deltas[7])))
 
         # Susceptibility parameter
         x = susceptibility_parameter_1_array[end]
@@ -838,44 +663,8 @@ function main()
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[7]))
         susceptibility_parameter_7_candidate = (7 * exp(y) + 1) / (1 + exp(y))
 
-        # susceptibility_parameter_1_candidate = exp(rand(Normal(log(susceptibility_parameter_1_array[end]), susceptibility_parameter_deltas[1])))
-        # susceptibility_parameter_2_candidate = exp(rand(Normal(log(susceptibility_parameter_2_array[end]), susceptibility_parameter_deltas[2])))
-        # susceptibility_parameter_3_candidate = exp(rand(Normal(log(susceptibility_parameter_3_array[end]), susceptibility_parameter_deltas[3])))
-        # susceptibility_parameter_4_candidate = exp(rand(Normal(log(susceptibility_parameter_4_array[end]), susceptibility_parameter_deltas[4])))
-        # susceptibility_parameter_5_candidate = exp(rand(Normal(log(susceptibility_parameter_5_array[end]), susceptibility_parameter_deltas[5])))
-        # susceptibility_parameter_6_candidate = exp(rand(Normal(log(susceptibility_parameter_6_array[end]), susceptibility_parameter_deltas[6])))
-        # susceptibility_parameter_7_candidate = exp(rand(Normal(log(susceptibility_parameter_7_array[end]), susceptibility_parameter_deltas[7])))
-
 
         # Temperature_parameter
-        # x = temperature_parameter_1_array[end]
-        # y = rand(Normal(log(x / (1 - x)), temperature_parameter_deltas[1]))
-        # temperature_parameter_1_candidate = exp(y) / (1 + exp(y))
-
-        # x = temperature_parameter_2_array[end]
-        # y = rand(Normal(log(x / (1 - x)), temperature_parameter_deltas[2]))
-        # temperature_parameter_2_candidate = exp(y) / (1 + exp(y))
-
-        # x = temperature_parameter_3_array[end]
-        # y = rand(Normal(log(x / (1 - x)), temperature_parameter_deltas[3]))
-        # temperature_parameter_3_candidate = exp(y) / (1 + exp(y))
-
-        # x = temperature_parameter_4_array[end]
-        # y = rand(Normal(log(x / (1 - x)), temperature_parameter_deltas[4]))
-        # temperature_parameter_4_candidate = exp(y) / (1 + exp(y))
-
-        # x = temperature_parameter_5_array[end]
-        # y = rand(Normal(log(x / (1 - x)), temperature_parameter_deltas[5]))
-        # temperature_parameter_5_candidate = exp(y) / (1 + exp(y))
-
-        # x = temperature_parameter_6_array[end]
-        # y = rand(Normal(log(x / (1 - x)), temperature_parameter_deltas[6]))
-        # temperature_parameter_6_candidate = exp(y) / (1 + exp(y))
-
-        # x = temperature_parameter_7_array[end]
-        # y = rand(Normal(log(x / (1 - x)), temperature_parameter_deltas[7]))
-        # temperature_parameter_7_candidate = exp(y) / (1 + exp(y))
-
         x = temperature_parameter_1_array[end]
         y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[1]))
         temperature_parameter_1_candidate = (exp(y) + 0.01) / (1 + exp(y))
@@ -1027,14 +816,6 @@ function main()
             random_infection_probability_4_candidate,
         ]
 
-        # println(duration_parameter)
-        # println(susceptibility_parameters)
-        # println(temperature_parameters)
-        # println(immune_memory_susceptibility_level)
-        # println(mean_immunity_duration)
-        # println(random_infection_probability)
-        # return
-
         for k = 1:length(viruses)
             viruses[k].mean_immunity_duration = mean_immunity_duration[k]
             viruses[k].immunity_duration_sd = mean_immunity_duration[k] * 0.33
@@ -1046,7 +827,7 @@ function main()
                 start_agent_ids[thread_id],
                 end_agent_ids[thread_id],
                 viruses,
-                num_infected_age_groups_viruses_prev_data,
+                num_infected_age_groups_viruses_prev,
                 isolation_probabilities_day_1,
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
@@ -1074,31 +855,25 @@ function main()
             immune_memory_susceptibility_level[5], immune_memory_susceptibility_level[6],
             immune_memory_susceptibility_level[7])
 
-        nMAE = sum(abs.(num_infected_age_groups_viruses - num_infected_age_groups_viruses_mean)) / sum(num_infected_age_groups_viruses_mean)
+        nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
 
-        prob = zeros(Float64, 7, 4, (52 * num_years))
-        for i in 1:(52 * num_years)
-            for j in 1:4
-                for k in 1:7
-                    prob[k, j, i] = log_g(num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses_mean[i, k, j], num_infected_age_groups_viruses_sd[i, k, j])
-                end
-            end
-        end
+        # prob = 0.0
+        # for i in 1:(52 * num_years)
+        #     for j in 1:4
+        #         for k in 1:7
+        #             prob += log_g(num_infected_age_groups_viruses[i, k, j], observed_num_infected_age_groups_viruses[i, k, j], sqrt(observed_num_infected_age_groups_viruses[i, k, j]) + 0.001)
+        #         end
+        #     end
+        # end
 
-        accept_prob = 0.0
-        for i in 1:(52 * num_years)
-            for j in 1:4
-                for k in 1:7
-                    accept_prob += prob[k, j, i] - prob_prev_age_groups[k, j, i]
-                end
-            end
-        end
-        accept_prob_final = min(1.0, exp(accept_prob))
+        # accept_prob = exp(prob - prob_prev)
+        accept_prob = nMAE < nMAE_prev ? 1 : 0
 
         open("parameters/output.txt", "a") do io
             println(io, "n = ", n)
-            println(io, "Accept prob exp: ", accept_prob)
-            println(io, "Accept prob: ", accept_prob_final)
+            # println(io, "Exp pow: ", prob - prob_prev)
+            # println(io, "Exp pow curr: ", prob)
+            # println(io, "Accept prob: ", accept_prob)
             println(io, "nMAE = ", nMAE)
             println(io, "Dur: ", duration_parameter_candidate)
             println(io, "Suscept: ", [
@@ -1143,7 +918,7 @@ function main()
             println(io)
         end
 
-        if rand(Float64) < accept_prob_final || local_rejected_num > 29
+        if accept_prob == 1 || local_rejected_num >= 10
             push!(duration_parameter_array, duration_parameter_candidate)
 
             push!(susceptibility_parameter_1_array, susceptibility_parameter_1_candidate)
@@ -1183,7 +958,8 @@ function main()
             push!(random_infection_probability_3_array, random_infection_probability_3_candidate)
             push!(random_infection_probability_4_array, random_infection_probability_4_candidate)
 
-            prob_prev_age_groups = copy(prob)
+            # prob_prev = prob
+            nMAE_prev = nMAE
 
             accept_num += 1
             local_rejected_num = 0
@@ -1230,7 +1006,7 @@ function main()
             local_rejected_num += 1
         end
 
-        if n % 2 == 0
+        if n % 5 == 0
             writedlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), duration_parameter_array, ',')
 
             writedlm(joinpath(
