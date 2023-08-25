@@ -14,8 +14,8 @@ include("../../util/moving_avg.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
-# const is_russian = false
-const is_russian = true
+const is_russian = false
+# const is_russian = true
 
 function confidence(x::Vector{Float64})
     alpha = 0.05
@@ -144,6 +144,9 @@ function plot_incidence(date_range::UnitRange{Int64}, input_filename::String, ou
     for i = 1:52
         confidence_arr[i] = confidence(incidence_data[date_range, i + 1] ./ population_coef)
     end
+
+    println(argmax(incidence_data_mean))
+    println(incidence_data_mean)
 
     ticks = range(1, stop = 52, length = 7)
     ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
@@ -1226,11 +1229,11 @@ end
 # plot_incidence_age_groups(24:26, 10072)
 # plot_incidence_age_groups_time_series()
 
-# plot_incidence(39:45, "flu.csv", "incidence.pdf", 10072)
+plot_incidence(39:45, "flu.csv", "incidence.pdf", 10072)
 # plot_incidence(2:5, "flu_england.csv", "incidence_england.pdf", 1)
 # plot_incidence_age_groups(21:27, 10072)
 # plot_etiology()
 
 # incidence_temperature_corr()
 
-plot_incidence_etiology(42:43, "flu.csv", "incidence_etiology_bars.pdf", 10072)
+# plot_incidence_etiology(42:43, "flu.csv", "incidence_etiology_bars.pdf", 10072)

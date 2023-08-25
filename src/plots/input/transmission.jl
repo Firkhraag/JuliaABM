@@ -11,8 +11,8 @@ include("../../global/variables.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
-# const is_russian = false
-const is_russian = true
+const is_russian = false
+# const is_russian = true
 
 function check_threshold(value::Int, mean_immunity_duration::Int, immune_memory_susceptibility_level::Float64)
     return value < mean_immunity_duration ? 0.0 : immune_memory_susceptibility_level
@@ -44,8 +44,10 @@ function get_infectivity_transmission(
 end
 
 function plot_immunity_protection_influence()
-    immune_memory_susceptibility_levels = [0.8944639240038756, 0.9430303030303029, 0.9336363636363636, 0.9363636363636363, 0.8876594776594775, 0.8817572117572116, 0.946060606060606]
-    mean_immunity_durations = [358, 326, 133, 100, 106, 148, 163]
+    # immune_memory_susceptibility_levels = [0.8944639240038756, 0.9430303030303029, 0.9336363636363636, 0.9363636363636363, 0.8876594776594775, 0.8817572117572116, 0.946060606060606]
+    # mean_immunity_durations = [358, 326, 133, 100, 106, 148, 163]
+    mean_immunity_durations = [359, 326, 128, 87, 110, 167, 154]
+    immune_memory_susceptibility_levels = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 
     ticks = range(1, stop = 360, length = 7)
     ticklabels = ["1" "60" "120" "180" "240" "300" "360"]
@@ -54,11 +56,14 @@ function plot_immunity_protection_influence()
 
     xlabel_name = "Число дней после выздоровления"
     if !is_russian
-        xlabel_name = "Days"
+        xlabel_name = "Days after the recovery"
     end
     # ylabel_name = L"M_{jv}"
     # ylabel_name = "Влияние специфического иммунитета"
     ylabel_name = "Риск инфицирования"
+    if !is_russian
+        ylabel_name = L"R_{jv}"
+    end
 
     arr = collect(1:365)
 
@@ -87,8 +92,8 @@ end
 function plot_duration_influence()
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     duration_parameter = mean(duration_parameter_array[burnin:step:length(duration_parameter_array)])
-    # duration_parameter = 3.3695943816524907
-    duration_parameter = 0.23703365311405514
+    # duration_parameter = 0.23703365311405514
+    duration_parameter = 0.22637404671777045
 
     # duration_influence(x) = 1 / (1 + exp(-x + duration_parameter))
     duration_influence(x) = 1 - exp(-duration_parameter * x)
@@ -102,6 +107,9 @@ function plot_duration_influence()
     # ylabel_name = L"D_{ijc}"
     # ylabel_name = "Влияние продолжительности"
     ylabel_name = "Риск инфицирования"
+    if !is_russian
+        ylabel_name = L"D_{ijc}"
+    end
 
     duration_plot = plot(
         duration_range,
@@ -122,16 +130,20 @@ function plot_duration_influence()
 end
 
 function plot_temperature_influence()
-    temperature_parameters = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
+    # temperature_parameters = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
+    temperature_parameters = -[0.8846019152491571, 0.9313057237697472, 0.04837343942226003, 0.13610826071131651, 0.048281056835923, 0.07401637656561208, 0.36034078438752476]
     temp_influence(x, v) = temperature_parameters[v] * x + 1.0
 
     xlabel_name = "Нормализованная температура воздуха"
     if !is_russian
-        xlabel_name = "Нормализованная температура воздуха"
+        xlabel_name = "Normalised air temperature"
     end
     # ylabel_name = L"T_{mv}"
     # ylabel_name = "Влияние температуры воздуха"
     ylabel_name = "Риск инфицирования"
+    if !is_russian
+        ylabel_name = L"T_{mv}"
+    end
 
     temperature_range = range(0, stop=1, length=100)
     temperature_plot = plot(
@@ -182,8 +194,8 @@ function plot_temperature_influence_year()
         mean(temperature_parameter_6_array),
         mean(temperature_parameter_7_array)]
 
-    # temperature_parameters = [-0.95, -0.8874797488598941, -0.05, -0.11936936936936937, -0.11488698235671589, -0.17735457724319717, -0.31083867585078234]
-    temperature_parameters = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
+    # temperature_parameters = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
+    temperature_parameters = -[0.8846019152491571, 0.9313057237697472, 0.04837343942226003, 0.13610826071131651, 0.048281056835923, 0.07401637656561208, 0.36034078438752476]
     temp_influence(x, v) = temperature_parameters[v] * x + 1.0
 
     global_warming = false
@@ -213,6 +225,9 @@ function plot_temperature_influence_year()
     # ylabel_name = L"T_{mv}"
     # ylabel_name = "Влияние температуры воздуха"
     ylabel_name = "Риск инфицирования"
+    if !is_russian
+        ylabel_name = L"T_{mv}"
+    end
 
     ticks = range(1, stop = 365, length = 7)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
@@ -242,18 +257,21 @@ function plot_temperature_influence_year()
 end
 
 function plot_susceptibility_influence()
-    # susceptibility_parameters = [3.0307005776255167, 3.1607934669677986, 3.4273238632802836, 4.3725990337370515, 3.67390987352247, 3.8281846882573243, 4.746937978511825]
-    susceptibility_parameters = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.56457619595636, 3.9627987624113588, 3.751417011489648, 4.5440998584572433]
+    # susceptibility_parameters = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.56457619595636, 3.9627987624113588, 3.751417011489648, 4.5440998584572433]
+    susceptibility_parameters = [3.095038052808992, 3.0554159364150997, 3.621467164928697, 4.612459518531132, 3.9086201477859595, 3.9490870441188344, 4.61599824854622]
     susceptibility_influence(x, v) = 2 / (1 + exp(susceptibility_parameters[v] * x))
 
     xlabel_name = "Нормализованный уровень иммуноглобулинов"
     if !is_russian
-        xlabel_name = "Agent's age, years"
+        xlabel_name = "Normalised total Ig level"
     end
     # ylabel_name = L"S_{jv}"
     # ylabel_name = "Влияние неспецифического иммунитета"
     # ylabel_name = "Влияние неспецифической защиты"
     ylabel_name = "Риск инфицирования"
+    if !is_russian
+        ylabel_name = L"S_{jv}"
+    end
 
     susceptibility_range = range(0, stop=1, length=100)
     susceptibility_plot = plot(
@@ -306,7 +324,8 @@ function plot_susceptibility_influence_age()
         mean(susceptibility_parameter_6_array),
         mean(susceptibility_parameter_7_array)]
 
-        susceptibility_parameters = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.56457619595636, 3.9627987624113588, 3.751417011489648, 4.5440998584572433]
+    # susceptibility_parameters = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.56457619595636, 3.9627987624113588, 3.751417011489648, 4.5440998584572433]
+    susceptibility_parameters = [3.095038052808992, 3.0554159364150997, 3.621467164928697, 4.612459518531132, 3.9086201477859595, 3.9490870441188344, 4.61599824854622]
     susceptibility_influence(x, v) = 2 / (1 + exp(susceptibility_parameters[v] * x))
 
     ig_levels = [0.1505164955165073, 0.24272685839757013, 0.27446634642134227, 0.27335566991005594, 0.2735622560350999, 0.27338288255941956, 0.35102037547122344, 0.3506582993180788, 0.3501344468578805, 0.3843581109268843, 0.38512561297996545, 0.3841741589663935, 0.39680562463247615, 0.39678143520059356, 0.3963905886612963, 0.3963375288649048, 0.3965702682420548, 0.5090656587262238, 0.5090815491354699, 0.4645414640012885, 0.4644123788635453, 0.4645052320264773, 0.46437142322798197, 0.46404796055057324, 0.46404131051991415, 0.4642103769039795, 0.4644378565132235, 0.46431284676460083, 0.46420446317184094, 0.46417318616873177, 0.4641823756357343, 0.46431026812185305, 0.46428430374463076, 0.46419241271472667, 0.46442367046502736, 0.4641316362196958, 0.46375909790283526, 0.4639264468340825, 0.46374602109520874, 0.46389155709992, 0.4638894246832213, 0.4639072611334911, 0.4635306092460304, 0.46391631085834933, 0.46365848864301656, 0.46397048228918875, 0.46371709601587097, 0.4635952965866837, 0.46359555005295366, 0.4637930222367746, 0.4636360565700838, 0.46388701957152984, 0.46390561946497944, 0.46367085732813207, 0.4637113207404173, 0.463279562093781, 0.4631526289013043, 0.46311392536698287, 0.46362072192117104, 0.4634004652394673, 0.4633030057731725, 0.4251085457596629, 0.42579853946476415, 0.4253826719019012, 0.42499345597956945, 0.42718293068111934, 0.4260034329999044, 0.42633039649962223, 0.42622303029540065, 0.4263844159925822, 0.42651966706897754, 0.37526803040674195, 0.37532637246454903, 0.37551370107979276, 0.3762675778905722, 0.3724835780318056, 0.37297425583430915, 0.3727718999755025, 0.3737942833189381, 0.37366617813636965, 0.371607528787453, 0.37183632026679353, 0.3723822853489555, 0.37254019190309834, 0.3732338222929381, 0.36931013110281213, 0.36965447629422055, 0.37101932095070683, 0.3711536310341243, 0.36749595142533503]
@@ -321,6 +340,9 @@ function plot_susceptibility_influence_age()
     # ylabel_name = L"S_{jv}"
     # ylabel_name = "Влияние неспецифического иммунитета"
     ylabel_name = "Риск инфицирования"
+    if !is_russian
+        ylabel_name = L"S_{jv}"
+    end
 
     susceptibility_plot = plot(
         0:89,
@@ -399,6 +421,9 @@ function plot_infectivity_influence()
     # ylabel_name = "Влияние скорости продукции вируса"
     # ylabel_name = "Вероятность передачи инфекции"
     ylabel_name = "Риск инфицирования"
+    if !is_russian
+        ylabel_name = L"I_{iv}"
+    end
 
     mean_incubation_duration = [1, 1, 2, 4, 6, 3, 3]
     mean_symptoms_duration = [8, 6, 11, 7, 9, 8, 8]
@@ -447,6 +472,8 @@ end
 # plot_temperature_influence_year()
 # plot_temperature_influence()
 # plot_infectivity_influence()
-plot_susceptibility_influence()
-plot_susceptibility_influence_age()
-# plot_immunity_protection_influence()
+
+# plot_susceptibility_influence()
+# plot_susceptibility_influence_age()
+
+plot_immunity_protection_influence()

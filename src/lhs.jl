@@ -75,7 +75,8 @@ function multiple_simulations(
         end
     end
 
-    num_parameters = 33
+    # num_parameters = 33
+    num_parameters = 26
 
     if duration_parameter_default > 0.95
         duration_parameter_default = 0.95
@@ -97,11 +98,11 @@ function multiple_simulations(
             temperature_parameters_default[i] = -0.05
         end
 
-        if immune_memory_susceptibility_levels_default[i] > 0.95
-            immune_memory_susceptibility_levels_default[i] = 0.95
-        elseif immune_memory_susceptibility_levels_default[i] < 0.05
-            immune_memory_susceptibility_levels_default[i] = 0.05
-        end
+        # if immune_memory_susceptibility_levels_default[i] > 0.95
+        #     immune_memory_susceptibility_levels_default[i] = 0.95
+        # elseif immune_memory_susceptibility_levels_default[i] < 0.05
+        #     immune_memory_susceptibility_levels_default[i] = 0.05
+        # end
 
         if mean_immunity_durations[i] > 355.0
             mean_immunity_durations[i] = 355.0
@@ -113,6 +114,42 @@ function multiple_simulations(
     latin_hypercube_plan, _ = LHCoptim(num_runs, num_parameters, 500)
 
     # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "lhs", "tables", "parameters$(lhs_step).csv"), header = false)))
+
+    # points = scaleLHC(latin_hypercube_plan, [
+    #     (duration_parameter_default - 0.05, duration_parameter_default + 0.05),
+    #     (susceptibility_parameters_default[1] - 0.1, susceptibility_parameters_default[1] + 0.1),
+    #     (susceptibility_parameters_default[2] - 0.1, susceptibility_parameters_default[2] + 0.1),
+    #     (susceptibility_parameters_default[3] - 0.1, susceptibility_parameters_default[3] + 0.1),
+    #     (susceptibility_parameters_default[4] - 0.1, susceptibility_parameters_default[4] + 0.1),
+    #     (susceptibility_parameters_default[5] - 0.1, susceptibility_parameters_default[5] + 0.1),
+    #     (susceptibility_parameters_default[6] - 0.1, susceptibility_parameters_default[6] + 0.1),
+    #     (susceptibility_parameters_default[7] - 0.1, susceptibility_parameters_default[7] + 0.1),
+    #     (temperature_parameters_default[1] - 0.05, temperature_parameters_default[1] + 0.05),
+    #     (temperature_parameters_default[2] - 0.05, temperature_parameters_default[2] + 0.05),
+    #     (temperature_parameters_default[3] - 0.05, temperature_parameters_default[3] + 0.05),
+    #     (temperature_parameters_default[4] - 0.05, temperature_parameters_default[4] + 0.05),
+    #     (temperature_parameters_default[5] - 0.05, temperature_parameters_default[5] + 0.05),
+    #     (temperature_parameters_default[6] - 0.05, temperature_parameters_default[6] + 0.05),
+    #     (temperature_parameters_default[7] - 0.05, temperature_parameters_default[7] + 0.05),
+    #     (immune_memory_susceptibility_levels_default[1] - 0.03, immune_memory_susceptibility_levels_default[1] + 0.03),
+    #     (immune_memory_susceptibility_levels_default[2] - 0.03, immune_memory_susceptibility_levels_default[2] + 0.03),
+    #     (immune_memory_susceptibility_levels_default[3] - 0.03, immune_memory_susceptibility_levels_default[3] + 0.03),
+    #     (immune_memory_susceptibility_levels_default[4] - 0.03, immune_memory_susceptibility_levels_default[4] + 0.03),
+    #     (immune_memory_susceptibility_levels_default[5] - 0.03, immune_memory_susceptibility_levels_default[5] + 0.03),
+    #     (immune_memory_susceptibility_levels_default[6] - 0.03, immune_memory_susceptibility_levels_default[6] + 0.03),
+    #     (immune_memory_susceptibility_levels_default[7] - 0.03, immune_memory_susceptibility_levels_default[7] + 0.03),
+    #     (mean_immunity_durations[1] - 5.0, mean_immunity_durations[1] + 5.0),
+    #     (mean_immunity_durations[2] - 5.0, mean_immunity_durations[2] + 5.0),
+    #     (mean_immunity_durations[3] - 5.0, mean_immunity_durations[3] + 5.0),
+    #     (mean_immunity_durations[4] - 5.0, mean_immunity_durations[4] + 5.0),
+    #     (mean_immunity_durations[5] - 5.0, mean_immunity_durations[5] + 5.0),
+    #     (mean_immunity_durations[6] - 5.0, mean_immunity_durations[6] + 5.0),
+    #     (mean_immunity_durations[7] - 5.0, mean_immunity_durations[7] + 5.0),
+    #     (random_infection_probabilities_default[1] - random_infection_probabilities_default[1] * 0.05, random_infection_probabilities_default[1] + random_infection_probabilities_default[1] * 0.05),
+    #     (random_infection_probabilities_default[2] - random_infection_probabilities_default[2] * 0.05, random_infection_probabilities_default[2] + random_infection_probabilities_default[2] * 0.05),
+    #     (random_infection_probabilities_default[3] - random_infection_probabilities_default[3] * 0.05, random_infection_probabilities_default[3] + random_infection_probabilities_default[3] * 0.05),
+    #     (random_infection_probabilities_default[4] - random_infection_probabilities_default[4] * 0.05, random_infection_probabilities_default[4] + random_infection_probabilities_default[4] * 0.05),
+    # ])
 
     points = scaleLHC(latin_hypercube_plan, [
         (duration_parameter_default - 0.05, duration_parameter_default + 0.05),
@@ -130,13 +167,6 @@ function multiple_simulations(
         (temperature_parameters_default[5] - 0.05, temperature_parameters_default[5] + 0.05),
         (temperature_parameters_default[6] - 0.05, temperature_parameters_default[6] + 0.05),
         (temperature_parameters_default[7] - 0.05, temperature_parameters_default[7] + 0.05),
-        (immune_memory_susceptibility_levels_default[1] - 0.03, immune_memory_susceptibility_levels_default[1] + 0.03),
-        (immune_memory_susceptibility_levels_default[2] - 0.03, immune_memory_susceptibility_levels_default[2] + 0.03),
-        (immune_memory_susceptibility_levels_default[3] - 0.03, immune_memory_susceptibility_levels_default[3] + 0.03),
-        (immune_memory_susceptibility_levels_default[4] - 0.03, immune_memory_susceptibility_levels_default[4] + 0.03),
-        (immune_memory_susceptibility_levels_default[5] - 0.03, immune_memory_susceptibility_levels_default[5] + 0.03),
-        (immune_memory_susceptibility_levels_default[6] - 0.03, immune_memory_susceptibility_levels_default[6] + 0.03),
-        (immune_memory_susceptibility_levels_default[7] - 0.03, immune_memory_susceptibility_levels_default[7] + 0.03),
         (mean_immunity_durations[1] - 5.0, mean_immunity_durations[1] + 5.0),
         (mean_immunity_durations[2] - 5.0, mean_immunity_durations[2] + 5.0),
         (mean_immunity_durations[3] - 5.0, mean_immunity_durations[3] + 5.0),
@@ -167,13 +197,6 @@ function multiple_simulations(
             (-1.0, -0.01),
             (-1.0, -0.01),
             (-1.0, -0.01),
-            (0.5, 1.0), # immune_memory_susceptibility_levels
-            (0.5, 1.0),
-            (0.5, 1.0),
-            (0.5, 1.0),
-            (0.5, 1.0),
-            (0.5, 1.0),
-            (0.5, 1.0),
             (30, 365), # mean_immunity_durations
             (30, 365),
             (30, 365),
@@ -199,15 +222,25 @@ function multiple_simulations(
     for i = (num_files + 1):num_runs
         println(i)
 
+        # duration_parameter = points[i, 1]
+        # susceptibility_parameters = points[i, 2:8]
+        # temperature_parameters = points[i, 9:15]
+        # immune_memory_susceptibility_levels =  points[i, 16:22]
+        # for k = 1:length(viruses)
+        #     viruses[k].mean_immunity_duration = points[i, 22 + k]
+        #     viruses[k].immunity_duration_sd = points[i, 22 + k] * 0.33
+        # end
+        # random_infection_probabilities = points[i, 30:33]
+
         duration_parameter = points[i, 1]
         susceptibility_parameters = points[i, 2:8]
         temperature_parameters = points[i, 9:15]
-        immune_memory_susceptibility_levels =  points[i, 16:22]
+        immune_memory_susceptibility_levels = immune_memory_susceptibility_levels_default
         for k = 1:length(viruses)
-            viruses[k].mean_immunity_duration = points[i, 22 + k]
-            viruses[k].immunity_duration_sd = points[i, 22 + k] * 0.33
+            viruses[k].mean_immunity_duration = points[i, 15 + k]
+            viruses[k].immunity_duration_sd = points[i, 15 + k] * 0.33
         end
-        random_infection_probabilities = points[i, 30:33]
+        random_infection_probabilities = points[i, 23:26]
 
         @threads for thread_id in 1:num_threads
             reset_agent_states(
@@ -257,8 +290,9 @@ function multiple_simulations(
             println(io, "duration_parameter = ", duration_parameter)
             println(io, "susceptibility_parameters = ", susceptibility_parameters)
             println(io, "temperature_parameters = ", temperature_parameters)
-            println(io, "immune_memory_susceptibility_levels = ", immune_memory_susceptibility_levels)
-            println(io, "mean_immunity_durations = ", [points[i, 23], points[i, 24], points[i, 25], points[i, 26], points[i, 27], points[i, 28], points[i, 29]])
+            # println(io, "immune_memory_susceptibility_levels = ", immune_memory_susceptibility_levels)
+            # println(io, "mean_immunity_durations = ", [points[i, 23], points[i, 24], points[i, 25], points[i, 26], points[i, 27], points[i, 28], points[i, 29]])
+            println(io, "mean_immunity_durations = ", [points[i, 16], points[i, 17], points[i, 18], points[i, 19], points[i, 20], points[i, 21], points[i, 22]])
             println(io, "random_infection_probabilities = ", random_infection_probabilities)
             println(io)
         end
@@ -269,8 +303,9 @@ function multiple_simulations(
                 "duration_parameter", duration_parameter,
                 "susceptibility_parameters", susceptibility_parameters,
                 "temperature_parameters", temperature_parameters,
-                "immune_memory_susceptibility_levels", immune_memory_susceptibility_levels,
-                "mean_immunity_durations", [points[i, 23], points[i, 24], points[i, 25], points[i, 26], points[i, 27], points[i, 28], points[i, 29]],
+                # "immune_memory_susceptibility_levels", immune_memory_susceptibility_levels,
+                # "mean_immunity_durations", [points[i, 23], points[i, 24], points[i, 25], points[i, 26], points[i, 27], points[i, 28], points[i, 29]],
+                "mean_immunity_durations", [points[i, 16], points[i, 17], points[i, 18], points[i, 19], points[i, 20], points[i, 21], points[i, 22]],
                 "random_infection_probabilities", random_infection_probabilities)
         else
             save(joinpath(@__DIR__, "..", "lhs", "tables", "step$(lhs_step)", "results_$(i).jld"),
@@ -278,8 +313,9 @@ function multiple_simulations(
                 "duration_parameter", duration_parameter,
                 "susceptibility_parameters", susceptibility_parameters,
                 "temperature_parameters", temperature_parameters,
-                "immune_memory_susceptibility_levels", immune_memory_susceptibility_levels,
-                "mean_immunity_durations", [points[i, 23], points[i, 24], points[i, 25], points[i, 26], points[i, 27], points[i, 28], points[i, 29]],
+                # "immune_memory_susceptibility_levels", immune_memory_susceptibility_levels,
+                # "mean_immunity_durations", [points[i, 23], points[i, 24], points[i, 25], points[i, 26], points[i, 27], points[i, 28], points[i, 29]],
+                "mean_immunity_durations", [points[i, 16], points[i, 17], points[i, 18], points[i, 19], points[i, 20], points[i, 21], points[i, 22]],
                 "random_infection_probabilities", random_infection_probabilities)
         end
     end
@@ -290,11 +326,12 @@ function main()
 
     num_runs = 100
 
-    num_years = 2
-    # num_years = 1
+    # num_years = 3
+    # num_years = 2
+    num_years = 1
 
     surrogate_training = false
-    lhs_step = 27
+    lhs_step = 28
 
     num_threads = nthreads()
 
@@ -526,12 +563,37 @@ function main()
     # random_infection_probabilities = [0.0012545136959415974, 0.000943057803321302, 0.00032933889442596324, 5.940576234648199e-6]
 
     # nMAE = 0.5742814376300275
-    duration_parameter = 0.3453589953589954
-    susceptibility_parameters = [4.030985530985535, 3.5015288015288015, 3.232022932022933, 4.929647829647831, 3.475484575484574, 2.988725088725088, 4.96426426426426]
-    temperature_parameters = [-0.9636363636363636, -0.7813622713622711, -0.18635271635271639, -0.1689762489762489, -0.17301938301938308, -0.36363636363636315, -0.1565656565656566]
-    immune_memory_susceptibility_levels = [0.9660606060606061, 0.7173673673673674, 0.738908908908909, 0.9071371371371373, 0.602507052507053, 0.6155910455910455, 0.518901628901629]
-    mean_immunity_durations = [123.21230321230318, 119.30566930566934, 187.91746291746298, 211.45145145145153, 142.98616798616789, 297.906542906543, 253.933023933024]
-    random_infection_probabilities = [0.0013096362674299405, 0.0009530599315383462, 0.00033815453149898145, 6.189600389939008e-6]
+    # duration_parameter = 0.3453589953589954
+    # susceptibility_parameters = [4.030985530985535, 3.5015288015288015, 3.232022932022933, 4.929647829647831, 3.475484575484574, 2.988725088725088, 4.96426426426426]
+    # temperature_parameters = [-0.9636363636363636, -0.7813622713622711, -0.18635271635271639, -0.1689762489762489, -0.17301938301938308, -0.36363636363636315, -0.1565656565656566]
+    # immune_memory_susceptibility_levels = [0.9660606060606061, 0.7173673673673674, 0.738908908908909, 0.9071371371371373, 0.602507052507053, 0.6155910455910455, 0.518901628901629]
+    # mean_immunity_durations = [123.21230321230318, 119.30566930566934, 187.91746291746298, 211.45145145145153, 142.98616798616789, 297.906542906543, 253.933023933024]
+    # random_infection_probabilities = [0.0013096362674299405, 0.0009530599315383462, 0.00033815453149898145, 6.189600389939008e-6]
+
+
+
+
+
+
+    # Article - continue from PhD point
+    duration_parameter = 0.23703365311405514
+    susceptibility_parameters = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.558457619595636, 3.9627987624113588, 3.751417011489648, 4.552998584572433]
+    temperature_parameters = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
+    immune_memory_susceptibility_levels = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    mean_immunity_durations = [357.979797979798, 326.2129504744517, 133.30517744372466, 99.91903541540344, 105.99775039968745, 148.27512119521802, 162.6804553051528]
+    random_infection_probabilities = [0.00138, 0.00077, 0.0004, 9.2e-6]
+
+    # Article - end
+    duration_parameter = 0.22637404671777045
+    susceptibility_parameters = [3.095038052808992, 3.0554159364150997, 3.621467164928697, 4.612459518531132, 3.9086201477859595, 3.9490870441188344, 4.61599824854622]
+    temperature_parameters = -[0.8846019152491571, 0.9313057237697472, 0.04837343942226003, 0.13610826071131651, 0.048281056835923, 0.07401637656561208, 0.36034078438752476]
+    mean_immunity_durations = [358.53571508348136, 326.40686999692815, 128.36635586863198, 86.9285869152992, 110.11396877548141, 166.57369789857893, 153.80184097804894]
+    random_infection_probabilities = [0.0013742087365687383, 0.0007810400878682918, 0.00039431021797935243, 9.16649170205853e-6]
+    immune_memory_susceptibility_levels = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+
+
+
 
     viruses = Virus[
         # FluA
@@ -615,7 +677,7 @@ function main()
     infected_data_7_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
     infected_data_15_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
 
-    infected_data_0 = infected_data_0_all[2:53, 24:(23 + num_years)]
+    infected_data_0 = infected_data_0_all[2:53, flu_starting_index:(23 + num_years)]
     infected_data_0_1 = etiology[:, 1] .* infected_data_0
     infected_data_0_2 = etiology[:, 2] .* infected_data_0
     infected_data_0_3 = etiology[:, 3] .* infected_data_0
@@ -633,7 +695,7 @@ function main()
         vec(infected_data_0_7),
         dims = 2)
 
-    infected_data_3 = infected_data_3_all[2:53, 24:(23 + num_years)]
+    infected_data_3 = infected_data_3_all[2:53, flu_starting_index:(23 + num_years)]
     infected_data_3_1 = etiology[:, 1] .* infected_data_3
     infected_data_3_2 = etiology[:, 2] .* infected_data_3
     infected_data_3_3 = etiology[:, 3] .* infected_data_3
@@ -651,7 +713,7 @@ function main()
         vec(infected_data_3_7),
         dims = 2)
 
-    infected_data_7 = infected_data_7_all[2:53, 24:(23 + num_years)]
+    infected_data_7 = infected_data_7_all[2:53, flu_starting_index:(23 + num_years)]
     infected_data_7_1 = etiology[:, 1] .* infected_data_7
     infected_data_7_2 = etiology[:, 2] .* infected_data_7
     infected_data_7_3 = etiology[:, 3] .* infected_data_7
@@ -669,7 +731,7 @@ function main()
         vec(infected_data_7_7),
         dims = 2)
 
-    infected_data_15 = infected_data_15_all[2:53, 24:(23 + num_years)]
+    infected_data_15 = infected_data_15_all[2:53, flu_starting_index:(23 + num_years)]
     infected_data_15_1 = etiology[:, 1] .* infected_data_15
     infected_data_15_2 = etiology[:, 2] .* infected_data_15
     infected_data_15_3 = etiology[:, 3] .* infected_data_15
@@ -696,7 +758,7 @@ function main()
     )
 
 
-    infected_data_0_prev = infected_data_0_all[2:53, 23]
+    infected_data_0_prev = infected_data_0_all[2:53, 1]
     infected_data_0_1_prev = etiology[:, 1] .* infected_data_0_prev
     infected_data_0_2_prev = etiology[:, 2] .* infected_data_0_prev
     infected_data_0_3_prev = etiology[:, 3] .* infected_data_0_prev
@@ -714,7 +776,7 @@ function main()
         vec(infected_data_0_7_prev),
         dims = 2)
 
-    infected_data_3_prev = infected_data_3_all[2:53, 23]
+    infected_data_3_prev = infected_data_3_all[2:53, 1]
     infected_data_3_1_prev = etiology[:, 1] .* infected_data_3_prev
     infected_data_3_2_prev = etiology[:, 2] .* infected_data_3_prev
     infected_data_3_3_prev = etiology[:, 3] .* infected_data_3_prev
@@ -732,7 +794,7 @@ function main()
         vec(infected_data_3_7_prev),
         dims = 2)
 
-    infected_data_7_prev = infected_data_7_all[2:53, 23]
+    infected_data_7_prev = infected_data_7_all[2:53, 1]
     infected_data_7_1_prev = etiology[:, 1] .* infected_data_7_prev
     infected_data_7_2_prev = etiology[:, 2] .* infected_data_7_prev
     infected_data_7_3_prev = etiology[:, 3] .* infected_data_7_prev
@@ -750,7 +812,7 @@ function main()
         vec(infected_data_7_7_prev),
         dims = 2)
 
-    infected_data_15_prev = infected_data_15_all[2:53, 23]
+    infected_data_15_prev = infected_data_15_all[2:53, 1]
     infected_data_15_1_prev = etiology[:, 1] .* infected_data_15_prev
     infected_data_15_2_prev = etiology[:, 2] .* infected_data_15_prev
     infected_data_15_3_prev = etiology[:, 3] .* infected_data_15_prev

@@ -347,6 +347,346 @@ function get_num_of_people_and_households(
     return num_agents, num_households
 end
 
+# function get_num_of_people_and_households(
+#     thread_id::Int,
+#     num_threads::Int,
+#     district_nums::Vector{Int},
+#     district_households::Matrix{Int}
+# )::Tuple{Int, Int}
+#     num_agents = 0
+#     num_households = 0
+#     for index in district_nums[thread_id:num_threads:size(district_nums, 1)]
+#         for _ in 1:round(district_households[index, 1] / 2)
+#             # 1P
+#             num_agents += 1
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 2] / 2)
+#             # PWOP2P0C
+#             num_agents += 2
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 3] / 2)
+#             # PWOP3P0C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 4] / 2)
+#             # PWOP3P1C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 5] / 2)
+#             # PWOP4P0C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 6] / 2)
+#             # PWOP4P1C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 7] / 2)
+#             # PWOP4P2C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 8] / 2)
+#             # PWOP5P0C
+#             num_agents += 5
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 9] / 2)
+#             # PWOP5P1C
+#             num_agents += 5
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 10] / 2)
+#             # PWOP5P2C
+#             num_agents += 5
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 11] / 2)
+#             # PWOP5P3C
+#             num_agents += 5
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 12] / 2)
+#             # PWOP6P0C
+#             num_agents += 6
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 13] / 2)
+#             # PWOP6P1C
+#             num_agents += 6
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 14] / 2)
+#             # PWOP6P2C
+#             num_agents += 6
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 15] / 2)
+#             # PWOP6P3C
+#             num_agents += 6
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 16] / 2)
+#             # 2PWOP4P0C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 17] / 2)
+#             # 2PWOP5P0C
+#             num_agents += 5
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 18] / 2)
+#             # 2PWOP5P1C
+#             num_agents += 5
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 19] / 2)
+#             # 2PWOP6P0C
+#             num_agents += 6
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 20] / 2)
+#             # 2PWOP6P1C
+#             num_agents += 6
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 21] / 2)
+#             # 2PWOP6P2C
+#             num_agents += 6
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 22] / 2)
+#             # SMWC2P0C
+#             num_agents += 2
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 23] / 2)
+#             # SMWC2P1C
+#             num_agents += 2
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 24] / 2)
+#             # SMWC3P0C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 25] / 2)
+#             # SMWC3P1C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 26] / 2)
+#             # SMWC3P2C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 27] / 2)
+#             # SMWC4P0C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 28] / 2)
+#             # SMWC4P1C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 29] / 2)
+#             # SMWC4P2C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 30] / 2)
+#             # SMWC4P3C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 31] / 2)
+#             # SFWC2P0C
+#             num_agents += 2
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 32] / 2)
+#             # SFWC2P1C
+#             num_agents += 2
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 33] / 2)
+#             # SFWC3P0C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 34] / 2)
+#             # SFWC3P1C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 35] / 2)
+#             # SFWC3P2C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 36] / 2)
+#             # SPWCWP3P0C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 37] / 2)
+#             # SPWCWP3P1C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 38] / 2)
+#             # SPWCWP4P0C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 39] / 2)
+#             # SPWCWP4P1C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 40] / 2)
+#             # SPWCWP4P2C
+#             num_agents += 4
+#             num_households += 1
+#         end
+
+#         for _ in 1:round(district_households[index, 41] / 2)
+#             # SPWCWPWOP3P0C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 42] / 2)
+#             # SPWCWPWOP3P1C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 43] / 2)
+#             # SPWCWPWOP4P0C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 44] / 2)
+#             # SPWCWPWOP4P1C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 45] / 2)
+#             # SPWCWPWOP4P2C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 46] / 2)
+#             # SPWCWPWOP5P0C
+#             num_agents += 5
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 47] / 2)
+#             # SPWCWPWOP5P1C
+#             num_agents += 5
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 48] / 2)
+#             # SPWCWPWOP5P2C
+#             num_agents += 5
+#             num_households += 1
+#         end
+
+#         for _ in 1:round(district_households[index, 49] / 2)
+#             # O2P0C
+#             num_agents += 2
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 50] / 2)
+#             # O2P1C
+#             num_agents += 2
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 51] / 2)
+#             # O3P0C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 52] / 2)
+#             # O3P1C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 53] / 2)
+#             # O3P2C
+#             num_agents += 3
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 54] / 2)
+#             # O4P0C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 55] / 2)
+#             # O4P1C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 56] / 2)
+#             # O4P2C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 57] / 2)
+#             # O4P3C
+#             num_agents += 4
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 58] / 2)
+#             # O5P0C
+#             num_agents += 5
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 59] / 2)
+#             # O5P1C
+#             num_agents += 5
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 60] / 2)
+#             # O5P2C
+#             num_agents += 5
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 61] / 2)
+#             # O5P3C
+#             num_agents += 5
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 62] / 2)
+#             # O6P0C
+#             num_agents += 6
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 63] / 2)
+#             # O6P1C
+#             num_agents += 6
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 64] / 2)
+#             # O6P2C
+#             num_agents += 6
+#             num_households += 1
+#         end
+#         for _ in 1:round(district_households[index, 65] / 2)
+#             # O6P3C
+#             num_agents += 6
+#             num_households += 1
+#         end
+#     end
+#     return num_agents, num_households
+# end
+
 function main()
     district_nums = get_district_nums()
     district_households = get_district_households()

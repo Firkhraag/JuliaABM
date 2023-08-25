@@ -35,11 +35,11 @@ function main()
 
     num_threads = nthreads()
 
-    starting_bias = 315
-    n = 50
+    starting_bias = 200
+    n = 300
     disturbance = 0.05
 
-    num_years = 2
+    num_years = 3
 
     isolation_probabilities_day_1_default = [0.406, 0.305, 0.204, 0.101]
     isolation_probabilities_day_2_default = [0.669, 0.576, 0.499, 0.334]
@@ -52,12 +52,19 @@ function main()
     other_contact_duration_scales_default = [1.6, 1.95, 1.07, 1.7, 1.07]
 
     # Parameters add _default
-    duration_parameter_default = 0.23703365311405514
-    susceptibility_parameters_default = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.558457619595636, 3.9627987624113588, 3.751417011489648, 4.552998584572433]
-    temperature_parameters_default = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
-    immune_memory_susceptibility_levels_default = [0.8944639240038756, 0.9430303030303029, 0.9336363636363636, 0.9363636363636363, 0.8876594776594775, 0.8817572117572116, 0.946060606060606]
-    mean_immunity_durations_default = [357.979797979798, 326.2129504744517, 133.30517744372466, 99.91903541540344, 105.99775039968745, 148.27512119521802, 162.6804553051528]
-    random_infection_probabilities_default = [0.00138, 0.00077, 0.0004, 9.2e-6]
+    # duration_parameter_default = 0.23703365311405514
+    # susceptibility_parameters_default = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.558457619595636, 3.9627987624113588, 3.751417011489648, 4.552998584572433]
+    # temperature_parameters_default = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
+    # immune_memory_susceptibility_levels_default = [0.8944639240038756, 0.9430303030303029, 0.9336363636363636, 0.9363636363636363, 0.8876594776594775, 0.8817572117572116, 0.946060606060606]
+    # mean_immunity_durations_default = [357.979797979798, 326.2129504744517, 133.30517744372466, 99.91903541540344, 105.99775039968745, 148.27512119521802, 162.6804553051528]
+    # random_infection_probabilities_default = [0.00138, 0.00077, 0.0004, 9.2e-6]
+
+    duration_parameter_default = 0.22637404671777045
+    susceptibility_parameters_default = [3.095038052808992, 3.0554159364150997, 3.621467164928697, 4.612459518531132, 3.9086201477859595, 3.9490870441188344, 4.61599824854622]
+    temperature_parameters_default = -[0.8846019152491571, 0.9313057237697472, 0.04837343942226003, 0.13610826071131651, 0.048281056835923, 0.07401637656561208, 0.36034078438752476]
+    mean_immunity_durations_default = [358.53571508348136, 326.40686999692815, 128.36635586863198, 86.9285869152992, 110.11396877548141, 166.57369789857893, 153.80184097804894]
+    random_infection_probabilities_default = [0.0013742087365687383, 0.0007810400878682918, 0.00039431021797935243, 9.16649170205853e-6]
+    immune_memory_susceptibility_levels = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 
     incubation_period_durations_default = [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2]
     incubation_period_duration_variances_default = [0.09, 0.0484, 0.175, 0.937, 1.51, 0.327, 0.496]
@@ -86,7 +93,7 @@ function main()
     susceptibility_parameters = copy(susceptibility_parameters_default)
     temperature_parameters = copy(temperature_parameters_default)
     random_infection_probabilities = copy(random_infection_probabilities_default)
-    immune_memory_susceptibility_levels = copy(immune_memory_susceptibility_levels_default)
+    # immune_memory_susceptibility_levels = copy(immune_memory_susceptibility_levels_default)
     mean_immunity_durations = copy(mean_immunity_durations_default)
 
     incubation_period_durations = copy(incubation_period_durations_default)
@@ -362,6 +369,97 @@ function main()
         num_all_infected_age_groups_viruses[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
     end
 
+
+
+    infected_data_0_prev = infected_data_0_all[2:53, 23]
+    infected_data_0_1_prev = etiology[:, 1] .* infected_data_0_prev
+    infected_data_0_2_prev = etiology[:, 2] .* infected_data_0_prev
+    infected_data_0_3_prev = etiology[:, 3] .* infected_data_0_prev
+    infected_data_0_4_prev = etiology[:, 4] .* infected_data_0_prev
+    infected_data_0_5_prev = etiology[:, 5] .* infected_data_0_prev
+    infected_data_0_6_prev = etiology[:, 6] .* infected_data_0_prev
+    infected_data_0_7_prev = etiology[:, 7] .* infected_data_0_prev
+    infected_data_0_viruses_prev = cat(
+        vec(infected_data_0_1_prev),
+        vec(infected_data_0_2_prev),
+        vec(infected_data_0_3_prev),
+        vec(infected_data_0_4_prev),
+        vec(infected_data_0_5_prev),
+        vec(infected_data_0_6_prev),
+        vec(infected_data_0_7_prev),
+        dims = 2)
+
+    infected_data_3_prev = infected_data_3_all[2:53, 23]
+    infected_data_3_1_prev = etiology[:, 1] .* infected_data_3_prev
+    infected_data_3_2_prev = etiology[:, 2] .* infected_data_3_prev
+    infected_data_3_3_prev = etiology[:, 3] .* infected_data_3_prev
+    infected_data_3_4_prev = etiology[:, 4] .* infected_data_3_prev
+    infected_data_3_5_prev = etiology[:, 5] .* infected_data_3_prev
+    infected_data_3_6_prev = etiology[:, 6] .* infected_data_3_prev
+    infected_data_3_7_prev = etiology[:, 7] .* infected_data_3_prev
+    infected_data_3_viruses_prev = cat(
+        vec(infected_data_3_1_prev),
+        vec(infected_data_3_2_prev),
+        vec(infected_data_3_3_prev),
+        vec(infected_data_3_4_prev),
+        vec(infected_data_3_5_prev),
+        vec(infected_data_3_6_prev),
+        vec(infected_data_3_7_prev),
+        dims = 2)
+
+    infected_data_7_prev = infected_data_7_all[2:53, 23]
+    infected_data_7_1_prev = etiology[:, 1] .* infected_data_7_prev
+    infected_data_7_2_prev = etiology[:, 2] .* infected_data_7_prev
+    infected_data_7_3_prev = etiology[:, 3] .* infected_data_7_prev
+    infected_data_7_4_prev = etiology[:, 4] .* infected_data_7_prev
+    infected_data_7_5_prev = etiology[:, 5] .* infected_data_7_prev
+    infected_data_7_6_prev = etiology[:, 6] .* infected_data_7_prev
+    infected_data_7_7_prev = etiology[:, 7] .* infected_data_7_prev
+    infected_data_7_viruses_prev = cat(
+        vec(infected_data_7_1_prev),
+        vec(infected_data_7_2_prev),
+        vec(infected_data_7_3_prev),
+        vec(infected_data_7_4_prev),
+        vec(infected_data_7_5_prev),
+        vec(infected_data_7_6_prev),
+        vec(infected_data_7_7_prev),
+        dims = 2)
+
+    infected_data_15_prev = infected_data_15_all[2:53, 23]
+    infected_data_15_1_prev = etiology[:, 1] .* infected_data_15_prev
+    infected_data_15_2_prev = etiology[:, 2] .* infected_data_15_prev
+    infected_data_15_3_prev = etiology[:, 3] .* infected_data_15_prev
+    infected_data_15_4_prev = etiology[:, 4] .* infected_data_15_prev
+    infected_data_15_5_prev = etiology[:, 5] .* infected_data_15_prev
+    infected_data_15_6_prev = etiology[:, 6] .* infected_data_15_prev
+    infected_data_15_7_prev = etiology[:, 7] .* infected_data_15_prev
+    infected_data_15_viruses_prev = cat(
+        vec(infected_data_15_1_prev),
+        vec(infected_data_15_2_prev),
+        vec(infected_data_15_3_prev),
+        vec(infected_data_15_4_prev),
+        vec(infected_data_15_5_prev),
+        vec(infected_data_15_6_prev),
+        vec(infected_data_15_7_prev),
+        dims = 2)
+
+    num_infected_age_groups_viruses_prev = cat(
+        infected_data_0_viruses_prev,
+        infected_data_3_viruses_prev,
+        infected_data_7_viruses_prev,
+        infected_data_15_viruses_prev,
+        dims = 3,
+    )
+
+    for virus_id = 1:length(viruses)
+        num_infected_age_groups_viruses_prev[:, virus_id, 1] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[1]) * (1 - isolation_probabilities_day_2[1]) * (1 - isolation_probabilities_day_3[1]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 2] ./= viruses[virus_id].symptomatic_probability_child * (1 - (1 - isolation_probabilities_day_1[2]) * (1 - isolation_probabilities_day_2[2]) * (1 - isolation_probabilities_day_3[2]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 3] ./= viruses[virus_id].symptomatic_probability_teenager * (1 - (1 - isolation_probabilities_day_1[3]) * (1 - isolation_probabilities_day_2[3]) * (1 - isolation_probabilities_day_3[3]))
+        num_infected_age_groups_viruses_prev[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
+    end
+
+
+
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id], end_agent_ids[thread_id],
@@ -421,7 +519,7 @@ function main()
             mean_viral_loads_infant[k] = mean_viral_loads_infant_default[k]
             mean_viral_loads_child[k] = mean_viral_loads_child_default[k]
             mean_viral_loads_adult[k] = mean_viral_loads_adult_default[k]
-            immune_memory_susceptibility_levels[k] = immune_memory_susceptibility_levels_default[k]
+            # immune_memory_susceptibility_levels[k] = immune_memory_susceptibility_levels_default[k]
             mean_immunity_durations[k] = mean_immunity_durations_default[k]
         end
 
@@ -465,7 +563,7 @@ function main()
             mean_viral_loads_infant[k] += rand(Normal(0.0, disturbance * mean_viral_loads_infant[k]))
             mean_viral_loads_child[k] += rand(Normal(0.0, disturbance * mean_viral_loads_child[k]))
             mean_viral_loads_adult[k] += rand(Normal(0.0, disturbance * mean_viral_loads_adult[k]))
-            immune_memory_susceptibility_levels[k] += rand(Normal(0.0, disturbance * immune_memory_susceptibility_levels[k]))
+            # immune_memory_susceptibility_levels[k] += rand(Normal(0.0, disturbance * immune_memory_susceptibility_levels[k]))
             mean_immunity_durations[k] += rand(Normal(0.0, disturbance * mean_immunity_durations[k]))
         end
 
@@ -490,7 +588,7 @@ function main()
                 start_agent_ids[thread_id],
                 end_agent_ids[thread_id],
                 viruses,
-                num_all_infected_age_groups_viruses,
+                num_infected_age_groups_viruses_prev,
                 isolation_probabilities_day_1,
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
@@ -565,7 +663,7 @@ function main()
     #         other_contact_duration_shapes, other_contact_duration_scales,
     #         isolation_probabilities_day_1, isolation_probabilities_day_2,
     #         isolation_probabilities_day_3, random_infection_probabilities,
-    #         recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+    #         recovered_duration_mean, recovered_duration_sd, num_years, false,
     #         immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
     #         immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
     #         immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
@@ -612,7 +710,7 @@ function main()
     #             other_contact_duration_shapes, other_contact_duration_scales,
     #             isolation_probabilities_day_1, isolation_probabilities_day_2,
     #             isolation_probabilities_day_3, random_infection_probabilities,
-    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+    #             recovered_duration_mean, recovered_duration_sd, num_years, false,
     #             immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
     #             immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
     #             immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
@@ -661,7 +759,7 @@ function main()
     #             other_contact_duration_shapes, other_contact_duration_scales,
     #             isolation_probabilities_day_1, isolation_probabilities_day_2,
     #             isolation_probabilities_day_3, random_infection_probabilities,
-    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+    #             recovered_duration_mean, recovered_duration_sd, num_years, false,
     #             immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
     #             immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
     #             immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
@@ -710,7 +808,7 @@ function main()
     #             other_contact_duration_shapes, other_contact_duration_scales,
     #             isolation_probabilities_day_1, isolation_probabilities_day_2,
     #             isolation_probabilities_day_3, random_infection_probabilities_new,
-    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+    #             recovered_duration_mean, recovered_duration_sd, num_years, false,
     #             immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
     #             immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
     #             immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
@@ -761,7 +859,7 @@ function main()
     #             other_contact_duration_shapes, other_contact_duration_scales,
     #             isolation_probabilities_day_1, isolation_probabilities_day_2,
     #             isolation_probabilities_day_3, random_infection_probabilities,
-    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+    #             recovered_duration_mean, recovered_duration_sd, num_years, false,
     #             immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
     #             immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
     #             immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
@@ -814,7 +912,7 @@ function main()
     #             other_contact_duration_shapes, other_contact_duration_scales,
     #             isolation_probabilities_day_1, isolation_probabilities_day_2,
     #             isolation_probabilities_day_3, random_infection_probabilities,
-    #             recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+    #             recovered_duration_mean, recovered_duration_sd, num_years, false,
     #             immune_memory_susceptibility_levels_new[1], immune_memory_susceptibility_levels_new[2],
     #             immune_memory_susceptibility_levels_new[3], immune_memory_susceptibility_levels_new[4],
     #             immune_memory_susceptibility_levels_new[5], immune_memory_susceptibility_levels_new[6],

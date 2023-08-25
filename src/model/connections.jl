@@ -5,12 +5,9 @@ function set_connections(
     schools::Vector{School},
     colleges::Vector{School},
     workplaces::Vector{Workplace},
-    # shops::Vector{PublicSpace},
-    # restaurants::Vector{PublicSpace},
     thread_rng::Vector{MersenneTwister},
     num_threads::Int,
     homes_coords_df::DataFrame,
-    # min_size_bias::Int,
     firm_min_size::Int,
     firm_max_size::Int,
     num_barabasi_albert_attachments::Int,
@@ -20,27 +17,8 @@ function set_connections(
     # num_barabasi_albert_attachments_schools = 11
     # num_barabasi_albert_attachments_schools = 100
 
-    num_working_agents = 0
     for agent_id in 1:length(agents)
         agent = agents[agent_id]
-
-        # --------------------------TBD ZONE-----------------------------------
-
-        # num_of_conn = round(Int, rand(Normal(num_of_close_friends_mean, num_of_close_friends_sd)))
-        # if num_of_conn > length(agent.friend_ids)
-        #     for agent2_id = (agent_id + 1):length(agents)
-        #         agent2 = agents[agent2_id]
-        #         if rand(Float64) < get_similarity_between_agents(agent, agent)
-        #             push!(agent.friend_ids, agent2_id)
-        #             push!(agent2.friend_ids, agent_id)
-        #             if length(agent.friend_ids) == num_of_conn
-        #                 break
-        #             end
-        #         end
-        #     end
-        # end
-
-        # -------------------------------------------------------------
 
         if agent.activity_type == 1
             agent.school_id = households[agent.household_id].closest_kindergarten_id
@@ -56,6 +34,7 @@ function set_connections(
             end
             push!(groups[group_id], agent.id)
 
+            # Fully connected
             # agent.activity_conn_ids = groups[group_id]
 
         elseif agent.activity_type == 2
@@ -73,6 +52,7 @@ function set_connections(
             end
             push!(groups[group_id], agent.id)
 
+            # Fully connected
             # agent.activity_conn_ids = groups[group_id]
 
         elseif agent.activity_type == 3
@@ -90,10 +70,8 @@ function set_connections(
             end
             push!(groups[group_id], agent.id)
 
+            # Fully connected
             # agent.activity_conn_ids = groups[group_id]
-
-        elseif agent.activity_type == 4
-            num_working_agents += 1
         end
     end
 
@@ -129,7 +107,6 @@ function set_connections(
 
                 push!(kindergarten.teacher_ids, agent_id)
             end
-            num_working_agents -= groups_size
         end
     end
 
@@ -165,7 +142,6 @@ function set_connections(
 
                 push!(school.teacher_ids, agent_id)
             end
-            num_working_agents -= groups_size
         end
     end
 
@@ -201,56 +177,23 @@ function set_connections(
 
                 push!(college.teacher_ids, agent_id)
             end
-            num_working_agents -= groups_size
         end
     end
 
-    # --------------------------TBD ZONE-----------------------------------
-
-    # for shop_id in 1:num_shops
-    #     shop = shops[shop_id]
-    #     for i in 1:length(shop.worker_ids)
-    #         if shop.worker_ids[i] == 0
-    #             searching = true
-    #             agent_id = 1
-    #             while searching
-    #                 agent_id = rand(1:num_agents)
-    #                 if agents[agent_id].activity_type == 4
-    #                     searching = false
-    #                 end
-    #             end
-    #             shop.worker_ids[i] = agent_id
-    #             agents[agent_id].activity_type = 5
-    #         end
-    #     end
-    #     num_working_agents -= length(shop.worker_ids)
-    # end
-
-    # for restaurant_id in 1:num_restaurants
-    #     restaurant = restaurants[restaurant_id]
-    #     for i in 1:length(restaurant.worker_ids)
-    #         if restaurant.worker_ids[i] == 0
-    #             searching = true
-    #             agent_id = 1
-    #             while searching
-    #                 agent_id = rand(1:num_agents)
-    #                 if agents[agent_id].activity_type == 4
-    #                     searching = false
-    #                 end
-    #             end
-    #             restaurant.worker_ids[i] = agent_id
-    #             agents[agent_id].activity_type = 6
-    #         end
-    #     end
-    #     num_working_agents -= length(restaurant.worker_ids)
-    # end
-
-    # -------------------------------------------------------------
+    num_working_agents = 0
+    # not_tried_worker_ids = Int[]
+    for agent_id in 1:length(agents)
+        agent = agents[agent_id]
+        if agent.activity_type == 4
+            num_working_agents += 1
+            # push!(not_tried_worker_ids, agent_id)
+        end
+    end
 
     start_agent_id = 1
-    # agents_shuffled = shuffle(agents)
+    agents_shuffled = shuffle(agents)
     while num_working_agents > 0
-        # num_workers = zipf_distribution(zipf_parameter, firm_max_size)
+        # Распределение числа работников
         num_workers = round(Int, rand(truncated(LogNormal(1.3, 1.7), firm_min_size, firm_max_size)))
         if num_workers < 1
             num_workers = 1
@@ -263,9 +206,8 @@ function set_connections(
         j = 0
         num_agent_passed = 0
         for agent_id in start_agent_id:num_agents
-            agent = agents[agent_id]
-            # agent = agents_shuffled[agent_id]
-            if agent.activity_type == 4 && agent.workplace_id == 0
+            agent = agents_shuffled[agent_id]
+            if agent.activity_type == 4
                 j += 1
                 agent_ids[j] = agent.id
                 agent.workplace_id = length(workplaces) + 1
@@ -366,33 +308,6 @@ function set_connections(
     end
 end
 
-# --------------------------TBD ZONE-----------------------------------
-
-# function get_similarity_between_agents(
-#     agent1::Agent,
-#     agent2::Agent,
-# )::Float64
-#     if (agent1.age < 18 || agent2.age < 18) && abs(agent1.age - agent2.age > 5)
-#         return 0.0
-#     elseif abs(agent1.age - agent2.age > 45)
-#         return 0.0
-#     elseif agent1.age < 18 || agent2.age < 18
-#         sex_multiplier = 1.0
-#         if agent1.is_male != agent2.is_male
-#             sex_multiplier = 0.5
-#         end
-#         return 1.0 - (sex_multiplier * abs(agent1.age - agent2.age) / 5)
-#     else
-#         sex_multiplier = 1.0
-#         if agent1.is_male != agent2.is_male
-#             sex_multiplier = 0.5
-#         end
-#         return 1.0 - (sex_multiplier * abs(agent1.age - agent2.age) / 45)
-#     end
-# end
-
-# -------------------------------------------------------------
-
 # Создание графа Барабаши-Альберта
 # На вход подаются группа с набором агентов (group) и число минимальных связей, которые должен иметь агент (m)
 function generate_barabasi_albert_network(agents::Vector{Agent}, agent_ids::Vector{Int}, m::Int, rng::MersenneTwister)
@@ -434,26 +349,5 @@ function generate_barabasi_albert_network(agents::Vector{Agent}, agent_ids::Vect
             push!(agent.activity_conn_ids, agent2.id)
             push!(agent2.activity_conn_ids, agent.id)
         end
-        
-
-        # degree_sum_temp = degree_sum
-        # for _ = 1:m
-        #     cumulative = 0.0
-        #     rand_num = rand(rng, Float64)
-        #     for j = 1:(i - 1)
-        #         if agent_ids[j] in agent.activity_conn_ids
-        #             continue
-        #         end
-        #         agent2 = agents[agent_ids[j]]
-        #         cumulative += length(agent2.activity_conn_ids) / degree_sum_temp
-        #         if rand_num < cumulative
-        #             degree_sum_temp -= length(agent2.activity_conn_ids)
-        #             push!(agent.activity_conn_ids, agent2.id)
-        #             push!(agent2.activity_conn_ids, agent.id)
-        #             break
-        #         end
-        #     end
-        # end
-        # degree_sum += 2m
     end
 end

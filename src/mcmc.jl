@@ -548,12 +548,12 @@ function main()
     # mean_immunity_duration_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
     # random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
 
-    duration_parameter_delta = 0.03
-    susceptibility_parameter_deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
-    temperature_parameter_deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
-    immune_memory_susceptibility_level_deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
-    mean_immunity_duration_deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
-    random_infection_probability_deltas = [0.03, 0.03, 0.03, 0.03]
+    duration_parameter_delta = 0.05
+    susceptibility_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    temperature_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    immune_memory_susceptibility_level_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    mean_immunity_duration_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    random_infection_probability_deltas = [0.05, 0.05, 0.05, 0.05]
 
     # prob_prev_age_groups = zeros(Float64, 7, 4, 52 * num_years)
     # prob_prev = 0.0
@@ -875,8 +875,8 @@ function main()
             # println(io, "Exp pow curr: ", prob)
             # println(io, "Accept prob: ", accept_prob)
             println(io, "nMAE = ", nMAE)
-            println(io, "Dur: ", duration_parameter_candidate)
-            println(io, "Suscept: ", [
+            println(io, "duration_parameter = ", duration_parameter_candidate)
+            println(io, "susceptibility_parameters = ", [
                 susceptibility_parameter_1_candidate,
                 susceptibility_parameter_2_candidate,
                 susceptibility_parameter_3_candidate,
@@ -884,7 +884,7 @@ function main()
                 susceptibility_parameter_5_candidate,
                 susceptibility_parameter_6_candidate,
                 susceptibility_parameter_7_candidate])
-            println(io, "Imm mem susc lvl: ", [
+            println(io, "immune_memory_susceptibility_levels = ", [
                 immune_memory_susceptibility_level_1_candidate,
                 immune_memory_susceptibility_level_2_candidate,
                 immune_memory_susceptibility_level_3_candidate,
@@ -892,7 +892,7 @@ function main()
                 immune_memory_susceptibility_level_5_candidate,
                 immune_memory_susceptibility_level_6_candidate,
                 immune_memory_susceptibility_level_7_candidate])
-            println(io, "Temp: ", [
+            println(io, "temperature_parameters = ", [
                 temperature_parameter_1_candidate,
                 temperature_parameter_2_candidate,
                 temperature_parameter_3_candidate,
@@ -900,7 +900,7 @@ function main()
                 temperature_parameter_5_candidate,
                 temperature_parameter_6_candidate,
                 temperature_parameter_7_candidate])
-            println(io, "Immunity dur: ", [
+            println(io, "mean_immunity_durations ", [
                 mean_immunity_duration_1_candidate,
                 mean_immunity_duration_2_candidate,
                 mean_immunity_duration_3_candidate,
@@ -909,7 +909,7 @@ function main()
                 mean_immunity_duration_6_candidate,
                 mean_immunity_duration_7_candidate,
             ])
-            println(io, "Rand inf prob: ", [
+            println(io, "random_infection_probabilities = ", [
                 random_infection_probability_1_candidate,
                 random_infection_probability_2_candidate,
                 random_infection_probability_3_candidate,

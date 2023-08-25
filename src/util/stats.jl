@@ -34,8 +34,6 @@ function get_stats(
     college_contacts = zeros(Int, college_groups_size_1 + 1)
     work_contacts = zeros(Int, 1000)
 
-    # mean_num_of_friend_conn = 0
-
     mean_num_students = 0.0
     for school in schools
         num_students = 0
@@ -98,8 +96,6 @@ function get_stats(
             mean_num_of_work_conn += size(agent.activity_conn_ids, 1)
             size_work_conn += 1
         end
-
-        # mean_num_of_friend_conn += length(agent.friend_ids)
 
         household_nums[size(agent.household_conn_ids, 1)] += 1
 
@@ -235,7 +231,6 @@ function get_stats(
     println("Mean work conn: $(mean_num_of_work_conn / size_work_conn)")
     println("Mean num of people in firms: $(mean(workplaces_num_people))")
     println("Mean mother child age difference: $(age_diff / age_diff_num)")
-    # println("Friends conn: $(mean_num_of_friend_conn / num_agents)")
     println("Initial immunity: $(num_immunity)")
     println("Initial infected: $(num_infected)")
 end

@@ -20,12 +20,11 @@ const end_shop_ids = Int[2983, 5670, 8190, 11109]
 const num_restaurants = 12843
 const start_restaurant_ids = Int[1, 4002, 8101, 10534]
 const end_restaurant_ids = Int[4001, 8100, 10533, 12843]
-
 # Примерное число агентов в различных возрастных группах
 const num_agents_age_groups = [266648, 304625, 531915, 8969480]
 
-# Максимальный возраст агента
-const max_agent_age = 89
+# Столбец данных для модели
+const flu_starting_index = 2
 
 # MCMC параметры
 const burnin = 1
@@ -51,14 +50,8 @@ const college_groups_size_6 = 10
 # Вероятность прогула института
 const skip_college_probability = 0.33
 
-# Параметр распределения Ципфа
-const zipf_parameter = 1.059
-
 # Средняя разница в возрасте между матерью и ребенком
 const mean_child_mother_age_difference = 28
-
-# const num_of_close_friends_mean = 5.1
-# const num_of_close_friends_sd = 1.4
 
 # Probabilities from American Time Use Survey 2019
 # const weekend_other_household_p = 0.269
@@ -83,21 +76,4 @@ const mean_child_mother_age_difference = 28
 # const weekday_other_place_p = 0.483
 # const weekday_other_place_t = 1.22
 
-# const other_household_time_sd = 0.15
-# const shopping_time_sd = 0.09
-# const restaurant_time_sd = 0.09
-
-# shop_capacity_shape = 2.5
-# shop_capacity_scale = 20.0
-
-# 30 minutes for 10 hours
-const restaurant_num_groups = 20
-# 30 minutes for 12 hours
-# const shop_num_groups = 24
-
-const restaurant_num_nearest_agents_as_contact = 15
-const shop_num_nearest_agents_as_contact = 15
 const school_num_of_teacher_contacts = 10
-
-# const prob_shopping_together = 0.7
-# const prob_restaurant_together = 0.9
