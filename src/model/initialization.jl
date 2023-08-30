@@ -525,9 +525,7 @@ function create_parents_with_children(
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -655,9 +653,7 @@ function create_parents_with_children(
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -678,9 +674,7 @@ function create_parents_with_children(
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index,
             rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(agent_female_age - agent_other3_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -808,9 +802,7 @@ function create_parents_with_children(
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -830,9 +822,7 @@ function create_parents_with_children(
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(agent_female_age - agent_other3_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -853,9 +843,7 @@ function create_parents_with_children(
         agent_id += 1
         agent_other4_sex, agent_other4_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(agent_female_age - agent_other4_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -1608,9 +1596,7 @@ function create_parent_with_children(
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -1737,9 +1723,7 @@ function create_parent_with_children(
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -1761,9 +1745,7 @@ function create_parent_with_children(
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
             district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - agent_other3_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -1891,9 +1873,7 @@ function create_parent_with_children(
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
             district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -1914,9 +1894,7 @@ function create_parent_with_children(
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
             district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - agent_other3_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -1938,9 +1916,7 @@ function create_parent_with_children(
         agent_other4_sex, agent_other4_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
             district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - agent_other4_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -2482,7 +2458,6 @@ function create_population(
     num_threads::Int,
     thread_rng::Vector{MersenneTwister},
     start_agent_id::Int,
-    end_agent_id::Int,
     all_agents::Vector{Agent},
     households::Vector{Household},
     viruses::Vector{Virus},
@@ -2495,7 +2470,6 @@ function create_population(
     district_households::Matrix{Int},
     district_people::Matrix{Float64},
     district_people_households::Matrix{Float64},
-    district_nums::Vector{Int},
     FluA_immune_memory_susceptibility_level::Float64 = 1.0,
     FluB_immune_memory_susceptibility_level::Float64 = 1.0,
     RV_immune_memory_susceptibility_level::Float64 = 1.0,

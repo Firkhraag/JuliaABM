@@ -12,6 +12,7 @@ function set_connections(
     firm_max_size::Int,
     num_barabasi_albert_attachments::Int,
 )
+    # Параметр предпочтительного присоединения Барабаши-Альберт
     # num_barabasi_albert_attachments_schools = 9
     num_barabasi_albert_attachments_schools = 10
     # num_barabasi_albert_attachments_schools = 11
@@ -329,8 +330,6 @@ function generate_barabasi_albert_network(agents::Vector{Agent}, agent_ids::Vect
             push!(agents[agent_ids[j]].activity_conn_ids, agent_ids[i])
         end
     end
-    # Сумма связей всех вершин
-    degree_sum = m * (m - 1)
     # Добавление новых вершин
     for i = (m + 1):length(agent_ids)
         agent = agents[agent_ids[i]]

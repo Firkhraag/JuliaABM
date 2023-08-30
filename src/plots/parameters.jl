@@ -37,11 +37,6 @@ function plot_parameters()
         ylabel = "Frequency",
     )
 
-    # ticks = range(2.9, stop = 3.5, length = 4)
-    # ticklabels = ["2.9" "3.1" "3.3" "3.5"]
-    # susceptibility_parameter_1_plot = histogram(susceptibility_parameter_1_array[burnin:step:length(susceptibility_parameter_1_array)], margin = 3Plots.mm,
-    #     legend = false, xlabel = L"s_1\textrm{\begin{sffamily} (FluA)\end{sffamily}}", ylabel = L"\textrm{\sffamily Frequency}", bins = 7, xticks = (ticks, ticklabels))
-
     susceptibility_parameter_1_plot = histogram(
         susceptibility_parameter_1_array[burnin:step:length(susceptibility_parameter_1_array)],
         margin = 3Plots.mm,
@@ -52,7 +47,6 @@ function plot_parameters()
         xlabel = "s_1 (FluA)",
         ylabel = "Frequency",
     )
-
 
     susceptibility_parameter_2_plot = histogram(
         susceptibility_parameter_2_array[burnin:step:length(susceptibility_parameter_2_array)],

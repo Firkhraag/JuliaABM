@@ -1,10 +1,11 @@
+using Random
 using DelimitedFiles
 using Plots
 using Statistics
 using LaTeXStrings
-using Random
+using CSV
+using DataFrames
 
-include("../../data/temperature.jl")
 include("../../model/virus.jl")
 include("../../model/agent.jl")
 include("../../global/variables.jl")
@@ -12,11 +13,6 @@ include("../../global/variables.jl")
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
 const is_russian = false
-# const is_russian = true
-
-function check_threshold(value::Int, mean_immunity_duration::Int, immune_memory_susceptibility_level::Float64)
-    return value < mean_immunity_duration ? 0.0 : immune_memory_susceptibility_level
-end
 
 function get_infectivity_transmission(
     days_infected::Int,
@@ -25,9 +21,6 @@ function get_infectivity_transmission(
     mean_viral_load::Float64,
     is_asymptomatic::Bool,
 )::Float64
-    # if days_infected > infection_period || days_infected < (1 - incubation_period)
-    #     return 0.0
-    # end
     if days_infected > incubation_period + infection_period
         return 0.0
     end
@@ -44,22 +37,16 @@ function get_infectivity_transmission(
 end
 
 function plot_immunity_protection_influence()
-    # immune_memory_susceptibility_levels = [0.8944639240038756, 0.9430303030303029, 0.9336363636363636, 0.9363636363636363, 0.8876594776594775, 0.8817572117572116, 0.946060606060606]
-    # mean_immunity_durations = [358, 326, 133, 100, 106, 148, 163]
     mean_immunity_durations = [359, 326, 128, 87, 110, 167, 154]
     immune_memory_susceptibility_levels = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 
     ticks = range(1, stop = 360, length = 7)
     ticklabels = ["1" "60" "120" "180" "240" "300" "360"]
 
-    values = zeros(Float64, 360)
-
     xlabel_name = "Число дней после выздоровления"
     if !is_russian
         xlabel_name = "Days after the recovery"
     end
-    # ylabel_name = L"M_{jv}"
-    # ylabel_name = "Влияние специфического иммунитета"
     ylabel_name = "Риск инфицирования"
     if !is_russian
         ylabel_name = L"R_{jv}"
@@ -90,12 +77,8 @@ function plot_immunity_protection_influence()
 end
 
 function plot_duration_influence()
-    duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
-    duration_parameter = mean(duration_parameter_array[burnin:step:length(duration_parameter_array)])
-    # duration_parameter = 0.23703365311405514
     duration_parameter = 0.22637404671777045
 
-    # duration_influence(x) = 1 / (1 + exp(-x + duration_parameter))
     duration_influence(x) = 1 - exp(-duration_parameter * x)
 
     duration_range = range(0, stop=20, length=100)
@@ -104,8 +87,6 @@ function plot_duration_influence()
     if !is_russian
         xlabel_name = "Contact duration, hours"
     end
-    # ylabel_name = L"D_{ijc}"
-    # ylabel_name = "Влияние продолжительности"
     ylabel_name = "Риск инфицирования"
     if !is_russian
         ylabel_name = L"D_{ijc}"
@@ -121,8 +102,6 @@ function plot_duration_influence()
         margin = 6Plots.mm,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Hours}",
-        # ylabel = L"\textrm{\sffamily Contact duration influence (} D_{ijc}\textrm{\sffamily )}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -130,7 +109,6 @@ function plot_duration_influence()
 end
 
 function plot_temperature_influence()
-    # temperature_parameters = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
     temperature_parameters = -[0.8846019152491571, 0.9313057237697472, 0.04837343942226003, 0.13610826071131651, 0.048281056835923, 0.07401637656561208, 0.36034078438752476]
     temp_influence(x, v) = temperature_parameters[v] * x + 1.0
 
@@ -138,8 +116,6 @@ function plot_temperature_influence()
     if !is_russian
         xlabel_name = "Normalised air temperature"
     end
-    # ylabel_name = L"T_{mv}"
-    # ylabel_name = "Влияние температуры воздуха"
     ylabel_name = "Риск инфицирования"
     if !is_russian
         ylabel_name = L"T_{mv}"
@@ -149,9 +125,6 @@ function plot_temperature_influence()
     temperature_plot = plot(
         temperature_range,
         [temp_influence.(temperature_range, i) for i = 1:7],
-        # xticks = (ticks, ticklabels),
-        # legend = (0.5, 0.5),
-        # legend = (0.5, 0.64),
         legend = (0.25, 0.55),
         lw = 1.5,
         margin = 6Plots.mm,
@@ -160,8 +133,6 @@ function plot_temperature_influence()
         grid = true,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Air temperature influence (} T_{mv}\textrm{\sffamily )}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -194,16 +165,12 @@ function plot_temperature_influence_year()
         mean(temperature_parameter_6_array),
         mean(temperature_parameter_7_array)]
 
-    # temperature_parameters = [-0.8747474747474746, -0.9177827791629244, -0.051010101010101006, -0.16313131313131315, -0.003030303030303022, -0.08442528431390421, -0.35326291827502476]
     temperature_parameters = -[0.8846019152491571, 0.9313057237697472, 0.04837343942226003, 0.13610826071131651, 0.048281056835923, 0.07401637656561208, 0.36034078438752476]
     temp_influence(x, v) = temperature_parameters[v] * x + 1.0
 
-    global_warming = false
-    temperature = get_air_temperature(global_warming)
+    temperature = Matrix(DataFrame(CSV.File("./input/tables/temperature.csv")))
     min_temp = -7.2
     max_min_temp = 26.6
-    # min_temp = minimum(temperature)
-    # max_min_temp = maximum(temperature) - minimum(temperature)
     temp_influences = Array{Float64,2}(undef, 7, 365)
     year_day = 213
     for s in 1:365
@@ -222,8 +189,6 @@ function plot_temperature_influence_year()
     if !is_russian
         xlabel_name = "Month"
     end
-    # ylabel_name = L"T_{mv}"
-    # ylabel_name = "Влияние температуры воздуха"
     ylabel_name = "Риск инфицирования"
     if !is_russian
         ylabel_name = L"T_{mv}"
@@ -238,8 +203,6 @@ function plot_temperature_influence_year()
         1:365,
         [temp_influences[i, :] for i = 1:7],
         xticks = (ticks, ticklabels),
-        # legend = (0.5, 0.5),
-        # legend = (0.5, 0.64),
         legend = (0.5, 0.7),
         lw = 1.5,
         margin = 6Plots.mm,
@@ -248,8 +211,6 @@ function plot_temperature_influence_year()
         grid = true,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Air temperature influence (} T_{mv}\textrm{\sffamily )}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -257,7 +218,6 @@ function plot_temperature_influence_year()
 end
 
 function plot_susceptibility_influence()
-    # susceptibility_parameters = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.56457619595636, 3.9627987624113588, 3.751417011489648, 4.5440998584572433]
     susceptibility_parameters = [3.095038052808992, 3.0554159364150997, 3.621467164928697, 4.612459518531132, 3.9086201477859595, 3.9490870441188344, 4.61599824854622]
     susceptibility_influence(x, v) = 2 / (1 + exp(susceptibility_parameters[v] * x))
 
@@ -265,9 +225,6 @@ function plot_susceptibility_influence()
     if !is_russian
         xlabel_name = "Normalised total Ig level"
     end
-    # ylabel_name = L"S_{jv}"
-    # ylabel_name = "Влияние неспецифического иммунитета"
-    # ylabel_name = "Влияние неспецифической защиты"
     ylabel_name = "Риск инфицирования"
     if !is_russian
         ylabel_name = L"S_{jv}"
@@ -278,23 +235,16 @@ function plot_susceptibility_influence()
         susceptibility_range,
         [susceptibility_influence.(susceptibility_range, i) for i = 1:7],
         lw = 1.5,
-        # legend = (0.95, 1.0),
         legend = (0.92, 0.95),
         margin = 4Plots.mm,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
-        # yticks = (yticks, yticklabels),
         grid = true,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # ylim = (0.0, 0.7),
-        # xlabel = L"\textrm{\sffamily Age, years}",
-        # ylabel = L"\textrm{\sffamily Agent susceptibility (} S_{jv}\textrm{\sffamily )}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
-    # xlabel!("Ig level")
-    # ylabel!("Influence")
     savefig(susceptibility_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "transmission", "susceptibility_influence.pdf"))
 end
 
@@ -324,7 +274,6 @@ function plot_susceptibility_influence_age()
         mean(susceptibility_parameter_6_array),
         mean(susceptibility_parameter_7_array)]
 
-    # susceptibility_parameters = [3.0731248200497587, 3.0315005376748694, 3.4960107319671523, 4.56457619595636, 3.9627987624113588, 3.751417011489648, 4.5440998584572433]
     susceptibility_parameters = [3.095038052808992, 3.0554159364150997, 3.621467164928697, 4.612459518531132, 3.9086201477859595, 3.9490870441188344, 4.61599824854622]
     susceptibility_influence(x, v) = 2 / (1 + exp(susceptibility_parameters[v] * x))
 
@@ -337,8 +286,6 @@ function plot_susceptibility_influence_age()
     if !is_russian
         xlabel_name = "Agent's age, years"
     end
-    # ylabel_name = L"S_{jv}"
-    # ylabel_name = "Влияние неспецифического иммунитета"
     ylabel_name = "Риск инфицирования"
     if !is_russian
         ylabel_name = L"S_{jv}"
@@ -347,9 +294,7 @@ function plot_susceptibility_influence_age()
     susceptibility_plot = plot(
         0:89,
         [susceptibility_influence.(ig_levels, i) for i = 1:7],
-        # legend=:top,
         lw = 1.5,
-        # legend = (0.95, 1.0),
         legend = (0.92, 1.02),
         margin = 5Plots.mm,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
@@ -359,67 +304,21 @@ function plot_susceptibility_influence_age()
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         ylim = (0.0, 0.7),
-        # xlabel = L"\textrm{\sffamily Age, years}",
-        # ylabel = L"\textrm{\sffamily Agent susceptibility (} S_{jv}\textrm{\sffamily )}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
-    # susceptibility_plot = plot(
-    #     0:89,
-    #     [susceptibility_influence.(ig_levels, i) for i in [1, 2, 3, 4, 6, 7]],
-    #     legend = (0.5, 0.9),
-    #     lw = 1.5,
-    #     color = [:red :royalblue :green4 :orange :grey30 :darkturquoise],
-    #     label = ["FluA" "FluB" "RV" "RSV/AdV" "PIV" "CoV"],
-    #     yticks = (yticks, yticklabels),
-    #     ylim=(0.0, 0.7),
-    #     grid = true,
-    #     foreground_color_legend = nothing,
-    #     background_color_legend = nothing,
-    #     # xlabel = L"\textrm{\sffamily Age, years}",
-    #     # ylabel = L"\textrm{\sffamily Agent susceptibility (} S_{jv}\textrm{\sffamily )}",
-    #     xlabel = "Возраст, лет",
-    #     ylabel = L"S_{jv}",
-    # )
     savefig(susceptibility_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "transmission", "susceptibility_influence_age.pdf"))
 end
 
-# function plot_infectivity_influence()
-#     days_infected = collect(-4:10)
-#     ticks = range(-4, stop = 10, length = 8)
-#     ticklabels = ["-4" "-2" "0" "2" "4" "6" "8" "10"]
-#     infectivity_plot = plot(
-#         days_infected,
-#         get_infectivity.(
-#             days_infected,
-#             5,
-#             10,
-#             6.0
-#         ),
-#         xticks = (ticks, ticklabels),
-#         lw = 1.5,
-#         color = "red",
-#         legend = false)
-#     xlabel!("Day")
-#     ylabel!("Influence")
-#     savefig(infectivity_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "transmission", "infectivity_influence.pdf"))
-# end
-
 function plot_infectivity_influence()
-    # days_infected = collect(-4:10)
     days_infected = collect(1:15)
-    # ticks = range(-4, stop = 10, length = 8)
     ticks = range(1, stop = 15, length = 8)
-    # ticklabels = ["-4" "-2" "0" "2" "4" "6" "8" "10"]
     ticklabels = ["1" "3" "5" "7" "9" "11" "13" "15"]
 
     xlabel_name = "Число дней после инфицирования"
     if !is_russian
         xlabel_name = "Days infected"
     end
-    # ylabel_name = L"I_{iv}"
-    # ylabel_name = "Влияние скорости продукции вируса"
-    # ylabel_name = "Вероятность передачи инфекции"
     ylabel_name = "Риск инфицирования"
     if !is_russian
         ylabel_name = L"I_{iv}"
@@ -431,16 +330,6 @@ function plot_infectivity_influence()
 
     infectivity_plot = plot(
         days_infected,
-        # [get_infectivity_transmission.(
-        #     days_infected,
-        #     # mean_incubation_duration[i],
-        #     # mean_symptoms_duration[i],
-        #     5,
-        #     10,
-        #     mean_viral_loads[i],
-        #     # true,
-        #     false,
-        # ) for i in 1:7],
         [get_infectivity_transmission.(
             days_infected,
             mean_incubation_duration[i],
@@ -460,20 +349,20 @@ function plot_infectivity_influence()
         grid = true,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Day}",
-        # ylabel = L"\textrm{\sffamily Agent infectivity (} I_{iv}\textrm{\sffamily )}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
     savefig(infectivity_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "transmission", "infectivity_influence.pdf"))
 end
 
-# plot_duration_influence()
-# plot_temperature_influence_year()
-# plot_temperature_influence()
-# plot_infectivity_influence()
+plot_duration_influence()
 
-# plot_susceptibility_influence()
-# plot_susceptibility_influence_age()
+plot_temperature_influence_year()
+plot_temperature_influence()
+
+plot_infectivity_influence()
+
+plot_susceptibility_influence()
+plot_susceptibility_influence_age()
 
 plot_immunity_protection_influence()

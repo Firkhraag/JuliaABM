@@ -11,7 +11,6 @@ function make_contact(
     infected_agent::Agent,
     susceptible_agent::Agent,
     contact_duration::Float64,
-    current_step::Int,
     duration_parameter::Float64,
     susceptibility_parameters::Vector{Float64},
     temperature_parameters::Vector{Float64},
@@ -82,7 +81,6 @@ end
 
 function infect_randomly(
     agent::Agent,
-    current_step::Int,
     rng::MersenneTwister,
 )
     rand_num = rand(rng, 1:7)
@@ -105,7 +103,6 @@ function simulate_contacts(
     start_agent_id::Int,
     end_agent_id::Int,
     agents::Vector{Agent},
-    households::Vector{Household},
     mean_household_contact_durations::Vector{Float64},
     household_contact_duration_sds::Vector{Float64},
     other_contact_duration_shapes::Vector{Float64},
@@ -158,7 +155,7 @@ function simulate_contacts(
                     end
 
                     if dur > 0.01
-                        make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+                        make_contact(viruses, agent, agent2, dur, duration_parameter,
                             susceptibility_parameters, temperature_parameters, current_temp, rng)
                         if agent2.is_newly_infected
                             activities_infections_threads[current_step, 5, thread_id] += 1
@@ -189,7 +186,7 @@ function simulate_contacts(
                         end
 
                         if dur > 0.01
-                            make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+                            make_contact(viruses, agent, agent2, dur, duration_parameter,
                                 susceptibility_parameters, temperature_parameters, current_temp, rng)
                             if agent2.is_newly_infected
                                 activities_infections_threads[current_step, agent.activity_type, thread_id] += 1
@@ -209,7 +206,7 @@ function simulate_contacts(
                                 
                             dur = get_contact_duration_gamma(other_contact_duration_shapes[5], other_contact_duration_scales[5], rng)
                             if dur > 0.01
-                                make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+                                make_contact(viruses, agent, agent2, dur, duration_parameter,
                                     susceptibility_parameters, temperature_parameters, current_temp, rng)
     
                                 if agent2.is_newly_infected
@@ -225,19 +222,19 @@ function simulate_contacts(
             # Случайное инфицирование
             if agent.age < 3
                 if rand(rng, Float64) < random_infection_probabilities[1]
-                    infect_randomly(agent, current_step, rng)
+                    infect_randomly(agent, rng)
                 end
             elseif agent.age < 7
                 if rand(rng, Float64) < random_infection_probabilities[2]
-                    infect_randomly(agent, current_step, rng)
+                    infect_randomly(agent, rng)
                 end
             elseif agent.age < 15
                 if rand(rng, Float64) < random_infection_probabilities[3]
-                    infect_randomly(agent, current_step, rng)
+                    infect_randomly(agent, rng)
                 end
             else
                 if rand(rng, Float64) < random_infection_probabilities[4]
-                    infect_randomly(agent, current_step, rng)
+                    infect_randomly(agent, rng)
                 end
             end
         end
@@ -691,7 +688,6 @@ function run_simulation(
                 start_agent_ids[thread_id],
                 end_agent_ids[thread_id],
                 agents,
-                households,
                 mean_household_contact_durations,
                 household_contact_duration_sds,
                 other_contact_duration_shapes,

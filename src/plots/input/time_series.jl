@@ -8,14 +8,12 @@ using Interpolations
 using JLD
 using Distributions
 
-include("../../data/temperature.jl")
 include("../../data/etiology.jl")
 include("../../util/moving_avg.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
 const is_russian = false
-# const is_russian = true
 
 function confidence(x::Vector{Float64})
     alpha = 0.05
@@ -25,7 +23,7 @@ function confidence(x::Vector{Float64})
 end
 
 function plot_all_data_time_series()
-    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Float64, '\n')
+    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Float64, '\n')
     incidence_data = vec(transpose(incidence_data[42:44, 2:53])) ./ 10072
 
     ticks = range(1, stop = (52.14285 * 3), length = 19)
@@ -33,9 +31,6 @@ function plot_all_data_time_series()
     if is_russian
         ticklabels = ["Авг 1999" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг 2000" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг 2001"]
     end
-
-    yticks = [0, 4, 8, 12]
-    yticklabels = ["0" "4" "8" "12"]
 
     label_names = ["model" "data"]
     if is_russian
@@ -70,7 +65,7 @@ function plot_all_data_time_series()
 end
 
 function plot_all_data()
-    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu_original.csv"), ',', Float64, '\n')
+    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu_original.csv"), ';', Float64, '\n')
     incidence_data = vec(transpose(incidence_data[2:45, 2:53]))
 
     years = collect(1959:2002)
@@ -78,7 +73,7 @@ function plot_all_data()
     ys = [5085, 7061, 7931, 8875, 10382]
     itp_cubic = interpolate(xs, ys, FritschCarlsonMonotonicInterpolation())
     mean_values = zeros(Float64, 44)
-    for i in 1:length(years)
+    for i in eachindex(years)
         mean_value = 0.0
         for j = 1:52
             incidence_data[(i - 1) * 52 + j] = incidence_data[(i - 1) * 52 + j] / itp_cubic(years[i])
@@ -137,7 +132,7 @@ function plot_all_data()
 end
 
 function plot_incidence(date_range::UnitRange{Int64}, input_filename::String, output_filename::String, population_coef::Int)
-    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", input_filename), ',', Float64, '\n')
+    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", input_filename), ';', Float64, '\n')
     incidence_data_mean = mean(incidence_data[date_range, 2:53], dims = 1)[1, :] ./ population_coef
 
     confidence_arr = zeros(Float64, 52)
@@ -166,10 +161,10 @@ function plot_incidence(date_range::UnitRange{Int64}, input_filename::String, ou
 end
 
 function plot_incidence_age_groups(date_range::UnitRange{Int64}, population_coef::Int)
-    incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n')
-    incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n')
-    incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n')
-    incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n')
+    incidence_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ';', Int, '\n')
+    incidence_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ';', Int, '\n')
+    incidence_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu7-14.csv"), ';', Int, '\n')
+    incidence_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ';', Int, '\n')
 
     incidence_data_mean_0 = mean(incidence_data_0[2:53, date_range], dims = 2)[:, 1] ./ population_coef
     incidence_data_mean_3 = mean(incidence_data_3[2:53, date_range], dims = 2)[:, 1] ./ population_coef
@@ -251,10 +246,10 @@ end
 function plot_incidence_age_groups_time_series()
     num_years = 3
 
-    infected_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n') ./ 10072
-    infected_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n') ./ 10072
-    infected_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n') ./ 10072
-    infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ',', Int, '\n') ./ 10072
+    infected_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ';', Int, '\n') ./ 10072
+    infected_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ';', Int, '\n') ./ 10072
+    infected_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu7-14.csv"), ';', Int, '\n') ./ 10072
+    infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ';', Int, '\n') ./ 10072
 
     infected_data_mean = cat(
         vec(infected_data_0[2:53, 24:26]),
@@ -333,7 +328,7 @@ function plot_incidence_viruses_time_series()
         end
     end
 
-    infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Int, '\n') ./ 10072
+    infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Int, '\n') ./ 10072
 
     FluA_arr = [1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 25, 50, 60, 75, 310, 1675, 1850, 1500, 1250, 900, 375, 350, 290, 220, 175, 165, 100, 50, 40, 25, 15, 9, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1]
     FluA_arr2 = [1.0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 15, 44, 72, 50, 10, 80, 266, 333, 480, 588, 625, 575, 622, 423, 450, 269, 190, 138, 89, 60, 30, 20, 12, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -504,7 +499,7 @@ function incidence_temperature_corr()
         temperature_data_weekly[i] /= 7
     end
 
-    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ',', Float64, '\n')
+    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Float64, '\n')
     incidence_data_mean = mean(incidence_data[39:45, 2:53], dims = 1)[1, :] ./ 10072
 
     println(cor(temperature_data_weekly, incidence_data_mean))
@@ -1126,7 +1121,7 @@ function plot_etiology()
 end
 
 function plot_incidence_etiology(date_range::UnitRange{Int64}, input_filename::String, output_filename::String, population_coef::Int)
-    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", input_filename), ',', Float64, '\n')
+    incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", input_filename), ';', Float64, '\n')
     incidence_data_mean = mean(incidence_data[date_range, 2:53], dims = 1)[1, :] ./ population_coef
 
     confidence_arr = zeros(Float64, 52)

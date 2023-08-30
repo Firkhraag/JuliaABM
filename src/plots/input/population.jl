@@ -8,8 +8,7 @@ using Distributions
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
-# const is_russian = false
-const is_russian = true
+const is_russian = false
 
 function age_distribution_groups()
     num_people_data_vec = [433175, 420460, 399159, 495506, 869700, 924829, 892794, 831873, 757411,
@@ -26,8 +25,6 @@ function age_distribution_groups()
     end
 
     s = sum(abs.(num_people_model_vec - num_people_data_vec)) / sum(num_people_data_vec)
-    # 8.427377045e10
-    # 2.9657067362e10
     println(s)
 
     num_people_data = append!(num_people_data_vec, num_people_model_vec)
@@ -157,23 +154,6 @@ function household_size_distribution()
     savefig(household_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "household_size_distribution.pdf"))
 end
 
-function workplace_sizes_distribution()
-    workplaces_num_people = vec(readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "workplaces_num_people.csv"), ',', Int, '\n'))
-    workplaces_num_people = sort(workplaces_num_people)
-    workplace_size_distribution = [(i, count(==(i), workplaces_num_people)) for i in unique(workplaces_num_people)]
-
-    println(workplace_size_distribution)
-
-    xlabel_name = "Size"
-    if is_russian
-        xlabel_name = "Размер"
-    end
-    ylabel_name = "Number"
-    if is_russian
-        ylabel_name = "Число"
-    end
-end
-
 function workplace_sizes_distribution_lognormal()
     firm_min_size = 1
     firm_max_size = 1000
@@ -210,8 +190,7 @@ function workplace_sizes_distribution_lognormal()
     savefig(workplace_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "workplace_size_distribution.pdf"))
 end
 
-# age_distribution_groups()
-# age_distribution()
-# household_size_distribution()
-workplace_sizes_distribution()
-# workplace_sizes_distribution_lognormal()
+age_distribution_groups()
+age_distribution()
+household_size_distribution()
+workplace_sizes_distribution_lognormal()

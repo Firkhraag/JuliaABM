@@ -12,8 +12,8 @@ Sum:
 "infection_period_duration_adult_4"]
 
 First:
-["susceptibility_parameter_4", +
-"duration_parameter", +
+["susceptibility_parameter_4",
+"duration_parameter",
 "mean_viral_load_adult_4",
 "susceptibility_parameter_3",
 "infection_period_duration_adult_4",
