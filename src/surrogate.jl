@@ -38,7 +38,6 @@ function main()
         mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_initial_runs + num_files)
 
         for i = 1:num_initial_runs
-            # println(i)
             incidence_arr[i] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "initial", "results_$(i).jld"))["observed_cases"] ./ 10072
             duration_parameters[i] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "initial", "results_$(i).jld"))["duration_parameter"]
             susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "initial", "results_$(i).jld"))["susceptibility_parameters"]
@@ -311,6 +310,7 @@ function main()
             temperature_parameters_default,
             mean_immunity_durations_default,
             random_infection_probabilities_default,
+            # immune_memory_susceptibility_levels_default,
             [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
             num_files,
         )

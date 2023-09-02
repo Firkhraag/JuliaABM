@@ -7,7 +7,6 @@ using CSV
 using DataFrames
 
 include("../../model/virus.jl")
-include("../../model/agent.jl")
 include("../../global/variables.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
@@ -334,10 +333,7 @@ function plot_infectivity_influence()
             days_infected,
             mean_incubation_duration[i],
             mean_symptoms_duration[i],
-            # 5,
-            # 10,
             mean_viral_loads[i],
-            # true,
             false,
         ) for i in 1:7],
         xticks = (ticks, ticklabels),
@@ -355,14 +351,14 @@ function plot_infectivity_influence()
     savefig(infectivity_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "transmission", "infectivity_influence.pdf"))
 end
 
-plot_duration_influence()
+# plot_duration_influence()
 
-plot_temperature_influence_year()
-plot_temperature_influence()
+# plot_temperature_influence_year()
+# plot_temperature_influence()
 
 plot_infectivity_influence()
 
-plot_susceptibility_influence()
-plot_susceptibility_influence_age()
+# plot_susceptibility_influence()
+# plot_susceptibility_influence_age()
 
-plot_immunity_protection_influence()
+# plot_immunity_protection_influence()

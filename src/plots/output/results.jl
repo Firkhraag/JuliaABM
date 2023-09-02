@@ -2289,6 +2289,255 @@ function plot_incidence_preferential_attachment(
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots","model_incidence_preferential_attachment.pdf"))
 end
 
+function plot_temperature_closures()
+    temperature_data = get_air_temperature()
+    temperature_data_rearranged = Float64[]
+    append!(temperature_data_rearranged, temperature_data[213:end])
+    append!(temperature_data_rearranged, temperature_data[1:212])
+
+    num_years = 3
+    num_schools_closed = zeros(Float64, 365)
+    num_schools_closed_temp = incidence_arr = Array{Vector{Float64}, 1}(undef, num_years)
+    
+    num_schools_closed_model = zeros(Float64, 365 * num_years)
+    # num_schools_closed_model = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_1.jld"))["num_schools_closed"]
+    
+    # num_runs = 10
+    num_runs = 2
+    for i = 1:num_runs
+        num_schools_closed_model += load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["num_schools_closed"][1:365 * num_years]
+    end
+    num_schools_closed_model ./= num_runs
+
+    for i = 1:num_years
+        num_schools_closed_temp[i] = num_schools_closed_model[(365 * (i - 1) + 1):(365 * (i - 1) + 365)]
+    end
+
+    for i = 1:365
+        for j = 1:num_years
+            num_schools_closed[i] += num_schools_closed_temp[j][i]
+        end
+        num_schools_closed[i] /= num_years
+    end
+
+    num_schools_closed = moving_average(num_schools_closed, 20)
+
+    ticks = range(1, stop = 365, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    # label_names = ["base" "quarantine" "warming"]
+    label_names = ["base" "warming"]
+    if is_russian
+        label_names = ["базовый" "потепление"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Temperature, °C"
+    if is_russian
+        ylabel_name = "Температура, °C"
+    end
+
+    # a = 1:10
+    # b = rand(10)
+    # temperature_plot = plot(a, b, label = "randData", ylabel = "Rand data",color = :red, legend = :topleft, grid = :off)
+    # p = twinx()
+    # plot!(p, a,log.(a), label = L"log(x)", legend = :topright, ylabel = "The right Y label", xlabel = "numbers", box = :on, grid = :off)
+
+    # temperature_plot = plot(
+    #     1:365,
+    #     [temperature_data_rearranged num_schools_closed temperature_data_rearranged .+ 2.0],
+    #     lw = 1.5,
+    #     label = label_names,
+    #     color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467) RGB(0.133, 0.533, 0.2)],
+    #     xticks = (ticks, ticklabels),
+    #     grid = true,
+    #     legend = (0.51, 0.91),
+    #     # xlabel = L"\textrm{\sffamily Month}",
+    #     # ylabel = L"\textrm{\sffamily Temperature, °C}",
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    # )
+
+    temperature_plot = plot(
+        1:365,
+        [temperature_data_rearranged temperature_data_rearranged .+ 2.0],
+        lw = 1.5,
+        label = label_names,
+        color = [RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2)],
+        xticks = (ticks, ticklabels),
+        grid = true,
+        # legend = (0.51, 0.91),
+        legend = (0.35, 0.98),
+        right_margin = 14Plots.mm,
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Temperature, °C}",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    temperature_plot = plot(
+        twinx(),
+        num_schools_closed,
+        lw = 1.5,
+        label = "quarantine",
+        color = RGB(0.933, 0.4, 0.467),
+        xticks = (ticks, ticklabels),
+        # yticks = ([0, 20, 40, 60], ["0", "20", "40", "60"]),
+        grid = false,
+        legend = (0.74, 0.98),
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Temperature, °C}",
+        xlabel = xlabel_name,
+        ylabel = "Number of school closures",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    # plot!(
+    #     1:365,
+    #     [temperature_data_rearranged num_schools_closed temperature_data_rearranged .+ 2.0],
+    #     lw = 1.5,
+    #     label = label_names,
+    #     color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467) RGB(0.133, 0.533, 0.2)],
+    #     xticks = (ticks, ticklabels),
+    #     grid = true,
+    #     legend = (0.71, 0.91),
+    #     # xlabel = L"\textrm{\sffamily Month}",
+    #     # ylabel = L"\textrm{\sffamily Temperature, °C}",
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    # )
+    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "temperature_closures.pdf"))
+end
+
+function plot_temperature_scenarios()
+    temperature_data = get_air_temperature()
+    temperature_data_rearranged = Float64[]
+    append!(temperature_data_rearranged, temperature_data[213:end])
+    append!(temperature_data_rearranged, temperature_data[1:212])
+
+    num_years = 3
+    num_schools_closed = zeros(Float64, 365)
+    num_schools_closed_temp = incidence_arr = Array{Vector{Float64}, 1}(undef, num_years)
+    
+    ticks = range(1, stop = 365, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    label_names = ["warming" "base"]
+    if is_russian
+        label_names = ["потепление" "базовый"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Temperature, °C"
+    if is_russian
+        ylabel_name = "Температура, °C"
+    end
+
+    temperature_plot = plot(
+        1:365,
+        [temperature_data_rearranged .+ 2.0 temperature_data_rearranged],
+        lw = 1.5,
+        label = label_names,
+        color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+        xticks = (ticks, ticklabels),
+        grid = true,
+        # legend = (0.51, 0.91),
+        legend = (0.42, 0.98),
+        right_margin = 14Plots.mm,
+        # xlabel = L"\textrm{\sffamily Month}",
+        # ylabel = L"\textrm{\sffamily Temperature, °C}",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "temperature_scenarios.pdf"))
+end
+
+function plot_closures()
+    num_years = 3
+    num_schools_closed = zeros(Float64, 365)
+    num_schools_closed_temp = incidence_arr = Array{Vector{Float64}, 1}(undef, num_years)
+    
+    num_schools_closed_model = zeros(Float64, 365 * num_years)
+    # num_schools_closed_model = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_1.jld"))["num_schools_closed"]
+    
+    # num_runs = 10
+    num_runs = 2
+    for i = 1:num_runs
+        num_schools_closed_model += load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["num_schools_closed"][1:365 * num_years]
+    end
+    num_schools_closed_model ./= num_runs
+
+    for i = 1:num_years
+        num_schools_closed_temp[i] = num_schools_closed_model[(365 * (i - 1) + 1):(365 * (i - 1) + 365)]
+    end
+
+    for i = 1:365
+        for j = 1:num_years
+            num_schools_closed[i] += num_schools_closed_temp[j][i]
+        end
+        num_schools_closed[i] /= num_years
+    end
+
+    num_schools_closed = moving_average(num_schools_closed, 20)
+
+    ticks = range(1, stop = 365, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Number of school closures"
+    if is_russian
+        ylabel_name = "Число закрытий"
+    end
+
+    temperature_plot = plot(
+        1:365,
+        num_schools_closed,
+        lw = 1.5,
+        label = "quarantine",
+        color = RGB(0.933, 0.4, 0.467),
+        xticks = (ticks, ticklabels),
+        grid = true,
+        legend = false,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "num_closures.pdf"))
+end
+
 # plot_incidence()
 # plot_incidence_age_groups()
 # plot_incidence_viruses()

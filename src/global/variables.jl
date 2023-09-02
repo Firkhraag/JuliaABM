@@ -26,9 +26,9 @@ const end_restaurant_ids = Int[3333, 5985, 8499, 12843]
 const num_agents_age_groups = [266648, 304625, 531915, 8969480]
 
 # Начальный столбец данных для работы модели
-const flu_starting_index = 2
+const flu_starting_index = 3
 # Столбец данных для задания уровня иммунитета агентов
-const flu_starting_index_immmunity_bias = 1
+const flu_starting_index_immmunity_bias = 2
 
 # MCMC параметры
 const burnin = 1

@@ -2010,14 +2010,6 @@ function plot_incidences()
     end
     r7_2 = r7_2[1:52] ./ num_years
 
-    # ticks = range(1, stop = 52, length = 13)
-    # ticklabels = ["Aug" "Sep" "Oct" "Nov" "Dec" "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"]
-    
-    # ticks = range(1, stop = 52, length = 7)
-    # ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
-    # yticks = [2, 6, 10, 14]
-    # yticklabels = ["2", "6", "10", "14"]
-
     ticks = range(1, stop = 52, length = 7)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     if is_russian
@@ -2052,11 +2044,8 @@ function plot_incidences()
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         legend = (0.86, 1.0),
-        # ylims = (0, 17),
         margin = 2Plots.mm,
         label = ["d = $(round(duration_parameter * 0.8, digits = 2))" "d = $(round(duration_parameter * 0.9, digits = 2))" "d = $(round(duration_parameter, digits = 2))" "d = $(round(duration_parameter * 1.1, digits = 2))" "d = $(round(duration_parameter * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2072,8 +2061,6 @@ function plot_incidences()
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         label = ["$(round(susceptibility_parameters[1] * 0.8, digits = 2))" "$(round(susceptibility_parameters[1] * 0.9, digits = 2))" "$(round(susceptibility_parameters[1], digits = 2))" "$(round(susceptibility_parameters[1] * 1.1, digits = 2))" "$(round(susceptibility_parameters[1] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2089,8 +2076,6 @@ function plot_incidences()
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         label = ["$(round(susceptibility_parameters[2] * 0.8, digits = 2))" "$(round(susceptibility_parameters[2] * 0.9, digits = 2))" "$(round(susceptibility_parameters[2], digits = 2))" "$(round(susceptibility_parameters[2] * 1.1, digits = 2))" "$(round(susceptibility_parameters[2] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2107,8 +2092,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(susceptibility_parameters[3] * 0.8, digits = 2))" "$(round(susceptibility_parameters[3] * 0.9, digits = 2))" "$(round(susceptibility_parameters[3], digits = 2))" "$(round(susceptibility_parameters[3] * 1.1, digits = 2))" "$(round(susceptibility_parameters[3] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2125,8 +2108,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.85, 0.95),
         label = ["$(round(susceptibility_parameters[4] * 0.8, digits = 2))" "$(round(susceptibility_parameters[4] * 0.9, digits = 2))" "$(round(susceptibility_parameters[4], digits = 2))" "$(round(susceptibility_parameters[4] * 1.1, digits = 2))" "$(round(susceptibility_parameters[4] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2142,10 +2123,7 @@ function plot_incidences()
         xticks = (ticks, ticklabels),
         margin = 2Plots.mm,
         legend = (0.91, 1.0),
-        # ylims = (0, 13),
         label = ["$(round(susceptibility_parameters[5] * 0.8, digits = 2))" "$(round(susceptibility_parameters[5] * 0.9, digits = 2))" "$(round(susceptibility_parameters[5], digits = 2))" "$(round(susceptibility_parameters[5] * 1.1, digits = 2))" "$(round(susceptibility_parameters[5] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2162,8 +2140,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.92, 0.98),
         label = ["$(round(susceptibility_parameters[6] * 0.8, digits = 2))" "$(round(susceptibility_parameters[6] * 0.9, digits = 2))" "$(round(susceptibility_parameters[6], digits = 2))" "$(round(susceptibility_parameters[6] * 1.1, digits = 2))" "$(round(susceptibility_parameters[6] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2180,8 +2156,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(susceptibility_parameters[7] * 0.8, digits = 2))" "$(round(susceptibility_parameters[7] * 0.9, digits = 2))" "$(round(susceptibility_parameters[7], digits = 2))" "$(round(susceptibility_parameters[7] * 1.1, digits = 2))" "$(round(susceptibility_parameters[7] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2198,8 +2172,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[1], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2216,8 +2188,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[2], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2234,8 +2204,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[3], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2252,8 +2220,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[4], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2270,8 +2236,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[5], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2288,8 +2252,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[6], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2306,8 +2268,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(0.25)" "$(0.5)" "$(round(temperature_parameters[7], digits = 2))" "$(0.75)" "$(1.0)"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2324,8 +2284,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(random_infection_probabilities[1] * 0.1, digits = 6))" "$(round(random_infection_probabilities[1] * 0.5, digits = 6))" "$(round(random_infection_probabilities[1], digits = 6))" "$(round(random_infection_probabilities[1] * 2.0, digits = 6))" "$(round(random_infection_probabilities[1] * 10.0, digits = 6))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2342,8 +2300,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(random_infection_probabilities[2] * 0.1, digits = 6))" "$(round(random_infection_probabilities[2] * 0.5, digits = 6))" "$(round(random_infection_probabilities[2], digits = 6))" "$(round(random_infection_probabilities[2] * 2.0, digits = 6))" "$(round(random_infection_probabilities[2] * 10.0, digits = 6))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2360,8 +2316,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(random_infection_probabilities[3] * 0.1, digits = 6))" "$(round(random_infection_probabilities[3] * 0.5, digits = 6))" "$(round(random_infection_probabilities[3], digits = 6))" "$(round(random_infection_probabilities[3] * 2.0, digits = 6))" "$(round(random_infection_probabilities[3] * 10.0, digits = 6))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2378,8 +2332,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(random_infection_probabilities[4] * 0.1, digits = 7))" "$(round(random_infection_probabilities[4] * 0.5, digits = 7))" "$(round(random_infection_probabilities[4], digits = 7))" "$(round(random_infection_probabilities[4] * 2.0, digits = 7))" "$(round(random_infection_probabilities[4] * 10.0, digits = 7))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2396,8 +2348,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[1] * 0.8, digits = 2))" "$(round(mean_immunity_durations[1] * 0.9, digits = 2))" "$(round(mean_immunity_durations[1], digits = 2))" "$(round(mean_immunity_durations[1] * 1.1, digits = 2))" "$(round(mean_immunity_durations[1] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2414,8 +2364,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[2] * 0.8, digits = 2))" "$(round(mean_immunity_durations[2] * 0.9, digits = 2))" "$(round(mean_immunity_durations[2], digits = 2))" "$(round(mean_immunity_durations[2] * 1.1, digits = 2))" "$(round(mean_immunity_durations[2] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2432,8 +2380,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[3] * 0.8, digits = 2))" "$(round(mean_immunity_durations[3] * 0.9, digits = 2))" "$(round(mean_immunity_durations[3], digits = 2))" "$(round(mean_immunity_durations[3] * 1.1, digits = 2))" "$(round(mean_immunity_durations[3] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2450,8 +2396,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[4] * 0.8, digits = 2))" "$(round(mean_immunity_durations[4] * 0.9, digits = 2))" "$(round(mean_immunity_durations[4], digits = 2))" "$(round(mean_immunity_durations[4] * 1.1, digits = 2))" "$(round(mean_immunity_durations[4] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2468,8 +2412,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[5] * 0.8, digits = 2))" "$(round(mean_immunity_durations[5] * 0.9, digits = 2))" "$(round(mean_immunity_durations[5], digits = 2))" "$(round(mean_immunity_durations[5] * 1.1, digits = 2))" "$(round(mean_immunity_durations[5] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2486,8 +2428,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[6] * 0.8, digits = 2))" "$(round(mean_immunity_durations[6] * 0.9, digits = 2))" "$(round(mean_immunity_durations[6], digits = 2))" "$(round(mean_immunity_durations[6] * 1.1, digits = 2))" "$(round(mean_immunity_durations[6] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2504,8 +2444,6 @@ function plot_incidences()
         margin = 2Plots.mm,
         legend = (0.91, 0.95),
         label = ["$(round(mean_immunity_durations[7] * 0.8, digits = 2))" "$(round(mean_immunity_durations[7] * 0.9, digits = 2))" "$(round(mean_immunity_durations[7], digits = 2))" "$(round(mean_immunity_durations[7] * 1.1, digits = 2))" "$(round(mean_immunity_durations[7] * 1.2, digits = 2))"],
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Cases per 1000 people}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
@@ -2514,11 +2452,6 @@ end
 
 plot_work_contacts()
 plot_school_contacts()
-
-plot_incidence_contacts()
-plot_incidence_contacts2()
-# plot_rt_contacts()
-# plot_rt_contacts2()
 
 # plot_infection_curves()
 # plot_incidences()

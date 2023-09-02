@@ -1438,7 +1438,7 @@ function main(
     num_years = 2
     # num_years = 1
 
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # -----------------------------------
     school_class_closure_period = 0
     # school_class_closure_period = 7
     school_class_closure_threshold = 0.3
@@ -1447,10 +1447,7 @@ function main(
     with_global_warming = false
     # with_global_warming = true
     # ["+4 °С" "+3 °С" "+2 °С" "+1 °С"]
-
-    is_herd_immunity_test = false
-    # is_herd_immunity_test = true
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # -----------------------------------
 
     num_threads = nthreads()
 
@@ -1471,9 +1468,10 @@ function main(
     # Параметры, отвечающие за связи на рабочих местах
     firm_min_size = 1
     firm_max_size = 1000
-    # num_barabasi_albert_attachments = 4
-    num_barabasi_albert_attachments = 5
-    # num_barabasi_albert_attachments = 6
+    # Параметр предпочтительного присоединения графа Барабаши-Альберт для рабочих коллективов
+    work_num_barabasi_albert_attachments = 5
+    # Параметр предпочтительного присоединения графа Барабаши-Альберт для школ
+    school_num_barabasi_albert_attachments = 10
 
     viruses = Virus[
         # FluA
@@ -1501,6 +1499,8 @@ function main(
     etiology = get_etiology()
     # Температура воздуха, начиная с 1 января
     temperature = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "temperature.csv"))))[1, :]
+
+    return
 
     agents = Array{Agent, 1}(undef, num_agents)
 
@@ -1555,8 +1555,7 @@ function main(
     infected_data_7_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ';', Int, '\n')
     infected_data_15_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ';', Int, '\n')
 
-    infected_data_0 = infected_data_0_all[
-        2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data_0 = infected_data_0_all[2:53, flu_starting_index:end]
     infected_data_0_1 = etiology[:, 1] .* infected_data_0
     infected_data_0_2 = etiology[:, 2] .* infected_data_0
     infected_data_0_3 = etiology[:, 3] .* infected_data_0
@@ -1574,8 +1573,7 @@ function main(
         vec(infected_data_0_7),
         dims = 2)
 
-    infected_data_3 = infected_data_3_all[
-        2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data_3 = infected_data_3_all[2:53, flu_starting_index:end]
     infected_data_3_1 = etiology[:, 1] .* infected_data_3
     infected_data_3_2 = etiology[:, 2] .* infected_data_3
     infected_data_3_3 = etiology[:, 3] .* infected_data_3
@@ -1593,8 +1591,7 @@ function main(
         vec(infected_data_3_7),
         dims = 2)
 
-    infected_data_7 = infected_data_7_all[
-        2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data_7 = infected_data_7_all[2:53, flu_starting_index:end]
     infected_data_7_1 = etiology[:, 1] .* infected_data_7
     infected_data_7_2 = etiology[:, 2] .* infected_data_7
     infected_data_7_3 = etiology[:, 3] .* infected_data_7
@@ -1612,8 +1609,7 @@ function main(
         vec(infected_data_7_7),
         dims = 2)
 
-    infected_data_15 = infected_data_15_all[
-        2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data_15 = infected_data_15_all[2:53, flu_starting_index:end]
     infected_data_15_1 = etiology[:, 1] .* infected_data_15
     infected_data_15_2 = etiology[:, 2] .* infected_data_15
     infected_data_15_3 = etiology[:, 3] .* infected_data_15
@@ -1639,7 +1635,7 @@ function main(
         dims = 3,
     )
 
-    infected_data_0_prev = infected_data_0_all[2:53, 1:flu_starting_index_immmunity_bias]
+    infected_data_0_prev = infected_data_0_all[2:53, flu_starting_index_immmunity_bias]
     infected_data_0_1_prev = etiology[:, 1] .* infected_data_0_prev
     infected_data_0_2_prev = etiology[:, 2] .* infected_data_0_prev
     infected_data_0_3_prev = etiology[:, 3] .* infected_data_0_prev
@@ -1657,7 +1653,7 @@ function main(
         vec(infected_data_0_7_prev),
         dims = 2)
 
-    infected_data_3_prev = infected_data_3_all[2:53, 1:flu_starting_index_immmunity_bias]
+    infected_data_3_prev = infected_data_3_all[2:53, flu_starting_index_immmunity_bias]
     infected_data_3_1_prev = etiology[:, 1] .* infected_data_3_prev
     infected_data_3_2_prev = etiology[:, 2] .* infected_data_3_prev
     infected_data_3_3_prev = etiology[:, 3] .* infected_data_3_prev
@@ -1675,7 +1671,7 @@ function main(
         vec(infected_data_3_7_prev),
         dims = 2)
 
-    infected_data_7_prev = infected_data_7_all[2:53, 1:flu_starting_index_immmunity_bias]
+    infected_data_7_prev = infected_data_7_all[2:53, flu_starting_index_immmunity_bias]
     infected_data_7_1_prev = etiology[:, 1] .* infected_data_7_prev
     infected_data_7_2_prev = etiology[:, 2] .* infected_data_7_prev
     infected_data_7_3_prev = etiology[:, 3] .* infected_data_7_prev
@@ -1693,7 +1689,7 @@ function main(
         vec(infected_data_7_7_prev),
         dims = 2)
 
-    infected_data_15_prev = infected_data_15_all[2:53, 1:flu_starting_index_immmunity_bias]
+    infected_data_15_prev = infected_data_15_all[2:53, flu_starting_index_immmunity_bias]
     infected_data_15_1_prev = etiology[:, 1] .* infected_data_15_prev
     infected_data_15_2_prev = etiology[:, 2] .* infected_data_15_prev
     infected_data_15_3_prev = etiology[:, 3] .* infected_data_15_prev
@@ -1741,10 +1737,11 @@ function main(
     @time set_connections(
         agents, households, kindergartens, schools, colleges,
         workplaces, thread_rng, num_threads, homes_coords_df,
-        firm_min_size, firm_max_size, num_barabasi_albert_attachments)
+        firm_min_size, firm_max_size, work_num_barabasi_albert_attachments,
+        school_num_barabasi_albert_attachments)
 
-    # get_stats(agents, schools, workplaces)
-    # return
+    get_stats(agents, schools, workplaces)
+    return
 
     println("Simulation...")
 
@@ -1872,31 +1869,31 @@ function main(
     # --------------------------
 
     # --------------------------
-    mcmc_simulations(
-        agents,
-        households,
-        schools,
-        num_threads,
-        thread_rng,
-        start_agent_ids,
-        end_agent_ids,
-        temperature,
-        viruses,
-        num_infected_age_groups_viruses_prev::Array{Float64, 3},
-        mean_household_contact_durations,
-        household_contact_duration_sds,
-        other_contact_duration_shapes,
-        other_contact_duration_scales,
-        isolation_probabilities_day_1,
-        isolation_probabilities_day_2,
-        isolation_probabilities_day_3,
-        num_infected_age_groups_viruses::Array{Float64, 3},
-        recovered_duration_mean,
-        recovered_duration_sd,
-        random_infection_probabilities,
-        num_years
-    )
-    return
+    # mcmc_simulations(
+    #     agents,
+    #     households,
+    #     schools,
+    #     num_threads,
+    #     thread_rng,
+    #     start_agent_ids,
+    #     end_agent_ids,
+    #     temperature,
+    #     viruses,
+    #     num_infected_age_groups_viruses_prev::Array{Float64, 3},
+    #     mean_household_contact_durations,
+    #     household_contact_duration_sds,
+    #     other_contact_duration_shapes,
+    #     other_contact_duration_scales,
+    #     isolation_probabilities_day_1,
+    #     isolation_probabilities_day_2,
+    #     isolation_probabilities_day_3,
+    #     num_infected_age_groups_viruses::Array{Float64, 3},
+    #     recovered_duration_mean,
+    #     recovered_duration_sd,
+    #     random_infection_probabilities,
+    #     num_years
+    # )
+    # return
     # --------------------------
     
     @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed, num_infected_districts = run_simulation(
@@ -1915,13 +1912,6 @@ function main(
 
     if with_global_warming
         save(joinpath(@__DIR__, "..", "output", "tables", "results_warming_$(run_num + 1).jld"),
-            "observed_cases", observed_num_infected_age_groups_viruses,
-            "all_cases", num_infected_age_groups_viruses_model,
-            "activities_cases", activities_infections,
-            "num_infected_districts", num_infected_districts,
-            "rt", rt)
-    elseif is_herd_immunity_test
-        save(joinpath(@__DIR__, "..", "output", "tables", "results_herd_immunity_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "all_cases", num_infected_age_groups_viruses_model,
             "activities_cases", activities_infections,

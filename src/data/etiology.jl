@@ -1,40 +1,56 @@
 # Распределение вирусов в течение года
 function get_etiology()::Matrix{Float64}
-    FluA_arr = [0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 50, 60, 75, 310, 1675, 1850, 1500, 1250, 900, 375, 350, 290, 220, 175, 165, 100, 50, 40, 25, 15, 9, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0]
-    FluA_arr2 = [0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 15, 44, 72, 50, 10, 80, 266, 333, 480, 588, 625, 575, 622, 423, 450, 269, 190, 138, 89, 60, 30, 20, 12, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-    FluA_arr = (FluA_arr + FluA_arr2) ./ 2
+    FluA_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "fluA.csv"))))
+    FluB_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "fluB.csv"))))
+    RV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "RV.csv"))))
+    RSV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "RSV.csv"))))
+    AdV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "AdV.csv"))))
+    PIV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "PIV.csv"))))
+    CoV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "CoV.csv"))))
 
-    RV_arr = [50.0, 50, 86, 90, 70, 74, 97, 115, 158, 130, 131, 103, 112, 112, 136, 90, 111, 128, 130, 140, 118, 152, 49, 22, 51, 80, 82, 100, 78, 57, 70, 73, 102, 101, 80, 62, 68, 60, 66, 52, 42, 69, 74, 38, 50, 42, 36, 38, 24, 44, 45, 40]
-    RV_arr2 = [11.0, 10, 20, 24, 10, 20, 41, 42, 43, 54, 42, 52, 39, 37, 20, 15, 20, 38, 41, 28, 30, 21, 9, 1, 10, 50, 62, 52, 31, 40, 36, 41, 42, 32, 84, 71, 78, 72, 32, 28, 39, 37, 72, 67, 41, 52, 40, 24, 40, 39, 36, 30]
-    RV_arr = (RV_arr + RV_arr2) ./ 2
-    
-    RSV_arr = [8.0, 8, 8, 8, 8, 5, 7, 8, 11, 11, 18, 14, 15, 18, 35, 55, 53, 70, 90, 130, 45, 30, 80, 140, 100, 120, 145, 180, 150, 68, 72, 60, 80, 75, 55, 60, 65, 62, 50, 45, 50, 20, 24, 19, 15, 10, 10, 9, 11, 10, 9, 8]
-    RSV_arr2 = [8.0, 9, 9, 4, 4, 10, 9, 10, 3, 12, 8, 10, 12, 7, 10, 13, 9, 15, 21, 25, 30, 10, 2, 22, 18, 30, 77, 72, 48, 61, 90, 120, 150, 145, 92, 119, 78, 69, 49, 57, 49, 43, 46, 24, 40, 24, 24, 10, 10, 9, 7, 11]
-    RSV_arr = (RSV_arr + RSV_arr2) ./ 2
+    FluA_arr = FluA_matrix[1, :]
+    for i = 2:size(FluA_matrix, 1)
+        FluA_arr += FluA_matrix[i, :]
+    end
+    FluA_arr ./= size(FluA_matrix, 1)
 
-    AdV_arr = [20.0, 30, 40, 20, 30, 25, 15, 19, 17, 18, 20, 25, 30, 21, 38, 40, 42, 30, 40, 50, 51, 41, 10, 8, 30, 40, 38, 70, 67, 20, 28, 20, 29, 20, 28, 16, 10, 20, 18, 27, 19, 19, 32, 31, 20, 20, 15, 8, 20, 35, 35, 35]
-    AdV_arr2 = [9.0, 11, 13, 5, 7, 12, 12, 18, 16, 22, 18, 22, 31, 32, 33, 17, 28, 39, 29, 40, 30, 56, 11, 1, 38, 30, 39, 28, 59, 19, 46, 20, 22, 47, 38, 40, 25, 17, 18, 10, 6, 6, 21, 11, 19, 12, 27, 18, 10, 27, 10, 10]
-    AdV_arr = (AdV_arr + AdV_arr2) ./ 2
+    FluB_arr = FluB_matrix[1, :]
+    for i = 2:size(FluB_matrix, 1)
+        FluB_arr += FluB_matrix[i, :]
+    end
+    FluB_arr ./= size(FluB_matrix, 1)
 
-    PIV_arr = [15.0, 18, 20, 33, 15, 36, 33, 38, 38, 50, 40, 43, 46, 75, 55, 35, 85, 53, 65, 40, 70, 20, 10, 45, 32, 33, 51, 34, 22, 12, 12, 14, 16, 18, 20, 8, 24, 20, 15, 5, 20, 15, 15, 20, 19, 18, 31, 18, 18, 17, 15, 14]
-    PIV_arr2 = [10.0, 11, 6, 8, 12, 19, 22, 20, 20, 22, 28, 32, 47, 29, 31, 38, 17, 40, 31, 36, 32, 48, 11, 6, 30, 38, 12, 30, 22, 12, 20, 17, 30, 45, 11, 14, 17, 15, 15, 10, 15, 20, 17, 18, 23, 10, 10, 18, 17, 16, 17, 14]
-    PIV_arr = (PIV_arr + PIV_arr2) ./ 2
+    RV_arr = RV_matrix[1, :]
+    for i = 2:size(RV_matrix, 1)
+        RV_arr += RV_matrix[i, :]
+    end
+    RV_arr ./= size(RV_matrix, 1)
 
-    CoV_arr = [1.0, 2, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 8, 10, 5, 7, 7, 14, 8, 25, 35, 30, 1, 5, 16, 14, 25, 35, 32, 50, 10, 18, 12, 30, 36, 25, 14, 16, 5, 3, 1, 3, 6, 3, 2, 1, 1, 1, 1, 1, 1, 1]
-    CoV_arr2 = [5.0, 1, 1, 2, 1, 1, 6, 1, 3, 1, 1, 5, 9, 1, 5, 1, 1, 5, 1, 3, 2, 1, 5, 1, 3, 1, 1, 9, 5, 5, 9, 3, 4, 3, 12, 18, 16, 15, 7, 1, 13, 3, 3, 10, 2, 1, 1, 1, 1, 1, 1, 1]
-    CoV_arr = (CoV_arr + CoV_arr2) ./ 2
+    RSV_arr = RSV_matrix[1, :]
+    for i = 2:size(RSV_matrix, 1)
+        RSV_arr += RSV_matrix[i, :]
+    end
+    RSV_arr ./= size(RSV_matrix, 1)
 
-    FluA_arr = moving_average(FluA_arr, 3)
-    RV_arr = moving_average(RV_arr, 3)
-    RSV_arr = moving_average(RSV_arr, 3)
-    AdV_arr = moving_average(AdV_arr, 3)
-    PIV_arr = moving_average(PIV_arr, 3)
-    CoV_arr = moving_average(CoV_arr, 3)
+    AdV_arr = AdV_matrix[1, :]
+    for i = 2:size(AdV_matrix, 1)
+        AdV_arr += AdV_matrix[i, :]
+    end
+    AdV_arr ./= size(AdV_matrix, 1)
 
-    FluB_arr = FluA_arr .* 1/3
+    PIV_arr = PIV_matrix[1, :]
+    for i = 2:size(PIV_matrix, 1)
+        PIV_arr += PIV_matrix[i, :]
+    end
+    PIV_arr ./= size(PIV_matrix, 1)
+
+    CoV_arr = CoV_matrix[1, :]
+    for i = 2:size(CoV_matrix, 1)
+        CoV_arr += CoV_matrix[i, :]
+    end
+    CoV_arr ./= size(CoV_matrix, 1)
 
     sum_arr = FluA_arr + FluB_arr + RV_arr + RSV_arr + AdV_arr + PIV_arr + CoV_arr
-
     FluA_ratio = FluA_arr ./ sum_arr
     FluB_ratio = FluB_arr ./ sum_arr
     RV_ratio = RV_arr ./ sum_arr

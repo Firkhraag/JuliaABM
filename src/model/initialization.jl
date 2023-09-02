@@ -11,9 +11,9 @@ function get_agent_sex_and_age(
     sex_random_num = rand(rng, Float64)
     if is_child
         age_group_rand_num = rand(rng, Float64)
-        if age_group_rand_num < district_people_households[1, district_household_index] * 1.04
+        if age_group_rand_num < district_people_households[1, district_household_index]
             # T0-4_0–14
-            if age_rand_num < district_people[index, 20] * 0.85
+            if age_rand_num < district_people[index, 20] * 0.95
                 # M0–4
                 sub_age_group_rand_num = rand(rng, Float64)
                 if sub_age_group_rand_num < 0.22
@@ -27,14 +27,24 @@ function get_agent_sex_and_age(
                 else
                     return sex_random_num < district_people[index, 1], 0
                 end
-                # return sex_random_num < district_people[index, 1], rand(rng, 0:4)
             # T0-9_0–14
-            elseif age_rand_num < district_people[index, 21] * 0.95
+            elseif age_rand_num < district_people[index, 21]
                 # M5–9
                 return sex_random_num < district_people[index, 2], rand(rng, 5:9)
             else
                 # M10–14
-                return sex_random_num < district_people[index, 3], rand(rng, 10:14)
+                sub_age_group_rand_num = rand(rng, Float64)
+                if sub_age_group_rand_num < 0.21
+                    return sex_random_num < district_people[index, 1], 10
+                elseif sub_age_group_rand_num < 0.41
+                    return sex_random_num < district_people[index, 1], 11
+                elseif sub_age_group_rand_num < 0.6
+                    return sex_random_num < district_people[index, 1], 12
+                elseif sub_age_group_rand_num < 0.79
+                    return sex_random_num < district_people[index, 1], 13
+                else
+                    return sex_random_num < district_people[index, 1], 14
+                end
             end
         else
             # M15–19
@@ -49,18 +59,18 @@ function get_agent_sex_and_age(
         end
     else
         age_group_rand_num = rand(rng, Float64)
-        if age_group_rand_num < district_people_households[2, district_household_index] * 0.85
-            if rand(rng, Float64) < 0.14
+        if age_group_rand_num < district_people_households[2, district_household_index] * 0.95
+            if rand(rng, Float64) < 0.1
                 # T18–19
                 if is_male !== nothing
-                    if rand(rng, Float64) < 0.6
+                    if rand(rng, Float64) < 0.66
                         return is_male, 19
                     else
                         return is_male, 18
                     end
                 else
                     # M18–19
-                    if rand(rng, Float64) < 0.6
+                    if rand(rng, Float64) < 0.66
                         return sex_random_num < district_people[index, 5], 19
                     else
                         return sex_random_num < district_people[index, 5], 18
@@ -70,18 +80,17 @@ function get_agent_sex_and_age(
                 # T20–24
                 if is_male !== nothing
                     sub_age_group_rand_num = rand(rng, Float64)
-                    if sub_age_group_rand_num < 0.22
+                    if sub_age_group_rand_num < 0.24
                         return is_male, 24
-                    elseif sub_age_group_rand_num < 0.43
+                    elseif sub_age_group_rand_num < 0.46
                         return is_male, 23
-                    elseif sub_age_group_rand_num < 0.63
+                    elseif sub_age_group_rand_num < 0.66
                         return is_male, 22
-                    elseif sub_age_group_rand_num < 0.82
+                    elseif sub_age_group_rand_num < 0.84
                         return is_male, 21
                     else
                         return is_male, 20
                     end
-                    # return is_male, rand(rng, 20:24)
                 else
                     # M20–24
                     sub_age_group_rand_num = rand(rng, Float64)
@@ -96,10 +105,9 @@ function get_agent_sex_and_age(
                     else
                         return sex_random_num < district_people[index, 5], 20
                     end
-                    # return sex_random_num < district_people[index, 5], rand(rng, 20:24)
                 end
             end
-        elseif age_group_rand_num < district_people_households[3, district_household_index] * 1.03
+        elseif age_group_rand_num < district_people_households[3, district_household_index]
             # T25-29_25–34
             if age_rand_num < district_people[index, 22]
                 if is_male !== nothing

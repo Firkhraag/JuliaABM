@@ -24,8 +24,8 @@ function age_distribution_groups()
         num_people_model_vec[i] += age_groups_nums[(i - 1) * 5 + 5, 1]
     end
 
-    s = sum(abs.(num_people_model_vec - num_people_data_vec)) / sum(num_people_data_vec)
-    println(s)
+    nMAE = sum(abs.(num_people_model_vec - num_people_data_vec)) / sum(num_people_data_vec)
+    println("nMAE = $(nMAE)")
 
     num_people_data = append!(num_people_data_vec, num_people_model_vec)
 
@@ -116,8 +116,8 @@ function household_size_distribution()
     num_households_data = append!(num_households_data_vec, vec(household_size_distribution))
 
     arr = vec(household_size_distribution)
-    s = sum(abs.(arr - [1118631, 1056816, 922206, 575250, 236758, 148261])) / sum([1118631, 1056816, 922206, 575250, 236758, 148261])
-    println(s)
+    nMAE = sum(abs.(arr - num_households_data_vec)) / sum(num_households_data_vec)
+    println("nMAE = $(nMAE)")
 
     labels = CategoricalArray(repeat(["1", "2", "3", "4", "5", "6"], outer = 3))
     levels!(labels, ["1", "2", "3", "4", "5", "6"])
@@ -192,5 +192,5 @@ end
 
 age_distribution_groups()
 age_distribution()
-household_size_distribution()
-workplace_sizes_distribution_lognormal()
+# household_size_distribution()
+# workplace_sizes_distribution_lognormal()
