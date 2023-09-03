@@ -977,12 +977,11 @@ function mcmc_simulations(
         other_contact_duration_shapes, other_contact_duration_scales,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
         isolation_probabilities_day_3, random_infection_probabilities,
-        recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
+        recovered_duration_mean, recovered_duration_sd, num_years, false,
         immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
         immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
         immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-        immune_memory_susceptibility_levels[7], school_class_closure_period, 
-        school_class_closure_threshold, with_global_warming)
+        immune_memory_susceptibility_levels[7])
 
     accept_num = 0
     local_rejected_num = 0
@@ -1500,8 +1499,6 @@ function main(
     # Температура воздуха, начиная с 1 января
     temperature = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "temperature.csv"))))[1, :]
 
-    return
-
     agents = Array{Agent, 1}(undef, num_agents)
 
     # With seed
@@ -1563,14 +1560,27 @@ function main(
     infected_data_0_5 = etiology[:, 5] .* infected_data_0
     infected_data_0_6 = etiology[:, 6] .* infected_data_0
     infected_data_0_7 = etiology[:, 7] .* infected_data_0
+
+    # Если рассматривается временной ряд
+    # infected_data_0_viruses = cat(
+    #     vec(infected_data_0_1),
+    #     vec(infected_data_0_2),
+    #     vec(infected_data_0_3),
+    #     vec(infected_data_0_4),
+    #     vec(infected_data_0_5),
+    #     vec(infected_data_0_6),
+    #     vec(infected_data_0_7),
+    #     dims = 2)
+
+    # Если рассматривается 1 год
     infected_data_0_viruses = cat(
-        vec(infected_data_0_1),
-        vec(infected_data_0_2),
-        vec(infected_data_0_3),
-        vec(infected_data_0_4),
-        vec(infected_data_0_5),
-        vec(infected_data_0_6),
-        vec(infected_data_0_7),
+        mean(infected_data_0_1, dims = 2)[:, 1],
+        mean(infected_data_0_2, dims = 2)[:, 1],
+        mean(infected_data_0_3, dims = 2)[:, 1],
+        mean(infected_data_0_4, dims = 2)[:, 1],
+        mean(infected_data_0_5, dims = 2)[:, 1],
+        mean(infected_data_0_6, dims = 2)[:, 1],
+        mean(infected_data_0_7, dims = 2)[:, 1],
         dims = 2)
 
     infected_data_3 = infected_data_3_all[2:53, flu_starting_index:end]
@@ -1581,14 +1591,25 @@ function main(
     infected_data_3_5 = etiology[:, 5] .* infected_data_3
     infected_data_3_6 = etiology[:, 6] .* infected_data_3
     infected_data_3_7 = etiology[:, 7] .* infected_data_3
+
+    # infected_data_3_viruses = cat(
+    #     vec(infected_data_3_1),
+    #     vec(infected_data_3_2),
+    #     vec(infected_data_3_3),
+    #     vec(infected_data_3_4),
+    #     vec(infected_data_3_5),
+    #     vec(infected_data_3_6),
+    #     vec(infected_data_3_7),
+    #     dims = 2)
+
     infected_data_3_viruses = cat(
-        vec(infected_data_3_1),
-        vec(infected_data_3_2),
-        vec(infected_data_3_3),
-        vec(infected_data_3_4),
-        vec(infected_data_3_5),
-        vec(infected_data_3_6),
-        vec(infected_data_3_7),
+        mean(infected_data_3_1, dims = 2)[:, 1],
+        mean(infected_data_3_2, dims = 2)[:, 1],
+        mean(infected_data_3_3, dims = 2)[:, 1],
+        mean(infected_data_3_4, dims = 2)[:, 1],
+        mean(infected_data_3_5, dims = 2)[:, 1],
+        mean(infected_data_3_6, dims = 2)[:, 1],
+        mean(infected_data_3_7, dims = 2)[:, 1],
         dims = 2)
 
     infected_data_7 = infected_data_7_all[2:53, flu_starting_index:end]
@@ -1599,14 +1620,25 @@ function main(
     infected_data_7_5 = etiology[:, 5] .* infected_data_7
     infected_data_7_6 = etiology[:, 6] .* infected_data_7
     infected_data_7_7 = etiology[:, 7] .* infected_data_7
+
+    # infected_data_7_viruses = cat(
+    #     vec(infected_data_7_1),
+    #     vec(infected_data_7_2),
+    #     vec(infected_data_7_3),
+    #     vec(infected_data_7_4),
+    #     vec(infected_data_7_5),
+    #     vec(infected_data_7_6),
+    #     vec(infected_data_7_7),
+    #     dims = 2)
+
     infected_data_7_viruses = cat(
-        vec(infected_data_7_1),
-        vec(infected_data_7_2),
-        vec(infected_data_7_3),
-        vec(infected_data_7_4),
-        vec(infected_data_7_5),
-        vec(infected_data_7_6),
-        vec(infected_data_7_7),
+        mean(infected_data_7_1, dims = 2)[:, 1],
+        mean(infected_data_7_2, dims = 2)[:, 1],
+        mean(infected_data_7_3, dims = 2)[:, 1],
+        mean(infected_data_7_4, dims = 2)[:, 1],
+        mean(infected_data_7_5, dims = 2)[:, 1],
+        mean(infected_data_7_6, dims = 2)[:, 1],
+        mean(infected_data_7_7, dims = 2)[:, 1],
         dims = 2)
 
     infected_data_15 = infected_data_15_all[2:53, flu_starting_index:end]
@@ -1617,14 +1649,25 @@ function main(
     infected_data_15_5 = etiology[:, 5] .* infected_data_15
     infected_data_15_6 = etiology[:, 6] .* infected_data_15
     infected_data_15_7 = etiology[:, 7] .* infected_data_15
+
+    # infected_data_15_viruses = cat(
+    #     vec(infected_data_15_1),
+    #     vec(infected_data_15_2),
+    #     vec(infected_data_15_3),
+    #     vec(infected_data_15_4),
+    #     vec(infected_data_15_5),
+    #     vec(infected_data_15_6),
+    #     vec(infected_data_15_7),
+    #     dims = 2)
+
     infected_data_15_viruses = cat(
-        vec(infected_data_15_1),
-        vec(infected_data_15_2),
-        vec(infected_data_15_3),
-        vec(infected_data_15_4),
-        vec(infected_data_15_5),
-        vec(infected_data_15_6),
-        vec(infected_data_15_7),
+        mean(infected_data_15_1, dims = 2)[:, 1],
+        mean(infected_data_15_2, dims = 2)[:, 1],
+        mean(infected_data_15_3, dims = 2)[:, 1],
+        mean(infected_data_15_4, dims = 2)[:, 1],
+        mean(infected_data_15_5, dims = 2)[:, 1],
+        mean(infected_data_15_6, dims = 2)[:, 1],
+        mean(infected_data_15_7, dims = 2)[:, 1],
         dims = 2)
 
     num_infected_age_groups_viruses = cat(
@@ -1740,8 +1783,8 @@ function main(
         firm_min_size, firm_max_size, work_num_barabasi_albert_attachments,
         school_num_barabasi_albert_attachments)
 
-    get_stats(agents, schools, workplaces)
-    return
+    # get_stats(agents, schools, workplaces)
+    # return
 
     println("Simulation...")
 
@@ -1869,31 +1912,31 @@ function main(
     # --------------------------
 
     # --------------------------
-    # mcmc_simulations(
-    #     agents,
-    #     households,
-    #     schools,
-    #     num_threads,
-    #     thread_rng,
-    #     start_agent_ids,
-    #     end_agent_ids,
-    #     temperature,
-    #     viruses,
-    #     num_infected_age_groups_viruses_prev::Array{Float64, 3},
-    #     mean_household_contact_durations,
-    #     household_contact_duration_sds,
-    #     other_contact_duration_shapes,
-    #     other_contact_duration_scales,
-    #     isolation_probabilities_day_1,
-    #     isolation_probabilities_day_2,
-    #     isolation_probabilities_day_3,
-    #     num_infected_age_groups_viruses::Array{Float64, 3},
-    #     recovered_duration_mean,
-    #     recovered_duration_sd,
-    #     random_infection_probabilities,
-    #     num_years
-    # )
-    # return
+    mcmc_simulations(
+        agents,
+        households,
+        schools,
+        num_threads,
+        thread_rng,
+        start_agent_ids,
+        end_agent_ids,
+        temperature,
+        viruses,
+        num_infected_age_groups_viruses_prev::Array{Float64, 3},
+        mean_household_contact_durations,
+        household_contact_duration_sds,
+        other_contact_duration_shapes,
+        other_contact_duration_scales,
+        isolation_probabilities_day_1,
+        isolation_probabilities_day_2,
+        isolation_probabilities_day_3,
+        num_infected_age_groups_viruses::Array{Float64, 3},
+        recovered_duration_mean,
+        recovered_duration_sd,
+        random_infection_probabilities,
+        num_years
+    )
+    return
     # --------------------------
     
     @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed, num_infected_districts = run_simulation(

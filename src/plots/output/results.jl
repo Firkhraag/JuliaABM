@@ -4,6 +4,8 @@ using StatsPlots
 using Plots
 using LaTeXStrings
 using JLD
+using CSV
+using DataFrames
 using Distributions
 
 include("../../util/moving_avg.jl")
@@ -14,7 +16,7 @@ default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
 const is_russian = false
 const num_runs = 1
-const num_years = 3
+const num_years = 2
 
 function confidence(x::Vector{Float64}, tstar::Float64 = 2.35)
     SE = std(x) / sqrt(length(x))
@@ -51,11 +53,11 @@ function plot_incidence(
     end
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Int, '\n') ./ 10072
-    infected_data_mean = mean(infected_data[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], dims = 2)[:, 1]
+    infected_data_mean = mean(infected_data[2:53, flu_starting_index:end], dims = 2)[:, 1]
 
     confidence_data = zeros(Float64, 52)
     for i = 1:52
-        confidence_data[i] = confidence(infected_data[i + 1, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], 2.45)
+        confidence_data[i] = confidence(infected_data[i + 1, flu_starting_index:end], 2.45)
     end
 
     ticks = range(1, stop = 52, length = 7)
@@ -139,19 +141,19 @@ function plot_incidence_age_groups(
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ';', Int, '\n') ./ 10072
 
     infected_data_mean = cat(
-        mean(infected_data_0[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], dims = 2)[:, 1],
-        mean(infected_data_3[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], dims = 2)[:, 1],
-        mean(infected_data_7[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], dims = 2)[:, 1],
-        mean(infected_data_15[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], dims = 2)[:, 1],
+        mean(infected_data_0[2:53, flu_starting_index:end], dims = 2)[:, 1],
+        mean(infected_data_3[2:53, flu_starting_index:end], dims = 2)[:, 1],
+        mean(infected_data_7[2:53, flu_starting_index:end], dims = 2)[:, 1],
+        mean(infected_data_15[2:53, flu_starting_index:end], dims = 2)[:, 1],
         dims = 2,
     )
 
     confidence_data = zeros(Float64, 52, 4)
     for i = 1:52
-        confidence_data[i, 1] = confidence(infected_data_0[i + 1, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], 2.45)
-        confidence_data[i, 2] = confidence(infected_data_3[i + 1, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], 2.45)
-        confidence_data[i, 3] = confidence(infected_data_7[i + 1, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], 2.45)
-        confidence_data[i, 4] = confidence(infected_data_15[i + 1, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], 2.45)
+        confidence_data[i, 1] = confidence(infected_data_0[i + 1, flu_starting_index:end], 2.45)
+        confidence_data[i, 2] = confidence(infected_data_3[i + 1, flu_starting_index:end], 2.45)
+        confidence_data[i, 3] = confidence(infected_data_7[i + 1, flu_starting_index:end], 2.45)
+        confidence_data[i, 4] = confidence(infected_data_15[i + 1, flu_starting_index:end], 2.45)
     end
 
     ticks = range(1, stop = 52, length = 7)
@@ -234,7 +236,7 @@ function plot_incidence_viruses(
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Int, '\n') ./ 10072
 
-    infected_data = infected_data[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data = infected_data[2:53, flu_starting_index:end]
     etiology = get_etiology()
 
     infected_data_1 = etiology[:, 1] .* infected_data
@@ -351,7 +353,7 @@ function plot_incidence_viruses_together(
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Int, '\n') ./ 10072
 
-    infected_data = infected_data[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data = infected_data[2:53, flu_starting_index:end]
 
     ticks = range(1, stop = 52, length = 7)
 
@@ -429,10 +431,10 @@ function plot_incidence_age_groups_viruses_together(
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ';', Int, '\n') ./ 10072
 
     infected_data_mean = cat(
-        mean(infected_data_0[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], dims = 2)[:, 1],
-        mean(infected_data_3[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], dims = 2)[:, 1],
-        mean(infected_data_7[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], dims = 2)[:, 1],
-        mean(infected_data_15[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)], dims = 2)[:, 1],
+        mean(infected_data_0[2:53, flu_starting_index:end], dims = 2)[:, 1],
+        mean(infected_data_3[2:53, flu_starting_index:end], dims = 2)[:, 1],
+        mean(infected_data_7[2:53, flu_starting_index:end], dims = 2)[:, 1],
+        mean(infected_data_15[2:53, flu_starting_index:end], dims = 2)[:, 1],
         dims = 2,
     )
 
@@ -714,7 +716,7 @@ function plot_incidence_time_series(
     end    
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Int, '\n') ./ 10072
-    infected_data = vec(infected_data[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)])
+    infected_data = vec(infected_data[2:53, flu_starting_index:end])
 
     ticks = range(1, stop = (52.14285 * num_years), length = 19)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
@@ -784,10 +786,10 @@ function plot_incidence_age_groups_time_series(
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ';', Int, '\n') ./ 10072
 
     infected_data_mean = cat(
-        vec(infected_data_0[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]),
-        vec(infected_data_3[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]),
-        vec(infected_data_7[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]),
-        vec(infected_data_15[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]),
+        vec(infected_data_0[2:53, flu_starting_index:end]),
+        vec(infected_data_3[2:53, flu_starting_index:end]),
+        vec(infected_data_7[2:53, flu_starting_index:end]),
+        vec(infected_data_15[2:53, flu_starting_index:end]),
         dims = 2,
     )
 
@@ -857,7 +859,7 @@ function plot_incidence_viruses_time_series(
     end
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Int, '\n') ./ 10072
-    infected_data = infected_data[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data = infected_data[2:53, flu_starting_index:end]
     
     etiology = get_etiology()
 
@@ -1028,9 +1030,9 @@ function print_statistics_time_series(mode::Int)
     end
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Int, '\n') ./ 10072
-    infected_data_mean = vec(infected_data[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)])
+    infected_data_mean = vec(infected_data[2:53, flu_starting_index:end])
     if mode == 2 & num_years > 1
-        infected_data_mean = vec(infected_data[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)])
+        infected_data_mean = vec(infected_data[2:53, flu_starting_index:end])
     end
     
     nMAE_general = sum(abs.(incidence_arr_mean[(1 + bias):end] - infected_data_mean[(1 + bias):end])) / sum(infected_data_mean[(1 + bias):end])
@@ -1061,10 +1063,10 @@ function print_statistics_time_series(mode::Int)
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ';', Int, '\n') ./ 10072
 
     infected_data_mean = cat(
-        vec(infected_data_0[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]),
-        vec(infected_data_3[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]),
-        vec(infected_data_7[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]),
-        vec(infected_data_15[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]),
+        vec(infected_data_0[2:53, flu_starting_index:end]),
+        vec(infected_data_3[2:53, flu_starting_index:end]),
+        vec(infected_data_7[2:53, flu_starting_index:end]),
+        vec(infected_data_15[2:53, flu_starting_index:end]),
         dims = 2,
     )
 
@@ -1107,10 +1109,10 @@ function print_statistics_time_series(mode::Int)
     end
 
     infected_data_d = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Int, '\n') ./ 10072
-    infected_data = infected_data_d[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data = infected_data_d[2:53, flu_starting_index:end]
 
     if mode == 2 & num_years > 1
-        infected_data = infected_data_d[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+        infected_data = infected_data_d[2:53, flu_starting_index:end]
     end
 
     etiology = get_etiology()
@@ -1174,7 +1176,7 @@ function print_statistics_time_series(mode::Int)
     infected_data_7_all = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu7-14.csv"), ';', Int, '\n') ./ 10072
     infected_data_15_all = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ';', Int, '\n') ./ 10072
 
-    infected_data_0 = infected_data_0_all[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data_0 = infected_data_0_all[2:53, flu_starting_index:end]
     if mode == 2 & num_years > 1
         infected_data_0 = infected_data_0_all[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years - 1)]
     end
@@ -1195,7 +1197,7 @@ function print_statistics_time_series(mode::Int)
         vec(infected_data_0_7),
         dims = 2)
 
-    infected_data_3 = infected_data_3_all[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data_3 = infected_data_3_all[2:53, flu_starting_index:end]
     if mode == 2 & num_years > 1
         infected_data_3 = infected_data_3_all[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years - 1)]
     end
@@ -1216,7 +1218,7 @@ function print_statistics_time_series(mode::Int)
         vec(infected_data_3_7),
         dims = 2)
 
-    infected_data_7 = infected_data_7_all[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data_7 = infected_data_7_all[2:53, flu_starting_index:end]
     if mode == 2 & num_years > 1
         infected_data_7 = infected_data_7_all[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years - 1)]
     end
@@ -1237,7 +1239,7 @@ function print_statistics_time_series(mode::Int)
         vec(infected_data_7_7),
         dims = 2)
 
-    infected_data_15 = infected_data_15_all[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data_15 = infected_data_15_all[2:53, flu_starting_index:end]
     if mode == 2 & num_years > 1
         infected_data_15 = infected_data_15_all[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years - 1)]
     end
@@ -1292,7 +1294,7 @@ function plot_incidence_quarantine()
     end
 
     infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Int, '\n') ./ 10072
-    infected_data = infected_data[2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
+    infected_data = infected_data[2:53, flu_starting_index:end]
 
     ticks = range(1, stop = 52, length = 7)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
@@ -2538,11 +2540,11 @@ function plot_closures()
     savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "num_closures.pdf"))
 end
 
-# plot_incidence()
-# plot_incidence_age_groups()
-# plot_incidence_viruses()
+plot_incidence()
+plot_incidence_age_groups()
+plot_incidence_viruses()
 # plot_incidence_viruses_together()
-plot_incidence_age_groups_viruses_together()
+# plot_incidence_age_groups_viruses_together()
 # plot_rt()
 # plot_infection_activities()
 

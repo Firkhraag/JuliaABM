@@ -174,8 +174,8 @@ function run_simulation_evaluation(
 )
     contacts_num_matrix_by_age_threads = zeros(Int, num_threads, 90, 90)
     contacts_dur_matrix_by_age_threads = zeros(Float64, num_threads, 90, 90)
-    contacts_num_matrix_by_age_activities_threads = zeros(Int, num_threads, 90, 90, 8)
-    contacts_dur_matrix_by_age_activities_threads = zeros(Float64, num_threads, 90, 90, 8)
+    contacts_num_matrix_by_age_activities_threads = zeros(Int, num_threads, 90, 90, 5)
+    contacts_dur_matrix_by_age_activities_threads = zeros(Float64, num_threads, 90, 90, 5)
 
     # Выходные, праздники
     is_work_holiday = is_holiday
@@ -214,7 +214,7 @@ function run_simulation_evaluation(
     contacts_dur_matrix_by_age_activities = sum(contacts_dur_matrix_by_age_activities_threads, dims=1)[1, :, :, :]
 
     println("All contacts: $(sum(contacts_num_matrix_by_age))")
-    for i = 1:8
+    for i = 1:5
         println("Activity $(i): $(sum(contacts_num_matrix_by_age_activities[:, :, i]))")
     end
 
@@ -223,7 +223,7 @@ function run_simulation_evaluation(
             joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_counts_holiday.csv"), contacts_num_matrix_by_age, ',')
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_durations_holiday.csv"), contacts_dur_matrix_by_age, ',')
-        for i = 1:8
+        for i = 1:5
             writedlm(
                 joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_counts_activity_$(i)_holiday.csv"),
                 contacts_num_matrix_by_age_activities[:, :, i], ',')
@@ -236,7 +236,7 @@ function run_simulation_evaluation(
             joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_counts.csv"), contacts_num_matrix_by_age, ',')
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_durations.csv"), contacts_dur_matrix_by_age, ',')
-        for i = 1:8
+        for i = 1:5
             writedlm(
                 joinpath(@__DIR__, "..", "..", "output", "tables", "contacts", "contact_counts_activity_$(i).csv"),
                 contacts_num_matrix_by_age_activities[:, :, i], ',')

@@ -113,11 +113,12 @@ function household_size_distribution()
     household_size_distribution = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "household_size_distribution.csv"), ',', Int, '\n')
 
     num_households_data_vec = [1118631, 1056816, 922206, 575250, 236758, 148261]
-    num_households_data = append!(num_households_data_vec, vec(household_size_distribution))
 
     arr = vec(household_size_distribution)
     nMAE = sum(abs.(arr - num_households_data_vec)) / sum(num_households_data_vec)
     println("nMAE = $(nMAE)")
+
+    append!(num_households_data_vec, vec(household_size_distribution))
 
     labels = CategoricalArray(repeat(["1", "2", "3", "4", "5", "6"], outer = 3))
     levels!(labels, ["1", "2", "3", "4", "5", "6"])
@@ -141,7 +142,7 @@ function household_size_distribution()
 
     household_size_distribution_plot = groupedbar(
         labels,
-        num_households_data,
+        num_households_data_vec,
         group = legend,
         yticks = (yticks, yticklabels),
         color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
@@ -192,5 +193,5 @@ end
 
 age_distribution_groups()
 age_distribution()
-# household_size_distribution()
-# workplace_sizes_distribution_lognormal()
+household_size_distribution()
+workplace_sizes_distribution_lognormal()
