@@ -6,9 +6,11 @@ using LatinHypercubeSampling
 using JLD
 
 include("data/etiology.jl")
-include("util/moving_avg.jl")
+include("data/incidence.jl")
 
+include("util/moving_avg.jl")
 include("util/regression.jl")
+
 include("main.jl")
 
 function main()
@@ -79,95 +81,7 @@ function main()
         end
 
         etiology = get_etiology()
-
-        infected_data_0_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu0-2.csv"), ',', Int, '\n') ./ 10072
-        infected_data_3_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu3-6.csv"), ',', Int, '\n') ./ 10072
-        infected_data_7_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu7-14.csv"), ',', Int, '\n') ./ 10072
-        infected_data_15_all = readdlm(joinpath(@__DIR__, "..", "input", "tables", "flu15+.csv"), ',', Int, '\n') ./ 10072
-
-        infected_data_0 = infected_data_0_all[
-            2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
-        infected_data_0_1 = etiology[:, 1] .* infected_data_0
-        infected_data_0_2 = etiology[:, 2] .* infected_data_0
-        infected_data_0_3 = etiology[:, 3] .* infected_data_0
-        infected_data_0_4 = etiology[:, 4] .* infected_data_0
-        infected_data_0_5 = etiology[:, 5] .* infected_data_0
-        infected_data_0_6 = etiology[:, 6] .* infected_data_0
-        infected_data_0_7 = etiology[:, 7] .* infected_data_0
-        infected_data_0_viruses = cat(
-            vec(infected_data_0_1),
-            vec(infected_data_0_2),
-            vec(infected_data_0_3),
-            vec(infected_data_0_4),
-            vec(infected_data_0_5),
-            vec(infected_data_0_6),
-            vec(infected_data_0_7),
-            dims = 2)
-
-        infected_data_3 = infected_data_3_all[
-            2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
-        infected_data_3_1 = etiology[:, 1] .* infected_data_3
-        infected_data_3_2 = etiology[:, 2] .* infected_data_3
-        infected_data_3_3 = etiology[:, 3] .* infected_data_3
-        infected_data_3_4 = etiology[:, 4] .* infected_data_3
-        infected_data_3_5 = etiology[:, 5] .* infected_data_3
-        infected_data_3_6 = etiology[:, 6] .* infected_data_3
-        infected_data_3_7 = etiology[:, 7] .* infected_data_3
-        infected_data_3_viruses = cat(
-            vec(infected_data_3_1),
-            vec(infected_data_3_2),
-            vec(infected_data_3_3),
-            vec(infected_data_3_4),
-            vec(infected_data_3_5),
-            vec(infected_data_3_6),
-            vec(infected_data_3_7),
-            dims = 2)
-
-        infected_data_7 = infected_data_7_all[
-            2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
-        infected_data_7_1 = etiology[:, 1] .* infected_data_7
-        infected_data_7_2 = etiology[:, 2] .* infected_data_7
-        infected_data_7_3 = etiology[:, 3] .* infected_data_7
-        infected_data_7_4 = etiology[:, 4] .* infected_data_7
-        infected_data_7_5 = etiology[:, 5] .* infected_data_7
-        infected_data_7_6 = etiology[:, 6] .* infected_data_7
-        infected_data_7_7 = etiology[:, 7] .* infected_data_7
-        infected_data_7_viruses = cat(
-            vec(infected_data_7_1),
-            vec(infected_data_7_2),
-            vec(infected_data_7_3),
-            vec(infected_data_7_4),
-            vec(infected_data_7_5),
-            vec(infected_data_7_6),
-            vec(infected_data_7_7),
-            dims = 2)
-
-        infected_data_15 = infected_data_15_all[
-            2:53, flu_starting_index:((flu_starting_index - flu_starting_index_immmunity_bias) + num_years)]
-        infected_data_15_1 = etiology[:, 1] .* infected_data_15
-        infected_data_15_2 = etiology[:, 2] .* infected_data_15
-        infected_data_15_3 = etiology[:, 3] .* infected_data_15
-        infected_data_15_4 = etiology[:, 4] .* infected_data_15
-        infected_data_15_5 = etiology[:, 5] .* infected_data_15
-        infected_data_15_6 = etiology[:, 6] .* infected_data_15
-        infected_data_15_7 = etiology[:, 7] .* infected_data_15
-        infected_data_15_viruses = cat(
-            vec(infected_data_15_1),
-            vec(infected_data_15_2),
-            vec(infected_data_15_3),
-            vec(infected_data_15_4),
-            vec(infected_data_15_5),
-            vec(infected_data_15_6),
-            vec(infected_data_15_7),
-            dims = 2)
-
-        num_infected_age_groups_viruses = cat(
-            infected_data_0_viruses,
-            infected_data_3_viruses,
-            infected_data_7_viruses,
-            infected_data_15_viruses,
-            dims = 3,
-        )
+        num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
 
         y = zeros(Float64, num_initial_runs + num_files)
         for i = eachindex(y)

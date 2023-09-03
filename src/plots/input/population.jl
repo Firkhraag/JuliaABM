@@ -25,7 +25,7 @@ function age_distribution_groups()
     end
 
     nMAE = sum(abs.(num_people_model_vec - num_people_data_vec)) / sum(num_people_data_vec)
-    println("nMAE = $(nMAE)")
+    println("Age nMAE = $(nMAE)")
 
     num_people_data = append!(num_people_data_vec, num_people_model_vec)
 
@@ -116,7 +116,7 @@ function household_size_distribution()
 
     arr = vec(household_size_distribution)
     nMAE = sum(abs.(arr - num_households_data_vec)) / sum(num_households_data_vec)
-    println("nMAE = $(nMAE)")
+    println("Household size nMAE = $(nMAE)")
 
     append!(num_households_data_vec, vec(household_size_distribution))
 

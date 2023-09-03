@@ -12,6 +12,7 @@ using Distributions
 
 include("../../global/variables.jl")
 include("../../data/etiology.jl")
+include("../../data/incidence.jl")
 include("../../util/moving_avg.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))

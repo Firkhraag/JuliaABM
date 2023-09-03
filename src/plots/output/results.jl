@@ -10,6 +10,7 @@ using Distributions
 
 include("../../util/moving_avg.jl")
 include("../../data/etiology.jl")
+include("../../data/incidence.jl")
 include("../../global/variables.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
@@ -439,81 +440,7 @@ function plot_incidence_age_groups_viruses_together(
     )
 
     etiology = get_etiology()
-
-    infected_data_0_1 = etiology[:, 1] .* infected_data_mean[:, 1]
-    infected_data_0_2 = etiology[:, 2] .* infected_data_mean[:, 1]
-    infected_data_0_3 = etiology[:, 3] .* infected_data_mean[:, 1]
-    infected_data_0_4 = etiology[:, 4] .* infected_data_mean[:, 1]
-    infected_data_0_5 = etiology[:, 5] .* infected_data_mean[:, 1]
-    infected_data_0_6 = etiology[:, 6] .* infected_data_mean[:, 1]
-    infected_data_0_7 = etiology[:, 7] .* infected_data_mean[:, 1]
-    infected_data_0_viruses = cat(
-        mean(infected_data_0_1, dims = 2)[:, 1],
-        mean(infected_data_0_2, dims = 2)[:, 1],
-        mean(infected_data_0_3, dims = 2)[:, 1],
-        mean(infected_data_0_4, dims = 2)[:, 1],
-        mean(infected_data_0_5, dims = 2)[:, 1],
-        mean(infected_data_0_6, dims = 2)[:, 1],
-        mean(infected_data_0_7, dims = 2)[:, 1],
-        dims = 2)
-
-    infected_data_3_1 = etiology[:, 1] .* infected_data_mean[:, 2]
-    infected_data_3_2 = etiology[:, 2] .* infected_data_mean[:, 2]
-    infected_data_3_3 = etiology[:, 3] .* infected_data_mean[:, 2]
-    infected_data_3_4 = etiology[:, 4] .* infected_data_mean[:, 2]
-    infected_data_3_5 = etiology[:, 5] .* infected_data_mean[:, 2]
-    infected_data_3_6 = etiology[:, 6] .* infected_data_mean[:, 2]
-    infected_data_3_7 = etiology[:, 7] .* infected_data_mean[:, 2]
-    infected_data_3_viruses = cat(
-        mean(infected_data_3_1, dims = 2)[:, 1],
-        mean(infected_data_3_2, dims = 2)[:, 1],
-        mean(infected_data_3_3, dims = 2)[:, 1],
-        mean(infected_data_3_4, dims = 2)[:, 1],
-        mean(infected_data_3_5, dims = 2)[:, 1],
-        mean(infected_data_3_6, dims = 2)[:, 1],
-        mean(infected_data_3_7, dims = 2)[:, 1],
-        dims = 2)
-
-    infected_data_7_1 = etiology[:, 1] .* infected_data_mean[:, 3]
-    infected_data_7_2 = etiology[:, 2] .* infected_data_mean[:, 3]
-    infected_data_7_3 = etiology[:, 3] .* infected_data_mean[:, 3]
-    infected_data_7_4 = etiology[:, 4] .* infected_data_mean[:, 3]
-    infected_data_7_5 = etiology[:, 5] .* infected_data_mean[:, 3]
-    infected_data_7_6 = etiology[:, 6] .* infected_data_mean[:, 3]
-    infected_data_7_7 = etiology[:, 7] .* infected_data_mean[:, 3]
-    infected_data_7_viruses = cat(
-        mean(infected_data_7_1, dims = 2)[:, 1],
-        mean(infected_data_7_2, dims = 2)[:, 1],
-        mean(infected_data_7_3, dims = 2)[:, 1],
-        mean(infected_data_7_4, dims = 2)[:, 1],
-        mean(infected_data_7_5, dims = 2)[:, 1],
-        mean(infected_data_7_6, dims = 2)[:, 1],
-        mean(infected_data_7_7, dims = 2)[:, 1],
-        dims = 2)
-
-    infected_data_15_1 = etiology[:, 1] .* infected_data_mean[:, 4]
-    infected_data_15_2 = etiology[:, 2] .* infected_data_mean[:, 4]
-    infected_data_15_3 = etiology[:, 3] .* infected_data_mean[:, 4]
-    infected_data_15_4 = etiology[:, 4] .* infected_data_mean[:, 4]
-    infected_data_15_5 = etiology[:, 5] .* infected_data_mean[:, 4]
-    infected_data_15_6 = etiology[:, 6] .* infected_data_mean[:, 4]
-    infected_data_15_7 = etiology[:, 7] .* infected_data_mean[:, 4]
-    infected_data_15_viruses = cat(
-        mean(infected_data_15_1, dims = 2)[:, 1],
-        mean(infected_data_15_2, dims = 2)[:, 1],
-        mean(infected_data_15_3, dims = 2)[:, 1],
-        mean(infected_data_15_4, dims = 2)[:, 1],
-        mean(infected_data_15_5, dims = 2)[:, 1],
-        mean(infected_data_15_6, dims = 2)[:, 1],
-        mean(infected_data_15_7, dims = 2)[:, 1],
-        dims = 2)
-
-    infected_data_viruses_age_groups = cat(
-        infected_data_0_viruses,
-        infected_data_3_viruses,
-        infected_data_7_viruses,
-        infected_data_15_viruses,
-        dims = 3)
+    infected_data_viruses_age_groups = get_incidence(etiology, true, flu_starting_index, true)
 
     println(sum(abs.(infected_data_viruses_age_groups - incidence_arr_mean)) / sum(infected_data_viruses_age_groups))
 
@@ -2302,9 +2229,7 @@ function plot_temperature_closures()
     num_schools_closed_temp = incidence_arr = Array{Vector{Float64}, 1}(undef, num_years)
     
     num_schools_closed_model = zeros(Float64, 365 * num_years)
-    # num_schools_closed_model = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_1.jld"))["num_schools_closed"]
     
-    # num_runs = 10
     num_runs = 2
     for i = 1:num_runs
         num_schools_closed_model += load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["num_schools_closed"][1:365 * num_years]
@@ -2330,7 +2255,6 @@ function plot_temperature_closures()
         ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
     end
 
-    # label_names = ["base" "quarantine" "warming"]
     label_names = ["base" "warming"]
     if is_russian
         label_names = ["базовый" "потепление"]
@@ -2346,29 +2270,6 @@ function plot_temperature_closures()
         ylabel_name = "Температура, °C"
     end
 
-    # a = 1:10
-    # b = rand(10)
-    # temperature_plot = plot(a, b, label = "randData", ylabel = "Rand data",color = :red, legend = :topleft, grid = :off)
-    # p = twinx()
-    # plot!(p, a,log.(a), label = L"log(x)", legend = :topright, ylabel = "The right Y label", xlabel = "numbers", box = :on, grid = :off)
-
-    # temperature_plot = plot(
-    #     1:365,
-    #     [temperature_data_rearranged num_schools_closed temperature_data_rearranged .+ 2.0],
-    #     lw = 1.5,
-    #     label = label_names,
-    #     color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467) RGB(0.133, 0.533, 0.2)],
-    #     xticks = (ticks, ticklabels),
-    #     grid = true,
-    #     legend = (0.51, 0.91),
-    #     # xlabel = L"\textrm{\sffamily Month}",
-    #     # ylabel = L"\textrm{\sffamily Temperature, °C}",
-    #     xlabel = xlabel_name,
-    #     ylabel = ylabel_name,
-    #     foreground_color_legend = nothing,
-    #     background_color_legend = nothing,
-    # )
-
     temperature_plot = plot(
         1:365,
         [temperature_data_rearranged temperature_data_rearranged .+ 2.0],
@@ -2377,11 +2278,8 @@ function plot_temperature_closures()
         color = [RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2)],
         xticks = (ticks, ticklabels),
         grid = true,
-        # legend = (0.51, 0.91),
         legend = (0.35, 0.98),
         right_margin = 14Plots.mm,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Temperature, °C}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
         foreground_color_legend = nothing,
@@ -2395,34 +2293,15 @@ function plot_temperature_closures()
         label = "quarantine",
         color = RGB(0.933, 0.4, 0.467),
         xticks = (ticks, ticklabels),
-        # yticks = ([0, 20, 40, 60], ["0", "20", "40", "60"]),
         grid = false,
         legend = (0.74, 0.98),
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Temperature, °C}",
         xlabel = xlabel_name,
         ylabel = "Number of school closures",
         foreground_color_legend = nothing,
         background_color_legend = nothing,
     )
 
-    # plot!(
-    #     1:365,
-    #     [temperature_data_rearranged num_schools_closed temperature_data_rearranged .+ 2.0],
-    #     lw = 1.5,
-    #     label = label_names,
-    #     color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467) RGB(0.133, 0.533, 0.2)],
-    #     xticks = (ticks, ticklabels),
-    #     grid = true,
-    #     legend = (0.71, 0.91),
-    #     # xlabel = L"\textrm{\sffamily Month}",
-    #     # ylabel = L"\textrm{\sffamily Temperature, °C}",
-    #     xlabel = xlabel_name,
-    #     ylabel = ylabel_name,
-    #     foreground_color_legend = nothing,
-    #     background_color_legend = nothing,
-    # )
-    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "temperature_closures.pdf"))
+    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "time_series", "temperature_closures.pdf"))
 end
 
 function plot_temperature_scenarios()
@@ -2464,18 +2343,15 @@ function plot_temperature_scenarios()
         color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
         xticks = (ticks, ticklabels),
         grid = true,
-        # legend = (0.51, 0.91),
         legend = (0.42, 0.98),
         right_margin = 14Plots.mm,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Temperature, °C}",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
     )
 
-    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "temperature_scenarios.pdf"))
+    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "time_series", "temperature_scenarios.pdf"))
 end
 
 function plot_closures()
@@ -2484,9 +2360,7 @@ function plot_closures()
     num_schools_closed_temp = incidence_arr = Array{Vector{Float64}, 1}(undef, num_years)
     
     num_schools_closed_model = zeros(Float64, 365 * num_years)
-    # num_schools_closed_model = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_1.jld"))["num_schools_closed"]
     
-    # num_runs = 10
     num_runs = 2
     for i = 1:num_runs
         num_schools_closed_model += load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["num_schools_closed"][1:365 * num_years]
@@ -2537,7 +2411,7 @@ function plot_closures()
         background_color_legend = nothing,
     )
 
-    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "time_series", "num_closures.pdf"))
+    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "time_series", "num_closures.pdf"))
 end
 
 plot_incidence()
