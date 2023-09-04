@@ -20,13 +20,6 @@ default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 const is_russian = false
 const population_coef = 10072
 
-# function confidence(x::Vector{Float64})
-#     alpha = 0.05
-#     tstar = quantile(TDist(length(x) - 1), 1 - alpha / 2)
-#     SE = std(x) / sqrt(length(x))
-#     return tstar * SE
-# end
-
 function confidence(x::Vector{Float64}, tstar::Float64 = 2.35)
     SE = std(x) / sqrt(length(x))
     return tstar * SE

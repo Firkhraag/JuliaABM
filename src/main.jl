@@ -992,8 +992,6 @@ function mcmc_simulations(
     nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
     nMAE_prev = nMAE
 
-    println("First nMAE: $(nMAE_prev)")
-
     n = 1
     N = 1000
     while n <= N
@@ -1247,18 +1245,30 @@ function mcmc_simulations(
         end
 
         println("nMAE = $(nMAE)")
-        println("nMAE_prev = $(nMAE_prev)")
-        println("duration_parameter_candidate = $(duration_parameter_candidate)")
-        println("accept_prob = $(accept_prob)")
-        println("duration_parameter_array = $(duration_parameter_array)")
+        println("duration_parameter = $(duration_parameter_candidate)")
+        println("susceptibility_parameters = $([
+            susceptibility_parameter_1_candidate, susceptibility_parameter_2_candidate,
+            susceptibility_parameter_3_candidate, susceptibility_parameter_4_candidate,
+            susceptibility_parameter_5_candidate, susceptibility_parameter_6_candidate,
+            susceptibility_parameter_7_candidate])")
+        println("temperature_parameters = $([
+            temperature_parameter_1_candidate, temperature_parameter_2_candidate,
+            temperature_parameter_3_candidate, temperature_parameter_4_candidate,
+            temperature_parameter_5_candidate, temperature_parameter_6_candidate,
+            temperature_parameter_7_candidate])")
+        println("mean_immunity_durations = $([
+            mean_immunity_duration_1_candidate, mean_immunity_duration_2_candidate,
+            mean_immunity_duration_3_candidate, mean_immunity_duration_4_candidate,
+            mean_immunity_duration_5_candidate, mean_immunity_duration_6_candidate,
+            mean_immunity_duration_7_candidate])")
+        println("random_infection_probabilities = $([
+            random_infection_probability_1_candidate, random_infection_probability_2_candidate,
+            random_infection_probability_3_candidate, random_infection_probability_4_candidate])")
 
         if accept_prob == 1 || local_rejected_num >= 10
             println("New nMAE min = $(nMAE)")
 
             push!(duration_parameter_array, duration_parameter_candidate)
-
-            println("New duration_parameter_candidate = $(duration_parameter_candidate)")
-            println("New duration_parameter_array = $(duration_parameter_array)")
 
             push!(susceptibility_parameter_1_array, susceptibility_parameter_1_candidate)
             push!(susceptibility_parameter_2_array, susceptibility_parameter_2_candidate)
@@ -1394,11 +1404,19 @@ end
 
 function main(
     # nMAE = 0.4981281258117053
-    duration_parameter::Float64 = 0.22637404671777045,
-    susceptibility_parameters::Vector{Float64} = [3.095038052808992, 3.0554159364150997, 3.621467164928697, 4.612459518531132, 3.9086201477859595, 3.9490870441188344, 4.61599824854622],
-    temperature_parameters::Vector{Float64} = -[0.8846019152491571, 0.9313057237697472, 0.04837343942226003, 0.13610826071131651, 0.048281056835923, 0.07401637656561208, 0.36034078438752476],
-    mean_immunity_durations::Vector{Float64} = [358.53571508348136, 326.40686999692815, 128.36635586863198, 86.9285869152992, 110.11396877548141, 166.57369789857893, 153.80184097804894],
-    random_infection_probabilities::Vector{Float64} = [0.0013742087365687383, 0.0007810400878682918, 0.00039431021797935243, 9.16649170205853e-6],
+    # duration_parameter::Float64 = 0.22637404671777045,
+    # susceptibility_parameters::Vector{Float64} = [3.095038052808992, 3.0554159364150997, 3.621467164928697, 4.612459518531132, 3.9086201477859595, 3.9490870441188344, 4.61599824854622],
+    # temperature_parameters::Vector{Float64} = -[0.8846019152491571, 0.9313057237697472, 0.04837343942226003, 0.13610826071131651, 0.048281056835923, 0.07401637656561208, 0.36034078438752476],
+    # mean_immunity_durations::Vector{Float64} = [358.53571508348136, 326.40686999692815, 128.36635586863198, 86.9285869152992, 110.11396877548141, 166.57369789857893, 153.80184097804894],
+    # random_infection_probabilities::Vector{Float64} = [0.0013742087365687383, 0.0007810400878682918, 0.00039431021797935243, 9.16649170205853e-6],
+    # immune_memory_susceptibility_levels::Vector{Float64} = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+    # surrogate_index = 0,
+
+    duration_parameter::Float64 = 0.2503481267226968,
+    susceptibility_parameters::Vector{Float64} = [2.6700481724581477, 3.0383161510863728, 3.8356483815711715, 4.6490232265177625, 4.237156551545241, 4.297418786064745, 4.624109677194353],
+    temperature_parameters::Vector{Float64} = -[0.881106366325073, 0.8753443661437817, 0.04406333176390348, 0.2506091543539075, 0.056879951371666244, 0.05073912112527947, 0.3670538253470331],
+    mean_immunity_durations::Vector{Float64} = [159.5310491526591, 161.27803654023342, 168.5103857184103, 137.53488557284513, 131.85619760881858, 133.24631388408923, 130.32455705494414],
+    random_infection_probabilities::Vector{Float64} = [0.001, 0.0006765292934015378, 0.0004041899831193968, 9.203064199596199e-6],
     immune_memory_susceptibility_levels::Vector{Float64} = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
     surrogate_index = 0,
 )
@@ -1683,31 +1701,31 @@ function main(
     # --------------------------
 
     # --------------------------
-    mcmc_simulations(
-        agents,
-        households,
-        schools,
-        num_threads,
-        thread_rng,
-        start_agent_ids,
-        end_agent_ids,
-        temperature,
-        viruses,
-        num_infected_age_groups_viruses_prev,
-        mean_household_contact_durations,
-        household_contact_duration_sds,
-        other_contact_duration_shapes,
-        other_contact_duration_scales,
-        isolation_probabilities_day_1,
-        isolation_probabilities_day_2,
-        isolation_probabilities_day_3,
-        num_infected_age_groups_viruses,
-        recovered_duration_mean,
-        recovered_duration_sd,
-        random_infection_probabilities,
-        num_years
-    )
-    return
+    # mcmc_simulations(
+    #     agents,
+    #     households,
+    #     schools,
+    #     num_threads,
+    #     thread_rng,
+    #     start_agent_ids,
+    #     end_agent_ids,
+    #     temperature,
+    #     viruses,
+    #     num_infected_age_groups_viruses_prev,
+    #     mean_household_contact_durations,
+    #     household_contact_duration_sds,
+    #     other_contact_duration_shapes,
+    #     other_contact_duration_scales,
+    #     isolation_probabilities_day_1,
+    #     isolation_probabilities_day_2,
+    #     isolation_probabilities_day_3,
+    #     num_infected_age_groups_viruses,
+    #     recovered_duration_mean,
+    #     recovered_duration_sd,
+    #     random_infection_probabilities,
+    #     num_years
+    # )
+    # return
     # --------------------------
     
     @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed, num_infected_districts = run_simulation(

@@ -30,10 +30,6 @@ const flu_starting_index = 3
 # Столбец данных для задания уровня иммунитета агентов
 const flu_starting_index_immmunity_bias = 2
 
-# MCMC параметры
-const burnin = 1
-const step = 2
-
 # Размеры групп в детских садах
 const kindergarten_groups_size_1 = 8
 const kindergarten_groups_size_2_3 = 13

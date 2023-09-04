@@ -4,7 +4,7 @@ function get_incidence(
     is_mean::Bool,
     starting_year_index::Int,
     is_till_end_year_index::Bool,
-)::Matrix{Float64}
+)::Array{Float64, 3}
     infected_data_0_all = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu0-2.csv"), ';', Int, '\n')
     infected_data_3_all = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu3-6.csv"), ';', Int, '\n')
     infected_data_7_all = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu7-14.csv"), ';', Int, '\n')
