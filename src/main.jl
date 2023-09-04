@@ -1,6 +1,7 @@
 using Base.Threads
 using Random
 using DelimitedFiles
+using LatinHypercubeSampling
 using Distributions
 using DataFrames
 using CSV
@@ -54,6 +55,7 @@ end
 
 function global_sensitivity(
     n::Int,
+    starting_bias::Int,
     disturbance::Float64,
     num_threads::Int,
     thread_rng::Vector{MersenneTwister},
@@ -65,6 +67,8 @@ function global_sensitivity(
     susceptibility_parameters_default::Vector{Float64},
     temperature_parameters_default::Vector{Float64},
     temperature::Vector{Float64},
+    num_infected_age_groups_viruses::Array{Float64, 3},
+    num_infected_age_groups_viruses_prev::Array{Float64, 3},
     mean_household_contact_durations_default::Vector{Float64},
     household_contact_duration_sds_default::Vector{Float64},
     other_contact_duration_shapes_default::Vector{Float64},
@@ -224,8 +228,6 @@ function global_sensitivity(
             viruses[k].mean_viral_load_adult = mean_viral_loads_adult[k]
         end
 
-        return
-
         @threads for thread_id in 1:num_threads
             reset_agent_states(
                 agents,
@@ -247,7 +249,7 @@ function global_sensitivity(
             )
         end
 
-        @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+        @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed = run_simulation(
             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
             susceptibility_parameters, temperature_parameters, temperature,
             mean_household_contact_durations, household_contact_duration_sds,
@@ -306,6 +308,8 @@ function parameter_sensitivity(
     susceptibility_parameters::Vector{Float64},
     temperature_parameters::Vector{Float64},
     temperature::Vector{Float64},
+    num_infected_age_groups_viruses::Array{Float64, 3},
+    num_infected_age_groups_viruses_prev::Array{Float64, 3},
     mean_household_contact_durations::Vector{Float64},
     household_contact_duration_sds::Vector{Float64},
     other_contact_duration_shapes::Vector{Float64},
@@ -324,7 +328,7 @@ function parameter_sensitivity(
     k = -2
     for m in multipliers
         duration_parameter_new = duration_parameter * m
-        @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+        @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed = run_simulation(
             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_new,
             susceptibility_parameters, temperature_parameters, temperature,
             mean_household_contact_durations, household_contact_duration_sds,
@@ -371,7 +375,7 @@ function parameter_sensitivity(
         for m in multipliers
             susceptibility_parameters_new = copy(susceptibility_parameters)
             susceptibility_parameters_new[i] *= m
-            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed = run_simulation(
                 num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
                 susceptibility_parameters_new, temperature_parameters, temperature,
                 mean_household_contact_durations, household_contact_duration_sds,
@@ -420,7 +424,7 @@ function parameter_sensitivity(
         for v in values
             temperature_parameters_new = copy(temperature_parameters)
             temperature_parameters_new[i] = v
-            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed = run_simulation(
                 num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
                 susceptibility_parameters, temperature_parameters_new, temperature,
                 mean_household_contact_durations, household_contact_duration_sds,
@@ -469,7 +473,7 @@ function parameter_sensitivity(
         for m in prob_multipliers
             random_infection_probabilities_new = copy(random_infection_probabilities)
             random_infection_probabilities_new[i] *= m
-            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed = run_simulation(
                 num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
                 susceptibility_parameters, temperature_parameters, temperature,
                 mean_household_contact_durations, household_contact_duration_sds,
@@ -520,7 +524,7 @@ function parameter_sensitivity(
             for k = 1:length(viruses)
                 viruses[k].mean_immunity_duration = mean_immunity_durations_new[k]
             end
-            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed = run_simulation(
                 num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
                 susceptibility_parameters, temperature_parameters, temperature,
                 mean_household_contact_durations, household_contact_duration_sds,
@@ -573,7 +577,7 @@ function parameter_sensitivity(
         for v in values
             immune_memory_susceptibility_levels_new = copy(immune_memory_susceptibility_levels)
             immune_memory_susceptibility_levels_new[i] = v
-            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
+            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed = run_simulation(
                 num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
                 susceptibility_parameters, temperature_parameters, temperature,
                 mean_household_contact_durations, household_contact_duration_sds,
@@ -618,8 +622,8 @@ function parameter_sensitivity(
 end
 
 function lhs_simulations(
+    is_one_year_modeled::Bool,
     num_runs::Int,
-    lhs_step::Int,
     agents::Vector{Agent},
     households::Vector{Household},
     schools::Vector{School},
@@ -691,7 +695,7 @@ function lhs_simulations(
 
     latin_hypercube_plan, _ = LHCoptim(num_runs, num_parameters, 500)
 
-    # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "lhs", "tables", "parameters$(lhs_step).csv"), header = false)))
+    # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "lhs", "tables", "parameters.csv"), header = false)))
     points = scaleLHC(latin_hypercube_plan, [
         (0.1, 1.0), # duration_parameter
         (1.0, 7.0), # susceptibility_parameters
@@ -780,7 +784,21 @@ function lhs_simulations(
             immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
             immune_memory_susceptibility_levels[7])
 
-        nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        nMAE = 0.0
+        # Если рассматривается 1 год
+        if is_one_year_modeled
+            observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
+            for i = 2:num_years
+                for j = 1:52
+                    observed_num_infected_age_groups_viruses_mean[j, :, :] += observed_num_infected_age_groups_viruses[(i - 1) * 52 + j, :, :]
+                end
+            end
+            observed_num_infected_age_groups_viruses_mean ./= num_years
+    
+            nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        else
+            nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        end
     
         if nMAE < nMAE_min
             nMAE_min = nMAE
@@ -805,6 +823,7 @@ function lhs_simulations(
 end
 
 function mcmc_simulations(
+    is_one_year_modeled::Bool,
     agents::Vector{Agent},
     households::Vector{Household},
     schools::Vector{School},
@@ -814,6 +833,7 @@ function mcmc_simulations(
     end_agent_ids::Vector{Int},
     temperature::Vector{Float64},
     viruses::Vector{Virus},
+    num_infected_age_groups_viruses::Array{Float64, 3},
     num_infected_age_groups_viruses_prev::Array{Float64, 3},
     mean_household_contact_durations::Vector{Float64},
     household_contact_duration_sds::Vector{Float64},
@@ -822,7 +842,6 @@ function mcmc_simulations(
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
-    num_infected_age_groups_viruses::Array{Float64, 3},
     recovered_duration_mean::Float64,
     recovered_duration_sd::Float64,
     random_infection_probabilities::Vector{Float64},
@@ -980,16 +999,21 @@ function mcmc_simulations(
 
     # nMAE = sum(abs.(incidence_arr_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
 
+    nMAE = 0.0
     # Если рассматривается 1 год
-    observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
-    for i = 2:num_years
-        for j = 1:52
-            observed_num_infected_age_groups_viruses_mean[j, :, :] += observed_num_infected_age_groups_viruses[(i - 1) * 52 + j, :, :]
+    if is_one_year_modeled
+        observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
+        for i = 2:num_years
+            for j = 1:52
+                observed_num_infected_age_groups_viruses_mean[j, :, :] += observed_num_infected_age_groups_viruses[(i - 1) * 52 + j, :, :]
+            end
         end
-    end
-    observed_num_infected_age_groups_viruses_mean ./= num_years
+        observed_num_infected_age_groups_viruses_mean ./= num_years
 
-    nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    else
+        nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    end
     nMAE_prev = nMAE
 
     n = 1
@@ -1217,16 +1241,21 @@ function mcmc_simulations(
 
         # nMAE = sum(abs.(incidence_arr_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
 
+        nMAE = 0.0
         # Если рассматривается 1 год
-        observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
-        for i = 2:num_years
-            for j = 1:52
-                observed_num_infected_age_groups_viruses_mean[j, :, :] += observed_num_infected_age_groups_viruses[(i - 1) * 52 + j, :, :]
+        if is_one_year_modeled
+            observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
+            for i = 2:num_years
+                for j = 1:52
+                    observed_num_infected_age_groups_viruses_mean[j, :, :] += observed_num_infected_age_groups_viruses[(i - 1) * 52 + j, :, :]
+                end
             end
-        end
-        observed_num_infected_age_groups_viruses_mean ./= num_years
+            observed_num_infected_age_groups_viruses_mean ./= num_years
 
-        nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+            nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        else
+            nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        end
 
 
         # prob = 0.0
@@ -1434,6 +1463,7 @@ function main(
     # num_years = 3
     num_years = 2
     # num_years = 1
+    is_one_year_modeled = true
 
     # -----------------------------------
     school_class_closure_period = 0
@@ -1545,7 +1575,7 @@ function main(
     # Массив для хранения фирм
     workplaces = Workplace[]
 
-    num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
+    num_infected_age_groups_viruses = get_incidence(etiology, is_one_year_modeled, flu_starting_index, true)
     num_infected_age_groups_viruses_prev = get_incidence(etiology, false, 1, false)
 
     for virus_id in eachindex(viruses)
@@ -1597,6 +1627,7 @@ function main(
     # --------------------------
     # global_sensitivity(
     #     300,
+    #     0,
     #     0.05,
     #     num_threads,
     #     thread_rng,
@@ -1608,6 +1639,8 @@ function main(
     #     susceptibility_parameters,
     #     temperature_parameters,
     #     temperature,
+    #     num_infected_age_groups_viruses,
+    #     num_infected_age_groups_viruses_prev,
     #     mean_household_contact_durations,
     #     household_contact_duration_sds,
     #     other_contact_duration_shapes,
@@ -1666,9 +1699,10 @@ function main(
     # return
     # --------------------------
 
+    # --------------------------
     # lhs_simulations(
-    #     100,
-    #     1,
+    #     is_one_year_modeled,
+    #     1001,
     #     agents,
     #     households,
     #     schools,
@@ -1678,6 +1712,7 @@ function main(
     #     end_agent_ids,
     #     temperature,
     #     viruses,
+    #     num_infected_age_groups_viruses,
     #     num_infected_age_groups_viruses_prev,
     #     mean_household_contact_durations,
     #     household_contact_duration_sds,
@@ -1689,7 +1724,6 @@ function main(
     #     duration_parameter,
     #     susceptibility_parameters,
     #     temperature_parameters,
-    #     num_infected_age_groups_viruses,
     #     recovered_duration_mean,
     #     recovered_duration_sd,
     #     random_infection_probabilities,
@@ -1702,6 +1736,7 @@ function main(
 
     # --------------------------
     # mcmc_simulations(
+    #     is_one_year_modeled,
     #     agents,
     #     households,
     #     schools,
@@ -1711,6 +1746,7 @@ function main(
     #     end_agent_ids,
     #     temperature,
     #     viruses,
+    #     num_infected_age_groups_viruses,
     #     num_infected_age_groups_viruses_prev,
     #     mean_household_contact_durations,
     #     household_contact_duration_sds,
@@ -1719,7 +1755,6 @@ function main(
     #     isolation_probabilities_day_1,
     #     isolation_probabilities_day_2,
     #     isolation_probabilities_day_3,
-    #     num_infected_age_groups_viruses,
     #     recovered_duration_mean,
     #     recovered_duration_sd,
     #     random_infection_probabilities,
@@ -1774,16 +1809,21 @@ function main(
             "num_schools_closed", num_schools_closed)
     end
 
+    nMAE = 0.0
     # Если рассматривается 1 год
-    observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
-    for i = 2:num_years
-        for j = 1:52
-            observed_num_infected_age_groups_viruses_mean[j, :, :] += observed_num_infected_age_groups_viruses[(i - 1) * 52 + j, :, :]
+    if is_one_year_modeled
+        observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
+        for i = 2:num_years
+            for j = 1:52
+                observed_num_infected_age_groups_viruses_mean[j, :, :] += observed_num_infected_age_groups_viruses[(i - 1) * 52 + j, :, :]
+            end
         end
-    end
-    observed_num_infected_age_groups_viruses_mean ./= num_years
+        observed_num_infected_age_groups_viruses_mean ./= num_years
 
-    nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    else
+        nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    end
     println(nMAE)
 
     if surrogate_index > 0
