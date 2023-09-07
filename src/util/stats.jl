@@ -26,8 +26,8 @@ function get_stats(
     size_univer_conn = 0
     size_work_conn = 0
 
-    num_immunity = zeros(Int, 7)
-    num_infected = zeros(Int, 7)
+    num_immunity = zeros(Int, num_viruses)
+    num_infected = zeros(Int, num_viruses)
 
     kindergarten_contacts = zeros(Int, kindergarten_groups_size_4_5 + 1)
     school_contacts = zeros(Int, school_groups_size_15 + 1)
@@ -128,48 +128,10 @@ function get_stats(
             age_diff_num += 1
         end
 
-        if agent.FluA_immunity_susceptibility_level < 0.999
-            num_immunity[1] += 1
-        end
-        if agent.FluB_immunity_susceptibility_level < 0.999
-            num_immunity[2] += 1
-        end
-        if agent.RV_immunity_susceptibility_level < 0.999
-            num_immunity[3] += 1
-        end
-        if agent.RSV_immunity_susceptibility_level < 0.999
-            num_immunity[4] += 1
-        end
-        if agent.AdV_immunity_susceptibility_level < 0.999
-            num_immunity[5] += 1
-        end
-        if agent.PIV_immunity_susceptibility_level < 0.999
-            num_immunity[6] += 1
-        end
-        if agent.CoV_immunity_susceptibility_level < 0.999
-            num_immunity[7] += 1
-        end
-
-        if agent.virus_id == 1
-            num_infected[1] += 1
-        end
-        if agent.virus_id == 2
-            num_infected[2] += 1
-        end
-        if agent.virus_id == 3
-            num_infected[3] += 1
-        end
-        if agent.virus_id == 4
-            num_infected[4] += 1
-        end
-        if agent.virus_id == 5
-            num_infected[5] += 1
-        end
-        if agent.virus_id == 6
-            num_infected[6] += 1
-        end
-        if agent.virus_id == 7
-            num_infected[7] += 1
+        for i = 1:num_viruses
+            if agent.immunity_susceptibility_levels[i] < 0.999
+                num_immunity[i] += 1
+            end
         end
 
         if agent.activity_type == 1

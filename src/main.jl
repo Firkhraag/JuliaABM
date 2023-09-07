@@ -239,13 +239,7 @@ function global_sensitivity(
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
                 thread_rng[thread_id],
-                immune_memory_susceptibility_levels[1],
-                immune_memory_susceptibility_levels[2],
-                immune_memory_susceptibility_levels[3],
-                immune_memory_susceptibility_levels[4],
-                immune_memory_susceptibility_levels[5],
-                immune_memory_susceptibility_levels[6],
-                immune_memory_susceptibility_levels[7],
+                immune_memory_susceptibility_levels,
             )
         end
 
@@ -257,10 +251,7 @@ function global_sensitivity(
             isolation_probabilities_day_1, isolation_probabilities_day_2,
             isolation_probabilities_day_3, random_infection_probabilities,
             recovered_duration_mean, recovered_duration_sd, num_years, true,
-            immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
-            immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
-            immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-            immune_memory_susceptibility_levels[7])
+            immune_memory_susceptibility_levels)
 
         save(joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "results_$(run_num + starting_bias).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
@@ -336,10 +327,7 @@ function parameter_sensitivity(
             isolation_probabilities_day_1, isolation_probabilities_day_2,
             isolation_probabilities_day_3, random_infection_probabilities,
             recovered_duration_mean, recovered_duration_sd, num_years, false,
-            immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
-            immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
-            immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-            immune_memory_susceptibility_levels[7])
+            immune_memory_susceptibility_levels)
         writedlm(
             joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "2nd", "infected_data_d_$k.csv"),
             sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
@@ -354,13 +342,7 @@ function parameter_sensitivity(
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
                 thread_rng[thread_id],
-                immune_memory_susceptibility_levels[1],
-                immune_memory_susceptibility_levels[2],
-                immune_memory_susceptibility_levels[3],
-                immune_memory_susceptibility_levels[4],
-                immune_memory_susceptibility_levels[5],
-                immune_memory_susceptibility_levels[6],
-                immune_memory_susceptibility_levels[7],
+                immune_memory_susceptibility_levels,
             )
         end
         if k == -1
@@ -383,10 +365,7 @@ function parameter_sensitivity(
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities,
                 recovered_duration_mean, recovered_duration_sd, num_years, false,
-                immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
-                immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
-                immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-                immune_memory_susceptibility_levels[7])
+                immune_memory_susceptibility_levels)
             writedlm(
                 joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "2nd", "infected_data_s$(i)_$k.csv"),
                 sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
@@ -401,13 +380,7 @@ function parameter_sensitivity(
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
-                    immune_memory_susceptibility_levels[1],
-                    immune_memory_susceptibility_levels[2],
-                    immune_memory_susceptibility_levels[3],
-                    immune_memory_susceptibility_levels[4],
-                    immune_memory_susceptibility_levels[5],
-                    immune_memory_susceptibility_levels[6],
-                    immune_memory_susceptibility_levels[7],
+                    immune_memory_susceptibility_levels,
                 )
             end
             if k == -1
@@ -432,10 +405,7 @@ function parameter_sensitivity(
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities,
                 recovered_duration_mean, recovered_duration_sd, num_years, false,
-                immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
-                immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
-                immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-                immune_memory_susceptibility_levels[7])
+                immune_memory_susceptibility_levels)
             writedlm(
                 joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "2nd", "infected_data_t$(i)_$k.csv"),
                 sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
@@ -450,13 +420,7 @@ function parameter_sensitivity(
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
-                    immune_memory_susceptibility_levels[1],
-                    immune_memory_susceptibility_levels[2],
-                    immune_memory_susceptibility_levels[3],
-                    immune_memory_susceptibility_levels[4],
-                    immune_memory_susceptibility_levels[5],
-                    immune_memory_susceptibility_levels[6],
-                    immune_memory_susceptibility_levels[7],
+                    immune_memory_susceptibility_levels,
                 )
             end
             if k == -1
@@ -481,10 +445,7 @@ function parameter_sensitivity(
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities_new,
                 recovered_duration_mean, recovered_duration_sd, num_years, false,
-                immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
-                immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
-                immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-                immune_memory_susceptibility_levels[7])
+                immune_memory_susceptibility_levels)
             writedlm(
                 joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "2nd", "infected_data_p$(i)_$k.csv"),
                 sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
@@ -499,13 +460,7 @@ function parameter_sensitivity(
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
-                    immune_memory_susceptibility_levels[1],
-                    immune_memory_susceptibility_levels[2],
-                    immune_memory_susceptibility_levels[3],
-                    immune_memory_susceptibility_levels[4],
-                    immune_memory_susceptibility_levels[5],
-                    immune_memory_susceptibility_levels[6],
-                    immune_memory_susceptibility_levels[7],
+                    immune_memory_susceptibility_levels,
                 )
             end
             if k == -1
@@ -532,10 +487,7 @@ function parameter_sensitivity(
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities,
                 recovered_duration_mean, recovered_duration_sd, num_years, false,
-                immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
-                immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
-                immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-                immune_memory_susceptibility_levels[7])
+                immune_memory_susceptibility_levels)
             writedlm(
                 joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "2nd", "infected_data_r$(i)_$k.csv"),
                 sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
@@ -550,13 +502,7 @@ function parameter_sensitivity(
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
-                    immune_memory_susceptibility_levels[1],
-                    immune_memory_susceptibility_levels[2],
-                    immune_memory_susceptibility_levels[3],
-                    immune_memory_susceptibility_levels[4],
-                    immune_memory_susceptibility_levels[5],
-                    immune_memory_susceptibility_levels[6],
-                    immune_memory_susceptibility_levels[7],
+                    immune_memory_susceptibility_levels,
                 )
             end
             if k == -1
@@ -585,10 +531,7 @@ function parameter_sensitivity(
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities,
                 recovered_duration_mean, recovered_duration_sd, num_years, false,
-                immune_memory_susceptibility_levels_new[1], immune_memory_susceptibility_levels_new[2],
-                immune_memory_susceptibility_levels_new[3], immune_memory_susceptibility_levels_new[4],
-                immune_memory_susceptibility_levels_new[5], immune_memory_susceptibility_levels_new[6],
-                immune_memory_susceptibility_levels_new[7])
+                immune_memory_susceptibility_levels_new)
             writedlm(
                 joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "2nd", "infected_data_alpha$(i)_$k.csv"),
                 sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
@@ -603,13 +546,7 @@ function parameter_sensitivity(
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
-                    immune_memory_susceptibility_levels[1],
-                    immune_memory_susceptibility_levels[2],
-                    immune_memory_susceptibility_levels[3],
-                    immune_memory_susceptibility_levels[4],
-                    immune_memory_susceptibility_levels[5],
-                    immune_memory_susceptibility_levels[6],
-                    immune_memory_susceptibility_levels[7],
+                    immune_memory_susceptibility_levels,
                 )
             end
             if k == -1
@@ -761,13 +698,7 @@ function lhs_simulations(
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
                 thread_rng[thread_id],
-                immune_memory_susceptibility_levels[1],
-                immune_memory_susceptibility_levels[2],
-                immune_memory_susceptibility_levels[3],
-                immune_memory_susceptibility_levels[4],
-                immune_memory_susceptibility_levels[5],
-                immune_memory_susceptibility_levels[6],
-                immune_memory_susceptibility_levels[7],
+                immune_memory_susceptibility_levels,
             )
         end
 
@@ -779,10 +710,7 @@ function lhs_simulations(
             isolation_probabilities_day_1, isolation_probabilities_day_2,
             isolation_probabilities_day_3, random_infection_probabilities,
             recovered_duration_mean, recovered_duration_sd, num_years, false,
-            immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
-            immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
-            immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-            immune_memory_susceptibility_levels[7])
+            immune_memory_susceptibility_levels)
 
         nMAE = 0.0
         # Если рассматривается 1 год
@@ -937,10 +865,7 @@ function mcmc_simulations(
         isolation_probabilities_day_1, isolation_probabilities_day_2,
         isolation_probabilities_day_3, random_infection_probabilities,
         recovered_duration_mean, recovered_duration_sd, num_years, false,
-        immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
-        immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
-        immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-        immune_memory_susceptibility_levels[7])
+        immune_memory_susceptibility_levels)
 
     accept_num = 0
     local_rejected_num = 0
@@ -1188,10 +1113,7 @@ function mcmc_simulations(
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
                 thread_rng[thread_id],
-                immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
-                immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
-                immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-                immune_memory_susceptibility_levels[7]
+                immune_memory_susceptibility_levels,
             )
         end
 
@@ -1203,10 +1125,7 @@ function mcmc_simulations(
             isolation_probabilities_day_1, isolation_probabilities_day_2,
             isolation_probabilities_day_3, random_infection_probability,
             recovered_duration_mean, recovered_duration_sd, num_years, false,
-            immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
-            immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
-            immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-            immune_memory_susceptibility_levels[7])
+            immune_memory_susceptibility_levels)
 
         # for i = 1:7
         #     for k = 1:4
@@ -1432,6 +1351,8 @@ function mcmc_simulations(
 end
 
 function main(
+    # Набор параметров модели
+
     # nMAE = 0.4981281258117053
     # duration_parameter::Float64 = 0.22637404671777045,
     # susceptibility_parameters::Vector{Float64} = [3.095038052808992, 3.0554159364150997, 3.621467164928697, 4.612459518531132, 3.9086201477859595, 3.9490870441188344, 4.61599824854622],
@@ -1451,7 +1372,7 @@ function main(
 )
     println("Initialization...")
 
-    # Random seed number
+    # Номер запуска модели
     run_num = 0
     is_rt_run = true
     try
@@ -1460,22 +1381,26 @@ function main(
         run_num = 0
     end
 
-    # num_years = 3
+    # Число моделируемых лет
     num_years = 2
-    # num_years = 1
+    # Среднее по num_years
     is_one_year_modeled = true
 
     # -----------------------------------
+    # Число дней закрытия класса или школы на карантин
     school_class_closure_period = 0
     # school_class_closure_period = 7
+    # Процент отсутствующих учеников по причине болезни для того, чтобы школа закрылась на карантин
     school_class_closure_threshold = 0.3
     # [0.2  0.1  0.3  0.2_14  0.1_14]
 
+    # Для сценария глобального потепления
     with_global_warming = false
     # with_global_warming = true
     # ["+4 °С" "+3 °С" "+2 °С" "+1 °С"]
     # -----------------------------------
 
+    # Число потоков
     num_threads = nthreads()
 
     # Вероятности изолироваться при болезни на 1-й, 2-й и 3-й дни
@@ -1486,20 +1411,21 @@ function main(
     recovered_duration_mean = 6.0
     recovered_duration_sd = 2.0
     # Продолжительности контактов в домохозяйствах
-    # Укороченные для различных коллективов и полная: Kinder, School, College, Work, Full
+    # Укороченные для различных коллективов и полная: детсад, школа, вуз, работа, полный контакт
     mean_household_contact_durations = [6.5, 5.8, 9.0, 4.5, 12.0]
     household_contact_duration_sds = [2.2, 2.0, 3.0, 1.5, 4.0]
-    # Продолжительности контактов в прочих коллективах
+    # Продолжительности контактов в прочих коллективах: детсад, школа, вуз, работа, вуз (между группами)
     other_contact_duration_shapes = [2.5, 1.78, 2.0, 1.81, 1.2]
     other_contact_duration_scales = [1.6, 1.95, 1.07, 1.7, 1.07]
-    # Параметры, отвечающие за связи на рабочих местах
+    # Минимальный размер рабочего коллектива
     firm_min_size = 1
+    # Максимальный размер рабочего коллектива
     firm_max_size = 1000
     # Параметр предпочтительного присоединения графа Барабаши-Альберт для рабочих коллективов
     work_num_barabasi_albert_attachments = 5
     # Параметр предпочтительного присоединения графа Барабаши-Альберт для школ
     school_num_barabasi_albert_attachments = 10
-
+    # Набор вирусов
     viruses = Virus[
         # FluA
         Virus(1.4, 0.67, 1, 7,  4.8, 2.04, 1, 28,  8.0, 3.4, 1, 28,  3.45, 2.63, 1.73,  0.38, 0.47, 0.57,  mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
@@ -1518,7 +1444,7 @@ function main(
 
     # Число домохозяйств каждого типа по районам
     district_households = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "district_households.csv"))))
-    # Число людей в каждой группе по районам
+    # Число людей в каждой возрастной группе по районам
     district_people = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "district_people.csv"))))
     # Число людей в домохозяйствах по районам
     district_people_households = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "district_people_households.csv"))))
@@ -1527,15 +1453,18 @@ function main(
     # Температура воздуха, начиная с 1 января
     temperature = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "temperature.csv"))))[1, :]
 
+    # Набор агентов
     agents = Array{Agent, 1}(undef, num_agents)
 
-    # With seed
+    # Генератор случайных чисел
     thread_rng = [MersenneTwister(i + run_num * num_threads) for i = 1:num_threads]
 
+    # Координаты домов
     homes_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "homes.csv")))
     # Массив для хранения домохозяйств
     households = Array{Household, 1}(undef, num_households)
 
+    # Координаты детских садов
     kindergarten_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "kindergartens.csv")))
     # Массив для хранения детских садов
     kindergartens = Array{School, 1}(undef, num_kindergartens)
@@ -1548,6 +1477,7 @@ function main(
         )
     end
 
+    # Координаты школ
     school_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "schools.csv")))
     # Массив для хранения школ
     schools = Array{School, 1}(undef, num_schools)
@@ -1560,6 +1490,7 @@ function main(
         )
     end
 
+    # Координаты вузов
     college_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "colleges.csv")))
     # Массив для хранения институтов
     colleges = Array{School, 1}(undef, num_colleges)
@@ -1575,7 +1506,9 @@ function main(
     # Массив для хранения фирм
     workplaces = Workplace[]
 
+    # Заболеваемость различными вирусами в разных возрастных группах за рассматриваемые года
     num_infected_age_groups_viruses = get_incidence(etiology, is_one_year_modeled, flu_starting_index, true)
+    # Заболеваемость различными вирусами в разных возрастных группах за предыдущий год
     num_infected_age_groups_viruses_prev = get_incidence(etiology, false, 1, false)
 
     for virus_id in eachindex(viruses)
@@ -1591,10 +1524,7 @@ function main(
             agents, households, viruses, num_infected_age_groups_viruses_prev, isolation_probabilities_day_1,
             isolation_probabilities_day_2, isolation_probabilities_day_3, start_household_ids[thread_id],
             homes_coords_df, district_households, district_people, district_people_households,
-            immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
-            immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
-            immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-            immune_memory_susceptibility_levels[7])
+            immune_memory_susceptibility_levels)
     end
 
     @time set_connections(
@@ -1771,10 +1701,7 @@ function main(
         isolation_probabilities_day_1, isolation_probabilities_day_2,
         isolation_probabilities_day_3, random_infection_probabilities,
         recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-        immune_memory_susceptibility_levels[1], immune_memory_susceptibility_levels[2],
-        immune_memory_susceptibility_levels[3], immune_memory_susceptibility_levels[4],
-        immune_memory_susceptibility_levels[5], immune_memory_susceptibility_levels[6],
-        immune_memory_susceptibility_levels[7], school_class_closure_period, 
+        immune_memory_susceptibility_levels, school_class_closure_period, 
         school_class_closure_threshold, with_global_warming)
 
     if with_global_warming

@@ -4,84 +4,68 @@ mutable struct Agent
     id::Int
     # Возраст
     age::Int
-    # Возраст новорожденного
+    # Возраст новорожденного агента-ребенка
     infant_age::Int
     # Пол
     is_male::Bool
     # Id домохозяйства
     household_id::Int
-    # Связи в домохозяйстве
+    # Связи в домохозяйстве (id агентов)
     household_conn_ids::Vector{Int}
-    # Тип коллектива
+    # Тип коллектива, к которому привязан агент
     activity_type::Int
-    # Id детсада, школы, универа
+    # Id образовательного учреждения
     school_id::Int
-    # Номер группы
+    # Номер группы в образовательном учреждении
     school_group_num::Int
-    # Id работы
+    # Id рабочего коллектива
     workplace_id::Int
-    # Связи в коллективе
+    # Связи в рабочем коллективе или группе образовательного учреждения
     activity_conn_ids::Vector{Int}
+    # Связи между группами образовательного учреждения
     activity_cross_conn_ids::Vector{Int}
-    # Id детей младше 12 лет
+    # Id детей в домохозяйстве младше 12 лет
     dependant_ids::Vector{Int}
-    # Id попечителя
+    # Id попечителя в домохозяйстве
     supporter_id::Int
-    # Нуждается в уходе при болезни
+    # Если агент-ребенок нуждается в уходе при болезни
     needs_supporter_care::Bool
     # Уход за больным ребенком
     on_parent_leave::Bool
-    # Уровень иммуноглобулина
+    # Уровень иммуноглобулинов
     ig_level::Float64
-    # Id вируса
+    # Id вируса, которым инфицирован агент
     virus_id::Int
-    # Был заражен на текущем шаге
+    # Если агент был заражен на текущем шаге
     is_newly_infected::Bool
-    # Набор дней после приобретения типоспецифических иммунитетов
-    FluA_days_immune::Int
-    FluB_days_immune::Int
-    RV_days_immune::Int
-    RSV_days_immune::Int
-    AdV_days_immune::Int
-    PIV_days_immune::Int
-    CoV_days_immune::Int
-    # Набор дней конца типоспецифических иммунитетов
-    FluA_immunity_end::Int
-    FluB_immunity_end::Int
-    RV_immunity_end::Int
-    RSV_immunity_end::Int
-    AdV_immunity_end::Int
-    PIV_immunity_end::Int
-    CoV_immunity_end::Int
+    # Счетчики числа дней после приобретения типоспецифических иммунитетов
+    viruses_days_immune::Vector{Int}
+    # Продолжительности типоспецифических иммунитетов
+    viruses_immunity_end::Vector{Int}
     # Продолжительность инкубационного периода
     incubation_period::Int
     # Продолжительность периода болезни
     infection_period::Int
-    # День с момента инфицирования
+    # День с момента инфицирования, начиная с 1 - incubation_period
     days_infected::Int
-    # Дней в резистентном состоянии
+    # Счетчик числа дней в резистентном состоянии
     days_immune::Int
+    # Продолжительность резистентного состояния
     days_immune_end::Int
     # Бессимптомное течение болезни
     is_asymptomatic::Bool
     # На больничном
     is_isolated::Bool
-    # Посещение детсада, школы, университета
+    # Посещение образовательного учреждения
     attendance::Bool
-    # Учитель, воспитатель, профессор
+    # Является ли агент учителем, воспитателем или профессором
     is_teacher::Bool
     # Число агентов, инфицированных данным агентом на текущем шаге
     num_infected_agents::Int
     # Число дней на школьном карантине
     quarantine_period::Int
-
-    FluA_immunity_susceptibility_level::Float64
-    FluB_immunity_susceptibility_level::Float64
-    RV_immunity_susceptibility_level::Float64
-    RSV_immunity_susceptibility_level::Float64
-    AdV_immunity_susceptibility_level::Float64
-    PIV_immunity_susceptibility_level::Float64
-    CoV_immunity_susceptibility_level::Float64
+    # Уровни восприимчивости (клетки памяти) к инфекции после перенесенной болезни и исчезновения иммунитета
+    immunity_susceptibility_levels::Vector{Float64}
 
     function Agent(
         id::Int,
@@ -95,13 +79,7 @@ mutable struct Agent
         is_male::Bool,
         age::Int,
         rng::MersenneTwister,
-        FluA_immune_memory_susceptibility_level::Float64,
-        FluB_immune_memory_susceptibility_level::Float64,
-        RV_immune_memory_susceptibility_level::Float64,
-        RSV_immune_memory_susceptibility_level::Float64,
-        AdV_immune_memory_susceptibility_level::Float64,
-        PIV_immune_memory_susceptibility_level::Float64,
-        CoV_immune_memory_susceptibility_level::Float64,
+        immune_memory_susceptibility_levels::Vector{Float64},
     )
         # Возраст новорожденного
         infant_age = 0
@@ -425,6 +403,7 @@ mutable struct Agent
         is_asymptomatic = false
         is_isolated = false
 
+        # Возрастная группа
         age_group = 4
         if age < 3
             age_group = 1
@@ -434,139 +413,31 @@ mutable struct Agent
             age_group = 3
         end
 
+        # Инфицирование агентов перед началом работы модели
         v = rand(3:6)
         if rand(rng, Float64) < (num_all_infected_age_groups_viruses_mean[52, v, age_group] + num_all_infected_age_groups_viruses_mean[51, v, age_group] + num_all_infected_age_groups_viruses_mean[50, v, age_group]) / num_agents_age_groups[age_group]
             is_infected = true
             virus_id = v
         end
 
-        # Набор дней после приобретения типоспецифического иммунитета
-        FluA_days_immune = 0
-        FluB_days_immune = 0
-        RV_days_immune = 0
-        RSV_days_immune = 0
-        AdV_days_immune = 0
-        PIV_days_immune = 0
-        CoV_days_immune = 0
+        # Информация по иммунитету к вирусам
+        viruses_days_immune = zeros(Int, num_viruses)
+        viruses_immunity_end = zeros(Int, num_viruses)
+        immunity_susceptibility_levels = zeros(Float64, num_viruses) .+ 1.0
 
-        # Набор дней окончания типоспецифического иммунитета
-        FluA_immunity_end = 0
-        FluB_immunity_end = 0
-        RV_immunity_end = 0
-        RSV_immunity_end = 0
-        AdV_immunity_end = 0
-        PIV_immunity_end = 0
-        CoV_immunity_end = 0
-
-        FluA_immunity_susceptibility_level = 1.0
-        FluB_immunity_susceptibility_level = 1.0
-        RV_immunity_susceptibility_level = 1.0
-        RSV_immunity_susceptibility_level = 1.0
-        AdV_immunity_susceptibility_level = 1.0
-        PIV_immunity_susceptibility_level = 1.0
-        CoV_immunity_susceptibility_level = 1.0
-
-        if virus_id != 1
-            for week_num = 1:51
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 1, age_group] / num_agents_age_groups[age_group]
-                    FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
-                    FluA_days_immune = 365 - week_num * 7 + 1
-                    if FluA_days_immune > FluA_immunity_end
-                        FluA_immunity_end = 0
-                        FluA_days_immune = 0
-                        FluA_immunity_susceptibility_level = FluA_immune_memory_susceptibility_level
-                    else
-                        FluA_immunity_susceptibility_level = find_immunity_susceptibility_level(FluA_days_immune, FluA_immunity_end, FluA_immune_memory_susceptibility_level)
-                    end
-                end
-            end
-        end
-        if virus_id != 2
-            for week_num = 1:51
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 2, age_group] / num_agents_age_groups[age_group]
-                    FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
-                    FluB_days_immune = 365 - week_num * 7 + 1
-                    if FluB_days_immune > FluB_immunity_end
-                        FluB_immunity_end = 0
-                        FluB_days_immune = 0
-                        FluB_immunity_susceptibility_level = FluB_immune_memory_susceptibility_level
-                    else
-                        FluB_immunity_susceptibility_level = find_immunity_susceptibility_level(FluB_days_immune, FluB_immunity_end, FluB_immune_memory_susceptibility_level)
-                    end
-                end
-            end
-        end
-        if virus_id != 3
-            for week_num = 1:51
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 3, age_group] / num_agents_age_groups[age_group]
-                    RV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[3].mean_immunity_duration, viruses[3].immunity_duration_sd), 1.0, 1000.0)))
-                    RV_days_immune = 365 - week_num * 7 + 1
-                    if RV_days_immune > RV_immunity_end
-                        RV_immunity_end = 0
-                        RV_days_immune = 0
-                        RV_immunity_susceptibility_level = RV_immune_memory_susceptibility_level
-                    else
-                        RV_immunity_susceptibility_level = find_immunity_susceptibility_level(RV_days_immune, RV_immunity_end, RV_immune_memory_susceptibility_level)
-                    end
-                end
-            end
-        end
-        if virus_id != 4
-            for week_num = 1:51
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 4, age_group] / num_agents_age_groups[age_group]
-                    RSV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[4].mean_immunity_duration, viruses[4].immunity_duration_sd), 1.0, 1000.0)))
-                    RSV_days_immune = 365 - week_num * 7 + 1
-                    if RSV_days_immune > RSV_immunity_end
-                        RSV_immunity_end = 0
-                        RSV_days_immune = 0
-                        RSV_immunity_susceptibility_level = RSV_immune_memory_susceptibility_level
-                    else
-                        RSV_immunity_susceptibility_level = find_immunity_susceptibility_level(RSV_days_immune, RSV_immunity_end, RSV_immune_memory_susceptibility_level)
-                    end
-                end
-            end
-        end
-        if virus_id != 5
-            for week_num = 1:51
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 5, age_group] / num_agents_age_groups[age_group]
-                    AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
-                    AdV_days_immune = 365 - week_num * 7 + 1
-                    if AdV_days_immune > AdV_immunity_end
-                        AdV_immunity_end = 0
-                        AdV_days_immune = 0
-                        AdV_immunity_susceptibility_level = AdV_immune_memory_susceptibility_level
-                    else
-                        AdV_immunity_susceptibility_level = find_immunity_susceptibility_level(AdV_days_immune, AdV_immunity_end, AdV_immune_memory_susceptibility_level)
-                    end
-                end
-            end
-        end
-        if virus_id != 6
-            for week_num = 1:51
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 6, age_group] / num_agents_age_groups[age_group]
-                    PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
-                    PIV_days_immune = 365 - week_num * 7 + 1
-                    if PIV_days_immune > PIV_immunity_end
-                        PIV_immunity_end = 0
-                        PIV_days_immune = 0
-                        PIV_immunity_susceptibility_level = PIV_immune_memory_susceptibility_level
-                    else
-                        PIV_immunity_susceptibility_level = find_immunity_susceptibility_level(PIV_days_immune, PIV_immunity_end, PIV_immune_memory_susceptibility_level)
-                    end
-                end
-            end
-        end
-        if virus_id != 7
-            for week_num = 1:51
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 7, age_group] / num_agents_age_groups[age_group]
-                    CoV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[7].mean_immunity_duration, viruses[7].immunity_duration_sd), 1.0, 1000.0)))
-                    CoV_days_immune = 365 - week_num * 7 + 1
-                    if CoV_days_immune > CoV_immunity_end
-                        CoV_immunity_end = 0
-                        CoV_days_immune = 0
-                        CoV_immunity_susceptibility_level = CoV_immune_memory_susceptibility_level
-                    else
-                        CoV_immunity_susceptibility_level = find_immunity_susceptibility_level(CoV_days_immune, CoV_immunity_end, CoV_immune_memory_susceptibility_level)
+        for i = 1:num_viruses
+            if virus_id != i
+                for week_num = 1:51
+                    if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, i, age_group] / num_agents_age_groups[age_group]
+                        viruses_immunity_end[i] = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+                        viruses_days_immune[i] = 365 - week_num * 7 + 1
+                        if viruses_days_immune[i] > viruses_immunity_end[i]
+                            viruses_immunity_end[i] = 0
+                            viruses_days_immune[i] = 0
+                            immunity_susceptibility_levels[i] = immune_memory_susceptibility_levels[i]
+                        else
+                            immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(viruses_days_immune[i], viruses_immunity_end[i], immune_memory_susceptibility_levels[i])
+                        end
                     end
                 end
             end
@@ -677,30 +548,20 @@ mutable struct Agent
         if activity_type == 3 && rand(rng, Float64) < skip_college_probability
             attendance = false
         end
-
         is_teacher = false
-
         days_immune = 0
         days_immune_end = 0
-
         num_infected_agents = 0
-
         quarantine_period = 0
 
         new(
             id, age, infant_age, is_male, household_id, household_conn_ids,
             activity_type, school_id, school_group_num, workplace_id, Int[], Int[],
             Int[], supporter_id, needs_supporter_care, on_parent_leave, ig_level,
-            virus_id, is_newly_infected, FluA_days_immune, FluB_days_immune,
-            RV_days_immune, RSV_days_immune, AdV_days_immune, PIV_days_immune,
-            CoV_days_immune, FluA_immunity_end, FluB_immunity_end, RV_immunity_end,
-            RSV_immunity_end, AdV_immunity_end, PIV_immunity_end, CoV_immunity_end,
+            virus_id, is_newly_infected, viruses_days_immune, viruses_immunity_end,
             incubation_period, infection_period, days_infected, days_immune,
             days_immune_end, is_asymptomatic, is_isolated, attendance, is_teacher,
-            num_infected_agents, quarantine_period, FluA_immunity_susceptibility_level,
-            FluB_immunity_susceptibility_level, RV_immunity_susceptibility_level,
-            RSV_immunity_susceptibility_level, AdV_immunity_susceptibility_level,
-            PIV_immunity_susceptibility_level, CoV_immunity_susceptibility_level)
+            num_infected_agents, quarantine_period, immunity_susceptibility_levels)
     end
 end
 

@@ -493,7 +493,7 @@ function incidence_temperature_corr()
 
     temperature_data_weekly = zeros(Float64, 52)
     for i = 1:52
-        for j = 1:7
+        for j = 1:num_viruses
             temperature_data_weekly[i] += temperature_data_rearranged[(i - 1) * 7 + j]
         end
         temperature_data_weekly[i] /= 7

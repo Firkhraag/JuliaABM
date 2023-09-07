@@ -8,6 +8,7 @@ function get_etiology()::Matrix{Float64}
     PIV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "PIV.csv"))))
     CoV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "CoV.csv"))))
 
+    # Средняя заболеваемость за год
     FluA_arr = FluA_matrix[1, :]
     for i = 2:size(FluA_matrix, 1)
         FluA_arr += FluA_matrix[i, :]
@@ -50,6 +51,7 @@ function get_etiology()::Matrix{Float64}
     end
     CoV_arr ./= size(CoV_matrix, 1)
 
+    # Вклад каждой инфекции для каждой недели
     sum_arr = FluA_arr + FluB_arr + RV_arr + RSV_arr + AdV_arr + PIV_arr + CoV_arr
     FluA_ratio = FluA_arr ./ sum_arr
     FluB_ratio = FluB_arr ./ sum_arr
@@ -59,6 +61,7 @@ function get_etiology()::Matrix{Float64}
     PIV_ratio = PIV_arr ./ sum_arr
     CoV_ratio = CoV_arr ./ sum_arr
 
+    # Сглаживание
     FluA_ratio = moving_average(FluA_ratio, 3)
     FluB_ratio = moving_average(FluB_ratio, 3)
     RV_ratio = moving_average(RV_ratio, 3)

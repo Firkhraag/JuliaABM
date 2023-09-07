@@ -219,7 +219,7 @@ function plot_incidence_viruses(
     end
 
     for i = 1:52
-        for k = 1:7
+        for k = 1:num_viruses
             for j = 1:num_runs
                 for z = 1:num_years
                     incidence_arr_mean[i, k] += incidence_arr[j, z][i, k]
@@ -231,7 +231,7 @@ function plot_incidence_viruses(
 
     confidence_model = zeros(Float64, 52, 7)
     for i = 1:52
-        for k = 1:7
+        for k = 1:num_viruses
             confidence_model[i, k] = confidence([incidence_arr[j, z][i, k] for j = 1:num_runs for z = 1:num_years], 4.27)
         end
     end
@@ -270,7 +270,7 @@ function plot_incidence_viruses(
 
     infected_data_viruses_confidence = zeros(Float64, 52, 7)
     for i = 1:52
-        for j = 1:7
+        for j = 1:num_viruses
             infected_data_viruses_confidence[i, j] = confidence(infected_data_viruses_conf[i, :, j], 2.45)
         end
     end
@@ -298,7 +298,7 @@ function plot_incidence_viruses(
     end
 
     viruses = ["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"]
-    for i in 1:7
+    for i in 1:num_viruses
         nMAE = sum(abs.(incidence_arr_mean[:, i] - infected_data_viruses_mean[:, i])) / sum(infected_data_viruses_mean[:, i])
         println("$(viruses[i]) nMAE = $(nMAE)")
         incidence_plot = plot(
@@ -336,7 +336,7 @@ function plot_incidence_viruses_together(
     end
 
     for i = 1:52
-        for k = 1:7
+        for k = 1:num_viruses
             for j = 1:num_runs
                 for z = 1:num_years
                     incidence_arr_mean[i, k] += incidence_arr[j, z][i, k]
@@ -348,7 +348,7 @@ function plot_incidence_viruses_together(
 
     confidence_model = zeros(Float64, 52, 7)
     for i = 1:52
-        for k = 1:7
+        for k = 1:num_viruses
             confidence_model[i, k] = confidence([incidence_arr[j, z][i, k] for j = 1:num_runs for z = 1:num_years], 4.27)
         end
     end
@@ -376,7 +376,7 @@ function plot_incidence_viruses_together(
 
     incidence_plot = plot(
         1:52,
-        [incidence_arr_mean[:, i] for i = 1:7],
+        [incidence_arr_mean[:, i] for i = 1:num_viruses],
         lw = 1.5,
         xticks = (ticks, ticklabels),
         label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
@@ -406,7 +406,7 @@ function plot_incidence_age_groups_viruses_together(
     end
 
     for i = 1:52
-        for k = 1:7
+        for k = 1:num_viruses
             for m = 1:4
                 for j = 1:num_runs
                     for z = 1:num_years
@@ -420,7 +420,7 @@ function plot_incidence_age_groups_viruses_together(
 
     confidence_model = zeros(Float64, 52, 7, 4)
     for i = 1:52
-        for k = 1:7
+        for k = 1:num_viruses
             for m = 1:4
                 confidence_model[i, k, m] = confidence([incidence_arr[j, z][i, k, m] for j = 1:num_runs for z = 1:num_years], 2.45)
             end
@@ -450,7 +450,7 @@ function plot_incidence_age_groups_viruses_together(
     for i in 1:4
         incidence_plot = plot(
             1:52,
-            [incidence_arr_mean[:, j, i] for j = 1:7],
+            [incidence_arr_mean[:, j, i] for j = 1:num_viruses],
             lw = 1.5,
             xticks = (ticks, ticklabels),
             label = label = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"],
@@ -762,7 +762,7 @@ function plot_incidence_viruses_time_series(
     end
 
     for i = 1:(52 * num_years)
-        for k = 1:7
+        for k = 1:num_viruses
             for j = 1:num_runs
                 incidence_arr_mean[i, k] += incidence_arr[j][i, k]
             end
@@ -813,13 +813,13 @@ function plot_incidence_viruses_time_series(
         ylabel_name = "Число случаев на 1000 чел. / неделя"
     end
 
-    for i in 1:7
+    for i in 1:num_viruses
         nMAE = sum(abs.(incidence_arr_mean[:, i] - infected_data_viruses[:, i])) / sum(infected_data_viruses[:, i])
         println(nMAE)
     end
 
     viruses = ["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"]
-    for i in 1:7
+    for i in 1:num_viruses
         incidence_plot = plot(
             1:(52 * num_years),
             [incidence_arr_mean[:, i] infected_data_viruses[:, i]],

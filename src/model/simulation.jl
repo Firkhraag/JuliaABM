@@ -26,22 +26,8 @@ function make_contact(
     # Влияние восприимчивости агента на вероятность инфицирования
     susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus_id] * susceptible_agent.ig_level))
 
-    immunity_influence = 1.0
-    if infected_agent.virus_id == 1
-        immunity_influence = susceptible_agent.FluA_immunity_susceptibility_level
-    elseif infected_agent.virus_id == 2
-        immunity_influence = susceptible_agent.FluB_immunity_susceptibility_level
-    elseif infected_agent.virus_id == 3
-        immunity_influence = susceptible_agent.RV_immunity_susceptibility_level
-    elseif infected_agent.virus_id == 4
-        immunity_influence = susceptible_agent.RSV_immunity_susceptibility_level
-    elseif infected_agent.virus_id == 5
-        immunity_influence = susceptible_agent.AdV_immunity_susceptibility_level
-    elseif infected_agent.virus_id == 6
-        immunity_influence = susceptible_agent.PIV_immunity_susceptibility_level
-    else
-        immunity_influence = susceptible_agent.CoV_immunity_susceptibility_level
-    end
+    # Влияние иммунитета
+    immunity_influence = susceptible_agent.immunity_susceptibility_levels[infected_agent.virus_id]
 
     # Влияние силы инфекции на вероятность инфицирования
     infectivity_influence = 0.0
@@ -83,15 +69,8 @@ function infect_randomly(
     agent::Agent,
     rng::MersenneTwister,
 )
-    rand_num = rand(rng, 1:7)
-    if (rand_num == 1 && rand(rng, Float64) < agent.FluA_immunity_susceptibility_level) ||
-        (rand_num == 2 && rand(rng, Float64) < agent.FluB_immunity_susceptibility_level) ||
-        (rand_num == 3 && rand(rng, Float64) < agent.RV_immunity_susceptibility_level) ||
-        (rand_num == 4 && rand(rng, Float64) < agent.RSV_immunity_susceptibility_level) ||
-        (rand_num == 5 && rand(rng, Float64) < agent.AdV_immunity_susceptibility_level) ||
-        (rand_num == 6 && rand(rng, Float64) < agent.PIV_immunity_susceptibility_level) ||
-        (rand_num == 7 && rand(rng, Float64) < agent.CoV_immunity_susceptibility_level)
-
+    rand_num = rand(rng, 1:num_viruses)
+    if rand(rng, Float64) < agent.immunity_susceptibility_levels[rand_num]
         agent.virus_id = rand_num
         agent.is_newly_infected = true
     end
@@ -260,13 +239,7 @@ function update_agent_states(
     rt_threads::Matrix{Float64},
     rt_count_threads::Matrix{Float64},
     num_infected_districts_threads::Array{Int, 3},
-    FluA_immune_memory_susceptibility_level::Float64 = 1.0,
-    FluB_immune_memory_susceptibility_level::Float64 = 1.0,
-    RV_immune_memory_susceptibility_level::Float64 = 1.0,
-    RSV_immune_memory_susceptibility_level::Float64 = 1.0,
-    AdV_immune_memory_susceptibility_level::Float64 = 1.0,
-    PIV_immune_memory_susceptibility_level::Float64 = 1.0,
-    CoV_immune_memory_susceptibility_level::Float64 = 1.0,
+    immune_memory_susceptibility_levels::Vector{Float64},
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -285,67 +258,16 @@ function update_agent_states(
         end
 
         # Продолжительности типоспецифического иммунитета
-        if agent.FluA_days_immune != 0
-            if agent.FluA_days_immune == agent.FluA_immunity_end
-                agent.FluA_days_immune = 0
-                agent.FluA_immunity_susceptibility_level = FluA_immune_memory_susceptibility_level
-            else
-                agent.FluA_days_immune += 1
-                agent.FluA_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.FluA_days_immune, agent.FluA_immunity_end, FluA_immune_memory_susceptibility_level)
-            end
-        end
-        if agent.FluB_days_immune != 0
-            if agent.FluB_days_immune == agent.FluB_immunity_end
-                agent.FluB_days_immune = 0
-                agent.FluB_immunity_susceptibility_level = FluB_immune_memory_susceptibility_level
-            else
-                agent.FluB_days_immune += 1
-                agent.FluB_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.FluB_days_immune, agent.FluB_immunity_end, FluB_immune_memory_susceptibility_level)
-            end
-        end
-        if agent.RV_days_immune != 0
-            if agent.RV_days_immune == agent.RV_immunity_end
-                agent.RV_days_immune = 0
-                agent.RV_immunity_susceptibility_level = RV_immune_memory_susceptibility_level
-            else
-                agent.RV_days_immune += 1
-                agent.RV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.RV_days_immune, agent.RV_immunity_end, RV_immune_memory_susceptibility_level)
-            end
-        end
-        if agent.RSV_days_immune != 0
-            if agent.RSV_days_immune == agent.RSV_immunity_end
-                agent.RSV_days_immune = 0
-                agent.RSV_immunity_susceptibility_level = RSV_immune_memory_susceptibility_level
-            else
-                agent.RSV_days_immune += 1
-                agent.RSV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.RSV_days_immune, agent.RSV_immunity_end, RSV_immune_memory_susceptibility_level)
-            end
-        end
-        if agent.AdV_days_immune != 0
-            if agent.AdV_days_immune == agent.AdV_immunity_end
-                agent.AdV_days_immune = 0
-                agent.AdV_immunity_susceptibility_level = AdV_immune_memory_susceptibility_level
-            else
-                agent.AdV_days_immune += 1
-                agent.AdV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.AdV_days_immune, agent.AdV_immunity_end, AdV_immune_memory_susceptibility_level)
-            end
-        end
-        if agent.PIV_days_immune != 0
-            if agent.PIV_days_immune == agent.PIV_immunity_end
-                agent.PIV_days_immune = 0
-                agent.PIV_immunity_susceptibility_level = PIV_immune_memory_susceptibility_level
-            else
-                agent.PIV_days_immune += 1
-                agent.PIV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.PIV_days_immune, agent.PIV_immunity_end, PIV_immune_memory_susceptibility_level)
-            end
-        end
-        if agent.CoV_days_immune != 0
-            if agent.CoV_days_immune == agent.CoV_immunity_end
-                agent.CoV_days_immune = 0
-                agent.CoV_immunity_susceptibility_level = CoV_immune_memory_susceptibility_level
-            else
-                agent.CoV_days_immune += 1
-                agent.CoV_immunity_susceptibility_level = find_immunity_susceptibility_level(agent.CoV_days_immune, agent.CoV_immunity_end, CoV_immune_memory_susceptibility_level)
+        for i = 1:num_viruses
+            if agent.viruses_days_immune[i] != 0
+                if agent.viruses_days_immune[i] == agent.viruses_immunity_end[i]
+                    agent.viruses_days_immune[i] = 0
+                    agent.immunity_susceptibility_levels[i] = immune_memory_susceptibility_levels[i]
+                else
+                    agent.viruses_days_immune[i] += 1
+                    agent.immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(
+                        agent.viruses_days_immune[i], agent.viruses_immunity_end[i],immune_memory_susceptibility_levels[i])
+                end
             end
         end
 
@@ -358,28 +280,8 @@ function update_agent_states(
                 end
                 agent.num_infected_agents = 0
 
-                if agent.virus_id == 1
-                    agent.FluA_days_immune = 1
-                    agent.FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
-                elseif agent.virus_id == 2
-                    agent.FluB_days_immune = 1
-                    agent.FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
-                elseif agent.virus_id == 3
-                    agent.RV_days_immune = 1
-                    agent.RV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[3].mean_immunity_duration, viruses[3].immunity_duration_sd), 1.0, 1000.0)))
-                elseif agent.virus_id == 4
-                    agent.RSV_days_immune = 1
-                    agent.RSV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[4].mean_immunity_duration, viruses[4].immunity_duration_sd), 1.0, 1000.0)))
-                elseif agent.virus_id == 5
-                    agent.AdV_days_immune = 1
-                    agent.AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
-                elseif agent.virus_id == 6
-                    agent.PIV_days_immune = 1
-                    agent.PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
-                else
-                    agent.CoV_days_immune = 1
-                    agent.CoV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[7].mean_immunity_duration, viruses[7].immunity_duration_sd), 1.0, 1000.0)))
-                end
+                agent.viruses_days_immune[agent.virus_id] = 1
+                agent.viruses_immunity_end[agent.virus_id] = trunc(Int, rand(rng, truncated(Normal(viruses[agent.virus_id].mean_immunity_duration, viruses[agent.virus_id].immunity_duration_sd), 1.0, 1000.0)))
                 agent.days_immune = 1
                 agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), 1.0, 12.0)))
                 agent.virus_id = 0
@@ -566,13 +468,7 @@ function run_simulation(
     recovered_duration_sd::Float64,
     num_years::Int,
     is_rt_run::Bool,
-    FluA_immune_memory_susceptibility_level::Float64 = 1.0,
-    FluB_immune_memory_susceptibility_level::Float64 = 1.0,
-    RV_immune_memory_susceptibility_level::Float64 = 1.0,
-    RSV_immune_memory_susceptibility_level::Float64 = 1.0,
-    AdV_immune_memory_susceptibility_level::Float64 = 1.0,
-    PIV_immune_memory_susceptibility_level::Float64 = 1.0,
-    CoV_immune_memory_susceptibility_level::Float64 = 1.0,
+    immune_memory_susceptibility_levels::Vector{Float64},
     school_class_closure_period::Int = 0,
     school_class_closure_threshold::Float64 = 0.0,
     with_global_warming = false,
@@ -611,10 +507,10 @@ function run_simulation(
     end
     num_weeks = 52 * num_years
 
-    observed_num_infected_age_groups_viruses = zeros(Int, max_step, 7, 4)
-    observed_daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, 7, num_threads)
-    num_infected_age_groups_viruses = zeros(Int, max_step, 7, 4)
-    daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, 7, num_threads)
+    observed_num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4)
+    observed_daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, num_viruses, num_threads)
+    num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4)
+    daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, num_viruses, num_threads)
     activities_infections_threads = zeros(Int, max_step, 5, num_threads)
     rt_threads = zeros(Float64, max_step, num_threads)
     rt_count_threads = zeros(Float64, max_step, num_threads)
@@ -839,19 +735,13 @@ function run_simulation(
                 rt_threads,
                 rt_count_threads,
                 num_infected_districts_threads,
-                FluA_immune_memory_susceptibility_level,
-                FluB_immune_memory_susceptibility_level,
-                RV_immune_memory_susceptibility_level,
-                RSV_immune_memory_susceptibility_level,
-                AdV_immune_memory_susceptibility_level,
-                PIV_immune_memory_susceptibility_level,
-                CoV_immune_memory_susceptibility_level,
+                immune_memory_susceptibility_levels,
             )
         end
 
         # Обновление даты
         for i = 1:4
-            for j = 1:7
+            for j = 1:num_viruses
                 observed_num_infected_age_groups_viruses[current_step, j, i] = sum(
                     observed_daily_new_cases_age_groups_viruses_threads[current_step, i, j, :])
                 num_infected_age_groups_viruses[current_step, j, i] = sum(
@@ -903,12 +793,12 @@ function run_simulation(
     rt_count = sum(rt_count_threads, dims = 2)[:, 1]
     rt = rt ./ rt_count
 
-    observed_num_infected_age_groups_viruses_weekly = zeros(Int, (num_weeks), 7, 4)
+    observed_num_infected_age_groups_viruses_weekly = zeros(Int, (num_weeks), num_viruses, 4)
     for i = 1:(num_weeks)
         observed_num_infected_age_groups_viruses_weekly[i, :, :] = sum(observed_num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :], dims = 1)
     end
 
-    num_infected_age_groups_viruses_weekly = zeros(Int, (num_weeks), 7, 4)
+    num_infected_age_groups_viruses_weekly = zeros(Int, (num_weeks), num_viruses, 4)
     for i = 1:(num_weeks)
         num_infected_age_groups_viruses_weekly[i, :, :] = sum(num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :], dims = 1)
     end

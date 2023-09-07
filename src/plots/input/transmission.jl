@@ -59,7 +59,7 @@ function plot_immunity_protection_influence()
 
     infectivity_plot = plot(
         1:365,
-        [find_immunity_susceptibility_level.(arr, mean_immunity_durations[i], immune_memory_susceptibility_levels[i]) for i = 1:7],
+        [find_immunity_susceptibility_level.(arr, mean_immunity_durations[i], immune_memory_susceptibility_levels[i]) for i = 1:num_viruses],
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         lw = 1.5,
@@ -124,7 +124,7 @@ function plot_temperature_influence()
     temperature_range = range(0, stop=1, length=100)
     temperature_plot = plot(
         temperature_range,
-        [temp_influence.(temperature_range, i) for i = 1:7],
+        [temp_influence.(temperature_range, i) for i = 1:num_viruses],
         legend = (0.25, 0.55),
         lw = 1.5,
         margin = 6Plots.mm,
@@ -175,7 +175,7 @@ function plot_temperature_influence_year()
     year_day = 213
     for s in 1:365
         current_temp = (temperature[year_day] - min_temp) / max_min_temp
-        for v in 1:7
+        for v in 1:num_viruses
             temp_influences[v, s] = temperature_parameters[v] * current_temp + 1.0
         end
         if year_day == 365
@@ -201,7 +201,7 @@ function plot_temperature_influence_year()
     end
     temperature_plot = plot(
         1:365,
-        [temp_influences[i, :] for i = 1:7],
+        [temp_influences[i, :] for i = 1:num_viruses],
         xticks = (ticks, ticklabels),
         legend = (0.5, 0.7),
         lw = 1.5,
@@ -233,7 +233,7 @@ function plot_susceptibility_influence()
     susceptibility_range = range(0, stop=1, length=100)
     susceptibility_plot = plot(
         susceptibility_range,
-        [susceptibility_influence.(susceptibility_range, i) for i = 1:7],
+        [susceptibility_influence.(susceptibility_range, i) for i = 1:num_viruses],
         lw = 1.5,
         legend = (0.92, 0.95),
         margin = 4Plots.mm,
@@ -293,7 +293,7 @@ function plot_susceptibility_influence_age()
 
     susceptibility_plot = plot(
         0:89,
-        [susceptibility_influence.(ig_levels, i) for i = 1:7],
+        [susceptibility_influence.(ig_levels, i) for i = 1:num_viruses],
         lw = 1.5,
         legend = (0.92, 1.02),
         margin = 5Plots.mm,
@@ -336,7 +336,7 @@ function plot_infectivity_influence()
             mean_symptoms_duration[i],
             mean_viral_loads[i],
             false,
-        ) for i in 1:7],
+        ) for i in 1:num_viruses],
         xticks = (ticks, ticklabels),
         legend = (0.92, 0.95),
         lw = 1.5,
