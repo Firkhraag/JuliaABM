@@ -1518,6 +1518,7 @@ function main(
         num_infected_age_groups_viruses_prev[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
     end
 
+    # Создание популяции
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id],
@@ -1527,17 +1528,20 @@ function main(
             immune_memory_susceptibility_levels)
     end
 
+    # Установление связей между агентами
     @time set_connections(
         agents, households, kindergartens, schools, colleges,
         workplaces, thread_rng, num_threads, homes_coords_df,
         firm_min_size, firm_max_size, work_num_barabasi_albert_attachments,
         school_num_barabasi_albert_attachments)
 
+    # Информация о популяции
     # get_stats(agents, schools, workplaces)
     # return
 
     println("Simulation...")
 
+    # Моделирование контактов
     # --------------------------
     # simulate_contacts(
     #     num_threads,
@@ -1554,6 +1558,7 @@ function main(
     # return
     # --------------------------
 
+    # Анализ чувствительности для всех параметров модели
     # --------------------------
     # global_sensitivity(
     #     300,
@@ -1600,6 +1605,7 @@ function main(
     # return
     # --------------------------
 
+    # Анализ чувствительности для настраиваемых параметров модели
     # --------------------------
     # parameter_sensitivity(
     #     num_threads,
@@ -1629,6 +1635,7 @@ function main(
     # return
     # --------------------------
 
+    # Использование выборки латинского гиперкуба для исследования пространства параметров модели
     # --------------------------
     # lhs_simulations(
     #     is_one_year_modeled,
@@ -1664,6 +1671,7 @@ function main(
     # return
     # --------------------------
 
+    # Модифицированный алгоритм Метрополиса-Гастингса для поиска значений параметров, дающих минимум для модели
     # --------------------------
     # mcmc_simulations(
     #     is_one_year_modeled,
@@ -1693,6 +1701,7 @@ function main(
     # return
     # --------------------------
     
+    # Симуляция
     @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed, num_infected_districts = run_simulation(
         num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
         susceptibility_parameters, temperature_parameters, temperature,
@@ -1704,6 +1713,7 @@ function main(
         immune_memory_susceptibility_levels, school_class_closure_period, 
         school_class_closure_threshold, with_global_warming)
 
+    # Сохранение результатов работы модели
     if with_global_warming
         save(joinpath(@__DIR__, "..", "output", "tables", "results_warming_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
