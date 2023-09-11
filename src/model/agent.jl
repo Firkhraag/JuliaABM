@@ -68,17 +68,27 @@ mutable struct Agent
     immunity_susceptibility_levels::Vector{Float64}
 
     function Agent(
+        # Идентификатор
         id::Int,
+        # Id домохозяйства
         household_id::Int,
+        # Вирусы
         viruses::Vector{Virus},
+        # Средняя заболеваемость по неделям, возрастным группам и инфекциям
         num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
+        # Вероятности самоизоляции на 1-й, 2-й и 3-й дни
         isolation_probabilities_day_1::Vector{Float64},
         isolation_probabilities_day_2::Vector{Float64},
         isolation_probabilities_day_3::Vector{Float64},
+        # Id агентов, с которыми имеется связь в домохозяйстве
         household_conn_ids::Vector{Int},
+        # Пол
         is_male::Bool,
+        # Возраст
         age::Int,
+        # Генератор случайных чисел
         rng::MersenneTwister,
+        # Уровни восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
         immune_memory_susceptibility_levels::Vector{Float64},
     )
         # Возраст новорожденного
@@ -89,10 +99,10 @@ mutable struct Agent
 
         # Социальный статус
         activity_type = 0
-        # Household
+        # 0 лет: агент сидит дома
         if age == 0
             activity_type = 0
-        # 1-5 Kindergarten
+        # 1-5 лет: посещение детского сада
         elseif age == 1
             if rand(rng, Float64) < 0.2
                 activity_type = 1
@@ -105,7 +115,7 @@ mutable struct Agent
             if rand(rng, Float64) < 0.83
                 activity_type = 1
             end
-        # 6-7 Kindergarten - School
+        # 6-7 лет: посещение детского сада / школы
         elseif age == 6
             if rand(rng, Float64) < 0.7
                 activity_type = 1
@@ -118,13 +128,14 @@ mutable struct Agent
             else
                 activity_type = 1
             end
-        # 8-16 School
+        # 8-15 лет: посещение школы
         elseif age < 15
             activity_type = 2
         elseif age == 15
             if rand(rng, Float64) < 0.96
                 activity_type = 2
             end
+        # 16-18 лет: посещение школы / вуза
         elseif age == 16
             rand_num = rand(rng, Float64)
             if rand_num < 0.92
@@ -148,7 +159,7 @@ mutable struct Agent
             elseif rand_num < 0.75
                 activity_type = 3
             end
-        # 18-23 College - Work
+        # 19-23 лет: посещение вуза / работы
         elseif age < 22
             rand_num = rand(rng, Float64)
             if rand_num < 0.66
@@ -163,7 +174,7 @@ mutable struct Agent
             elseif rand_num < 0.9
                 activity_type = 3
             end
-        # 24+ Work
+        # 24+ лет: посещение работы
         elseif age < 30
             if is_male
                 if rand(rng, Float64) < 0.82
@@ -471,6 +482,7 @@ mutable struct Agent
             # Дней с момента инфицирования
             days_infected = rand(rng, (1 - incubation_period):infection_period)
 
+            # Бессимптомное течение болезни
             rand_num = rand(rng, Float64)
             if age < 10
                 is_asymptomatic = rand_num > viruses[virus_id].symptomatic_probability_child
@@ -544,10 +556,13 @@ mutable struct Agent
             end
         end
 
+        # Посещение коллектива
         attendance = true
+        # Для вузов есть вероятность прогула
         if activity_type == 3 && rand(rng, Float64) < skip_college_probability
             attendance = false
         end
+        # Значения по умолчанию
         is_teacher = false
         days_immune = 0
         days_immune_end = 0
@@ -565,14 +580,21 @@ mutable struct Agent
     end
 end
 
-# Найти значение вирусной нагрузки агента
+# Вирусная нагрузка агента
 function get_infectivity(
+    # Счетчик числа дней в инфицированном состоянии
     days_infected::Int,
+    # Продолжительность инкубационного периода
     incubation_period::Int,
+    # Продолжительность периода болезни
     infection_period::Int,
+    # Средняя вирусная нагрузка
     mean_viral_load::Float64,
+    # Бессимптомное течение болезни
     is_asymptomatic::Bool,
 )::Float64
+    # Максимальная вирусная нагрузка равна = 12
+    # Если инкубационный период
     if days_infected < 1
         if incubation_period == 1
             return mean_viral_load / 24
@@ -581,6 +603,8 @@ function get_infectivity(
         b = k * (incubation_period - 1)
         return (k * days_infected + b) / 12
     end
+    # Если период болезни
+    # Если бессимптомное течение
     if is_asymptomatic
         mean_viral_load /= 2.0
     end
@@ -589,14 +613,20 @@ function get_infectivity(
     return (k * days_infected + b) / 12
 end
 
-# Получить длительность инкубационного периода или периода болезни
+# Длительность инкубационного периода / периода болезни
 function get_period_from_erlang(
+    # Средняя продолжительность
     mean::Float64,
+    # Дисперсия
     variance::Float64,
+    # Нижняя граница
     low::Int,
+    # Верхняя граница
     upper::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
 )::Int
+    # Распределение Эрланга
     shape::Int = mean * mean ÷ variance
     scale::Float64 = mean / shape
     return round(
@@ -604,11 +634,16 @@ function get_period_from_erlang(
             Erlang(shape, scale), low, upper)))
 end
 
+# Специфическая восприимчивость к вирусу, после перенесенной болезни
 function find_immunity_susceptibility_level(
+    # Счетчик числа дней с иммунитетом
     days_immune::Int,
+    # Продолжительность иммунитета
     immunity_end::Int,
+    # Уровень восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
     immune_memory_susceptibility_level::Float64,
 )::Float64
+    # Если иммунитет закончился
     if days_immune > immunity_end
         return immune_memory_susceptibility_level
     end

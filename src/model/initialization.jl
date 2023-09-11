@@ -1,20 +1,33 @@
+# Пол и возраст агента
 function get_agent_sex_and_age(
+    # Номер муниципалитета
     index::Int,
+    # Число людей в каждой возрастной группе по муниципалитетам
     district_people::Matrix{Float64},
+    # Число людей в домохозяйствах по муниципалитетам
     district_people_households::Matrix{Float64},
+    # Индекс числа людей в домохозяйстве для таблицы district_people_households
     district_household_index::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Пол, если нужен тольео возраст агента
     is_male::Union{Bool, Nothing} = nothing,
+    # Является ли агент ребенком (до 18 лет)
     is_child::Bool = false,
 )::Tuple{Bool, Int}
+    # Случайное число для возраста
     age_rand_num = rand(rng, Float64)
+    # Случайное число для пола
     sex_random_num = rand(rng, Float64)
+    # Если ребенок
     if is_child
+        # Случайное число для возрастной группы
         age_group_rand_num = rand(rng, Float64)
+        # Возрастная группа 0-14 лет
         if age_group_rand_num < district_people_households[1, district_household_index]
-            # T0-4_0–14
+            # 0-4 лет
             if age_rand_num < district_people[index, 20] * 0.95
-                # M0–4
+                # Случайное число для возраста в группе
                 sub_age_group_rand_num = rand(rng, Float64)
                 if sub_age_group_rand_num < 0.22
                     return sex_random_num < district_people[index, 1], 4
@@ -27,12 +40,12 @@ function get_agent_sex_and_age(
                 else
                     return sex_random_num < district_people[index, 1], 0
                 end
-            # T0-9_0–14
+            # 5-9 лет
             elseif age_rand_num < district_people[index, 21]
-                # M5–9
                 return sex_random_num < district_people[index, 2], rand(rng, 5:9)
+            # 10–14 лет
             else
-                # M10–14
+                # Случайное число для возраста в группе
                 sub_age_group_rand_num = rand(rng, Float64)
                 if sub_age_group_rand_num < 0.21
                     return sex_random_num < district_people[index, 1], 10
@@ -46,8 +59,9 @@ function get_agent_sex_and_age(
                     return sex_random_num < district_people[index, 1], 14
                 end
             end
+        # Возрастная группа 15-17 лет
         else
-            # M15–19
+            # Случайное число для возраста в группе
             sub_age_group_rand_num = rand(rng, Float64)
             if sub_age_group_rand_num < 0.36
                 return sex_random_num < district_people[index, 4], 17
@@ -58,28 +72,33 @@ function get_agent_sex_and_age(
             end
         end
     else
+        # Случайное число для возрастной группы
         age_group_rand_num = rand(rng, Float64)
+        # Возрастная группа 18-24 лет
         if age_group_rand_num < district_people_households[2, district_household_index] * 0.95
+            # 18–19 лет
             if rand(rng, Float64) < 0.1
-                # T18–19
+                # Если известен пол
                 if is_male !== nothing
                     if rand(rng, Float64) < 0.66
                         return is_male, 19
                     else
                         return is_male, 18
                     end
+                # Если пол неизвестен
                 else
-                    # M18–19
                     if rand(rng, Float64) < 0.66
                         return sex_random_num < district_people[index, 5], 19
                     else
                         return sex_random_num < district_people[index, 5], 18
                     end
                 end
+            # Возрастная группа 20-24 лет
             else
-                # T20–24
+                # Случайное число для возраста в группе
+                sub_age_group_rand_num = rand(rng, Float64)
+                # Если пол известен
                 if is_male !== nothing
-                    sub_age_group_rand_num = rand(rng, Float64)
                     if sub_age_group_rand_num < 0.24
                         return is_male, 24
                     elseif sub_age_group_rand_num < 0.46
@@ -91,9 +110,8 @@ function get_agent_sex_and_age(
                     else
                         return is_male, 20
                     end
+                # Если пол неизвестен
                 else
-                    # M20–24
-                    sub_age_group_rand_num = rand(rng, Float64)
                     if sub_age_group_rand_num < 0.24
                         return sex_random_num < district_people[index, 5], 24
                     elseif sub_age_group_rand_num < 0.46
@@ -107,15 +125,18 @@ function get_agent_sex_and_age(
                     end
                 end
             end
+        # Возрастная группа 25-34 лет
         elseif age_group_rand_num < district_people_households[3, district_household_index]
-            # T25-29_25–34
+            # 25-29 лет
             if age_rand_num < district_people[index, 22]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 25:29)
+                # Если пол неизвестен
                 else
-                    # M25–29
                     return sex_random_num < district_people[index, 6], rand(rng, 25:29)
                 end
+            # 30-34 лет
             else
                 if is_male !== nothing
                     return is_male, rand(rng, 30:34)
@@ -124,95 +145,114 @@ function get_agent_sex_and_age(
                     return sex_random_num < district_people[index, 7], rand(rng, 30:34)
                 end
             end
+        # Возрастная группа 35-44 лет
         elseif age_group_rand_num < district_people_households[4, district_household_index]
-            # T35-39_35–44
+            # 35-39 лет
             if age_rand_num < district_people[index, 23]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 35:39)
+                # Если пол неизвестен
                 else
-                    # M35–39
                     return sex_random_num < district_people[index, 8], rand(rng, 35:39)
                 end
+            # 40-44 лет
             else
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 40:44)
+                # Если пол неизвестен
                 else
-                    # M40–44
                     return sex_random_num < district_people[index, 9], rand(rng, 40:44)
                 end
             end
+        # Возрастная группа 45-54 лет
         elseif age_group_rand_num < district_people_households[5, district_household_index]
-            # T45-49_45–54
+            # 45-49 лет
             if age_rand_num < district_people[index, 24]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 45:49)
+                # Если пол неизвестен
                 else
-                    # M45–49
                     return sex_random_num < district_people[index, 10], rand(rng, 45:49)
                 end
+            # 50-54 лет
             else
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 50:54)
+                # Если пол неизвестен
                 else
-                    # M50–54
                     return sex_random_num < district_people[index, 11], rand(rng, 50:54)
                 end
             end
+        # Возрастная группа 55-64 лет
         elseif age_group_rand_num < district_people_households[6, district_household_index]
-            # T55-59_55–64
+            # 55-59 лет
             if age_rand_num < district_people[index, 25]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 55:59)
+                # Если пол неизвестен
                 else
-                    # M55–59
                     return sex_random_num < district_people[index, 12], rand(rng, 55:59)
                 end
+            # 60-64 лет
             else
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 60:64)
+                # Если пол неизвестен
                 else
-                    # M60–64
                     return sex_random_num < district_people[index, 13], rand(rng, 60:64)
                 end
             end
+        # Возрастная группа 65+ лет
         else
-            # T65-69_65–89
+            # 65-69 лет
             if age_rand_num < district_people[index, 26]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 65:69)
+                # Если пол неизвестен
                 else
-                    # M65–69
                     return sex_random_num < district_people[index, 14], rand(rng, 65:69)
                 end
-            # T65-74_65–89
+            # 70-74 лет
             elseif age_rand_num < district_people[index, 27]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 70:74)
+                # Если пол неизвестен
                 else
-                    # M70–74
                     return sex_random_num < district_people[index, 15], rand(rng, 70:74)
                 end
-            # T65-79_65–89
+            # 75-79 лет
             elseif age_rand_num < district_people[index, 28]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 75:79)
+                # Если пол неизвестен
                 else
-                    # M75–79
                     return sex_random_num < district_people[index, 16], rand(rng, 75:79)
                 end
-            # T65-84_65–89
+            # 80-84 лет
             elseif age_rand_num < district_people[index, 29]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 80:84)
+                # Если пол неизвестен
                 else
-                    # M80–84
                     return sex_random_num < district_people[index, 17], rand(rng, 80:84)
                 end
+            # 85-89 лет
             else
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 85:89)
+                # Если пол неизвестен
                 else
-                    # M85–89
                     return sex_random_num < district_people[index, 18], rand(rng, 85:89)
                 end
             end
@@ -220,12 +260,26 @@ function get_agent_sex_and_age(
     end
 end
 
-function check_parent_leave(no_one_at_home::Bool, adult::Agent, child::Agent)
+# Нуждается ли ребенок в уходе за ним в случае болезни или из-за маленького возраста
+function check_parent_leave(
+    # В домохозяйстве нет агента, который бы мог побыть дома с ребенком
+    no_one_at_home::Bool,
+    # Агент-попечитель
+    adult::Agent,
+    # Агент-ребенок
+    child::Agent
+)
+    # Для детей младше 12 лет
     if child.age < 12
+        # Присваиваем попечителя агенту-ребенку
         child.supporter_id = adult.id
+        # Присваиваем ребенка попечителю
         push!(adult.dependant_ids, child.id)
+        # Если в домохозяйстве нет агента, который бы мог побыть дома с ребенком
         if no_one_at_home
+            # Ребенок нуждается в уходе
             child.needs_supporter_care = true
+            # Если ребенок младше 4 лет и не ходит в детский сад, то попечитель сидит дома с ребенком
             if child.age < 4 && child.activity_type == 0
                 adult.activity_type = 0
             end
@@ -233,23 +287,36 @@ function check_parent_leave(no_one_at_home::Bool, adult::Agent, child::Agent)
     end
 end
 
+# Создание пары с детьми или без и прочих членов домохозяйства
 function create_parents_with_children(
+    # Id нового агента
     agent_id::Int,
+    # Id домохозяйства
     household_id::Int,
+    # Вирусы
     viruses::Vector{Virus},
+    # Средняя заболеваемость по неделям, возрастным группам и инфекциям
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
+    # Id членов домохозяйства
     household_conn_ids::Vector{Int},
     district_people::Matrix{Float64},
     district_people_households::Matrix{Float64},
     district_household_index::Int,
+    # Число детей в домохозяйстве
     num_of_children::Int,
+    # Число прочих людей в домохозяйстве
     num_of_other_people::Int,
+    # Индекс муниципалитета
     index::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Уровни восприимчивости к различным вирусам
     immune_memory_susceptibility_levels::Vector{Float64},
+    # Присутствуют прочие агенты
     with_others::Bool = false,
     with_grandparent::Bool = false,
 )::Vector{Agent}
@@ -863,9 +930,13 @@ function create_parents_with_children(
     end
 end
 
+# Создание двух пар с детьми или без и прочими членами домохозяйства
 function create_two_pairs_with_children_with_others(
+    # Id нового агента
     agent_id::Int,
+    # Id домохозяйства
     household_id::Int,
+    # Вирусы
     viruses::Vector{Virus},
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
     isolation_probabilities_day_1::Vector{Float64},
@@ -875,10 +946,15 @@ function create_two_pairs_with_children_with_others(
     district_people::Matrix{Float64},
     district_people_households::Matrix{Float64},
     district_household_index::Int,
+    # Число детей в домохозяйстве
     num_of_children::Int,
+    # Число прочих людей в домохозяйстве
     num_of_other_people::Int,
+    # Индекс муниципалитета
     index::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Уровни восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
     immune_memory_susceptibility_levels::Vector{Float64},
 )::Vector{Agent}
     agent_female_sex, agent_female_age = get_agent_sex_and_age(
@@ -1200,10 +1276,15 @@ function create_parent_with_children(
     district_people::Matrix{Float64},
     district_people_households::Matrix{Float64},
     district_household_index::Int,
+    # Число детей в домохозяйстве
     num_of_children::Int,
+    # Число прочих людей в домохозяйстве
     num_of_other_people::Int,
+    # Индекс муниципалитета
     index::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Уровни восприимчивости к различным вирусам
     immune_memory_susceptibility_levels::Vector{Float64},
     is_male_parent::Union{Bool, Nothing} = nothing,
     with_others::Bool = false,
@@ -1798,6 +1879,7 @@ function create_parent_with_children(
     end
 end
 
+# Создание агентов для прочих типов домохозяйств
 function create_others(
     agent_id::Int,
     household_id::Int,
@@ -1810,10 +1892,15 @@ function create_others(
     district_people::Matrix{Float64},
     district_people_households::Matrix{Float64},
     district_household_index::Int,
+    # Число детей в домохозяйстве
     num_of_children::Int,
+    # Число прочих людей в домохозяйстве
     num_of_other_people::Int,
+    # Индекс муниципалитета
     index::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Уровни восприимчивости к различным вирусам
     immune_memory_susceptibility_levels::Vector{Float64},
 )::Vector{Agent}
     agent_sex, agent_age = get_agent_sex_and_age(

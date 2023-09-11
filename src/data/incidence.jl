@@ -1,15 +1,26 @@
 # Заболеваемость различными вирусами в разных возрастных группах
 function get_incidence(
+    # Этиология
     etiology::Matrix{Float64},
+    # Средняя заболеваемость за год
     is_mean::Bool,
+    # Индекс первого года для симуляций
     starting_year_index::Int,
+    # Симуляции до последнего года
     is_till_end_year_index::Bool,
 )::Array{Float64, 3}
+    # Данные
+    # 0-2 лет
     infected_data_0_all = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu0-2.csv"), ';', Int, '\n')
+    # 3-6 лет
     infected_data_3_all = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu3-6.csv"), ';', Int, '\n')
+    # 7-14 лет
     infected_data_7_all = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu7-14.csv"), ';', Int, '\n')
+    # 15+ лет
     infected_data_15_all = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu15+.csv"), ';', Int, '\n')
 
+    # Заболеваемость различными вирусами в разных возрастных группах
+    # 0-2 лет
     infected_data_0 = infected_data_0_all[2:53, starting_year_index:end]
     if !is_till_end_year_index
         infected_data_0 = infected_data_0_all[2:53, starting_year_index]
@@ -46,6 +57,7 @@ function get_incidence(
             dims = 2)
     end
 
+    # 3-6 лет
     infected_data_3 = infected_data_3_all[2:53, starting_year_index:end]
     if !is_till_end_year_index
         infected_data_3 = infected_data_3_all[2:53, starting_year_index]
@@ -80,6 +92,7 @@ function get_incidence(
         mean(infected_data_3_7, dims = 2)[:, 1],
         dims = 2)
 
+    # 7-14 лет
     infected_data_7 = infected_data_7_all[2:53, starting_year_index:end]
     if !is_till_end_year_index
         infected_data_7 = infected_data_7_all[2:53, starting_year_index]
@@ -114,6 +127,7 @@ function get_incidence(
         mean(infected_data_7_7, dims = 2)[:, 1],
         dims = 2)
 
+    # 15+ лет
     infected_data_15 = infected_data_15_all[2:53, starting_year_index:end]
     if !is_till_end_year_index
         infected_data_15 = infected_data_15_all[2:53, starting_year_index]
@@ -148,6 +162,7 @@ function get_incidence(
         mean(infected_data_15_7, dims = 2)[:, 1],
         dims = 2)
 
+    # Объединяем вместе
     return cat(
         infected_data_0_viruses,
         infected_data_3_viruses,

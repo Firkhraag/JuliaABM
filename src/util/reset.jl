@@ -91,6 +91,7 @@ function reset_agent_states(
             # Дней с момента инфицирования
             agent.days_infected = rand(rng, (1 - agent.incubation_period):agent.infection_period)
 
+            # Бессимптомное течение болезни
             rand_num = rand(rng, Float64)
             if agent.age < 10
                 agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_child
@@ -165,10 +166,13 @@ function reset_agent_states(
             end
         end
 
+        # Посещение коллектива
         agent.attendance = true
+        # Для вузов есть вероятность прогула
         if agent.activity_type == 3 && !agent.is_teacher && rand(rng, Float64) < skip_college_probability
             agent.attendance = false
         end
+        # Значения по умолчанию
         agent.days_immune = 0
         agent.days_immune_end = 0
         agent.num_infected_agents = 0

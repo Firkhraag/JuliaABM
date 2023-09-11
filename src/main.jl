@@ -14,7 +14,6 @@ include("global/variables.jl")
 
 include("model/virus.jl")
 include("model/agent.jl")
-include("model/group.jl")
 include("model/household.jl")
 include("model/workplace.jl")
 include("model/school.jl")
@@ -27,24 +26,37 @@ include("util/moving_avg.jl")
 include("util/stats.jl")
 include("util/reset.jl")
 
+# Моделирование контактов
 function simulate_contacts(
+    # Число потоков
     num_threads::Int,
+    # Генератор случайных чисел для потоков
     thread_rng::Vector{MersenneTwister},
+    # Агенты
     agents::Vector{Agent},
+    # Детские сады
     kindergartens::Vector{School},
+    # Школы
     schools::Vector{School},
+    # Вузы
     colleges::Vector{School},
+    # Средняя продолжительность контактов в домохозяйствах
     mean_household_contact_durations::Vector{Float64},
+    # Среднеквадр. откл. продолжительности контактов в домохозяйствах
     household_contact_duration_sds::Vector{Float64},
+    # Средняя продолжительность контактов в прочих коллективах
     other_contact_duration_shapes::Vector{Float64},
+    # Среднеквадр. откл. продолжительности контактов в прочих коллективах
     other_contact_duration_scales::Vector{Float64},
 )
+    # Выходной
     println("Holiday")
     @time run_simulation_evaluation(
         num_threads, thread_rng, agents, kindergartens,
         schools, colleges, mean_household_contact_durations,
         household_contact_duration_sds, other_contact_duration_shapes,
         other_contact_duration_scales, true)
+    # Будний день
     println("Weekday")
     @time run_simulation_evaluation(
         num_threads, thread_rng, agents, kindergartens,
@@ -53,22 +65,40 @@ function simulate_contacts(
         other_contact_duration_scales, false)
 end
 
+# Анализ чувствительности всех параметров модели
 function global_sensitivity(
+    # Число прогонов модели
     n::Int,
+    # Сколько уже сделано прогонов
     starting_bias::Int,
+    # Отклонение белого гауссовского шума
     disturbance::Float64,
+    # Число потоков
     num_threads::Int,
+    # Генератор случайных чисел для потоков
     thread_rng::Vector{MersenneTwister},
+    # Агенты
     agents::Vector{Agent},
+    # Вирусы
     viruses::Vector{Virus},
+    # Домохозяйства
     households::Vector{Household},
+    # Школы
     schools::Vector{School},
-    duration_parameter_default::Float64,
-    susceptibility_parameters_default::Vector{Float64},
-    temperature_parameters_default::Vector{Float64},
+    # Температура воздуха
     temperature::Vector{Float64},
+    # Заболеваемость в различных возрастных группах разными вирусами
     num_infected_age_groups_viruses::Array{Float64, 3},
     num_infected_age_groups_viruses_prev::Array{Float64, 3},
+    # Число лет для моделирования
+    num_years::Int,
+    # Стандартные значения параметров модели
+    # Параметр продолжительности контакта
+    duration_parameter_default::Float64,
+    # Параметры восприимчивости агентов для различных вирусов
+    susceptibility_parameters_default::Vector{Float64},
+    # Параметры температуры воздуха для различных вирусов
+    temperature_parameters_default::Vector{Float64},
     mean_household_contact_durations_default::Vector{Float64},
     household_contact_duration_sds_default::Vector{Float64},
     other_contact_duration_shapes_default::Vector{Float64},
@@ -79,7 +109,6 @@ function global_sensitivity(
     random_infection_probabilities_default::Vector{Float64},
     recovered_duration_mean_default::Float64,
     recovered_duration_sd_default::Float64,
-    num_years::Int,
     immune_memory_susceptibility_levels_default::Vector{Float64},
     mean_immunity_durations_default::Vector{Float64},
     incubation_period_durations_default::Vector{Float64},
@@ -559,7 +588,7 @@ function parameter_sensitivity(
 end
 
 function lhs_simulations(
-    is_one_year_modeled::Bool,
+    is_one_mean_year_modeled::Bool,
     num_runs::Int,
     agents::Vector{Agent},
     households::Vector{Household},
@@ -714,7 +743,7 @@ function lhs_simulations(
 
         nMAE = 0.0
         # Если рассматривается 1 год
-        if is_one_year_modeled
+        if is_one_mean_year_modeled
             observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
             for i = 2:num_years
                 for j = 1:52
@@ -751,11 +780,17 @@ function lhs_simulations(
 end
 
 function mcmc_simulations(
-    is_one_year_modeled::Bool,
+    # Если моделируется среднее за год
+    is_one_mean_year_modeled::Bool,
+    # Набор агентов
     agents::Vector{Agent},
+    # Домохозяйства
     households::Vector{Household},
+    # Школы
     schools::Vector{School},
+    # Число потоков
     num_threads::Int,
+    # Генератор случайных чисел для потоков
     thread_rng::Vector{MersenneTwister},
     start_agent_ids::Vector{Int},
     end_agent_ids::Vector{Int},
@@ -773,8 +808,10 @@ function mcmc_simulations(
     recovered_duration_mean::Float64,
     recovered_duration_sd::Float64,
     random_infection_probabilities::Vector{Float64},
+    # Число лет для моделирования
     num_years::Int,
 )
+    # Получаем значения параметров
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
     duration_parameter = duration_parameter_array[end]
 
@@ -857,6 +894,7 @@ function mcmc_simulations(
         random_infection_probability_4_array[end],
     ]
 
+    # Получаем результаты моделирования для начального набора значений параметров
     @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed, num_infected_districts = run_simulation(
         num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
         susceptibility_parameters, temperature_parameters, temperature,
@@ -867,22 +905,19 @@ function mcmc_simulations(
         recovered_duration_mean, recovered_duration_sd, num_years, false,
         immune_memory_susceptibility_levels)
 
+    # Число принятий новых значений параметров
     accept_num = 0
+    # Число последовательных отказов
     local_rejected_num = 0
 
-    # duration_parameter_delta = 0.03
-    # susceptibility_parameter_deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
-    # temperature_parameter_deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
-    # mean_immunity_duration_deltas = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
-    # random_infection_probability_deltas = [0.03, 0.03, 0.03, 0.03]
-
+    # Разброс для значений параметров-кандидатов
     duration_parameter_delta = 0.05
     susceptibility_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
     temperature_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
     mean_immunity_duration_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
     random_infection_probability_deltas = [0.05, 0.05, 0.05, 0.05]
 
-    # prob_prev_age_groups = zeros(Float64, 7, 4, 52 * num_years)
+    # Для алгоритма Метрополиса
     # prob_prev = 0.0
     # for i in 1:(52 * num_years)
     #     for j in 1:4
@@ -892,41 +927,9 @@ function mcmc_simulations(
     #     end
     # end
 
-    
-    # for i = 1:7
-    #     for k = 1:4
-    #         for l = 1:52
-    #             for j = 1:num_years
-    #                 observed_num_infected_age_groups_viruses[l, i, k] += observed_num_infected_age_groups_viruses[52 * (j - 1) + l, i, k]
-    #             end
-    #             observed_num_infected_age_groups_viruses[l, i, k] /= num_years
-    #         end
-    #     end
-    # end
-
-    # incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_years)
-    # incidence_arr_mean = zeros(Float64, 52, 7, 4)
-
-    # for i = 1:num_years
-    #     incidence_arr[i] = observed_num_infected_age_groups_viruses[(52 * (i - 1) + 1):(52 * (i - 1) + 52), :, :]
-    # end
-
-    # for i = 1:52
-    #     for k = 1:7
-    #         for m = 1:4
-    #             for j = 1:num_years
-    #                 incidence_arr_mean[i, k, m] += incidence_arr[j][i, k, m]
-    #             end
-    #             incidence_arr_mean[i, k, m] /= num_years
-    #         end
-    #     end
-    # end
-
-    # nMAE = sum(abs.(incidence_arr_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
-
     nMAE = 0.0
     # Если рассматривается 1 год
-    if is_one_year_modeled
+    if is_one_mean_year_modeled
         observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
         for i = 2:num_years
             for j = 1:52
@@ -1162,7 +1165,7 @@ function mcmc_simulations(
 
         nMAE = 0.0
         # Если рассматривается 1 год
-        if is_one_year_modeled
+        if is_one_mean_year_modeled
             observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
             for i = 2:num_years
                 for j = 1:52
@@ -1214,6 +1217,7 @@ function mcmc_simulations(
             random_infection_probability_3_candidate, random_infection_probability_4_candidate])")
 
         if accept_prob == 1 || local_rejected_num >= 10
+            # Добавляем новые значения параметров
             println("New nMAE min = $(nMAE)")
 
             push!(duration_parameter_array, duration_parameter_candidate)
@@ -1250,9 +1254,12 @@ function mcmc_simulations(
             # prob_prev = prob
             nMAE_prev = nMAE
 
+            # Увеличиваем число принятий новых параметров
             accept_num += 1
+            # Число последовательных отказов приравниваем нулю
             local_rejected_num = 0
         else
+            # Добавляем предыдущие значения параметров
             push!(duration_parameter_array, duration_parameter_array[end])
 
             push!(susceptibility_parameter_1_array, susceptibility_parameter_1_array[end])
@@ -1287,7 +1294,9 @@ function mcmc_simulations(
             local_rejected_num += 1
         end
 
+        # Раз в 2 шага
         if n % 2 == 0
+            # Сохраняем значения параметров
             writedlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), duration_parameter_array, ',')
 
             writedlm(joinpath(
@@ -1368,6 +1377,8 @@ function main(
     mean_immunity_durations::Vector{Float64} = [159.5310491526591, 161.27803654023342, 168.5103857184103, 137.53488557284513, 131.85619760881858, 133.24631388408923, 130.32455705494414],
     random_infection_probabilities::Vector{Float64} = [0.001, 0.0006765292934015378, 0.0004041899831193968, 9.203064199596199e-6],
     immune_memory_susceptibility_levels::Vector{Float64} = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+
+    # Для суррогатной модели
     surrogate_index = 0,
 )
     println("Initialization...")
@@ -1384,7 +1395,7 @@ function main(
     # Число моделируемых лет
     num_years = 2
     # Среднее по num_years
-    is_one_year_modeled = true
+    is_one_mean_year_modeled = true
 
     # -----------------------------------
     # Число дней закрытия класса или школы на карантин
@@ -1442,11 +1453,11 @@ function main(
         # CoV
         Virus(3.2, 0.44, 1, 7,  6.5, 4.5, 1, 28,  7.5, 5.2, 1, 28,  4.9, 3.7, 2.5,  0.21, 0.26, 0.32,  mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
 
-    # Число домохозяйств каждого типа по районам
+    # Число домохозяйств каждого типа по муниципалитетам
     district_households = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "district_households.csv"))))
-    # Число людей в каждой возрастной группе по районам
+    # Число людей в каждой возрастной группе по муниципалитетам
     district_people = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "district_people.csv"))))
-    # Число людей в домохозяйствах по районам
+    # Число людей в домохозяйствах по муниципалитетам
     district_people_households = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "district_people_households.csv"))))
     # Распределение вирусов в течение года
     etiology = get_etiology()
@@ -1456,7 +1467,7 @@ function main(
     # Набор агентов
     agents = Array{Agent, 1}(undef, num_agents)
 
-    # Генератор случайных чисел
+    # Генератор случайных чисел для потоков
     thread_rng = [MersenneTwister(i + run_num * num_threads) for i = 1:num_threads]
 
     # Координаты домов
@@ -1507,7 +1518,7 @@ function main(
     workplaces = Workplace[]
 
     # Заболеваемость различными вирусами в разных возрастных группах за рассматриваемые года
-    num_infected_age_groups_viruses = get_incidence(etiology, is_one_year_modeled, flu_starting_index, true)
+    num_infected_age_groups_viruses = get_incidence(etiology, is_one_mean_year_modeled, flu_starting_index, true)
     # Заболеваемость различными вирусами в разных возрастных группах за предыдущий год
     num_infected_age_groups_viruses_prev = get_incidence(etiology, false, 1, false)
 
@@ -1560,48 +1571,48 @@ function main(
 
     # Анализ чувствительности для всех параметров модели
     # --------------------------
-    # global_sensitivity(
-    #     300,
-    #     0,
-    #     0.05,
-    #     num_threads,
-    #     thread_rng,
-    #     agents,
-    #     viruses,
-    #     households,
-    #     schools,
-    #     duration_parameter,
-    #     susceptibility_parameters,
-    #     temperature_parameters,
-    #     temperature,
-    #     num_infected_age_groups_viruses,
-    #     num_infected_age_groups_viruses_prev,
-    #     mean_household_contact_durations,
-    #     household_contact_duration_sds,
-    #     other_contact_duration_shapes,
-    #     other_contact_duration_scales,
-    #     isolation_probabilities_day_1,
-    #     isolation_probabilities_day_2,
-    #     isolation_probabilities_day_3,
-    #     random_infection_probabilities,
-    #     recovered_duration_mean,
-    #     recovered_duration_sd,
-    #     num_years,
-    #     immune_memory_susceptibility_levels,
-    #     mean_immunity_durations,
-    #     [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2],
-    #     [0.09, 0.0484, 0.175, 0.937, 1.51, 0.327, 0.496],
-    #     [4.8, 3.7, 10.1, 7.4, 8.0, 7.0, 6.5],
-    #     [1.12, 0.66, 4.93, 2.66, 3.1, 2.37, 2.15],
-    #     [8.8, 7.8, 11.4, 9.3, 9.0, 8.0, 7.5],
-    #     [3.748, 2.94, 6.25, 4.0, 3.92, 3.1, 2.9],
-    #     [0.38, 0.38, 0.19, 0.24, 0.15, 0.16, 0.21],
-    #     [0.47, 0.47, 0.24, 0.3, 0.19, 0.2, 0.26],
-    #     [0.57, 0.57, 0.29, 0.36, 0.23, 0.24, 0.32],
-    #     [4.6, 4.7, 3.5, 6.0, 4.1, 4.8, 4.9],
-    #     [3.5, 3.5, 2.6, 4.5, 3.1, 3.6, 3.7],
-    #     [2.3, 2.4, 1.8, 3.0, 2.1, 2.4, 2.5],
-    # )
+    global_sensitivity(
+        300,
+        0,
+        0.05,
+        num_threads,
+        thread_rng,
+        agents,
+        viruses,
+        households,
+        schools,
+        temperature,
+        num_infected_age_groups_viruses,
+        num_infected_age_groups_viruses_prev,
+        num_years,
+        duration_parameter,
+        susceptibility_parameters,
+        temperature_parameters,
+        mean_household_contact_durations,
+        household_contact_duration_sds,
+        other_contact_duration_shapes,
+        other_contact_duration_scales,
+        isolation_probabilities_day_1,
+        isolation_probabilities_day_2,
+        isolation_probabilities_day_3,
+        random_infection_probabilities,
+        recovered_duration_mean,
+        recovered_duration_sd,
+        immune_memory_susceptibility_levels,
+        mean_immunity_durations,
+        [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2],
+        [0.09, 0.0484, 0.175, 0.937, 1.51, 0.327, 0.496],
+        [4.8, 3.7, 10.1, 7.4, 8.0, 7.0, 6.5],
+        [1.12, 0.66, 4.93, 2.66, 3.1, 2.37, 2.15],
+        [8.8, 7.8, 11.4, 9.3, 9.0, 8.0, 7.5],
+        [3.748, 2.94, 6.25, 4.0, 3.92, 3.1, 2.9],
+        [0.38, 0.38, 0.19, 0.24, 0.15, 0.16, 0.21],
+        [0.47, 0.47, 0.24, 0.3, 0.19, 0.2, 0.26],
+        [0.57, 0.57, 0.29, 0.36, 0.23, 0.24, 0.32],
+        [4.6, 4.7, 3.5, 6.0, 4.1, 4.8, 4.9],
+        [3.5, 3.5, 2.6, 4.5, 3.1, 3.6, 3.7],
+        [2.3, 2.4, 1.8, 3.0, 2.1, 2.4, 2.5],
+    )
     # return
     # --------------------------
 
@@ -1638,7 +1649,7 @@ function main(
     # Использование выборки латинского гиперкуба для исследования пространства параметров модели
     # --------------------------
     # lhs_simulations(
-    #     is_one_year_modeled,
+    #     is_one_mean_year_modeled,
     #     1001,
     #     agents,
     #     households,
@@ -1674,7 +1685,7 @@ function main(
     # Модифицированный алгоритм Метрополиса-Гастингса для поиска значений параметров, дающих минимум для модели
     # --------------------------
     # mcmc_simulations(
-    #     is_one_year_modeled,
+    #     is_one_mean_year_modeled,
     #     agents,
     #     households,
     #     schools,
@@ -1715,6 +1726,7 @@ function main(
 
     # Сохранение результатов работы модели
     if with_global_warming
+        # Сценарий глобального потепления
         save(joinpath(@__DIR__, "..", "output", "tables", "results_warming_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "all_cases", num_infected_age_groups_viruses_model,
@@ -1722,21 +1734,15 @@ function main(
             "num_infected_districts", num_infected_districts,
             "rt", rt)
     elseif school_class_closure_period == 0
+        # Базовый сценарий
         save(joinpath(@__DIR__, "..", "output", "tables", "results_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "all_cases", num_infected_age_groups_viruses_model,
             "activities_cases", activities_infections,
             "num_infected_districts", num_infected_districts,
             "rt", rt)
-    elseif school_class_closure_threshold > 0.99
-        save(joinpath(@__DIR__, "..", "output", "tables", "results_class_quarantine_$(run_num + 1).jld"),
-            "observed_cases", observed_num_infected_age_groups_viruses,
-            "all_cases", num_infected_age_groups_viruses_model,
-            "activities_cases", activities_infections,
-            "num_infected_districts", num_infected_districts,
-            "rt", rt,
-            "num_schools_closed", num_schools_closed)
     else
+        # Сценарий карантина в школах
         save(joinpath(@__DIR__, "..", "output", "tables", "results_quarantine_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "all_cases", num_infected_age_groups_viruses_model,
@@ -1746,9 +1752,10 @@ function main(
             "num_schools_closed", num_schools_closed)
     end
 
+    # Ошибка
     nMAE = 0.0
     # Если рассматривается 1 год
-    if is_one_year_modeled
+    if is_one_mean_year_modeled
         observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
         for i = 2:num_years
             for j = 1:52
@@ -1756,13 +1763,13 @@ function main(
             end
         end
         observed_num_infected_age_groups_viruses_mean ./= num_years
-
         nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
     else
         nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
     end
-    println(nMAE)
+    println("nMAE = $(nMAE)")
 
+    # Результат для суррогатной модели
     if surrogate_index > 0
         save(joinpath(@__DIR__, "..", "output", "tables", "lhs", "procedure", "results_$(surrogate_index).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,

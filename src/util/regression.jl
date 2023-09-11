@@ -1,3 +1,4 @@
+# Линейная регрессия
 function linear_regression(
     X::Matrix{Float64},
     y::Vector{Float64},
@@ -11,6 +12,7 @@ function linear_regression(
     return parameters
 end
 
+# Пошаговая регрессия
 function stepwise_regression(
     X_params::Matrix{Float64},
     y::Vector{Float64},

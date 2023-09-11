@@ -1,35 +1,56 @@
-function get_contact_duration_normal(mean::Float64, sd::Float64, rng::MersenneTwister)
-    return rand(rng, truncated(Normal(mean, sd), 0.0, 24.0))
+
+# Функция продолжительности контакта
+function get_contact_duration(
+    # Средняя продолжительность контакта
+    mean::Float64,
+    # Среднеквадратическое отклонение
+    sd::Float64,
+    # Генератор случайных чисел
+    rng::MersenneTwister,
+    # Выбирается из нормального распределения
+    is_normal::Bool
+)
+    if is_normal
+        return rand(rng, truncated(Normal(mean, sd), 0.0, 24.0))
+    else
+        # Гамма распределение
+        return rand(rng, Gamma(shape, scale))
 end
 
-function get_contact_duration_gamma(shape::Float64, scale::Float64, rng::MersenneTwister)
-    return rand(rng, Gamma(shape, scale))
-end
-
+# Функция контакта между агентами
 function make_contact(
+    # Вирусы
     viruses::Vector{Virus},
+    # Инфицированный агент
     infected_agent::Agent,
+    # Восприимчивый агент
     susceptible_agent::Agent,
+    # Продолжительность контакта
     contact_duration::Float64,
+    # Параметр продолжительности контакта
     duration_parameter::Float64,
+    # Параметр неспецифической восприимчивости
     susceptibility_parameters::Vector{Float64},
+    # Параметр температуры воздуха
     temperature_parameters::Vector{Float64},
+    # Температура на текущем шаге
     current_temp::Float64,
+    # Генератор случайных чисел
     rng::MersenneTwister,
 )
-    # Влияние продолжительности контакта на вероятность инфицирования
+    # Риск инфицирования, зависящий от продолжительности контакта
     duration_influence = 1 - exp(-duration_parameter * contact_duration)
             
-    # Влияние температуры воздуха на вероятность инфицирования
+    # Риск инфицирования, зависящий от температуры воздуха
     temperature_influence = temperature_parameters[infected_agent.virus_id] * current_temp + 1.0
 
-    # Влияние восприимчивости агента на вероятность инфицирования
+    # Риск инфицирования, зависящий от неспецифического иммунитета восприимчивого агента
     susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus_id] * susceptible_agent.ig_level))
 
-    # Влияние иммунитета
+    # Риск инфицирования, зависящий от специфического иммунитета восприимчивого агента
     immunity_influence = susceptible_agent.immunity_susceptibility_levels[infected_agent.virus_id]
 
-    # Влияние силы инфекции на вероятность инфицирования
+    # Риск инфицирования, зависящий от силы инфекции инфицированного агента
     infectivity_influence = 0.0
     if infected_agent.age < 3
         infectivity_influence = get_infectivity(
@@ -54,10 +75,11 @@ function make_contact(
             infected_agent.is_asymptomatic)
     end
 
-    # Вероятность инфицирования
+    # Риск инфицирования как произведение независимых рисков
     infection_probability = infectivity_influence * susceptibility_influence *
         temperature_influence * duration_influence * immunity_influence
 
+    # Если успешно инфицирован
     if rand(rng, Float64) < infection_probability
         susceptible_agent.virus_id = infected_agent.virus_id
         susceptible_agent.is_newly_infected = true
@@ -65,108 +87,160 @@ function make_contact(
     end
 end
 
+# Инфицирование агентов от неизвестного источника
 function infect_randomly(
+    # Агент
     agent::Agent,
+    # Генератор случайных чисел
     rng::MersenneTwister,
 )
     rand_num = rand(rng, 1:num_viruses)
+    # Если случайное инфицирование прошло успешно
     if rand(rng, Float64) < agent.immunity_susceptibility_levels[rand_num]
         agent.virus_id = rand_num
         agent.is_newly_infected = true
     end
 end
 
+# Моделирование контактов
 function simulate_contacts(
+    # Id потока
     thread_id::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Id первого агента для потока
     start_agent_id::Int,
+    # Id последнего агента для потока
     end_agent_id::Int,
+    # Агенты
     agents::Vector{Agent},
+    # Средние продолжительности контактов в домохозяйствах для разных контактов
     mean_household_contact_durations::Vector{Float64},
+    # Среднеквадратические отклонения для контактов в домохозяйствах для разных контактов
     household_contact_duration_sds::Vector{Float64},
+    # Средние продолжительности контактов в прочих коллективах
     other_contact_duration_shapes::Vector{Float64},
+    # Среднеквадратические отклонения для контактов в прочих коллективах
     other_contact_duration_scales::Vector{Float64},
+    # Параметр продолжительности контакта
     duration_parameter::Float64,
+    # Параметр неспецифической восприимчивости
     susceptibility_parameters::Vector{Float64},
+    # Параметр температуры воздуха
     temperature_parameters::Vector{Float64},
+    # Вероятности случайного инфицирования
     random_infection_probabilities::Vector{Float64},
+    # Вирусы
     viruses::Vector{Virus},
+    # Выходной для детсада
     is_kindergarten_holiday::Bool,
+    # Выходной в школе
     is_school_holiday::Bool,
+    # Выходной в вузе
     is_college_holiday::Bool,
+    # Выходной для рабочих коллективов
     is_work_holiday::Bool,
+    # Текущий шаг
     current_step::Int,
+    # Текущая температура
     current_temp::Float64,
+    # Число инфицирований агентов в различных коллективах для потока
     activities_infections_threads::Array{Int, 3},
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
         # Агент инфицирован
         if agent.virus_id != 0 && !agent.is_newly_infected
-            # Контакты в домохозяйстве
+            # Моделируем контакты в домохозяйстве
             for agent2_id in agent.household_conn_ids
                 agent2 = agents[agent2_id]
                 # Проверка восприимчивости агента к вирусу
                 if agent2.virus_id == 0 && agent2.days_immune == 0
+                    # Находим продолжительность контакта
                     dur = 0.0
+                    # Если агенты посещают другой коллектив, то контакт укорочен
+                    # Если оба агента проводят время дома
                     if (agent.is_isolated || agent.quarantine_period > 0 || agent.on_parent_leave || agent.activity_type == 0 ||
                         (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_college_holiday) ||
                         (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)) &&
                         (agent2.is_isolated || agent2.quarantine_period > 0 || agent2.on_parent_leave || agent2.activity_type == 0 ||
                         (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_college_holiday) ||
                         (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday))
-
-                        dur = get_contact_duration_normal(mean_household_contact_durations[5], household_contact_duration_sds[5], rng)
+                        
+                        dur = get_contact_duration(
+                            mean_household_contact_durations[5], household_contact_duration_sds[5], rng, true)
+                    # Если один из агентов посещает рабочий коллектив
                     elseif ((agent.activity_type == 4 && !(agent.is_isolated || agent.on_parent_leave)) ||
                         (agent2.activity_type == 4 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_work_holiday
 
-                        dur = get_contact_duration_normal(mean_household_contact_durations[4], household_contact_duration_sds[4], rng)
+                        dur = get_contact_duration(
+                            mean_household_contact_durations[4], household_contact_duration_sds[4], rng, true)
+                    # Если один из агентов посещает школу
                     elseif ((agent.activity_type == 2 && !(agent.is_isolated || agent.on_parent_leave || agent.quarantine_period > 0)) ||
                         (agent2.activity_type == 2 && !(agent2.is_isolated || agent2.on_parent_leave || agent2.quarantine_period > 0))) && !is_school_holiday
 
-                        dur = get_contact_duration_normal(mean_household_contact_durations[2], household_contact_duration_sds[2], rng)
+                        dur = get_contact_duration(
+                            mean_household_contact_durations[2], household_contact_duration_sds[2], rng, true)
+                    # Если один из агентов посещает детский сад
                     elseif ((agent.activity_type == 1 && !(agent.is_isolated || agent.on_parent_leave)) ||
                         (agent2.activity_type == 1 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_kindergarten_holiday
                         
-                        dur = get_contact_duration_normal(mean_household_contact_durations[1], household_contact_duration_sds[1], rng)
+                        dur = get_contact_duration(
+                            mean_household_contact_durations[1], household_contact_duration_sds[1], rng, true)
+                    # Если один из агентов посещает вуз
                     else
-                        dur = get_contact_duration_normal(mean_household_contact_durations[3], household_contact_duration_sds[3], rng)
+                        dur = get_contact_duration(
+                            mean_household_contact_durations[3], household_contact_duration_sds[3], rng, true)
                     end
-
+                    
                     if dur > 0.01
+                        # Происходит контакт
                         make_contact(viruses, agent, agent2, dur, duration_parameter,
                             susceptibility_parameters, temperature_parameters, current_temp, rng)
+                        # Если агент был успешно инфицирован, то добавляем к инфицированиям в домохозяйствах
                         if agent2.is_newly_infected
                             activities_infections_threads[current_step, 5, thread_id] += 1
                         end
                     end
                 end
             end
-            # Контакты в остальных коллективах
+            # Контакты в коллективе, который агент посещает на данном шаге
             if !agent.is_isolated && !agent.on_parent_leave && agent.attendance &&
                 ((agent.activity_type == 1 && !is_kindergarten_holiday) ||
                 (agent.activity_type == 2 && !is_school_holiday) ||
                 (agent.activity_type == 3 && !is_college_holiday) ||
                 (agent.activity_type == 4 && !is_work_holiday)) && agent.quarantine_period == 0
-                
+                # Проходим по агентам, с которыми имеется связь
                 for agent2_id in agent.activity_conn_ids
                     agent2 = agents[agent2_id]
+                    # Проверка восприимчивости агента к вирусу и посещение им коллектива
                     if agent2.virus_id == 0 && agent2.days_immune == 0 && agent2.attendance &&
                         !agent2.is_isolated && !agent2.on_parent_leave
+                        # Находим продолжительность контакта
                         dur = 0.0
+                        # Если детсад
                         if agent.activity_type == 1
-                            dur = get_contact_duration_gamma(other_contact_duration_shapes[1], other_contact_duration_scales[1], rng)
+                            dur = get_contact_duration(
+                                other_contact_duration_shapes[1], other_contact_duration_scales[1], rng, false)
+                        # Если школа
                         elseif agent.activity_type == 2
-                            dur = get_contact_duration_gamma(other_contact_duration_shapes[2], other_contact_duration_scales[2], rng)
+                            dur = get_contact_duration(
+                                other_contact_duration_shapes[2], other_contact_duration_scales[2], rng, false)
+                        # Если универ
                         elseif agent.activity_type == 3
-                            dur = get_contact_duration_gamma(other_contact_duration_shapes[3], other_contact_duration_scales[3], rng)
+                            dur = get_contact_duration(
+                                other_contact_duration_shapes[3], other_contact_duration_scales[3], rng, false)
+                        # Если работа
                         else
-                            dur = get_contact_duration_gamma(other_contact_duration_shapes[4], other_contact_duration_scales[4], rng)
+                            dur = get_contact_duration(
+                                other_contact_duration_shapes[4], other_contact_duration_scales[4], rng, false)
                         end
-
+                        
                         if dur > 0.01
+                            # Происходит контакт
                             make_contact(viruses, agent, agent2, dur, duration_parameter,
                                 susceptibility_parameters, temperature_parameters, current_temp, rng)
+                            # Если агент был успешно инфицирован, то добавляем к инфицированиям в коллективе
                             if agent2.is_newly_infected
                                 activities_infections_threads[current_step, agent.activity_type, thread_id] += 1
                             end
@@ -178,16 +252,19 @@ function simulate_contacts(
                 if agent.activity_type == 3
                     for agent2_id in agent.activity_cross_conn_ids
                         agent2 = agents[agent2_id]
+                        # Если агент восприимчив к вирусу и если происходит контакт на текущем шаге
                         if agent2.virus_id == 0 && agent2.days_immune == 0 &&
                             agent2.attendance && !agent2.is_isolated &&
                             !agent2.on_parent_leave && !agent2.is_teacher &&
                             rand(rng, Float64) < 0.25
-                                
-                            dur = get_contact_duration_gamma(other_contact_duration_shapes[5], other_contact_duration_scales[5], rng)
+                            # Находим продолжительность контакта
+                            dur = get_contact_duration(
+                                other_contact_duration_shapes[5], other_contact_duration_scales[5], rng, false)
                             if dur > 0.01
+                                # Происходит контакт
                                 make_contact(viruses, agent, agent2, dur, duration_parameter,
                                     susceptibility_parameters, temperature_parameters, current_temp, rng)
-    
+                                # Если агент был успешно инфицирован, то добавляем к инфицированиям в универе
                                 if agent2.is_newly_infected
                                     activities_infections_threads[current_step, 3, thread_id] += 1
                                 end
@@ -220,25 +297,38 @@ function simulate_contacts(
     end
 end
 
+# Обновление свойств агентов
 function update_agent_states(
+    # Id потока
     thread_id::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Id первого агента для потока
     start_agent_id::Int,
+    # Id последнего агента для потока
     end_agent_id::Int,
+    # Агенты
     agents::Vector{Agent},
+    # Домохозяйства
     households::Vector{Household},
+    # Вирусы
     viruses::Vector{Virus},
+    # Средняя продолжительность резистентного состояния
     recovered_duration_mean::Float64,
+    # Среднеквадратическое отклонение для резистентного состояния
     recovered_duration_sd::Float64,
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
+    # Текущий шаг
     current_step::Int,
     observed_daily_new_cases_age_groups_viruses_threads::Array{Int, 4},
     daily_new_cases_age_groups_viruses_threads::Array{Int, 4},
     rt_threads::Matrix{Float64},
     rt_count_threads::Matrix{Float64},
     num_infected_districts_threads::Array{Int, 3},
+    # Уровни восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
     immune_memory_susceptibility_levels::Vector{Float64},
 )
     for agent_id = start_agent_id:end_agent_id
@@ -445,32 +535,58 @@ function update_agent_states(
     end
 end
 
+# Запуск модели
 function run_simulation(
+    # Число потоков
     num_threads::Int,
+    # Генератор случайных чисел для потоков
     thread_rng::Vector{MersenneTwister},
+    # Агенты
     agents::Vector{Agent},
+    # Вирусы
     viruses::Vector{Virus},
+    # Домохозяйства
     households::Vector{Household},
+    # Школы
     schools::Vector{School},
+    # Параметр продолжительности контакта
     duration_parameter::Float64,
+    # Параметры восприимчивости агентов к различным вирусам
     susceptibility_parameters::Vector{Float64},
+    # Параметры для температуры воздуха
     temperature_parameters::Vector{Float64},
+    # Температура воздуха
     temperature_base::Vector{Float64},
+    # Средние продолжительности контактов в домохозяйствах
     mean_household_contact_durations::Vector{Float64},
+    # Среднеквадр. откл. продолжительности контактов в домохозяйствах
     household_contact_duration_sds::Vector{Float64},
+    # Средние продолжительности контактов в прочих коллективах
     other_contact_duration_shapes::Vector{Float64},
+    # Среднеквадр. откл. продолжительности контактов в прочих коллективах
     other_contact_duration_scales::Vector{Float64},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
+    # Вероятности случайного инфицирования от неизвестного источника
     random_infection_probabilities::Vector{Float64},
+    # Средняя продолжительность резистентного состояния
     recovered_duration_mean::Float64,
+    # Среднеквадр. откл. продолжительности резистентного состояния
     recovered_duration_sd::Float64,
+    # Число лет для моделирования
     num_years::Int,
+    # Учитывать эффективное репродуктивное число
     is_rt_run::Bool,
+    # Уровни восприимчивости (клетки памяти) к инфекции после перенесенной болезни и исчезновения иммунитета
     immune_memory_susceptibility_levels::Vector{Float64},
+    # Сценарий введения карантина в школах
+    # Продолжительность закрытия школы / класса
     school_class_closure_period::Int = 0,
+    # Порог заболеваемости для закрытия школы / класса
     school_class_closure_threshold::Float64 = 0.0,
+    # Сценарий глобального потепления
     with_global_warming = false,
 )::Tuple{Array{Float64, 3}, Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}, Array{Float64, 2}}
     # День месяца
@@ -482,13 +598,14 @@ function run_simulation(
     # Номер недели
     week_num = 1
 
+    global_warming_temp = 1.0
+
+    # Температура воздуха
     temperature = copy(temperature_base)
+    # Если глобальное потепление
     if with_global_warming
         for i = 1:length(temperature)
-            temperature[i] += rand(Normal(1.0, 0.25))
-            # temperature[i] += rand(Normal(2.0, 0.5))
-            # temperature[i] += rand(Normal(3.0, 0.75))
-            # temperature[i] += rand(Normal(4.0, 1.0))
+            temperature[i] += rand(Normal(global_warming_temp, 0.25 * global_warming_temp))
         end
     end
     temperature_record = copy(temperature)
@@ -739,7 +856,7 @@ function run_simulation(
             )
         end
 
-        # Обновление даты
+        # Записываем заболеваемость разными вирусами в различных возрастных группах
         for i = 1:4
             for j = 1:num_viruses
                 observed_num_infected_age_groups_viruses[current_step, j, i] = sum(
@@ -749,12 +866,15 @@ function run_simulation(
             end
         end
 
+        # Обновление даты
+        # День недели
         if week_day == 7
             week_day = 1
         else
             week_day += 1
         end
 
+        # День месяца
         if ((month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10) && day == 31) ||
             ((month == 4 || month == 6 || month == 9 || month == 11) && day == 30) ||
             (month == 2 && day == 28)
@@ -767,26 +887,26 @@ function run_simulation(
             day += 1
         end
 
+        # День года
         year_day += 1
         if year_day > 365
             year_day = 1
         end
 
+        # Если сценарий глобального потепления
         if with_global_warming && current_step % 365 == 0
             temperature = copy(temperature_base)
             for i = 1:length(temperature)
-                temperature[i] += rand(Normal(1.0, 0.25))
-                # temperature[i] += rand(Normal(2.0, 0.5))
-                # temperature[i] += rand(Normal(3.0, 0.75))
-                # temperature[i] += rand(Normal(4.0, 1.0))
+                temperature[i] += rand(Normal(global_warming_temp, 0.25 * global_warming_temp))
             end
             append!(temperature_record, temperature)
         end
     end
 
+    # Если сценарий глобального потепления, то записываем температуру воздуха
     if with_global_warming
         writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "temperature_4.csv"), temperature_record, ',')
+            joinpath(@__DIR__, "..", "..", "output", "tables", "temperature_$(round(Int, global_warming_temp)).csv"), temperature_record, ',')
     end
 
     rt = sum(rt_threads, dims = 2)[:, 1]

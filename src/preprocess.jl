@@ -7,6 +7,7 @@ using XLSX
 
 include("util/haversine.jl")
 
+# Предобработка названий районов Москвы
 function process_districts(a::Matrix{String})
     a .= replace.(a, "Академический район" => "66")
     a .= replace.(a, "Алексеевский район" => "31")
@@ -117,6 +118,7 @@ function process_districts(a::Matrix{String})
     a .= replace.(a, "район Ясенево" => "75")
 end
 
+# Для получения координат детских садов
 function preprocess_kindergartens()
     xf = XLSX.readxlsx("census/places/kindergartens.xlsx")
     sh = xf["data"]
@@ -138,6 +140,7 @@ function preprocess_kindergartens()
     CSV.write("input/tables/space/kindergartens.csv", df)
 end
 
+# Для получения координат школ
 function preprocess_schools()
     xf = XLSX.readxlsx("census/places/schools.xlsx")
     sh = xf["data"]
@@ -159,6 +162,7 @@ function preprocess_schools()
     CSV.write("input/tables/space/schools.csv", df)
 end
 
+# Для получения координат вузов
 function preprocess_colleges()
     xf = XLSX.readxlsx("census/places/colleges.xlsx")
     sh = xf["data"]
@@ -180,6 +184,7 @@ function preprocess_colleges()
     CSV.write("input/tables/space/colleges.csv", df)
 end
 
+# Для получения координат магазинов
 function preprocess_shops()
     xf = XLSX.readxlsx("census/places/shops.xlsx")
     sh = xf["data"]
@@ -202,6 +207,7 @@ function preprocess_shops()
     CSV.write("input/tables/space/shops.csv", df[:, ["id", "dist", "x", "y"]])
 end
 
+# Для получения координат ресторанов / кафе
 function preprocess_restaurants()
     xf = XLSX.readxlsx("census/places/catering.xlsx")
     sh = xf["data"]
@@ -225,6 +231,7 @@ function preprocess_restaurants()
     CSV.write("input/tables/space/restaurants.csv", df)
 end
 
+# Для получения координат парикмахерских
 function preprocess_hair_salons()
     xf = XLSX.readxlsx("census/places/services.xlsx")
     sh = xf["data"]
@@ -250,9 +257,13 @@ function preprocess_hair_salons()
     CSV.write("input/tables/space/hair_salons.csv", df[:, ["dist", "x", "y"]])
 end
 
+# Число агентов и домохозяйств
 function get_num_of_people_and_households(
+    # Id потока
     thread_id::Int,
+    # Число потоков
     num_threads::Int,
+    
     district_nums::Vector{Int},
     district_households::Matrix{Int}
 )::Tuple{Int, Int}
