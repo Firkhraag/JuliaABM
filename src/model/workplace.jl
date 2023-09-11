@@ -2,6 +2,7 @@
 struct Workplace
     # Id агентов
     agent_ids::Vector{Int}
+    
     # ! Координаты никак не используются в модели
     # Долгота
     x::Float64

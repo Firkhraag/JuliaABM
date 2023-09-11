@@ -295,7 +295,7 @@ function create_parents_with_children(
     household_id::Int,
     # Вирусы
     viruses::Vector{Virus},
-    # Средняя заболеваемость по неделям, возрастным группам и инфекциям
+    # Средняя заболеваемость по неделям, возрастным группам и вирусам
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
     # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
@@ -938,7 +938,9 @@ function create_two_pairs_with_children_with_others(
     household_id::Int,
     # Вирусы
     viruses::Vector{Virus},
+    # Средняя заболеваемость по неделям, возрастным группам и вирусам
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
@@ -1265,10 +1267,15 @@ function create_two_pairs_with_children_with_others(
 end
 
 function create_parent_with_children(
+    # Id агента
     agent_id::Int,
+    # Id домохозяйства
     household_id::Int,
+    # Вирусы
     viruses::Vector{Virus},
+    # Средняя заболеваемость по неделям, возрастным группам и вирусам
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
@@ -1881,10 +1888,15 @@ end
 
 # Создание агентов для прочих типов домохозяйств
 function create_others(
+    # Id агента
     agent_id::Int,
+    # Id домохозяйства
     household_id::Int,
+    # Вирусы
     viruses::Vector{Virus},
+    # Средняя заболеваемость по неделям, возрастным группам и вирусам
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
@@ -2225,14 +2237,23 @@ function create_others(
 end
 
 function create_population(
+    # Id потока
     thread_id::Int,
+    # Число потоков
     num_threads::Int,
+    # Генератор случайных чисел для потоков
     thread_rng::Vector{MersenneTwister},
+    # Id первого агента для потока
     start_agent_id::Int,
+    # Агенты
     all_agents::Vector{Agent},
+    # Домохозяйства
     households::Vector{Household},
+    # Вирусы
     viruses::Vector{Virus},
+    # Средняя заболеваемость по неделям, возрастным группам и вирусам
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
@@ -2241,6 +2262,7 @@ function create_population(
     district_households::Matrix{Int},
     district_people::Matrix{Float64},
     district_people_households::Matrix{Float64},
+    # Уровни восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
     immune_memory_susceptibility_levels::Vector{Float64},
 )
     agent_id = start_agent_id

@@ -11,6 +11,8 @@ struct Household
     closest_kindergarten_id::Int
     # Id ближайшей школы
     closest_school_id::Int
+    
+    # ! Не используется
     # Id ближайшего магазина
     closest_shop_id::Int
     # Id ближайшего ресторана

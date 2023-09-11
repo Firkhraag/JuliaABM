@@ -27,7 +27,7 @@ function make_contact(
     susceptible_agent::Agent,
     # Продолжительность контакта
     contact_duration::Float64,
-    # Параметр продолжительности контакта
+    # Параметр влияния продолжительности контакта на риск инфицирования
     duration_parameter::Float64,
     # Параметр неспецифической восприимчивости
     susceptibility_parameters::Vector{Float64},
@@ -122,7 +122,7 @@ function simulate_contacts(
     other_contact_duration_shapes::Vector{Float64},
     # Среднеквадратические отклонения для контактов в прочих коллективах
     other_contact_duration_scales::Vector{Float64},
-    # Параметр продолжительности контакта
+    # Параметр влияния продолжительности контакта на риск инфицирования
     duration_parameter::Float64,
     # Параметр неспецифической восприимчивости
     susceptibility_parameters::Vector{Float64},
@@ -549,7 +549,7 @@ function run_simulation(
     households::Vector{Household},
     # Школы
     schools::Vector{School},
-    # Параметр продолжительности контакта
+    # Параметр влияния продолжительности контакта на риск инфицирования
     duration_parameter::Float64,
     # Параметры восприимчивости агентов к различным вирусам
     susceptibility_parameters::Vector{Float64},
@@ -609,21 +609,25 @@ function run_simulation(
         end
     end
     temperature_record = copy(temperature)
-    # # Минимальная температура воздуха
+    # Минимальная температура воздуха
     min_temp = -7.2
-    # # Max - Min температура
+    # Max - min температура
     max_min_temp = 26.6
 
-    num_viruses = 7
-
+    # День года
     year_day = 213
 
+    # Число шагов
     max_step = num_years * 365
+    # Если нас интересует эффективное репродуктивное число
     if is_rt_run
+        # Добавляем еще 21 день
         max_step += 21
     end
+    # Число недель
     num_weeks = 52 * num_years
 
+    # Заболеваемость на каждом шаге
     observed_num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4)
     observed_daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, num_viruses, num_threads)
     num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4)

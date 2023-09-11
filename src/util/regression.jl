@@ -1,9 +1,14 @@
 # Линейная регрессия
 function linear_regression(
+    # Независимые переменные (параметры модели)
     X::Matrix{Float64},
+    # Зависимая переменная (ошибка модели)
     y::Vector{Float64},
+    # Скорость обучения
     learning_rate::Float64,
+    # Коэффициенты
     parameters::Vector{Float64},
+    # Число прогонов
     num_runs::Int,
 )::Vector{Float64}
     for i = 1:num_runs
@@ -14,8 +19,11 @@ end
 
 # Пошаговая регрессия
 function stepwise_regression(
+    # Независимые переменные (параметры модели)
     X_params::Matrix{Float64},
+    # Зависимая переменная (ошибка модели)
     y::Vector{Float64},
+    # Число параметров, которое необходимо найти для остановки
     additional_stop_condition::Int,
 )::Vector{Int}
     X = cat(X_params, [1.0 for i = 1:length(y)], dims = 2)

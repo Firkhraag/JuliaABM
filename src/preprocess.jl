@@ -263,12 +263,14 @@ function get_num_of_people_and_households(
     thread_id::Int,
     # Число потоков
     num_threads::Int,
-    
+    # Номера муниципалитетов
     district_nums::Vector{Int},
+    # Число домохозяйств каждого типа по муниципалитетам
     district_households::Matrix{Int}
 )::Tuple{Int, Int}
     num_agents = 0
     num_households = 0
+    # Число людей в домохозяйствах различных типов
     people_num_arr = [1, 2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 4, 5, 5, 6, 6, 6, 2, 2, 3, 3, 3, 4, 4, 4, 4, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 3, 3, 4, 4, 4, 5, 5, 5, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6]
     for index in district_nums[thread_id:num_threads:size(district_nums, 1)]
         for i = 1:size(district_households, 2)
@@ -281,6 +283,7 @@ function get_num_of_people_and_households(
     return num_agents, num_households
 end
 
+# Найти ближайшие учреждения к домам
 function find_distances()
     homes_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "homes_base.csv")))
     kindergartens_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "kindergartens.csv")))
@@ -376,8 +379,11 @@ function find_distances()
     CSV.write(joinpath(@__DIR__, "..", "input", "tables", "space", "homes.csv"), homes_coords_df)
 end
 
+# Разбить муниципалитеты по потокам
 function get_district_nums(
+    # Число потоков
     num_threads::Int,
+    # Число домохозяйств каждого типа по муниципалитетам
     district_households::Matrix{Int},
 )::Vector{Int}
     num_districts = size(district_households, 1)
@@ -424,9 +430,13 @@ function get_district_nums(
 end
 
 function get_num_of_people_and_households(
+    # Id потока
     thread_id::Int,
+    # Число потоков
     num_threads::Int,
+    # Номера муниципалитетов
     district_nums::Vector{Int},
+    # Число домохозяйств каждого типа по муниципалитетам
     district_households::Matrix{Int}
 )::Tuple{Int, Int}
     num_agents = 0
@@ -443,8 +453,8 @@ function get_num_of_people_and_households(
     return num_agents, num_households
 end
 
+# Разбиваем
 function main()
-    # Число домохозяйств каждого типа по районам
     district_households = Matrix(DataFrame(CSV.File("./input/tables/district_households.csv")))
     num_threads = nthreads()
     district_nums = get_district_nums(num_threads, district_households)

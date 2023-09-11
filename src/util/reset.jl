@@ -1,13 +1,21 @@
 function reset_agent_states(
+    # Агенты
     agents::Vector{Agent},
+    # Id первого агента для потока
     start_agent_id::Int,
+    # Id последнего агента для потока
     end_agent_id::Int,
+    # Вирусы
     viruses::Vector{Virus},
+    # Средняя заболеваемость по неделям, возрастным группам и вирусам
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Уровни восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
     immune_memory_susceptibility_levels::Vector{Float64},
 )
     for agent_id in start_agent_id:end_agent_id
@@ -101,8 +109,10 @@ function reset_agent_states(
                 agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_adult
             end
 
+            # Если имеются симптомы
             if !agent.is_asymptomatic
                 # Самоизоляция
+                # 1-й день
                 if agent.days_infected >= 1
                     rand_num = rand(rng, Float64)
                     if agent.age < 3
@@ -123,6 +133,7 @@ function reset_agent_states(
                         end
                     end
                 end
+                # 2-й день
                 if agent.days_infected >= 2 && !agent.is_isolated
                     rand_num = rand(rng, Float64)
                     if agent.age < 3
@@ -143,6 +154,7 @@ function reset_agent_states(
                         end
                     end
                 end
+                # 3-й день
                 if agent.days_infected >= 3 && !agent.is_isolated
                     rand_num = rand(rng, Float64)
                     if agent.age < 3

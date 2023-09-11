@@ -15,7 +15,7 @@ mutable struct School
     quarantine_period_groups::Vector{Int}
 
     function School(
-        # 1 - детсад, 2 - школа, 3 - вуз
+        # 1 - детсад, 2 - школа, 3 - вуз (институт)
         type::Int,
         # Id района
         district_id::Int,

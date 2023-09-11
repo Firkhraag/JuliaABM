@@ -418,9 +418,6 @@ function generate_barabasi_albert_network(
         end
     end
     # Добавление новых вершин
-
-
-
     # Сумма связей всех вершин
     degree_sum = m * (m - 1)
     # Добавление новых вершин

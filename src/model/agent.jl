@@ -74,9 +74,9 @@ mutable struct Agent
         household_id::Int,
         # Вирусы
         viruses::Vector{Virus},
-        # Средняя заболеваемость по неделям, возрастным группам и инфекциям
+        # Средняя заболеваемость по неделям, возрастным группам и вирусам
         num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
-        # Вероятности самоизоляции на 1-й, 2-й и 3-й дни
+        # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
         isolation_probabilities_day_1::Vector{Float64},
         isolation_probabilities_day_2::Vector{Float64},
         isolation_probabilities_day_3::Vector{Float64},
@@ -267,12 +267,15 @@ mutable struct Agent
             end
         end
 
+        # Значения по умолчанию
         school_id = 0
         workplace_id = 0
 
+        # Находим номер группы в образовательном учреждении, в которой состоит детсадовец / школьник / студент
+        # Максимальный разброс возрастов агентов в группе - 3
         school_group_num = 0
+        # Детский сад
         if activity_type == 1
-            school_group_num = age
             if age == 1
                 school_group_num = 1
             elseif age == 2
@@ -284,6 +287,7 @@ mutable struct Agent
             else
                 school_group_num = 5
             end
+        # Школа
         elseif activity_type == 2
             if age == 6
                 school_group_num = 1
@@ -300,6 +304,7 @@ mutable struct Agent
             else
                 school_group_num = 11
             end
+        # Вуз
         elseif activity_type == 3
             if age == 18
                 school_group_num = 1
@@ -310,20 +315,28 @@ mutable struct Agent
             else
                 school_group_num = rand(rng, 5:6)
             end
+        # Работа
         elseif activity_type == 4
+            # Только одна группа
             school_group_num = 1
         end
 
+        # Значения по умолчанию
         supporter_id = 0
         needs_supporter_care = false
         on_parent_leave = false
 
-        # Уровень иммуноглобулина
+        # Общий уровень иммуноглобулинов
         ig_level = 0.0
+        # IgG
         ig_g = 0.0
+        # IgA
         ig_a = 0.0
+        # IgM
         ig_m = 0.0
+        # Минимальный общий уровень иммуноглобулинов
         min_ig_level = 238.87
+        # Разница между максимальным и минимальным общими уровенями иммуноглобулинов
         max_min_ig_level_diff = 2899.13
         if age == 0
             if infant_age == 1
@@ -402,9 +415,11 @@ mutable struct Agent
                 ig_m = rand(rng, truncated(Normal(116, 39.3), 24, 208))
             end
         end
+        # Нормализованный общий уровень иммуноглобулинов
         ig_level = (ig_g + ig_a + ig_m - min_ig_level) / max_min_ig_level_diff
 
         # Информация при болезни
+        # Значения по умолчанию
         is_infected = false
         virus_id = 0
         is_newly_infected = false
@@ -454,6 +469,7 @@ mutable struct Agent
             end
         end
 
+        # Если агент инфицирован
         if is_infected
             # Инкубационный период
             incubation_period = get_period_from_erlang(
@@ -492,7 +508,9 @@ mutable struct Agent
                 is_asymptomatic = rand_num > viruses[virus_id].symptomatic_probability_adult
             end
 
+            # Если имеются симптомы, то есть вероятность, что агент самоизолируется
             if !is_asymptomatic
+                # 1-й день болезни
                 if days_infected >= 1
                     rand_num = rand(rng, Float64)
                     if age < 3
@@ -513,6 +531,7 @@ mutable struct Agent
                         end
                     end
                 end
+                # 2-й день болезни
                 if days_infected >= 2 && !is_isolated
                     rand_num = rand(rng, Float64)
                     if age < 3
@@ -533,6 +552,7 @@ mutable struct Agent
                         end
                     end
                 end
+                # 3-й день болезни
                 if days_infected >= 3 && !is_isolated
                     rand_num = rand(rng, Float64)
                     if age < 3
