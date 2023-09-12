@@ -226,6 +226,7 @@ function run_simulation_evaluation(
     other_contact_duration_scales::Vector{Float64},
     # Если выходной
     is_holiday::Bool,
+)
     # Матрица числа контактов между возрастами
     contacts_num_matrix_by_age_threads = zeros(Int, num_threads, 90, 90)
     # Матрица продолжительности контактов между возрастами

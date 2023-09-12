@@ -1481,10 +1481,10 @@ function main(
 
     # -----------------------------------
     # Число дней закрытия класса или школы на карантин
-    school_class_closure_period = 0
-    # school_class_closure_period = 7
+    # school_class_closure_period = 0
+    school_class_closure_period = 7
     # Процент отсутствующих учеников по причине болезни для того, чтобы школа закрылась на карантин
-    school_class_closure_threshold = 0.3
+    school_class_closure_threshold = 0.2
     # [0.2  0.1  0.3  0.2_14  0.1_14]
 
     # Для сценария глобального потепления
@@ -1654,7 +1654,7 @@ function main(
     # Анализ чувствительности для всех параметров модели
     # --------------------------
     # global_sensitivity(
-    #     300,
+    #     1,
     #     0,
     #     0.05,
     #     num_threads,

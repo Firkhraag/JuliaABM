@@ -1,20 +1,23 @@
 
 # Функция продолжительности контакта
 function get_contact_duration(
-    # Средняя продолжительность контакта
-    mean::Float64,
-    # Среднеквадратическое отклонение
-    sd::Float64,
+    # Если нормальное распределение - средняя продолжительность контакта
+    # Если гамма распределение - shape
+    param1::Float64,
+    # Если нормальное распределение - cреднеквадратическое отклонение
+    # Если гамма распределение - scale
+    param2::Float64,
     # Генератор случайных чисел
     rng::MersenneTwister,
     # Выбирается из нормального распределения
     is_normal::Bool
 )
     if is_normal
-        return rand(rng, truncated(Normal(mean, sd), 0.0, 24.0))
+        return rand(rng, truncated(Normal(param1, param2), 0.0, 24.0))
     else
         # Гамма распределение
-        return rand(rng, Gamma(shape, scale))
+        return rand(rng, Gamma(param1, param2))
+    end
 end
 
 # Функция контакта между агентами
@@ -323,64 +326,90 @@ function update_agent_states(
     isolation_probabilities_day_3::Vector{Float64},
     # Текущий шаг
     current_step::Int,
+    # Выявленная заболеваемость различными вирусами в разных возрастных группах для потоков
     observed_daily_new_cases_age_groups_viruses_threads::Array{Int, 4},
+    # Общая заболеваемость различными вирусами в разных возрастных группах для потоков
     daily_new_cases_age_groups_viruses_threads::Array{Int, 4},
+    # Сумма всех инфицирований агентами, зараженными на каждом шаге
     rt_threads::Matrix{Float64},
+    # Число агентов, зараженных на каждом шаге
     rt_count_threads::Matrix{Float64},
+    # Заболеваемость по районам города
     num_infected_districts_threads::Array{Int, 3},
     # Уровни восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
     immune_memory_susceptibility_levels::Vector{Float64},
 )
+    # Проходим по агентам потока
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
 
+        # Если агент-школьник находится на карантине
         if agent.quarantine_period > 0
             agent.quarantine_period -= 1
         end
 
+        # Если в резистентном состоянии
         if agent.days_immune != 0
+            # Если резистентное состояние закончилось
             if agent.days_immune == agent.days_immune_end
                 # Переход из резистентного состояния в восприимчивое
                 agent.days_immune = 0
             else
+                # Увеличиваем счетчик
                 agent.days_immune += 1
             end
         end
 
         # Продолжительности типоспецифического иммунитета
+        # Для каждого вируса
         for i = 1:num_viruses
+            # Если есть иммунитет
             if agent.viruses_days_immune[i] != 0
+                # Если иммунитет закончился
                 if agent.viruses_days_immune[i] == agent.viruses_immunity_end[i]
+                    # Снова восприимчив с уровнм восприимчивости равным immune_memory_susceptibility_level
                     agent.viruses_days_immune[i] = 0
                     agent.immunity_susceptibility_levels[i] = immune_memory_susceptibility_levels[i]
                 else
+                    # Увеличиваем счетчик
                     agent.viruses_days_immune[i] += 1
+                    # Находим восприимчивость агента к вирусу
                     agent.immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(
                         agent.viruses_days_immune[i], agent.viruses_immunity_end[i],immune_memory_susceptibility_levels[i])
                 end
             end
         end
 
+        # Если агент инфицирован
         if agent.virus_id != 0 && !agent.is_newly_infected
+            # Если период болезни закончился
             if agent.days_infected == agent.infection_period
+                # Шаг, когда агент был инфицирован
                 infection_time = current_step - agent.infection_period - agent.incubation_period - 1
                 if infection_time > 0
+                    # Добавляем, число людей, которые были инфицированы агентом
                     rt_threads[infection_time, thread_id] += agent.num_infected_agents
+                    # Добавляем инфицирование
                     rt_count_threads[infection_time, thread_id] += 1
                 end
-                agent.num_infected_agents = 0
 
+                # Переход в резистентное состояние
                 agent.viruses_days_immune[agent.virus_id] = 1
                 agent.viruses_immunity_end[agent.virus_id] = trunc(Int, rand(rng, truncated(Normal(viruses[agent.virus_id].mean_immunity_duration, viruses[agent.virus_id].immunity_duration_sd), 1.0, 1000.0)))
                 agent.days_immune = 1
                 agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), 1.0, 12.0)))
+                # Устанавливаем значения по умолчанию
+                agent.num_infected_agents = 0
                 agent.virus_id = 0
                 agent.is_isolated = false
 
+                # Если агент нуждался в уходе за собой
                 if agent.needs_supporter_care
                     is_support_still_needed = false
+                    # Проходим по всем детям попечителя данного агента
                     for dependant_id in agents[agent.supporter_id].dependant_ids
                         dependant = agents[dependant_id]
+                        # Если ребенок болен и нуждается в уходе
                         if dependant.needs_supporter_care &&
                             dependant.virus_id != 0 &&
                             !dependant.is_asymptomatic &&
@@ -390,14 +419,17 @@ function update_agent_states(
                             is_support_still_needed = true
                         end
                     end
+                    # Если попечителю больше не надо сидеть дома
                     if !is_support_still_needed
                         agents[agent.supporter_id].on_parent_leave = false
                     end
                 end
             else
+                # Прибавляем день к счетчику дней в инфицированном состоянии
                 agent.days_infected += 1
-
+                # Если присутствуют симптомы и агент еще не самоизолирован
                 if !agent.is_asymptomatic && !agent.is_isolated
+                    # Агент самоизолируется с некой вероятностью на 1-й, 2-й и 3-й дни болезни
                     if agent.days_infected == 1
                         rand_num = rand(rng, Float64)
                         if agent.age < 3
@@ -456,6 +488,7 @@ function update_agent_states(
                             end
                         end
                     end
+                    # Если агент самоизолировался, то добавляем случай в выявленную заболеваемость
                     if agent.is_isolated
                         if agent.age < 3
                             observed_daily_new_cases_age_groups_viruses_threads[current_step, 1, agent.virus_id, thread_id] += 1
@@ -470,6 +503,7 @@ function update_agent_states(
                     end
                 end
 
+                # Если нужен уход, то агент-попечитель будет сидеть с ребенком дома
                 if agent.supporter_id != 0 &&
                     agent.needs_supporter_care &&
                     !agent.is_asymptomatic &&
@@ -479,6 +513,7 @@ function update_agent_states(
                     agents[agent.supporter_id].on_parent_leave = true
                 end
             end
+        # Если агент был заражен на текущем шаге
         elseif agent.is_newly_infected
             if agent.age < 3
                 daily_new_cases_age_groups_viruses_threads[current_step, 1, agent.virus_id, thread_id] += 1
@@ -514,8 +549,10 @@ function update_agent_states(
                     rng)
             end
 
+            # Счетчик числа дней в инфицированном состоянии
             agent.days_infected = 1 - agent.incubation_period
 
+            # Будет ли болезнь протекать бессимптомно
             rand_num = rand(rng, Float64)
             if agent.age < 10
                 agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_child
@@ -525,10 +562,13 @@ function update_agent_states(
                 agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_adult
             end
             
+            # Переходит в инкубационный период
             agent.is_newly_infected = false
         end
 
+        # Посещение образовательного учреждения на следующем шаге
         agent.attendance = true
+        # Вероятность прогула для вуза
         if agent.activity_type == 3 && !agent.is_teacher && rand(rng, Float64) < skip_college_probability
             agent.attendance = false
         end
@@ -627,20 +667,29 @@ function run_simulation(
     # Число недель
     num_weeks = 52 * num_years
 
-    # Заболеваемость на каждом шаге
+    # Выявленная заболеваемость различными вирусами в разных возрастных группах
     observed_num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4)
+    # Выявленная заболеваемость различными вирусами в разных возрастных группах для потоков
     observed_daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, num_viruses, num_threads)
+    # Общая заболеваемость различными вирусами в разных возрастных группах
     num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4)
+    # Общая заболеваемость различными вирусами в разных возрастных группах для потоков
     daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, num_viruses, num_threads)
+    # Заболеваемость в коллективах для потоков
     activities_infections_threads = zeros(Int, max_step, 5, num_threads)
+    # Сумма всех инфицирований агентами, зараженными на каждом шаге
     rt_threads = zeros(Float64, max_step, num_threads)
+    # Число агентов, зараженных на каждом шаге
     rt_count_threads = zeros(Float64, max_step, num_threads)
-
+    # Число закрытий школ на карантин для потоков
     num_schools_closed_threads = zeros(Float64, max_step, num_threads)
-
+    # Заболеваемость по районам города
     num_infected_districts_threads = zeros(Int, 107, max_step, num_threads)
 
     for current_step = 1:max_step
+        # Debug
+        # println(current_step)
+        
         # Выходные, праздники
         is_holiday = false
         if week_day == 7
@@ -698,6 +747,7 @@ function run_simulation(
             is_college_holiday = true
         end
 
+        # Моделируем контакты
         @threads for thread_id in 1:num_threads
             simulate_contacts(
                 thread_id,
@@ -726,35 +776,45 @@ function run_simulation(
         # Если сценарий карантина
         if school_class_closure_period > 0
             @threads for thread_id in 1:num_threads
+                # Проходим по каждой школе потока
                 for school_id in start_school_ids[thread_id]:end_school_ids[thread_id]
                     school = schools[school_id]
                     # Если школа не на карантине
                     if school.quarantine_period == 0
+                        # Число самоизолированных агентов или людей на карантине в школе
                         school_num_isolated = 0
+                        # Число агентов в школе
                         school_num_people = 0
-                        # num_closed_classrooms = 0
+                        # Проходим по каждому году обучения
                         for groups_id in 1:length(school.groups)
-                            # Параллели классов
                             groups = school.groups[groups_id]
                             # Если параллель не на карантине
                             if school.quarantine_period_groups[groups_id] == 0
+                                # Число самоизолированных агентов или людей на карантине в параллели
                                 groups_num_isolated = 0
+                                # Число агентов в параллели
                                 groups_num_people = 0
+                                # Проходим по каждому классу
                                 for group in groups
+                                    # Число самоизолированных агентов или людей на карантине в классе
                                     num_isolated = 0
+                                    # Проходим по агентам класса
                                     for agent_id in group
                                         agent = agents[agent_id]
+                                        # Если агент не является преподавателем
                                         if !agent.is_teacher
+                                            # Если класс уже на карантине
                                             if agent.quarantine_period > 1
-                                                # Класс на карантине
-                                                # num_closed_classrooms += 1
+                                                # Прибавляем число учеников в классе
                                                 school_num_isolated += length(group) - 1
                                                 school_num_people += length(group) - 1
                                                 groups_num_people += length(group) - 1
                                                 break
                                             end
+                                            # Если агент самоизолирован
                                             if agent.is_isolated
                                                 num_isolated += 1
+                                                # Прибавляем одного ученика как изолированного
                                                 school_num_isolated += 1
                                                 groups_num_isolated += 1
                                             end
@@ -762,11 +822,15 @@ function run_simulation(
                                             groups_num_people += 1
                                         end
                                     end
+                                    # Если превышен порог заболеваемости
                                     if length(group) > 1 && num_isolated / (length(group) - 1) > school_class_closure_threshold
                                         for agent_id in group
                                             agent = agents[agent_id]
+                                            # Класс закрывается на карантин
                                             agent.quarantine_period = school_class_closure_period + 1
+                                            # Если агент не самоизолирован
                                             if !agent.is_isolated
+                                                # Прибавляем к числу самоизолированных или людей на карантине для параллели и школы
                                                 school_num_isolated += 1
                                                 groups_num_isolated += 1
                                             end
@@ -774,68 +838,76 @@ function run_simulation(
                                     end
                                 end
 
+                                # Если превышен порог заболеваемости для параллели
                                 if groups_num_isolated / groups_num_people > school_class_closure_threshold
+                                    # Закрываем каждую группу на карантин
                                     for group in groups
                                         for agent_id in group
                                             agent = agents[agent_id]
+                                            # Добавляем агентов на карантине к школе
+                                            if !agent.is_isolated || agent.quarantine_period == 0
+                                                school_num_isolated += 1
+                                            end
+                                            # Присваиваем агенту карантин
                                             agent.quarantine_period = school_class_closure_period + 1
                                         end
                                     end
+                                    # Присваиваем параллели карантин
                                     school.quarantine_period_groups[groups_id] = school_class_closure_period
                                 end
+                            # Если параллель на карантине
                             else
-                                # Учитываем учеников на карантине
+                               # Уменьшаем число дней на карантине
                                 school.quarantine_period_groups[groups_id] -= 1
+                                # Если карантин не закончился
                                 if school.quarantine_period_groups[groups_id] > 0
                                     for group in groups
+                                        # Добавляем число учеников в параллели
                                         school_num_isolated += length(group) - 1
                                         school_num_people += length(group) - 1
                                     end
                                 end
                             end
                         end
-                        # println(school_num_isolated / school_num_people)
-
-                        # if num_closed_classrooms >= school_closure_threshold_classes
-                        #     for groups in school.groups
-                        #         for group in groups
-                        #             for agent_id in group
-                        #                 agent = agents[agent_id]
-                        #                 agent.quarantine_period = school_class_closure_period + 1
-                        #             end
-                        #         end
-                        #     end
-                        #     school.quarantine_period = school_class_closure_period
-                        #     num_schools_closed_threads[current_step] += 1
-                        # end
                         
+                        # Если превышен порог заболеваемости для школы
                         if school_num_isolated / school_num_people > school_class_closure_threshold
+                            # Проходим по каждой параллели
                             for groups in school.groups
+                                # По каждому классу
                                 for group in groups
+                                    # По каждому агенту
                                     for agent_id in group
                                         agent = agents[agent_id]
+                                        # Агент на карантине
                                         agent.quarantine_period = school_class_closure_period + 1
                                     end
                                 end
                             end
+                            # Закрываем школу на карантин
                             school.quarantine_period = school_class_closure_period
                             num_schools_closed_threads[current_step, thread_id] += 1
                         end
+                    # Если школа уже закрыта на карантин
                     else
+                        # Уменьшаем число дней на карантине
                         school.quarantine_period -= 1
+                        # Параллели классов
                         for groups_id in 1:length(school.groups)
-                            # Параллели классов
                             groups = school.groups[groups_id]
                             # Если параллель на карантине
                             if school.quarantine_period_groups[groups_id] > 0
+                                # Уменьшаем число дней на карантине
                                 school.quarantine_period_groups[groups_id] -= 1
                             end
+                            # Для классов уменьшение числа дней на карантине происходит в функции обновления состояния агентов ниже
                         end
                     end
                 end
             end
         end
 
+        # Обновляем состояния агентов
         @threads for thread_id in 1:num_threads
             update_agent_states(
                 thread_id,
@@ -912,11 +984,13 @@ function run_simulation(
         writedlm(
             joinpath(@__DIR__, "..", "..", "output", "tables", "temperature_$(round(Int, global_warming_temp)).csv"), temperature_record, ',')
     end
-
+    
+    # Эффективное репродуктивное число
     rt = sum(rt_threads, dims = 2)[:, 1]
     rt_count = sum(rt_count_threads, dims = 2)[:, 1]
     rt = rt ./ rt_count
 
+    # Еженедельная заболеваемость
     observed_num_infected_age_groups_viruses_weekly = zeros(Int, (num_weeks), num_viruses, 4)
     for i = 1:(num_weeks)
         observed_num_infected_age_groups_viruses_weekly[i, :, :] = sum(observed_num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :], dims = 1)

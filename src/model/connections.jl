@@ -62,9 +62,9 @@ function set_connections(
             group_id = length(groups)
             # Если класс заполнен
             if (agent.school_group_num < 5 && 
-                size(groups[group_id], 1) == school_groups_size_5_9) ||
-                (agent.school_group_num < 9 && size(groups[group_id], 1) == school_groups_size_10_14) ||
-                (agent.school_group_num < 12 && size(groups[group_id], 1) == school_groups_size_15)
+                size(groups[group_id], 1) == school_groups_size_1_4) ||
+                (agent.school_group_num < 9 && size(groups[group_id], 1) == school_groups_size_5_8) ||
+                (agent.school_group_num < 12 && size(groups[group_id], 1) == school_groups_size_9_11)
                 # Создаем новый класс
                 push!(groups, Int[])
                 group_id += 1

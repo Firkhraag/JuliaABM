@@ -51,14 +51,14 @@ function reset_agent_states(
         # Информация по иммунитету к вирусам
         agent.viruses_days_immune = zeros(Int, num_viruses)
         agent.viruses_immunity_end = zeros(Int, num_viruses)
-        agent.viruses_immunity_susceptibility_levels = zeros(Float64, num_viruses) .+ 1.0
+        agent.immunity_susceptibility_levels = zeros(Float64, num_viruses) .+ 1.0
 
         for i = 1:num_viruses
             if agent.virus_id != i
                 for week_num = 1:51
                     if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, i, age_group] / num_agents_age_groups[age_group]
                         agent.viruses_immunity_end[i] = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
-                        agent.viruses_days_immune = 365 - week_num * 7 + 1
+                        agent.viruses_days_immune[i] = 365 - week_num * 7 + 1
                         if agent.viruses_days_immune[i] > agent.viruses_immunity_end[i]
                             agent.viruses_immunity_end[i] = 0
                             agent.viruses_days_immune[i] = 0
