@@ -38,7 +38,6 @@ end
 
 function plot_immunity_protection_influence()
     mean_immunity_durations = [359, 326, 128, 87, 110, 167, 154]
-    immune_memory_susceptibility_levels = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 
     ticks = range(1, stop = 360, length = 7)
     ticklabels = ["1" "60" "120" "180" "240" "300" "360"]
@@ -59,7 +58,7 @@ function plot_immunity_protection_influence()
 
     infectivity_plot = plot(
         1:365,
-        [find_immunity_susceptibility_level.(arr, mean_immunity_durations[i], immune_memory_susceptibility_levels[i]) for i = 1:num_viruses],
+        [find_immunity_susceptibility_level.(arr, mean_immunity_durations[i]) for i = 1:num_viruses],
         xticks = (ticks, ticklabels),
         yticks = (yticks, yticklabels),
         lw = 1.5,

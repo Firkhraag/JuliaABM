@@ -36,7 +36,6 @@ function main()
         susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_initial_runs + num_files)
         temperature_parameters = Array{Vector{Float64}, 1}(undef, num_initial_runs + num_files)
         random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_initial_runs + num_files)
-        # immune_memory_susceptibility_levels = Array{Vector{Float64}, 1}(undef, num_initial_runs + num_files)
         mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_initial_runs + num_files)
 
         for i = 1:num_initial_runs
@@ -44,7 +43,6 @@ function main()
             duration_parameters[i] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "initial", "results_$(i).jld"))["duration_parameter"]
             susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "initial", "results_$(i).jld"))["susceptibility_parameters"]
             temperature_parameters[i] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "initial", "results_$(i).jld"))["temperature_parameters"]
-            # immune_memory_susceptibility_levels[i] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "initial", "results_$(i).jld"))["immune_memory_susceptibility_levels"]
             mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "initial", "results_$(i).jld"))["mean_immunity_durations"]
             random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "initial", "results_$(i).jld"))["random_infection_probabilities"]
         end
@@ -54,7 +52,6 @@ function main()
             duration_parameters[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "procedure", "results_$(i).jld"))["duration_parameter"]
             susceptibility_parameters[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "procedure", "results_$(i).jld"))["susceptibility_parameters"]
             temperature_parameters[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "procedure", "results_$(i).jld"))["temperature_parameters"]
-            # immune_memory_susceptibility_levels[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "procedure", "results_$(i).jld"))["immune_memory_susceptibility_levels"]
             mean_immunity_durations[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "procedure", "results_$(i).jld"))["mean_immunity_durations"]
             random_infection_probabilities[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "surrogate", "tables", "procedure", "results_$(i).jld"))["random_infection_probabilities"]
         end
@@ -75,9 +72,6 @@ function main()
             for k = 1:4
                 X[i, 1 + 3 * num_viruses + k] = random_infection_probabilities[i][k]
             end
-            # for k = 1:num_viruses
-            #     X[i, 1 + 4 * num_viruses + k] = immune_memory_susceptibility_levels[i][k]
-            # end
         end
 
         etiology = get_etiology()
@@ -224,8 +218,6 @@ function main()
             temperature_parameters_default,
             mean_immunity_durations_default,
             random_infection_probabilities_default,
-            # immune_memory_susceptibility_levels_default,
-            [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
             num_files,
         )
     end

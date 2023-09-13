@@ -97,10 +97,11 @@ function infect_randomly(
     # Генератор случайных чисел
     rng::MersenneTwister,
 )
-    rand_num = rand(rng, 1:num_viruses)
+    # Id случайного вируса
+    rand_virus_id = rand(rng, 1:num_viruses)
     # Если случайное инфицирование прошло успешно
-    if rand(rng, Float64) < agent.immunity_susceptibility_levels[rand_num]
-        agent.virus_id = rand_num
+    if rand(rng, Float64) < agent.immunity_susceptibility_levels[rand_virus_id]
+        agent.virus_id = rand_virus_id
         agent.is_newly_infected = true
     end
 end
@@ -336,8 +337,6 @@ function update_agent_states(
     rt_count_threads::Matrix{Float64},
     # Заболеваемость по районам города
     num_infected_districts_threads::Array{Int, 3},
-    # Уровни восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
-    immune_memory_susceptibility_levels::Vector{Float64},
 )
     # Проходим по агентам потока
     for agent_id = start_agent_id:end_agent_id
@@ -369,13 +368,13 @@ function update_agent_states(
                 if agent.viruses_days_immune[i] == agent.viruses_immunity_end[i]
                     # Снова восприимчив с уровнм восприимчивости равным immune_memory_susceptibility_level
                     agent.viruses_days_immune[i] = 0
-                    agent.immunity_susceptibility_levels[i] = immune_memory_susceptibility_levels[i]
+                # Если иммунитет еще есть
                 else
                     # Увеличиваем счетчик
                     agent.viruses_days_immune[i] += 1
-                    # Находим восприимчивость агента к вирусу
+                    # Повышаем восприимчивость к вирусу
                     agent.immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(
-                        agent.viruses_days_immune[i], agent.viruses_immunity_end[i],immune_memory_susceptibility_levels[i])
+                        agent.viruses_days_immune[i], agent.viruses_immunity_end[i])
                 end
             end
         end
@@ -596,7 +595,7 @@ function run_simulation(
     # Параметры для температуры воздуха
     temperature_parameters::Vector{Float64},
     # Температура воздуха
-    temperature_base::Vector{Float64},
+    temperature::Vector{Float64},
     # Средние продолжительности контактов в домохозяйствах
     mean_household_contact_durations::Vector{Float64},
     # Среднеквадр. откл. продолжительности контактов в домохозяйствах
@@ -619,8 +618,6 @@ function run_simulation(
     num_years::Int,
     # Учитывать эффективное репродуктивное число
     is_rt_run::Bool,
-    # Уровни восприимчивости (клетки памяти) к инфекции после перенесенной болезни и исчезновения иммунитета
-    immune_memory_susceptibility_levels::Vector{Float64},
     # Сценарий введения карантина в школах
     # Продолжительность закрытия школы / класса
     school_class_closure_period::Int = 0,
@@ -638,17 +635,13 @@ function run_simulation(
     # Номер недели
     week_num = 1
 
-    global_warming_temp = 1.0
-
-    # Температура воздуха
-    temperature = copy(temperature_base)
     # Если глобальное потепление
     if with_global_warming
+        global_warming_temp = 1.0
         for i = 1:length(temperature)
             temperature[i] += rand(Normal(global_warming_temp, 0.25 * global_warming_temp))
         end
     end
-    temperature_record = copy(temperature)
     # Минимальная температура воздуха
     min_temp = -7.2
     # Max - min температура
@@ -747,7 +740,6 @@ function run_simulation(
             is_college_holiday = true
         end
 
-        # Моделируем контакты
         @threads for thread_id in 1:num_threads
             simulate_contacts(
                 thread_id,
@@ -907,7 +899,6 @@ function run_simulation(
             end
         end
 
-        # Обновляем состояния агентов
         @threads for thread_id in 1:num_threads
             update_agent_states(
                 thread_id,
@@ -928,7 +919,6 @@ function run_simulation(
                 rt_threads,
                 rt_count_threads,
                 num_infected_districts_threads,
-                immune_memory_susceptibility_levels,
             )
         end
 
@@ -968,23 +958,8 @@ function run_simulation(
         if year_day > 365
             year_day = 1
         end
-
-        # Если сценарий глобального потепления
-        if with_global_warming && current_step % 365 == 0
-            temperature = copy(temperature_base)
-            for i = 1:length(temperature)
-                temperature[i] += rand(Normal(global_warming_temp, 0.25 * global_warming_temp))
-            end
-            append!(temperature_record, temperature)
-        end
     end
 
-    # Если сценарий глобального потепления, то записываем температуру воздуха
-    if with_global_warming
-        writedlm(
-            joinpath(@__DIR__, "..", "..", "output", "tables", "temperature_$(round(Int, global_warming_temp)).csv"), temperature_record, ',')
-    end
-    
     # Эффективное репродуктивное число
     rt = sum(rt_threads, dims = 2)[:, 1]
     rt_count = sum(rt_count_threads, dims = 2)[:, 1]

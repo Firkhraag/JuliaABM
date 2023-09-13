@@ -64,7 +64,7 @@ mutable struct Agent
     num_infected_agents::Int
     # Число дней на школьном карантине
     quarantine_period::Int
-    # Уровни восприимчивости (клетки памяти) к инфекции после перенесенной болезни и исчезновения иммунитета
+    # Уровни специфической восприимчивости к вирусам
     immunity_susceptibility_levels::Vector{Float64}
 
     function Agent(
@@ -88,8 +88,6 @@ mutable struct Agent
         age::Int,
         # Генератор случайных чисел
         rng::MersenneTwister,
-        # Уровни восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
-        immune_memory_susceptibility_levels::Vector{Float64},
     )
         # Возраст новорожденного
         infant_age = 0
@@ -455,14 +453,13 @@ mutable struct Agent
             if virus_id != i
                 for week_num = 1:51
                     if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, i, age_group] / num_agents_age_groups[age_group]
-                        viruses_immunity_end[i] = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+                        viruses_immunity_end[i] = trunc(Int, rand(rng, truncated(Normal(viruses[i].mean_immunity_duration, viruses[i].immunity_duration_sd), 1.0, 1000.0)))
                         viruses_days_immune[i] = 365 - week_num * 7 + 1
                         if viruses_days_immune[i] > viruses_immunity_end[i]
                             viruses_immunity_end[i] = 0
                             viruses_days_immune[i] = 0
-                            immunity_susceptibility_levels[i] = immune_memory_susceptibility_levels[i]
                         else
-                            immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(viruses_days_immune[i], viruses_immunity_end[i], immune_memory_susceptibility_levels[i])
+                            immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(viruses_days_immune[i], viruses_immunity_end[i])
                         end
                     end
                 end
@@ -660,12 +657,10 @@ function find_immunity_susceptibility_level(
     days_immune::Int,
     # Продолжительность иммунитета
     immunity_end::Int,
-    # Уровень восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
-    immune_memory_susceptibility_level::Float64,
 )::Float64
     # Если иммунитет закончился
     if days_immune > immunity_end
-        return immune_memory_susceptibility_level
+        return 1.0
     end
-    return immune_memory_susceptibility_level / (immunity_end - 1) * (days_immune - 1)
+    return 1.0 / (immunity_end - 1) * (days_immune - 1)
 end

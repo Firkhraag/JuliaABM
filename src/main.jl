@@ -68,8 +68,8 @@ end
 # Анализ чувствительности всех параметров модели
 function global_sensitivity(
     # Число прогонов модели
-    n::Int,
-    # Сколько уже сделано прогонов
+    run_num::Int,
+    # Число сохраненных прогонов модели
     starting_bias::Int,
     # Отклонение белого гауссовского шума
     disturbance::Float64,
@@ -95,245 +95,106 @@ function global_sensitivity(
     num_years::Int,
     # Стандартные значения параметров модели
     # Параметр влияния продолжительности контакта на риск инфицирования
-    duration_parameter_default::Float64,
+    duration_parameter::Float64,
     # Параметры восприимчивости агентов для различных вирусов
-    susceptibility_parameters_default::Vector{Float64},
+    susceptibility_parameters::Vector{Float64},
     # Параметры влияния температуры воздуха на вирусы
-    temperature_parameters_default::Vector{Float64},
+    temperature_parameters::Vector{Float64},
     # Средняя продолжительность контактов в домохозяйствах
-    mean_household_contact_durations_default::Vector{Float64},
+    mean_household_contact_durations::Vector{Float64},
     # Среднеквадр. откл. продолжительность контактов в домохозяйствах
-    household_contact_duration_sds_default::Vector{Float64},
+    household_contact_duration_sds::Vector{Float64},
     # Средняя продолжительность контактов в прочих коллективах
-    other_contact_duration_shapes_default::Vector{Float64},
+    other_contact_duration_shapes::Vector{Float64},
     # Среднеквадр. откл. продолжительность контактов в прочих коллективах
-    other_contact_duration_scales_default::Vector{Float64},
+    other_contact_duration_scales::Vector{Float64},
     # Вероятности самоизолироваться на 1-й, 2-й и 3-й день болезни
-    isolation_probabilities_day_1_default::Vector{Float64},
-    isolation_probabilities_day_2_default::Vector{Float64},
-    isolation_probabilities_day_3_default::Vector{Float64},
+    isolation_probabilities_day_1::Vector{Float64},
+    isolation_probabilities_day_2::Vector{Float64},
+    isolation_probabilities_day_3::Vector{Float64},
     # Вероятности случайного инфицирования для различных возрастных групп
-    random_infection_probabilities_default::Vector{Float64},
+    random_infection_probabilities::Vector{Float64},
     # Средняя продолжительность резистентного состояния
-    recovered_duration_mean_default::Float64,
+    recovered_duration_mean::Float64,
     # Среднеквадр. откл. продолжительности резистентного состояния
-    recovered_duration_sd_default::Float64,
-    # Уровни восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
-    immune_memory_susceptibility_levels_default::Vector{Float64},
+    recovered_duration_sd::Float64,
     # Средние продолжительности иммунитета
-    mean_immunity_durations_default::Vector{Float64},
+    mean_immunity_durations::Vector{Float64},
     # Средние продолжительности и дисперсия инкубационного периода
-    incubation_period_durations_default::Vector{Float64},
-    incubation_period_duration_variances_default::Vector{Float64},
+    incubation_period_durations::Vector{Float64},
+    incubation_period_duration_variances::Vector{Float64},
     # Средние продолжительности и дисперсия периода болезни для детей и взрослых
-    infection_period_durations_child_default::Vector{Float64},
-    infection_period_duration_variances_child_default::Vector{Float64},
-    infection_period_durations_adult_default::Vector{Float64},
-    infection_period_duration_variances_adult_default::Vector{Float64},
+    infection_period_durations_child::Vector{Float64},
+    infection_period_duration_variances_child::Vector{Float64},
+    infection_period_durations_adult::Vector{Float64},
+    infection_period_duration_variances_adult::Vector{Float64},
     # Вероятности наличия симптомов для детей младшего возраста, подростков и взрослых
-    symptomatic_probabilities_child_default::Vector{Float64},
-    symptomatic_probabilities_teenager_default::Vector{Float64},
-    symptomatic_probabilities_adult_default::Vector{Float64},
+    symptomatic_probabilities_child::Vector{Float64},
+    symptomatic_probabilities_teenager::Vector{Float64},
+    symptomatic_probabilities_adult::Vector{Float64},
     # Средние вирусные нагрузки для младенцев, детей и взрослых
-    mean_viral_loads_infant_default::Vector{Float64},
-    mean_viral_loads_child_default::Vector{Float64},
-    mean_viral_loads_adult_default::Vector{Float64},
+    mean_viral_loads_infant::Vector{Float64},
+    mean_viral_loads_child::Vector{Float64},
+    mean_viral_loads_adult::Vector{Float64},
 )
-    # Определяем переменные, копируя стандартные значения
-    isolation_probabilities_day_1 = copy(isolation_probabilities_day_1_default)
-    isolation_probabilities_day_2 = copy(isolation_probabilities_day_2_default)
-    isolation_probabilities_day_3 = copy(isolation_probabilities_day_3_default)
-    recovered_duration_mean = recovered_duration_mean_default
-    recovered_duration_sd = recovered_duration_sd_default
-    mean_household_contact_durations = copy(mean_household_contact_durations_default)
-    household_contact_duration_sds = copy(household_contact_duration_sds_default)
-    other_contact_duration_shapes = copy(other_contact_duration_shapes_default)
-    other_contact_duration_scales = copy(other_contact_duration_scales_default)
+    for k = eachindex(viruses)
+        viruses[k].mean_incubation_period = incubation_period_durations[k] + rand(Normal(0.0, disturbance * incubation_period_durations[k]))
+        viruses[k].incubation_period_variance = incubation_period_duration_variances[k] + rand(Normal(0.0, disturbance * incubation_period_duration_variances[k]))
+        viruses[k].mean_infection_period_child = infection_period_durations_child[k] + rand(Normal(0.0, disturbance * infection_period_durations_child[k]))
+        viruses[k].infection_period_variance_child = infection_period_duration_variances_child[k] + rand(Normal(0.0, disturbance * infection_period_duration_variances_child[k]))
+        viruses[k].mean_infection_period_adult = infection_period_durations_adult[k] + rand(Normal(0.0, disturbance * infection_period_durations_adult[k]))
+        viruses[k].infection_period_variance_adult = infection_period_duration_variances_adult[k] + rand(Normal(0.0, disturbance * infection_period_duration_variances_adult[k]))
+        viruses[k].symptomatic_probability_child = symptomatic_probabilities_child[k] + rand(Normal(0.0, disturbance * symptomatic_probabilities_child[k]))
+        viruses[k].symptomatic_probability_teenager = symptomatic_probabilities_teenager[k] + rand(Normal(0.0, disturbance * symptomatic_probabilities_teenager[k]))
+        viruses[k].symptomatic_probability_adult = symptomatic_probabilities_adult[k] + rand(Normal(0.0, disturbance * symptomatic_probabilities_adult[k]))
+        viruses[k].mean_viral_load_toddler = mean_viral_loads_infant[k] + rand(Normal(0.0, disturbance * mean_viral_loads_infant[k]))
+        viruses[k].mean_viral_load_child = mean_viral_loads_child[k] + rand(Normal(0.0, disturbance * mean_viral_loads_child[k]))
+        viruses[k].mean_viral_load_adult = mean_viral_loads_adult[k] + rand(Normal(0.0, disturbance * mean_viral_loads_adult[k]))
+    end
 
-    duration_parameter = duration_parameter_default
-    susceptibility_parameters = copy(susceptibility_parameters_default)
-    temperature_parameters = copy(temperature_parameters_default)
-    random_infection_probabilities = copy(random_infection_probabilities_default)
-    immune_memory_susceptibility_levels = copy(immune_memory_susceptibility_levels_default)
-    mean_immunity_durations = copy(mean_immunity_durations_default)
+    # Моделируем заболеваемость
+    @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed = run_simulation(
+        num_threads,
+        thread_rng,
+        agents,
+        viruses,
+        households,
+        schools,
+        duration_parameter + rand(Normal(0.0, disturbance * duration_parameter)),
+        susceptibility_parameters + rand.(Normal.(0.0, disturbance .* susceptibility_parameters)),
+        temperature_parameters + rand.(Normal.(0.0, disturbance .* (-temperature_parameters))),
+        temperature,
+        mean_household_contact_durations + rand.(Normal.(0.0, disturbance .* mean_household_contact_durations)),
+        household_contact_duration_sds + rand.(Normal.(0.0, disturbance .* household_contact_duration_sds)),
+        other_contact_duration_shapes + rand.(Normal.(0.0, disturbance .* other_contact_duration_shapes)),
+        other_contact_duration_scales + rand.(Normal.(0.0, disturbance .* other_contact_duration_scales)),
+        isolation_probabilities_day_1 + rand.(Normal.(0.0, disturbance .* isolation_probabilities_day_1)),
+        isolation_probabilities_day_2 + rand.(Normal.(0.0, disturbance .* isolation_probabilities_day_2)),
+        isolation_probabilities_day_3 + rand.(Normal.(0.0, disturbance .* isolation_probabilities_day_3)),
+        random_infection_probabilities + rand.(Normal.(0.0, disturbance .* random_infection_probabilities)),
+        recovered_duration_mean + rand.(Normal.(0.0, disturbance .* recovered_duration_mean)),
+        recovered_duration_sd + rand.(Normal.(0.0, disturbance .* recovered_duration_sd)),
+        num_years,
+        true
+    )
 
-    incubation_period_durations = copy(incubation_period_durations_default)
-    incubation_period_duration_variances = copy(incubation_period_duration_variances_default)
-    infection_period_durations_child = copy(infection_period_durations_child_default)
-    infection_period_duration_variances_child = copy(infection_period_duration_variances_child_default)
-    infection_period_durations_adult = copy(infection_period_durations_adult_default)
-    infection_period_duration_variances_adult = copy(infection_period_duration_variances_adult_default)
-    symptomatic_probabilities_child = copy(symptomatic_probabilities_child_default)
-    symptomatic_probabilities_teenager = copy(symptomatic_probabilities_teenager_default)
-    symptomatic_probabilities_adult = copy(symptomatic_probabilities_adult_default)
-    mean_viral_loads_infant = copy(mean_viral_loads_infant_default)
-    mean_viral_loads_child = copy(mean_viral_loads_child_default)
-    mean_viral_loads_adult = copy(mean_viral_loads_adult_default)
-    
-    for run_num = 1:n
-        # Копируем стандартные значения
-        for k = eachindex(isolation_probabilities_day_1_default)
-            isolation_probabilities_day_1[k] = isolation_probabilities_day_1_default[k]
-            isolation_probabilities_day_2[k] = isolation_probabilities_day_2_default[k]
-            isolation_probabilities_day_3[k] = isolation_probabilities_day_3_default[k]
-        end
-        recovered_duration_mean = recovered_duration_mean_default
-        recovered_duration_sd = recovered_duration_sd_default
-        for k = eachindex(mean_household_contact_durations_default)
-            mean_household_contact_durations[k] = mean_household_contact_durations_default[k]
-            household_contact_duration_sds[k] = household_contact_duration_sds_default[k]
-        end
-        for k = eachindex(other_contact_duration_scales_default)
-            other_contact_duration_shapes[k] = other_contact_duration_shapes_default[k]
-            other_contact_duration_scales[k] = other_contact_duration_scales_default[k]
-        end
+    # Сохраняем результаты
+    save(joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "results_$(run_num + starting_bias).jld"),
+        "observed_cases", observed_num_infected_age_groups_viruses)
 
-        duration_parameter = duration_parameter_default
-        for k = eachindex(susceptibility_parameters_default)
-            susceptibility_parameters[k] = susceptibility_parameters_default[k]
-            temperature_parameters[k] = temperature_parameters_default[k]
-        end
-
-        for k = eachindex(random_infection_probabilities_default)
-            random_infection_probabilities[k] = random_infection_probabilities_default[k]
-        end
-
-        for k = eachindex(incubation_period_durations_default)
-            incubation_period_durations[k] = incubation_period_durations_default[k]
-            incubation_period_duration_variances[k] = incubation_period_duration_variances_default[k]
-            infection_period_durations_child[k] = infection_period_durations_child_default[k]
-            infection_period_duration_variances_child[k] = infection_period_duration_variances_child_default[k]
-            infection_period_durations_adult[k] = infection_period_durations_adult_default[k]
-            infection_period_duration_variances_adult[k] = infection_period_duration_variances_adult_default[k]
-            symptomatic_probabilities_child[k] = symptomatic_probabilities_child_default[k]
-            symptomatic_probabilities_teenager[k] = symptomatic_probabilities_teenager_default[k]
-            symptomatic_probabilities_adult[k] = symptomatic_probabilities_adult_default[k]
-            mean_viral_loads_infant[k] = mean_viral_loads_infant_default[k]
-            mean_viral_loads_child[k] = mean_viral_loads_child_default[k]
-            mean_viral_loads_adult[k] = mean_viral_loads_adult_default[k]
-            # immune_memory_susceptibility_levels[k] = immune_memory_susceptibility_levels_default[k]
-            mean_immunity_durations[k] = mean_immunity_durations_default[k]
-        end
-
-        # Вносим шум
-        for k = eachindex(isolation_probabilities_day_1)
-            isolation_probabilities_day_1[k] += rand(Normal(0.0, disturbance * isolation_probabilities_day_1[k]))
-            isolation_probabilities_day_2[k] += rand(Normal(0.0, disturbance * isolation_probabilities_day_2[k]))
-            isolation_probabilities_day_3[k] += rand(Normal(0.0, disturbance * isolation_probabilities_day_3[k]))
-        end
-        recovered_duration_mean += rand(Normal(0.0, disturbance * recovered_duration_mean))
-        recovered_duration_sd += rand(Normal(0.0, disturbance * recovered_duration_sd))
-
-        for k = eachindex(mean_household_contact_durations)
-            mean_household_contact_durations[k] += rand(Normal(0.0, disturbance * mean_household_contact_durations[k]))
-            household_contact_duration_sds[k] += rand(Normal(0.0, disturbance * household_contact_duration_sds[k]))
-        end
-        for k = eachindex(other_contact_duration_scales)
-            other_contact_duration_shapes[k] += rand(Normal(0.0, disturbance * other_contact_duration_shapes[k]))
-            other_contact_duration_scales[k] += rand(Normal(0.0, disturbance * other_contact_duration_scales[k]))
-        end
-
-        duration_parameter += rand(Normal(0.0, disturbance * duration_parameter))
-        for k = eachindex(susceptibility_parameters)
-            susceptibility_parameters[k] += rand(Normal(0.0, disturbance * susceptibility_parameters[k]))
-            temperature_parameters[k] += rand(Normal(0.0, -disturbance * temperature_parameters[k]))
-        end
-
-        for k = eachindex(random_infection_probabilities)
-            random_infection_probabilities[k] += rand(Normal(0.0, disturbance * random_infection_probabilities[k]))
-        end
-
-        for k = eachindex(incubation_period_durations)
-            incubation_period_durations[k] += rand(Normal(0.0, disturbance * incubation_period_durations[k]))
-            infection_period_durations_child[k] += rand(Normal(0.0, disturbance * infection_period_durations_child[k]))
-            infection_period_duration_variances_child[k] += rand(Normal(0.0, disturbance * infection_period_duration_variances_child[k]))
-            infection_period_durations_adult[k] += rand(Normal(0.0, disturbance * infection_period_durations_adult[k]))
-            infection_period_duration_variances_adult[k] += rand(Normal(0.0, disturbance * infection_period_duration_variances_adult[k]))
-            symptomatic_probabilities_child[k] += rand(Normal(0.0, disturbance * symptomatic_probabilities_child[k]))
-            symptomatic_probabilities_teenager[k] += rand(Normal(0.0, disturbance * symptomatic_probabilities_teenager[k]))
-            symptomatic_probabilities_adult[k] += rand(Normal(0.0, disturbance * symptomatic_probabilities_adult[k]))
-            mean_viral_loads_infant[k] += rand(Normal(0.0, disturbance * mean_viral_loads_infant[k]))
-            mean_viral_loads_child[k] += rand(Normal(0.0, disturbance * mean_viral_loads_child[k]))
-            mean_viral_loads_adult[k] += rand(Normal(0.0, disturbance * mean_viral_loads_adult[k]))
-            # immune_memory_susceptibility_levels[k] += rand(Normal(0.0, disturbance * immune_memory_susceptibility_levels[k]))
-            mean_immunity_durations[k] += rand(Normal(0.0, disturbance * mean_immunity_durations[k]))
-        end
-
-        for k = eachindex(viruses)
-            viruses[k].mean_incubation_period = incubation_period_durations[k]
-            viruses[k].incubation_period_variance = incubation_period_duration_variances[k]
-            viruses[k].mean_infection_period_child = infection_period_durations_child[k]
-            viruses[k].infection_period_variance_child = infection_period_duration_variances_child[k]
-            viruses[k].mean_infection_period_adult = infection_period_durations_adult[k]
-            viruses[k].infection_period_variance_adult = infection_period_duration_variances_adult[k]
-            viruses[k].symptomatic_probability_child = symptomatic_probabilities_child[k]
-            viruses[k].symptomatic_probability_teenager = symptomatic_probabilities_teenager[k]
-            viruses[k].symptomatic_probability_adult = symptomatic_probabilities_adult[k]
-            viruses[k].mean_viral_load_toddler = mean_viral_loads_infant[k]
-            viruses[k].mean_viral_load_child = mean_viral_loads_child[k]
-            viruses[k].mean_viral_load_adult = mean_viral_loads_adult[k]
-        end
-
-        # Сбрасываем состояние синтетической популяции до начального
-        @threads for thread_id in 1:num_threads
-            reset_agent_states(
-                agents,
-                start_agent_ids[thread_id],
-                end_agent_ids[thread_id],
-                viruses,
-                num_infected_age_groups_viruses_prev,
-                isolation_probabilities_day_1,
-                isolation_probabilities_day_2,
-                isolation_probabilities_day_3,
-                thread_rng[thread_id],
-                immune_memory_susceptibility_levels,
-            )
-        end
-
-        # Моделируем заболеваемость
-        @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed = run_simulation(
-            num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
-            susceptibility_parameters, temperature_parameters, temperature,
-            mean_household_contact_durations, household_contact_duration_sds,
-            other_contact_duration_shapes, other_contact_duration_scales,
-            isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, random_infection_probabilities,
-            recovered_duration_mean, recovered_duration_sd, num_years, true,
-            immune_memory_susceptibility_levels)
-
-        # Сохраняем результаты вместе с параметрами модели
-        save(joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "results_$(run_num + starting_bias).jld"),
-            "observed_cases", observed_num_infected_age_groups_viruses,
-            "all_cases", num_infected_age_groups_viruses,
-            "activities_cases", activities_infections,
-            "rt", rt,
-            "isolation_probabilities_day_1", isolation_probabilities_day_1,
-            "isolation_probabilities_day_2", isolation_probabilities_day_2,
-            "isolation_probabilities_day_3", isolation_probabilities_day_3,
-            "recovered_duration_mean", recovered_duration_mean,
-            "recovered_duration_sd", recovered_duration_sd,
-            "mean_household_contact_durations", mean_household_contact_durations,
-            "household_contact_duration_sds", household_contact_duration_sds,
-            "other_contact_duration_shapes", other_contact_duration_shapes,
-            "other_contact_duration_scales", other_contact_duration_scales,
-            "duration_parameter", duration_parameter,
-            "susceptibility_parameters", susceptibility_parameters,
-            "temperature_parameters", temperature_parameters,
-            "random_infection_probabilities", random_infection_probabilities,
-            "immune_memory_susceptibility_levels", immune_memory_susceptibility_levels,
-            "mean_immunity_durations", mean_immunity_durations,
-            "incubation_period_durations", incubation_period_durations,
-            "incubation_period_duration_variances", incubation_period_duration_variances,
-            "infection_period_durations_child", infection_period_durations_child,
-            "infection_period_duration_variances_child", infection_period_duration_variances_child,
-            "infection_period_durations_adult", infection_period_durations_adult,
-            "infection_period_duration_variances_adult", infection_period_duration_variances_adult,
-            "symptomatic_probabilities_child", symptomatic_probabilities_child,
-            "symptomatic_probabilities_teenager", symptomatic_probabilities_teenager,
-            "symptomatic_probabilities_adult", symptomatic_probabilities_adult,
-            "mean_viral_loads_infant", mean_viral_loads_infant,
-            "mean_viral_loads_child", mean_viral_loads_child,
-            "mean_viral_loads_adult", mean_viral_loads_adult)
+    # Сбрасываем состояние синтетической популяции до начального
+    @threads for thread_id in 1:num_threads
+        reset_agent_states(
+            agents,
+            start_agent_ids[thread_id],
+            end_agent_ids[thread_id],
+            viruses,
+            num_infected_age_groups_viruses_prev,
+            isolation_probabilities_day_1,
+            isolation_probabilities_day_2,
+            isolation_probabilities_day_3,
+            thread_rng[thread_id],
+        )
     end
 end
 
@@ -380,8 +241,6 @@ function parameter_sensitivity(
     recovered_duration_sd::Float64,
     # Число лет для моделирования
     num_years::Int,
-    # Уровни восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
-    immune_memory_susceptibility_levels::Vector{Float64},
     # Средние продолжительности иммунитета
     mean_immunity_durations::Vector{Float64},
 )
@@ -393,18 +252,15 @@ function parameter_sensitivity(
     k = -2
     # Проходим по множителям
     for m in multipliers
-        # Новое значение параметра
-        duration_parameter_new = duration_parameter * m
         # Моделируем заболеваемость
         @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed = run_simulation(
-            num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_new,
+            num_threads, thread_rng, agents, viruses, households, schools, duration_parameter * m,
             susceptibility_parameters, temperature_parameters, temperature,
             mean_household_contact_durations, household_contact_duration_sds,
             other_contact_duration_shapes, other_contact_duration_scales,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
             isolation_probabilities_day_3, random_infection_probabilities,
-            recovered_duration_mean, recovered_duration_sd, num_years, false,
-            immune_memory_susceptibility_levels)
+            recovered_duration_mean, recovered_duration_sd, num_years, false)
         # Сохраняем результат
         writedlm(
             joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "2nd", "infected_data_d_$k.csv"),
@@ -421,7 +277,6 @@ function parameter_sensitivity(
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
                 thread_rng[thread_id],
-                immune_memory_susceptibility_levels,
             )
         end
         if k == -1
@@ -448,8 +303,7 @@ function parameter_sensitivity(
                 other_contact_duration_shapes, other_contact_duration_scales,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities,
-                recovered_duration_mean, recovered_duration_sd, num_years, false,
-                immune_memory_susceptibility_levels)
+                recovered_duration_mean, recovered_duration_sd, num_years, false)
             # Сохраняем результат
             writedlm(
                 joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "2nd", "infected_data_s$(i)_$k.csv"),
@@ -466,7 +320,6 @@ function parameter_sensitivity(
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
-                    immune_memory_susceptibility_levels,
                 )
             end
             if k == -1
@@ -495,8 +348,7 @@ function parameter_sensitivity(
                 other_contact_duration_shapes, other_contact_duration_scales,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities,
-                recovered_duration_mean, recovered_duration_sd, num_years, false,
-                immune_memory_susceptibility_levels)
+                recovered_duration_mean, recovered_duration_sd, num_years, false)
             writedlm(
                 joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "2nd", "infected_data_t$(i)_$k.csv"),
                 sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
@@ -512,7 +364,6 @@ function parameter_sensitivity(
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
-                    immune_memory_susceptibility_levels,
                 )
             end
             if k == -1
@@ -541,8 +392,7 @@ function parameter_sensitivity(
                 other_contact_duration_shapes, other_contact_duration_scales,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities_new,
-                recovered_duration_mean, recovered_duration_sd, num_years, false,
-                immune_memory_susceptibility_levels)
+                recovered_duration_mean, recovered_duration_sd, num_years, false)
             # Сохраняем результаты
             writedlm(
                 joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "2nd", "infected_data_p$(i)_$k.csv"),
@@ -559,7 +409,6 @@ function parameter_sensitivity(
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
-                    immune_memory_susceptibility_levels,
                 )
             end
             if k == -1
@@ -590,8 +439,7 @@ function parameter_sensitivity(
                 other_contact_duration_shapes, other_contact_duration_scales,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
                 isolation_probabilities_day_3, random_infection_probabilities,
-                recovered_duration_mean, recovered_duration_sd, num_years, false,
-                immune_memory_susceptibility_levels)
+                recovered_duration_mean, recovered_duration_sd, num_years, false)
             # Сохраняем результаты
             writedlm(
                 joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "2nd", "infected_data_r$(i)_$k.csv"),
@@ -608,7 +456,6 @@ function parameter_sensitivity(
                     isolation_probabilities_day_2,
                     isolation_probabilities_day_3,
                     thread_rng[thread_id],
-                    immune_memory_susceptibility_levels,
                 )
             end
             if k == -1
@@ -619,53 +466,6 @@ function parameter_sensitivity(
 
             for k = 1:length(viruses)
                 viruses[k].mean_immunity_duration = mean_immunity_durations[k]
-            end
-        end
-    end
-
-    # Значения для уровней восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
-    values = [1.0, 0.8, 0.6, 0.4]
-    # Для каждого вируса
-    for i in 1:num_viruses
-        k = -2
-        # Проходим по значениям
-        for v in values
-            # Присваиваем новое значение
-            immune_memory_susceptibility_levels_new = copy(immune_memory_susceptibility_levels)
-            immune_memory_susceptibility_levels_new[i] = v
-            # Моделируем заболеваемость
-            @time observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses_model, activities_infections, rt, num_schools_closed = run_simulation(
-                num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
-                susceptibility_parameters, temperature_parameters, temperature,
-                mean_household_contact_durations, household_contact_duration_sds,
-                other_contact_duration_shapes, other_contact_duration_scales,
-                isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, random_infection_probabilities,
-                recovered_duration_mean, recovered_duration_sd, num_years, false,
-                immune_memory_susceptibility_levels_new)
-            # Сохраняем результаты
-            writedlm(
-                joinpath(@__DIR__, "..", "output", "tables", "sensitivity", "2nd", "infected_data_alpha$(i)_$k.csv"),
-                sum(sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :], dims = 2)[:, 1], ',')
-            # Сбрасываем состояние синтетической популяции до начального
-            @threads for thread_id in 1:num_threads
-                reset_agent_states(
-                    agents,
-                    start_agent_ids[thread_id],
-                    end_agent_ids[thread_id],
-                    viruses,
-                    num_infected_age_groups_viruses_prev,
-                    isolation_probabilities_day_1,
-                    isolation_probabilities_day_2,
-                    isolation_probabilities_day_3,
-                    thread_rng[thread_id],
-                    immune_memory_susceptibility_levels,
-                )
-            end
-            if k == -1
-                k = 1
-            else
-                k += 1
             end
         end
     end
@@ -708,12 +508,6 @@ function lhs_simulations(
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
-    # Параметр влияния продолжительности контакта на риск инфицирования
-    duration_parameter_default::Float64,
-    # Параметры неспецифической восприимчивости агента к вирусам
-    susceptibility_parameters_default::Vector{Float64},
-    # Параметры влияния температуры воздуха на вирусы
-    temperature_parameters_default::Vector{Float64},
     # Заболеваемость в различных возрастных группах разными вирусами
     num_infected_age_groups_viruses::Array{Float64, 3},
     # Средняя продолжительность резистентного состояния
@@ -726,7 +520,6 @@ function lhs_simulations(
     mean_immunity_durations::Vector{Float64},
     # Число лет
     num_years::Int,
-    immune_memory_susceptibility_levels_default::Vector{Float64},
 )
     # Число прогонов модели
     num_files = 0
@@ -737,40 +530,6 @@ function lhs_simulations(
     # Число параметров
     # num_parameters = 33
     num_parameters = 26
-
-    # Ограничения на значения параметров
-    if duration_parameter_default > 0.95
-        duration_parameter_default = 0.95
-    end
-    if duration_parameter_default < 0.15
-        duration_parameter_default = 0.15
-    end
-
-    for i = 1:num_viruses
-        if susceptibility_parameters_default[i] < 1.1
-            susceptibility_parameters_default[i] = 1.1
-        elseif susceptibility_parameters_default[i] > 7.9
-            susceptibility_parameters_default[i] = 7.9
-        end
-
-        if temperature_parameters_default[i] < -0.95
-            temperature_parameters_default[i] = -0.95
-        elseif temperature_parameters_default[i] > -0.05
-            temperature_parameters_default[i] = -0.05
-        end
-
-        # if immune_memory_susceptibility_levels_default[i] > 0.95
-        #     immune_memory_susceptibility_levels_default[i] = 0.95
-        # elseif immune_memory_susceptibility_levels_default[i] < 0.05
-        #     immune_memory_susceptibility_levels_default[i] = 0.05
-        # end
-
-        if mean_immunity_durations[i] > 355.0
-            mean_immunity_durations[i] = 355.0
-        elseif mean_immunity_durations[i] < 35.0
-            mean_immunity_durations[i] = 35.0
-        end
-    end
 
     # Латинский гиперкуб
     latin_hypercube_plan, _ = LHCoptim(num_runs, num_parameters, 500)
@@ -806,13 +565,6 @@ function lhs_simulations(
         (0.0005, 0.001),
         (0.0002, 0.0005),
         (0.000005, 0.00001),
-        # (0.5, 1.0), # immune_memory_susceptibility_levels
-        # (0.5, 1.0), # immune_memory_susceptibility_levels
-        # (0.5, 1.0), # immune_memory_susceptibility_levels
-        # (0.5, 1.0), # immune_memory_susceptibility_levels
-        # (0.5, 1.0), # immune_memory_susceptibility_levels
-        # (0.5, 1.0), # immune_memory_susceptibility_levels
-        # (0.5, 1.0), # immune_memory_susceptibility_levels
     ])
 
     writedlm(joinpath(@__DIR__, "..", "output", "tables", "lhs", "parameters.csv"), points, ',')
@@ -825,13 +577,11 @@ function lhs_simulations(
         duration_parameter = points[i, 1]
         susceptibility_parameters = points[i, 2:8]
         temperature_parameters = points[i, 9:15]
-        immune_memory_susceptibility_levels = immune_memory_susceptibility_levels_default
         for k = 1:length(viruses)
             viruses[k].mean_immunity_duration = points[i, 15 + k]
             viruses[k].immunity_duration_sd = points[i, 15 + k] * 0.33
         end
         random_infection_probabilities = points[i, 23:26]
-        # immune_memory_susceptibility_levels =  points[i, 27:33]
 
         # Сбрасываем состояние синтетической популяции до начального
         @threads for thread_id in 1:num_threads
@@ -845,7 +595,6 @@ function lhs_simulations(
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
                 thread_rng[thread_id],
-                immune_memory_susceptibility_levels,
             )
         end
 
@@ -857,8 +606,7 @@ function lhs_simulations(
             other_contact_duration_shapes, other_contact_duration_scales,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
             isolation_probabilities_day_3, random_infection_probabilities,
-            recovered_duration_mean, recovered_duration_sd, num_years, false,
-            immune_memory_susceptibility_levels)
+            recovered_duration_mean, recovered_duration_sd, num_years, false)
 
         nMAE = 0.0
         # Если рассматривается 1 год
@@ -882,7 +630,6 @@ function lhs_simulations(
             println("duration_parameter = ", duration_parameter)
             println("susceptibility_parameters = ", susceptibility_parameters)
             println("temperature_parameters = ", temperature_parameters)
-            # println("immune_memory_susceptibility_levels = ", immune_memory_susceptibility_levels)
             println("mean_immunity_durations = ", [points[i, 16], points[i, 17], points[i, 18], points[i, 19], points[i, 20], points[i, 21], points[i, 22]])
             println("random_infection_probabilities = ", random_infection_probabilities)
         end
@@ -892,7 +639,6 @@ function lhs_simulations(
             "duration_parameter", duration_parameter,
             "susceptibility_parameters", susceptibility_parameters,
             "temperature_parameters", temperature_parameters,
-            # "immune_memory_susceptibility_levels", immune_memory_susceptibility_levels,
             "mean_immunity_durations", [points[i, 16], points[i, 17], points[i, 18], points[i, 19], points[i, 20], points[i, 21], points[i, 22]],
             "random_infection_probabilities", random_infection_probabilities)
     end
@@ -979,23 +725,6 @@ function mcmc_simulations(
         temperature_parameter_7_array[end]
     ]
 
-    immune_memory_susceptibility_level_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "immune_memory_susceptibility_level_1_array.csv"), ',', Float64, '\n'))
-    immune_memory_susceptibility_level_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "immune_memory_susceptibility_level_2_array.csv"), ',', Float64, '\n'))
-    immune_memory_susceptibility_level_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "immune_memory_susceptibility_level_3_array.csv"), ',', Float64, '\n'))
-    immune_memory_susceptibility_level_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "immune_memory_susceptibility_level_4_array.csv"), ',', Float64, '\n'))
-    immune_memory_susceptibility_level_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "immune_memory_susceptibility_level_5_array.csv"), ',', Float64, '\n'))
-    immune_memory_susceptibility_level_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "immune_memory_susceptibility_level_6_array.csv"), ',', Float64, '\n'))
-    immune_memory_susceptibility_level_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "immune_memory_susceptibility_level_7_array.csv"), ',', Float64, '\n'))
-    immune_memory_susceptibility_levels = [
-        immune_memory_susceptibility_level_1_array[end],
-        immune_memory_susceptibility_level_2_array[end],
-        immune_memory_susceptibility_level_3_array[end],
-        immune_memory_susceptibility_level_4_array[end],
-        immune_memory_susceptibility_level_5_array[end],
-        immune_memory_susceptibility_level_6_array[end],
-        immune_memory_susceptibility_level_7_array[end]
-    ]
-
     mean_immunity_duration_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "mean_immunity_duration_1_array.csv"), ',', Float64, '\n'))
     mean_immunity_duration_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "mean_immunity_duration_2_array.csv"), ',', Float64, '\n'))
     mean_immunity_duration_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "mean_immunity_duration_3_array.csv"), ',', Float64, '\n'))
@@ -1032,8 +761,7 @@ function mcmc_simulations(
         other_contact_duration_shapes, other_contact_duration_scales,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
         isolation_probabilities_day_3, random_infection_probabilities,
-        recovered_duration_mean, recovered_duration_sd, num_years, false,
-        immune_memory_susceptibility_levels)
+        recovered_duration_mean, recovered_duration_sd, num_years, false)
 
     # Число принятий новых значений параметров
     accept_num = 0
@@ -1250,7 +978,6 @@ function mcmc_simulations(
                 isolation_probabilities_day_2,
                 isolation_probabilities_day_3,
                 thread_rng[thread_id],
-                immune_memory_susceptibility_levels,
             )
         end
 
@@ -1262,8 +989,7 @@ function mcmc_simulations(
             other_contact_duration_shapes, other_contact_duration_scales,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
             isolation_probabilities_day_3, random_infection_probability,
-            recovered_duration_mean, recovered_duration_sd, num_years, false,
-            immune_memory_susceptibility_levels)
+            recovered_duration_mean, recovered_duration_sd, num_years, false)
 
         nMAE = 0.0
         # Если рассматривается 1 год
@@ -1450,7 +1176,6 @@ function main(
     # temperature_parameters::Vector{Float64} = -[0.8846019152491571, 0.9313057237697472, 0.04837343942226003, 0.13610826071131651, 0.048281056835923, 0.07401637656561208, 0.36034078438752476],
     # mean_immunity_durations::Vector{Float64} = [358.53571508348136, 326.40686999692815, 128.36635586863198, 86.9285869152992, 110.11396877548141, 166.57369789857893, 153.80184097804894],
     # random_infection_probabilities::Vector{Float64} = [0.0013742087365687383, 0.0007810400878682918, 0.00039431021797935243, 9.16649170205853e-6],
-    # immune_memory_susceptibility_levels::Vector{Float64} = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
     # surrogate_index = 0,
 
     duration_parameter::Float64 = 0.2503481267226968,
@@ -1458,7 +1183,6 @@ function main(
     temperature_parameters::Vector{Float64} = -[0.881106366325073, 0.8753443661437817, 0.04406333176390348, 0.2506091543539075, 0.056879951371666244, 0.05073912112527947, 0.3670538253470331],
     mean_immunity_durations::Vector{Float64} = [159.5310491526591, 161.27803654023342, 168.5103857184103, 137.53488557284513, 131.85619760881858, 133.24631388408923, 130.32455705494414],
     random_infection_probabilities::Vector{Float64} = [0.001, 0.0006765292934015378, 0.0004041899831193968, 9.203064199596199e-6],
-    immune_memory_susceptibility_levels::Vector{Float64} = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
 
     # Для суррогатной модели
     surrogate_index = 0,
@@ -1617,8 +1341,7 @@ function main(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id],
             agents, households, viruses, num_infected_age_groups_viruses_prev, isolation_probabilities_day_1,
             isolation_probabilities_day_2, isolation_probabilities_day_3, start_household_ids[thread_id],
-            homes_coords_df, district_households, district_people, district_people_households,
-            immune_memory_susceptibility_levels)
+            homes_coords_df, district_households, district_people, district_people_households)
     end
 
     # Установление связей между агентами
@@ -1653,48 +1376,49 @@ function main(
 
     # Анализ чувствительности для всех параметров модели
     # --------------------------
-    # global_sensitivity(
-    #     1,
-    #     0,
-    #     0.05,
-    #     num_threads,
-    #     thread_rng,
-    #     agents,
-    #     viruses,
-    #     households,
-    #     schools,
-    #     temperature,
-    #     num_infected_age_groups_viruses,
-    #     num_infected_age_groups_viruses_prev,
-    #     num_years,
-    #     duration_parameter,
-    #     susceptibility_parameters,
-    #     temperature_parameters,
-    #     mean_household_contact_durations,
-    #     household_contact_duration_sds,
-    #     other_contact_duration_shapes,
-    #     other_contact_duration_scales,
-    #     isolation_probabilities_day_1,
-    #     isolation_probabilities_day_2,
-    #     isolation_probabilities_day_3,
-    #     random_infection_probabilities,
-    #     recovered_duration_mean,
-    #     recovered_duration_sd,
-    #     immune_memory_susceptibility_levels,
-    #     mean_immunity_durations,
-    #     [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2],
-    #     [0.09, 0.0484, 0.175, 0.937, 1.51, 0.327, 0.496],
-    #     [4.8, 3.7, 10.1, 7.4, 8.0, 7.0, 6.5],
-    #     [1.12, 0.66, 4.93, 2.66, 3.1, 2.37, 2.15],
-    #     [8.8, 7.8, 11.4, 9.3, 9.0, 8.0, 7.5],
-    #     [3.748, 2.94, 6.25, 4.0, 3.92, 3.1, 2.9],
-    #     [0.38, 0.38, 0.19, 0.24, 0.15, 0.16, 0.21],
-    #     [0.47, 0.47, 0.24, 0.3, 0.19, 0.2, 0.26],
-    #     [0.57, 0.57, 0.29, 0.36, 0.23, 0.24, 0.32],
-    #     [4.6, 4.7, 3.5, 6.0, 4.1, 4.8, 4.9],
-    #     [3.5, 3.5, 2.6, 4.5, 3.1, 3.6, 3.7],
-    #     [2.3, 2.4, 1.8, 3.0, 2.1, 2.4, 2.5],
-    # )
+    # for run_num = 1:1
+    #     global_sensitivity(
+    #         run_num,
+    #         0,
+    #         0.05,
+    #         num_threads,
+    #         thread_rng,
+    #         agents,
+    #         viruses,
+    #         households,
+    #         schools,
+    #         temperature,
+    #         num_infected_age_groups_viruses,
+    #         num_infected_age_groups_viruses_prev,
+    #         num_years,
+    #         duration_parameter,
+    #         susceptibility_parameters,
+    #         temperature_parameters,
+    #         mean_household_contact_durations,
+    #         household_contact_duration_sds,
+    #         other_contact_duration_shapes,
+    #         other_contact_duration_scales,
+    #         isolation_probabilities_day_1,
+    #         isolation_probabilities_day_2,
+    #         isolation_probabilities_day_3,
+    #         random_infection_probabilities,
+    #         recovered_duration_mean,
+    #         recovered_duration_sd,
+    #         mean_immunity_durations,
+    #         [1.4, 1.0, 1.9, 4.4, 5.6, 2.6, 3.2],
+    #         [0.09, 0.0484, 0.175, 0.937, 1.51, 0.327, 0.496],
+    #         [4.8, 3.7, 10.1, 7.4, 8.0, 7.0, 6.5],
+    #         [1.12, 0.66, 4.93, 2.66, 3.1, 2.37, 2.15],
+    #         [8.8, 7.8, 11.4, 9.3, 9.0, 8.0, 7.5],
+    #         [3.748, 2.94, 6.25, 4.0, 3.92, 3.1, 2.9],
+    #         [0.38, 0.38, 0.19, 0.24, 0.15, 0.16, 0.21],
+    #         [0.47, 0.47, 0.24, 0.3, 0.19, 0.2, 0.26],
+    #         [0.57, 0.57, 0.29, 0.36, 0.23, 0.24, 0.32],
+    #         [4.6, 4.7, 3.5, 6.0, 4.1, 4.8, 4.9],
+    #         [3.5, 3.5, 2.6, 4.5, 3.1, 3.6, 3.7],
+    #         [2.3, 2.4, 1.8, 3.0, 2.1, 2.4, 2.5],
+    #     )
+    # end
     # return
     # --------------------------
 
@@ -1723,7 +1447,6 @@ function main(
     #     recovered_duration_mean,
     #     recovered_duration_sd,
     #     num_years,
-    #     immune_memory_susceptibility_levels,
     #     mean_immunity_durations,
     # )
     # return
@@ -1752,15 +1475,11 @@ function main(
     #     isolation_probabilities_day_1,
     #     isolation_probabilities_day_2,
     #     isolation_probabilities_day_3,
-    #     duration_parameter,
-    #     susceptibility_parameters,
-    #     temperature_parameters,
     #     recovered_duration_mean,
     #     recovered_duration_sd,
     #     random_infection_probabilities,
     #     mean_immunity_durations,
     #     num_years,
-    #     immune_memory_susceptibility_levels,
     # )
     # return
     # --------------------------
@@ -1804,8 +1523,7 @@ function main(
         isolation_probabilities_day_1, isolation_probabilities_day_2,
         isolation_probabilities_day_3, random_infection_probabilities,
         recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-        immune_memory_susceptibility_levels, school_class_closure_period, 
-        school_class_closure_threshold, with_global_warming)
+        school_class_closure_period, school_class_closure_threshold, with_global_warming)
 
     # Сохранение результатов работы модели
     if with_global_warming

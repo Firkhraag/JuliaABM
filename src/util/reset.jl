@@ -15,8 +15,6 @@ function reset_agent_states(
     isolation_probabilities_day_3::Vector{Float64},
     # Генератор случайных чисел
     rng::MersenneTwister,
-    # Уровни восприимчивости к инфекции после перенесенной болезни и исчезновения иммунитета
-    immune_memory_susceptibility_levels::Vector{Float64},
 )
     for agent_id in start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -49,22 +47,27 @@ function reset_agent_states(
         end
 
         # Информация по иммунитету к вирусам
-        agent.viruses_days_immune = zeros(Int, num_viruses)
-        agent.viruses_immunity_end = zeros(Int, num_viruses)
-        agent.immunity_susceptibility_levels = zeros(Float64, num_viruses) .+ 1.0
+        for i = eachindex(agent.viruses_days_immune)
+            agent.viruses_days_immune[i] = 0
+        end
+        for i = eachindex(agent.viruses_immunity_end)
+            agent.viruses_immunity_end[i] = 0
+        end
+        for i = eachindex(agent.immunity_susceptibility_levels)
+            agent.immunity_susceptibility_levels[i] = 1.0
+        end
 
         for i = 1:num_viruses
             if agent.virus_id != i
                 for week_num = 1:51
                     if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, i, age_group] / num_agents_age_groups[age_group]
-                        agent.viruses_immunity_end[i] = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
+                        agent.viruses_immunity_end[i] = trunc(Int, rand(rng, truncated(Normal(viruses[i].mean_immunity_duration, viruses[i].immunity_duration_sd), 1.0, 1000.0)))
                         agent.viruses_days_immune[i] = 365 - week_num * 7 + 1
                         if agent.viruses_days_immune[i] > agent.viruses_immunity_end[i]
                             agent.viruses_immunity_end[i] = 0
                             agent.viruses_days_immune[i] = 0
-                            agent.immunity_susceptibility_levels[i] = immune_memory_susceptibility_levels[i]
                         else
-                            agent.immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(agent.viruses_days_immune[i], agent.viruses_immunity_end[i], immune_memory_susceptibility_levels[i])
+                            agent.immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(agent.viruses_days_immune[i], agent.viruses_immunity_end[i])
                         end
                     end
                 end
