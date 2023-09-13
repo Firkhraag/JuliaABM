@@ -494,6 +494,8 @@ function lhs_simulations(
     temperature::Vector{Float64},
     # Вирусы
     viruses::Vector{Virus},
+    # Заболеваемость в различных возрастных группах разными вирусами
+    num_infected_age_groups_viruses::Array{Float64, 3},
     # Средняя заболеваемость по неделям, возрастным группам и вирусам за прошлый год
     num_infected_age_groups_viruses_prev::Array{Float64, 3},
     # Средние продолжительности контактов в домохозяйствах для разных контактов
@@ -508,8 +510,6 @@ function lhs_simulations(
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
-    # Заболеваемость в различных возрастных группах разными вирусами
-    num_infected_age_groups_viruses::Array{Float64, 3},
     # Средняя продолжительность резистентного состояния
     recovered_duration_mean::Float64,
     # Среднеквадр. откл. продолжительности резистентного состояния
@@ -583,21 +583,6 @@ function lhs_simulations(
         end
         random_infection_probabilities = points[i, 23:26]
 
-        # Сбрасываем состояние синтетической популяции до начального
-        @threads for thread_id in 1:num_threads
-            reset_agent_states(
-                agents,
-                start_agent_ids[thread_id],
-                end_agent_ids[thread_id],
-                viruses,
-                num_infected_age_groups_viruses_prev,
-                isolation_probabilities_day_1,
-                isolation_probabilities_day_2,
-                isolation_probabilities_day_3,
-                thread_rng[thread_id],
-            )
-        end
-
         # Моделируем заболеваемость
         @time observed_num_infected_age_groups_viruses, _, __, ___, ____ = run_simulation(
             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
@@ -641,6 +626,21 @@ function lhs_simulations(
             "temperature_parameters", temperature_parameters,
             "mean_immunity_durations", [points[i, 16], points[i, 17], points[i, 18], points[i, 19], points[i, 20], points[i, 21], points[i, 22]],
             "random_infection_probabilities", random_infection_probabilities)
+
+        # Сбрасываем состояние синтетической популяции до начального
+        @threads for thread_id in 1:num_threads
+            reset_agent_states(
+                agents,
+                start_agent_ids[thread_id],
+                end_agent_ids[thread_id],
+                viruses,
+                num_infected_age_groups_viruses_prev,
+                isolation_probabilities_day_1,
+                isolation_probabilities_day_2,
+                isolation_probabilities_day_3,
+                thread_rng[thread_id],
+            )
+        end
     end
 end
 
@@ -1454,34 +1454,34 @@ function main(
 
     # Использование выборки латинского гиперкуба для исследования пространства параметров модели
     # --------------------------
-    # lhs_simulations(
-    #     is_one_mean_year_modeled,
-    #     1001,
-    #     agents,
-    #     households,
-    #     schools,
-    #     num_threads,
-    #     thread_rng,
-    #     start_agent_ids,
-    #     end_agent_ids,
-    #     temperature,
-    #     viruses,
-    #     num_infected_age_groups_viruses,
-    #     num_infected_age_groups_viruses_prev,
-    #     mean_household_contact_durations,
-    #     household_contact_duration_sds,
-    #     other_contact_duration_shapes,
-    #     other_contact_duration_scales,
-    #     isolation_probabilities_day_1,
-    #     isolation_probabilities_day_2,
-    #     isolation_probabilities_day_3,
-    #     recovered_duration_mean,
-    #     recovered_duration_sd,
-    #     random_infection_probabilities,
-    #     mean_immunity_durations,
-    #     num_years,
-    # )
-    # return
+    lhs_simulations(
+        is_one_mean_year_modeled,
+        1000,
+        agents,
+        households,
+        schools,
+        num_threads,
+        thread_rng,
+        start_agent_ids,
+        end_agent_ids,
+        temperature,
+        viruses,
+        num_infected_age_groups_viruses,
+        num_infected_age_groups_viruses_prev,
+        mean_household_contact_durations,
+        household_contact_duration_sds,
+        other_contact_duration_shapes,
+        other_contact_duration_scales,
+        isolation_probabilities_day_1,
+        isolation_probabilities_day_2,
+        isolation_probabilities_day_3,
+        recovered_duration_mean,
+        recovered_duration_sd,
+        random_infection_probabilities,
+        mean_immunity_durations,
+        num_years,
+    )
+    return
     # --------------------------
 
     # Модифицированный алгоритм Метрополиса-Гастингса для поиска значений параметров, дающих минимум для модели
