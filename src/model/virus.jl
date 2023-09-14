@@ -9,31 +9,19 @@
 # Вирус
 mutable struct Virus
     # Средняя продолжительность инкубационного периода
-    mean_incubation_period::Float64
+    incubation_period_shape::Float64
     # Дисперсия продолжительности инкубационного периода
-    incubation_period_variance::Float64
-    # Минимальная продолжительность инкубационного периода
-    min_incubation_period::Int
-    # Максимальная продолжительность инкубационного периода
-    max_incubation_period::Int
+    incubation_period_scale::Float64
 
     # Средняя продолжительность периода болезни (взрослый)
-    mean_infection_period_adult::Float64
+    infection_period_adult_shape::Float64
     # Дисперсия продолжительности периода болезни (взрослый)
-    infection_period_variance_adult::Float64
-    # Минимальная продолжительность периода болезни(взрослый)
-    min_infection_period_adult::Int
-    # Максимальная продолжительность периода болезни(взрослый)
-    max_infection_period_adult::Int
+    infection_period_adult_scale::Float64
 
     # Средняя продолжительность периода болезни (ребенок)
-    mean_infection_period_child::Float64
+    infection_period_child_shape::Float64
     # Дисперсия продолжительности периода болезни (ребенок)
-    infection_period_variance_child::Float64
-    # Минимальная продолжительность периода болезни(ребенок)
-    min_infection_period_child::Int
-    # Максимальная продолжительность периода болезни(ребенок)
-    max_infection_period_child::Int
+    infection_period_child_scale::Float64
 
     # Средние вирусные нагрузки (по умолчанию для младенца)
     mean_viral_load_toddler::Float64
@@ -55,18 +43,12 @@ mutable struct Virus
     function Virus(
         mean_incubation_period::Float64,
         incubation_period_sd::Float64,
-        min_incubation_period::Int,
-        max_incubation_period::Int,
 
         mean_infection_period_adult::Float64,
         infection_period_sd_adult::Float64,
-        min_infection_period_adult::Int,
-        max_infection_period_adult::Int,
 
         mean_infection_period_child::Float64,
         infection_period_sd_child::Float64,
-        min_infection_period_child::Int,
-        max_infection_period_child::Int,
 
         mean_viral_load_toddler::Float64,
         mean_viral_load_child::Float64,
@@ -82,16 +64,10 @@ mutable struct Virus
         new(
             mean_incubation_period,
             incubation_period_sd^2,
-            min_incubation_period,
-            max_incubation_period,
             mean_infection_period_adult,
             infection_period_sd_adult^2,
-            min_infection_period_adult,
-            max_infection_period_adult,
             mean_infection_period_child,
             infection_period_sd_child^2,
-            min_infection_period_child,
-            max_infection_period_child,
             mean_viral_load_toddler,
             mean_viral_load_child,
             mean_viral_load_adult,

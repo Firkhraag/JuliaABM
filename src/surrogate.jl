@@ -87,23 +87,6 @@ function main()
         bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η, watchlist=[])
         # println(importancereport(bst))
 
-        # println("Test")
-        # for i = 1:num_files
-        #     par_vec = [duration_parameters[i + num_initial_runs]]
-        #     append!(par_vec, susceptibility_parameters[i + num_initial_runs])
-        #     append!(par_vec, temperature_parameters[i + num_initial_runs])
-        #     append!(par_vec, mean_immunity_durations[i + num_initial_runs])
-        #     append!(par_vec, random_infection_probabilities[i + num_initial_runs])
-
-        #     r = reshape(par_vec, 1, :)
-
-        #     nMAE = predict(bst, r)[1]
-
-        #     println("Real: $(y[i + num_initial_runs])")
-        #     println("Predicted: $(nMAE)")
-        # end
-        # return
-
         num_lhs_iterations = 20
         lhs_num_steps = 2000
         nMAE_min = 999999.0

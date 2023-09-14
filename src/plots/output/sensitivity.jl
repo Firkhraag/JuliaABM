@@ -30,7 +30,7 @@ function plot_work_contacts()
 
     for z = 1:num_connection_variants
         for i = 1:num_runs
-            observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "contacts", "results_w_$(z + minimum_conn_number - 1).jld"))["observed_cases"] ./ 10072
+            observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "contacts", "results_w_$(z + minimum_conn_number - 1).jld"))["incidence"] ./ 10072
             for j = 1:num_years
                 incidence_arr[z, i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
             end
@@ -164,7 +164,7 @@ function plot_school_contacts()
 
     for z = 1:num_connection_variants
         for i = 1:num_runs
-            observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "contacts", "results_s_$(z + minimum_conn_number - 1).jld"))["observed_cases"] ./ 10072
+            observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "contacts", "results_s_$(z + minimum_conn_number - 1).jld"))["incidence"] ./ 10072
             for j = 1:num_years
                 incidence_arr[z, i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
             end
@@ -471,7 +471,7 @@ function plot_infection_curves()
 
     for i = 1:num_runs_global_sensitivity
         println("Run: $(i)")
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["observed_cases"] ./ 10072
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incidence"] ./ 10072
         for k = 1:num_years
             incidence_arr[i, k] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[(52 * (k - 1) + 1):(52 * (k - 1) + 52), :, 1], dims = 2)[:, 1]
         end
@@ -659,7 +659,7 @@ function plot_infection_curves()
     incidence_arr_mean = zeros(Float64, (52 * num_years), 4)
 
     for i = 1:num_runs_global_sensitivity
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["observed_cases"]
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incidence"]
         incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 2)[1:(52 * num_years), 1, :]
     end
 

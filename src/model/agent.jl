@@ -453,7 +453,7 @@ mutable struct Agent
             if virus_id != i
                 for week_num = 1:51
                     if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, i, age_group] / num_agents_age_groups[age_group]
-                        viruses_immunity_end[i] = trunc(Int, rand(rng, truncated(Normal(viruses[i].mean_immunity_duration, viruses[i].immunity_duration_sd), 1.0, 1000.0)))
+                        viruses_immunity_end[i] = trunc(Int, rand(rng, truncated(Normal(viruses[i].mean_immunity_duration, viruses[i].immunity_duration_sd), min_immunity_duration, max_immunity_duration)))
                         viruses_days_immune[i] = 365 - week_num * 7 + 1
                         if viruses_days_immune[i] > viruses_immunity_end[i]
                             viruses_immunity_end[i] = 0
@@ -469,27 +469,15 @@ mutable struct Agent
         # Если агент инфицирован
         if is_infected
             # Инкубационный период
-            incubation_period = get_period_from_erlang(
-                viruses[virus_id].mean_incubation_period,
-                viruses[virus_id].incubation_period_variance,
-                viruses[virus_id].min_incubation_period,
-                viruses[virus_id].max_incubation_period,
-                rng)
+            incubation_period = round(Int, rand(rng, truncated(
+                Gamma(viruses[virus_id].incubation_period_shape, viruses[virus_id].incubation_period_scale), min_incubation_period, max_incubation_period)))
             # Период болезни
             if age < 16
-                infection_period = get_period_from_erlang(
-                    viruses[virus_id].mean_infection_period_child,
-                    viruses[virus_id].infection_period_variance_child,
-                    viruses[virus_id].min_infection_period_child,
-                    viruses[virus_id].max_infection_period_child,
-                    rng)
+                infection_period = round(Int, rand(rng, truncated(
+                    Gamma(viruses[virus_id].infection_period_child_shape, viruses[virus_id].infection_period_child_scale), min_infection_period, max_infection_period)))
             else
-                infection_period = get_period_from_erlang(
-                    viruses[virus_id].mean_infection_period_adult,
-                    viruses[virus_id].infection_period_variance_adult,
-                    viruses[virus_id].min_infection_period_adult,
-                    viruses[virus_id].max_infection_period_adult,
-                    rng)
+                infection_period = round(Int, rand(rng, truncated(
+                    Gamma(viruses[virus_id].infection_period_adult_shape, viruses[virus_id].infection_period_adult_scale), min_infection_period, max_infection_period)))
             end
 
             # Дней с момента инфицирования
@@ -628,27 +616,6 @@ function get_infectivity(
     k = 2 * mean_viral_load / (1 - infection_period)
     b = -k * infection_period
     return (k * days_infected + b) / 12
-end
-
-# Длительность инкубационного периода / периода болезни
-function get_period_from_erlang(
-    # Средняя продолжительность
-    mean::Float64,
-    # Дисперсия
-    variance::Float64,
-    # Нижняя граница
-    low::Int,
-    # Верхняя граница
-    upper::Int,
-    # Генератор случайных чисел
-    rng::MersenneTwister,
-)::Int
-    # Распределение Эрланга
-    shape::Int = mean * mean ÷ variance
-    scale::Float64 = mean / shape
-    return round(
-        rand(rng, truncated(
-            Erlang(shape, scale), low, upper)))
 end
 
 # Специфическая восприимчивость к вирусу, после перенесенной болезни

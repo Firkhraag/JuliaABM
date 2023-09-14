@@ -61,7 +61,7 @@ function reset_agent_states(
             if agent.virus_id != i
                 for week_num = 1:51
                     if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, i, age_group] / num_agents_age_groups[age_group]
-                        agent.viruses_immunity_end[i] = trunc(Int, rand(rng, truncated(Normal(viruses[i].mean_immunity_duration, viruses[i].immunity_duration_sd), 1.0, 1000.0)))
+                        agent.viruses_immunity_end[i] = trunc(Int, rand(rng, truncated(Normal(viruses[i].mean_immunity_duration, viruses[i].immunity_duration_sd), min_immunity_duration, max_immunity_duration)))
                         agent.viruses_days_immune[i] = 365 - week_num * 7 + 1
                         if agent.viruses_days_immune[i] > agent.viruses_immunity_end[i]
                             agent.viruses_immunity_end[i] = 0
@@ -76,27 +76,15 @@ function reset_agent_states(
 
         if is_infected
             # Инкубационный период
-            agent.incubation_period = get_period_from_erlang(
-                viruses[agent.virus_id].mean_incubation_period,
-                viruses[agent.virus_id].incubation_period_variance,
-                viruses[agent.virus_id].min_incubation_period,
-                viruses[agent.virus_id].max_incubation_period,
-                rng)
+            agent.incubation_period = round(Int, rand(rng, truncated(
+                Gamma(viruses[agent.virus_id].incubation_period_shape, viruses[agent.virus_id].incubation_period_scale), min_incubation_period, max_incubation_period)))
             # Период болезни
             if agent.age < 16
-                agent.infection_period = get_period_from_erlang(
-                    viruses[agent.virus_id].mean_infection_period_child,
-                    viruses[agent.virus_id].infection_period_variance_child,
-                    viruses[agent.virus_id].min_infection_period_child,
-                    viruses[agent.virus_id].max_infection_period_child,
-                    rng)
+                agent.infection_period = round(Int, rand(rng, truncated(
+                    Gamma(viruses[agent.virus_id].infection_period_child_shape, viruses[agent.virus_id].infection_period_child_scale), min_infection_period, max_infection_period)))
             else
-                agent.infection_period = get_period_from_erlang(
-                    viruses[agent.virus_id].mean_infection_period_adult,
-                    viruses[agent.virus_id].infection_period_variance_adult,
-                    viruses[agent.virus_id].min_infection_period_adult,
-                    viruses[agent.virus_id].max_infection_period_adult,
-                    rng)
+                agent.infection_period = round(Int, rand(rng, truncated(
+                    Gamma(viruses[agent.virus_id].infection_period_adult_shape, viruses[agent.virus_id].infection_period_adult_scale), min_infection_period, max_infection_period)))
             end
 
             # Дней с момента инфицирования

@@ -26,15 +26,30 @@ function confidence(x::Vector{Float64}, tstar::Float64 = 2.35)
 end
 
 function plot_incidence(
-    type::String = "observed_cases",
-    with_quarantine = false,
-    with_global_warming = false,
+    # 1 - выявленная заболеваемость, 2 - вся заболеваемость
+    type::Int = 1,
+    with_quarantine::Bool = false,
+    with_global_warming::Bool = false,
 )
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))[type] ./ population_coef
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ population_coef
+        if type == 2
+            isolation_probabilities_day_1 = [0.406, 0.305, 0.204, 0.101]
+            isolation_probabilities_day_2 = [0.669, 0.576, 0.499, 0.334]
+            isolation_probabilities_day_3 = [0.45, 0.325, 0.376, 0.168]
+            symptomatic_probability_child = [0.38, 0.38, 0.19, 0.24, 0.15, 0.16, 0.21]
+            symptomatic_probability_teenager= [0.47, 0.47, 0.24, 0.3, 0.19, 0.2, 0.26]
+            symptomatic_probability_adult = [0.57, 0.57, 0.29, 0.36, 0.23, 0.24, 0.32]
+            for virus_id in 1:num_viruses
+                observed_num_infected_age_groups_viruses[:, virus_id, 1] ./= symptomatic_probability_child[virus_id] * (1 - (1 - isolation_probabilities_day_1[1]) * (1 - isolation_probabilities_day_2[1]) * (1 - isolation_probabilities_day_3[1]))
+                observed_num_infected_age_groups_viruses[:, virus_id, 2] ./= symptomatic_probability_child[virus_id] * (1 - (1 - isolation_probabilities_day_1[2]) * (1 - isolation_probabilities_day_2[2]) * (1 - isolation_probabilities_day_3[2]))
+                observed_num_infected_age_groups_viruses[:, virus_id, 3] ./= symptomatic_probability_teenager[virus_id] * (1 - (1 - isolation_probabilities_day_1[3]) * (1 - isolation_probabilities_day_2[3]) * (1 - isolation_probabilities_day_3[3]))
+                observed_num_infected_age_groups_viruses[:, virus_id, 4] ./= symptomatic_probability_adult[virus_id] * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
+            end
+        end
         for j = 1:num_years
             incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
@@ -106,8 +121,8 @@ function plot_incidence(
 end
 
 function plot_incidence_age_groups(
-    with_quarantine = false,
-    with_global_warming = false,
+    with_quarantine::Bool = false,
+    with_global_warming::Bool = false,
 )
     incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52, 4)
@@ -205,8 +220,8 @@ function plot_incidence_age_groups(
 end
 
 function plot_incidence_viruses(
-    with_quarantine = false,
-    with_global_warming = false,
+    with_quarantine::Bool = false,
+    with_global_warming::Bool = false,
 )
     incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52, 7)
@@ -322,8 +337,8 @@ function plot_incidence_viruses(
 end
 
 function plot_incidence_viruses_together(
-    with_quarantine = false,
-    with_global_warming = false,
+    with_quarantine::Bool = false,
+    with_global_warming::Bool = false,
 )
     incidence_arr = Array{Matrix{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52, 7)
@@ -392,8 +407,8 @@ function plot_incidence_viruses_together(
 end
 
 function plot_incidence_age_groups_viruses_together(
-    with_quarantine = false,
-    with_global_warming = false,
+    with_quarantine::Bool = false,
+    with_global_warming::Bool = false,
 )
     incidence_arr = Array{Array{Float64, 3}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52, 7, 4)
@@ -469,8 +484,8 @@ function plot_incidence_age_groups_viruses_together(
 end
 
 function plot_rt(
-    with_quarantine = false,
-    with_global_warming = false,
+    with_quarantine::Bool = false,
+    with_global_warming::Bool = false,
 )
     rt_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
     rt_arr_mean = zeros(Float64, 365)
@@ -531,8 +546,8 @@ function plot_rt(
 end
 
 function plot_infection_activities(
-    with_quarantine = false,
-    with_global_warming = false,
+    with_quarantine::Bool = false,
+    with_global_warming::Bool = false,
 )
     num_activities = 5
 
@@ -609,8 +624,8 @@ function plot_infection_activities(
 end
 
 function plot_incidence_time_series(
-    with_quarantine = false,
-    with_global_warming = false,
+    with_quarantine::Bool = false,
+    with_global_warming::Bool = false,
 )
     incidence_arr = Array{Vector{Float64}, 1}(undef, num_runs)
     incidence_arr_mean = zeros(Float64, 52 * num_years)
@@ -672,8 +687,8 @@ function plot_incidence_time_series(
 end
 
 function plot_incidence_age_groups_time_series(
-    with_quarantine = false,
-    with_global_warming = false,
+    with_quarantine::Bool = false,
+    with_global_warming::Bool = false,
 )
     incidence_arr = Array{Matrix{Float64}, 1}(undef, num_runs)
     incidence_arr_mean = zeros(Float64, 52 * num_years, 4)
@@ -750,8 +765,8 @@ function plot_incidence_age_groups_time_series(
 end
 
 function plot_incidence_viruses_time_series(
-    with_quarantine = false,
-    with_global_warming = false,
+    with_quarantine::Bool = false,
+    with_global_warming::Bool = false,
 )
     incidence_arr = Array{Matrix{Float64}, 1}(undef, num_runs)
     incidence_arr_mean = zeros(Float64, (52 * num_years), 7)
@@ -1306,8 +1321,8 @@ end
 
 function plot_incidence_preferential_attachment(
     type::String = "observed_cases",
-    with_quarantine = false,
-    with_global_warming = false,
+    with_quarantine::Bool = false,
+    with_global_warming::Bool = false,
 )
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs, num_years)
     incidence_arr_mean = zeros(Float64, 52)
@@ -1591,28 +1606,28 @@ function plot_temperature_scenarios()
     savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "time_series", "temperature_scenarios.pdf"))
 end
 
-# plot_incidence()
-# plot_incidence_age_groups()
-# plot_incidence_viruses()
-# plot_incidence_viruses_together()
-# plot_incidence_age_groups_viruses_together()
-# plot_rt()
-# plot_infection_activities()
+plot_incidence()
+plot_incidence_age_groups()
+plot_incidence_viruses()
+plot_incidence_viruses_together()
+plot_incidence_age_groups_viruses_together()
+plot_rt()
+plot_infection_activities()
 
-# plot_incidence_time_series()
-# plot_incidence_age_groups_time_series()
-# plot_incidence_viruses_time_series()
+plot_incidence_time_series()
+plot_incidence_age_groups_time_series()
+plot_incidence_viruses_time_series()
 
-# plot_incidence_preferential_attachment()
-# plot_incidence_with_without_recovered()
+plot_incidence_preferential_attachment()
+plot_incidence_with_without_recovered()
 
 plot_incidence_quarantine()
-# plot_incidence_warming()
+plot_incidence_warming()
 
-# plot_school_closures()
-# plot_temperature_time_series()
-# plot_incidence_scenarios_quaranteen()
-# plot_incidence_scenarios_warming()
+plot_school_closures()
+plot_temperature_time_series()
+plot_incidence_scenarios_quaranteen()
+plot_incidence_scenarios_warming()
 
 
 # ["порог 0.2, 7 дней" "порог 0.1, 7 дней" "порог 0.3, 7 дней" "порог 0.2, 14 дней" "порог 0.1, 14 дней"]

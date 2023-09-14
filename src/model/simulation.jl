@@ -329,14 +329,10 @@ function update_agent_states(
     current_step::Int,
     # Выявленная заболеваемость различными вирусами в разных возрастных группах для потоков
     observed_daily_new_cases_age_groups_viruses_threads::Array{Int, 4},
-    # Общая заболеваемость различными вирусами в разных возрастных группах для потоков
-    daily_new_cases_age_groups_viruses_threads::Array{Int, 4},
     # Сумма всех инфицирований агентами, зараженными на каждом шаге
     rt_threads::Matrix{Float64},
     # Число агентов, зараженных на каждом шаге
     rt_count_threads::Matrix{Float64},
-    # Заболеваемость по районам города
-    num_infected_districts_threads::Array{Int, 3},
 )
     # Проходим по агентам потока
     for agent_id = start_agent_id:end_agent_id
@@ -394,9 +390,9 @@ function update_agent_states(
 
                 # Переход в резистентное состояние
                 agent.viruses_days_immune[agent.virus_id] = 1
-                agent.viruses_immunity_end[agent.virus_id] = trunc(Int, rand(rng, truncated(Normal(viruses[agent.virus_id].mean_immunity_duration, viruses[agent.virus_id].immunity_duration_sd), 1.0, 1000.0)))
+                agent.viruses_immunity_end[agent.virus_id] = trunc(Int, rand(rng, truncated(Normal(viruses[agent.virus_id].mean_immunity_duration, viruses[agent.virus_id].immunity_duration_sd), min_immunity_duration, max_immunity_duration)))
                 agent.days_immune = 1
-                agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), 1.0, 12.0)))
+                agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), min_recovered_duration, max_recovered_duration)))
                 # Устанавливаем значения по умолчанию
                 agent.num_infected_agents = 0
                 agent.virus_id = 0
@@ -416,6 +412,7 @@ function update_agent_states(
                             (dependant.activity_type == 0 || dependant.is_isolated)
 
                             is_support_still_needed = true
+                            break
                         end
                     end
                     # Если попечителю больше не надо сидеть дома
@@ -498,7 +495,6 @@ function update_agent_states(
                         else
                             observed_daily_new_cases_age_groups_viruses_threads[current_step, 4, agent.virus_id, thread_id] += 1
                         end
-                        num_infected_districts_threads[households[agent.household_id].district_id, current_step, thread_id] += 1
                     end
                 end
 
@@ -514,38 +510,16 @@ function update_agent_states(
             end
         # Если агент был заражен на текущем шаге
         elseif agent.is_newly_infected
-            if agent.age < 3
-                daily_new_cases_age_groups_viruses_threads[current_step, 1, agent.virus_id, thread_id] += 1
-            elseif agent.age < 7
-                daily_new_cases_age_groups_viruses_threads[current_step, 2, agent.virus_id, thread_id] += 1
-            elseif agent.age < 15
-                daily_new_cases_age_groups_viruses_threads[current_step, 3, agent.virus_id, thread_id] += 1
-            else
-                daily_new_cases_age_groups_viruses_threads[current_step, 4, agent.virus_id, thread_id] += 1
-            end
-
             # Инкубационный период
-            incubation_period = get_period_from_erlang(
-                viruses[agent.virus_id].mean_incubation_period,
-                viruses[agent.virus_id].incubation_period_variance,
-                viruses[agent.virus_id].min_incubation_period,
-                viruses[agent.virus_id].max_incubation_period,
-                rng)
+            agent.incubation_period = round(Int, rand(rng, truncated(
+                Gamma(viruses[agent.virus_id].incubation_period_shape, viruses[agent.virus_id].incubation_period_scale), min_incubation_period, max_incubation_period)))
             # Период болезни
             if agent.age < 16
-                agent.infection_period = get_period_from_erlang(
-                    viruses[agent.virus_id].mean_infection_period_child,
-                    viruses[agent.virus_id].infection_period_variance_child,
-                    viruses[agent.virus_id].min_infection_period_child,
-                    viruses[agent.virus_id].max_infection_period_child,
-                    rng)
+                agent.infection_period = round(Int, rand(rng, truncated(
+                    Gamma(viruses[agent.virus_id].infection_period_child_shape, viruses[agent.virus_id].infection_period_child_scale), min_infection_period, max_infection_period)))
             else
-                agent.infection_period = get_period_from_erlang(
-                    viruses[agent.virus_id].mean_infection_period_adult,
-                    viruses[agent.virus_id].infection_period_variance_adult,
-                    viruses[agent.virus_id].min_infection_period_adult,
-                    viruses[agent.virus_id].max_infection_period_adult,
-                    rng)
+                agent.infection_period = round(Int, rand(rng, truncated(
+                    Gamma(viruses[agent.virus_id].infection_period_adult_shape, viruses[agent.virus_id].infection_period_adult_scale), min_infection_period, max_infection_period)))
             end
 
             # Счетчик числа дней в инфицированном состоянии
@@ -554,22 +528,23 @@ function update_agent_states(
             # Будет ли болезнь протекать бессимптомно
             rand_num = rand(rng, Float64)
             if agent.age < 10
-                agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_child
+                agent.is_asymptomatic = rand_num > viruses[agent.virus_id].symptomatic_probability_child
             elseif agent.age < 18
-                agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_teenager
+                agent.is_asymptomatic = rand_num > viruses[agent.virus_id].symptomatic_probability_teenager
             else
-                agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_adult
+                agent.is_asymptomatic = rand_num > viruses[agent.virus_id].symptomatic_probability_adult
             end
-            
+
             # Переходит в инкубационный период
             agent.is_newly_infected = false
         end
 
-        # Посещение образовательного учреждения на следующем шаге
-        agent.attendance = true
         # Вероятность прогула для вуза
-        if agent.activity_type == 3 && !agent.is_teacher && rand(rng, Float64) < skip_college_probability
-            agent.attendance = false
+        if agent.activity_type == 3 &&  !agent.is_teacher
+            agent.attendance = true
+            if rand(rng, Float64) < skip_college_probability
+                agent.attendance = false
+            end
         end
     end
 end
@@ -624,8 +599,8 @@ function run_simulation(
     # Порог заболеваемости для закрытия школы / класса
     school_class_closure_threshold::Float64 = 0.0,
     # Сценарий глобального потепления
-    with_global_warming = false,
-)::Tuple{Array{Float64, 3}, Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}, Array{Float64, 2}}
+    with_global_warming::Bool = false,
+)::Tuple{Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
     # День месяца
     day = 1
     # Месяц
@@ -664,10 +639,6 @@ function run_simulation(
     observed_num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4)
     # Выявленная заболеваемость различными вирусами в разных возрастных группах для потоков
     observed_daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, num_viruses, num_threads)
-    # Общая заболеваемость различными вирусами в разных возрастных группах
-    num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4)
-    # Общая заболеваемость различными вирусами в разных возрастных группах для потоков
-    daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, num_viruses, num_threads)
     # Заболеваемость в коллективах для потоков
     activities_infections_threads = zeros(Int, max_step, 5, num_threads)
     # Сумма всех инфицирований агентами, зараженными на каждом шаге
@@ -676,8 +647,6 @@ function run_simulation(
     rt_count_threads = zeros(Float64, max_step, num_threads)
     # Число закрытий школ на карантин для потоков
     num_schools_closed_threads = zeros(Float64, max_step, num_threads)
-    # Заболеваемость по районам города
-    num_infected_districts_threads = zeros(Int, 107, max_step, num_threads)
 
     for current_step = 1:max_step
         # Debug
@@ -915,10 +884,8 @@ function run_simulation(
                 isolation_probabilities_day_3,
                 current_step,
                 observed_daily_new_cases_age_groups_viruses_threads,
-                daily_new_cases_age_groups_viruses_threads,
                 rt_threads,
                 rt_count_threads,
-                num_infected_districts_threads,
             )
         end
 
@@ -927,8 +894,6 @@ function run_simulation(
             for j = 1:num_viruses
                 observed_num_infected_age_groups_viruses[current_step, j, i] = sum(
                     observed_daily_new_cases_age_groups_viruses_threads[current_step, i, j, :])
-                num_infected_age_groups_viruses[current_step, j, i] = sum(
-                    daily_new_cases_age_groups_viruses_threads[current_step, i, j, :])
             end
         end
 
@@ -971,10 +936,5 @@ function run_simulation(
         observed_num_infected_age_groups_viruses_weekly[i, :, :] = sum(observed_num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :], dims = 1)
     end
 
-    num_infected_age_groups_viruses_weekly = zeros(Int, (num_weeks), num_viruses, 4)
-    for i = 1:(num_weeks)
-        num_infected_age_groups_viruses_weekly[i, :, :] = sum(num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :], dims = 1)
-    end
-
-    return observed_num_infected_age_groups_viruses_weekly, num_infected_age_groups_viruses_weekly, sum(activities_infections_threads, dims = 3)[:, :, 1], rt, sum(num_schools_closed_threads, dims = 2)[:, 1], sum(num_infected_districts_threads, dims = 3)[:, :, 1]
+    return observed_num_infected_age_groups_viruses_weekly, sum(activities_infections_threads, dims = 3)[:, :, 1], rt, sum(num_schools_closed_threads, dims = 2)[:, 1]
 end

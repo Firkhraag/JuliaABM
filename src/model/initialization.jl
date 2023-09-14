@@ -2205,7 +2205,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 2]
-            # PWOP2P0C - пара
+            # PWOP2P0C - пара без детей (2 человека)
             new_agent_id = agent_id + 1
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -2237,7 +2237,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 3]
-            # PWOP3P0C - пара с 1 взрослым
+            # PWOP3P0C - пара без детей (3 человека)
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -2269,7 +2269,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 4]
-            # PWOP3P1C - пара с 1 ребенком
+            # PWOP3P1C - пара с 1 ребенком (3 человека)
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -2287,7 +2287,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 5]
-            # PWOP4P0C - пара с 2 взрослыми
+            # PWOP4P0C - пара без детей (4 человека)
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3210,7 +3210,7 @@ function create_population(
         end
 
         for _ in 1:district_households[index, 49]
-            # O2P0C
+            # O2P0C - прочие домохозяйства без детей (2 человека)
             new_agent_id = agent_id + 1
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3228,7 +3228,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 50]
-            # O2P1C
+            # O2P1C - прочие домохозяйства с 1 ребенком (2 человека)
             new_agent_id = agent_id + 1
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3246,7 +3246,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 51]
-            # O3P0C
+            # O3P0C - прочие домохозяйства без детей (3 человека)
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3264,7 +3264,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 52]
-            # O3P1C
+            # O3P1C - прочие домохозяйства с 1 ребенком (3 человека)
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3282,7 +3282,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 53]
-            # O3P2C
+            # O3P2C - прочие домохозяйства с 2 детьми (3 человека)
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3300,7 +3300,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 54]
-            # O4P0C
+            # O4P0C - прочие домохозяйства без детей (4 человека)
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3318,7 +3318,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 55]
-            # O4P1C
+            # O4P1C - прочие домохозяйства с 1 ребенком (4 человека)
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3336,7 +3336,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 56]
-            # O4P2C
+            # O4P2C - прочие домохозяйства с 2 детьми (4 человека)
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3354,7 +3354,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 57]
-            # O4P3C
+            # O4P3C - прочие домохозяйства с 3 детьми (4 человека)
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3372,7 +3372,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 58]
-            # O5P0C
+            # O5P0C - прочие домохозяйства без детей (5 человек)
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3390,7 +3390,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 59]
-            # O5P1C
+            # O5P1C - прочие домохозяйства с 1 ребенком (5 человек)
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3408,7 +3408,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 60]
-            # O5P2C
+            # O5P2C - прочие домохозяйства с 2 детьми (5 человек)
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3426,7 +3426,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 61]
-            # O5P3C
+            # O5P3C - прочие домохозяйства с 3 детьми (5 человек)
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3444,7 +3444,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 62]
-            # O6P0C
+            # O6P0C - прочие домохозяйства без детей (6 человек)
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3462,7 +3462,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 63]
-            # O6P1C
+            # O6P1C - прочие домохозяйства с 1 ребенком (6 человек)
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3480,7 +3480,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 64]
-            # O6P2C - прочие домохозяйства с 2 детьми
+            # O6P2C - прочие домохозяйства с 2 детьми (6 человек)
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
@@ -3498,7 +3498,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 65]
-            # O6P3C - прочие домохозяйства с 3 детьми
+            # O6P3C - прочие домохозяйства с 3 детьми (6 человек)
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
