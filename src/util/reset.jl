@@ -88,7 +88,7 @@ function reset_agent_states(
             end
 
             # Дней с момента инфицирования
-            agent.days_infected = rand(rng, (1 - agent.incubation_period):agent.infection_period)
+            agent.days_infected = rand(rng, 1:(agent.incubation_period + agent.infection_period))
 
             # Бессимптомное течение болезни
             rand_num = rand(rng, Float64)
@@ -104,7 +104,7 @@ function reset_agent_states(
             if !agent.is_asymptomatic
                 # Самоизоляция
                 # 1-й день
-                if agent.days_infected >= 1
+                if agent.days_infected > agent.incubation_period
                     rand_num = rand(rng, Float64)
                     if agent.age < 3
                         if rand_num < isolation_probabilities_day_1[1]
@@ -125,7 +125,7 @@ function reset_agent_states(
                     end
                 end
                 # 2-й день
-                if agent.days_infected >= 2 && !agent.is_isolated
+                if agent.days_infected > agent.incubation_period + 1 && !agent.is_isolated
                     rand_num = rand(rng, Float64)
                     if agent.age < 3
                         if rand_num < isolation_probabilities_day_2[1]
@@ -146,7 +146,7 @@ function reset_agent_states(
                     end
                 end
                 # 3-й день
-                if agent.days_infected >= 3 && !agent.is_isolated
+                if agent.days_infected > agent.incubation_period + 2 && !agent.is_isolated
                     rand_num = rand(rng, Float64)
                     if agent.age < 3
                         if rand_num < isolation_probabilities_day_3[1]

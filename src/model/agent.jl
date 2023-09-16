@@ -46,7 +46,7 @@ mutable struct Agent
     incubation_period::Int
     # Продолжительность периода болезни
     infection_period::Int
-    # День с момента инфицирования, начиная с 1 - incubation_period
+    # День с момента инфицирования
     days_infected::Int
     # Счетчик числа дней в резистентном состоянии
     days_immune::Int
@@ -481,7 +481,7 @@ mutable struct Agent
             end
 
             # Дней с момента инфицирования
-            days_infected = rand(rng, (1 - incubation_period):infection_period)
+            days_infected = rand(rng, 1:(infection_period + incubation_period))
 
             # Бессимптомное течение болезни
             rand_num = rand(rng, Float64)
@@ -496,7 +496,7 @@ mutable struct Agent
             # Если имеются симптомы, то есть вероятность, что агент самоизолируется
             if !is_asymptomatic
                 # 1-й день болезни
-                if days_infected >= 1
+                if days_infected > incubation_period
                     rand_num = rand(rng, Float64)
                     if age < 3
                         if rand_num < isolation_probabilities_day_1[1]
@@ -517,7 +517,7 @@ mutable struct Agent
                     end
                 end
                 # 2-й день болезни
-                if days_infected >= 2 && !is_isolated
+                if days_infected > incubation_period + 1 && !is_isolated
                     rand_num = rand(rng, Float64)
                     if age < 3
                         if rand_num < isolation_probabilities_day_2[1]
@@ -538,7 +538,7 @@ mutable struct Agent
                     end
                 end
                 # 3-й день болезни
-                if days_infected >= 3 && !is_isolated
+                if days_infected > incubation_period + 2 && !is_isolated
                     rand_num = rand(rng, Float64)
                     if age < 3
                         if rand_num < isolation_probabilities_day_3[1]
@@ -598,24 +598,22 @@ function get_infectivity(
     # Бессимптомное течение болезни
     is_asymptomatic::Bool,
 )::Float64
-    # Максимальная вирусная нагрузка равна = 12
     # Если инкубационный период
-    if days_infected < 1
+    if days_infected <= incubation_period
+        # Если продолжительность инкубационного периода = 1
         if incubation_period == 1
             return mean_viral_load / 24
         end
-        k = mean_viral_load / (incubation_period - 1)
-        b = k * (incubation_period - 1)
-        return (k * days_infected + b) / 12
-    end
+        return mean_viral_load / 12 * (days_infected - 1) / (incubation_period - 1)
     # Если период болезни
-    # Если бессимптомное течение
-    if is_asymptomatic
-        mean_viral_load /= 2.0
+    else
+        result = mean_viral_load / 6 * (days_infected - incubation_period - infection_period) / (1 - infection_period)
+        # Если бессимптомное течение
+        if is_asymptomatic
+            result /= 2
+        end
+        return result
     end
-    k = 2 * mean_viral_load / (1 - infection_period)
-    b = -k * infection_period
-    return (k * days_infected + b) / 12
 end
 
 # Специфическая восприимчивость к вирусу, после перенесенной болезни

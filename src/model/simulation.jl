@@ -378,7 +378,7 @@ function update_agent_states(
         # Если агент инфицирован
         if agent.virus_id != 0 && !agent.is_newly_infected
             # Если период болезни закончился
-            if agent.days_infected == agent.infection_period
+            if agent.days_infected == agent.incubation_period + agent.infection_period
                 # Шаг, когда агент был инфицирован
                 infection_time = current_step - agent.infection_period - agent.incubation_period - 1
                 if infection_time > 0
@@ -397,6 +397,7 @@ function update_agent_states(
                 agent.num_infected_agents = 0
                 agent.virus_id = 0
                 agent.is_isolated = false
+                agent.days_infected = 0
 
                 # Если агент нуждался в уходе за собой
                 if agent.needs_supporter_care
@@ -408,7 +409,7 @@ function update_agent_states(
                         if dependant.needs_supporter_care &&
                             dependant.virus_id != 0 &&
                             !dependant.is_asymptomatic &&
-                            dependant.days_infected > 0 &&
+                            dependant.days_infected > dependant.incubation_period &&
                             (dependant.activity_type == 0 || dependant.is_isolated)
 
                             is_support_still_needed = true
@@ -426,7 +427,7 @@ function update_agent_states(
                 # Если присутствуют симптомы и агент еще не самоизолирован
                 if !agent.is_asymptomatic && !agent.is_isolated
                     # Агент самоизолируется с некой вероятностью на 1-й, 2-й и 3-й дни болезни
-                    if agent.days_infected == 1
+                    if agent.days_infected == agent.incubation_period + 1
                         rand_num = rand(rng, Float64)
                         if agent.age < 3
                             if rand_num < isolation_probabilities_day_1[1]
@@ -445,7 +446,7 @@ function update_agent_states(
                                 agent.is_isolated = true
                             end
                         end
-                    elseif agent.days_infected == 2
+                    elseif agent.days_infected == agent.incubation_period + 2
                         rand_num = rand(rng, Float64)
                         if agent.age < 3
                             if rand_num < isolation_probabilities_day_2[1]
@@ -464,7 +465,7 @@ function update_agent_states(
                                 agent.is_isolated = true
                             end
                         end
-                    elseif agent.days_infected == 3
+                    elseif agent.days_infected == agent.incubation_period + 3
                         rand_num = rand(rng, Float64)
                         if agent.age < 3
                             if rand_num < isolation_probabilities_day_3[1]
@@ -502,7 +503,7 @@ function update_agent_states(
                 if agent.supporter_id != 0 &&
                     agent.needs_supporter_care &&
                     !agent.is_asymptomatic &&
-                    agent.days_infected > 0 &&
+                    agent.days_infected > agent.incubation_period + 1 &&
                     (agent.is_isolated || agent.activity_type == 0)
 
                     agents[agent.supporter_id].on_parent_leave = true
@@ -523,7 +524,7 @@ function update_agent_states(
             end
 
             # Счетчик числа дней в инфицированном состоянии
-            agent.days_infected = 1 - agent.incubation_period
+            agent.days_infected = 1
 
             # Будет ли болезнь протекать бессимптомно
             rand_num = rand(rng, Float64)
@@ -634,6 +635,10 @@ function run_simulation(
     end
     # Число недель
     num_weeks = 52 * num_years
+
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!
+    # max_step = 154
+    # num_weeks = 22
 
     # Выявленная заболеваемость различными вирусами в разных возрастных группах
     observed_num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4)

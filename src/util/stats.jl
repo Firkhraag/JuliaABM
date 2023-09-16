@@ -44,7 +44,7 @@ function get_stats(
     num_infected = zeros(Int, num_viruses)
 
     kindergarten_contacts = zeros(Int, kindergarten_groups_size_4_5 + 1)
-    school_contacts = zeros(Int, school_groups_size_15 + 1)
+    school_contacts = zeros(Int, school_groups_size_9_11 + 1)
     college_contacts = zeros(Int, college_groups_size_1 + 1)
     work_contacts = zeros(Int, 1000)
 
@@ -69,6 +69,57 @@ function get_stats(
 
     age_diff = 0
     age_diff_num = 0
+
+    mean_immunity_durations = [193.17630781613587, 177.37649216256708, 138.03122129572736, 120.52814113468635, 119.45604345620137, 101.40316198425282, 173.38465601223575]
+    viruses = Virus[
+        # FluA
+        Virus(1.4 * 1.4 / 0.67, 0.67 / 1.4,   4.8 * 4.8 / 2.04, 2.04 / 4.8,    8.0 * 8.0 / 3.4, 3.4 / 8.0,      3.45, 2.63, 1.73,   0.38, 0.47, 0.57,   mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
+        # FluB
+        Virus(0.6 * 0.6 / 0.19, 0.19 / 0.6,   3.7 * 3.7 / 3.0, 3.0 / 3.7,      6.1 * 6.1 / 4.8, 4.8 / 6.1,      3.53, 2.63, 1.8,    0.38, 0.47, 0.57,   mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
+        # RV
+        Virus(1.9 * 1.9 / 1.11, 1.11 / 1.9,   10.1 * 10.1 / 7.0, 7.0 / 10.1,   11.4 * 11.4 / 7.7, 7.7 / 11.4,   3.5, 2.6, 1.8,      0.19, 0.24, 0.29,   mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
+        # RSV
+        Virus(4.4 * 4.4 / 1.0, 1.0 / 4.4,     6.5 * 6.5 / 2.7, 2.7 / 6.5,      6.7 * 6.7 / 2.8, 2.8 / 6.7,      6.0, 4.5, 3.0,      0.24, 0.3, 0.36,    mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
+        # AdV
+        Virus(5.6 * 5.6 / 1.3, 1.3 / 5.6,     8.0 * 8.0 / 5.6, 5.6 / 8.0,      9.0 * 9.0 / 6.3, 6.3 / 9.0,      4.1, 3.1, 2.1,      0.15, 0.19, 0.23,   mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
+        # PIV
+        Virus(2.6 * 2.6 / 0.85, 0.85 / 2.6,   7.0 * 7.0 / 2.9, 2.9 / 7.0,      8.0 * 8.0 / 3.4, 3.4 / 8.0,      4.8, 3.6, 2.4,      0.16, 0.2, 0.24,    mean_immunity_durations[6], mean_immunity_durations[6] * 0.33),
+        # CoV
+        Virus(3.2 * 3.2 / 0.44, 0.44 / 3.2,   6.5 * 6.5 / 4.5, 4.5 / 6.5,      7.5 * 7.5 / 5.2, 5.2 / 7.5,      4.9, 3.7, 2.5,      0.21, 0.26, 0.32,   mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
+    infectivity_influences = [0.0 for i = 1:7]
+    infectivity_num_people = [0 for i = 1:7]
+    for agent in agents
+        if agent.virus_id != 0
+            # Риск инфицирования, зависящий от силы инфекции инфицированного агента
+            infectivity_influence = 0.0
+            if agent.age < 3
+                infectivity_influence = get_infectivity(
+                    agent.days_infected,
+                    agent.incubation_period,
+                    agent.infection_period,
+                    viruses[agent.virus_id].mean_viral_load_toddler,
+                    agent.is_asymptomatic)
+            elseif agent.age < 16
+                infectivity_influence = get_infectivity(
+                    agent.days_infected,
+                    agent.incubation_period,
+                    agent.infection_period,
+                    viruses[agent.virus_id].mean_viral_load_child,
+                    agent.is_asymptomatic)
+            else
+                infectivity_influence = get_infectivity(
+                    agent.days_infected,
+                    agent.incubation_period,
+                    agent.infection_period,
+                    viruses[agent.virus_id].mean_viral_load_adult,
+                    agent.is_asymptomatic)
+            end
+            infectivity_influences[agent.virus_id] += infectivity_influence
+            infectivity_num_people[agent.virus_id] += 1
+        end
+    end
+    println(infectivity_influences ./ infectivity_num_people)
+    return
 
     for agent in agents
         if agent.age < 3

@@ -1,7 +1,7 @@
 # Число вирусов
 const num_viruses = 7
 # Минимальная и максимальная продолжительности иммунитета после перенесенной болезни
-const min_immunity_duration = 20
+const min_immunity_duration = 30
 const max_immunity_duration = 365
 # Минимальная и максимальная продолжительности резистентного состояния после перенесенной болезни
 const min_recovered_duration = 1
@@ -11,7 +11,7 @@ const min_incubation_period = 1
 # Максимальная продолжительность инкубационного периода
 const max_incubation_period = 7
 # Минимальная продолжительность периода болезни
-const min_infection_period = 1
+const min_infection_period = 2
 # Максимальная продолжительность периода болезни
 const max_infection_period = 28
 

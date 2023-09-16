@@ -16,7 +16,7 @@ include("../../global/variables.jl")
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
 const is_russian = false
-const num_years = 2
+const num_years = 1
 const num_runs = 1
 const population_coef = 10072
 
@@ -101,6 +101,10 @@ function plot_incidence(
     nMAE = sum(abs.(incidence_arr_mean - infected_data_mean)) / sum(infected_data_mean)
     println("Incidence nMAE = $(nMAE)")
 
+    ribbon = nothing
+    if num_years > 1
+        ribbon = [confidence_model confidence_data]
+    end
     incidence_plot = plot(
         1:52,
         [incidence_arr_mean infected_data_mean],
@@ -111,7 +115,7 @@ function plot_incidence(
         legend = (0.9, 0.98),
         ylim = (0.0, maximum([maximum(incidence_arr_mean) + maximum(confidence_model), maximum(infected_data_mean) + maximum(confidence_data)])),
         color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-        ribbon = [confidence_model confidence_data],
+        ribbon = ribbon,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -199,6 +203,12 @@ function plot_incidence_age_groups(
     for i = 1:4
         nMAE = sum(abs.(incidence_arr_mean[:, i] - infected_data_mean[:, i])) / sum(infected_data_mean[:, i])
         println("$(age_groups[i]) nMAE = $(nMAE)")
+
+        ribbon = nothing
+        if num_years > 1
+            ribbon = [confidence_model[:, i] confidence_data[:, i]]
+        end
+
         incidence_plot = plot(
             1:52,
             [incidence_arr_mean[:, i] infected_data_mean[:, i]],
@@ -209,7 +219,7 @@ function plot_incidence_age_groups(
             legend = (0.9, 0.98),
             ylim = (0.0, maximum([maximum(incidence_arr_mean[:, i]) + maximum(confidence_model[:, i]), maximum(infected_data_mean[:, i]) + maximum(confidence_data[:, i])])),
             color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-            ribbon = [confidence_model[:, i] confidence_data[:, i]],
+            ribbon = ribbon,
             foreground_color_legend = nothing,
             background_color_legend = nothing,
             xlabel = xlabel_name,
@@ -316,6 +326,12 @@ function plot_incidence_viruses(
     for i in 1:num_viruses
         nMAE = sum(abs.(incidence_arr_mean[:, i] - infected_data_viruses_mean[:, i])) / sum(infected_data_viruses_mean[:, i])
         println("$(viruses[i]) nMAE = $(nMAE)")
+
+        ribbon = nothing
+        if num_years > 1
+            ribbon = [confidence_model[:, i] infected_data_viruses_confidence[:, i]]
+        end
+
         incidence_plot = plot(
             1:52,
             [incidence_arr_mean[:, i] infected_data_viruses_mean[:, i]],
@@ -326,7 +342,7 @@ function plot_incidence_viruses(
             grid = true,
             legend = (0.9, 0.98),
             color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-            ribbon = [confidence_model[:, i] infected_data_viruses_confidence[:, i]],
+            ribbon = ribbon,
             foreground_color_legend = nothing,
             background_color_legend = nothing,
             xlabel = xlabel_name,
@@ -1609,25 +1625,25 @@ end
 plot_incidence()
 plot_incidence_age_groups()
 plot_incidence_viruses()
-plot_incidence_viruses_together()
-plot_incidence_age_groups_viruses_together()
-plot_rt()
-plot_infection_activities()
+# plot_incidence_viruses_together()
+# plot_incidence_age_groups_viruses_together()
+# plot_rt()
+# plot_infection_activities()
 
-plot_incidence_time_series()
-plot_incidence_age_groups_time_series()
-plot_incidence_viruses_time_series()
+# plot_incidence_time_series()
+# plot_incidence_age_groups_time_series()
+# plot_incidence_viruses_time_series()
 
-plot_incidence_preferential_attachment()
-plot_incidence_with_without_recovered()
+# plot_incidence_preferential_attachment()
+# plot_incidence_with_without_recovered()
 
-plot_incidence_quarantine()
-plot_incidence_warming()
+# plot_incidence_quarantine()
+# plot_incidence_warming()
 
-plot_school_closures()
-plot_temperature_time_series()
-plot_incidence_scenarios_quaranteen()
-plot_incidence_scenarios_warming()
+# plot_school_closures()
+# plot_temperature_time_series()
+# plot_incidence_scenarios_quaranteen()
+# plot_incidence_scenarios_warming()
 
 
 # ["порог 0.2, 7 дней" "порог 0.1, 7 дней" "порог 0.3, 7 дней" "порог 0.2, 14 дней" "порог 0.1, 14 дней"]
