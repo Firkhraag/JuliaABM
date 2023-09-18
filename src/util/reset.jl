@@ -91,7 +91,6 @@ function reset_agent_states(
             agent.days_infected = rand(rng, 1:(agent.incubation_period + agent.infection_period))
 
             # Бессимптомное течение болезни
-            rand_num = rand(rng, Float64)
             if agent.age < 10
                 agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_child
             elseif agent.age < 18

@@ -68,6 +68,7 @@ function get_etiology()::Matrix{Float64}
 
     # Вклад каждой инфекции для каждой недели
     sum_arr = FluA_arr + FluB_arr + RV_arr + RSV_arr + AdV_arr + PIV_arr + CoV_arr
+
     FluA_ratio = FluA_arr ./ sum_arr
     FluB_ratio = FluB_arr ./ sum_arr
     RV_ratio = RV_arr ./ sum_arr

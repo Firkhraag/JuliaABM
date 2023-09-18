@@ -8,19 +8,16 @@
 
 # Вирус
 mutable struct Virus
-    # Средняя продолжительность инкубационного периода
-    incubation_period_shape::Float64
-    # Дисперсия продолжительности инкубационного периода
+    # Продолжительность инкубационного периода
+    incubation_period_shape::Int
     incubation_period_scale::Float64
 
-    # Средняя продолжительность периода болезни (взрослый)
-    infection_period_adult_shape::Float64
-    # Дисперсия продолжительности периода болезни (взрослый)
+    # Продолжительность периода болезни (взрослый)
+    infection_period_adult_shape::Int
     infection_period_adult_scale::Float64
 
-    # Средняя продолжительность периода болезни (ребенок)
-    infection_period_child_shape::Float64
-    # Дисперсия продолжительности периода болезни (ребенок)
+    # Продолжительность периода болезни (ребенок)
+    infection_period_child_shape::Int
     infection_period_child_scale::Float64
 
     # Средние вирусные нагрузки (по умолчанию для младенца)
@@ -41,14 +38,14 @@ mutable struct Virus
     immunity_duration_sd::Float64
 
     function Virus(
-        mean_incubation_period::Float64,
-        incubation_period_sd::Float64,
+        incubation_period_shape::Int,
+        incubation_period_scale::Float64,
 
-        mean_infection_period_adult::Float64,
-        infection_period_sd_adult::Float64,
+        infection_period_adult_shape::Int,
+        infection_period_adult_scale::Float64,
 
-        mean_infection_period_child::Float64,
-        infection_period_sd_child::Float64,
+        infection_period_child_shape::Int,
+        infection_period_child_scale::Float64,
 
         mean_viral_load_toddler::Float64,
         mean_viral_load_child::Float64,
@@ -62,12 +59,12 @@ mutable struct Virus
         immunity_duration_sd::Float64,
     )
         new(
-            mean_incubation_period,
-            incubation_period_sd^2,
-            mean_infection_period_adult,
-            infection_period_sd_adult^2,
-            mean_infection_period_child,
-            infection_period_sd_child^2,
+            incubation_period_shape,
+            incubation_period_scale,
+            infection_period_adult_shape,
+            infection_period_adult_scale,
+            infection_period_child_shape,
+            infection_period_child_scale,
             mean_viral_load_toddler,
             mean_viral_load_child,
             mean_viral_load_adult,

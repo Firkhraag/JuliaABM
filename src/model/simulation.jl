@@ -527,13 +527,12 @@ function update_agent_states(
             agent.days_infected = 1
 
             # Будет ли болезнь протекать бессимптомно
-            rand_num = rand(rng, Float64)
             if agent.age < 10
-                agent.is_asymptomatic = rand_num > viruses[agent.virus_id].symptomatic_probability_child
+                agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_child
             elseif agent.age < 18
-                agent.is_asymptomatic = rand_num > viruses[agent.virus_id].symptomatic_probability_teenager
+                agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_teenager
             else
-                agent.is_asymptomatic = rand_num > viruses[agent.virus_id].symptomatic_probability_adult
+                agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_adult
             end
 
             # Переходит в инкубационный период
@@ -636,10 +635,6 @@ function run_simulation(
     # Число недель
     num_weeks = 52 * num_years
 
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!
-    # max_step = 154
-    # num_weeks = 22
-
     # Выявленная заболеваемость различными вирусами в разных возрастных группах
     observed_num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4)
     # Выявленная заболеваемость различными вирусами в разных возрастных группах для потоков
@@ -654,9 +649,6 @@ function run_simulation(
     num_schools_closed_threads = zeros(Float64, max_step, num_threads)
 
     for current_step = 1:max_step
-        # Debug
-        # println(current_step)
-        
         # Выходные, праздники
         is_holiday = false
         if week_day == 7
@@ -714,6 +706,7 @@ function run_simulation(
             is_college_holiday = true
         end
 
+        # Моделируем контакты между агентами
         @threads for thread_id in 1:num_threads
             simulate_contacts(
                 thread_id,
@@ -873,6 +866,7 @@ function run_simulation(
             end
         end
 
+        # Обновляем состояния агентов
         @threads for thread_id in 1:num_threads
             update_agent_states(
                 thread_id,

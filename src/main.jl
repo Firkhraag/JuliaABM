@@ -814,7 +814,6 @@ function mcmc_simulations(
         y = rand(Normal(log((x - 0.1) / (1 - x)), duration_parameter_delta))
         duration_parameter_candidate = (exp(y) + 0.1) / (1 + exp(y))
 
-
         # Кандидаты для параметров неспецифической восприимчивости к вирусам в диапазоне (1, 7)
         x = susceptibility_parameter_1_array[end]
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[1]))
@@ -848,7 +847,6 @@ function mcmc_simulations(
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[7]))
         susceptibility_parameter_7_candidate = (7 * exp(y) + 1) / (1 + exp(y))
 
-
         # Кандидаты для параметров температуры воздуха в диапазоне (0.01, 1)
         x = temperature_parameter_1_array[end]
         y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[1]))
@@ -877,7 +875,6 @@ function mcmc_simulations(
         x = temperature_parameter_7_array[end]
         y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[7]))
         temperature_parameter_7_candidate = (exp(y) + 0.01) / (1 + exp(y))
-
 
         # Кандидаты для параметров температуры воздуха в диапазоне (30, 365)
         x = mean_immunity_duration_1_array[end]
@@ -908,7 +905,6 @@ function mcmc_simulations(
         y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[7]))
         mean_immunity_duration_7_candidate = (365 * exp(y) + 30) / (1 + exp(y))
         
-
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.001, 0.002)
         x = random_infection_probability_1_array[end]
         y = rand(Normal(log((x - 0.001) / (0.002 - x)), random_infection_probability_deltas[1]))
@@ -928,7 +924,6 @@ function mcmc_simulations(
         x = random_infection_probability_4_array[end]
         y = rand(Normal(log((x - 0.000005) / (0.00001 - x)), random_infection_probability_deltas[4]))
         random_infection_probability_4_candidate = (0.00001 * exp(y) + 0.000005) / (1 + exp(y))
-
 
         duration_parameter = duration_parameter_candidate
         susceptibility_parameters = [
@@ -1164,12 +1159,13 @@ end
 function main(
     # Набор параметров модели (порядок для вирусов: FluA, FluB, RV, RSV, AdV, PIV, CoV)
 
-    duration_parameter = 0.2571739947978733,
-    susceptibility_parameters = [1.8452892952748845, 2.6338584916461577, 3.637956522922598, 2.925098036049022, 3.90751547248489, 2.7088533023807607, 4.379802012664986],
-    temperature_parameters = [-0.9124796363977722, -0.9143289471877746, -0.05027424901915662, -0.32034762329700445, -0.04924238633137387, -0.08300423182464275, -0.3067307004812929],
-    mean_immunity_durations = [193.17630781613587, 177.37649216256708, 138.03122129572736, 120.52814113468635, 119.45604345620137, 101.40316198425282, 173.38465601223575],
-    random_infection_probabilities = [0.001, 0.0007253680375535715, 0.0003980307972105999, 8.194529047973929e-6],
-
+    # nMAE = 0.572809329468029
+    duration_parameter = 0.1360831966737898,
+    susceptibility_parameters = [2.073260816451951, 1.8371472629657826, 3.774679867646047, 4.892711638290024, 4.864524348552116, 4.305691875091812, 5.138615073213295],
+    temperature_parameters = [-0.9199425712343744, -0.9322361631093271, -0.08660743084840784, -0.3010617242999128, -0.02579179465265569, -0.10389186163268564, -0.31947569750537347],
+    mean_immunity_durations = [186.2241873788893, 167.83624970125584, 104.46793122760468, 93.17271780585867, 120.72754123558015, 79.51038912011032, 127.97797061934423],
+    random_infection_probabilities = [0.0010000172422002943, 0.0006937704550132, 0.00044273210027989294, 8.841560072829071e-6],
+    
     # Для суррогатной модели
     surrogate_index = 0,
 )
@@ -1185,7 +1181,7 @@ function main(
     end
 
     # Число моделируемых лет
-    num_years = 1
+    num_years = 2
     # Среднее по num_years
     is_one_mean_year_modeled = true
 
@@ -1195,12 +1191,10 @@ function main(
     # school_class_closure_period = 7
     # Процент отсутствующих учеников по причине болезни для того, чтобы школа закрылась на карантин
     school_class_closure_threshold = 0.2
-    # [0.2  0.1  0.3  0.2_14  0.1_14]
 
     # Для сценария глобального потепления
     with_global_warming = false
     # with_global_warming = true
-    # ["+4 °С" "+3 °С" "+2 °С" "+1 °С"]
     # -----------------------------------
 
     # Число потоков
@@ -1232,53 +1226,21 @@ function main(
     # Набор вирусов
     # shape = mean * mean / variance
     # scale = variance / mean
-    # viruses = Virus[
-    #     # FluA
-    #     Virus(1.4 * 1.4 / 0.67, 0.67 / 1.4,   4.8 * 4.8 / 2.04, 2.04 / 4.8,    8.0 * 8.0 / 3.4, 3.4 / 8.0,      3.45, 2.63, 1.73,   0.38, 0.47, 0.57,   mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
-    #     # FluB
-    #     Virus(0.6 * 0.6 / 0.19, 0.19 / 0.6,   3.7 * 3.7 / 3.0, 3.0 / 3.7,      6.1 * 6.1 / 4.8, 4.8 / 6.1,      3.53, 2.63, 1.8,    0.38, 0.47, 0.57,   mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
-    #     # RV
-    #     Virus(1.9 * 1.9 / 1.11, 1.11 / 1.9,   10.1 * 10.1 / 7.0, 7.0 / 10.1,   11.4 * 11.4 / 7.7, 7.7 / 11.4,   3.5, 2.6, 1.8,      0.19, 0.24, 0.29,   mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
-    #     # RSV
-    #     Virus(4.4 * 4.4 / 1.0, 1.0 / 4.4,     6.5 * 6.5 / 2.7, 2.7 / 6.5,      6.7 * 6.7 / 2.8, 2.8 / 6.7,      6.0, 4.5, 3.0,      0.24, 0.3, 0.36,    mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
-    #     # AdV
-    #     Virus(5.6 * 5.6 / 1.3, 1.3 / 5.6,     8.0 * 8.0 / 5.6, 5.6 / 8.0,      9.0 * 9.0 / 6.3, 6.3 / 9.0,      4.1, 3.1, 2.1,      0.15, 0.19, 0.23,   mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
-    #     # PIV
-    #     Virus(2.6 * 2.6 / 0.85, 0.85 / 2.6,   7.0 * 7.0 / 2.9, 2.9 / 7.0,      8.0 * 8.0 / 3.4, 3.4 / 8.0,      4.8, 3.6, 2.4,      0.16, 0.2, 0.24,    mean_immunity_durations[6], mean_immunity_durations[6] * 0.33),
-    #     # CoV
-    #     Virus(3.2 * 3.2 / 0.44, 0.44 / 3.2,   6.5 * 6.5 / 4.5, 4.5 / 6.5,      7.5 * 7.5 / 5.2, 5.2 / 7.5,      4.9, 3.7, 2.5,      0.21, 0.26, 0.32,   mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
-
-        viruses = Virus[
-            # FluA
-            Virus(0.6 * 0.6 / 0.19, 0.19 / 0.6,   3.7 * 3.7 / 3.0, 3.0 / 3.7,      6.1 * 6.1 / 4.8, 4.8 / 6.1,      3.53, 2.63, 1.8,    0.38, 0.47, 0.57,   mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
-            # FluB
-            Virus(0.6 * 0.6 / 0.19, 0.19 / 0.6,   3.7 * 3.7 / 3.0, 3.0 / 3.7,      6.1 * 6.1 / 4.8, 4.8 / 6.1,      3.53, 2.63, 1.8,    0.38, 0.47, 0.57,   mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
-            # RV
-            Virus(1.9 * 1.9 / 1.11, 1.11 / 1.9,   10.1 * 10.1 / 7.0, 7.0 / 10.1,   11.4 * 11.4 / 7.7, 7.7 / 11.4,   3.5, 2.6, 1.8,      0.19, 0.24, 0.29,   mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
-            # RSV
-            Virus(4.4 * 4.4 / 1.0, 1.0 / 4.4,     6.5 * 6.5 / 2.7, 2.7 / 6.5,      6.7 * 6.7 / 2.8, 2.8 / 6.7,      6.0, 4.5, 3.0,      0.24, 0.3, 0.36,    mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
-            # AdV
-            Virus(5.6 * 5.6 / 1.3, 1.3 / 5.6,     8.0 * 8.0 / 5.6, 5.6 / 8.0,      9.0 * 9.0 / 6.3, 6.3 / 9.0,      4.1, 3.1, 2.1,      0.15, 0.19, 0.23,   mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
-            # PIV
-            Virus(2.6 * 2.6 / 0.85, 0.85 / 2.6,   7.0 * 7.0 / 2.9, 2.9 / 7.0,      8.0 * 8.0 / 3.4, 3.4 / 8.0,      4.8, 3.6, 2.4,      0.16, 0.2, 0.24,    mean_immunity_durations[6], mean_immunity_durations[6] * 0.33),
-            # CoV
-            Virus(3.2 * 3.2 / 0.44, 0.44 / 3.2,   6.5 * 6.5 / 4.5, 4.5 / 6.5,      7.5 * 7.5 / 5.2, 5.2 / 7.5,      4.9, 3.7, 2.5,      0.21, 0.26, 0.32,   mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
-
-        # viruses = Virus[
-        #     # FluA
-        #     Virus(1.4 * 1.4 / 0.67, 0.67 / 1.4,   4.8 * 4.8 / 2.04, 2.04 / 4.8,    8.0 * 8.0 / 3.4, 3.4 / 8.0,      3.45, 2.63, 1.73,   0.38, 0.47, 0.57,   mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
-        #     # FluB
-        #     Virus(0.6 * 0.6 / 0.19, 0.19 / 0.6,   3.7 * 3.7 / 3.0, 3.0 / 3.7,      6.1 * 6.1 / 4.8, 4.8 / 6.1,      0.0, 0.0, 0.0,    0.38, 0.47, 0.57,   mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
-        #     # RV
-        #     Virus(1.9 * 1.9 / 1.11, 1.11 / 1.9,   10.1 * 10.1 / 7.0, 7.0 / 10.1,   11.4 * 11.4 / 7.7, 7.7 / 11.4,   0.0, 0.0, 0.0,      0.19, 0.24, 0.29,   mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
-        #     # RSV
-        #     Virus(4.4 * 4.4 / 1.0, 1.0 / 4.4,     6.5 * 6.5 / 2.7, 2.7 / 6.5,      6.7 * 6.7 / 2.8, 2.8 / 6.7,      0.0, 0.0, 0.0,      0.24, 0.3, 0.36,    mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
-        #     # AdV
-        #     Virus(5.6 * 5.6 / 1.3, 1.3 / 5.6,     8.0 * 8.0 / 5.6, 5.6 / 8.0,      9.0 * 9.0 / 6.3, 6.3 / 9.0,      0.0, 0.0, 0.0,      0.15, 0.19, 0.23,   mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
-        #     # PIV
-        #     Virus(2.6 * 2.6 / 0.85, 0.85 / 2.6,   7.0 * 7.0 / 2.9, 2.9 / 7.0,      8.0 * 8.0 / 3.4, 3.4 / 8.0,      0.0, 0.0, 0.0,      0.16, 0.2, 0.24,    mean_immunity_durations[6], mean_immunity_durations[6] * 0.33),
-        #     # CoV
-        #     Virus(3.2 * 3.2 / 0.44, 0.44 / 3.2,   6.5 * 6.5 / 4.5, 4.5 / 6.5,      7.5 * 7.5 / 5.2, 5.2 / 7.5,      0.0, 0.0, 0.0,      0.21, 0.26, 0.32,   mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
+    viruses = Virus[
+        # Flu A
+        Virus(round(Int, 1.4 * 1.4 / 0.67), 0.67 / 1.4,   round(Int, 4.8 * 4.8 / 2.04), 2.04 / 4.8,    round(Int, 8.0 * 8.0 / 3.4), 3.4 / 8.0,      3.53, 2.63, 1.8,    0.38, 0.47, 0.57,   mean_immunity_durations[1], mean_immunity_durations[1] * 0.33),
+        # Flu B
+        Virus(round(Int, 0.6 * 0.6 / 0.19), 0.19 / 0.6,   round(Int, 3.7 * 3.7 / 3.0), 3.0 / 3.7,      round(Int, 6.1 * 6.1 / 4.8), 4.8 / 6.1,      3.53, 2.63, 1.8,    0.38, 0.47, 0.57,   mean_immunity_durations[2], mean_immunity_durations[2] * 0.33),
+        # RV
+        Virus(round(Int, 1.9 * 1.9 / 1.11), 1.11 / 1.9,   round(Int, 10.1 * 10.1 / 7.0), 7.0 / 10.1,   round(Int, 11.4 * 11.4 / 7.7), 7.7 / 11.4,   3.5, 2.6, 1.8,      0.19, 0.24, 0.29,   mean_immunity_durations[3], mean_immunity_durations[3] * 0.33),
+        # RSV
+        Virus(round(Int, 4.4 * 4.4 / 1.0), 1.0 / 4.4,     round(Int, 6.5 * 6.5 / 2.7), 2.7 / 6.5,      round(Int, 6.7 * 6.7 / 2.8), 2.8 / 6.7,      6.0, 4.5, 3.0,      0.24, 0.3, 0.36,    mean_immunity_durations[4], mean_immunity_durations[4] * 0.33),
+        # AdV
+        Virus(round(Int, 5.6 * 5.6 / 1.3), 1.3 / 5.6,     round(Int, 8.0 * 8.0 / 5.6), 5.6 / 8.0,      round(Int, 9.0 * 9.0 / 6.3), 6.3 / 9.0,      4.1, 3.1, 2.1,      0.15, 0.19, 0.23,   mean_immunity_durations[5], mean_immunity_durations[5] * 0.33),
+        # PIV
+        Virus(round(Int, 2.6 * 2.6 / 0.85), 0.85 / 2.6,   round(Int, 7.0 * 7.0 / 2.9), 2.9 / 7.0,      round(Int, 8.0 * 8.0 / 3.4), 3.4 / 8.0,      4.8, 3.6, 2.4,      0.16, 0.2, 0.24,    mean_immunity_durations[6], mean_immunity_durations[6] * 0.33),
+        # CoV
+        Virus(round(Int, 3.2 * 3.2 / 0.44), 0.44 / 3.2,   round(Int, 6.5 * 6.5 / 4.5), 4.5 / 6.5,      round(Int, 7.5 * 7.5 / 5.2), 5.2 / 7.5,      4.9, 3.7, 2.5,      0.21, 0.26, 0.32,   mean_immunity_durations[7], mean_immunity_durations[7] * 0.33)]
 
     # Число домохозяйств каждого типа по муниципалитетам
     district_households = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "district_households.csv"))))
@@ -1556,10 +1518,7 @@ function main(
             "num_schools_closed", num_schools_closed)
     end
 
-    # get_stats(agents, schools, workplaces)
-    # return
-
-    # Ошибка
+    # Функция потерь
     nMAE = 0.0
     # Если рассматривается 1 год
     if is_one_mean_year_modeled

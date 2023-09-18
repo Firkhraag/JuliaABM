@@ -484,13 +484,12 @@ mutable struct Agent
             days_infected = rand(rng, 1:(infection_period + incubation_period))
 
             # Бессимптомное течение болезни
-            rand_num = rand(rng, Float64)
             if age < 10
-                is_asymptomatic = rand_num > viruses[virus_id].symptomatic_probability_child
+                is_asymptomatic = rand(rng, Float64) > viruses[virus_id].symptomatic_probability_child
             elseif age < 18
-                is_asymptomatic = rand_num > viruses[virus_id].symptomatic_probability_teenager
+                is_asymptomatic = rand(rng, Float64) > viruses[virus_id].symptomatic_probability_teenager
             else
-                is_asymptomatic = rand_num > viruses[virus_id].symptomatic_probability_adult
+                is_asymptomatic = rand(rng, Float64) > viruses[virus_id].symptomatic_probability_adult
             end
 
             # Если имеются симптомы, то есть вероятность, что агент самоизолируется
