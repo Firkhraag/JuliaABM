@@ -8,7 +8,7 @@ using Distributions
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
-const is_russian = false
+const is_russian = true
 
 function age_distribution_groups()
     num_people_data_vec = [433175, 420460, 399159, 495506, 869700, 924829, 892794, 831873, 757411,

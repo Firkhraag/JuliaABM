@@ -380,7 +380,7 @@ function update_agent_states(
             # Если период болезни закончился
             if agent.days_infected == agent.incubation_period + agent.infection_period
                 # Шаг, когда агент был инфицирован
-                infection_time = current_step - agent.infection_period - agent.incubation_period - 1
+                infection_time = current_step - agent.days_infected - 1
                 if infection_time > 0
                     # Добавляем, число людей, которые были инфицированы агентом
                     rt_threads[infection_time, thread_id] += agent.num_infected_agents
@@ -428,59 +428,56 @@ function update_agent_states(
                 if !agent.is_asymptomatic && !agent.is_isolated
                     # Агент самоизолируется с некой вероятностью на 1-й, 2-й и 3-й дни болезни
                     if agent.days_infected == agent.incubation_period + 1
-                        rand_num = rand(rng, Float64)
                         if agent.age < 3
-                            if rand_num < isolation_probabilities_day_1[1]
+                            if rand(rng, Float64) < isolation_probabilities_day_1[1]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 8
-                            if rand_num < isolation_probabilities_day_1[2]
+                            if rand(rng, Float64) < isolation_probabilities_day_1[2]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 18
-                            if rand_num < isolation_probabilities_day_1[3]
+                            if rand(rng, Float64) < isolation_probabilities_day_1[3]
                                 agent.is_isolated = true
                             end
                         else
-                            if rand_num < isolation_probabilities_day_1[4]
+                            if rand(rng, Float64) < isolation_probabilities_day_1[4]
                                 agent.is_isolated = true
                             end
                         end
                     elseif agent.days_infected == agent.incubation_period + 2
-                        rand_num = rand(rng, Float64)
                         if agent.age < 3
-                            if rand_num < isolation_probabilities_day_2[1]
+                            if rand(rng, Float64) < isolation_probabilities_day_2[1]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 8
-                            if rand_num < isolation_probabilities_day_2[2]
+                            if rand(rng, Float64) < isolation_probabilities_day_2[2]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 18
-                            if rand_num < isolation_probabilities_day_2[3]
+                            if rand(rng, Float64) < isolation_probabilities_day_2[3]
                                 agent.is_isolated = true
                             end
                         else
-                            if rand_num < isolation_probabilities_day_2[4]
+                            if rand(rng, Float64) < isolation_probabilities_day_2[4]
                                 agent.is_isolated = true
                             end
                         end
                     elseif agent.days_infected == agent.incubation_period + 3
-                        rand_num = rand(rng, Float64)
                         if agent.age < 3
-                            if rand_num < isolation_probabilities_day_3[1]
+                            if rand(rng, Float64) < isolation_probabilities_day_3[1]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 8
-                            if rand_num < isolation_probabilities_day_3[2]
+                            if rand(rng, Float64) < isolation_probabilities_day_3[2]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 18
-                            if rand_num < isolation_probabilities_day_3[3]
+                            if rand(rng, Float64) < isolation_probabilities_day_3[3]
                                 agent.is_isolated = true
                             end
                         else
-                            if rand_num < isolation_probabilities_day_3[4]
+                            if rand(rng, Float64) < isolation_probabilities_day_3[4]
                                 agent.is_isolated = true
                             end
                         end
@@ -540,7 +537,7 @@ function update_agent_states(
         end
 
         # Вероятность прогула для вуза
-        if agent.activity_type == 3 &&  !agent.is_teacher
+        if agent.activity_type == 3 && !agent.is_teacher
             agent.attendance = true
             if rand(rng, Float64) < skip_college_probability
                 agent.attendance = false
@@ -612,9 +609,8 @@ function run_simulation(
 
     # Если глобальное потепление
     if with_global_warming
-        global_warming_temp = 1.0
         for i = 1:length(temperature)
-            temperature[i] += rand(Normal(global_warming_temp, 0.25 * global_warming_temp))
+            temperature[i] += rand(Normal(4.0, 0.25))
         end
     end
     # Минимальная температура воздуха

@@ -317,29 +317,35 @@ function create_parents_with_children(
     index::Int,
     # Генератор случайных чисел
     rng::MersenneTwister,
-    # Присутствуют прочие агенты
+    # Присутствуют не родственники
     with_others::Bool = false,
     # Присутствуют родители пары
     with_grandparent::Bool = false,
 )::Vector{Agent}
+    # Выбираем возраст для агента-женщины
     agent_female_sex, agent_female_age = get_agent_sex_and_age(
         index, district_people,
         district_people_households, district_household_index,
         rng, false)
 
+    # Если есть неродственники
     if with_others
+        # Если имеются дети младше 18 лет, то мать не может быть старше 55 лет, возраст 45-55 лет с вероятностью 40%,        если 2 ребенка, то старше 20 лет,                  если 3 ребенка, то старше 23 лет
         while ( (agent_female_age > 55 || (agent_female_age > 45 && rand(rng, Float64) > 0.4)) && num_of_children > 0 ) || ( num_of_children == 2 && agent_female_age < 21 ) || ( num_of_children == 3 && agent_female_age < 24 )
             agent_female_sex, agent_female_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, false)
         end
+    # Если есть родитель одного из супругов
     elseif with_grandparent
         while ( (agent_female_age > 55 || (agent_female_age > 45 && rand(rng, Float64) > 0.4)) && num_of_children > 0 ) || agent_female_age > 65 || ( agent_female_age > 50 && rand(rng, Float64) > 0.25 ) || ( agent_female_age > 40 && rand(rng, Float64) > 0.35 ) || ( (agent_female_age < 34 || (agent_female_age == 34 && rand(rng, Float64) > 0.25)) && num_of_other_people > 1 ) || ( num_of_children == 2 && agent_female_age < 21 ) || ( num_of_children == 3 && agent_female_age < 24 )
             agent_female_sex, agent_female_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, false)
         end
+    # Иначе
     else
+        # Если имеются дети младше 18 лет, то мать не может быть старше 55 лет, возраст 45-55 лет с вероятностью 40%,
         while ( (agent_female_age > 55 || (agent_female_age > 45 && rand(rng, Float64) > 0.4)) && num_of_children > 0 ) || ( (agent_female_age < 34 || (agent_female_age == 34 && rand(rng, Float64) > 0.25)) && num_of_other_people > 0 ) || ( num_of_children == 2 && agent_female_age < 21 ) || ( num_of_children == 3 && agent_female_age < 24 )
             agent_female_sex, agent_female_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
@@ -347,16 +353,20 @@ function create_parents_with_children(
         end
     end
 
+    # Создаем агента-женщину для пары
     agent_female = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
         isolation_probabilities_day_3, household_conn_ids, agent_female_sex, agent_female_age, rng)
     agent_id += 1
 
+    # Выбираем возраст для агента-мужчины
     agent_male_sex, agent_male_age = get_agent_sex_and_age(
         index, district_people,
         district_people_households, district_household_index,
         rng, true)
     age_diff_rand_num = rand(rng, Float64)
+    # Разница в возрасте между агентом-мужчиной и агентом-женщиной
+    # Соответствие Age difference in heterosexual married couples, 2017 US Current Population Survey
     age_diff = abs(agent_male_age - agent_female_age)
     while age_diff > 15 || (age_diff > 10 && age_diff_rand_num > 0.06) || (age_diff > 5 && age_diff_rand_num > 0.14) || (age_diff > 3 && age_diff_rand_num > 0.162) || (age_diff > 1 && age_diff_rand_num > 0.265)
         agent_male_sex, agent_male_age = get_agent_sex_and_age(
@@ -366,10 +376,12 @@ function create_parents_with_children(
         age_diff_rand_num = rand(rng, Float64)
         age_diff = abs(agent_male_age - agent_female_age)
     end
+    # Создаем агента-мужчину для пары
     agent_male = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
         isolation_probabilities_day_3, household_conn_ids, agent_male_sex, agent_male_age, rng)
     agent_id += 1
+
     if num_of_other_people == 0
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -946,12 +958,6 @@ function create_two_pairs_with_children_with_others(
             index, district_people, district_people_households,
             district_household_index, rng, false)
     end
-
-    # while agent_female_age > 55 || (agent_female_age > 50 && num_of_children > 0) || ((agent_female_age > 53 || agent_female_age < 21) && num_of_children > 1) || (agent_female_age < 24 && num_of_children > 2)
-    #     agent_female_sex, agent_female_age = get_agent_sex_and_age(
-    #         index, district_people, district_people_households,
-    #         district_household_index, rng, false)
-    # end
 
     agent_female = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
@@ -2319,7 +2325,7 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 6]
-            # PWOP4P1C - пара с 1 взрослым и 1 ребенком
+            # PWOP4P1C - пара с 1 ребенком (4 человека)
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(

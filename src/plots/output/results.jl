@@ -16,7 +16,7 @@ include("../../global/variables.jl")
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
 const is_russian = false
-const num_years = 1
+const num_years = 2
 const num_runs = 1
 const population_coef = 10072
 
@@ -844,9 +844,10 @@ function plot_incidence_viruses_time_series(
         ylabel_name = "Число случаев на 1000 чел. / неделя"
     end
 
+    viruses = ["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"]
     for i in 1:num_viruses
         nMAE = sum(abs.(incidence_arr_mean[:, i] - infected_data_viruses[:, i])) / sum(infected_data_viruses[:, i])
-        println(nMAE)
+        println("$(viruses[i]) nMAE = $(nMAE)")
     end
 
     viruses = ["FluA", "FluB", "RV", "RSV", "AdV", "PIV", "CoV"]
@@ -1012,16 +1013,16 @@ function plot_incidence_warming()
     num_runs_warming = 4
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs_warming + 1, num_years)
 
+    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld"))["observed_cases"] ./ population_coef
+    for j = 1:num_years
+        incidence_arr[1, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+    end
+
     for i = 1:num_runs_warming
         observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_warming_$(i).jld"))["observed_cases"] ./ population_coef
         for j = 1:num_years
-            incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+            incidence_arr[i + 1, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
-    end
-
-    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld"))["observed_cases"] ./ population_coef
-    for j = 1:num_years
-        incidence_arr[num_runs_warming + 1, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
     end
 
     ticks = range(1, stop = 52, length = 7)
@@ -1069,39 +1070,16 @@ function plot_incidence_warming()
         incidence_arr_mean[i] /= num_years
     end
 
-    confidence_model_1 = zeros(Float64, 52)
-    for i = 1:52
-        confidence_model_1[i] = confidence([incidence_arr[5, j][i] for j = 1:num_years], 2.9)
-    end
-    confidence_model_2 = zeros(Float64, 52)
-    for i = 1:52
-        confidence_model_2[i] = confidence([incidence_arr[4, j][i] for j = 1:num_years], 2.9)
-    end
-    confidence_model_3 = zeros(Float64, 52)
-    for i = 1:52
-        confidence_model_3[i] = confidence([incidence_arr[3, j][i] for j = 1:num_years], 2.9)
-    end
-    confidence_model_4 = zeros(Float64, 52)
-    for i = 1:52
-        confidence_model_4[i] = confidence([incidence_arr[2, j][i] for j = 1:num_years], 2.9)
-    end
-    confidence_model_5 = zeros(Float64, 52)
-    for i = 1:52
-        confidence_model_5[i] = confidence([incidence_arr[1, j][i] for j = 1:num_years], 2.9)
-    end
-
     incidence_plot = plot(
         1:52,
-        [incidence_arr_mean[i] for i = (num_runs_warming + 1):-1:1],
+        [incidence_arr_mean[i] for i = 1:(num_runs_warming + 1)],
         lw = 1.5,
         xticks = (ticks, ticklabels),
         label = label_names,
         margin = 4Plots.mm,
         grid = true,
         legend = (0.75, 0.98),
-        ylim = (0.0, maximum(incidence_arr_mean[5]) + maximum(confidence_model_1)),
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
-        # ribbon = [confidence_model_1 confidence_model_2 confidence_model_3 confidence_model_4 confidence_model_5],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -1111,7 +1089,6 @@ function plot_incidence_warming()
 end
 
 function plot_school_closures()
-    num_years = 3
     num_runs_quarantine = 3
     num_schools_closed = Array{Vector{Float64}, 2}(undef, num_runs_quarantine + 1, num_years)
     
@@ -1176,41 +1153,64 @@ function plot_school_closures()
     savefig(closures_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "num_closures_time_series.pdf"))
 end
 
-function plot_temperature_time_series()
-    num_years = 3
+function plot_warming_temperatures()
     num_runs_temp = 4
 
-    temperature_data_rearranged = Array{Vector{Float64}, 1}(undef, num_runs_temp + 1)
+    # temperature_data_rearranged = Array{Vector{Float64}, 1}(undef, num_runs_temp + 1)
     
-    temperature_data = Matrix(DataFrame(CSV.File("./input/tables/temperature.csv")))
-    temperature_data_rearranged[1] = Float64[]
-    append!(temperature_data_rearranged[1], temperature_data[213:365])
-    append!(temperature_data_rearranged[1], temperature_data[1:212])
+    # temperature_data = Matrix(DataFrame(CSV.File("./input/tables/temperature.csv")))
+    # temperature_data_rearranged[1] = Float64[]
+    # append!(temperature_data_rearranged[1], temperature_data[213:365])
+    # append!(temperature_data_rearranged[1], temperature_data[1:212])
 
-    # append!(temperature_data_rearranged[1], temperature_data[578:730])
-    # append!(temperature_data_rearranged[1], temperature_data[366:577])
+    # # append!(temperature_data_rearranged[1], temperature_data[578:730])
+    # # append!(temperature_data_rearranged[1], temperature_data[366:577])
 
-    # append!(temperature_data_rearranged[1], temperature_data[943:1095])
-    # append!(temperature_data_rearranged[1], temperature_data[731:942])
+    # # append!(temperature_data_rearranged[1], temperature_data[943:1095])
+    # # append!(temperature_data_rearranged[1], temperature_data[731:942])
 
-    for i = 1:num_runs_temp
-        temperature_data = Matrix(DataFrame(CSV.File("./input/tables/temperature.csv"))) .+ i
+    # for i = 1:num_runs_temp
+    #     temperature_data = Matrix(DataFrame(CSV.File("./input/tables/temperature.csv"))) .+ i
 
-        temperature_data_rearranged[i + 1] = Float64[]
-        append!(temperature_data_rearranged[i + 1], temperature_data[213:365])
-        append!(temperature_data_rearranged[i + 1], temperature_data[1:212])
+    #     temperature_data_rearranged[i + 1] = Float64[]
+    #     append!(temperature_data_rearranged[i + 1], temperature_data[213:365])
+    #     append!(temperature_data_rearranged[i + 1], temperature_data[1:212])
 
-        # append!(temperature_data_rearranged[i + 1], temperature_data[578:730])
-        # append!(temperature_data_rearranged[i + 1], temperature_data[366:577])
+    #     # append!(temperature_data_rearranged[i + 1], temperature_data[578:730])
+    #     # append!(temperature_data_rearranged[i + 1], temperature_data[366:577])
 
-        # append!(temperature_data_rearranged[i + 1], temperature_data[943:1095])
-        # append!(temperature_data_rearranged[i + 1], temperature_data[731:942])
+    #     # append!(temperature_data_rearranged[i + 1], temperature_data[943:1095])
+    #     # append!(temperature_data_rearranged[i + 1], temperature_data[731:942])
+    # end
+    
+    global_warming_temps = [1.0, 2.0, 3.0, 4.0]
+
+    temperature_data = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "temperature.csv"))))[1, :]
+    temperature = copy(temperature_data[213:365])
+    append!(temperature, temperature_data[1:212])
+
+    temperature_1 = copy(temperature)
+    temperature_2 = copy(temperature)
+    temperature_3 = copy(temperature)
+    temperature_4 = copy(temperature)
+
+    for i = 1:length(temperature)
+        temperature_1[i] += rand(Normal(global_warming_temps[1], 0.25))
+    end
+    for i = 1:length(temperature)
+        temperature_2[i] += rand(Normal(global_warming_temps[2], 0.25))
+    end
+    for i = 1:length(temperature)
+        temperature_3[i] += rand(Normal(global_warming_temps[3], 0.25))
+    end
+    for i = 1:length(temperature)
+        temperature_4[i] += rand(Normal(global_warming_temps[4], 0.25))
     end
 
-    ticks = range(1, stop = (365 * num_years), length = 19)
-    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    ticks = range(1, stop = 365, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     if is_russian
-        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
     end
 
     label_names = ["+0 °С" "+1 °С" "+2 °С" "+3 °С" "+4 °С"]
@@ -1226,9 +1226,8 @@ function plot_temperature_time_series()
     end
 
     temperature_plot = plot(
-        # 1:(365 * num_years),
         1:365,
-        [temperature_data_rearranged[i][1:365] for i = 1:(num_runs_temp + 1)],
+        [temperature temperature_1 temperature_2 temperature_3 temperature_4],
         lw = 1.5,
         label = label_names,
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.4, 0.8, 0.933)],
@@ -1256,11 +1255,6 @@ function print_scenario_statistics(quarantine_index::Int, warming_index::Int)
         end
     end
 
-    # confidence_model = zeros(Float64, 52)
-    # for i = 1:52
-    #     confidence_model[i] = confidence([incidence_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
-    # end
-
     for i = 1:52
         for j = 1:num_years
             for k = 1:num_runs
@@ -1282,11 +1276,6 @@ function print_scenario_statistics(quarantine_index::Int, warming_index::Int)
         end
     end
 
-    # confidence_model = zeros(Float64, 52)
-    # for i = 1:52
-    #     confidence_model[i] = confidence([incidence_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
-    # end
-
     for i = 1:52
         for j = 1:num_years
             for k = 1:num_runs
@@ -1307,11 +1296,6 @@ function print_scenario_statistics(quarantine_index::Int, warming_index::Int)
             incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
     end
-
-    # confidence_model = zeros(Float64, 52)
-    # for i = 1:52
-    #     confidence_model[i] = confidence([incidence_arr[k, j][i] for j = 1:num_years for k = 1:num_runs])
-    # end
 
     for i = 1:52
         for j = 1:num_years
@@ -1486,145 +1470,9 @@ function plot_incidence_with_without_recovered()
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence_recovered.pdf"))
 end
 
-function plot_temperature_closures()
-    temperature_data = get_air_temperature()
-    temperature_data_rearranged = Float64[]
-    append!(temperature_data_rearranged, temperature_data[213:end])
-    append!(temperature_data_rearranged, temperature_data[1:212])
-
-    num_years = 3
-    num_schools_closed = zeros(Float64, 365)
-    num_schools_closed_temp = incidence_arr = Array{Vector{Float64}, 1}(undef, num_years)
-    
-    num_schools_closed_model = zeros(Float64, 365 * num_years)
-    
-    num_runs = 2
-    for i = 1:num_runs
-        num_schools_closed_model += load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["num_schools_closed"][1:365 * num_years]
-    end
-    num_schools_closed_model ./= num_runs
-
-    for i = 1:num_years
-        num_schools_closed_temp[i] = num_schools_closed_model[(365 * (i - 1) + 1):(365 * (i - 1) + 365)]
-    end
-
-    for i = 1:365
-        for j = 1:num_years
-            num_schools_closed[i] += num_schools_closed_temp[j][i]
-        end
-        num_schools_closed[i] /= num_years
-    end
-
-    num_schools_closed = moving_average(num_schools_closed, 20)
-
-    ticks = range(1, stop = 365, length = 7)
-    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
-    if is_russian
-        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
-    end
-
-    label_names = ["base" "warming"]
-    if is_russian
-        label_names = ["базовый" "потепление"]
-    end
-
-    xlabel_name = "Month"
-    if is_russian
-        xlabel_name = "Месяц"
-    end
-
-    ylabel_name = "Temperature, °C"
-    if is_russian
-        ylabel_name = "Температура, °C"
-    end
-
-    temperature_plot = plot(
-        1:365,
-        [temperature_data_rearranged temperature_data_rearranged .+ 2.0],
-        lw = 1.5,
-        label = label_names,
-        color = [RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2)],
-        xticks = (ticks, ticklabels),
-        grid = true,
-        legend = (0.35, 0.98),
-        right_margin = 14Plots.mm,
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-    )
-
-    temperature_plot = plot(
-        twinx(),
-        num_schools_closed,
-        lw = 1.5,
-        label = "quarantine",
-        color = RGB(0.933, 0.4, 0.467),
-        xticks = (ticks, ticklabels),
-        grid = false,
-        legend = (0.74, 0.98),
-        xlabel = xlabel_name,
-        ylabel = "Number of school closures",
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-    )
-
-    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "time_series", "temperature_closures.pdf"))
-end
-
-function plot_temperature_scenarios()
-    temperature_data = get_air_temperature()
-    temperature_data_rearranged = Float64[]
-    append!(temperature_data_rearranged, temperature_data[213:end])
-    append!(temperature_data_rearranged, temperature_data[1:212])
-
-    num_years = 3
-    num_schools_closed = zeros(Float64, 365)
-    num_schools_closed_temp = incidence_arr = Array{Vector{Float64}, 1}(undef, num_years)
-    
-    ticks = range(1, stop = 365, length = 7)
-    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
-    if is_russian
-        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
-    end
-
-    label_names = ["warming" "base"]
-    if is_russian
-        label_names = ["потепление" "базовый"]
-    end
-
-    xlabel_name = "Month"
-    if is_russian
-        xlabel_name = "Месяц"
-    end
-
-    ylabel_name = "Temperature, °C"
-    if is_russian
-        ylabel_name = "Температура, °C"
-    end
-
-    temperature_plot = plot(
-        1:365,
-        [temperature_data_rearranged .+ 2.0 temperature_data_rearranged],
-        lw = 1.5,
-        label = label_names,
-        color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-        xticks = (ticks, ticklabels),
-        grid = true,
-        legend = (0.42, 0.98),
-        right_margin = 14Plots.mm,
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-    )
-
-    savefig(temperature_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "time_series", "temperature_scenarios.pdf"))
-end
-
-plot_incidence()
-plot_incidence_age_groups()
-plot_incidence_viruses()
+# plot_incidence()
+# plot_incidence_age_groups()
+# plot_incidence_viruses()
 # plot_incidence_viruses_together()
 # plot_incidence_age_groups_viruses_together()
 # plot_rt()
@@ -1638,13 +1486,10 @@ plot_incidence_viruses()
 # plot_incidence_with_without_recovered()
 
 # plot_incidence_quarantine()
-# plot_incidence_warming()
+plot_incidence_warming()
 
 # plot_school_closures()
-# plot_temperature_time_series()
-# plot_incidence_scenarios_quaranteen()
-# plot_incidence_scenarios_warming()
-
+# plot_warming_temperatures()
 
 # ["порог 0.2, 7 дней" "порог 0.1, 7 дней" "порог 0.3, 7 дней" "порог 0.2, 14 дней" "порог 0.1, 14 дней"]
 # ["+4 °С" "+3 °С" "+2 °С" "+1 °С"]

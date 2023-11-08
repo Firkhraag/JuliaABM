@@ -1,0 +1,33 @@
+.margin-cnt {
+    margin: 1em;
+    padding: 1em;
+    width: 100%;
+}
+
+.inline-cnt {
+    display: inline-block;
+}
+
+.input-cnt {
+    margin: .5em 1em 1em 0em;
+    padding: .5em;
+    border: 1px solid grey;
+    border-radius: 5px;
+    width: 100px;
+}
+
+.button-cnt {
+    margin: .5em 1em 1em 0em;
+    padding: .5em;
+    border: 1px solid grey;
+    border-radius: 5px;
+    background: white;
+    width: 100px;
+    cursor: pointer;
+    transition-duration: 0.2s;
+}
+
+.button-cnt:hover {
+    background-color: rgb(55, 55, 55);
+    color: white;
+  }

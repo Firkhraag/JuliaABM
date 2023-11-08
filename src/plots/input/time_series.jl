@@ -17,7 +17,7 @@ include("../../util/moving_avg.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
-const is_russian = false
+const is_russian = true
 const population_coef = 10072
 
 function confidence(x::Vector{Float64}, tstar::Float64 = 2.35)
@@ -424,6 +424,7 @@ function plot_incidence_etiology_bars()
 
     virus_names_labels = ["FluA" "FluB" "RV" "RSV" "AdV" "PIV" "CoV"]
     if is_russian
+        # virus_names_labels = ["Грипп A" "Грипп B" "Риновирус" "Респираторно-синцитиальный" "Аденовирус" "Парагрипп" "Коронавирус"]
         virus_names_labels = ["Грипп A" "Грипп B" "Риновирус" "РСВ" "Аденовирус" "Парагрипп" "Коронавирус"]
     end
 
@@ -505,12 +506,12 @@ function incidence_temperature_corr()
     println(cor(temperature_data_weekly, incidence_data_mean))
 end
 
-plot_incidence_time_series()
-plot_incidence_time_series_all()
-plot_incidence()
+# plot_incidence_time_series()
+# plot_incidence_time_series_all()
+# plot_incidence()
 
-plot_incidence_viruses()
+# plot_incidence_viruses()
 plot_incidence_etiology_bars()
 
-plot_temperature()
-incidence_temperature_corr()
+# plot_temperature()
+# incidence_temperature_corr()

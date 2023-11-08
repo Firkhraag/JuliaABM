@@ -1,0 +1,91 @@
+@font-face {
+	font-family: 'OpenSans';
+	src: url('../assets/fonts/OpenSans-Regular.ttf') format("ttf");
+}
+
+@font-face {
+	font-family: 'OpenSans';
+	src: url('../assets/fonts/OpenSans-SemiBold.ttf') format("ttf");
+	font-weight: 600;
+}
+
+@font-face {
+	font-family: 'OpenSans';
+	src: url('../assets/fonts/OpenSans-Bold.ttf') format("ttf");
+	font-weight: bold;
+}
+
+html {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	font-family: 'OpenSans', 'Arial', sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	background: var(--main-background-color);
+	line-height: 1.6em;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+/* ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+} */
+
+button:disabled,
+button[disabled]{
+    /* border: 1px solid #ababab; */
+    background-color: #cccccc;
+    color: #999;
+    cursor: auto;
+}
+
+p,
+h1,
+h2 {
+	margin: 0;
+}
+
+input,
+textarea,
+button,
+select {
+	border: none;
+	outline: none;
+}
+
+button:focus {
+	outline: none;
+}
+
+.css-tlfecz-indicatorContainer {
+    padding: 5px !important;
+}
+
+:root {
+	--red: #993a3a;
+	--blue: #2f4c9f;
+	--grey-border-color: #d9d9d9;
+	--darker-grey-border-color: #bfbfbf;
+	--header-bottom-border-color: #dadada;
+	--grey: #999;
+	--black-text-color: #222427;
+	--main-background-color: #fafafa;
+    --c1: #B5B0FF;
+    --c2: #FF9090;
+
+    --nice-violet: #7e4399;
+	--nice-blue: #558bc8;
+}
