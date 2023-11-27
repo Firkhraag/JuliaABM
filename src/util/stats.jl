@@ -1,6 +1,8 @@
 function get_stats(
     # Агенты
     agents::Vector{Agent},
+    # Домохозяйства
+    households::Vector{Household},
     # Школы
     schools::Vector{School},
     # Рабочие коллективы
@@ -115,7 +117,7 @@ function get_stats(
             size_work_conn += 1
         end
 
-        household_nums[size(agent.household_conn_ids, 1)] += 1
+        household_nums[length(households[agent.household_id].agent_ids)] += 1
 
         mean_ig_level += agent.ig_level
 

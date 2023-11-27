@@ -118,6 +118,8 @@ function simulate_contacts(
     end_agent_id::Int,
     # Агенты
     agents::Vector{Agent},
+    # Домохозяйства
+    households::Vector{Household},
     # Средние продолжительности контактов в домохозяйствах для разных контактов
     mean_household_contact_durations::Vector{Float64},
     # Среднеквадратические отклонения для контактов в домохозяйствах для разных контактов
@@ -156,7 +158,7 @@ function simulate_contacts(
         # Агент инфицирован
         if agent.virus_id != 0 && !agent.is_newly_infected
             # Моделируем контакты в домохозяйстве
-            for agent2_id in agent.household_conn_ids
+            for agent2_id in households[agent.household_id].agent_ids
                 agent2 = agents[agent2_id]
                 # Проверка восприимчивости агента к вирусу
                 if agent2.virus_id == 0 && agent2.days_immune == 0
@@ -379,6 +381,28 @@ function update_agent_states(
         if agent.virus_id != 0 && !agent.is_newly_infected
             # Если период болезни закончился
             if agent.days_infected == agent.incubation_period + agent.infection_period
+                # Если агент нуждался в уходе за собой
+                if agent.age < 12 &&
+                    households[agent.household_id].children_need_supporter_care &&
+                    !agent.is_asymptomatic &&
+                    (agent.is_isolated || agent.activity_type == 0)
+
+                    is_support_still_needed = false
+                    for agent2.id in households[agent.household_id].agent_ids
+                        if agent.id != agent2.id &&
+                            agent2.age < 12 &&
+                            !agent2.is_asymptomatic &&
+                            agent2.days_infected > agent2.incubation_period + 1 &&
+                            (agent2.is_isolated || agent2.activity_type == 0)
+
+                            is_support_still_needed = true
+                        end
+                    end
+                    if !is_support_still_needed
+                        agents[households[agent.household_id].supporter_id].on_parent_leave = false
+                    end
+                end
+
                 # Шаг, когда агент был инфицирован
                 infection_time = current_step - agent.days_infected - 1
                 if infection_time > 0
@@ -399,28 +423,28 @@ function update_agent_states(
                 agent.is_isolated = false
                 agent.days_infected = 0
 
-                # Если агент нуждался в уходе за собой
-                if agent.needs_supporter_care
-                    is_support_still_needed = false
-                    # Проходим по всем детям попечителя данного агента
-                    for dependant_id in agents[agent.supporter_id].dependant_ids
-                        dependant = agents[dependant_id]
-                        # Если ребенок болен и нуждается в уходе
-                        if dependant.needs_supporter_care &&
-                            dependant.virus_id != 0 &&
-                            !dependant.is_asymptomatic &&
-                            dependant.days_infected > dependant.incubation_period &&
-                            (dependant.activity_type == 0 || dependant.is_isolated)
+                # # Если агент нуждался в уходе за собой
+                # if agent.needs_supporter_care
+                #     is_support_still_needed = false
+                #     # Проходим по всем детям попечителя данного агента
+                #     for dependant_id in agents[agent.supporter_id].dependant_ids
+                #         dependant = agents[dependant_id]
+                #         # Если ребенок болен и нуждается в уходе
+                #         if dependant.needs_supporter_care &&
+                #             dependant.virus_id != 0 &&
+                #             !dependant.is_asymptomatic &&
+                #             dependant.days_infected > dependant.incubation_period &&
+                #             (dependant.activity_type == 0 || dependant.is_isolated)
 
-                            is_support_still_needed = true
-                            break
-                        end
-                    end
-                    # Если попечителю больше не надо сидеть дома
-                    if !is_support_still_needed
-                        agents[agent.supporter_id].on_parent_leave = false
-                    end
-                end
+                #             is_support_still_needed = true
+                #             break
+                #         end
+                #     end
+                #     # Если попечителю больше не надо сидеть дома
+                #     if !is_support_still_needed
+                #         agents[agent.supporter_id].on_parent_leave = false
+                #     end
+                # end
             else
                 # Прибавляем день к счетчику дней в инфицированном состоянии
                 agent.days_infected += 1
@@ -496,14 +520,24 @@ function update_agent_states(
                     end
                 end
 
+                # # Если нужен уход, то агент-попечитель будет сидеть с ребенком дома
+                # if agent.supporter_id != 0 &&
+                #     agent.needs_supporter_care &&
+                #     !agent.is_asymptomatic &&
+                #     agent.days_infected > agent.incubation_period + 1 &&
+                #     (agent.is_isolated || agent.activity_type == 0)
+
+                #     agents[agent.supporter_id].on_parent_leave = true
+                # end
+
                 # Если нужен уход, то агент-попечитель будет сидеть с ребенком дома
-                if agent.supporter_id != 0 &&
-                    agent.needs_supporter_care &&
+                if agent.age < 12 &&
+                    households[agent.household_id].children_need_supporter_care &&
                     !agent.is_asymptomatic &&
                     agent.days_infected > agent.incubation_period + 1 &&
                     (agent.is_isolated || agent.activity_type == 0)
 
-                    agents[agent.supporter_id].on_parent_leave = true
+                    agents[households[agent.household_id].supporter_id].on_parent_leave = true
                 end
             end
         # Если агент был заражен на текущем шаге
@@ -710,6 +744,7 @@ function run_simulation(
                 start_agent_ids[thread_id],
                 end_agent_ids[thread_id],
                 agents,
+                households,
                 mean_household_contact_durations,
                 household_contact_duration_sds,
                 other_contact_duration_shapes,

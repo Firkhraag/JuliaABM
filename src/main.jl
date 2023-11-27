@@ -52,14 +52,14 @@ function simulate_contacts(
     # Выходной
     println("Holiday")
     @time run_simulation_evaluation(
-        num_threads, thread_rng, agents, kindergartens,
+        num_threads, thread_rng, agents, households, kindergartens,
         schools, colleges, mean_household_contact_durations,
         household_contact_duration_sds, other_contact_duration_shapes,
         other_contact_duration_scales, true)
     # Будний день
     println("Weekday")
     @time run_simulation_evaluation(
-        num_threads, thread_rng, agents, kindergartens,
+        num_threads, thread_rng, agents, households, kindergartens,
         schools, colleges, mean_household_contact_durations,
         household_contact_duration_sds, other_contact_duration_shapes,
         other_contact_duration_scales, false)
@@ -1363,7 +1363,7 @@ function main(
         school_num_barabasi_albert_attachments)
 
     # Информация о популяции
-    # get_stats(agents, schools, workplaces)
+    # get_stats(agents, households, schools, workplaces)
     # return
 
     println("Simulation...")

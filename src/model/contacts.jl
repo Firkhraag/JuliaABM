@@ -10,6 +10,8 @@ function simulate_contacts_evaluation(
     end_agent_id::Int,
     # Агенты
     agents::Vector{Agent},
+    # Домохозяйства
+    households::Vector{Household},
     # Детские сады
     kindergartens::Vector{School},
     # Школы
@@ -44,7 +46,7 @@ function simulate_contacts_evaluation(
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
         # Контакты в домохозяйстве
-        for agent2_id in agent.household_conn_ids
+        for agent2_id in households[agent.household_id].agent_ids
             agent2 = agents[agent2_id]
             if agent2_id != agent_id
                 # Продолжительность контакта
@@ -210,6 +212,8 @@ function run_simulation_evaluation(
     thread_rng::Vector{MersenneTwister},
     # Агенты
     agents::Vector{Agent},
+    # Домохозяйства
+    households::Vector{Household},
     # Детские сады
     kindergartens::Vector{School},
     # Школы
@@ -254,6 +258,7 @@ function run_simulation_evaluation(
             start_agent_ids[thread_id],
             end_agent_ids[thread_id],
             agents,
+            households,
             kindergartens,
             schools,
             colleges,

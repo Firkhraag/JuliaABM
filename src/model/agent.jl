@@ -10,13 +10,16 @@ mutable struct Agent
     is_male::Bool
     # Id домохозяйства
     household_id::Int
-    # Связи в домохозяйстве (id агентов)
-    household_conn_ids::Vector{Int}
-    # Тип коллектива, к которому привязан агент
+    # Социальный статус
+    # 0 - безработный
+    # 1 - детсадовец
+    # 2 - школьник
+    # 3 - студент
+    # 4 - работающий агент
     activity_type::Int
     # Id образовательного учреждения
     school_id::Int
-    # Номер группы в образовательном учреждении
+    # Год обучения
     school_group_num::Int
     # Id рабочего коллектива
     workplace_id::Int
@@ -24,12 +27,6 @@ mutable struct Agent
     activity_conn_ids::Vector{Int}
     # Связи между группами образовательного учреждения
     activity_cross_conn_ids::Vector{Int}
-    # Id детей в домохозяйстве младше 12 лет
-    dependant_ids::Vector{Int}
-    # Id попечителя в домохозяйстве
-    supporter_id::Int
-    # Если агент-ребенок нуждается в уходе при болезни
-    needs_supporter_care::Bool
     # Уход за больным ребенком
     on_parent_leave::Bool
     # Уровень иммуноглобулинов
@@ -80,8 +77,6 @@ mutable struct Agent
         isolation_probabilities_day_1::Vector{Float64},
         isolation_probabilities_day_2::Vector{Float64},
         isolation_probabilities_day_3::Vector{Float64},
-        # Id агентов, с которыми имеется связь в домохозяйстве
-        household_conn_ids::Vector{Int},
         # Пол
         is_male::Bool,
         # Возраст
@@ -320,8 +315,6 @@ mutable struct Agent
         end
 
         # Значения по умолчанию
-        supporter_id = 0
-        needs_supporter_care = false
         on_parent_leave = false
 
         # Общий уровень иммуноглобулинов
@@ -574,10 +567,10 @@ mutable struct Agent
         quarantine_period = 0
 
         new(
-            id, age, infant_age, is_male, household_id, household_conn_ids,
-            activity_type, school_id, school_group_num, workplace_id, Int[], Int[],
-            Int[], supporter_id, needs_supporter_care, on_parent_leave, ig_level,
-            virus_id, is_newly_infected, viruses_days_immune, viruses_immunity_end,
+            id, age, infant_age, is_male, household_id,
+            activity_type, school_id, school_group_num, workplace_id,
+            Int[], Int[], on_parent_leave, ig_level, virus_id,
+            is_newly_infected, viruses_days_immune, viruses_immunity_end,
             incubation_period, infection_period, days_infected, days_immune,
             days_immune_end, is_asymptomatic, is_isolated, attendance, is_teacher,
             num_infected_agents, quarantine_period, immunity_susceptibility_levels)
