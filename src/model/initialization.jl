@@ -2147,7 +2147,7 @@ function create_population(
             household = Household(
                 household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                 district_people_households, index_for_2_people, 1, 0, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
@@ -2156,7 +2156,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 5]
             # PWOP4P0C - пара без детей (4 человека)
@@ -2219,7 +2219,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 7]
             # PWOP4P2C - пара с 2 детьми
@@ -2228,7 +2228,7 @@ function create_population(
             household = Household(
                 household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                 district_people_households, index_for_4_people, 2, 0, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
@@ -2237,7 +2237,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 8]
             # PWOP5P0C - пара с 3 взрослыми
@@ -2300,7 +2300,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 10]
             # PWOP5P2C - пара с 1 взрослым и 2 детьми
@@ -2332,7 +2332,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 11]
             # PWOP5P3C - пара с 3 детьми
@@ -2341,7 +2341,7 @@ function create_population(
             household = Household(
                 household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
                 isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                 district_people_households, index_for_5_people, 3, 0, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
@@ -2350,7 +2350,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 12]
             # PWOP6P0C - пара с 4 взрослыми
@@ -2413,7 +2413,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 14]
             # PWOP6P2C - пара с 2 взрослыми и 2 детьми
@@ -2445,7 +2445,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 15]
             # PWOP6P3C - пара с 1 взрослым и 3 детьми
@@ -2477,7 +2477,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
 
         for _ in 1:district_households[index, 16]
@@ -2530,7 +2530,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 19]
             # 2PWOP6P0C - 2 пары с 2 взрослыми
@@ -2565,7 +2565,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 21]
             # 2PWOP6P2C - 2 пары с 2 детьми
@@ -2583,7 +2583,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
 
         for _ in 1:district_households[index, 22]
@@ -2619,7 +2619,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 24]
             # SMWC3P0C
@@ -2654,7 +2654,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 26]
             # SMWC3P2C
@@ -2672,7 +2672,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 27]
             # SMWC4P0C
@@ -2707,7 +2707,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 29]
             # SMWC4P2C
@@ -2725,7 +2725,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 30]
             # SMWC4P3C
@@ -2743,7 +2743,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 31]
             # SFWC2P0C
@@ -2778,7 +2778,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 33]
             # SFWC3P0C
@@ -2813,7 +2813,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 35]
             # SFWC3P2C
@@ -2831,7 +2831,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
 
         for _ in 1:district_households[index, 36]
@@ -2867,7 +2867,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 38]
             # SPWCWP4P0C
@@ -2902,7 +2902,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 40]
             # SPWCWP4P2C
@@ -2920,7 +2920,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
 
         for _ in 1:district_households[index, 41]
@@ -2956,7 +2956,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 43]
             # SPWCWPWOP4P0C
@@ -2991,7 +2991,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 45]
             # SPWCWPWOP4P2C
@@ -3009,7 +3009,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 46]
             # SPWCWPWOP5P0C
@@ -3044,7 +3044,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 48]
             # SPWCWPWOP5P2C
@@ -3062,7 +3062,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
 
         for _ in 1:district_households[index, 49]
@@ -3098,7 +3098,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 51]
             # O3P0C - прочие домохозяйства без детей (3 человека)
@@ -3133,7 +3133,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 53]
             # O3P2C - прочие домохозяйства с 2 детьми (3 человека)
@@ -3151,7 +3151,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 54]
             # O4P0C - прочие домохозяйства без детей (4 человека)
@@ -3186,7 +3186,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 56]
             # O4P2C - прочие домохозяйства с 2 детьми (4 человека)
@@ -3204,7 +3204,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 57]
             # O4P3C - прочие домохозяйства с 3 детьми (4 человека)
@@ -3222,7 +3222,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 58]
             # O5P0C - прочие домохозяйства без детей (5 человек)
@@ -3257,7 +3257,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 60]
             # O5P2C - прочие домохозяйства с 2 детьми (5 человек)
@@ -3275,7 +3275,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 61]
             # O5P3C - прочие домохозяйства с 3 детьми (5 человек)
@@ -3293,7 +3293,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 62]
             # O6P0C - прочие домохозяйства без детей (6 человек)
@@ -3328,7 +3328,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 64]
             # O6P2C - прочие домохозяйства с 2 детьми (6 человек)
@@ -3346,7 +3346,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 65]
             # O6P3C - прочие домохозяйства с 3 детьми (6 человек)
@@ -3364,7 +3364,7 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
-            check_parent_leave(agents, household)
+            check_parent_leave(all_agents, household)
         end
     end
 end

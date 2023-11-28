@@ -388,8 +388,9 @@ function update_agent_states(
                     (agent.is_isolated || agent.activity_type == 0)
 
                     is_support_still_needed = false
-                    for agent2.id in households[agent.household_id].agent_ids
-                        if agent.id != agent2.id &&
+                    for agent2_id in households[agent.household_id].agent_ids
+                        agent2 = agents[agent2_id]
+                        if agent_id != agent2_id &&
                             agent2.age < 12 &&
                             !agent2.is_asymptomatic &&
                             agent2.days_infected > agent2.incubation_period + 1 &&
@@ -422,29 +423,6 @@ function update_agent_states(
                 agent.virus_id = 0
                 agent.is_isolated = false
                 agent.days_infected = 0
-
-                # # Если агент нуждался в уходе за собой
-                # if agent.needs_supporter_care
-                #     is_support_still_needed = false
-                #     # Проходим по всем детям попечителя данного агента
-                #     for dependant_id in agents[agent.supporter_id].dependant_ids
-                #         dependant = agents[dependant_id]
-                #         # Если ребенок болен и нуждается в уходе
-                #         if dependant.needs_supporter_care &&
-                #             dependant.virus_id != 0 &&
-                #             !dependant.is_asymptomatic &&
-                #             dependant.days_infected > dependant.incubation_period &&
-                #             (dependant.activity_type == 0 || dependant.is_isolated)
-
-                #             is_support_still_needed = true
-                #             break
-                #         end
-                #     end
-                #     # Если попечителю больше не надо сидеть дома
-                #     if !is_support_still_needed
-                #         agents[agent.supporter_id].on_parent_leave = false
-                #     end
-                # end
             else
                 # Прибавляем день к счетчику дней в инфицированном состоянии
                 agent.days_infected += 1
@@ -519,16 +497,6 @@ function update_agent_states(
                         end
                     end
                 end
-
-                # # Если нужен уход, то агент-попечитель будет сидеть с ребенком дома
-                # if agent.supporter_id != 0 &&
-                #     agent.needs_supporter_care &&
-                #     !agent.is_asymptomatic &&
-                #     agent.days_infected > agent.incubation_period + 1 &&
-                #     (agent.is_isolated || agent.activity_type == 0)
-
-                #     agents[agent.supporter_id].on_parent_leave = true
-                # end
 
                 # Если нужен уход, то агент-попечитель будет сидеть с ребенком дома
                 if agent.age < 12 &&

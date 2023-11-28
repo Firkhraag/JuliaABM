@@ -1453,34 +1453,34 @@ function main(
 
     # Использование выборки латинского гиперкуба для исследования пространства параметров модели
     # --------------------------
-    lhs_simulations(
-        is_one_mean_year_modeled,
-        1000,
-        agents,
-        households,
-        schools,
-        num_threads,
-        thread_rng,
-        start_agent_ids,
-        end_agent_ids,
-        temperature,
-        viruses,
-        num_infected_age_groups_viruses,
-        num_infected_age_groups_viruses_prev,
-        mean_household_contact_durations,
-        household_contact_duration_sds,
-        other_contact_duration_shapes,
-        other_contact_duration_scales,
-        isolation_probabilities_day_1,
-        isolation_probabilities_day_2,
-        isolation_probabilities_day_3,
-        recovered_duration_mean,
-        recovered_duration_sd,
-        random_infection_probabilities,
-        mean_immunity_durations,
-        num_years,
-    )
-    return
+    # lhs_simulations(
+    #     is_one_mean_year_modeled,
+    #     1000,
+    #     agents,
+    #     households,
+    #     schools,
+    #     num_threads,
+    #     thread_rng,
+    #     start_agent_ids,
+    #     end_agent_ids,
+    #     temperature,
+    #     viruses,
+    #     num_infected_age_groups_viruses,
+    #     num_infected_age_groups_viruses_prev,
+    #     mean_household_contact_durations,
+    #     household_contact_duration_sds,
+    #     other_contact_duration_shapes,
+    #     other_contact_duration_scales,
+    #     isolation_probabilities_day_1,
+    #     isolation_probabilities_day_2,
+    #     isolation_probabilities_day_3,
+    #     recovered_duration_mean,
+    #     recovered_duration_sd,
+    #     random_infection_probabilities,
+    #     mean_immunity_durations,
+    #     num_years,
+    # )
+    # return
     # --------------------------
 
     # Модифицированный алгоритм Метрополиса-Гастингса для поиска значений параметров, дающих минимум для модели
