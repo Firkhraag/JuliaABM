@@ -8,7 +8,7 @@ using Distributions
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
-const is_russian = false
+const is_russian = true
 
 function age_distribution_groups()
     num_people_data_vec = [433175, 420460, 399159, 495506, 869700, 924829, 892794, 831873, 757411,
@@ -24,10 +24,8 @@ function age_distribution_groups()
         num_people_model_vec[i] += age_groups_nums[(i - 1) * 5 + 5, 1]
     end
 
-    s = sum(abs.(num_people_model_vec - num_people_data_vec)) / sum(num_people_data_vec)
-    # 8.427377045e10
-    # 2.9657067362e10
-    println(s)
+    nMAE = sum(abs.(num_people_model_vec - num_people_data_vec)) / sum(num_people_data_vec)
+    println("Age nMAE = $(nMAE)")
 
     num_people_data = append!(num_people_data_vec, num_people_model_vec)
 
@@ -56,17 +54,12 @@ function age_distribution_groups()
         num_people_data,
         group = legend,
         linewidth = 0.6,
-        # title = "Age distribution",
         size = (1000, 500),
         color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
         margin = 8Plots.mm,
         xrotation = 45,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Age}",
-        # ylabel = L"\textrm{\sffamily Number}"
-        # xlabel = "Age",
-        # ylabel = "Num",
         xlabel = xlabel_name,
         ylabel = ylabel_name,
         grid = true,
@@ -81,8 +74,8 @@ function age_distribution()
     labels = CategoricalArray(string.(collect(0:89)))
     levels!(labels, string.(collect(0:89)))
 
-    xticks = [0, 20, 40, 60, 80]
-    xticklabels = ["0", "20", "40", "60", "80"]
+    xticks = [0, 10, 20, 30, 40, 50, 60, 70, 80]
+    xticklabels = ["0", "10", "20", "30", "40", "50", "60", "70", "80"]
 
     yticks = [5.0 * 10^4, 1.0 * 10^5, 1.5 * 10^5, 2.0 * 10^5]
     yticklabels = ["50000" "100000" "150000" "200000"]
@@ -91,25 +84,23 @@ function age_distribution()
     if is_russian
         xlabel_name = "Возраст"
     end
-    ylabel_name = "Number"
+    ylabel_name = "Number of agents"
     if is_russian
-        ylabel_name = "Число"
+        ylabel_name = "Число агентов"
     end
 
     age_distribution_plot = groupedbar(
         collect(0:89),
         age_groups_nums,
         linewidth = 0.6,
-        # color = :grey,
         color = RGB(0.267, 0.467, 0.667),
         legend = false,
         margin = 8Plots.mm,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Age}",
-        # ylabel = L"\textrm{\sffamily Number}"
         xlabel = xlabel_name,
         ylabel = ylabel_name,
+        size=(800,400),
         grid = true,
         ylim = (0, 200000),
         xticks = (xticks, xticklabels),
@@ -122,13 +113,12 @@ function household_size_distribution()
     household_size_distribution = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "household_size_distribution.csv"), ',', Int, '\n')
 
     num_households_data_vec = [1118631, 1056816, 922206, 575250, 236758, 148261]
-    num_households_data = append!(num_households_data_vec, vec(household_size_distribution))
 
     arr = vec(household_size_distribution)
-    s = sum(abs.(arr - [1118631, 1056816, 922206, 575250, 236758, 148261])) / sum([1118631, 1056816, 922206, 575250, 236758, 148261])
-    # 8.427377045e10
-    # 2.9657067362e10
-    println(s)
+    nMAE = sum(abs.(arr - num_households_data_vec)) / sum(num_households_data_vec)
+    println("Household size nMAE = $(nMAE)")
+
+    append!(num_households_data_vec, vec(household_size_distribution))
 
     labels = CategoricalArray(repeat(["1", "2", "3", "4", "5", "6"], outer = 3))
     levels!(labels, ["1", "2", "3", "4", "5", "6"])
@@ -152,77 +142,17 @@ function household_size_distribution()
 
     household_size_distribution_plot = groupedbar(
         labels,
-        num_households_data,
+        num_households_data_vec,
         group = legend,
         yticks = (yticks, yticklabels),
         color = reshape([RGB(0.267, 0.467, 0.667), RGB(0.933, 0.4, 0.467)], (1, 2)),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Size}",
-        # ylabel = L"\textrm{\sffamily Number}"
         xlabel = xlabel_name,
         ylabel = ylabel_name,
         grid = true,
     )
     savefig(household_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "household_size_distribution.pdf"))
-
-
-    # num_households_data = [1118631 1056816 922206 575250 236758 148261]
-
-    # labels = CategoricalArray(["1", "2", "3", "4", "5", "6", "7"])
-    # levels!(labels, ["1", "2", "3", "4", "5", "6", "7"])
-    # legend = repeat(["0-15"], inner = 6)
-
-    # incubation_periods_plot = groupedbar(
-    #     labels,
-    #     num_households_data,
-    #     group = legend,
-    #     color = RGB(0.5, 0.5, 0.5),
-    #     # color = RGB(0.267, 0.467, 0.667),
-    #     markerstrokecolor = :black,
-    #     markercolor = :black,
-    #     legend = false,
-    #     grid = true,
-    #     foreground_color_legend = nothing,
-    #     background_color_legend = nothing,
-    #     # xlabel = L"\textrm{\sffamily Virus}",
-    #     # ylabel = L"\textrm{\sffamily Incubation period duration, days}",
-    #     xxlabel = "Размер",
-    #     ylabel = "Число",
-    # )
-    # savefig(incubation_periods_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "household_size_distribution.pdf"))
-end
-
-function workplace_sizes_distribution()
-    workplaces_num_people = vec(readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "workplaces_num_people.csv"), ',', Int, '\n'))
-    workplaces_num_people = sort(workplaces_num_people)
-    workplace_size_distribution = [(i, count(==(i), workplaces_num_people)) for i in unique(workplaces_num_people)]
-
-    # println(workplace_size_distribution)
-
-    xlabel_name = "Size"
-    if is_russian
-        xlabel_name = "Размер"
-    end
-    ylabel_name = "Number"
-    if is_russian
-        ylabel_name = "Число"
-    end
-
-    workplace_size_distribution_plot = plot(
-        first.(workplace_size_distribution),
-        last.(workplace_size_distribution),
-        lw = 3,
-        # xticks = (ticks, ticklabels),
-        grid = true,
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Temperature, °C}",
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-    )
-    savefig(workplace_size_distribution_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "population", "workplace_size_distribution.pdf"))
 end
 
 function workplace_sizes_distribution_lognormal()
@@ -236,9 +166,9 @@ function workplace_sizes_distribution_lognormal()
     if is_russian
         xlabel_name = "Размер"
     end
-    ylabel_name = "Number"
+    ylabel_name = "Frequency"
     if is_russian
-        ylabel_name = "Число"
+        ylabel_name = "Частота"
     end
 
     workplace_size_distribution_plot = plot(
@@ -248,13 +178,10 @@ function workplace_sizes_distribution_lognormal()
         yaxis=:log,
         legend = false,
         yticks = yticks,
-        # xticks = (ticks, ticklabels),
         grid = true,
         color = :black,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Month}",
-        # ylabel = L"\textrm{\sffamily Temperature, °C}",
         margin = 2Plots.mm,
         xlims = (1.0, 1000.0),
         ylims = (1e-6, 1.0),
@@ -267,5 +194,4 @@ end
 age_distribution_groups()
 age_distribution()
 household_size_distribution()
-workplace_sizes_distribution()
 workplace_sizes_distribution_lognormal()

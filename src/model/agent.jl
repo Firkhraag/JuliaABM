@@ -4,97 +4,84 @@ mutable struct Agent
     id::Int
     # Возраст
     age::Int
-    # Возраст новорожденного
+    # Возраст новорожденного агента-ребенка
     infant_age::Int
     # Пол
     is_male::Bool
     # Id домохозяйства
     household_id::Int
-    # Связи в домохозяйстве
-    household_conn_ids::Vector{Int}
-    # Тип коллектива
+    # Социальный статус
+    # 0 - безработный
+    # 1 - детсадовец
+    # 2 - школьник
+    # 3 - студент
+    # 4 - работающий агент
     activity_type::Int
-    # Id детсада, школы, универа
+    # Id образовательного учреждения
     school_id::Int
-    # Номер группы
+    # Год обучения
     school_group_num::Int
-    # Id работы
+    # Id группы образовательного учреждения
+    school_group_id::Int
+    # Id рабочего коллектива
     workplace_id::Int
-    # Связи в коллективе
+    # Связи в рабочем коллективе или группе образовательного учреждения
     activity_conn_ids::Vector{Int}
+    # Связи между группами образовательного учреждения
     activity_cross_conn_ids::Vector{Int}
-
-    # # Связи с друзьями
-    # friend_ids::Vector{Int}
-    # visit_household_id::Int
-
-    # Id детей младше 12 лет
-    dependant_ids::Vector{Int}
-    # Id попечителя
-    supporter_id::Int
-    # Нуждается в уходе при болезни
-    needs_supporter_care::Bool
     # Уход за больным ребенком
     on_parent_leave::Bool
-    # Уровень иммуноглобулина
+    # Уровень иммуноглобулинов
     ig_level::Float64
-    # Id вируса
+    # Id вируса, которым инфицирован агент
     virus_id::Int
-    # Был заражен на текущем шаге
+    # Если агент был заражен на текущем шаге
     is_newly_infected::Bool
-    # Набор дней после приобретения типоспецифических иммунитетов
-    FluA_days_immune::Int
-    FluB_days_immune::Int
-    RV_days_immune::Int
-    RSV_days_immune::Int
-    AdV_days_immune::Int
-    PIV_days_immune::Int
-    CoV_days_immune::Int
-    # Набор дней конца типоспецифических иммунитетов
-    FluA_immunity_end::Int
-    FluB_immunity_end::Int
-    RV_immunity_end::Int
-    RSV_immunity_end::Int
-    AdV_immunity_end::Int
-    PIV_immunity_end::Int
-    CoV_immunity_end::Int
+    # Счетчики числа дней после приобретения типоспецифических иммунитетов
+    viruses_days_immune::Vector{Int}
+    # Продолжительности типоспецифических иммунитетов
+    viruses_immunity_end::Vector{Int}
     # Продолжительность инкубационного периода
     incubation_period::Int
     # Продолжительность периода болезни
     infection_period::Int
     # День с момента инфицирования
     days_infected::Int
-    # Дней в резистентном состоянии
+    # Счетчик числа дней в резистентном состоянии
     days_immune::Int
+    # Продолжительность резистентного состояния
     days_immune_end::Int
     # Бессимптомное течение болезни
     is_asymptomatic::Bool
     # На больничном
     is_isolated::Bool
-    # Посещение детсада, школы, университета
+    # Посещение образовательного учреждения
     attendance::Bool
-    # Учитель, воспитатель, профессор
+    # Является ли агент учителем, воспитателем или профессором
     is_teacher::Bool
     # Число агентов, инфицированных данным агентом на текущем шаге
     num_infected_agents::Int
-
-    quarantine_period::Int
-
-    # shopping_time::Int
-    # restaurant_time::Int
+    # Уровни специфической восприимчивости к вирусам
+    immunity_susceptibility_levels::Vector{Float64}
 
     function Agent(
+        # Идентификатор
         id::Int,
+        # Id домохозяйства
         household_id::Int,
+        # Вирусы
         viruses::Vector{Virus},
+        # Средняя заболеваемость по неделям, возрастным группам и вирусам
         num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
-        # initially_infected::Vector{Float64},
+        # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
         isolation_probabilities_day_1::Vector{Float64},
         isolation_probabilities_day_2::Vector{Float64},
         isolation_probabilities_day_3::Vector{Float64},
-        household_conn_ids::Vector{Int},
+        # Пол
         is_male::Bool,
+        # Возраст
         age::Int,
+        # Генератор случайных чисел
         rng::MersenneTwister,
     )
         # Возраст новорожденного
@@ -105,10 +92,10 @@ mutable struct Agent
 
         # Социальный статус
         activity_type = 0
-        # Household
+        # 0 лет: агент сидит дома
         if age == 0
             activity_type = 0
-        # 1-5 Kindergarten
+        # 1-5 лет: посещение детского сада
         elseif age == 1
             if rand(rng, Float64) < 0.2
                 activity_type = 1
@@ -121,7 +108,7 @@ mutable struct Agent
             if rand(rng, Float64) < 0.83
                 activity_type = 1
             end
-        # 6-7 Kindergarten - School
+        # 6-7 лет: посещение детского сада / школы
         elseif age == 6
             if rand(rng, Float64) < 0.7
                 activity_type = 1
@@ -134,13 +121,14 @@ mutable struct Agent
             else
                 activity_type = 1
             end
-        # 8-16 School
+        # 8-15 лет: посещение школы
         elseif age < 15
             activity_type = 2
         elseif age == 15
             if rand(rng, Float64) < 0.96
                 activity_type = 2
             end
+        # 16-18 лет: посещение школы / вуза
         elseif age == 16
             rand_num = rand(rng, Float64)
             if rand_num < 0.92
@@ -164,7 +152,7 @@ mutable struct Agent
             elseif rand_num < 0.75
                 activity_type = 3
             end
-        # 18-23 College - Work
+        # 19-23 лет: посещение вуза / работы
         elseif age < 22
             rand_num = rand(rng, Float64)
             if rand_num < 0.66
@@ -179,7 +167,7 @@ mutable struct Agent
             elseif rand_num < 0.9
                 activity_type = 3
             end
-        # 24+ Work
+        # 24+ лет: посещение работы
         elseif age < 30
             if is_male
                 if rand(rng, Float64) < 0.82
@@ -272,12 +260,16 @@ mutable struct Agent
             end
         end
 
+        # Значения по умолчанию
         school_id = 0
         workplace_id = 0
+        school_group_id = 0
 
+        # Находим номер группы в образовательном учреждении, в которой состоит детсадовец / школьник / студент
+        # Максимальный разброс возрастов агентов в группе - 3
         school_group_num = 0
+        # Детский сад
         if activity_type == 1
-            school_group_num = age
             if age == 1
                 school_group_num = 1
             elseif age == 2
@@ -289,6 +281,7 @@ mutable struct Agent
             else
                 school_group_num = 5
             end
+        # Школа
         elseif activity_type == 2
             if age == 6
                 school_group_num = 1
@@ -305,6 +298,7 @@ mutable struct Agent
             else
                 school_group_num = 11
             end
+        # Вуз
         elseif activity_type == 3
             if age == 18
                 school_group_num = 1
@@ -315,20 +309,26 @@ mutable struct Agent
             else
                 school_group_num = rand(rng, 5:6)
             end
+        # Работа
         elseif activity_type == 4
+            # Только одна группа
             school_group_num = 1
         end
 
-        supporter_id = 0
-        needs_supporter_care = false
+        # Значения по умолчанию
         on_parent_leave = false
 
-        # Уровень иммуноглобулина
+        # Общий уровень иммуноглобулинов
         ig_level = 0.0
+        # IgG
         ig_g = 0.0
+        # IgA
         ig_a = 0.0
+        # IgM
         ig_m = 0.0
+        # Минимальный общий уровень иммуноглобулинов
         min_ig_level = 238.87
+        # Разница между максимальным и минимальным общими уровенями иммуноглобулинов
         max_min_ig_level_diff = 2899.13
         if age == 0
             if infant_age == 1
@@ -407,9 +407,11 @@ mutable struct Agent
                 ig_m = rand(rng, truncated(Normal(116, 39.3), 24, 208))
             end
         end
+        # Нормализованный общий уровень иммуноглобулинов
         ig_level = (ig_g + ig_a + ig_m - min_ig_level) / max_min_ig_level_diff
 
         # Информация при болезни
+        # Значения по умолчанию
         is_infected = false
         virus_id = 0
         is_newly_infected = false
@@ -419,6 +421,7 @@ mutable struct Agent
         is_asymptomatic = false
         is_isolated = false
 
+        # Возрастная группа
         age_group = 4
         if age < 3
             age_group = 1
@@ -428,153 +431,65 @@ mutable struct Agent
             age_group = 3
         end
 
+        # Инфицирование агентов перед началом работы модели
         v = rand(3:6)
         if rand(rng, Float64) < (num_all_infected_age_groups_viruses_mean[52, v, age_group] + num_all_infected_age_groups_viruses_mean[51, v, age_group] + num_all_infected_age_groups_viruses_mean[50, v, age_group]) / num_agents_age_groups[age_group]
             is_infected = true
             virus_id = v
         end
 
-        # Если задавать начальное число больных вручную
-        # if rand(rng, Float64) < initially_infected[age_group]
-        #     is_infected = true
-        # end
+        # Информация по иммунитету к вирусам
+        viruses_days_immune = zeros(Int, num_viruses)
+        viruses_immunity_end = zeros(Int, num_viruses)
+        immunity_susceptibility_levels = zeros(Float64, num_viruses) .+ 1.0
 
-        # Набор дней после приобретения типоспецифического иммунитета
-        FluA_days_immune = 0
-        FluB_days_immune = 0
-        RV_days_immune = 0
-        RSV_days_immune = 0
-        AdV_days_immune = 0
-        PIV_days_immune = 0
-        CoV_days_immune = 0
-
-        # Набор дней окончания типоспецифического иммунитета
-        FluA_immunity_end = 0
-        FluB_immunity_end = 0
-        RV_immunity_end = 0
-        RSV_immunity_end = 0
-        AdV_immunity_end = 0
-        PIV_immunity_end = 0
-        CoV_immunity_end = 0
-
-        if virus_id != 1
-            for week_num = 17:43
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 1, age_group] / num_agents_age_groups[age_group]
-                    FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
-                    FluA_days_immune = 365 - (week_num + 1) * 7 + 1
-                    if FluA_days_immune > FluA_immunity_end
-                        FluA_immunity_end = 0
-                        FluA_days_immune = 0
-                    end
-                end
-            end
-        elseif virus_id != 2
-            for week_num = 17:43
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 2, age_group] / num_agents_age_groups[age_group]
-                    FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
-                    FluB_days_immune = 365 - (week_num + 1) * 7 + 1
-                    if FluB_days_immune > FluB_immunity_end
-                        FluB_immunity_end = 0
-                        FluB_days_immune = 0
-                    end
-                end
-            end
-        elseif virus_id != 3
-            for week_num = 25:51
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 3, age_group] / num_agents_age_groups[age_group]
-                    RV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[3].mean_immunity_duration, viruses[3].immunity_duration_sd), 1.0, 1000.0)))
-                    RV_days_immune = 365 - (week_num + 1) * 7 + 1
-                    if RV_days_immune > RV_immunity_end
-                        RV_immunity_end = 0
-                        RV_days_immune = 0
-                    end
-                end
-            end
-        elseif virus_id != 4
-            for week_num = 25:51
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 4, age_group] / num_agents_age_groups[age_group]
-                    RSV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[4].mean_immunity_duration, viruses[4].immunity_duration_sd), 1.0, 1000.0)))
-                    RSV_days_immune = 365 - (week_num + 1) * 7 + 1
-                    if RSV_days_immune > RSV_immunity_end
-                        RSV_immunity_end = 0
-                        RSV_days_immune = 0
-                    end
-                end
-            end
-        elseif virus_id != 5
-            for week_num = 25:51
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 5, age_group] / num_agents_age_groups[age_group]
-                    AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
-                    AdV_days_immune = 365 - (week_num + 1) * 7 + 1
-                    if AdV_days_immune > AdV_immunity_end
-                        AdV_immunity_end = 0
-                        AdV_days_immune = 0
-                    end
-                end
-            end
-        elseif virus_id != 6
-            for week_num = 25:51
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 6, age_group] / num_agents_age_groups[age_group]
-                    PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
-                    PIV_days_immune = 365 - (week_num + 1) * 7 + 1
-                    if PIV_days_immune > PIV_immunity_end
-                        PIV_immunity_end = 0
-                        PIV_days_immune = 0
-                    end
-                end
-            end
-        elseif virus_id != 7
-            for week_num = 17:43
-                if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, 7, age_group] / num_agents_age_groups[age_group]
-                    CoV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[7].mean_immunity_duration, viruses[7].immunity_duration_sd), 1.0, 1000.0)))
-                    CoV_days_immune = 365 - (week_num + 1) * 7 + 1
-                    if CoV_days_immune > CoV_immunity_end
-                        CoV_immunity_end = 0
-                        CoV_days_immune = 0
+        for i = 1:num_viruses
+            if virus_id != i
+                for week_num = 1:51
+                    if rand(rng, Float64) < num_all_infected_age_groups_viruses_mean[week_num, i, age_group] / num_agents_age_groups[age_group]
+                        viruses_immunity_end[i] = trunc(Int, rand(rng, truncated(Normal(viruses[i].mean_immunity_duration, viruses[i].immunity_duration_sd), min_immunity_duration, max_immunity_duration)))
+                        viruses_days_immune[i] = 365 - week_num * 7 + 1
+                        if viruses_days_immune[i] > viruses_immunity_end[i]
+                            viruses_immunity_end[i] = 0
+                            viruses_days_immune[i] = 0
+                        else
+                            immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(viruses_days_immune[i], viruses_immunity_end[i])
+                        end
                     end
                 end
             end
         end
 
+        # Если агент инфицирован
         if is_infected
             # Инкубационный период
-            incubation_period = get_period_from_erlang(
-                viruses[virus_id].mean_incubation_period,
-                viruses[virus_id].incubation_period_variance,
-                viruses[virus_id].min_incubation_period,
-                viruses[virus_id].max_incubation_period,
-                rng)
+            incubation_period = round(Int, rand(rng, truncated(
+                Gamma(viruses[virus_id].incubation_period_shape, viruses[virus_id].incubation_period_scale), min_incubation_period, max_incubation_period)))
             # Период болезни
             if age < 16
-                infection_period = get_period_from_erlang(
-                    viruses[virus_id].mean_infection_period_child,
-                    viruses[virus_id].infection_period_variance_child,
-                    viruses[virus_id].min_infection_period_child,
-                    viruses[virus_id].max_infection_period_child,
-                    rng)
+                infection_period = round(Int, rand(rng, truncated(
+                    Gamma(viruses[virus_id].infection_period_child_shape, viruses[virus_id].infection_period_child_scale), min_infection_period, max_infection_period)))
             else
-                infection_period = get_period_from_erlang(
-                    viruses[virus_id].mean_infection_period_adult,
-                    viruses[virus_id].infection_period_variance_adult,
-                    viruses[virus_id].min_infection_period_adult,
-                    viruses[virus_id].max_infection_period_adult,
-                    rng)
+                infection_period = round(Int, rand(rng, truncated(
+                    Gamma(viruses[virus_id].infection_period_adult_shape, viruses[virus_id].infection_period_adult_scale), min_infection_period, max_infection_period)))
             end
 
             # Дней с момента инфицирования
-            days_infected = rand(rng, (1 - incubation_period):infection_period)
+            days_infected = rand(rng, 1:(infection_period + incubation_period))
 
-            rand_num = rand(rng, Float64)
+            # Бессимптомное течение болезни
             if age < 10
-                is_asymptomatic = rand_num > viruses[virus_id].symptomatic_probability_child
+                is_asymptomatic = rand(rng, Float64) > viruses[virus_id].symptomatic_probability_child
             elseif age < 18
-                is_asymptomatic = rand_num > viruses[virus_id].symptomatic_probability_teenager
+                is_asymptomatic = rand(rng, Float64) > viruses[virus_id].symptomatic_probability_teenager
             else
-                is_asymptomatic = rand_num > viruses[virus_id].symptomatic_probability_adult
+                is_asymptomatic = rand(rng, Float64) > viruses[virus_id].symptomatic_probability_adult
             end
 
+            # Если имеются симптомы, то есть вероятность, что агент самоизолируется
             if !is_asymptomatic
-                if days_infected >= 1
+                # 1-й день болезни
+                if days_infected > incubation_period
                     rand_num = rand(rng, Float64)
                     if age < 3
                         if rand_num < isolation_probabilities_day_1[1]
@@ -594,7 +509,8 @@ mutable struct Agent
                         end
                     end
                 end
-                if days_infected >= 2 && !is_isolated
+                # 2-й день болезни
+                if days_infected > incubation_period + 1 && !is_isolated
                     rand_num = rand(rng, Float64)
                     if age < 3
                         if rand_num < isolation_probabilities_day_2[1]
@@ -614,7 +530,8 @@ mutable struct Agent
                         end
                     end
                 end
-                if days_infected >= 3 && !is_isolated
+                # 3-й день болезни
+                if days_infected > incubation_period + 2 && !is_isolated
                     rand_num = rand(rng, Float64)
                     if age < 3
                         if rand_num < isolation_probabilities_day_3[1]
@@ -637,69 +554,70 @@ mutable struct Agent
             end
         end
 
+        # Посещение коллектива
         attendance = true
+        # Для вузов есть вероятность прогула
         if activity_type == 3 && rand(rng, Float64) < skip_college_probability
             attendance = false
         end
-
+        # Значения по умолчанию
         is_teacher = false
-
         days_immune = 0
         days_immune_end = 0
-
         num_infected_agents = 0
 
-        quarantine_period = 0
-
         new(
-            id, age, infant_age, is_male, household_id, household_conn_ids,
-            activity_type, school_id, school_group_num, workplace_id, Int[], Int[],
-            Int[], supporter_id, needs_supporter_care, on_parent_leave, ig_level,
-            virus_id, is_newly_infected, FluA_days_immune, FluB_days_immune,
-            RV_days_immune, RSV_days_immune, AdV_days_immune, PIV_days_immune,
-            CoV_days_immune, FluA_immunity_end, FluB_immunity_end, RV_immunity_end,
-            RSV_immunity_end, AdV_immunity_end, PIV_immunity_end, CoV_immunity_end,
+            id, age, infant_age, is_male, household_id,
+            activity_type, school_id, school_group_num, school_group_id, workplace_id,
+            Int[], Int[], on_parent_leave, ig_level, virus_id,
+            is_newly_infected, viruses_days_immune, viruses_immunity_end,
             incubation_period, infection_period, days_infected, days_immune,
             days_immune_end, is_asymptomatic, is_isolated, attendance, is_teacher,
-            num_infected_agents, quarantine_period)
+            num_infected_agents, immunity_susceptibility_levels)
     end
 end
 
-# Найти значение вирусной нагрузки агента
+# Вирусная нагрузка агента
 function get_infectivity(
+    # Счетчик числа дней в инфицированном состоянии
     days_infected::Int,
+    # Продолжительность инкубационного периода
     incubation_period::Int,
+    # Продолжительность периода болезни
     infection_period::Int,
+    # Средняя вирусная нагрузка
     mean_viral_load::Float64,
+    # Бессимптомное течение болезни
     is_asymptomatic::Bool,
 )::Float64
-    if days_infected < 1
+    # Если инкубационный период
+    if days_infected <= incubation_period
+        # Если продолжительность инкубационного периода = 1
         if incubation_period == 1
             return mean_viral_load / 24
         end
-        k = mean_viral_load / (incubation_period - 1)
-        b = k * (incubation_period - 1)
-        return (k * days_infected + b) / 12
+        return mean_viral_load / 12 * (days_infected - 1) / (incubation_period - 1)
+    # Если период болезни
+    else
+        result = mean_viral_load / 6 * (days_infected - incubation_period - infection_period) / (1 - infection_period)
+        # Если бессимптомное течение
+        if is_asymptomatic
+            result /= 2
+        end
+        return result
     end
-    if is_asymptomatic
-        mean_viral_load /= 2.0
-    end
-    k = 2 * mean_viral_load / (1 - infection_period)
-    b = -k * infection_period
-    return (k * days_infected + b) / 12
 end
 
-# Получить длительность инкубационного периода или периода болезни
-function get_period_from_erlang(
-    mean::Float64,
-    variance::Float64,
-    low::Int,
-    upper::Int,
-    rng::MersenneTwister,
-)::Int
-    shape::Int = mean * mean ÷ variance
-    scale::Float64 = mean / shape
-    return round(
-        rand(rng, truncated(
-            Erlang(shape, scale), low, upper)))
+# Специфическая восприимчивость к вирусу, после перенесенной болезни
+function find_immunity_susceptibility_level(
+    # Счетчик числа дней с иммунитетом
+    days_immune::Int,
+    # Продолжительность иммунитета
+    immunity_end::Int,
+)::Float64
+    # Если иммунитет закончился
+    if days_immune > immunity_end
+        return 1.0
+    end
+    return 1.0 / (immunity_end - 1) * (days_immune - 1)
 end

@@ -1,3 +1,4 @@
+# Функция скользящей средней
 function moving_average(A::AbstractArray, m::Int)
     out = similar(A)
     R = CartesianIndices(A)

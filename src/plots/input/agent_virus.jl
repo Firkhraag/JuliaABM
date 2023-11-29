@@ -17,12 +17,21 @@ function plot_incubation_periods()
     legend = repeat(["0-15"], inner = 7)
     std = [0.3, 0.22, 0.42, 0.968, 1.229, 0.572, 0.704]
 
+    xlabel_name = "Virus"
+    if is_russian
+        xlabel_name = "Вирус"
+    end
+
+    ylabel_name = "Infection period duration, days"
+    if is_russian
+        ylabel_name = "Продолжительность, дней"
+    end
+
     incubation_periods_plot = groupedbar(
         labels,
         mean,
         yerr = std,
         group = legend,
-        # color = RGB(0.5, 0.5, 0.5),
         color = RGB(0.267, 0.467, 0.667),
         markerstrokecolor = :black,
         markercolor = :black,
@@ -30,10 +39,8 @@ function plot_incubation_periods()
         grid = true,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Virus}",
-        # ylabel = L"\textrm{\sffamily Incubation period duration, days}",
-        xlabel = "Вирус",
-        ylabel = "Продолжительность, дней",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(incubation_periods_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "incubation_periods.pdf"))
 end
@@ -49,6 +56,16 @@ function plot_infection_periods()
     legend = repeat(["0-15", "16+"], inner = 7)
     std = [1.058, 0.8124, 2.22, 1.63, 1.76, 1.54, 1.54, 1.936, 1.715, 2.5, 2.0, 1.98, 1.76, 1.76]
 
+    xlabel_name = "Virus"
+    if is_russian
+        xlabel_name = "Вирус"
+    end
+
+    ylabel_name = "Infection period duration, days"
+    if is_russian
+        ylabel_name = "Продолжительность, дней"
+    end
+
     infection_periods_plot = groupedbar(
         labels,
         mean,
@@ -57,16 +74,13 @@ function plot_infection_periods()
         yticks = (yticks, yticklabels),
         legend = (0.9, 0.98),
         color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-        # color = [RGB(0.33, 0.33, 0.33) RGB(0.66, 0.66, 0.66)],
         markerstrokecolor = :black,
         markercolor = :black,
         grid = true,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Virus}",
-        # ylabel = L"\textrm{\sffamily Infection period duration, days}",
-        xlabel = "Вирус",
-        ylabel = "Продолжительность, дней",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(infection_periods_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "infection_periods.pdf"))
 end
@@ -83,6 +97,16 @@ function plot_mean_viral_loads()
     yticks = [0.0, 2.0, 4.0, 6.0]
     yticklabels = ["0", "2", "4", "6"]
 
+    xlabel_name = "Virus"
+    if is_russian
+        xlabel_name = "Вирус"
+    end
+
+    ylabel_name = "Viral load, log(cp/ml)"
+    if is_russian
+        ylabel_name = "Вирусная нагрузка, log(копий/мл)"
+    end
+
     viral_loads_plot = groupedbar(
         labels,
         mean,
@@ -90,15 +114,12 @@ function plot_mean_viral_loads()
         yticks = (yticks, yticklabels),
         ylim = (0, 7.0),
         legend = (0.9, 0.98),
-        # color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467) RGB(0.133, 0.533, 0.2)],
         color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467) RGB(0.5, 0.5, 0.5)],
         grid = true,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
-        # xlabel = L"\textrm{\sffamily Virus}",
-        # ylabel = L"\textrm{\sffamily Viral load, log(cp/ml)}",
-        xlabel = "Вирус",
-        ylabel = "Вирусная нагрузка, log(копий/мл)",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(viral_loads_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "viral_loads.pdf"))
 end
@@ -175,6 +196,16 @@ function plot_ig_levels()
     labels = CategoricalArray(["0м", "1-2м", "3-5м", "6-11м", "1", "2", "3-5", "6-8", "9-11", "12-16", "17-18", "19-60", "61-70", "71+"])
     levels!(labels, ["0м", "1-2м", "3-5м", "6-11м", "1", "2", "3-5", "6-8", "9-11", "12-16", "17-18", "19-60", "61-70", "71+"])
 
+    xlabel_name = "Age"
+    if is_russian
+        xlabel_name = "Возраст"
+    end
+
+    ylabel_name = "Immunoglobulin level, mg/dl"
+    if is_russian
+        ylabel_name = "Уровень иммуноглобулинов, мг/дл"
+    end
+
     ig_levels_plot = groupedbar(
         labels,
         ig_levels,
@@ -188,17 +219,15 @@ function plot_ig_levels()
         background_color_legend = nothing,
         margin = 5Plots.mm,
         legend = false,
-        # xlabel = L"\textrm{\sffamily Virus}",
-        # ylabel = L"\textrm{\sffamily Infection period duration, days}",
         size = (800, 500),
         xrotation = 45,
-        xlabel = "Возраст",
-        ylabel = "Уровень иммуноглобулина, мг/дл",
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
     )
     savefig(ig_levels_plot, joinpath(@__DIR__, "..", "..", "..", "input", "plots", "agent_virus", "ig_levels.pdf"))
 end
 
-# plot_incubation_periods()
-# plot_infection_periods()
+plot_incubation_periods()
+plot_infection_periods()
 plot_mean_viral_loads()
-# plot_ig_levels()
+plot_ig_levels()

@@ -5,3 +5,4 @@
 test[0-9]*.jl
 backup/
 todo.txt
+node_modules/

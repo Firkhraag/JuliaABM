@@ -1,33 +1,59 @@
-function get_contact_duration_normal(mean::Float64, sd::Float64, rng::MersenneTwister)
-    return rand(rng, truncated(Normal(mean, sd), 0.0, 24.0))
+
+# Функция продолжительности контакта
+function get_contact_duration(
+    # Если нормальное распределение - средняя продолжительность контакта
+    # Если гамма распределение - shape
+    param1::Float64,
+    # Если нормальное распределение - cреднеквадратическое отклонение
+    # Если гамма распределение - scale
+    param2::Float64,
+    # Генератор случайных чисел
+    rng::MersenneTwister,
+    # Выбирается из нормального распределения
+    is_normal::Bool
+)
+    if is_normal
+        return rand(rng, truncated(Normal(param1, param2), 0.0, 24.0))
+    else
+        # Гамма распределение
+        return rand(rng, Gamma(param1, param2))
+    end
 end
 
-function get_contact_duration_gamma(shape::Float64, scale::Float64, rng::MersenneTwister)
-    return rand(rng, Gamma(shape, scale))
-end
-
+# Функция контакта между агентами
 function make_contact(
+    # Вирусы
     viruses::Vector{Virus},
+    # Инфицированный агент
     infected_agent::Agent,
+    # Восприимчивый агент
     susceptible_agent::Agent,
+    # Продолжительность контакта
     contact_duration::Float64,
-    current_step::Int,
+    # Параметр влияния продолжительности контакта на риск инфицирования
     duration_parameter::Float64,
+    # Параметр неспецифической восприимчивости
     susceptibility_parameters::Vector{Float64},
+    # Параметр температуры воздуха
     temperature_parameters::Vector{Float64},
+    # Температура на текущем шаге
     current_temp::Float64,
+    # Генератор случайных чисел
     rng::MersenneTwister,
 )
-    # Влияние продолжительности контакта на вероятность инфицирования
-    duration_influence = 1 / (1 + exp(-contact_duration + duration_parameter))
+    # Риск инфицирования, зависящий от продолжительности контакта
+    duration_influence = 1 - exp(-duration_parameter * contact_duration)
             
-    # Влияние температуры воздуха на вероятность инфицирования
+    # Риск инфицирования, зависящий от температуры воздуха
     temperature_influence = temperature_parameters[infected_agent.virus_id] * current_temp + 1.0
 
-    # Влияние восприимчивости агента на вероятность инфицирования
+    # Риск инфицирования, зависящий от неспецифического иммунитета восприимчивого агента
     susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus_id] * susceptible_agent.ig_level))
 
-    # Влияние силы инфекции на вероятность инфицирования
+    # Риск инфицирования, зависящий от специфического иммунитета восприимчивого агента
+    immunity_influence = susceptible_agent.immunity_susceptibility_levels[infected_agent.virus_id]
+
+    # Риск инфицирования, зависящий от силы инфекции инфицированного агента
     infectivity_influence = 0.0
     if infected_agent.age < 3
         infectivity_influence = get_infectivity(
@@ -52,10 +78,11 @@ function make_contact(
             infected_agent.is_asymptomatic)
     end
 
-    # Вероятность инфицирования
+    # Риск инфицирования как произведение независимых рисков
     infection_probability = infectivity_influence * susceptibility_influence *
-        temperature_influence * duration_influence
+        temperature_influence * duration_influence * immunity_influence
 
+    # Если успешно инфицирован
     if rand(rng, Float64) < infection_probability
         susceptible_agent.virus_id = infected_agent.virus_id
         susceptible_agent.is_newly_infected = true
@@ -63,196 +90,174 @@ function make_contact(
     end
 end
 
+# Инфицирование агентов от неизвестного источника
 function infect_randomly(
+    # Агент
     agent::Agent,
-    current_step::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
 )
-    rand_num = rand(rng, 1:7)
-    if (rand_num == 1 && agent.FluA_days_immune == 0) ||
-        (rand_num == 2 && agent.FluB_days_immune == 0) ||
-        (rand_num == 3 && agent.RV_days_immune == 0) ||
-        (rand_num == 4 && agent.RSV_days_immune == 0) ||
-        (rand_num == 5 && agent.AdV_days_immune == 0) ||
-        (rand_num == 6 && agent.PIV_days_immune == 0) ||
-        (rand_num == 7 && agent.CoV_days_immune == 0)
-
-        agent.virus_id = rand_num
+    # Id случайного вируса
+    rand_virus_id = rand(rng, 1:num_viruses)
+    # Если случайное инфицирование прошло успешно
+    if rand(rng, Float64) < agent.immunity_susceptibility_levels[rand_virus_id]
+        agent.virus_id = rand_virus_id
         agent.is_newly_infected = true
     end
 end
 
+# Моделирование контактов
 function simulate_contacts(
+    # Id потока
     thread_id::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Id первого агента для потока
     start_agent_id::Int,
+    # Id последнего агента для потока
     end_agent_id::Int,
+    # Агенты
     agents::Vector{Agent},
+    # Домохозяйства
     households::Vector{Household},
+    # Школы
+    schools::Vector{School},
+    # Средние продолжительности контактов в домохозяйствах для разных контактов
     mean_household_contact_durations::Vector{Float64},
+    # Среднеквадратические отклонения для контактов в домохозяйствах для разных контактов
     household_contact_duration_sds::Vector{Float64},
+    # Средние продолжительности контактов в прочих коллективах
     other_contact_duration_shapes::Vector{Float64},
+    # Среднеквадратические отклонения для контактов в прочих коллективах
     other_contact_duration_scales::Vector{Float64},
+    # Параметр влияния продолжительности контакта на риск инфицирования
     duration_parameter::Float64,
+    # Параметр неспецифической восприимчивости
     susceptibility_parameters::Vector{Float64},
+    # Параметр температуры воздуха
     temperature_parameters::Vector{Float64},
+    # Вероятности случайного инфицирования
     random_infection_probabilities::Vector{Float64},
+    # Вирусы
     viruses::Vector{Virus},
+    # Выходной для детсада
     is_kindergarten_holiday::Bool,
+    # Выходной в школе
     is_school_holiday::Bool,
+    # Выходной в вузе
     is_college_holiday::Bool,
+    # Выходной для рабочих коллективов
     is_work_holiday::Bool,
+    # Текущий шаг
     current_step::Int,
+    # Текущая температура
     current_temp::Float64,
+    # Число инфицирований агентов в различных коллективах для потока
     activities_infections_threads::Array{Int, 3},
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
         # Агент инфицирован
         if agent.virus_id != 0 && !agent.is_newly_infected
-
-            # --------------------------TBD ZONE-----------------------------------
-
-            # # Инфицированный агент посещает чужое домохозяйство
-            # if agent.visit_household_id != 0
-            #     for agent2_id in households[agent.visit_household_id].agent_ids
-            #         agent2 = agents[agent2_id]
-            #         # Проверка восприимчивости агента к вирусу
-            #         if agent2.visit_household_id == 0 &&
-            #             agent2.virus_id == 0 &&
-            #             agent2.days_immune == 0 &&
-            #             (agent.virus_id != 1 || agent2.FluA_days_immune == 0) &&
-            #             (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
-            #             (agent.virus_id != 7 || agent2.CoV_days_immune == 0) &&
-            #             (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
-            #             (agent.virus_id != 4 || agent2.RSV_days_immune == 0) &&
-            #             (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
-            #             (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
-
-            #             dur = 0.0
-            #             if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-            #                 (agent.activity_type == 3 && is_college_holiday) ||
-            #                 (agent.activity_type == 2 && is_school_holiday) ||
-            #                 (agent.activity_type == 1 && is_kindergarten_holiday)) &&
-            #                 (agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
-            #                 (agent2.activity_type == 3 && is_college_holiday) ||
-            #                 (agent2.activity_type == 2 && is_school_holiday) ||
-            #                 (agent2.activity_type == 1 && is_kindergarten_holiday))
-
-            #                 dur = get_contact_duration_normal(0.95, 0.2, rng)
-            #             else
-            #                 dur = get_contact_duration_normal(0.42, 0.1, rng)
-            #             end
-            #             if dur > 0.01
-            #                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
-            #                     susceptibility_parameters, temperature_parameters, current_temp, rng)
-            #                 if agent2.is_newly_infected
-            #                     activities_infections_threads[current_step, 8, thread_id] += 1
-            #                 end
-            #             end
-            #         end
-            #     end
-            # end
-
-            # -------------------------------------------------------------
-
-            # Контакты в домохозяйстве
-            for agent2_id in agent.household_conn_ids
+            # Моделируем контакты в домохозяйстве
+            for agent2_id in households[agent.household_id].agent_ids
                 agent2 = agents[agent2_id]
                 # Проверка восприимчивости агента к вирусу
-                if agent2.virus_id == 0 && agent2.days_immune == 0 &&
-                    (agent.virus_id != 1 || agent2.FluA_days_immune == 0) &&
-                    (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
-                    (agent.virus_id != 7 || agent2.CoV_days_immune == 0) &&
-                    (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
-                    (agent.virus_id != 4 || agent2.RSV_days_immune == 0) &&
-                    (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
-                    (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
-
+                if agent2.virus_id == 0 && agent2.days_immune == 0
+                    # Находим продолжительность контакта
                     dur = 0.0
-                    if (agent.is_isolated || agent.quarantine_period > 0 || agent.on_parent_leave || agent.activity_type == 0 ||
-                        (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_college_holiday) ||
-                        (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)) &&
-                        (agent2.is_isolated || agent2.quarantine_period > 0 || agent2.on_parent_leave || agent2.activity_type == 0 ||
-                        (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_college_holiday) ||
-                        (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday))
+                    # Если агенты посещают другой коллектив, то контакт укорочен
+                    # Если оба агента проводят время дома
+                    # if (agent.is_isolated || agent.quarantine_period > 0 || agent.on_parent_leave || agent.activity_type == 0 ||
+                    #     (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_college_holiday) ||
+                    #     (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)) &&
+                    #     (agent2.is_isolated || agent2.quarantine_period > 0 || agent2.on_parent_leave || agent2.activity_type == 0 ||
+                    #     (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_college_holiday) ||
+                    #     (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday))
 
-                        dur = get_contact_duration_normal(mean_household_contact_durations[5], household_contact_duration_sds[5], rng)
+                    if (agent.is_isolated || agent.on_parent_leave || agent.activity_type == 0 ||
+                        (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_college_holiday) ||
+                        (agent.activity_type == 2 && (is_school_holiday || schools[agent.school_id].quarantine_period > 0 || schools[agent.school_id].quarantine_period_grades[agent.school_group_num] > 0 || schools[agent.school_id].quarantine_period_groups[agent.school_group_num][agent.school_group_id] > 0)) ||
+                        (agent.activity_type == 1 && is_kindergarten_holiday)) &&
+                        (agent2.is_isolated || agent2.on_parent_leave || agent2.activity_type == 0 ||
+                        (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_college_holiday) ||
+                        (agent2.activity_type == 2 && (is_school_holiday || schools[agent2.school_id].quarantine_period > 0 || schools[agent2.school_id].quarantine_period_grades[agent2.school_group_num] > 0 || schools[agent2.school_id].quarantine_period_groups[agent2.school_group_num][agent2.school_group_id] > 0)) ||
+                        (agent2.activity_type == 1 && is_kindergarten_holiday))
+                        
+                        dur = get_contact_duration(
+                            mean_household_contact_durations[5], household_contact_duration_sds[5], rng, true)
+                    # Если один из агентов посещает рабочий коллектив
                     elseif ((agent.activity_type == 4 && !(agent.is_isolated || agent.on_parent_leave)) ||
                         (agent2.activity_type == 4 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_work_holiday
 
-                        dur = get_contact_duration_normal(mean_household_contact_durations[4], household_contact_duration_sds[4], rng)
-                    elseif ((agent.activity_type == 2 && !(agent.is_isolated || agent.on_parent_leave || agent.quarantine_period > 0)) ||
-                        (agent2.activity_type == 2 && !(agent2.is_isolated || agent2.on_parent_leave || agent2.quarantine_period > 0))) && !is_school_holiday
+                        dur = get_contact_duration(
+                            mean_household_contact_durations[4], household_contact_duration_sds[4], rng, true)
+                    # Если один из агентов посещает школу
+                    elseif ((agent.activity_type == 2 && !(agent.is_isolated || agent.on_parent_leave || schools[agent.school_id].quarantine_period > 0 || schools[agent.school_id].quarantine_period_grades[agent.school_group_num] > 0 || schools[agent.school_id].quarantine_period_groups[agent.school_group_num][agent.school_group_id] > 0)) ||
+                        (agent2.activity_type == 2 && !(agent2.is_isolated || agent2.on_parent_leave || schools[agent2.school_id].quarantine_period > 0 || schools[agent2.school_id].quarantine_period_grades[agent2.school_group_num] > 0 || schools[agent2.school_id].quarantine_period_groups[agent2.school_group_num][agent2.school_group_id] > 0))) && !is_school_holiday
 
-                        dur = get_contact_duration_normal(mean_household_contact_durations[2], household_contact_duration_sds[2], rng)
+                        dur = get_contact_duration(
+                            mean_household_contact_durations[2], household_contact_duration_sds[2], rng, true)
+                    # Если один из агентов посещает детский сад
                     elseif ((agent.activity_type == 1 && !(agent.is_isolated || agent.on_parent_leave)) ||
                         (agent2.activity_type == 1 && !(agent2.is_isolated || agent2.on_parent_leave))) && !is_kindergarten_holiday
                         
-                        dur = get_contact_duration_normal(mean_household_contact_durations[1], household_contact_duration_sds[1], rng)
+                        dur = get_contact_duration(
+                            mean_household_contact_durations[1], household_contact_duration_sds[1], rng, true)
+                    # Если один из агентов посещает вуз
                     else
-                        dur = get_contact_duration_normal(mean_household_contact_durations[3], household_contact_duration_sds[3], rng)
+                        dur = get_contact_duration(
+                            mean_household_contact_durations[3], household_contact_duration_sds[3], rng, true)
                     end
-
-                    # --------------------------TBD ZONE-----------------------------------
-
-                    # if (agent.visit_household_id != 0 || agent2.visit_household_id != 0) &&
-                    #     (agent.visit_household_id != agent2.visit_household_id)
-                        
-                    #     dur -= 1.25
-                    # end
-    
-                    # if agent.restaurant_time != 0 || agent2.restaurant_time != 0
-                    #     dur -= 0.75
-                    # end
-                    # if agent.shopping_time != 0 || agent2.shopping_time != 0
-                    #     dur -= 0.75
-                    # end
-
-                    # -------------------------------------------------------------
-
+                    
                     if dur > 0.01
-                        make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+                        # Происходит контакт
+                        make_contact(viruses, agent, agent2, dur, duration_parameter,
                             susceptibility_parameters, temperature_parameters, current_temp, rng)
+                        # Если агент был успешно инфицирован, то добавляем к инфицированиям в домохозяйствах
                         if agent2.is_newly_infected
                             activities_infections_threads[current_step, 5, thread_id] += 1
                         end
                     end
                 end
             end
-            # Контакты в остальных коллективах
+            # Контакты в коллективе, который агент посещает на данном шаге
             if !agent.is_isolated && !agent.on_parent_leave && agent.attendance &&
                 ((agent.activity_type == 1 && !is_kindergarten_holiday) ||
-                (agent.activity_type == 2 && !is_school_holiday) ||
+                (agent.activity_type == 2 && !(is_school_holiday || schools[agent.school_id].quarantine_period > 0 || schools[agent.school_id].quarantine_period_grades[agent.school_group_num] > 0 || schools[agent.school_id].quarantine_period_groups[agent.school_group_num][agent.school_group_id] > 0)) ||
                 (agent.activity_type == 3 && !is_college_holiday) ||
-                (agent.activity_type == 4 && !is_work_holiday)) && agent.quarantine_period == 0
-                
+                (agent.activity_type == 4 && !is_work_holiday))
+                # Проходим по агентам, с которыми имеется связь
                 for agent2_id in agent.activity_conn_ids
                     agent2 = agents[agent2_id]
+                    # Проверка восприимчивости агента к вирусу и посещение им коллектива
                     if agent2.virus_id == 0 && agent2.days_immune == 0 && agent2.attendance &&
-                        !agent2.is_isolated && !agent2.on_parent_leave &&
-                        (agent.virus_id != 1 || agent2.FluA_days_immune == 0) &&
-                        (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
-                        (agent.virus_id != 7 || agent2.CoV_days_immune == 0) &&
-                        (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
-                        (agent.virus_id != 4 || agent2.RSV_days_immune == 0) &&
-                        (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
-                        (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
-
+                        !agent2.is_isolated && !agent2.on_parent_leave
+                        # Находим продолжительность контакта
                         dur = 0.0
+                        # Если детсад
                         if agent.activity_type == 1
-                            dur = get_contact_duration_gamma(other_contact_duration_shapes[1], other_contact_duration_scales[1], rng)
+                            dur = get_contact_duration(
+                                other_contact_duration_shapes[1], other_contact_duration_scales[1], rng, false)
+                        # Если школа
                         elseif agent.activity_type == 2
-                            dur = get_contact_duration_gamma(other_contact_duration_shapes[2], other_contact_duration_scales[2], rng)
+                            dur = get_contact_duration(
+                                other_contact_duration_shapes[2], other_contact_duration_scales[2], rng, false)
+                        # Если универ
                         elseif agent.activity_type == 3
-                            dur = get_contact_duration_gamma(other_contact_duration_shapes[3], other_contact_duration_scales[3], rng)
+                            dur = get_contact_duration(
+                                other_contact_duration_shapes[3], other_contact_duration_scales[3], rng, false)
+                        # Если работа
                         else
-                            dur = get_contact_duration_gamma(other_contact_duration_shapes[4], other_contact_duration_scales[4], rng)
+                            dur = get_contact_duration(
+                                other_contact_duration_shapes[4], other_contact_duration_scales[4], rng, false)
                         end
-
+                        
                         if dur > 0.01
-                            make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+                            # Происходит контакт
+                            make_contact(viruses, agent, agent2, dur, duration_parameter,
                                 susceptibility_parameters, temperature_parameters, current_temp, rng)
+                            # Если агент был успешно инфицирован, то добавляем к инфицированиям в коллективе
                             if agent2.is_newly_infected
                                 activities_infections_threads[current_step, agent.activity_type, thread_id] += 1
                             end
@@ -264,23 +269,19 @@ function simulate_contacts(
                 if agent.activity_type == 3
                     for agent2_id in agent.activity_cross_conn_ids
                         agent2 = agents[agent2_id]
+                        # Если агент восприимчив к вирусу и если происходит контакт на текущем шаге
                         if agent2.virus_id == 0 && agent2.days_immune == 0 &&
                             agent2.attendance && !agent2.is_isolated &&
                             !agent2.on_parent_leave && !agent2.is_teacher &&
-                            (agent.virus_id != 1 || agent2.FluA_days_immune == 0) &&
-                            (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
-                            (agent.virus_id != 7 || agent2.CoV_days_immune == 0) &&
-                            (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
-                            (agent.virus_id != 4 || agent2.RSV_days_immune == 0) &&
-                            (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
-                            (agent.virus_id != 6 || agent2.PIV_days_immune == 0) &&
                             rand(rng, Float64) < 0.25
-                                
-                            dur = get_contact_duration_gamma(other_contact_duration_shapes[5], other_contact_duration_scales[5], rng)
+                            # Находим продолжительность контакта
+                            dur = get_contact_duration(
+                                other_contact_duration_shapes[5], other_contact_duration_scales[5], rng, false)
                             if dur > 0.01
-                                make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
+                                # Происходит контакт
+                                make_contact(viruses, agent, agent2, dur, duration_parameter,
                                     susceptibility_parameters, temperature_parameters, current_temp, rng)
-    
+                                # Если агент был успешно инфицирован, то добавляем к инфицированиям в универе
                                 if agent2.is_newly_infected
                                     activities_infections_threads[current_step, 3, thread_id] += 1
                                 end
@@ -291,275 +292,210 @@ function simulate_contacts(
             end
         # Агент восприимчив
         elseif agent.virus_id == 0 && agent.days_immune == 0
-
-            # --------------------------TBD ZONE-----------------------------------
-
-            # # Восприимчивый агент посещает чужое домохозяйство
-            # if agent.visit_household_id != 0
-            #     for agent2_id in households[agent.visit_household_id].agent_ids
-            #         agent2 = agents[agent2_id]
-            #         if agent2.visit_household_id == 0 &&
-            #             agent2.virus_id != 0 &&
-            #             !agent2.is_newly_infected &&
-            #             agent2.infectivity > 0.0001 &&
-            #             (agent2.virus_id != 1 || agent.FluA_days_immune == 0) &&
-            #             (agent2.virus_id != 2 || agent.FluB_days_immune == 0) &&
-            #             (agent2.virus_id != 7 || agent.CoV_days_immune == 0) &&
-            #             (agent2.virus_id != 3 || agent.RV_days_immune == 0) &&
-            #             (agent2.virus_id != 4 || agent.RSV_days_immune == 0) &&
-            #             (agent2.virus_id != 5 || agent.AdV_days_immune == 0) &&
-            #             (agent2.virus_id != 6 || agent.PIV_days_immune == 0)
-
-            #             dur = 0.0
-            #             if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-            #                 (agent.activity_type == 3 && is_college_holiday) ||
-            #                 (agent.activity_type == 2 && is_school_holiday) ||
-            #                 (agent.activity_type == 1 && is_kindergarten_holiday)) &&
-            #                 (agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
-            #                 (agent2.activity_type == 3 && is_college_holiday) ||
-            #                 (agent2.activity_type == 2 && is_school_holiday) ||
-            #                 (agent2.activity_type == 1 && is_kindergarten_holiday))
-
-            #                 dur = get_contact_duration_normal(0.95, 0.2, rng)
-            #             else
-            #                 dur = get_contact_duration_normal(0.42, 0.1, rng)
-            #             end
-            #             if dur > 0.01
-            #                 make_contact(viruses, agent2, agent, dur, current_step, duration_parameter,
-            #                     susceptibility_parameters, temperature_parameters, current_temp, rng)
-            #                 if agent.is_newly_infected
-            #                     activities_infections_threads[current_step, 8, thread_id] += 1
-            #                 end
-            #             end
-            #         end
-            #     end
-            # end
-
-            # -------------------------------------------------------------
-
             # Случайное инфицирование
             if agent.age < 3
                 if rand(rng, Float64) < random_infection_probabilities[1]
-                    infect_randomly(agent, current_step, rng)
+                    infect_randomly(agent, rng)
                 end
             elseif agent.age < 7
                 if rand(rng, Float64) < random_infection_probabilities[2]
-                    infect_randomly(agent, current_step, rng)
+                    infect_randomly(agent, rng)
                 end
             elseif agent.age < 15
                 if rand(rng, Float64) < random_infection_probabilities[3]
-                    infect_randomly(agent, current_step, rng)
+                    infect_randomly(agent, rng)
                 end
             else
                 if rand(rng, Float64) < random_infection_probabilities[4]
-                    infect_randomly(agent, current_step, rng)
+                    infect_randomly(agent, rng)
                 end
             end
         end
     end
 end
 
+# Обновление свойств агентов
 function update_agent_states(
+    # Id потока
     thread_id::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Id первого агента для потока
     start_agent_id::Int,
+    # Id последнего агента для потока
     end_agent_id::Int,
+    # Агенты
     agents::Vector{Agent},
+    # Домохозяйства
+    households::Vector{Household},
+    # Вирусы
     viruses::Vector{Virus},
+    # Средняя продолжительность резистентного состояния
     recovered_duration_mean::Float64,
+    # Среднеквадратическое отклонение для резистентного состояния
     recovered_duration_sd::Float64,
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
+    # Текущий шаг
     current_step::Int,
+    # Выявленная заболеваемость различными вирусами в разных возрастных группах для потоков
     observed_daily_new_cases_age_groups_viruses_threads::Array{Int, 4},
-    daily_new_cases_age_groups_viruses_threads::Array{Int, 4},
+    # Сумма всех инфицирований агентами, зараженными на каждом шаге
     rt_threads::Matrix{Float64},
+    # Число агентов, зараженных на каждом шаге
     rt_count_threads::Matrix{Float64},
 )
+    # Проходим по агентам потока
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
 
-        if agent.quarantine_period > 0
-            agent.quarantine_period -= 1
-        end
+        # # Если агент-школьник находится на карантине
+        # if agent.quarantine_period > 0
+        #     agent.quarantine_period -= 1
+        # end
 
+        # Если в резистентном состоянии
         if agent.days_immune != 0
+            # Если резистентное состояние закончилось
             if agent.days_immune == agent.days_immune_end
                 # Переход из резистентного состояния в восприимчивое
                 agent.days_immune = 0
             else
+                # Увеличиваем счетчик
                 agent.days_immune += 1
             end
         end
 
         # Продолжительности типоспецифического иммунитета
-        if agent.FluA_days_immune != 0
-            if agent.FluA_days_immune == agent.FluA_immunity_end
-                agent.FluA_days_immune = 0
-            else
-                agent.FluA_days_immune += 1
-            end
-        end
-        if agent.FluB_days_immune != 0
-            if agent.FluB_days_immune == agent.FluB_immunity_end
-                agent.FluB_days_immune = 0
-            else
-                agent.FluB_days_immune += 1
-            end
-        end
-        if agent.RV_days_immune != 0
-            if agent.RV_days_immune == agent.RV_immunity_end
-                agent.RV_days_immune = 0
-            else
-                agent.RV_days_immune += 1
-            end
-        end
-        if agent.RSV_days_immune != 0
-            if agent.RSV_days_immune == agent.RSV_immunity_end
-                agent.RSV_days_immune = 0
-            else
-                agent.RSV_days_immune += 1
-            end
-        end
-        if agent.AdV_days_immune != 0
-            if agent.AdV_days_immune == agent.AdV_immunity_end
-                agent.AdV_days_immune = 0
-            else
-                agent.AdV_days_immune += 1
-            end
-        end
-        if agent.PIV_days_immune != 0
-            if agent.PIV_days_immune == agent.PIV_immunity_end
-                agent.PIV_days_immune = 0
-            else
-                agent.PIV_days_immune += 1
-            end
-        end
-        if agent.CoV_days_immune != 0
-            if agent.CoV_days_immune == agent.CoV_immunity_end
-                agent.CoV_days_immune = 0
-            else
-                agent.CoV_days_immune += 1
-            end
-        end
-
-        if agent.virus_id != 0 && !agent.is_newly_infected
-            if agent.days_infected == agent.infection_period
-                infection_time = current_step - agent.infection_period - agent.incubation_period - 1
-                if infection_time > 0
-                    rt_threads[infection_time, thread_id] += agent.num_infected_agents
-                    rt_count_threads[infection_time, thread_id] += 1
-                end
-                agent.num_infected_agents = 0
-
-                if agent.virus_id == 1
-                    agent.FluA_days_immune = 1
-                    agent.FluA_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[1].mean_immunity_duration, viruses[1].immunity_duration_sd), 1.0, 1000.0)))
-                elseif agent.virus_id == 2
-                    agent.FluB_days_immune = 1
-                    agent.FluB_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[2].mean_immunity_duration, viruses[2].immunity_duration_sd), 1.0, 1000.0)))
-                elseif agent.virus_id == 3
-                    agent.RV_days_immune = 1
-                    agent.RV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[3].mean_immunity_duration, viruses[3].immunity_duration_sd), 1.0, 1000.0)))
-                elseif agent.virus_id == 4
-                    agent.RSV_days_immune = 1
-                    agent.RSV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[4].mean_immunity_duration, viruses[4].immunity_duration_sd), 1.0, 1000.0)))
-                elseif agent.virus_id == 5
-                    agent.AdV_days_immune = 1
-                    agent.AdV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[5].mean_immunity_duration, viruses[5].immunity_duration_sd), 1.0, 1000.0)))
-                elseif agent.virus_id == 6
-                    agent.PIV_days_immune = 1
-                    agent.PIV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[6].mean_immunity_duration, viruses[6].immunity_duration_sd), 1.0, 1000.0)))
+        # Для каждого вируса
+        for i = 1:num_viruses
+            # Если есть иммунитет
+            if agent.viruses_days_immune[i] != 0
+                # Если иммунитет закончился
+                if agent.viruses_days_immune[i] == agent.viruses_immunity_end[i]
+                    # Снова восприимчив с уровнм восприимчивости равным immune_memory_susceptibility_level
+                    agent.viruses_days_immune[i] = 0
+                # Если иммунитет еще есть
                 else
-                    agent.CoV_days_immune = 1
-                    agent.CoV_immunity_end = trunc(Int, rand(rng, truncated(Normal(viruses[7].mean_immunity_duration, viruses[7].immunity_duration_sd), 1.0, 1000.0)))
+                    # Увеличиваем счетчик
+                    agent.viruses_days_immune[i] += 1
+                    # Повышаем восприимчивость к вирусу
+                    agent.immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(
+                        agent.viruses_days_immune[i], agent.viruses_immunity_end[i])
                 end
-                agent.days_immune = 1
-                # agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), 1.0, 10.0)))
-                agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), 1.0, 12.0)))
-                agent.virus_id = 0
-                agent.is_isolated = false
+            end
+        end
 
-                if agent.needs_supporter_care
+        # Если агент инфицирован
+        if agent.virus_id != 0 && !agent.is_newly_infected
+            # Если период болезни закончился
+            if agent.days_infected == agent.incubation_period + agent.infection_period
+                # Если агент нуждался в уходе за собой
+                if agent.age < 12 &&
+                    households[agent.household_id].children_need_supporter_care &&
+                    !agent.is_asymptomatic &&
+                    (agent.is_isolated || agent.activity_type == 0)
+
                     is_support_still_needed = false
-                    for dependant_id in agents[agent.supporter_id].dependant_ids
-                        dependant = agents[dependant_id]
-                        if dependant.needs_supporter_care &&
-                            dependant.virus_id != 0 &&
-                            !dependant.is_asymptomatic &&
-                            dependant.days_infected > 0 &&
-                            (dependant.activity_type == 0 || dependant.is_isolated)
+                    for agent2_id in households[agent.household_id].agent_ids
+                        agent2 = agents[agent2_id]
+                        if agent_id != agent2_id &&
+                            agent2.age < 12 &&
+                            !agent2.is_asymptomatic &&
+                            agent2.days_infected > agent2.incubation_period + 1 &&
+                            (agent2.is_isolated || agent2.activity_type == 0)
 
                             is_support_still_needed = true
                         end
                     end
                     if !is_support_still_needed
-                        agents[agent.supporter_id].on_parent_leave = false
+                        agents[households[agent.household_id].supporter_id].on_parent_leave = false
                     end
                 end
-            else
-                agent.days_infected += 1
 
+                # Шаг, когда агент был инфицирован
+                infection_time = current_step - agent.days_infected - 1
+                if infection_time > 0
+                    # Добавляем, число людей, которые были инфицированы агентом
+                    rt_threads[infection_time, thread_id] += agent.num_infected_agents
+                    # Добавляем инфицирование
+                    rt_count_threads[infection_time, thread_id] += 1
+                end
+
+                # Переход в резистентное состояние
+                agent.viruses_days_immune[agent.virus_id] = 1
+                agent.viruses_immunity_end[agent.virus_id] = trunc(Int, rand(rng, truncated(Normal(viruses[agent.virus_id].mean_immunity_duration, viruses[agent.virus_id].immunity_duration_sd), min_immunity_duration, max_immunity_duration)))
+                agent.days_immune = 1
+                agent.days_immune_end = trunc(Int, rand(rng, truncated(Normal(recovered_duration_mean, recovered_duration_sd), min_recovered_duration, max_recovered_duration)))
+                # Устанавливаем значения по умолчанию
+                agent.num_infected_agents = 0
+                agent.virus_id = 0
+                agent.is_isolated = false
+                agent.days_infected = 0
+            else
+                # Прибавляем день к счетчику дней в инфицированном состоянии
+                agent.days_infected += 1
+                # Если присутствуют симптомы и агент еще не самоизолирован
                 if !agent.is_asymptomatic && !agent.is_isolated
-                    if agent.days_infected == 1
-                        rand_num = rand(rng, Float64)
+                    # Агент самоизолируется с некой вероятностью на 1-й, 2-й и 3-й дни болезни
+                    if agent.days_infected == agent.incubation_period + 1
                         if agent.age < 3
-                            if rand_num < isolation_probabilities_day_1[1]
+                            if rand(rng, Float64) < isolation_probabilities_day_1[1]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 8
-                            if rand_num < isolation_probabilities_day_1[2]
+                            if rand(rng, Float64) < isolation_probabilities_day_1[2]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 18
-                            if rand_num < isolation_probabilities_day_1[3]
+                            if rand(rng, Float64) < isolation_probabilities_day_1[3]
                                 agent.is_isolated = true
                             end
                         else
-                            if rand_num < isolation_probabilities_day_1[4]
+                            if rand(rng, Float64) < isolation_probabilities_day_1[4]
                                 agent.is_isolated = true
                             end
                         end
-                    elseif agent.days_infected == 2
-                        rand_num = rand(rng, Float64)
+                    elseif agent.days_infected == agent.incubation_period + 2
                         if agent.age < 3
-                            if rand_num < isolation_probabilities_day_2[1]
+                            if rand(rng, Float64) < isolation_probabilities_day_2[1]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 8
-                            if rand_num < isolation_probabilities_day_2[2]
+                            if rand(rng, Float64) < isolation_probabilities_day_2[2]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 18
-                            if rand_num < isolation_probabilities_day_2[3]
+                            if rand(rng, Float64) < isolation_probabilities_day_2[3]
                                 agent.is_isolated = true
                             end
                         else
-                            if rand_num < isolation_probabilities_day_2[4]
+                            if rand(rng, Float64) < isolation_probabilities_day_2[4]
                                 agent.is_isolated = true
                             end
                         end
-                    elseif agent.days_infected == 3
-                        rand_num = rand(rng, Float64)
+                    elseif agent.days_infected == agent.incubation_period + 3
                         if agent.age < 3
-                            if rand_num < isolation_probabilities_day_3[1]
+                            if rand(rng, Float64) < isolation_probabilities_day_3[1]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 8
-                            if rand_num < isolation_probabilities_day_3[2]
+                            if rand(rng, Float64) < isolation_probabilities_day_3[2]
                                 agent.is_isolated = true
                             end
                         elseif agent.age < 18
-                            if rand_num < isolation_probabilities_day_3[3]
+                            if rand(rng, Float64) < isolation_probabilities_day_3[3]
                                 agent.is_isolated = true
                             end
                         else
-                            if rand_num < isolation_probabilities_day_3[4]
+                            if rand(rng, Float64) < isolation_probabilities_day_3[4]
                                 agent.is_isolated = true
                             end
                         end
                     end
+                    # Если агент самоизолировался, то добавляем случай в выявленную заболеваемость
                     if agent.is_isolated
                         if agent.age < 3
                             observed_daily_new_cases_age_groups_viruses_threads[current_step, 1, agent.virus_id, thread_id] += 1
@@ -573,53 +509,34 @@ function update_agent_states(
                     end
                 end
 
-                if agent.supporter_id != 0 &&
-                    agent.needs_supporter_care &&
+                # Если нужен уход, то агент-попечитель будет сидеть с ребенком дома
+                if agent.age < 12 &&
+                    households[agent.household_id].children_need_supporter_care &&
                     !agent.is_asymptomatic &&
-                    agent.days_infected > 0 &&
+                    agent.days_infected > agent.incubation_period + 1 &&
                     (agent.is_isolated || agent.activity_type == 0)
 
-                    agents[agent.supporter_id].on_parent_leave = true
+                    agents[households[agent.household_id].supporter_id].on_parent_leave = true
                 end
             end
+        # Если агент был заражен на текущем шаге
         elseif agent.is_newly_infected
-            if agent.age < 3
-                daily_new_cases_age_groups_viruses_threads[current_step, 1, agent.virus_id, thread_id] += 1
-            elseif agent.age < 7
-                daily_new_cases_age_groups_viruses_threads[current_step, 2, agent.virus_id, thread_id] += 1
-            elseif agent.age < 15
-                daily_new_cases_age_groups_viruses_threads[current_step, 3, agent.virus_id, thread_id] += 1
-            else
-                daily_new_cases_age_groups_viruses_threads[current_step, 4, agent.virus_id, thread_id] += 1
-            end
-
             # Инкубационный период
-            incubation_period = get_period_from_erlang(
-                viruses[agent.virus_id].mean_incubation_period,
-                viruses[agent.virus_id].incubation_period_variance,
-                viruses[agent.virus_id].min_incubation_period,
-                viruses[agent.virus_id].max_incubation_period,
-                rng)
+            agent.incubation_period = round(Int, rand(rng, truncated(
+                Gamma(viruses[agent.virus_id].incubation_period_shape, viruses[agent.virus_id].incubation_period_scale), min_incubation_period, max_incubation_period)))
             # Период болезни
             if agent.age < 16
-                agent.infection_period = get_period_from_erlang(
-                    viruses[agent.virus_id].mean_infection_period_child,
-                    viruses[agent.virus_id].infection_period_variance_child,
-                    viruses[agent.virus_id].min_infection_period_child,
-                    viruses[agent.virus_id].max_infection_period_child,
-                    rng)
+                agent.infection_period = round(Int, rand(rng, truncated(
+                    Gamma(viruses[agent.virus_id].infection_period_child_shape, viruses[agent.virus_id].infection_period_child_scale), min_infection_period, max_infection_period)))
             else
-                agent.infection_period = get_period_from_erlang(
-                    viruses[agent.virus_id].mean_infection_period_adult,
-                    viruses[agent.virus_id].infection_period_variance_adult,
-                    viruses[agent.virus_id].min_infection_period_adult,
-                    viruses[agent.virus_id].max_infection_period_adult,
-                    rng)
+                agent.infection_period = round(Int, rand(rng, truncated(
+                    Gamma(viruses[agent.virus_id].infection_period_adult_shape, viruses[agent.virus_id].infection_period_adult_scale), min_infection_period, max_infection_period)))
             end
 
-            agent.days_infected = 1 - agent.incubation_period
+            # Счетчик числа дней в инфицированном состоянии
+            agent.days_infected = 1
 
-            rand_num = rand(rng, Float64)
+            # Будет ли болезнь протекать бессимптомно
             if agent.age < 10
                 agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_child
             elseif agent.age < 18
@@ -627,461 +544,73 @@ function update_agent_states(
             else
                 agent.is_asymptomatic = rand(rng, Float64) > viruses[agent.virus_id].symptomatic_probability_adult
             end
-            
+
+            # Переходит в инкубационный период
             agent.is_newly_infected = false
         end
 
-        agent.attendance = true
-        if agent.activity_type == 3 && !agent.is_teacher && rand(rng, Float64) < skip_college_probability
-            agent.attendance = false
+        # Вероятность прогула для вуза
+        if agent.activity_type == 3 && !agent.is_teacher
+            agent.attendance = true
+            if rand(rng, Float64) < skip_college_probability
+                agent.attendance = false
+            end
         end
     end
 end
 
-# --------------------------TBD ZONE-----------------------------------
-
-# function add_agent_to_public_space(
-#     agent::Agent,
-#     rng::MersenneTwister,
-#     agents::Vector{Agent},
-#     households::Vector{Household},
-#     public_spaces::Vector{PublicSpace},
-#     closest_public_space_id1::Int,
-#     closest_public_space_id2::Int,
-#     is_kindergarten_holiday::Bool,
-#     is_school_holiday::Bool,
-#     is_college_holiday::Bool,
-#     is_work_holiday::Bool,
-#     restaurant_visit_time_distribution::MixtureModel,
-#     shop_visit_time_distribution::MixtureModel,
-#     is_shopping::Bool,
-# )
-#     space_found = false
-#     selected_time = 0
-#     for agent2_id in households[agent.household_id].agent_ids
-#         agent2 = agents[agent2_id]
-#         if is_shopping && agent2.shopping_time != 0 && rand(rng, Float64) < prob_shopping_together
-#             selected_time = agent2.shopping_time
-#         elseif !is_shopping && agent2.restaurant_time != 0 && rand(rng, Float64) < prob_restaurant_together
-#             selected_time = agent2.restaurant_time
-#         end
-#     end
-#     if selected_time == 0
-#         if is_shopping
-#             selected_time = round(Int, rand(rng, shop_visit_time_distribution))
-#             if selected_time > shop_num_groups
-#                 selected_time = shop_num_groups
-#             end
-#         else
-#             selected_time = round(Int, rand(rng, restaurant_visit_time_distribution))
-#             if selected_time > restaurant_num_groups
-#                 selected_time = restaurant_num_groups
-#             end
-#         end
-#         if selected_time < 1
-#             selected_time = 1
-#         end
-#     end
-#     group = public_spaces[closest_public_space_id1].groups[selected_time]
-#     if group.num_agents < length(group.agent_ids)
-#         group.num_agents += 1
-#         group.agent_ids[group.num_agents] = agent.id
-#         if is_shopping
-#             agent.shopping_time = selected_time
-#         else
-#             agent.restaurant_time = selected_time
-#         end
-#         if group.num_agents < length(group.agent_ids)
-#             for agent2_id in agent.dependant_ids
-#                 agent2 = agents[agent2_id]
-#                 if (agent2.needs_supporter_care && length(households[agent.household_id].agent_ids) == length(agent.dependant_ids) + 1) || rand(rng, Float64) < 1 / (2 * length(agent.dependant_ids))
-#                     group.num_agents += 1
-#                     group.agent_ids[group.num_agents] = agent2_id
-#                     if is_shopping
-#                         agent2.shopping_time = selected_time
-#                     else
-#                         agent2.restaurant_time = selected_time
-#                     end
-#                     if group.num_agents == length(group.agent_ids)
-#                         break
-#                     end
-#                 end
-#             end
-#         end
-#         space_found = true
-#     end
-#     if !space_found && closest_public_space_id1 != closest_public_space_id2
-#         group = public_spaces[closest_public_space_id2].groups[selected_time]
-#         if group.num_agents < length(group.agent_ids)
-#             group.num_agents += 1
-#             group.agent_ids[group.num_agents] = agent.id
-#             if is_shopping
-#                 agent.shopping_time = selected_time
-#             else
-#                 agent.restaurant_time = selected_time
-#             end
-#             if group.num_agents < length(group.agent_ids)
-#                 for agent2_id in agent.dependant_ids
-#                     agent2 = agents[agent2_id]
-#                     if (agent2.needs_supporter_care && length(households[agent.household_id].agent_ids) == length(agent.dependant_ids) + 1) || rand(rng, Float64) < 1 / (2 * length(agent.dependant_ids))
-#                         group.num_agents += 1
-#                         group.agent_ids[group.num_agents] = agent2_id
-#                         if is_shopping
-#                             agent2.shopping_time = selected_time
-#                         else
-#                             agent2.restaurant_time = selected_time
-#                         end
-#                         if group.num_agents == length(group.agent_ids)
-#                             break
-#                         end
-#                     end
-#                 end
-#             end
-#         end
-#     end
-# end
-
-# function add_additional_connections_each_step(
-#     rng::MersenneTwister,
-#     start_agent_id::Int,
-#     end_agent_id::Int,
-#     agents::Vector{Agent},
-#     households::Vector{Household},
-#     shops::Vector{PublicSpace},
-#     restaurants::Vector{PublicSpace},
-#     is_kindergarten_holiday::Bool,
-#     is_school_holiday::Bool,
-#     is_college_holiday::Bool,
-#     is_work_holiday::Bool,
-#     restaurant_visit_time_distribution::MixtureModel,
-#     shop_visit_time_distribution::MixtureModel,
-# )
-#     for agent_id in start_agent_id:end_agent_id
-#         agent = agents[agent_id]
-#         agent.visit_household_id = 0
-#         agent.shopping_time = 0
-#         agent.restaurant_time = 0
-#     end
-#     for agent_id in start_agent_id:end_agent_id
-#         agent = agents[agent_id]
-#         if agent.age >= 12
-#             if !agent.is_isolated
-#                 prob = 0.0
-#                 if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                     (agent.activity_type == 3 && is_college_holiday) ||
-#                     (agent.activity_type == 2 && is_school_holiday) ||
-#                     (agent.activity_type == 1 && is_kindergarten_holiday)
-
-#                     prob = 0.269
-#                 else
-#                     prob = 0.177
-#                 end
-#                 if !agent.on_parent_leave && rand(rng, Float64) < prob
-#                     if length(agent.friend_ids) > 0
-#                         agent_to_visit = agents[rand(rng, agent.friend_ids)]
-#                         num_tries = 1
-#                         while (agent_to_visit.is_isolated || agent_to_visit.on_parent_leave) && num_tries < length(agent.friend_ids)
-#                             agent_to_visit = agents[rand(rng, agent.friend_ids)]
-#                             num_tries += 1
-#                         end
-#                         agent.visit_household_id = agent_to_visit.household_id
-#                         for agent2_id in households[agent.household_id].agent_ids
-#                             agent2 = agents[agent2_id]
-#                             if agent2_id in agent.dependant_ids
-#                                 if !agent2.is_isolated && agent2.visit_household_id == 0 && rand(rng, Float64) < 1 / (2 * length(agent.dependant_ids))
-#                                     agent2.visit_household_id = agent.visit_household_id
-#                                 end
-#                             else
-#                                 if !agent2.is_isolated && agent2.visit_household_id == 0 && abs(agent.age - agent2.age) < 15 && rand(rng, Float64) < 1 / (2 * length(households[agent.household_id].agent_ids))
-#                                     agent2.visit_household_id = agent.visit_household_id
-#                                 end
-#                             end
-                            
-#                         end
-#                     end
-#                 end
-#             end
-
-#             prob = 0.0
-#             if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                 (agent.activity_type == 3 && is_college_holiday) ||
-#                 (agent.activity_type == 2 && is_school_holiday) ||
-#                 (agent.activity_type == 1 && is_kindergarten_holiday)
-
-#                 prob = 0.354
-#             else
-#                 prob = 0.291
-#             end
-#             if agent.activity_type != 5 && rand(rng, Float64) < prob
-#                 add_agent_to_public_space(
-#                     agent,
-#                     rng,
-#                     agents,
-#                     households,
-#                     shops,
-#                     households[agent.household_id].closest_shop_id,
-#                     households[agent.household_id].closest_shop_id2,
-#                     is_kindergarten_holiday,
-#                     is_school_holiday,
-#                     is_college_holiday,
-#                     is_work_holiday,
-#                     restaurant_visit_time_distribution,
-#                     shop_visit_time_distribution,
-#                     true,
-#                 )
-#             end
-
-#             if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                 (agent.activity_type == 3 && is_college_holiday) ||
-#                 (agent.activity_type == 2 && is_school_holiday) ||
-#                 (agent.activity_type == 1 && is_kindergarten_holiday)
-
-#                 prob = 0.295
-#             else
-#                 prob = 0.255
-#             end
-#             if agent.activity_type != 6 && rand(rng, Float64) < prob
-#                 add_agent_to_public_space(
-#                     agent,
-#                     rng,
-#                     agents,
-#                     households,
-#                     restaurants,
-#                     households[agent.household_id].closest_restaurant_id,
-#                     households[agent.household_id].closest_restaurant_id2,
-#                     is_kindergarten_holiday,
-#                     is_school_holiday,
-#                     is_college_holiday,
-#                     is_work_holiday,
-#                     restaurant_visit_time_distribution,
-#                     shop_visit_time_distribution,
-#                     false,
-#                 )
-#             end
-#         end
-#     end
-# end
-
-# function simulate_public_space_contacts(
-#     thread_id::Int,
-#     rng::MersenneTwister,
-#     agents::Vector{Agent},
-#     households::Vector{Household},
-#     start_public_space_id::Int,
-#     end_public_space_id::Int,
-#     public_spaces::Vector{PublicSpace},
-#     mean_num_contacts_in_public_space::Int,
-#     mean_contact_time_weekday::Float64,
-#     contact_time_sd_weekday::Float64,
-#     mean_contact_time_holiday::Float64,
-#     contact_time_sd_holiday::Float64,
-#     temp_influences::Array{Float64, 2},
-#     duration_parameter::Float64,
-#     susceptibility_parameters::Vector{Float64},
-#     is_kindergarten_holiday::Bool,
-#     is_school_holiday::Bool,
-#     is_college_holiday::Bool,
-#     is_work_holiday::Bool,
-#     current_step::Int,
-#     activities_infections_threads::Array{Int, 3},
-#     is_shopping::Bool,
-# )
-#     for public_space_id in start_public_space_id:end_public_space_id
-#         public_space = public_spaces[public_space_id]
-#         for group_id in 1:length(public_space.groups)
-#             group = public_space.groups[group_id]
-#             for agent_num in 1:group.num_agents
-#                 agent_id = group.agent_ids[agent_num]
-#                 agent = agents[agent_id]
-#                 if agent.virus_id != 0 && !agent.is_newly_infected
-#                     household_members = 0
-#                     for agent2_id in households[agent.household_id].agent_ids
-#                         agent2 = agents[agent2_id]
-#                         if is_shopping && agent2.shopping_time == agent.shopping_time
-#                             household_members += 1
-#                         elseif !is_shopping && agent2.restaurant_time == agent.restaurant_time
-#                             household_members += 1
-#                         end
-#                     end
-#                     # Контакты посетителей друг с другом
-#                     for agent2_num in (agent_num + 1):group.num_agents
-#                         agent2_id = group.agent_ids[agent2_num]
-#                         agent2 = agents[agent2_id]
-#                         if agent2.virus_id == 0 && agent2.days_immune == 0 &&
-#                             (agent.virus_id != 1 || agent2.FluA_days_immune == 0) &&
-#                             (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
-#                             (agent.virus_id != 7 || agent2.CoV_days_immune == 0) &&
-#                             (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
-#                             (agent.virus_id != 4 || agent2.RSV_days_immune == 0) &&
-#                             (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
-#                             (agent.virus_id != 6 || agent2.PIV_days_immune == 0) &&
-#                             (agent2_id in households[agent.household_id].agent_ids || rand(rng, Float64) < ((mean_num_contacts_in_public_space - household_members) / group.num_agents))
-
-#                             dur = 0.0
-#                             if (agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                                 (agent.activity_type == 3 && is_college_holiday) ||
-#                                 (agent.activity_type == 2 && is_school_holiday) ||
-#                                 (agent.activity_type == 1 && is_kindergarten_holiday)) &&
-#                                 (agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
-#                                 (agent2.activity_type == 3 && is_college_holiday) ||
-#                                 (agent2.activity_type == 2 && is_school_holiday) ||
-#                                 (agent2.activity_type == 1 && is_kindergarten_holiday))
-
-#                                 dur = get_contact_duration_normal(0.44, 0.1, rng)
-#                             else
-#                                 dur = get_contact_duration_normal(0.28, 0.09, rng)
-#                             end
-#                             if dur > 0.01
-#                                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
-#                                     susceptibility_parameters, temperature_parameters, current_temp, rng)
-#                                 if agent2.is_newly_infected
-#                                     activities_infections_threads[current_step, is_shopping ? 7 : 8, thread_id] += 1
-#                                 end
-#                             end
-#                         end
-#                     end
-#                     # Контакты посетителей с персоналом
-#                     for agent2_id in public_space.worker_ids
-#                         agent2 = agents[agent2_id]
-#                         if !agent2.on_parent_leave && agent2.virus_id == 0 && agent2.days_immune == 0 &&
-#                             (agent.virus_id != 1 || agent2.FluA_days_immune == 0) &&
-#                             (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
-#                             (agent.virus_id != 7 || agent2.CoV_days_immune == 0) &&
-#                             (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
-#                             (agent.virus_id != 4 || agent2.RSV_days_immune == 0) &&
-#                             (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
-#                             (agent.virus_id != 6 || agent2.PIV_days_immune == 0) &&
-#                             rand(rng, Float64) < (1 / length(public_space.worker_ids))
-            
-#                             dur = 0.0
-#                             if agent.activity_type == 0 || (agent.activity_type == 4 && is_work_holiday) ||
-#                                 (agent.activity_type == 3 && is_college_holiday) ||
-#                                 (agent.activity_type == 2 && is_school_holiday) ||
-#                                 (agent.activity_type == 1 && is_kindergarten_holiday)
-            
-#                                 dur = get_contact_duration_normal(0.44, 0.1, rng)
-#                             else
-#                                 dur = get_contact_duration_normal(0.28, 0.09, rng)
-#                             end
-#                             if dur > 0.01
-#                                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
-#                                     susceptibility_parameters, temp_influences, rng)
-#                                 if agent2.is_newly_infected
-#                                     activities_infections_threads[current_step, is_shopping ? 7 : 8, thread_id] += 1
-#                                 end
-#                             end
-#                         end
-#                     end
-#                 end
-#             end
-#             # Контакты персонала с посетителями
-#             for agent_id in public_space.worker_ids
-#                 agent = agents[agent_id]
-#                 if !agent.is_isolated && !agent.on_parent_leave && agent.virus_id != 0 &&
-#                     !agent.is_newly_infected
-
-#                     for agent2_num in 1:group.num_agents
-#                         agent2_id = group.agent_ids[agent2_num]
-#                         agent2 = agents[agent2_id]
-#                         if agent2.virus_id == 0 && agent2.days_immune == 0 &&
-#                             (agent.virus_id != 1 || agent2.FluA_days_immune == 0) &&
-#                             (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
-#                             (agent.virus_id != 7 || agent2.CoV_days_immune == 0) &&
-#                             (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
-#                             (agent.virus_id != 4 || agent2.RSV_days_immune == 0) &&
-#                             (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
-#                             (agent.virus_id != 6 || agent2.PIV_days_immune == 0) &&
-#                             rand(rng, Float64) < (1 / length(public_space.worker_ids))
-    
-#                             dur = 0.0
-#                             if agent2.activity_type == 0 || (agent2.activity_type == 4 && is_work_holiday) ||
-#                                 (agent2.activity_type == 3 && is_college_holiday) ||
-#                                 (agent2.activity_type == 2 && is_school_holiday) ||
-#                                 (agent2.activity_type == 1 && is_kindergarten_holiday)
-    
-#                                 dur = get_contact_duration_normal(0.44, 0.1, rng)
-#                             else
-#                                 dur = get_contact_duration_normal(0.28, 0.09, rng)
-#                             end
-#                             if dur > 0.01
-#                                 make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
-#                                     susceptibility_parameters, temperature_parameters, current_temp, rng)
-#                                 if agent2.is_newly_infected
-#                                     activities_infections_threads[current_step, is_shopping ? 7 : 8, thread_id] += 1
-#                                 end
-#                             end
-#                         end
-#                     end
-#                 end
-#             end
-#             # Очистка групп
-#             for i = 1:group.num_agents
-#                 group.agent_ids[i] = 0
-#             end
-#             group.num_agents = 0
-#         end
-#         # Контакты персонала друг с другом
-#         for agent_id in public_space.worker_ids
-#             agent = agents[agent_id]
-#             if !agent.is_isolated && !agent.on_parent_leave && agent.virus_id != 0 &&
-#                 !agent.is_newly_infected
-                
-#                 for agent2_id in public_space.worker_ids
-#                     agent2 = agents[agent2_id]
-#                     if !agent2.on_parent_leave && agent2.virus_id == 0 && agent2.days_immune == 0 &&
-#                         (agent.virus_id != 1 || agent2.FluA_days_immune == 0) &&
-#                         (agent.virus_id != 2 || agent2.FluB_days_immune == 0) &&
-#                         (agent.virus_id != 7 || agent2.CoV_days_immune == 0) &&
-#                         (agent.virus_id != 3 || agent2.RV_days_immune == 0) &&
-#                         (agent.virus_id != 4 || agent2.RSV_days_immune == 0) &&
-#                         (agent.virus_id != 5 || agent2.AdV_days_immune == 0) &&
-#                         (agent.virus_id != 6 || agent2.PIV_days_immune == 0)
-        
-#                         dur = get_contact_duration_gamma(1.81, 1.7, rng)
-#                         if dur > 0.01
-#                             make_contact(viruses, agent, agent2, dur, current_step, duration_parameter,
-#                                 susceptibility_parameters, temperature_parameters, current_temp, rng)
-#                             if agent2.is_newly_infected
-#                                 activities_infections_threads[current_step, is_shopping ? 7 : 8, thread_id] += 1
-#                             end
-#                         end
-#                     end
-#                 end
-#             end
-#         end
-#     end
-# end
-
-# -------------------------------------------------------------
-
+# Запуск модели
 function run_simulation(
+    # Число потоков
     num_threads::Int,
+    # Генератор случайных чисел для потоков
     thread_rng::Vector{MersenneTwister},
+    # Агенты
     agents::Vector{Agent},
+    # Вирусы
     viruses::Vector{Virus},
+    # Домохозяйства
     households::Vector{Household},
+    # Школы
     schools::Vector{School},
-    # shops::Vector{PublicSpace},
-    # restaurants::Vector{PublicSpace},
+    # Параметр влияния продолжительности контакта на риск инфицирования
     duration_parameter::Float64,
+    # Параметры восприимчивости агентов к различным вирусам
     susceptibility_parameters::Vector{Float64},
+    # Параметры для температуры воздуха
     temperature_parameters::Vector{Float64},
+    # Температура воздуха
     temperature::Vector{Float64},
+    # Средние продолжительности контактов в домохозяйствах
     mean_household_contact_durations::Vector{Float64},
+    # Среднеквадр. откл. продолжительности контактов в домохозяйствах
     household_contact_duration_sds::Vector{Float64},
+    # Средние продолжительности контактов в прочих коллективах
     other_contact_duration_shapes::Vector{Float64},
+    # Среднеквадр. откл. продолжительности контактов в прочих коллективах
     other_contact_duration_scales::Vector{Float64},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
+    # Вероятности случайного инфицирования от неизвестного источника
     random_infection_probabilities::Vector{Float64},
+    # Средняя продолжительность резистентного состояния
     recovered_duration_mean::Float64,
+    # Среднеквадр. откл. продолжительности резистентного состояния
     recovered_duration_sd::Float64,
+    # Число лет для моделирования
     num_years::Int,
+    # Учитывать эффективное репродуктивное число
     is_rt_run::Bool,
+    # Сценарий введения карантина в школах
+    # Продолжительность закрытия школы / класса
     school_class_closure_period::Int = 0,
+    # Порог заболеваемости для закрытия школы / класса
     school_class_closure_threshold::Float64 = 0.0,
-)::Tuple{Array{Float64, 3}, Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
+    # Сценарий глобального потепления
+    with_global_warming::Bool = false,
+)::Tuple{Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
     # День месяца
     day = 1
     # Месяц
@@ -1091,32 +620,41 @@ function run_simulation(
     # Номер недели
     week_num = 1
 
+    # Если глобальное потепление
+    if with_global_warming
+        for i = 1:length(temperature)
+            temperature[i] += rand(Normal(4.0, 0.25))
+        end
+    end
     # Минимальная температура воздуха
     min_temp = -7.2
-    # Max - Min температура
+    # Max - min температура
     max_min_temp = 26.6
 
-    num_viruses = 7
-
+    # День года
     year_day = 213
 
+    # Число шагов
     max_step = num_years * 365
+    # Если нас интересует эффективное репродуктивное число
     if is_rt_run
+        # Добавляем еще 21 день
         max_step += 21
     end
-    # max_step = 1
+    # Число недель
+    num_weeks = 52 * num_years
 
-    max_weeks = num_years * 52
-    # max_weeks = 1
-
-    observed_num_infected_age_groups_viruses = zeros(Int, max_weeks, 7, 4)
-    observed_daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, 7, num_threads)
-    num_infected_age_groups_viruses = zeros(Int, max_weeks, 7, 4)
-    daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, 7, num_threads)
+    # Выявленная заболеваемость различными вирусами в разных возрастных группах
+    observed_num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4)
+    # Выявленная заболеваемость различными вирусами в разных возрастных группах для потоков
+    observed_daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, num_viruses, num_threads)
+    # Заболеваемость в коллективах для потоков
     activities_infections_threads = zeros(Int, max_step, 5, num_threads)
+    # Сумма всех инфицирований агентами, зараженными на каждом шаге
     rt_threads = zeros(Float64, max_step, num_threads)
+    # Число агентов, зараженных на каждом шаге
     rt_count_threads = zeros(Float64, max_step, num_threads)
-
+    # Число закрытий школ на карантин для потоков
     num_schools_closed_threads = zeros(Float64, max_step, num_threads)
 
     for current_step = 1:max_step
@@ -1177,35 +715,7 @@ function run_simulation(
             is_college_holiday = true
         end
 
-        # --------------------------TBD ZONE-----------------------------------
-
-        # restaurant_visit_time_distribution = MixtureModel(Normal[
-        #     Normal(3.0, 0.7),
-        #     Normal(8.0, 0.7)], [0.4, 0.6])
-        # shop_visit_time_distribution = MixtureModel(Normal[
-        #     Normal(4.0, 1.0),
-        #     Normal(9.0, 1.0)], [0.4, 0.6])
-
-        # @threads for thread_id in 1:num_threads
-        #     add_additional_connections_each_step(
-        #         thread_rng[thread_id],
-        #         start_agent_ids[thread_id],
-        #         end_agent_ids[thread_id],
-        #         agents,
-        #         households,
-        #         shops,
-        #         restaurants,
-        #         is_kindergarten_holiday,
-        #         is_school_holiday,
-        #         is_college_holiday,
-        #         is_work_holiday,
-        #         restaurant_visit_time_distribution,
-        #         shop_visit_time_distribution,
-        #     )
-        # end
-
-        # -------------------------------------------------------------
-
+        # Моделируем контакты между агентами
         @threads for thread_id in 1:num_threads
             simulate_contacts(
                 thread_id,
@@ -1214,6 +724,7 @@ function run_simulation(
                 end_agent_ids[thread_id],
                 agents,
                 households,
+                schools,
                 mean_household_contact_durations,
                 household_contact_duration_sds,
                 other_contact_duration_shapes,
@@ -1232,163 +743,104 @@ function run_simulation(
                 activities_infections_threads)
         end
 
-        # --------------------------TBD ZONE-----------------------------------
-
-        # @threads for thread_id in 1:num_threads
-        #     simulate_public_space_contacts(
-        #         thread_id,
-        #         thread_rng[thread_id],
-        #         agents,
-        #         households,
-        #         start_shop_ids[thread_id],
-        #         end_shop_ids[thread_id],
-        #         shops,
-        #         shop_num_nearest_agents_as_contact,
-        #         0.28,
-        #         0.09,
-        #         0.44,
-        #         0.1,
-        #         temp_influences,
-        #         duration_parameter,
-        #         susceptibility_parameters,
-        #         is_kindergarten_holiday,
-        #         is_school_holiday,
-        #         is_college_holiday,
-        #         is_work_holiday,
-        #         current_step,
-        #         activities_infections_threads,
-        #         true,
-        #     )
-
-        #     simulate_public_space_contacts(
-        #         thread_id,
-        #         thread_rng[thread_id],
-        #         agents,
-        #         households,
-        #         start_restaurant_ids[thread_id],
-        #         end_restaurant_ids[thread_id],
-        #         restaurants,
-        #         restaurant_num_nearest_agents_as_contact,
-        #         0.26,
-        #         0.08,
-        #         0.38,
-        #         0.09,
-        #         temp_influences,
-        #         duration_parameter,
-        #         susceptibility_parameters,
-        #         is_kindergarten_holiday,
-        #         is_school_holiday,
-        #         is_college_holiday,
-        #         is_work_holiday,
-        #         current_step,
-        #         activities_infections_threads,
-        #         false,
-        #     )
-        # end
-
-        # ------------------------------------------------------------
+        # Если сценарий карантина
         if school_class_closure_period > 0
             @threads for thread_id in 1:num_threads
+                # Проходим по каждой школе потока
                 for school_id in start_school_ids[thread_id]:end_school_ids[thread_id]
                     school = schools[school_id]
+                    # Если школа не на карантине
                     if school.quarantine_period == 0
+                        # Число самоизолированных агентов или людей на карантине в школе
                         school_num_isolated = 0
-                        school_num_people = 0
-                        # num_closed_classrooms = 0
-                        for groups_id in 1:length(school.groups)
-                            groups = school.groups[groups_id]
-                            if school.quarantine_period_groups[groups_id] == 0
-                                groups_num_isolated = 0
-                                groups_num_people = 0
-                                for group in groups
-                                    num_isolated = 0
-                                    for agent_id in group
-                                        agent = agents[agent_id]
-                                        if !agent.is_teacher
-                                            if agent.quarantine_period > 0
-                                                # num_closed_classrooms += 1
-                                                if agent.quarantine_period > 1
-                                                    school_num_isolated += length(group) - 1
-                                                    school_num_people += length(group) - 1
-
-                                                    groups_num_isolated += length(group) - 1
-                                                    groups_num_people += length(group) - 1
+                        # Проходим по каждому году обучения
+                        for grade_id in 1:length(school.groups)
+                            grade = school.groups[grade_id]
+                            # Если параллель не на карантине
+                            if school.quarantine_period_grades[grade_id] == 0
+                                # Число самоизолированных агентов или людей на карантине в параллели
+                                grade_num_isolated = 0
+                                # Проходим по каждому классу
+                                for group_id in 1:length(grade)
+                                    group = grade[group_id]
+                                    # Если класс не на карантине
+                                    if school.quarantine_period_groups[grade_id][group_id] == 0
+                                        # Число самоизолированных агентов или людей на карантине в классе
+                                        num_isolated = 0
+                                        # Проходим по агентам класса
+                                        for agent_id in group
+                                            agent = agents[agent_id]
+                                            # Если агент не является преподавателем
+                                            if !agent.is_teacher
+                                                # Если агент самоизолирован
+                                                if agent.is_isolated
+                                                    num_isolated += 1
                                                 end
-                                                break
                                             end
-                                            if agent.is_isolated
-                                                num_isolated += 1
-                                                school_num_isolated += 1
-                                                groups_num_isolated += 1
-                                            end
-                                            school_num_people += 1
-                                            groups_num_people += 1
                                         end
-                                    end
-                                    if length(group) > 1 && num_isolated / (length(group) - 1) > school_class_closure_threshold
-                                        for agent_id in group
-                                            agent = agents[agent_id]
-                                            agent.quarantine_period = school_class_closure_period + 1
-                                            if !agent.is_isolated
-                                                school_num_isolated += 1
-                                                groups_num_people += 1
-                                            end
+                                        # Если превышен порог заболеваемости
+                                        if length(group) > 1 && num_isolated / (length(group) - 1) > school_class_closure_threshold
+                                            school.quarantine_period_groups[grade_id][group_id] = school_class_closure_period
+                                            grade_num_isolated += length(group) - 1
+                                        else
+                                            grade_num_isolated += num_isolated
+                                        end
+                                    # Класс на карантине
+                                    else
+                                        school.quarantine_period_groups[grade_id][group_id] -= 1
+                                        # Если карантин не закончился
+                                        if school.quarantine_period_groups[grade_id][group_id] > 0
+                                            # Добавляем число учеников на карантине в классе
+                                            grade_num_isolated += length(group) - 1
                                         end
                                     end
                                 end
-
-                                if groups_num_isolated / groups_num_people > school_class_closure_threshold
-                                    for group in groups
-                                        for agent_id in group
-                                            agent = agents[agent_id]
-                                            agent.quarantine_period = school_class_closure_period + 1
-                                        end
+                                # Если превышен порог заболеваемости для параллели
+                                if grade_num_isolated / school.num_students_grades[grade_id] > school_class_closure_threshold
+                                    # Присваиваем параллели карантин
+                                    school.quarantine_period_grades[grade_id] = school_class_closure_period
+                                    school_num_isolated += school.num_students_grades[grade_id]
+                                    # Обнуляем карантины для классов
+                                    for group_id = 1:length(school.quarantine_period_groups[grade_id])
+                                        school.quarantine_period_groups[grade_id][group_id] = 0
                                     end
-                                    school.quarantine_period_groups[groups_id] = school_class_closure_period
+                                else
+                                    school_num_isolated += grade_num_isolated
                                 end
+                            # Если параллель на карантине
                             else
-                                school.quarantine_period_groups[groups_id] -= 1
-                                if school.quarantine_period_groups[groups_id] > 0
-                                    for group in groups
-                                        school_num_isolated += length(group) - 1
-                                        school_num_people += length(group) - 1
-                                    end
+                               # Уменьшаем число дней на карантине
+                                school.quarantine_period_grades[grade_id] -= 1
+                                # Если карантин не закончился
+                                if school.quarantine_period_grades[grade_id] > 0
+                                    # Добавляем число учеников на карантине в параллели
+                                    school_num_isolated += school.num_students_grades[grade_id]
                                 end
                             end
                         end
-                        # println(school_num_isolated / school_num_people)
-
-                        # if num_closed_classrooms >= school_closure_threshold_classes
-                        #     for groups in school.groups
-                        #         for group in groups
-                        #             for agent_id in group
-                        #                 agent = agents[agent_id]
-                        #                 agent.quarantine_period = school_class_closure_period + 1
-                        #             end
-                        #         end
-                        #     end
-                        #     school.quarantine_period = school_class_closure_period
-                        #     num_schools_closed_threads[current_step] += 1
-                        # end
-                        if school_num_isolated / school_num_people > school_class_closure_threshold
-                            for groups in school.groups
-                                for group in groups
-                                    for agent_id in group
-                                        agent = agents[agent_id]
-                                        agent.quarantine_period = school_class_closure_period + 1
-                                    end
-                                end
-                            end
+                        # Если превышен порог заболеваемости для школы
+                        if school_num_isolated / school.num_students > school_class_closure_threshold
+                            # Закрываем школу на карантин
                             school.quarantine_period = school_class_closure_period
-                            num_schools_closed_threads[current_step] += 1
+                            # Обнуляем карантины для паралллелей и классов
+                            for grade_id = 1:length(school.quarantine_period_grades)
+                                school.quarantine_period_grades[grade_id] = 0
+                                for group_id = 1:length(school.quarantine_period_groups[grade_id])
+                                    school.quarantine_period_groups[grade_id][group_id] = 0
+                                end
+                            end
+                            num_schools_closed_threads[current_step, thread_id] += 1
                         end
+                    # Если школа уже закрыта на карантин
                     else
+                        # Уменьшаем число дней на карантине
                         school.quarantine_period -= 1
                     end
                 end
             end
         end
 
+        # Обновляем состояния агентов
         @threads for thread_id in 1:num_threads
             update_agent_states(
                 thread_id,
@@ -1396,6 +848,7 @@ function run_simulation(
                 start_agent_ids[thread_id],
                 end_agent_ids[thread_id],
                 agents,
+                households,
                 viruses,
                 recovered_duration_mean,
                 recovered_duration_sd,
@@ -1404,37 +857,28 @@ function run_simulation(
                 isolation_probabilities_day_3,
                 current_step,
                 observed_daily_new_cases_age_groups_viruses_threads,
-                daily_new_cases_age_groups_viruses_threads,
                 rt_threads,
                 rt_count_threads,
             )
         end
 
-        # Обновление даты
-        if current_step % 7 == 0
-            if week_num <= max_weeks
-                for i = 1:4
-                    for j = 1:7
-                        observed_num_infected_age_groups_viruses[week_num, j, i] = sum(
-                            observed_daily_new_cases_age_groups_viruses_threads[current_step - 6:current_step, i, j, :])
-                        num_infected_age_groups_viruses[week_num, j, i] = sum(
-                            daily_new_cases_age_groups_viruses_threads[current_step - 6:current_step, i, j, :])
-                    end
-                end
-            end
-            if week_num == max_weeks && !is_rt_run
-                break
-            else
-                week_num += 1
+        # Записываем заболеваемость разными вирусами в различных возрастных группах
+        for i = 1:4
+            for j = 1:num_viruses
+                observed_num_infected_age_groups_viruses[current_step, j, i] = sum(
+                    observed_daily_new_cases_age_groups_viruses_threads[current_step, i, j, :])
             end
         end
 
+        # Обновление даты
+        # День недели
         if week_day == 7
             week_day = 1
         else
             week_day += 1
         end
 
+        # День месяца
         if ((month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10) && day == 31) ||
             ((month == 4 || month == 6 || month == 9 || month == 11) && day == 30) ||
             (month == 2 && day == 28)
@@ -1447,15 +891,23 @@ function run_simulation(
             day += 1
         end
 
+        # День года
         year_day += 1
         if year_day > 365
             year_day = 1
         end
     end
 
+    # Эффективное репродуктивное число
     rt = sum(rt_threads, dims = 2)[:, 1]
     rt_count = sum(rt_count_threads, dims = 2)[:, 1]
     rt = rt ./ rt_count
 
-    return observed_num_infected_age_groups_viruses, num_infected_age_groups_viruses, sum(activities_infections_threads, dims = 3)[:, :, 1], rt, sum(num_schools_closed_threads, dims = 2)[:, 1]
+    # Еженедельная заболеваемость
+    observed_num_infected_age_groups_viruses_weekly = zeros(Int, (num_weeks), num_viruses, 4)
+    for i = 1:(num_weeks)
+        observed_num_infected_age_groups_viruses_weekly[i, :, :] = sum(observed_num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :], dims = 1)
+    end
+
+    return observed_num_infected_age_groups_viruses_weekly, sum(activities_infections_threads, dims = 3)[:, :, 1], rt, sum(num_schools_closed_threads, dims = 2)[:, 1]
 end

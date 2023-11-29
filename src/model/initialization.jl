@@ -1,20 +1,33 @@
+# Пол и возраст агента
 function get_agent_sex_and_age(
+    # Номер муниципалитета
     index::Int,
+    # Число людей в каждой возрастной группе по муниципалитетам
     district_people::Matrix{Float64},
+    # Число людей в домохозяйствах по муниципалитетам
     district_people_households::Matrix{Float64},
+    # Индекс числа людей в домохозяйстве для таблицы district_people_households
     district_household_index::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Пол, если нужен тольео возраст агента
     is_male::Union{Bool, Nothing} = nothing,
+    # Является ли агент ребенком (до 18 лет)
     is_child::Bool = false,
 )::Tuple{Bool, Int}
+    # Случайное число для возраста
     age_rand_num = rand(rng, Float64)
+    # Случайное число для пола
     sex_random_num = rand(rng, Float64)
+    # Если ребенок
     if is_child
+        # Случайное число для возрастной группы
         age_group_rand_num = rand(rng, Float64)
-        if age_group_rand_num < district_people_households[1, district_household_index] * 1.04
-            # T0-4_0–14
-            if age_rand_num < district_people[index, 20] * 0.85
-                # M0–4
+        # Возрастная группа 0-14 лет
+        if age_group_rand_num < district_people_households[1, district_household_index]
+            # 0-4 лет
+            if age_rand_num < district_people[index, 20] * 0.95
+                # Случайное число для возраста в группе
                 sub_age_group_rand_num = rand(rng, Float64)
                 if sub_age_group_rand_num < 0.22
                     return sex_random_num < district_people[index, 1], 4
@@ -27,17 +40,28 @@ function get_agent_sex_and_age(
                 else
                     return sex_random_num < district_people[index, 1], 0
                 end
-                # return sex_random_num < district_people[index, 1], rand(rng, 0:4)
-            # T0-9_0–14
-            elseif age_rand_num < district_people[index, 21] * 0.95
-                # M5–9
+            # 5-9 лет
+            elseif age_rand_num < district_people[index, 21]
                 return sex_random_num < district_people[index, 2], rand(rng, 5:9)
+            # 10–14 лет
             else
-                # M10–14
-                return sex_random_num < district_people[index, 3], rand(rng, 10:14)
+                # Случайное число для возраста в группе
+                sub_age_group_rand_num = rand(rng, Float64)
+                if sub_age_group_rand_num < 0.21
+                    return sex_random_num < district_people[index, 1], 10
+                elseif sub_age_group_rand_num < 0.41
+                    return sex_random_num < district_people[index, 1], 11
+                elseif sub_age_group_rand_num < 0.6
+                    return sex_random_num < district_people[index, 1], 12
+                elseif sub_age_group_rand_num < 0.79
+                    return sex_random_num < district_people[index, 1], 13
+                else
+                    return sex_random_num < district_people[index, 1], 14
+                end
             end
+        # Возрастная группа 15-17 лет
         else
-            # M15–19
+            # Случайное число для возраста в группе
             sub_age_group_rand_num = rand(rng, Float64)
             if sub_age_group_rand_num < 0.36
                 return sex_random_num < district_people[index, 4], 17
@@ -48,43 +72,46 @@ function get_agent_sex_and_age(
             end
         end
     else
+        # Случайное число для возрастной группы
         age_group_rand_num = rand(rng, Float64)
-        if age_group_rand_num < district_people_households[2, district_household_index] * 0.85
-            if rand(rng, Float64) < 0.14
-                # T18–19
+        # Возрастная группа 18-24 лет
+        if age_group_rand_num < district_people_households[2, district_household_index] * 0.95
+            # 18–19 лет
+            if rand(rng, Float64) < 0.1
+                # Если известен пол
                 if is_male !== nothing
-                    if rand(rng, Float64) < 0.6
+                    if rand(rng, Float64) < 0.66
                         return is_male, 19
                     else
                         return is_male, 18
                     end
+                # Если пол неизвестен
                 else
-                    # M18–19
-                    if rand(rng, Float64) < 0.6
+                    if rand(rng, Float64) < 0.66
                         return sex_random_num < district_people[index, 5], 19
                     else
                         return sex_random_num < district_people[index, 5], 18
                     end
                 end
+            # Возрастная группа 20-24 лет
             else
-                # T20–24
+                # Случайное число для возраста в группе
+                sub_age_group_rand_num = rand(rng, Float64)
+                # Если пол известен
                 if is_male !== nothing
-                    sub_age_group_rand_num = rand(rng, Float64)
-                    if sub_age_group_rand_num < 0.22
+                    if sub_age_group_rand_num < 0.24
                         return is_male, 24
-                    elseif sub_age_group_rand_num < 0.43
+                    elseif sub_age_group_rand_num < 0.46
                         return is_male, 23
-                    elseif sub_age_group_rand_num < 0.63
+                    elseif sub_age_group_rand_num < 0.66
                         return is_male, 22
-                    elseif sub_age_group_rand_num < 0.82
+                    elseif sub_age_group_rand_num < 0.84
                         return is_male, 21
                     else
                         return is_male, 20
                     end
-                    # return is_male, rand(rng, 20:24)
+                # Если пол неизвестен
                 else
-                    # M20–24
-                    sub_age_group_rand_num = rand(rng, Float64)
                     if sub_age_group_rand_num < 0.24
                         return sex_random_num < district_people[index, 5], 24
                     elseif sub_age_group_rand_num < 0.46
@@ -96,18 +123,20 @@ function get_agent_sex_and_age(
                     else
                         return sex_random_num < district_people[index, 5], 20
                     end
-                    # return sex_random_num < district_people[index, 5], rand(rng, 20:24)
                 end
             end
-        elseif age_group_rand_num < district_people_households[3, district_household_index] * 1.03
-            # T25-29_25–34
+        # Возрастная группа 25-34 лет
+        elseif age_group_rand_num < district_people_households[3, district_household_index]
+            # 25-29 лет
             if age_rand_num < district_people[index, 22]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 25:29)
+                # Если пол неизвестен
                 else
-                    # M25–29
                     return sex_random_num < district_people[index, 6], rand(rng, 25:29)
                 end
+            # 30-34 лет
             else
                 if is_male !== nothing
                     return is_male, rand(rng, 30:34)
@@ -116,95 +145,114 @@ function get_agent_sex_and_age(
                     return sex_random_num < district_people[index, 7], rand(rng, 30:34)
                 end
             end
+        # Возрастная группа 35-44 лет
         elseif age_group_rand_num < district_people_households[4, district_household_index]
-            # T35-39_35–44
+            # 35-39 лет
             if age_rand_num < district_people[index, 23]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 35:39)
+                # Если пол неизвестен
                 else
-                    # M35–39
                     return sex_random_num < district_people[index, 8], rand(rng, 35:39)
                 end
+            # 40-44 лет
             else
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 40:44)
+                # Если пол неизвестен
                 else
-                    # M40–44
                     return sex_random_num < district_people[index, 9], rand(rng, 40:44)
                 end
             end
+        # Возрастная группа 45-54 лет
         elseif age_group_rand_num < district_people_households[5, district_household_index]
-            # T45-49_45–54
+            # 45-49 лет
             if age_rand_num < district_people[index, 24]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 45:49)
+                # Если пол неизвестен
                 else
-                    # M45–49
                     return sex_random_num < district_people[index, 10], rand(rng, 45:49)
                 end
+            # 50-54 лет
             else
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 50:54)
+                # Если пол неизвестен
                 else
-                    # M50–54
                     return sex_random_num < district_people[index, 11], rand(rng, 50:54)
                 end
             end
+        # Возрастная группа 55-64 лет
         elseif age_group_rand_num < district_people_households[6, district_household_index]
-            # T55-59_55–64
+            # 55-59 лет
             if age_rand_num < district_people[index, 25]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 55:59)
+                # Если пол неизвестен
                 else
-                    # M55–59
                     return sex_random_num < district_people[index, 12], rand(rng, 55:59)
                 end
+            # 60-64 лет
             else
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 60:64)
+                # Если пол неизвестен
                 else
-                    # M60–64
                     return sex_random_num < district_people[index, 13], rand(rng, 60:64)
                 end
             end
+        # Возрастная группа 65+ лет
         else
-            # T65-69_65–89
+            # 65-69 лет
             if age_rand_num < district_people[index, 26]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 65:69)
+                # Если пол неизвестен
                 else
-                    # M65–69
                     return sex_random_num < district_people[index, 14], rand(rng, 65:69)
                 end
-            # T65-74_65–89
+            # 70-74 лет
             elseif age_rand_num < district_people[index, 27]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 70:74)
+                # Если пол неизвестен
                 else
-                    # M70–74
                     return sex_random_num < district_people[index, 15], rand(rng, 70:74)
                 end
-            # T65-79_65–89
+            # 75-79 лет
             elseif age_rand_num < district_people[index, 28]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 75:79)
+                # Если пол неизвестен
                 else
-                    # M75–79
                     return sex_random_num < district_people[index, 16], rand(rng, 75:79)
                 end
-            # T65-84_65–89
+            # 80-84 лет
             elseif age_rand_num < district_people[index, 29]
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 80:84)
+                # Если пол неизвестен
                 else
-                    # M80–84
                     return sex_random_num < district_people[index, 17], rand(rng, 80:84)
                 end
+            # 85-89 лет
             else
+                # Если пол известен
                 if is_male !== nothing
                     return is_male, rand(rng, 85:89)
+                # Если пол неизвестен
                 else
-                    # M85–89
                     return sex_random_num < district_people[index, 18], rand(rng, 85:89)
                 end
             end
@@ -212,56 +260,84 @@ function get_agent_sex_and_age(
     end
 end
 
-function check_parent_leave(no_one_at_home::Bool, adult::Agent, child::Agent)
-    if child.age < 12
-        child.supporter_id = adult.id
-        push!(adult.dependant_ids, child.id)
-        if no_one_at_home
-            child.needs_supporter_care = true
-            if child.age < 4 && child.activity_type == 0
-                adult.activity_type = 0
-            end
+function check_parent_leave(
+    # Агенты
+    agents::Vector{Agent},
+    # Домохозяйство
+    household::Household,
+)
+    no_one_at_home = true
+    for agent_id in household.agent_ids
+        agent = agents[agent_id]
+        if agent.age < 4 && agent.activity_type == 0
+            agents[household.supporter_id].activity_type = 0
+            no_one_at_home = false
+        elseif agent.age > 17 && agent.activity_type == 0
+            no_one_at_home = false
         end
+    end
+    if no_one_at_home
+        household.children_need_supporter_care = true
     end
 end
 
+# Создание пары с детьми или без и прочих членов домохозяйства
 function create_parents_with_children(
+    # Id нового агента
     agent_id::Int,
-    household_id::Int,
+    # Домохозяйство
+    household::Household,
+    # Вирусы
     viruses::Vector{Virus},
+    # Средняя заболеваемость по неделям, возрастным группам и вирусам
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
-    household_conn_ids::Vector{Int},
+    # Число людей в каждой возрастной группе по муниципалитетам
     district_people::Matrix{Float64},
+    # Число людей в домохозяйствах по муниципалитетам
     district_people_households::Matrix{Float64},
+    # Индекс числа людей в домохозяйстве для таблицы district_people_households
     district_household_index::Int,
+    # Число детей в домохозяйстве
     num_of_children::Int,
+    # Число прочих людей в домохозяйстве
     num_of_other_people::Int,
+    # Индекс муниципалитета
     index::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Присутствуют не родственники
     with_others::Bool = false,
+    # Присутствуют родители пары
     with_grandparent::Bool = false,
 )::Vector{Agent}
+    # Выбираем возраст для агента-женщины
     agent_female_sex, agent_female_age = get_agent_sex_and_age(
         index, district_people,
         district_people_households, district_household_index,
         rng, false)
 
+    # Если есть неродственники
     if with_others
+        # Если имеются дети младше 18 лет, то мать не может быть старше 55 лет, возраст 45-55 лет с вероятностью 40%,        если 2 ребенка, то старше 20 лет,                  если 3 ребенка, то старше 23 лет
         while ( (agent_female_age > 55 || (agent_female_age > 45 && rand(rng, Float64) > 0.4)) && num_of_children > 0 ) || ( num_of_children == 2 && agent_female_age < 21 ) || ( num_of_children == 3 && agent_female_age < 24 )
             agent_female_sex, agent_female_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, false)
         end
+    # Если есть родитель одного из супругов
     elseif with_grandparent
         while ( (agent_female_age > 55 || (agent_female_age > 45 && rand(rng, Float64) > 0.4)) && num_of_children > 0 ) || agent_female_age > 65 || ( agent_female_age > 50 && rand(rng, Float64) > 0.25 ) || ( agent_female_age > 40 && rand(rng, Float64) > 0.35 ) || ( (agent_female_age < 34 || (agent_female_age == 34 && rand(rng, Float64) > 0.25)) && num_of_other_people > 1 ) || ( num_of_children == 2 && agent_female_age < 21 ) || ( num_of_children == 3 && agent_female_age < 24 )
             agent_female_sex, agent_female_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, false)
         end
+    # Иначе
     else
+        # Если имеются дети младше 18 лет, то мать не может быть старше 55 лет, возраст 45-55 лет с вероятностью 40%,
         while ( (agent_female_age > 55 || (agent_female_age > 45 && rand(rng, Float64) > 0.4)) && num_of_children > 0 ) || ( (agent_female_age < 34 || (agent_female_age == 34 && rand(rng, Float64) > 0.25)) && num_of_other_people > 0 ) || ( num_of_children == 2 && agent_female_age < 21 ) || ( num_of_children == 3 && agent_female_age < 24 )
             agent_female_sex, agent_female_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
@@ -269,16 +345,21 @@ function create_parents_with_children(
         end
     end
 
-    agent_female = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+    # Создаем агента-женщину для пары
+    agent_female = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, agent_female_sex, agent_female_age, rng)
+        isolation_probabilities_day_3, agent_female_sex, agent_female_age, rng)
+    household.supporter_id = agent_id
     agent_id += 1
 
+    # Выбираем возраст для агента-мужчины
     agent_male_sex, agent_male_age = get_agent_sex_and_age(
         index, district_people,
         district_people_households, district_household_index,
         rng, true)
     age_diff_rand_num = rand(rng, Float64)
+    # Разница в возрасте между агентом-мужчиной и агентом-женщиной
+    # Соответствие Age difference in heterosexual married couples, 2017 US Current Population Survey
     age_diff = abs(agent_male_age - agent_female_age)
     while age_diff > 15 || (age_diff > 10 && age_diff_rand_num > 0.06) || (age_diff > 5 && age_diff_rand_num > 0.14) || (age_diff > 3 && age_diff_rand_num > 0.162) || (age_diff > 1 && age_diff_rand_num > 0.265)
         agent_male_sex, agent_male_age = get_agent_sex_and_age(
@@ -288,10 +369,12 @@ function create_parents_with_children(
         age_diff_rand_num = rand(rng, Float64)
         age_diff = abs(agent_male_age - agent_female_age)
     end
-    agent_male = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+    # Создаем агента-мужчину для пары
+    agent_male = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, agent_male_sex, agent_male_age, rng)
+        isolation_probabilities_day_3, agent_male_sex, agent_male_age, rng)
     agent_id += 1
+
     if num_of_other_people == 0
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -306,12 +389,10 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
-            check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, child]
             end
@@ -327,11 +408,10 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, child, child2]
             end
@@ -347,10 +427,9 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent_female, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent_male, agent_female, child, child2, child3]
         end
         return Agent[agent_male, agent_female]
@@ -379,9 +458,9 @@ function create_parents_with_children(
                 age_diff = abs(agent_female_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -396,15 +475,10 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
-            if agent_other.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, agent_other, child]
             end
@@ -420,11 +494,10 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, agent_other, child, child2]
             end
@@ -440,10 +513,9 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent_female, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent_male, agent_female, agent_other, child, child2, child3]
         end
         return Agent[agent_male, agent_female, agent_other]
@@ -472,15 +544,13 @@ function create_parents_with_children(
                 age_diff = abs(agent_female_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -490,9 +560,9 @@ function create_parents_with_children(
                 age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
             end
         end
-        agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, agent_other2_sex, agent_other2_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -507,15 +577,10 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
-            if agent_other.activity_type == 0 || agent_other2.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, agent_other, agent_other2, child]
             end
@@ -531,11 +596,10 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, agent_other, agent_other2, child, child2]
             end
@@ -551,10 +615,9 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent_female, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent_male, agent_female, agent_other, agent_other2, child, child2, child3]
         end
         return Agent[agent_male, agent_female, agent_other, agent_other2]
@@ -582,15 +645,13 @@ function create_parents_with_children(
                 age_diff = abs(agent_female_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -600,17 +661,14 @@ function create_parents_with_children(
                 age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
             end
         end
-        agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age,
-            rng)
+            isolation_probabilities_day_3, agent_other2_sex, agent_other2_age, rng)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index,
             rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(agent_female_age - agent_other3_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -620,9 +678,9 @@ function create_parents_with_children(
                 age_diff = abs(agent_female_age - agent_other3_age - mean_child_mother_age_difference)
             end
         end
-        agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, agent_other3_sex, agent_other3_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -637,15 +695,10 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
-            if agent_other.activity_type == 0 || agent_other2.activity_type == 0 || agent_other3.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, child]
             end
@@ -661,11 +714,10 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, child, child2]
             end
@@ -681,10 +733,9 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent_female, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
         return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3]
@@ -712,15 +763,13 @@ function create_parents_with_children(
                 age_diff = abs(agent_female_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -730,15 +779,13 @@ function create_parents_with_children(
                 age_diff = abs(agent_female_age - agent_other2_age - mean_child_mother_age_difference)
             end
         end
-        agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, agent_other2_sex, agent_other2_age, rng)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(agent_female_age - agent_other3_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -749,15 +796,13 @@ function create_parents_with_children(
                 age_diff = abs(agent_female_age - agent_other3_age - mean_child_mother_age_difference)
             end
         end
-        agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, agent_other3_sex, agent_other3_age, rng)
         agent_id += 1
         agent_other4_sex, agent_other4_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(agent_female_age - agent_other4_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -768,9 +813,9 @@ function create_parents_with_children(
                 age_diff = abs(agent_female_age - agent_other4_age - mean_child_mother_age_difference)
             end
         end
-        agent_other4 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other4 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other4_sex, agent_other4_age, rng)
+            isolation_probabilities_day_3, agent_other4_sex, agent_other4_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -785,16 +830,10 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
-            if agent_other.activity_type == 0 || agent_other2.activity_type == 0 ||
-                agent_other3.activity_type == 0 || agent_other4.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, agent_other4, child]
             end
@@ -810,11 +849,10 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, agent_other4, child, child2]
             end
@@ -830,31 +868,42 @@ function create_parents_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent_female, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
         return Agent[agent_male, agent_female, agent_other, agent_other2, agent_other3, agent_other4]
     end
 end
 
+# Создание двух пар с детьми или без и прочими членами домохозяйства
 function create_two_pairs_with_children_with_others(
+    # Id нового агента
     agent_id::Int,
-    household_id::Int,
+    # Домохозяйство
+    household::Household,
+    # Вирусы
     viruses::Vector{Virus},
+    # Средняя заболеваемость по неделям, возрастным группам и вирусам
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
-    household_conn_ids::Vector{Int},
+    # Число людей в каждой возрастной группе по муниципалитетам
     district_people::Matrix{Float64},
+    # Число людей в домохозяйствах по муниципалитетам
     district_people_households::Matrix{Float64},
+    # Индекс числа людей в домохозяйстве для таблицы district_people_households
     district_household_index::Int,
+    # Число детей в домохозяйстве
     num_of_children::Int,
+    # Число прочих людей в домохозяйстве
     num_of_other_people::Int,
+    # Индекс муниципалитета
     index::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
 )::Vector{Agent}
     agent_female_sex, agent_female_age = get_agent_sex_and_age(
@@ -868,16 +917,10 @@ function create_two_pairs_with_children_with_others(
             district_household_index, rng, false)
     end
 
-    # while agent_female_age > 55 || (agent_female_age > 50 && num_of_children > 0) || ((agent_female_age > 53 || agent_female_age < 21) && num_of_children > 1) || (agent_female_age < 24 && num_of_children > 2)
-    #     agent_female_sex, agent_female_age = get_agent_sex_and_age(
-    #         index, district_people, district_people_households,
-    #         district_household_index, rng, false)
-    # end
-
-    agent_female = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+    agent_female = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, agent_female_sex, agent_female_age, rng)
-
+        isolation_probabilities_day_3, agent_female_sex, agent_female_age, rng)
+    household.supporter_id = agent_id
     agent_id += 1
     agent_male_sex, agent_male_age = get_agent_sex_and_age(
         index, district_people,
@@ -893,9 +936,9 @@ function create_two_pairs_with_children_with_others(
         age_diff_rand_num = rand(rng, Float64)
         age_diff = abs(agent_male_age - agent_female_age)
     end
-    agent_male = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+    agent_male = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, agent_male_sex, agent_male_age, rng)
+        isolation_probabilities_day_3, agent_male_sex, agent_male_age, rng)
     agent_id += 1
 
     agent_female_old_sex, agent_female_old_age = get_agent_sex_and_age(
@@ -911,9 +954,9 @@ function create_two_pairs_with_children_with_others(
         age_diff_rand_num = rand(rng, Float64)
         age_diff = abs(agent_female_old_age - agent_female_age - mean_child_mother_age_difference)
     end
-    agent_female_old = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+    agent_female_old = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_female_old_sex, agent_female_old_age, rng)
+            isolation_probabilities_day_3, agent_female_old_sex, agent_female_old_age, rng)
 
     agent_id += 1
     agent_male_old_sex, agent_male_old_age = get_agent_sex_and_age(
@@ -930,9 +973,9 @@ function create_two_pairs_with_children_with_others(
         age_diff_rand_num = rand(rng, Float64)
         age_diff = abs(agent_male_old_age - agent_female_old_age)
     end
-    agent_male_old = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+    agent_male_old = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, agent_male_old_sex, agent_male_old_age, rng)
+        isolation_probabilities_day_3, agent_male_old_sex, agent_male_old_age, rng)
     agent_id += 1
 
     if num_of_other_people == 0
@@ -949,12 +992,10 @@ function create_two_pairs_with_children_with_others(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
-            check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, agent_male_old, agent_female_old, child]
             end
@@ -970,11 +1011,10 @@ function create_two_pairs_with_children_with_others(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, agent_male_old, agent_female_old, child, child2]
             end
@@ -990,19 +1030,18 @@ function create_two_pairs_with_children_with_others(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent_female, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent_male, agent_female, agent_male_old, agent_female_old, child, child2, child3]
         end
         return Agent[agent_male, agent_female, agent_male_old, agent_female_old]
     elseif num_of_other_people == 1
         agent_other_sex, agent_other_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1017,15 +1056,10 @@ function create_two_pairs_with_children_with_others(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
-            if agent_other.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, agent_male_old, agent_female_old, agent_other, child]
             end
@@ -1041,11 +1075,10 @@ function create_two_pairs_with_children_with_others(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, agent_male_old, agent_female_old, agent_other, child, child2]
             end
@@ -1061,25 +1094,24 @@ function create_two_pairs_with_children_with_others(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent_female, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent_male, agent_female, agent_male_old, agent_female_old, agent_other, child, child2, child3]
         end
         return Agent[agent_male, agent_female, agent_male_old, agent_female_old, agent_other]
     else
         agent_other_sex, agent_other_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, agent_other2_sex, agent_other2_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1094,15 +1126,10 @@ function create_two_pairs_with_children_with_others(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child_age - mean_child_mother_age_difference)
             end
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent_male.activity_type != 0 && agent_female.activity_type != 0
-            if agent_other.activity_type == 0 || agent_other2.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, agent_female, child)
             if num_of_children == 1
                 return Agent[agent_male, agent_female, agent_male_old, agent_female_old, agent_other, agent_other2, child]
             end
@@ -1118,11 +1145,10 @@ function create_two_pairs_with_children_with_others(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child2_age - mean_child_mother_age_difference)
             end
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent_female, child2)
             if num_of_children == 2
                 return Agent[agent_male, agent_female, agent_male_old, agent_female_old, agent_other, agent_other2, child, child2]
             end
@@ -1138,10 +1164,9 @@ function create_two_pairs_with_children_with_others(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(agent_female_age - child3_age - mean_child_mother_age_difference)
             end
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent_female, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent_male, agent_female, agent_male_old, agent_female_old, agent_other, agent_other2, child, child2, child3]
         end
         return Agent[agent_male, agent_female, agent_male_old, agent_female_old, agent_other, agent_other2]
@@ -1149,23 +1174,37 @@ function create_two_pairs_with_children_with_others(
 end
 
 function create_parent_with_children(
+    # Id агента
     agent_id::Int,
-    household_id::Int,
+    # Домохозяйство
+    household::Household,
+    # Вирусы
     viruses::Vector{Virus},
+    # Средняя заболеваемость по неделям, возрастным группам и вирусам
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
-    household_conn_ids::Vector{Int},
+    # Число людей в каждой возрастной группе по муниципалитетам
     district_people::Matrix{Float64},
+    # Число людей в домохозяйствах по муниципалитетам
     district_people_households::Matrix{Float64},
+    # Индекс числа людей в домохозяйстве для таблицы district_people_households
     district_household_index::Int,
+    # Число детей в домохозяйстве
     num_of_children::Int,
+    # Число прочих людей в домохозяйстве
     num_of_other_people::Int,
+    # Индекс муниципалитета
     index::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
+    # Если родитель мужчина
     is_male_parent::Union{Bool, Nothing} = nothing,
+    # С прочими агентами
     with_others::Bool = false,
+    # С родителями родителя
     with_grandparent::Bool = false,
 )::Vector{Agent}
     parent_sex, parent_age = get_agent_sex_and_age(
@@ -1192,10 +1231,10 @@ function create_parent_with_children(
         end
     end
 
-    parent = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+    parent = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, parent_sex, parent_age, rng)
-
+        isolation_probabilities_day_3, parent_sex, parent_age, rng)
+    household.supporter_id = agent_id
     agent_id += 1
     if num_of_other_people == 0
         child_sex, child_age = get_agent_sex_and_age(
@@ -1210,12 +1249,10 @@ function create_parent_with_children(
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
         end
-        child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+            isolation_probabilities_day_3, child_sex, child_age, rng)
         agent_id += 1
-        no_one_at_home = parent.activity_type != 0
-        check_parent_leave(no_one_at_home, parent, child)
         if num_of_children == 1
             return Agent[parent, child]
         end
@@ -1232,11 +1269,10 @@ function create_parent_with_children(
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
         end
-        child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+            isolation_probabilities_day_3, child2_sex, child2_age, rng)
         agent_id += 1
-        check_parent_leave(no_one_at_home, parent, child2)
         if num_of_children == 2
             return Agent[parent, child, child2]
         end
@@ -1253,10 +1289,9 @@ function create_parent_with_children(
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
         end
-        child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-        check_parent_leave(no_one_at_home, parent, child3)
+            isolation_probabilities_day_3, child3_sex, child3_age, rng)
         return Agent[parent, child, child2, child3]
     elseif num_of_other_people == 1
         agent_other_sex, agent_other_age = get_agent_sex_and_age(
@@ -1280,9 +1315,9 @@ function create_parent_with_children(
                 age_diff = abs(parent_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1297,15 +1332,10 @@ function create_parent_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
             end
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = parent.activity_type != 0
-            if agent_other.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, parent, child)
             if num_of_children == 1
                 return Agent[parent, agent_other, child]
             end
@@ -1321,11 +1351,10 @@ function create_parent_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
             end
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
                 return Agent[parent, agent_other, child, child2]
             end
@@ -1341,10 +1370,9 @@ function create_parent_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
             end
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, parent, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[parent, agent_other, child, child2, child3]
         end
         return Agent[parent, agent_other]
@@ -1374,15 +1402,13 @@ function create_parent_with_children(
                 age_diff = abs(parent_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -1393,9 +1419,9 @@ function create_parent_with_children(
                 age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
             end
         end
-        agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, agent_other2_sex, agent_other2_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1410,15 +1436,10 @@ function create_parent_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
             end
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = parent.activity_type != 0
-            if agent_other.activity_type == 0 || agent_other2.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, parent, child)
             if num_of_children == 1
                 return Agent[parent, agent_other, agent_other2, child]
             end
@@ -1434,11 +1455,10 @@ function create_parent_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
             end
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
                 return Agent[parent, agent_other, agent_other2, child, child2]
             end
@@ -1454,10 +1474,9 @@ function create_parent_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
             end
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, parent, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[parent, agent_other, agent_other2, child, child2, child3]
         end
         return Agent[parent, agent_other, agent_other2]
@@ -1483,15 +1502,13 @@ function create_parent_with_children(
                 age_diff = abs(parent_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -1502,16 +1519,14 @@ function create_parent_with_children(
                 age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
             end
         end
-        agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, agent_other2_sex, agent_other2_age, rng)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
             district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - agent_other3_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -1521,9 +1536,9 @@ function create_parent_with_children(
                 age_diff = abs(parent_age - agent_other3_age - mean_child_mother_age_difference)
             end
         end
-        agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, agent_other3_sex, agent_other3_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1538,15 +1553,10 @@ function create_parent_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
             end
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = parent.activity_type != 0
-            if agent_other.activity_type == 0 || agent_other2.activity_type == 0 || agent_other3.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, parent, child)
             if num_of_children == 1
                 return Agent[parent, agent_other, agent_other2, agent_other3, child]
             end
@@ -1562,11 +1572,10 @@ function create_parent_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
             end
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
                 return Agent[parent, agent_other, agent_other2, agent_other3, child, child2]
             end
@@ -1582,10 +1591,9 @@ function create_parent_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
             end
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, parent, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[parent, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
         return Agent[parent, agent_other, agent_other2, agent_other3]
@@ -1612,16 +1620,14 @@ function create_parent_with_children(
                 age_diff = abs(parent_age - agent_other_age - mean_child_mother_age_difference)
             end
         end
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
             district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -1631,16 +1637,14 @@ function create_parent_with_children(
                 age_diff = abs(parent_age - agent_other2_age - mean_child_mother_age_difference)
             end
         end
-        agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, agent_other2_sex, agent_other2_age, rng)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
             district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - agent_other3_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -1651,16 +1655,14 @@ function create_parent_with_children(
                 age_diff = abs(parent_age - agent_other3_age - mean_child_mother_age_difference)
             end
         end
-        agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, agent_other3_sex, agent_other3_age, rng)
         agent_id += 1
         agent_other4_sex, agent_other4_age = get_agent_sex_and_age(
             index, district_people, district_people_households,
             district_household_index, rng)
-        if with_others
-            # Do nothing
-        else
+        if !with_others
             age_diff_rand_num = rand(rng, Float64)
             age_diff = abs(parent_age - agent_other4_age - mean_child_mother_age_difference)
             while age_diff > 12 || (age_diff > 10 && age_diff_rand_num > 0.01242) || (age_diff > 5 && age_diff_rand_num > 0.2113) || (age_diff > 3 && age_diff_rand_num > 0.45326) || (age_diff > 1 && age_diff_rand_num > 0.80258)
@@ -1671,9 +1673,9 @@ function create_parent_with_children(
                 age_diff = abs(parent_age - agent_other4_age - mean_child_mother_age_difference)
             end
         end
-        agent_other4 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other4 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other4_sex, agent_other4_age, rng)
+            isolation_probabilities_day_3, agent_other4_sex, agent_other4_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
@@ -1688,16 +1690,10 @@ function create_parent_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(parent_age - child_age - mean_child_mother_age_difference)
             end
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = parent.activity_type != 0
-            if agent_other.activity_type == 0 || agent_other2.activity_type == 0 ||
-                agent_other3.activity_type == 0 || agent_other4.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, parent, child)
             if num_of_children == 1
                 return Agent[parent, agent_other, agent_other2, agent_other3, agent_other4, child]
             end
@@ -1713,11 +1709,10 @@ function create_parent_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(parent_age - child2_age - mean_child_mother_age_difference)
             end
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, parent, child2)
             if num_of_children == 2
                 return Agent[parent, agent_other, agent_other2, agent_other3, agent_other4, child, child2]
             end
@@ -1733,342 +1728,329 @@ function create_parent_with_children(
                 age_diff_rand_num = rand(rng, Float64)
                 age_diff = abs(parent_age - child3_age - mean_child_mother_age_difference)
             end
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, parent, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[parent, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
         return Agent[parent, agent_other, agent_other2, agent_other3, agent_other4]
     end
 end
 
+# Создание агентов для прочих типов домохозяйств
 function create_others(
+    # Id агента
     agent_id::Int,
-    household_id::Int,
+    # Домохозяйство
+    household::Household,
+    # Вирусы
     viruses::Vector{Virus},
+    # Средняя заболеваемость по неделям, возрастным группам и вирусам
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
-    household_conn_ids::Vector{Int},
+    # Число людей в каждой возрастной группе по муниципалитетам
     district_people::Matrix{Float64},
+    # Число людей в домохозяйствах по муниципалитетам
     district_people_households::Matrix{Float64},
+    # Индекс числа людей в домохозяйстве для таблицы district_people_households
     district_household_index::Int,
+    # Число детей в домохозяйстве
     num_of_children::Int,
+    # Число прочих людей в домохозяйстве
     num_of_other_people::Int,
+    # Индекс муниципалитета
     index::Int,
+    # Генератор случайных чисел
     rng::MersenneTwister,
 )::Vector{Agent}
     agent_sex, agent_age = get_agent_sex_and_age(
         index, district_people, district_people_households, district_household_index, rng)
-    agent = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+    agent = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
         isolation_probabilities_day_1, isolation_probabilities_day_2,
-        isolation_probabilities_day_3, household_conn_ids, agent_sex, agent_age, rng)
+        isolation_probabilities_day_3, agent_sex, agent_age, rng)
+    household.supporter_id = agent_id
     agent_id += 1
     if num_of_other_people == 0
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent.activity_type != 0
-            check_parent_leave(no_one_at_home, agent, child)
             if num_of_children == 1
                 return Agent[agent, child]
             end
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
                 return Agent[agent, child, child2]
             end
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent, child, child2, child3]
         end
         return Agent[agent]
     elseif num_of_other_people == 1
         agent_other_sex, agent_other_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent.activity_type != 0
-            if agent_other.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, agent, child)
             if num_of_children == 1
                 return Agent[agent, agent_other, child]
             end
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
                 return Agent[agent, agent_other, child, child2]
             end
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent, agent_other, child, child2, child3]
         end
         return Agent[agent, agent_other]
     elseif num_of_other_people == 2
         agent_other_sex, agent_other_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, agent_other2_sex, agent_other2_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent.activity_type != 0
-            if agent_other.activity_type == 0 || agent_other2.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, agent, child)
             if num_of_children == 1
                 return Agent[agent, agent_other, agent_other2, child]
             end
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
                 return Agent[agent, agent_other, agent_other2, child, child2]
             end
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent, agent_other, agent_other2, child, child2, child3]
         end
         return Agent[agent, agent_other, agent_other2]
     elseif num_of_other_people == 3
         agent_other_sex, agent_other_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, agent_other2_sex, agent_other2_age, rng)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, agent_other3_sex, agent_other3_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent.activity_type != 0
-            if agent_other.activity_type == 0 || agent_other2.activity_type == 0 ||
-                agent_other3.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, agent, child)
             if num_of_children == 1
                 return Agent[agent, agent_other, agent_other2, agent_other3, child]
             end
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
                 return Agent[agent, agent_other, agent_other2, agent_other3, child, child2]
             end
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent, agent_other, agent_other2, agent_other3, child, child2, child3]
         end
         return Agent[agent, agent_other, agent_other2, agent_other3]
     elseif num_of_other_people == 4
         agent_other_sex, agent_other_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, agent_other2_sex, agent_other2_age, rng)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, agent_other3_sex, agent_other3_age, rng)
         agent_id += 1
         agent_other4_sex, agent_other4_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other4 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other4 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other4_sex, agent_other4_age, rng)
+            isolation_probabilities_day_3, agent_other4_sex, agent_other4_age, rng)
         agent_id += 1
         if num_of_children > 0
             child_sex, child_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child_sex, child_age, rng)
+                isolation_probabilities_day_3, child_sex, child_age, rng)
             agent_id += 1
-            no_one_at_home = agent.activity_type != 0
-            if agent_other.activity_type == 0 || agent_other2.activity_type == 0 ||
-                agent_other3.activity_type == 0 || agent_other4.activity_type == 0
-                no_one_at_home = false
-            end
-            check_parent_leave(no_one_at_home, agent, child)
             if num_of_children == 1
                 return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4, child]
             end
             child2_sex, child2_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child2_sex, child2_age, rng)
+                isolation_probabilities_day_3, child2_sex, child2_age, rng)
             agent_id += 1
-            check_parent_leave(no_one_at_home, agent, child2)
             if num_of_children == 2
                 return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4, child, child2]
             end
             child3_sex, child3_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 district_household_index, rng, nothing, true)
-            child3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+            child3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household_conn_ids, child3_sex, child3_age, rng)
-            check_parent_leave(no_one_at_home, agent, child3)
+                isolation_probabilities_day_3, child3_sex, child3_age, rng)
             return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4, child, child2, child3]
         end
         return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4]
     else
         agent_other_sex, agent_other_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other_sex, agent_other_age, rng)
+            isolation_probabilities_day_3, agent_other_sex, agent_other_age, rng)
         agent_id += 1
         agent_other2_sex, agent_other2_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other2 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other2 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other2_sex, agent_other2_age, rng)
+            isolation_probabilities_day_3, agent_other2_sex, agent_other2_age, rng)
         agent_id += 1
         agent_other3_sex, agent_other3_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other3 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other3 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other3_sex, agent_other3_age, rng)
+            isolation_probabilities_day_3, agent_other3_sex, agent_other3_age, rng)
         agent_id += 1
         agent_other4_sex, agent_other4_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other4 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other4 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other4_sex, agent_other4_age, rng)
+            isolation_probabilities_day_3, agent_other4_sex, agent_other4_age, rng)
         agent_id += 1
         agent_other5_sex, agent_other5_age = get_agent_sex_and_age(
             index, district_people, district_people_households, district_household_index, rng)
-        agent_other5 = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
+        agent_other5 = Agent(agent_id, household.id, viruses, num_all_infected_age_groups_viruses_mean,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, household_conn_ids, agent_other5_sex, agent_other5_age, rng)
+            isolation_probabilities_day_3, agent_other5_sex, agent_other5_age, rng)
         agent_id += 1
         return Agent[agent, agent_other, agent_other2, agent_other3, agent_other4, agent_other5]
     end
 end
 
 function create_population(
+    # Id потока
     thread_id::Int,
+    # Число потоков
     num_threads::Int,
+    # Генератор случайных чисел для потоков
     thread_rng::Vector{MersenneTwister},
+    # Id первого агента для потока
     start_agent_id::Int,
-    end_agent_id::Int,
+    # Агенты
     all_agents::Vector{Agent},
+    # Домохозяйства
     households::Vector{Household},
+    # Вирусы
     viruses::Vector{Virus},
+    # Средняя заболеваемость по неделям, возрастным группам и вирусам
     num_all_infected_age_groups_viruses_mean::Array{Float64, 3},
+    # Вероятности самоизоляции на 1-й, 2-й и 3-й дни болезни
     isolation_probabilities_day_1::Vector{Float64},
     isolation_probabilities_day_2::Vector{Float64},
     isolation_probabilities_day_3::Vector{Float64},
     start_household_id::Int,
     homes_coords_df::DataFrame,
     district_households::Matrix{Int},
+    # Число людей в каждой возрастной группе по муниципалитетам
     district_people::Matrix{Float64},
+    # Число людей в домохозяйствах по муниципалитетам
     district_people_households::Matrix{Float64},
-    district_nums::Vector{Int}
 )
     agent_id = start_agent_id
     household_id = start_household_id
@@ -2082,45 +2064,42 @@ function create_population(
         homes_coords_district_df = homes_coords_df[homes_coords_df.dist .== index, :]
 
         for _ in 1:district_households[index, 1]
-            # 1P
+            # 1P - 1 взрослый человек
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
-            household = Household(
-                Int[agent_id], index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+            household = Household(household_id, Int[agent_id], index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agent_sex, agent_age = get_agent_sex_and_age(
                 index, district_people, district_people_households,
                 index_for_1_people, thread_rng[thread_id])
             all_agents[agent_id] = Agent(agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
-                isolation_probabilities_day_3, household.agent_ids, agent_sex, agent_age,
+                isolation_probabilities_day_3, agent_sex, agent_age,
                 thread_rng[thread_id])
             agent_id += 1
             households[household_id] = household
             household_id += 1
         end
         for _ in 1:district_households[index, 2]
-            # PWOP2P0C
+            # PWOP2P0C - пара без детей (2 человека)
             new_agent_id = agent_id + 1
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = Agent[]
             rand_num = rand(thread_rng[thread_id], Float64)
             if rand_num < 0.72
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 0, index, thread_rng[thread_id])
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 0, index, thread_rng[thread_id], false, true)
             else
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 0, index, thread_rng[thread_id], true)
             end
             agent_id = new_agent_id + 1
@@ -2131,28 +2110,27 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 3]
-            # PWOP3P0C
+            # PWOP3P0C - пара без детей (3 человека)
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = Agent[]
             rand_num = rand(thread_rng[thread_id], Float64)
             if rand_num < 0.72
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id])
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id], false, true)
             else
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id], true)
             end
             agent_id = new_agent_id + 1
@@ -2163,47 +2141,45 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 4]
-            # PWOP3P1C
+            # PWOP3P1C - пара с 1 ребенком (3 человека)
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 1, 0, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_2_people, 1, 0, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 5]
-            # PWOP4P0C
+            # PWOP4P0C - пара без детей (4 человека)
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = Agent[]
             rand_num = rand(thread_rng[thread_id], Float64)
             if rand_num < 0.72
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 2, index, thread_rng[thread_id])
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 2, index, thread_rng[thread_id], false, true)
             else
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 2, index, thread_rng[thread_id], true)
             end 
             agent_id = new_agent_id + 1
@@ -2214,28 +2190,27 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 6]
-            # PWOP4P1C
+            # PWOP4P1C - пара с 1 ребенком (4 человека)
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = Agent[]
             rand_num = rand(thread_rng[thread_id], Float64)
             if rand_num < 0.72
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 1, 1, index, thread_rng[thread_id])
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 1, 1, index, thread_rng[thread_id], false, true)
             else
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 1, 1, index, thread_rng[thread_id], true)
             end
             agent_id = new_agent_id + 1
@@ -2244,49 +2219,48 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 7]
-            # PWOP4P2C
+            # PWOP4P2C - пара с 2 детьми
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 2, 0, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 2, 0, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 8]
-            # PWOP5P0C
+            # PWOP5P0C - пара с 3 взрослыми
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = Agent[]
             rand_num = rand(thread_rng[thread_id], Float64)
             if rand_num < 0.72
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 3, index, thread_rng[thread_id])
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 3, index, thread_rng[thread_id], false, true)
             else
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 3, index, thread_rng[thread_id], true)
             end
             agent_id = new_agent_id + 1
@@ -2297,28 +2271,27 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 9]
-            # PWOP5P1C
+            # PWOP5P1C - пара с 2 взрослыми и 1 ребенком
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = Agent[]
             rand_num = rand(thread_rng[thread_id], Float64)
             if rand_num < 0.72
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 1, 2, index, thread_rng[thread_id])
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 1, 2, index, thread_rng[thread_id], false, true)
             else
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 1, 2, index, thread_rng[thread_id], true)
             end
             agent_id = new_agent_id + 1
@@ -2327,30 +2300,30 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 10]
-            # PWOP5P2C
+            # PWOP5P2C - пара с 1 взрослым и 2 детьми
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = Agent[]
             rand_num = rand(thread_rng[thread_id], Float64)
             if rand_num < 0.72
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 2, 1, index, thread_rng[thread_id])
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 2, 1, index, thread_rng[thread_id], false, true)
             else
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 2, 1, index, thread_rng[thread_id], true)
             end
             agent_id = new_agent_id + 1
@@ -2359,49 +2332,48 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 11]
-            # PWOP5P3C
+            # PWOP5P3C - пара с 3 детьми
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parents_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 3, 0, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_5_people, 3, 0, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 12]
-            # PWOP6P0C
+            # PWOP6P0C - пара с 4 взрослыми
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = Agent[]
             rand_num = rand(thread_rng[thread_id], Float64)
             if rand_num < 0.72
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 4, index, thread_rng[thread_id])
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 4, index, thread_rng[thread_id], false, true)
             else
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 0, 4, index, thread_rng[thread_id], true)
             end
             agent_id = new_agent_id + 1
@@ -2412,28 +2384,27 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 13]
-            # PWOP6P1C
+            # PWOP6P1C - пара с 3 взрослыми и 1 ребенком
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = Agent[]
             rand_num = rand(thread_rng[thread_id], Float64)
             if rand_num < 0.72
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 1, 3, index, thread_rng[thread_id])
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 1, 3, index, thread_rng[thread_id], false, true)
             else
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 1, 3, index, thread_rng[thread_id], true)
             end
             agent_id = new_agent_id + 1
@@ -2442,30 +2413,30 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 14]
-            # PWOP6P2C
+            # PWOP6P2C - пара с 2 взрослыми и 2 детьми
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = Agent[]
             rand_num = rand(thread_rng[thread_id], Float64)
             if rand_num < 0.72
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 2, 2, index, thread_rng[thread_id])
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 2, 2, index, thread_rng[thread_id], false, true)
             else
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 2, 2, index, thread_rng[thread_id], true)
             end
             agent_id = new_agent_id + 1
@@ -2474,30 +2445,30 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 15]
-            # PWOP6P3C
+            # PWOP6P3C - пара с 1 взрослым и 3 детьми
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = Agent[]
             rand_num = rand(thread_rng[thread_id], Float64)
             if rand_num < 0.72
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 3, 1, index, thread_rng[thread_id])
             elseif rand_num < 0.81
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 3, 1, index, thread_rng[thread_id], false, true)
             else
                 agents = create_parents_with_children(
-                    agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                    isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
+                    agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                    isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
                     district_people_households, index_for_2_people, 3, 1, index, thread_rng[thread_id], true)
             end
             agent_id = new_agent_id + 1
@@ -2506,20 +2477,19 @@ function create_population(
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
 
         for _ in 1:district_households[index, 16]
-            # 2PWOP4P0C
+            # 2PWOP4P0C - 2 пары
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_two_pairs_with_children_with_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 0, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 0, 0, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2528,17 +2498,15 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 17]
-            # 2PWOP5P0C
+            # 2PWOP5P0C - 2 пары с 1 взрослым
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_two_pairs_with_children_with_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 1, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 0, 1, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2547,36 +2515,33 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 18]
-            # 2PWOP5P1C
+            # 2PWOP5P1C - 2 пары с 1 ребенком
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_two_pairs_with_children_with_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 1, 0, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 1, 0, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 19]
-            # 2PWOP6P0C
+            # 2PWOP6P0C - 2 пары с 2 взрослыми
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_two_pairs_with_children_with_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 2, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 0, 2, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2585,56 +2550,52 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 20]
-            # 2PWOP6P1C
+            # 2PWOP6P1C - 2 пары с 1 взрослым и 1 ребенком
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_two_pairs_with_children_with_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 1, 1, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 1, 1, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 21]
-            # 2PWOP6P2C
+            # 2PWOP6P2C - 2 пары с 2 детьми
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_two_pairs_with_children_with_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 2, 0, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 2, 0, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
 
         for _ in 1:district_households[index, 22]
-            # SMWC2P0C
+            # SMWC2P0C - мать-одиночка со взрослым ребенком
             new_agent_id = agent_id + 1
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 0, 1, index,
-                thread_rng[thread_id], false)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id], false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2647,32 +2608,29 @@ function create_population(
             new_agent_id = agent_id + 1
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 1, 0, index,
-                thread_rng[thread_id], false)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_2_people, 1, 0, index, thread_rng[thread_id], false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 24]
             # SMWC3P0C
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 0, 2, index,
-                thread_rng[thread_id], false)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 0, 2, index, thread_rng[thread_id], false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2685,51 +2643,47 @@ function create_population(
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 1, 1, index,
-                thread_rng[thread_id], false)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 1, 1, index, thread_rng[thread_id], false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 26]
             # SMWC3P2C
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 2, 0, index,
-                thread_rng[thread_id], false)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 2, 0, index, thread_rng[thread_id], false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 27]
             # SMWC4P0C
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 3, index,
-                thread_rng[thread_id], false)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 0, 3, index, thread_rng[thread_id], false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2742,70 +2696,65 @@ function create_population(
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 1, 2, index,
-                thread_rng[thread_id], false)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 1, 2, index, thread_rng[thread_id], false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 29]
             # SMWC4P2C
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 2, 1, index,
-                thread_rng[thread_id], false)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 2, 1, index, thread_rng[thread_id], false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 30]
             # SMWC4P3C
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 3, 0, index,
-                thread_rng[thread_id], false)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 3, 0, index, thread_rng[thread_id], false)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 31]
             # SFWC2P0C
             new_agent_id = agent_id + 1
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 0, 1, index,
-                thread_rng[thread_id], true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id], true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2818,32 +2767,29 @@ function create_population(
             new_agent_id = agent_id + 1
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 1, 0, index,
-                thread_rng[thread_id], true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_2_people, 1, 0, index, thread_rng[thread_id], true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 33]
             # SFWC3P0C
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 0, 2, index,
-                thread_rng[thread_id], true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 0, 2, index, thread_rng[thread_id], true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2856,38 +2802,36 @@ function create_population(
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 1, 1, index,
-                thread_rng[thread_id], true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 1, 1, index, thread_rng[thread_id], true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 35]
             # SFWC3P2C
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 2, 0, index,
-                thread_rng[thread_id], true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 2, 0, index, thread_rng[thread_id], true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
 
         for _ in 1:district_households[index, 36]
@@ -2895,13 +2839,11 @@ function create_population(
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 0, 2, index,
-                thread_rng[thread_id], false, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 0, 2, index, thread_rng[thread_id], false, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2914,32 +2856,29 @@ function create_population(
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 1, 1, index,
-                thread_rng[thread_id], false, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 1, 1, index, thread_rng[thread_id], false, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 38]
             # SPWCWP4P0C
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 3, index,
-                thread_rng[thread_id], false, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 0, 3, index, thread_rng[thread_id], false, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -2952,38 +2891,36 @@ function create_population(
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 1, 2, index,
-                thread_rng[thread_id], false, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 1, 2, index, thread_rng[thread_id], false, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 40]
             # SPWCWP4P2C
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 2, 1, index,
-                thread_rng[thread_id], false, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 2, 1, index, thread_rng[thread_id], false, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
 
         for _ in 1:district_households[index, 41]
@@ -2991,13 +2928,11 @@ function create_population(
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 0, 2, index,
-                thread_rng[thread_id], true, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 0, 2, index, thread_rng[thread_id], true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3010,32 +2945,29 @@ function create_population(
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 1, 1, index,
-                thread_rng[thread_id], true, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 1, 1, index, thread_rng[thread_id], true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 43]
             # SPWCWPWOP4P0C
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 3, index,
-                thread_rng[thread_id], true, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 0, 3, index, thread_rng[thread_id], true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3048,51 +2980,47 @@ function create_population(
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 1, 2, index,
-                thread_rng[thread_id], true, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 1, 2, index, thread_rng[thread_id], true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 45]
             # SPWCWPWOP4P2C
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 2, 1, index,
-                thread_rng[thread_id], true, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 2, 1, index, thread_rng[thread_id], true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 46]
             # SPWCWPWOP5P0C
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 0, 4, index,
-                thread_rng[thread_id], true, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_5_people, 0, 4, index, thread_rng[thread_id], true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3105,52 +3033,48 @@ function create_population(
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 1, 3, index,
-                thread_rng[thread_id], true, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_5_people, 1, 3, index, thread_rng[thread_id], true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 48]
             # SPWCWPWOP5P2C
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_parent_with_children(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 2, 2, index,
-                thread_rng[thread_id], true, true)
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_5_people, 2, 2, index, thread_rng[thread_id], true, true)
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
 
         for _ in 1:district_households[index, 49]
-            # O2P0C
+            # O2P0C - прочие домохозяйства без детей (2 человека)
             new_agent_id = agent_id + 1
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 0, 1, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_2_people, 0, 1, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3159,36 +3083,33 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 50]
-            # O2P1C
+            # O2P1C - прочие домохозяйства с 1 ребенком (2 человека)
             new_agent_id = agent_id + 1
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_2_people, 1, 0, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_2_people, 1, 0, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 51]
-            # O3P0C
+            # O3P0C - прочие домохозяйства без детей (3 человека)
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 0, 2, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 0, 2, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3197,55 +3118,51 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 52]
-            # O3P1C
+            # O3P1C - прочие домохозяйства с 1 ребенком (3 человека)
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 1, 1, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 1, 1, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 53]
-            # O3P2C
+            # O3P2C - прочие домохозяйства с 2 детьми (3 человека)
             new_agent_id = agent_id + 2
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_3_people, 2, 0, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_3_people, 2, 0, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 54]
-            # O4P0C
+            # O4P0C - прочие домохозяйства без детей (4 человека)
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 0, 3, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 0, 3, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3254,74 +3171,69 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 55]
-            # O4P1C
+            # O4P1C - прочие домохозяйства с 1 ребенком (4 человека)
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 1, 2, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 1, 2, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 56]
-            # O4P2C
+            # O4P2C - прочие домохозяйства с 2 детьми (4 человека)
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 2, 1, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 2, 1, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 57]
-            # O4P3C
+            # O4P3C - прочие домохозяйства с 3 детьми (4 человека)
             new_agent_id = agent_id + 3
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_4_people, 3, 1, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_4_people, 3, 1, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 58]
-            # O5P0C
+            # O5P0C - прочие домохозяйства без детей (5 человек)
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 0, 4, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_5_people, 0, 4, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3330,74 +3242,69 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 59]
-            # O5P1C
+            # O5P1C - прочие домохозяйства с 1 ребенком (5 человек)
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 1, 3, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_5_people, 1, 3, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 60]
-            # O5P2C
+            # O5P2C - прочие домохозяйства с 2 детьми (5 человек)
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 2, 2, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_5_people, 2, 2, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 61]
-            # O5P3C
+            # O5P3C - прочие домохозяйства с 3 детьми (5 человек)
             new_agent_id = agent_id + 4
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 3, 2, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_5_people, 3, 2, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 62]
-            # O6P0C
+            # O6P0C - прочие домохозяйства без детей (6 человек)
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 0, 5, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_5_people, 0, 5, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
@@ -3406,61 +3313,58 @@ function create_population(
             household_id += 1
         end
         for _ in 1:district_households[index, 63]
-            # O6P1C
+            # O6P1C - прочие домохозяйства с 1 ребенком (6 человек)
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 1, 4, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_5_people, 1, 4, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 64]
-            # O6P2C
+            # O6P2C - прочие домохозяйства с 2 детьми (6 человек)
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 2, 3, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_5_people, 2, 3, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
         for _ in 1:district_households[index, 65]
-            # O6P3C
+            # O6P3C - прочие домохозяйства с 3 детьми (6 человек)
             new_agent_id = agent_id + 5
             df_row = homes_coords_district_df[rand(1:size(homes_coords_district_df)[1]), :]
             household = Household(
-                collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school,
-                df_row.shop, df_row.restaurant, df_row.shop2, df_row.restaurant2)
+                household_id, collect(Int, agent_id:new_agent_id), index, df_row.x, df_row.y, df_row.kinder, df_row.school)
             agents = create_others(
-                agent_id, household_id, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
-                isolation_probabilities_day_2, isolation_probabilities_day_3, household.agent_ids, district_people,
-                district_people_households, index_for_5_people, 3, 2, index,
-                thread_rng[thread_id])
+                agent_id, household, viruses, num_all_infected_age_groups_viruses_mean, isolation_probabilities_day_1,
+                isolation_probabilities_day_2, isolation_probabilities_day_3, district_people,
+                district_people_households, index_for_5_people, 3, 2, index, thread_rng[thread_id])
             agent_id = new_agent_id + 1
             for agent in agents
                 all_agents[agent.id] = agent
             end
             households[household_id] = household
             household_id += 1
+            check_parent_leave(all_agents, household)
         end
     end
 end

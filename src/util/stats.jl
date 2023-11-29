@@ -1,20 +1,35 @@
 function get_stats(
+    # Агенты
     agents::Vector{Agent},
+    # Домохозяйства
+    households::Vector{Household},
+    # Школы
     schools::Vector{School},
+    # Рабочие коллективы
     workplaces::Vector{Workplace}
 )
     println("Stats...")
 
+    # Количество агентов по возрастам
     age_nums = zeros(Int, 90)
+    # Количество агентов по возрастным группам
     num_agents_age_groups = zeros(Int, 4)
 
+    # Количество агентов по коллективам
     activity_nums = Int[0, 0, 0, 0, length(agents)]
+    # Количество агентов по размеру домохозяйства
     household_nums = Int[0, 0, 0, 0, 0, 0]
+    # Средний общий уровень иммуноглобулинов
     mean_ig_level = 0.0
+    # Число инфицированных агентов
     num_of_infected = 0
+    # Число инфицированных агентов по возрастным группам
     num_of_infected_age_groups = Int[0, 0, 0, 0]
+    # Число агентов в резистентном состоянии
     num_of_immune = 0
+    # Число изолированных агентов
     num_of_isolated = 0
+    # Число агентов, сидящих на больничном по уходу за ребенком
     num_of_parent_leave = 0
     mean_num_of_kinder_conn = 0
     mean_num_of_activity_conn = 0
@@ -26,7 +41,14 @@ function get_stats(
     size_univer_conn = 0
     size_work_conn = 0
 
-    # mean_num_of_friend_conn = 0
+    num_immunity = zeros(Int, num_viruses)
+    # Число инфицированных агентов для различных вирусов
+    num_infected = zeros(Int, num_viruses)
+
+    kindergarten_contacts = zeros(Int, kindergarten_groups_size_4_5 + 1)
+    school_contacts = zeros(Int, school_groups_size_9_11 + 1)
+    college_contacts = zeros(Int, college_groups_size_1 + 1)
+    work_contacts = zeros(Int, 1000)
 
     mean_num_students = 0.0
     for school in schools
@@ -63,6 +85,7 @@ function get_stats(
 
         age_nums[agent.age + 1] += 1
     
+        # Если агент посещает детский сад
         if agent.activity_type == 1
             activity_nums[1] += 1
             mean_num_of_kinder_conn += size(agent.activity_conn_ids, 1)
@@ -70,6 +93,7 @@ function get_stats(
             if agent.is_teacher
                 t1 += 1
             end
+        # Если агент посещает школу
         elseif agent.activity_type == 2
             activity_nums[2] += 1
             mean_num_of_activity_conn += size(agent.activity_conn_ids, 1)
@@ -77,6 +101,7 @@ function get_stats(
             if agent.is_teacher
                 t2 += 1
             end
+        # Если агент посещает вуз
         elseif agent.activity_type == 3
             activity_nums[3] += 1
             mean_num_of_univer_conn += size(agent.activity_conn_ids, 1)
@@ -85,15 +110,14 @@ function get_stats(
             if agent.is_teacher
                 t3 += 1
             end
+        # Если агент работает
         elseif agent.activity_type == 4
             activity_nums[4] += 1
             mean_num_of_work_conn += size(agent.activity_conn_ids, 1)
             size_work_conn += 1
         end
 
-        # mean_num_of_friend_conn += length(agent.friend_ids)
-
-        household_nums[size(agent.household_conn_ids, 1)] += 1
+        household_nums[length(households[agent.household_id].agent_ids)] += 1
 
         mean_ig_level += agent.ig_level
 
@@ -123,16 +147,35 @@ function get_stats(
             age_diff += agents[agent.supporter_id].age - agent.age
             age_diff_num += 1
         end
+
+        for i = 1:num_viruses
+            if agent.immunity_susceptibility_levels[i] < 0.999
+                num_immunity[i] += 1
+            end
+        end
+
+        if agent.activity_type == 1
+            kindergarten_contacts[length(agent.activity_conn_ids)] += 1
+        elseif agent.activity_type == 2
+            school_contacts[length(agent.activity_conn_ids)] += 1
+        elseif agent.activity_type == 3
+            college_contacts[length(agent.activity_conn_ids)] += 1
+        elseif agent.activity_type == 4
+            work_contacts[length(agent.activity_conn_ids) + 1] += 1
+        end
+
     end
     for i = 1:6
         household_nums[i] /= i
     end
 
+    # Число агентов в рабочих коллективах
     workplaces_num_people = Int[]
     for workplace in workplaces
         push!(workplaces_num_people, length(workplace.agent_ids))
     end
 
+    # Количество агентов по возрастным группам
     # println("Age groups:")
     # for i = 0:17
     #     sum = 0
@@ -144,12 +187,19 @@ function get_stats(
     #     println("$(5 * i): $(sum)")
     # end
 
+    # Сохраняем результаты
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "kindergarten_contacts.csv"), kindergarten_contacts, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "school_contacts.csv"), school_contacts, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "college_contacts.csv"), college_contacts, ',')
+    writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "work_contacts.csv"), work_contacts, ',')
+
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "age_nums.csv"), age_nums, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "num_agents_age_groups.csv"), num_agents_age_groups, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "household_size_distribution.csv"), household_nums, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "activity_sizes.csv"), activity_nums, ',')
     writedlm(joinpath(@__DIR__, "..", "..", "input", "tables", "workplaces_num_people.csv"), workplaces_num_people, ',')
 
+    # Выводим результаты
     println("Main age groups: $(num_agents_age_groups)")
     println("Teachers 1: $(t1)")
     println("Teachers 2: $(t2)")
@@ -167,5 +217,6 @@ function get_stats(
     println("Mean work conn: $(mean_num_of_work_conn / size_work_conn)")
     println("Mean num of people in firms: $(mean(workplaces_num_people))")
     println("Mean mother child age difference: $(age_diff / age_diff_num)")
-    # println("Friends conn: $(mean_num_of_friend_conn / num_agents)")
+    println("Initial immunity: $(num_immunity)")
+    println("Initial infected: $(num_infected)")
 end
