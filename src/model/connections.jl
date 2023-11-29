@@ -46,10 +46,14 @@ function set_connections(
                 ((agent.school_group_num == 4 || agent.school_group_num == 5) && size(groups[group_id], 1) == kindergarten_groups_size_4_5)
                 # Создаем новую группу
                 push!(groups, Int[])
+                push!(kindergartens[agent.school_id].quarantine_period_groups[agent.school_group_num], 0)
                 group_id += 1
             end
             # Добавляем id агента в группу
             push!(groups[group_id], agent.id)
+            agent.school_group_id = group_id
+            kindergartens[agent.school_id].num_students += 1
+            kindergartens[agent.school_id].num_students_grades[agent.school_group_num] += 1
             # Если полный граф
             # agent.activity_conn_ids = groups[group_id]
         # Если школьник
@@ -67,10 +71,14 @@ function set_connections(
                 (agent.school_group_num < 12 && size(groups[group_id], 1) == school_groups_size_9_11)
                 # Создаем новый класс
                 push!(groups, Int[])
+                push!(schools[agent.school_id].quarantine_period_groups[agent.school_group_num], 0)
                 group_id += 1
             end
             # Добавляем id агента в класс
             push!(groups[group_id], agent.id)
+            agent.school_group_id = group_id
+            schools[agent.school_id].num_students += 1
+            schools[agent.school_id].num_students_grades[agent.school_group_num] += 1
             # Если полный граф
             # agent.activity_conn_ids = groups[group_id]
         # Если студент
@@ -89,10 +97,14 @@ function set_connections(
                 (agent.school_group_num == 6 && size(groups[group_id], 1) == college_groups_size_6)
                 # Создаем новую группу
                 push!(groups, Int[])
+                push!(colleges[agent.school_id].quarantine_period_groups[agent.school_group_num], 0)
                 group_id += 1
             end
             # Добавляем id агента в группу
             push!(groups[group_id], agent.id)
+            agent.school_group_id = group_id
+            colleges[agent.school_id].num_students += 1
+            colleges[agent.school_id].num_students_grades[agent.school_group_num] += 1
             # Если полный граф
             # agent.activity_conn_ids = groups[group_id]
         end
@@ -122,6 +134,7 @@ function set_connections(
                 end
                 # Добавляем воспитателя в группу
                 push!(group, agent_id)
+                agents[agent_id].school_group_id = group_id
                 # Присваиваем детский сад в качестве коллектива
                 agents[agent_id].activity_type = 1
                 # Является воспитателем
@@ -168,6 +181,7 @@ function set_connections(
                 end
                 # Добавляем преподавателя в группу
                 push!(group, agent_id)
+                agents[agent_id].school_group_id = group_id
                 # Присваиваем школу в качестве коллектива
                 agents[agent_id].activity_type = 2
                 # Является преподавателем
@@ -212,6 +226,7 @@ function set_connections(
                 end
                 # Добавляем преподавателя в группу
                 push!(group, agent_id)
+                agents[agent_id].school_group_id = group_id
                 # Присваиваем вуз в качестве коллектива
                 agents[agent_id].activity_type = 3
                 # Является преподавателем

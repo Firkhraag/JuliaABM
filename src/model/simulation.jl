@@ -120,6 +120,8 @@ function simulate_contacts(
     agents::Vector{Agent},
     # Домохозяйства
     households::Vector{Household},
+    # Школы
+    schools::Vector{School},
     # Средние продолжительности контактов в домохозяйствах для разных контактов
     mean_household_contact_durations::Vector{Float64},
     # Среднеквадратические отклонения для контактов в домохозяйствах для разных контактов
@@ -166,12 +168,21 @@ function simulate_contacts(
                     dur = 0.0
                     # Если агенты посещают другой коллектив, то контакт укорочен
                     # Если оба агента проводят время дома
-                    if (agent.is_isolated || agent.quarantine_period > 0 || agent.on_parent_leave || agent.activity_type == 0 ||
+                    # if (agent.is_isolated || agent.quarantine_period > 0 || agent.on_parent_leave || agent.activity_type == 0 ||
+                    #     (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_college_holiday) ||
+                    #     (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)) &&
+                    #     (agent2.is_isolated || agent2.quarantine_period > 0 || agent2.on_parent_leave || agent2.activity_type == 0 ||
+                    #     (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_college_holiday) ||
+                    #     (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday))
+
+                    if (agent.is_isolated || agent.on_parent_leave || agent.activity_type == 0 ||
                         (agent.activity_type == 4 && is_work_holiday) || (agent.activity_type == 3 && is_college_holiday) ||
-                        (agent.activity_type == 2 && is_school_holiday) || (agent.activity_type == 1 && is_kindergarten_holiday)) &&
-                        (agent2.is_isolated || agent2.quarantine_period > 0 || agent2.on_parent_leave || agent2.activity_type == 0 ||
+                        (agent.activity_type == 2 && (is_school_holiday || schools[agent.school_id].quarantine_period > 0 || schools[agent.school_id].quarantine_period_grades[agent.school_group_num] > 0 || schools[agent.school_id].quarantine_period_groups[agent.school_group_num][agent.school_group_id] > 0)) ||
+                        (agent.activity_type == 1 && is_kindergarten_holiday)) &&
+                        (agent2.is_isolated || agent2.on_parent_leave || agent2.activity_type == 0 ||
                         (agent2.activity_type == 4 && is_work_holiday) || (agent2.activity_type == 3 && is_college_holiday) ||
-                        (agent2.activity_type == 2 && is_school_holiday) || (agent2.activity_type == 1 && is_kindergarten_holiday))
+                        (agent2.activity_type == 2 && (is_school_holiday || schools[agent2.school_id].quarantine_period > 0 || schools[agent2.school_id].quarantine_period_grades[agent2.school_group_num] > 0 || schools[agent2.school_id].quarantine_period_groups[agent2.school_group_num][agent2.school_group_id] > 0)) ||
+                        (agent2.activity_type == 1 && is_kindergarten_holiday))
                         
                         dur = get_contact_duration(
                             mean_household_contact_durations[5], household_contact_duration_sds[5], rng, true)
@@ -182,8 +193,8 @@ function simulate_contacts(
                         dur = get_contact_duration(
                             mean_household_contact_durations[4], household_contact_duration_sds[4], rng, true)
                     # Если один из агентов посещает школу
-                    elseif ((agent.activity_type == 2 && !(agent.is_isolated || agent.on_parent_leave || agent.quarantine_period > 0)) ||
-                        (agent2.activity_type == 2 && !(agent2.is_isolated || agent2.on_parent_leave || agent2.quarantine_period > 0))) && !is_school_holiday
+                    elseif ((agent.activity_type == 2 && !(agent.is_isolated || agent.on_parent_leave || schools[agent.school_id].quarantine_period > 0 || schools[agent.school_id].quarantine_period_grades[agent.school_group_num] > 0 || schools[agent.school_id].quarantine_period_groups[agent.school_group_num][agent.school_group_id] > 0)) ||
+                        (agent2.activity_type == 2 && !(agent2.is_isolated || agent2.on_parent_leave || schools[agent2.school_id].quarantine_period > 0 || schools[agent2.school_id].quarantine_period_grades[agent2.school_group_num] > 0 || schools[agent2.school_id].quarantine_period_groups[agent2.school_group_num][agent2.school_group_id] > 0))) && !is_school_holiday
 
                         dur = get_contact_duration(
                             mean_household_contact_durations[2], household_contact_duration_sds[2], rng, true)
@@ -213,9 +224,9 @@ function simulate_contacts(
             # Контакты в коллективе, который агент посещает на данном шаге
             if !agent.is_isolated && !agent.on_parent_leave && agent.attendance &&
                 ((agent.activity_type == 1 && !is_kindergarten_holiday) ||
-                (agent.activity_type == 2 && !is_school_holiday) ||
+                (agent.activity_type == 2 && !(is_school_holiday || schools[agent.school_id].quarantine_period > 0 || schools[agent.school_id].quarantine_period_grades[agent.school_group_num] > 0 || schools[agent.school_id].quarantine_period_groups[agent.school_group_num][agent.school_group_id] > 0)) ||
                 (agent.activity_type == 3 && !is_college_holiday) ||
-                (agent.activity_type == 4 && !is_work_holiday)) && agent.quarantine_period == 0
+                (agent.activity_type == 4 && !is_work_holiday))
                 # Проходим по агентам, с которыми имеется связь
                 for agent2_id in agent.activity_conn_ids
                     agent2 = agents[agent2_id]
@@ -340,10 +351,10 @@ function update_agent_states(
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
 
-        # Если агент-школьник находится на карантине
-        if agent.quarantine_period > 0
-            agent.quarantine_period -= 1
-        end
+        # # Если агент-школьник находится на карантине
+        # if agent.quarantine_period > 0
+        #     agent.quarantine_period -= 1
+        # end
 
         # Если в резистентном состоянии
         if agent.days_immune != 0
@@ -713,6 +724,7 @@ function run_simulation(
                 end_agent_ids[thread_id],
                 agents,
                 households,
+                schools,
                 mean_household_contact_durations,
                 household_contact_duration_sds,
                 other_contact_duration_shapes,
@@ -741,125 +753,88 @@ function run_simulation(
                     if school.quarantine_period == 0
                         # Число самоизолированных агентов или людей на карантине в школе
                         school_num_isolated = 0
-                        # Число агентов в школе
-                        school_num_people = 0
                         # Проходим по каждому году обучения
-                        for groups_id in 1:length(school.groups)
-                            groups = school.groups[groups_id]
+                        for grade_id in 1:length(school.groups)
+                            grade = school.groups[grade_id]
                             # Если параллель не на карантине
-                            if school.quarantine_period_groups[groups_id] == 0
+                            if school.quarantine_period_grades[grade_id] == 0
                                 # Число самоизолированных агентов или людей на карантине в параллели
-                                groups_num_isolated = 0
-                                # Число агентов в параллели
-                                groups_num_people = 0
+                                grade_num_isolated = 0
                                 # Проходим по каждому классу
-                                for group in groups
-                                    # Число самоизолированных агентов или людей на карантине в классе
-                                    num_isolated = 0
-                                    # Проходим по агентам класса
-                                    for agent_id in group
-                                        agent = agents[agent_id]
-                                        # Если агент не является преподавателем
-                                        if !agent.is_teacher
-                                            # Если класс уже на карантине
-                                            if agent.quarantine_period > 1
-                                                # Прибавляем число учеников в классе
-                                                school_num_isolated += length(group) - 1
-                                                school_num_people += length(group) - 1
-                                                groups_num_people += length(group) - 1
-                                                break
-                                            end
-                                            # Если агент самоизолирован
-                                            if agent.is_isolated
-                                                num_isolated += 1
-                                                # Прибавляем одного ученика как изолированного
-                                                school_num_isolated += 1
-                                                groups_num_isolated += 1
-                                            end
-                                            school_num_people += 1
-                                            groups_num_people += 1
-                                        end
-                                    end
-                                    # Если превышен порог заболеваемости
-                                    if length(group) > 1 && num_isolated / (length(group) - 1) > school_class_closure_threshold
+                                for group_id in 1:length(grade)
+                                    group = grade[group_id]
+                                    # Если класс не на карантине
+                                    if school.quarantine_period_groups[grade_id][group_id] == 0
+                                        # Число самоизолированных агентов или людей на карантине в классе
+                                        num_isolated = 0
+                                        # Проходим по агентам класса
                                         for agent_id in group
                                             agent = agents[agent_id]
-                                            # Класс закрывается на карантин
-                                            agent.quarantine_period = school_class_closure_period + 1
-                                            # Если агент не самоизолирован
-                                            if !agent.is_isolated
-                                                # Прибавляем к числу самоизолированных или людей на карантине для параллели и школы
-                                                school_num_isolated += 1
-                                                groups_num_isolated += 1
+                                            # Если агент не является преподавателем
+                                            if !agent.is_teacher
+                                                # Если агент самоизолирован
+                                                if agent.is_isolated
+                                                    num_isolated += 1
+                                                end
                                             end
+                                        end
+                                        # Если превышен порог заболеваемости
+                                        if length(group) > 1 && num_isolated / (length(group) - 1) > school_class_closure_threshold
+                                            school.quarantine_period_groups[grade_id][group_id] = school_class_closure_period
+                                            grade_num_isolated += length(group) - 1
+                                        else
+                                            grade_num_isolated += num_isolated
+                                        end
+                                    # Класс на карантине
+                                    else
+                                        school.quarantine_period_groups[grade_id][group_id] -= 1
+                                        # Если карантин не закончился
+                                        if school.quarantine_period_groups[grade_id][group_id] > 0
+                                            # Добавляем число учеников на карантине в классе
+                                            grade_num_isolated += length(group) - 1
                                         end
                                     end
                                 end
-
                                 # Если превышен порог заболеваемости для параллели
-                                if groups_num_isolated / groups_num_people > school_class_closure_threshold
-                                    # Закрываем каждую группу на карантин
-                                    for group in groups
-                                        for agent_id in group
-                                            agent = agents[agent_id]
-                                            # Добавляем агентов на карантине к школе
-                                            if !agent.is_isolated || agent.quarantine_period == 0
-                                                school_num_isolated += 1
-                                            end
-                                            # Присваиваем агенту карантин
-                                            agent.quarantine_period = school_class_closure_period + 1
-                                        end
-                                    end
+                                if grade_num_isolated / school.num_students_grades[grade_id] > school_class_closure_threshold
                                     # Присваиваем параллели карантин
-                                    school.quarantine_period_groups[groups_id] = school_class_closure_period
+                                    school.quarantine_period_grades[grade_id] = school_class_closure_period
+                                    school_num_isolated += school.num_students_grades[grade_id]
+                                    # Обнуляем карантины для классов
+                                    for group_id = 1:length(school.quarantine_period_groups[grade_id])
+                                        school.quarantine_period_groups[grade_id][group_id] = 0
+                                    end
+                                else
+                                    school_num_isolated += grade_num_isolated
                                 end
                             # Если параллель на карантине
                             else
                                # Уменьшаем число дней на карантине
-                                school.quarantine_period_groups[groups_id] -= 1
+                                school.quarantine_period_grades[grade_id] -= 1
                                 # Если карантин не закончился
-                                if school.quarantine_period_groups[groups_id] > 0
-                                    for group in groups
-                                        # Добавляем число учеников в параллели
-                                        school_num_isolated += length(group) - 1
-                                        school_num_people += length(group) - 1
-                                    end
+                                if school.quarantine_period_grades[grade_id] > 0
+                                    # Добавляем число учеников на карантине в параллели
+                                    school_num_isolated += school.num_students_grades[grade_id]
                                 end
                             end
                         end
-                        
                         # Если превышен порог заболеваемости для школы
-                        if school_num_isolated / school_num_people > school_class_closure_threshold
-                            # Проходим по каждой параллели
-                            for groups in school.groups
-                                # По каждому классу
-                                for group in groups
-                                    # По каждому агенту
-                                    for agent_id in group
-                                        agent = agents[agent_id]
-                                        # Агент на карантине
-                                        agent.quarantine_period = school_class_closure_period + 1
-                                    end
-                                end
-                            end
+                        if school_num_isolated / school.num_students > school_class_closure_threshold
                             # Закрываем школу на карантин
                             school.quarantine_period = school_class_closure_period
+                            # Обнуляем карантины для паралллелей и классов
+                            for grade_id = 1:length(school.quarantine_period_grades)
+                                school.quarantine_period_grades[grade_id] = 0
+                                for group_id = 1:length(school.quarantine_period_groups[grade_id])
+                                    school.quarantine_period_groups[grade_id][group_id] = 0
+                                end
+                            end
                             num_schools_closed_threads[current_step, thread_id] += 1
                         end
                     # Если школа уже закрыта на карантин
                     else
                         # Уменьшаем число дней на карантине
                         school.quarantine_period -= 1
-                        # Параллели классов
-                        for groups_id in 1:length(school.groups)
-                            groups = school.groups[groups_id]
-                            # Если параллель на карантине
-                            if school.quarantine_period_groups[groups_id] > 0
-                                # Уменьшаем число дней на карантине
-                                school.quarantine_period_groups[groups_id] -= 1
-                            end
-                            # Для классов уменьшение числа дней на карантине происходит в функции обновления состояния агентов ниже
-                        end
                     end
                 end
             end

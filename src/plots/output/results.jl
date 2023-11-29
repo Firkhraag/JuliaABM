@@ -1486,7 +1486,7 @@ end
 # plot_incidence_with_without_recovered()
 
 # plot_incidence_quarantine()
-plot_incidence_warming()
+# plot_incidence_warming()
 
 # plot_school_closures()
 # plot_warming_temperatures()

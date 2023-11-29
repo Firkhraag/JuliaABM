@@ -22,7 +22,7 @@
     border: 1px solid grey;
     border-radius: 5px;
     background: white;
-    width: 100px;
+    width: 300px;
     cursor: pointer;
     transition-duration: 0.2s;
 }
@@ -31,3 +31,7 @@
     background-color: rgb(55, 55, 55);
     color: white;
   }
+
+.margin-right {
+    margin-right: .75em;
+}

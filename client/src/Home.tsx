@@ -79,7 +79,8 @@ const Home = () => {
             <h1>ABM-ARI</h1>
             <h2 className="margin-from-prev-smaller">Параметры модели</h2>
             <div className='flex margin-from-prev-smaller'>
-                <div className='flex-v'>
+                <div className='flex-v margin-right'>
+                    <div className='bold'>Прод. контакта</div>
                     <label htmlFor='d'>d</label>
                     <input 
                         className='input-cnt'
@@ -88,8 +89,9 @@ const Home = () => {
                         value={d}
                         onChange={(v: React.FormEvent<HTMLInputElement>) => setD(v.currentTarget.value)} />
                 </div>
-                <div className='flex-v'>
+                <div className='flex-v margin-right'>
                     <div className='flex-v'>
+                        <div className='bold'>Воспр. агента</div>
                         <label htmlFor='s1'>s1 (FluA)</label>
                         <input 
                             className='input-cnt'
@@ -154,8 +156,9 @@ const Home = () => {
                     </div>
                 </div>
 
-                <div className='flex-v'>
+                <div className='flex-v margin-right'>
                     <div className='flex-v'>
+                        <div className='bold'>Темп. воздуха</div>
                         <label htmlFor='t1'>t1 (FluA)</label>
                         <input 
                             className='input-cnt'
@@ -220,8 +223,9 @@ const Home = () => {
                     </div>
                 </div>
 
-                <div className='flex-v'>
+                <div className='flex-v margin-right'>
                     <div className='flex-v'>
+                        <div className='bold'>Прод. иммун.</div>
                         <label htmlFor='r1'>r1 (FluA)</label>
                         <input 
                             className='input-cnt'
@@ -286,8 +290,9 @@ const Home = () => {
                     </div>
                 </div>
 
-                <div className='flex-v'>
+                <div className='flex-v margin-right'>
                     <div className='flex-v'>
+                        <div className='bold'>Вер. случ. инф.</div>
                         <label htmlFor='p1'>p1 (0-2)</label>
                         <input 
                             className='input-cnt'
@@ -328,7 +333,7 @@ const Home = () => {
 
             <h2 className="margin-from-prev-smaller">Сценарии</h2>
             <div className='flex margin-from-prev-smaller'>
-                <div className='flex-v'>
+                <div className='flex-v margin-right'>
                     <div className="radio">
                         <label className='pointer'>
                             <input type="radio" name="global-warming" checked={!isGlobalWarming} onChange={ handleGlobalWarmingChange } />
@@ -341,7 +346,7 @@ const Home = () => {
                             С глобальным потеплением
                         </label>
                     </div>
-                    <div className='flex-v'>
+                    {isGlobalWarming ? <div className='flex-v'>
                         <label htmlFor='globalWarmingTemperature'>Температура</label>
                         <input 
                             className='input-cnt'
@@ -349,7 +354,7 @@ const Home = () => {
                             id='globalWarmingTemperature'
                             value={globalWarmingTemperature}
                             onChange={(v: React.FormEvent<HTMLInputElement>) => setGlobalWarmingTemperature(v.currentTarget.value)} />
-                    </div>
+                    </div> : null}
                 </div>
                 <div className='flex-v'>
                     <div className="radio">
@@ -364,30 +369,33 @@ const Home = () => {
                             С введением карантина в школах
                         </label>
                     </div>
-                    <div className='flex-v'>
-                        <label htmlFor='threshold'>Порог закрытия</label>
-                        <input 
-                            className='input-cnt'
-                            name='threshold'
-                            id='threshold'
-                            value={threshold}
-                            onChange={(v: React.FormEvent<HTMLInputElement>) => setThreshold(v.currentTarget.value)} />
-                    </div>
-                    <div className='flex-v'>
-                        <label htmlFor='quarantineDays'>Число дней</label>
-                        <input 
-                            className='input-cnt'
-                            name='quarantineDays'
-                            id='quarantineDays'
-                            value={quarantineDays}
-                            onChange={(v: React.FormEvent<HTMLInputElement>) => setQuarantineDays(v.currentTarget.value)} />
-                    </div>
+                    {isQuarantine ? <div>
+                        <div className='flex-v'>
+                            <label htmlFor='threshold'>Порог закрытия</label>
+                            <input 
+                                className='input-cnt'
+                                name='threshold'
+                                id='threshold'
+                                value={threshold}
+                                onChange={(v: React.FormEvent<HTMLInputElement>) => setThreshold(v.currentTarget.value)} />
+                        </div>
+                        <div className='flex-v'>
+                            <label htmlFor='quarantineDays'>Число дней</label>
+                            <input 
+                                className='input-cnt'
+                                name='quarantineDays'
+                                id='quarantineDays'
+                                value={quarantineDays}
+                                onChange={(v: React.FormEvent<HTMLInputElement>) => setQuarantineDays(v.currentTarget.value)} />
+                        </div>
+                    </div> : null}
                 </div>
             </div>
 
             <div className='flex'>
                 <button className='button-cnt'
-                    onClick={() => getResults()}>Запуск</button>
+                    onClick={() => getResults()}>Запуск
+                </button>
             </div>
             {image == "" ? null : <img src={`data:;base64,${image}`} />}
 		</div>

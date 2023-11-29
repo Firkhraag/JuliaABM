@@ -178,6 +178,5 @@ function reset_agent_states(
         agent.days_immune = 0
         agent.days_immune_end = 0
         agent.num_infected_agents = 0
-        agent.quarantine_period = 0
     end
 end

@@ -21,6 +21,8 @@ mutable struct Agent
     school_id::Int
     # Год обучения
     school_group_num::Int
+    # Id группы образовательного учреждения
+    school_group_id::Int
     # Id рабочего коллектива
     workplace_id::Int
     # Связи в рабочем коллективе или группе образовательного учреждения
@@ -59,8 +61,6 @@ mutable struct Agent
     is_teacher::Bool
     # Число агентов, инфицированных данным агентом на текущем шаге
     num_infected_agents::Int
-    # Число дней на школьном карантине
-    quarantine_period::Int
     # Уровни специфической восприимчивости к вирусам
     immunity_susceptibility_levels::Vector{Float64}
 
@@ -263,6 +263,7 @@ mutable struct Agent
         # Значения по умолчанию
         school_id = 0
         workplace_id = 0
+        school_group_id = 0
 
         # Находим номер группы в образовательном учреждении, в которой состоит детсадовец / школьник / студент
         # Максимальный разброс возрастов агентов в группе - 3
@@ -564,16 +565,15 @@ mutable struct Agent
         days_immune = 0
         days_immune_end = 0
         num_infected_agents = 0
-        quarantine_period = 0
 
         new(
             id, age, infant_age, is_male, household_id,
-            activity_type, school_id, school_group_num, workplace_id,
+            activity_type, school_id, school_group_num, school_group_id, workplace_id,
             Int[], Int[], on_parent_leave, ig_level, virus_id,
             is_newly_infected, viruses_days_immune, viruses_immunity_end,
             incubation_period, infection_period, days_infected, days_immune,
             days_immune_end, is_asymptomatic, is_isolated, attendance, is_teacher,
-            num_infected_agents, quarantine_period, immunity_susceptibility_levels)
+            num_infected_agents, immunity_susceptibility_levels)
     end
 end
 
