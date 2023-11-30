@@ -41,7 +41,6 @@ function get_stats(
     size_univer_conn = 0
     size_work_conn = 0
 
-    num_immunity = zeros(Int, num_viruses)
     # Число инфицированных агентов для различных вирусов
     num_infected = zeros(Int, num_viruses)
 
@@ -148,12 +147,6 @@ function get_stats(
             age_diff_num += 1
         end
 
-        for i = 1:num_viruses
-            if agent.immunity_susceptibility_levels[i] < 0.999
-                num_immunity[i] += 1
-            end
-        end
-
         if agent.activity_type == 1
             kindergarten_contacts[length(agent.activity_conn_ids)] += 1
         elseif agent.activity_type == 2
@@ -217,6 +210,5 @@ function get_stats(
     println("Mean work conn: $(mean_num_of_work_conn / size_work_conn)")
     println("Mean num of people in firms: $(mean(workplaces_num_people))")
     println("Mean mother child age difference: $(age_diff / age_diff_num)")
-    println("Initial immunity: $(num_immunity)")
     println("Initial infected: $(num_infected)")
 end

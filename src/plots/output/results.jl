@@ -1470,7 +1470,7 @@ function plot_incidence_with_without_recovered()
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "model_incidence_recovered.pdf"))
 end
 
-# plot_incidence()
+plot_incidence()
 # plot_incidence_age_groups()
 # plot_incidence_viruses()
 # plot_incidence_viruses_together()
@@ -1478,7 +1478,7 @@ end
 # plot_rt()
 # plot_infection_activities()
 
-# plot_incidence_time_series()
+plot_incidence_time_series()
 # plot_incidence_age_groups_time_series()
 # plot_incidence_viruses_time_series()
 
