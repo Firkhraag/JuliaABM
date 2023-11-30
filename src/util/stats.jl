@@ -41,10 +41,6 @@ function get_stats(
     size_univer_conn = 0
     size_work_conn = 0
 
-    num_immunity = zeros(Int, num_viruses)
-    # Число инфицированных агентов для различных вирусов
-    num_infected = zeros(Int, num_viruses)
-
     kindergarten_contacts = zeros(Int, kindergarten_groups_size_4_5 + 1)
     school_contacts = zeros(Int, school_groups_size_9_11 + 1)
     college_contacts = zeros(Int, college_groups_size_1 + 1)
@@ -68,9 +64,6 @@ function get_stats(
     t1 = 0
     t2 = 0
     t3 = 0
-
-    age_diff = 0
-    age_diff_num = 0
 
     for agent in agents
         if agent.age < 3
@@ -143,17 +136,6 @@ function get_stats(
             num_of_parent_leave += 1
         end
 
-        if agent.supporter_id != 0
-            age_diff += agents[agent.supporter_id].age - agent.age
-            age_diff_num += 1
-        end
-
-        for i = 1:num_viruses
-            if agent.immunity_susceptibility_levels[i] < 0.999
-                num_immunity[i] += 1
-            end
-        end
-
         if agent.activity_type == 1
             kindergarten_contacts[length(agent.activity_conn_ids)] += 1
         elseif agent.activity_type == 2
@@ -216,7 +198,4 @@ function get_stats(
     println("Univer cross conn: $(mean_num_of_univer_cross_conn / size_univer_conn)")
     println("Mean work conn: $(mean_num_of_work_conn / size_work_conn)")
     println("Mean num of people in firms: $(mean(workplaces_num_people))")
-    println("Mean mother child age difference: $(age_diff / age_diff_num)")
-    println("Initial immunity: $(num_immunity)")
-    println("Initial infected: $(num_infected)")
 end

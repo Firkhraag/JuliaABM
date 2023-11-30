@@ -51,7 +51,7 @@ function make_contact(
     susceptibility_influence = 2 / (1 + exp(susceptibility_parameters[infected_agent.virus_id] * susceptible_agent.ig_level))
 
     # Риск инфицирования, зависящий от специфического иммунитета восприимчивого агента
-    immunity_influence = susceptible_agent.immunity_susceptibility_levels[infected_agent.virus_id]
+    immunity_influence = find_immunity_susceptibility_level(susceptible_agent.viruses_days_immune[infected_agent.virus_id], susceptible_agent.viruses_immunity_end[infected_agent.virus_id])
 
     # Риск инфицирования, зависящий от силы инфекции инфицированного агента
     infectivity_influence = 0.0
@@ -100,7 +100,7 @@ function infect_randomly(
     # Id случайного вируса
     rand_virus_id = rand(rng, 1:num_viruses)
     # Если случайное инфицирование прошло успешно
-    if rand(rng, Float64) < agent.immunity_susceptibility_levels[rand_virus_id]
+    if rand(rng, Float64) < find_immunity_susceptibility_level(agent.viruses_days_immune[rand_virus_id], agent.viruses_immunity_end[rand_virus_id])
         agent.virus_id = rand_virus_id
         agent.is_newly_infected = true
     end
@@ -351,11 +351,6 @@ function update_agent_states(
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
 
-        # # Если агент-школьник находится на карантине
-        # if agent.quarantine_period > 0
-        #     agent.quarantine_period -= 1
-        # end
-
         # Если в резистентном состоянии
         if agent.days_immune != 0
             # Если резистентное состояние закончилось
@@ -375,15 +370,12 @@ function update_agent_states(
             if agent.viruses_days_immune[i] != 0
                 # Если иммунитет закончился
                 if agent.viruses_days_immune[i] == agent.viruses_immunity_end[i]
-                    # Снова восприимчив с уровнм восприимчивости равным immune_memory_susceptibility_level
+                    # Снова восприимчив
                     agent.viruses_days_immune[i] = 0
-                # Если иммунитет еще есть
+                # Если есть иммунитет
                 else
                     # Увеличиваем счетчик
                     agent.viruses_days_immune[i] += 1
-                    # Повышаем восприимчивость к вирусу
-                    agent.immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(
-                        agent.viruses_days_immune[i], agent.viruses_immunity_end[i])
                 end
             end
         end

@@ -53,9 +53,6 @@ function reset_agent_states(
         for i = eachindex(agent.viruses_immunity_end)
             agent.viruses_immunity_end[i] = 0
         end
-        for i = eachindex(agent.immunity_susceptibility_levels)
-            agent.immunity_susceptibility_levels[i] = 1.0
-        end
 
         for i = 1:num_viruses
             if agent.virus_id != i
@@ -66,8 +63,6 @@ function reset_agent_states(
                         if agent.viruses_days_immune[i] > agent.viruses_immunity_end[i]
                             agent.viruses_immunity_end[i] = 0
                             agent.viruses_days_immune[i] = 0
-                        else
-                            agent.immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(agent.viruses_days_immune[i], agent.viruses_immunity_end[i])
                         end
                     end
                 end

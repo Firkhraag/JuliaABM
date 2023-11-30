@@ -59,10 +59,8 @@ mutable struct Agent
     attendance::Bool
     # Является ли агент учителем, воспитателем или профессором
     is_teacher::Bool
-    # Число агентов, инфицированных данным агентом на текущем шаге
+    # Число агентов, инфицированных данным агентом за перенесенную болезнь
     num_infected_agents::Int
-    # Уровни специфической восприимчивости к вирусам
-    immunity_susceptibility_levels::Vector{Float64}
 
     function Agent(
         # Идентификатор
@@ -441,7 +439,6 @@ mutable struct Agent
         # Информация по иммунитету к вирусам
         viruses_days_immune = zeros(Int, num_viruses)
         viruses_immunity_end = zeros(Int, num_viruses)
-        immunity_susceptibility_levels = zeros(Float64, num_viruses) .+ 1.0
 
         for i = 1:num_viruses
             if virus_id != i
@@ -452,8 +449,6 @@ mutable struct Agent
                         if viruses_days_immune[i] > viruses_immunity_end[i]
                             viruses_immunity_end[i] = 0
                             viruses_days_immune[i] = 0
-                        else
-                            immunity_susceptibility_levels[i] = find_immunity_susceptibility_level(viruses_days_immune[i], viruses_immunity_end[i])
                         end
                     end
                 end
@@ -573,7 +568,7 @@ mutable struct Agent
             is_newly_infected, viruses_days_immune, viruses_immunity_end,
             incubation_period, infection_period, days_infected, days_immune,
             days_immune_end, is_asymptomatic, is_isolated, attendance, is_teacher,
-            num_infected_agents, immunity_susceptibility_levels)
+            num_infected_agents)
     end
 end
 
@@ -590,6 +585,7 @@ function get_infectivity(
     # Бессимптомное течение болезни
     is_asymptomatic::Bool,
 )::Float64
+    # Максимальная вирусная нагрузка - 6 log(кп/мл)
     # Если инкубационный период
     if days_infected <= incubation_period
         # Если продолжительность инкубационного периода = 1
@@ -616,8 +612,10 @@ function find_immunity_susceptibility_level(
     immunity_end::Int,
 )::Float64
     # Если иммунитет закончился
-    if days_immune > immunity_end
+    if days_immune == 0
         return 1.0
+    elseif days_immune == 1
+        return 0.0
     end
     return 1.0 / (immunity_end - 1) * (days_immune - 1)
 end
