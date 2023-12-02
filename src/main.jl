@@ -221,6 +221,7 @@ function global_sensitivity(
         )
     end
 
+    # Убираем добавленный на текущем шаге шум
     for k = eachindex(viruses)
         viruses[k].incubation_period_shape -= incubation_period_shape_noise[k]
         viruses[k].incubation_period_scale -= incubation_period_scale_noise[k]

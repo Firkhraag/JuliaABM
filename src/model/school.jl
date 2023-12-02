@@ -11,13 +11,13 @@ mutable struct School
     y::Float64
     # Продолжительность карантина для школы
     quarantine_period::Int
-    # Продолжительность карантинов по потокам
+    # Продолжительность карантинов по годам обучения
     quarantine_period_grades::Vector{Int}
     # Продолжительность карантинов по классам
     quarantine_period_groups::Vector{Vector{Int}}
     # Число учащихся в образовательном учреждении
     num_students::Int
-    # Число учащихся в образовательном учреждении по параллелям
+    # Число учащихся в образовательном учреждении по годам обучения
     num_students_grades::Vector{Int}
 
     function School(
