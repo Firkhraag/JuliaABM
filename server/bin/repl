@@ -1,2 +1,2 @@
 #!/bin/sh
-julia --color=yes --depwarn=no --project=@. -q -L $(dirname $0)/../bootstrap.jl -- "$@"
+julia --threads 4 --color=yes --depwarn=no --project=@. -q -L $(dirname $0)/../bootstrap.jl -- "$@"

@@ -1,5 +1,4 @@
 // Global
-import { useEffect } from 'react'
 import { BrowserRouter, Routes , Route } from "react-router-dom"
 import Home from './Home'
 // Local

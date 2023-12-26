@@ -601,7 +601,7 @@ function run_simulation(
     # Порог заболеваемости для закрытия школы / класса
     school_class_closure_threshold::Float64 = 0.0,
     # Сценарий глобального потепления
-    with_global_warming::Bool = false,
+    global_warming_temperature::Float64 = 0.0,
 )::Tuple{Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
     # День месяца
     day = 1
@@ -613,9 +613,9 @@ function run_simulation(
     week_num = 1
 
     # Если глобальное потепление
-    if with_global_warming
+    if abs(global_warming_temperature) > 0.1
         for i = 1:length(temperature)
-            temperature[i] += rand(Normal(4.0, 0.25))
+            temperature[i] += rand(Normal(global_warming_temperature, 0.25))
         end
     end
     # Минимальная температура воздуха

@@ -1187,14 +1187,28 @@ function main(
     # Набор параметров модели (порядок для вирусов: FluA, FluB, RV, RSV, AdV, PIV, CoV)
 
     # nMAE = 0.5669582102693516
-    duration_parameter = 0.13565157310100132,
-    susceptibility_parameters = [2.010282850502259, 1.8224134974651047, 3.822899657967941, 4.928054012253713, 4.7414866730595255, 4.303445526958237, 5.068889462017323],
-    temperature_parameters = [-0.9164579719336572, -0.9307608411059742, -0.08757144578063338, -0.27969054699545354, -0.02533825956648254, -0.11813125872462173, -0.33524481248277205],
-    mean_immunity_durations = [201.41149180682885, 173.4808647266373, 92.05642955296003, 99.26773278439956, 113.48380569384065, 79.42982959841913, 121.9861115178635],
-    random_infection_probabilities = [0.0010000164080305064, 0.0006837331870988098, 0.00044114008649398447, 8.819084140538852e-6],
-    
+    duration_parameter::Float64 = 0.13565157310100132,
+    susceptibility_parameters::Vector{Float64} = [2.010282850502259, 1.8224134974651047, 3.822899657967941, 4.928054012253713, 4.7414866730595255, 4.303445526958237, 5.068889462017323],
+    temperature_parameters::Vector{Float64} = [-0.9164579719336572, -0.9307608411059742, -0.08757144578063338, -0.27969054699545354, -0.02533825956648254, -0.11813125872462173, -0.33524481248277205],
+    mean_immunity_durations::Vector{Float64} = [201.41149180682885, 173.4808647266373, 92.05642955296003, 99.26773278439956, 113.48380569384065, 79.42982959841913, 121.9861115178635],
+    random_infection_probabilities::Vector{Float64} = [0.0010000164080305064, 0.0006837331870988098, 0.00044114008649398447, 8.819084140538852e-6],
+
+    # Сценарий работы модели
+    # -----------------------------------
+    # Число дней закрытия класса или школы на карантин
+    school_class_closure_period::Int = 0,
+    # school_class_closure_period = 7
+    # Процент отсутствующих учеников по причине болезни для того, чтобы школа закрылась на карантин
+    school_class_closure_threshold::Float64 = 0.2,
+    # [0.2  0.1  0.3  0.2_14  0.1_14]
+
+    # Для сценария глобального потепления
+    global_warming_temperature::Float64 = 0.0,
+    # ["+1 °С" "+2 °С" "+3 °С" "+4 °С"]
+    # -----------------------------------
+
     # Для суррогатной модели
-    surrogate_index = 0,
+    surrogate_index::Int = 0,
 )
     println("Initialization...")
 
@@ -1211,20 +1225,6 @@ function main(
     num_years = 2
     # Среднее по num_years
     is_one_mean_year_modeled = true
-
-    # -----------------------------------
-    # Число дней закрытия класса или школы на карантин
-    school_class_closure_period = 0
-    # school_class_closure_period = 7
-    # Процент отсутствующих учеников по причине болезни для того, чтобы школа закрылась на карантин
-    school_class_closure_threshold = 0.2
-    # [0.2  0.1  0.3  0.2_14  0.1_14]
-
-    # Для сценария глобального потепления
-    with_global_warming = false
-    # with_global_warming = true
-    # ["+1 °С" "+2 °С" "+3 °С" "+4 °С"]
-    # -----------------------------------
 
     # Число потоков
     num_threads = nthreads()
@@ -1486,32 +1486,32 @@ function main(
 
     # Модифицированный алгоритм Метрополиса-Гастингса для поиска значений параметров, дающих минимум для модели
     # --------------------------
-    # mcmc_simulations(
-    #     is_one_mean_year_modeled,
-    #     agents,
-    #     households,
-    #     schools,
-    #     num_threads,
-    #     thread_rng,
-    #     start_agent_ids,
-    #     end_agent_ids,
-    #     temperature,
-    #     viruses,
-    #     num_infected_age_groups_viruses,
-    #     num_infected_age_groups_viruses_prev,
-    #     mean_household_contact_durations,
-    #     household_contact_duration_sds,
-    #     other_contact_duration_shapes,
-    #     other_contact_duration_scales,
-    #     isolation_probabilities_day_1,
-    #     isolation_probabilities_day_2,
-    #     isolation_probabilities_day_3,
-    #     recovered_duration_mean,
-    #     recovered_duration_sd,
-    #     random_infection_probabilities,
-    #     num_years
-    # )
-    # return
+    mcmc_simulations(
+        is_one_mean_year_modeled,
+        agents,
+        households,
+        schools,
+        num_threads,
+        thread_rng,
+        start_agent_ids,
+        end_agent_ids,
+        temperature,
+        viruses,
+        num_infected_age_groups_viruses,
+        num_infected_age_groups_viruses_prev,
+        mean_household_contact_durations,
+        household_contact_duration_sds,
+        other_contact_duration_shapes,
+        other_contact_duration_scales,
+        isolation_probabilities_day_1,
+        isolation_probabilities_day_2,
+        isolation_probabilities_day_3,
+        recovered_duration_mean,
+        recovered_duration_sd,
+        random_infection_probabilities,
+        num_years
+    )
+    return
     # --------------------------
     
     # Моделируем заболеваемость
@@ -1523,10 +1523,10 @@ function main(
         isolation_probabilities_day_1, isolation_probabilities_day_2,
         isolation_probabilities_day_3, random_infection_probabilities,
         recovered_duration_mean, recovered_duration_sd, num_years, is_rt_run,
-        school_class_closure_period, school_class_closure_threshold, with_global_warming)
+        school_class_closure_period, school_class_closure_threshold, global_warming_temperature)
 
     # Сохранение результатов работы модели
-    if with_global_warming
+    if abs(global_warming_temperature) > 0.1
         # Сценарий глобального потепления
         save(joinpath(@__DIR__, "..", "output", "tables", "results_warming_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
