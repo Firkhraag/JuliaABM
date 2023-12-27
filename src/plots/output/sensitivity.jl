@@ -5,10 +5,10 @@ using Distributions
 using LaTeXStrings
 using JLD
 
-include("../../util/moving_avg.jl")
-include("../../util/regression.jl")
-include("../../data/etiology.jl")
-include("../../global/variables.jl")
+include("../../../server/lib/util/moving_avg.jl")
+include("../../../server/lib/util/regression.jl")
+include("../../../server/lib/data/etiology.jl")
+include("../../../server/lib/global/variables.jl")
 
 default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
 
