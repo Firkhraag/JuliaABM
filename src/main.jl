@@ -7,24 +7,27 @@ using DataFrames
 using CSV
 using JLD
 
-include("data/etiology.jl")
-include("data/incidence.jl")
+# Модель на сервере
+include("../server/lib/data/etiology.jl")
+include("../server/lib/data/incidence.jl")
 
-include("global/variables.jl")
+include("../server/lib/global/variables.jl")
 
-include("model/virus.jl")
-include("model/agent.jl")
-include("model/household.jl")
-include("model/workplace.jl")
-include("model/school.jl")
-include("model/initialization.jl")
+include("../server/lib/model/virus.jl")
+include("../server/lib/model/agent.jl")
+include("../server/lib/model/household.jl")
+include("../server/lib/model/workplace.jl")
+include("../server/lib/model/school.jl")
+include("../server/lib/model/initialization.jl")
+include("../server/lib/model/connections.jl")
+include("../server/lib/model/contacts.jl")
+
+include("../server/lib/util/moving_avg.jl")
+include("../server/lib/util/stats.jl")
+include("../server/lib/util/reset.jl")
+
+# Локальная модель
 include("model/simulation.jl")
-include("model/connections.jl")
-include("model/contacts.jl")
-
-include("util/moving_avg.jl")
-include("util/stats.jl")
-include("util/reset.jl")
 
 # Моделирование контактов
 function simulate_contacts(
@@ -1228,7 +1231,7 @@ function main(
     # Число моделируемых лет
     num_years = 1
     # Среднее по num_years
-    is_one_mean_year_modeled = true
+    is_one_mean_year_modeled = false
 
     # Число потоков
     num_threads = nthreads()
@@ -1350,6 +1353,9 @@ function main(
         num_infected_age_groups_viruses_prev[:, virus_id, 3] ./= viruses[virus_id].symptomatic_probability_teenager * (1 - (1 - isolation_probabilities_day_1[3]) * (1 - isolation_probabilities_day_2[3]) * (1 - isolation_probabilities_day_3[3]))
         num_infected_age_groups_viruses_prev[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
     end
+
+    println(sum(sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1])
+    return
 
     # Создание популяции
     @time @threads for thread_id in 1:num_threads
