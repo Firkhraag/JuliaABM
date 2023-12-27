@@ -70,27 +70,27 @@ function get_incidence(
     infected_data_3_6 = etiology[:, 6] .* infected_data_3
     infected_data_3_7 = etiology[:, 7] .* infected_data_3
 
+    infected_data_3_viruses = cat(
+        vec(infected_data_3_1),
+        vec(infected_data_3_2),
+        vec(infected_data_3_3),
+        vec(infected_data_3_4),
+        vec(infected_data_3_5),
+        vec(infected_data_3_6),
+        vec(infected_data_3_7),
+        dims = 2)
+
     if is_mean
         infected_data_3_viruses = cat(
-            vec(infected_data_3_1),
-            vec(infected_data_3_2),
-            vec(infected_data_3_3),
-            vec(infected_data_3_4),
-            vec(infected_data_3_5),
-            vec(infected_data_3_6),
-            vec(infected_data_3_7),
+            mean(infected_data_3_1, dims = 2)[:, 1],
+            mean(infected_data_3_2, dims = 2)[:, 1],
+            mean(infected_data_3_3, dims = 2)[:, 1],
+            mean(infected_data_3_4, dims = 2)[:, 1],
+            mean(infected_data_3_5, dims = 2)[:, 1],
+            mean(infected_data_3_6, dims = 2)[:, 1],
+            mean(infected_data_3_7, dims = 2)[:, 1],
             dims = 2)
     end
-
-    infected_data_3_viruses = cat(
-        mean(infected_data_3_1, dims = 2)[:, 1],
-        mean(infected_data_3_2, dims = 2)[:, 1],
-        mean(infected_data_3_3, dims = 2)[:, 1],
-        mean(infected_data_3_4, dims = 2)[:, 1],
-        mean(infected_data_3_5, dims = 2)[:, 1],
-        mean(infected_data_3_6, dims = 2)[:, 1],
-        mean(infected_data_3_7, dims = 2)[:, 1],
-        dims = 2)
 
     # 7-14 лет
     infected_data_7 = infected_data_7_all[2:53, starting_year_index:end]
@@ -105,27 +105,27 @@ function get_incidence(
     infected_data_7_6 = etiology[:, 6] .* infected_data_7
     infected_data_7_7 = etiology[:, 7] .* infected_data_7
 
+    infected_data_7_viruses = cat(
+        vec(infected_data_7_1),
+        vec(infected_data_7_2),
+        vec(infected_data_7_3),
+        vec(infected_data_7_4),
+        vec(infected_data_7_5),
+        vec(infected_data_7_6),
+        vec(infected_data_7_7),
+        dims = 2)
+
     if is_mean
         infected_data_7_viruses = cat(
-            vec(infected_data_7_1),
-            vec(infected_data_7_2),
-            vec(infected_data_7_3),
-            vec(infected_data_7_4),
-            vec(infected_data_7_5),
-            vec(infected_data_7_6),
-            vec(infected_data_7_7),
+            mean(infected_data_7_1, dims = 2)[:, 1],
+            mean(infected_data_7_2, dims = 2)[:, 1],
+            mean(infected_data_7_3, dims = 2)[:, 1],
+            mean(infected_data_7_4, dims = 2)[:, 1],
+            mean(infected_data_7_5, dims = 2)[:, 1],
+            mean(infected_data_7_6, dims = 2)[:, 1],
+            mean(infected_data_7_7, dims = 2)[:, 1],
             dims = 2)
     end
-
-    infected_data_7_viruses = cat(
-        mean(infected_data_7_1, dims = 2)[:, 1],
-        mean(infected_data_7_2, dims = 2)[:, 1],
-        mean(infected_data_7_3, dims = 2)[:, 1],
-        mean(infected_data_7_4, dims = 2)[:, 1],
-        mean(infected_data_7_5, dims = 2)[:, 1],
-        mean(infected_data_7_6, dims = 2)[:, 1],
-        mean(infected_data_7_7, dims = 2)[:, 1],
-        dims = 2)
 
     # 15+ лет
     infected_data_15 = infected_data_15_all[2:53, starting_year_index:end]
@@ -140,27 +140,27 @@ function get_incidence(
     infected_data_15_6 = etiology[:, 6] .* infected_data_15
     infected_data_15_7 = etiology[:, 7] .* infected_data_15
 
+    infected_data_15_viruses = cat(
+        vec(infected_data_15_1),
+        vec(infected_data_15_2),
+        vec(infected_data_15_3),
+        vec(infected_data_15_4),
+        vec(infected_data_15_5),
+        vec(infected_data_15_6),
+        vec(infected_data_15_7),
+        dims = 2)
+
     if is_mean
         infected_data_15_viruses = cat(
-            vec(infected_data_15_1),
-            vec(infected_data_15_2),
-            vec(infected_data_15_3),
-            vec(infected_data_15_4),
-            vec(infected_data_15_5),
-            vec(infected_data_15_6),
-            vec(infected_data_15_7),
+            mean(infected_data_15_1, dims = 2)[:, 1],
+            mean(infected_data_15_2, dims = 2)[:, 1],
+            mean(infected_data_15_3, dims = 2)[:, 1],
+            mean(infected_data_15_4, dims = 2)[:, 1],
+            mean(infected_data_15_5, dims = 2)[:, 1],
+            mean(infected_data_15_6, dims = 2)[:, 1],
+            mean(infected_data_15_7, dims = 2)[:, 1],
             dims = 2)
     end
-
-    infected_data_15_viruses = cat(
-        mean(infected_data_15_1, dims = 2)[:, 1],
-        mean(infected_data_15_2, dims = 2)[:, 1],
-        mean(infected_data_15_3, dims = 2)[:, 1],
-        mean(infected_data_15_4, dims = 2)[:, 1],
-        mean(infected_data_15_5, dims = 2)[:, 1],
-        mean(infected_data_15_6, dims = 2)[:, 1],
-        mean(infected_data_15_7, dims = 2)[:, 1],
-        dims = 2)
 
     # Объединяем вместе
     return cat(
