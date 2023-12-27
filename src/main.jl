@@ -808,11 +808,17 @@ function mcmc_simulations(
     local_rejected_num = 0
 
     # Разброс для значений параметров-кандидатов
-    duration_parameter_delta = 0.05
-    susceptibility_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
-    temperature_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
-    mean_immunity_duration_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
-    random_infection_probability_deltas = [0.05, 0.05, 0.05, 0.05]
+    # duration_parameter_delta = 0.05
+    # susceptibility_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    # temperature_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    # mean_immunity_duration_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    # random_infection_probability_deltas = [0.05, 0.05, 0.05, 0.05]
+
+    duration_parameter_delta = 0.1
+    susceptibility_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    temperature_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    mean_immunity_duration_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
 
     nMAE = 0.0
     nMAE_min = 99999.0
@@ -1185,13 +1191,11 @@ end
 
 function main(
     # Набор параметров модели (порядок для вирусов: FluA, FluB, RV, RSV, AdV, PIV, CoV)
-
-    # nMAE = 0.5669582102693516
-    duration_parameter::Float64 = 0.13565157310100132,
-    susceptibility_parameters::Vector{Float64} = [2.010282850502259, 1.8224134974651047, 3.822899657967941, 4.928054012253713, 4.7414866730595255, 4.303445526958237, 5.068889462017323],
-    temperature_parameters::Vector{Float64} = [-0.9164579719336572, -0.9307608411059742, -0.08757144578063338, -0.27969054699545354, -0.02533825956648254, -0.11813125872462173, -0.33524481248277205],
-    mean_immunity_durations::Vector{Float64} = [201.41149180682885, 173.4808647266373, 92.05642955296003, 99.26773278439956, 113.48380569384065, 79.42982959841913, 121.9861115178635],
-    random_infection_probabilities::Vector{Float64} = [0.0010000164080305064, 0.0006837331870988098, 0.00044114008649398447, 8.819084140538852e-6],
+    duration_parameter::Float64 = 0.1574987587578544,
+    susceptibility_parameters::Vector{Float64} = [2.488444411549469, 2.2420906235713205, 3.9285407241514183, 5.256616822399921, 5.151052335043506, 4.236713645881599, 5.040817687679894],
+    temperature_parameters::Vector{Float64} = -[0.8832306653292299, 0.725974206599066, 0.032824212682373066, 0.14050733443495142, 0.04170117493055635, 0.03825624225757124, 0.2574489968859005],
+    mean_immunity_durations::Vector{Float64} = [162.61076947558595, 219.9046948498235, 169.48728310507263, 212.81462197308315, 78.77331950260154, 168.72029171589904, 91.44242069232911],
+    random_infection_probabilities::Vector{Float64} = [0.001, 0.0006812286293964, 0.0004227044312320168, 8.679909046482872e-6],
 
     # Сценарий работы модели
     # -----------------------------------
@@ -1222,7 +1226,7 @@ function main(
     end
 
     # Число моделируемых лет
-    num_years = 2
+    num_years = 1
     # Среднее по num_years
     is_one_mean_year_modeled = true
 
@@ -1486,32 +1490,32 @@ function main(
 
     # Модифицированный алгоритм Метрополиса-Гастингса для поиска значений параметров, дающих минимум для модели
     # --------------------------
-    mcmc_simulations(
-        is_one_mean_year_modeled,
-        agents,
-        households,
-        schools,
-        num_threads,
-        thread_rng,
-        start_agent_ids,
-        end_agent_ids,
-        temperature,
-        viruses,
-        num_infected_age_groups_viruses,
-        num_infected_age_groups_viruses_prev,
-        mean_household_contact_durations,
-        household_contact_duration_sds,
-        other_contact_duration_shapes,
-        other_contact_duration_scales,
-        isolation_probabilities_day_1,
-        isolation_probabilities_day_2,
-        isolation_probabilities_day_3,
-        recovered_duration_mean,
-        recovered_duration_sd,
-        random_infection_probabilities,
-        num_years
-    )
-    return
+    # mcmc_simulations(
+    #     is_one_mean_year_modeled,
+    #     agents,
+    #     households,
+    #     schools,
+    #     num_threads,
+    #     thread_rng,
+    #     start_agent_ids,
+    #     end_agent_ids,
+    #     temperature,
+    #     viruses,
+    #     num_infected_age_groups_viruses,
+    #     num_infected_age_groups_viruses_prev,
+    #     mean_household_contact_durations,
+    #     household_contact_duration_sds,
+    #     other_contact_duration_shapes,
+    #     other_contact_duration_scales,
+    #     isolation_probabilities_day_1,
+    #     isolation_probabilities_day_2,
+    #     isolation_probabilities_day_3,
+    #     recovered_duration_mean,
+    #     recovered_duration_sd,
+    #     random_infection_probabilities,
+    #     num_years
+    # )
+    # return
     # --------------------------
     
     # Моделируем заболеваемость

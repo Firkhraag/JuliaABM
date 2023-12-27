@@ -2,19 +2,19 @@
 function get_etiology()::Matrix{Float64}
     # Данные
     # Грипп А
-    FluA_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "fluA.csv"))))
+    FluA_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "fluA.csv"))))
     # Грипп В
-    FluB_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "fluB.csv"))))
+    FluB_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "fluB.csv"))))
     # Риновирус
-    RV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "RV.csv"))))
+    RV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "RV.csv"))))
     # Респираторно-синцитиальный вирус
-    RSV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "RSV.csv"))))
+    RSV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "RSV.csv"))))
     # Аденовирус
-    AdV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "AdV.csv"))))
+    AdV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "AdV.csv"))))
     # Парагрипп
-    PIV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "PIV.csv"))))
+    PIV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "PIV.csv"))))
     # Коронавирус
-    CoV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "input", "tables", "CoV.csv"))))
+    CoV_matrix = Matrix{Float64}(DataFrame(CSV.File(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "CoV.csv"))))
 
     # Средняя заболеваемость за год
     # Грипп А

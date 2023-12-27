@@ -154,6 +154,8 @@ function simulate_contacts(
     current_temp::Float64,
     # Число инфицирований агентов в различных коллективах для потока
     activities_infections_threads::Array{Int, 3},
+    # Текущий месяц
+    month::Int,
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -293,23 +295,84 @@ function simulate_contacts(
         # Агент восприимчив
         elseif agent.virus_id == 0 && agent.days_immune == 0
             # Случайное инфицирование
-            if agent.age < 3
-                if rand(rng, Float64) < random_infection_probabilities[1]
-                    infect_randomly(agent, rng)
-                end
-            elseif agent.age < 7
-                if rand(rng, Float64) < random_infection_probabilities[2]
-                    infect_randomly(agent, rng)
-                end
-            elseif agent.age < 15
-                if rand(rng, Float64) < random_infection_probabilities[3]
-                    infect_randomly(agent, rng)
+            # Для лета увеличиваем вероятность инфицирования от неизвестного источника
+            if (month == 6) || (month == 7) || (month == 8)
+                if agent.age < 3
+                    if rand(rng, Float64) < random_infection_probabilities[1] * 3
+                        infect_randomly(agent, rng)
+                    end
+                elseif agent.age < 7
+                    if rand(rng, Float64) < random_infection_probabilities[2] * 3
+                        infect_randomly(agent, rng)
+                    end
+                elseif agent.age < 15
+                    if rand(rng, Float64) < random_infection_probabilities[3] * 3
+                        infect_randomly(agent, rng)
+                    end
+                else
+                    if rand(rng, Float64) < random_infection_probabilities[4] * 3
+                        infect_randomly(agent, rng)
+                    end
                 end
             else
-                if rand(rng, Float64) < random_infection_probabilities[4]
-                    infect_randomly(agent, rng)
+                if agent.age < 3
+                    if rand(rng, Float64) < random_infection_probabilities[1]
+                        infect_randomly(agent, rng)
+                    end
+                elseif agent.age < 7
+                    if rand(rng, Float64) < random_infection_probabilities[2]
+                        infect_randomly(agent, rng)
+                    end
+                elseif agent.age < 15
+                    if rand(rng, Float64) < random_infection_probabilities[3]
+                        infect_randomly(agent, rng)
+                    end
+                else
+                    if rand(rng, Float64) < random_infection_probabilities[4]
+                        infect_randomly(agent, rng)
+                    end
                 end
             end
+            # # Для лета увеличиваем вероятность инфицирования от неизвестного источника
+            # if (month == 6) || (month == 7) || (month == 8)
+            #     # Повторное случайное инфицирование
+            #     if agent.age < 3
+            #         if rand(rng, Float64) < random_infection_probabilities[1]
+            #             infect_randomly(agent, rng)
+            #         end
+            #     elseif agent.age < 7
+            #         if rand(rng, Float64) < random_infection_probabilities[2]
+            #             infect_randomly(agent, rng)
+            #         end
+            #     elseif agent.age < 15
+            #         if rand(rng, Float64) < random_infection_probabilities[3]
+            #             infect_randomly(agent, rng)
+            #         end
+            #     else
+            #         if rand(rng, Float64) < random_infection_probabilities[4]
+            #             infect_randomly(agent, rng)
+            #         end
+            #     end
+
+            #     # Повторное случайное инфицирование
+            #     if agent.age < 3
+            #         if rand(rng, Float64) < random_infection_probabilities[1]
+            #             infect_randomly(agent, rng)
+            #         end
+            #     elseif agent.age < 7
+            #         if rand(rng, Float64) < random_infection_probabilities[2]
+            #             infect_randomly(agent, rng)
+            #         end
+            #     elseif agent.age < 15
+            #         if rand(rng, Float64) < random_infection_probabilities[3]
+            #             infect_randomly(agent, rng)
+            #         end
+            #     else
+            #         if rand(rng, Float64) < random_infection_probabilities[4]
+            #             infect_randomly(agent, rng)
+            #         end
+            #     end
+            # end
         end
     end
 end
@@ -732,7 +795,8 @@ function run_simulation(
                 is_work_holiday,
                 current_step,
                 (temperature[year_day] - min_temp) / max_min_temp,
-                activities_infections_threads)
+                activities_infections_threads,
+                month)
         end
 
         # Если сценарий карантина

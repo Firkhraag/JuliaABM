@@ -430,10 +430,12 @@ mutable struct Agent
         end
 
         # Инфицирование агентов перед началом работы модели
-        v = rand(3:6)
-        if rand(rng, Float64) < (num_all_infected_age_groups_viruses_mean[52, v, age_group] + num_all_infected_age_groups_viruses_mean[51, v, age_group] + num_all_infected_age_groups_viruses_mean[50, v, age_group]) / num_agents_age_groups[age_group]
-            is_infected = true
-            virus_id = v
+        for v = 1:7
+            if rand(rng, Float64) < (num_all_infected_age_groups_viruses_mean[52, v, age_group] + num_all_infected_age_groups_viruses_mean[51, v, age_group]) / num_agents_age_groups[age_group]
+                is_infected = true
+                virus_id = v
+                break
+            end
         end
 
         # Информация по иммунитету к вирусам

@@ -2,58 +2,49 @@ import { useState, useEffect } from 'react'
 import './Home.css'
 
 const Home = () => {
-    // var socket:WebSocket
-    // let btnEnabled = false 
-
-    const defaultConnectionObject = {
-        socket: WebSocket,
-        btnEnabled: false,
-	}
-
     const defaultImagesObject = {
         moscowMap: "",
         imgMain: "",
-        img1: "",
-        img2: "",
-        img3: "",
-        img4: "",
+        // img1: "",
+        // img2: "",
+        // img3: "",
+        // img4: "",
 	}
 
-    const [webSocketReady, setWebSocketReady] = useState(false);
-    const [socket, setSocket] = useState(new WebSocket('ws://127.0.0.1:80'));
-    // const [connectionObject, setConnectionObject] = useState(defaultConnectionObject)
+    const [webSocketReady, setWebSocketReady] = useState(false)
+    const [socket, setSocket] = useState(new WebSocket('ws://127.0.0.1:80'))
     const [imagesObject, setImagesObject] = useState(defaultImagesObject)
 
-    const [d, setD] = useState("0.13565")
+    const [d, setD] = useState("0.1575")
 
-    const [s1, setS1] = useState("2.01028")
-    const [s2, setS2] = useState("1.82241")
-    const [s3, setS3] = useState("3.8229")
-    const [s4, setS4] = useState("4.92805")
-    const [s5, setS5] = useState("4.74149")
-    const [s6, setS6] = useState("4.30345")
-    const [s7, setS7] = useState("5.06889")
+    const [s1, setS1] = useState("2.4884")
+    const [s2, setS2] = useState("2.2421")
+    const [s3, setS3] = useState("3.9285")
+    const [s4, setS4] = useState("5.2566")
+    const [s5, setS5] = useState("5.1511")
+    const [s6, setS6] = useState("4.2367")
+    const [s7, setS7] = useState("5.0408")
 
-    const [t1, setT1] = useState("0.91646")
-    const [t2, setT2] = useState("0.93076")
-    const [t3, setT3] = useState("0.087571")
-    const [t4, setT4] = useState("0.279691")
-    const [t5, setT5] = useState("0.025338")
-    const [t6, setT6] = useState("0.118131")
-    const [t7, setT7] = useState("0.335245")
+    const [t1, setT1] = useState("0.883")
+    const [t2, setT2] = useState("0.726")
+    const [t3, setT3] = useState("0.033")
+    const [t4, setT4] = useState("0.141")
+    const [t5, setT5] = useState("0.042")
+    const [t6, setT6] = useState("0.038")
+    const [t7, setT7] = useState("0.257")
 
-    const [r1, setR1] = useState("201.4")
-    const [r2, setR2] = useState("173.5")
-    const [r3, setR3] = useState("92.1")
-    const [r4, setR4] = useState("99.3")
-    const [r5, setR5] = useState("113.5")
-    const [r6, setR6] = useState("79.4")
-    const [r7, setR7] = useState("122.0")
+    const [r1, setR1] = useState("162.6")
+    const [r2, setR2] = useState("219.9")
+    const [r3, setR3] = useState("169.5")
+    const [r4, setR4] = useState("212.8")
+    const [r5, setR5] = useState("78.8")
+    const [r6, setR6] = useState("168.7")
+    const [r7, setR7] = useState("91.4")
 
     const [p1, setP1] = useState("0.001")
-    const [p2, setP2] = useState("0.0007")
-    const [p3, setP3] = useState("0.0004")
-    const [p4, setP4] = useState("0.000008")
+    const [p2, setP2] = useState("0.00068")
+    const [p3, setP3] = useState("0.00042")
+    const [p4, setP4] = useState("0.000009")
 
     const [isGlobalWarming, setGlobalWarming] = useState(false)
     const [isQuarantine, setQuarantine] = useState(false)
@@ -63,22 +54,10 @@ const Home = () => {
     const [quarantineDays, setQuarantineDays] = useState("0")
 
     useEffect(() => {
-		// WebSocket connection
 		// let socket = new WebSocket('ws://127.0.0.1:80')
-        // console.log(socket)
 		socket.onopen = () => {
 			// console.log('Connected')
             setWebSocketReady(true)
-			// console.log(connectionObject)
-            // setConnectionObject({
-            //     socket: socket,
-            //     btnEnabled: true,
-            // })
-
-            // setImagesObject({
-            //     ...defaultImagesObject,
-            //     btnEnabled: true,
-            // })
 		}
 		socket.onmessage = (event) => {
 			const message = JSON.parse(event.data)
@@ -86,10 +65,10 @@ const Home = () => {
             setImagesObject({
                 moscowMap: message["moscowMap"],
                 imgMain: message["imgMain"],
-                img1: message["img1"],
-                img2: message["img2"],
-                img3: message["img3"],
-                img4: message["img4"],
+                // img1: message["img1"],
+                // img2: message["img2"],
+                // img3: message["img3"],
+                // img4: message["img4"],
             })
 		}
 		socket.onclose = () => {
@@ -113,10 +92,6 @@ const Home = () => {
                 globalWarmingTemperature: globalWarmingTemperature,
             }
             socket.send(JSON.stringify(modelParams))
-            // setImagesObject({
-            //     ...imagesObject,
-            //     btnEnabled: false,
-            // })
             setWebSocketReady(false)
         }
     }
@@ -465,7 +440,7 @@ const Home = () => {
                         <img src={`data:image/png;base64,${imagesObject.moscowMap}`} />
                     </div>
                 </div>
-                <div className='flex margin-top'>
+                {/* <div className='flex margin-top'>
                     <div className='flex-v-cent-h margin-right'>
                         <h2>Заболеваемость в группе 0-2 лет</h2>
                         <img src={`data:image/png;base64,${imagesObject.img1}`} />
@@ -484,7 +459,7 @@ const Home = () => {
                         <h2>Заболеваемость в группе 15+ лет</h2>
                         <img src={`data:image/png;base64,${imagesObject.img4}`} />
                     </div>
-                </div>
+                </div> */}
             </div>}
 		</div>
     )

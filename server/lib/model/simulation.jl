@@ -163,6 +163,8 @@ function simulate_contacts(
     current_temp::Float64,
     # Число инфицирований агентов в различных коллективах для потока
     activities_infections_threads::Array{Int, 3},
+    # Текущий месяц
+    month::Int,
 )
     for agent_id = start_agent_id:end_agent_id
         agent = agents[agent_id]
@@ -302,21 +304,42 @@ function simulate_contacts(
         # Агент восприимчив
         elseif agent.virus_id == 0 && agent.days_immune == 0
             # Случайное инфицирование
-            if agent.age < 3
-                if rand(rng, Float64) < random_infection_probabilities[1]
-                    infect_randomly(agent, rng)
-                end
-            elseif agent.age < 7
-                if rand(rng, Float64) < random_infection_probabilities[2]
-                    infect_randomly(agent, rng)
-                end
-            elseif agent.age < 15
-                if rand(rng, Float64) < random_infection_probabilities[3]
-                    infect_randomly(agent, rng)
+            # Для лета увеличиваем вероятность инфицирования от неизвестного источника
+            if (month == 6) || (month == 7) || (month == 8)
+                if agent.age < 3
+                    if rand(rng, Float64) < random_infection_probabilities[1] * 3
+                        infect_randomly(agent, rng)
+                    end
+                elseif agent.age < 7
+                    if rand(rng, Float64) < random_infection_probabilities[2] * 3
+                        infect_randomly(agent, rng)
+                    end
+                elseif agent.age < 15
+                    if rand(rng, Float64) < random_infection_probabilities[3] * 3
+                        infect_randomly(agent, rng)
+                    end
+                else
+                    if rand(rng, Float64) < random_infection_probabilities[4] * 3
+                        infect_randomly(agent, rng)
+                    end
                 end
             else
-                if rand(rng, Float64) < random_infection_probabilities[4]
-                    infect_randomly(agent, rng)
+                if agent.age < 3
+                    if rand(rng, Float64) < random_infection_probabilities[1]
+                        infect_randomly(agent, rng)
+                    end
+                elseif agent.age < 7
+                    if rand(rng, Float64) < random_infection_probabilities[2]
+                        infect_randomly(agent, rng)
+                    end
+                elseif agent.age < 15
+                    if rand(rng, Float64) < random_infection_probabilities[3]
+                        infect_randomly(agent, rng)
+                    end
+                else
+                    if rand(rng, Float64) < random_infection_probabilities[4]
+                        infect_randomly(agent, rng)
+                    end
                 end
             end
         end
@@ -350,7 +373,7 @@ function update_agent_states(
     # Текущий шаг
     current_step::Int,
     # Выявленная заболеваемость различными вирусами в разных возрастных группах для потоков
-    observed_daily_new_cases_age_groups_viruses_threads::Array{Int, 4},
+    observed_daily_new_cases_age_groups_viruses_threads::Array{Int, 5},
     # Сумма всех инфицирований агентами, зараженными на каждом шаге
     rt_threads::Matrix{Float64},
     # Число агентов, зараженных на каждом шаге
@@ -499,13 +522,13 @@ function update_agent_states(
                     # Если агент самоизолировался, то добавляем случай в выявленную заболеваемость
                     if agent.is_isolated
                         if agent.age < 3
-                            observed_daily_new_cases_age_groups_viruses_threads[current_step, 1, agent.virus_id, thread_id] += 1
+                            observed_daily_new_cases_age_groups_viruses_threads[current_step, 1, agent.virus_id, households[agent.household_id].district_id, thread_id] += 1
                         elseif agent.age < 7
-                            observed_daily_new_cases_age_groups_viruses_threads[current_step, 2, agent.virus_id, thread_id] += 1
+                            observed_daily_new_cases_age_groups_viruses_threads[current_step, 2, agent.virus_id, households[agent.household_id].district_id, thread_id] += 1
                         elseif agent.age < 15
-                            observed_daily_new_cases_age_groups_viruses_threads[current_step, 3, agent.virus_id, thread_id] += 1
+                            observed_daily_new_cases_age_groups_viruses_threads[current_step, 3, agent.virus_id, households[agent.household_id].district_id, thread_id] += 1
                         else
-                            observed_daily_new_cases_age_groups_viruses_threads[current_step, 4, agent.virus_id, thread_id] += 1
+                            observed_daily_new_cases_age_groups_viruses_threads[current_step, 4, agent.virus_id, households[agent.household_id].district_id, thread_id] += 1
                         end
                     end
                 end
@@ -613,9 +636,12 @@ function run_simulation(
     school_class_closure_threshold::Float64 = 0.0,
     # Сценарий глобального потепления
     global_warming_temperature::Float64 = 0.0,
-)::Tuple{Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
+)::Tuple{Array{Float64, 4}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
     # Размер популяции / 1000
     population_coef = 10072
+    # Число муниципалитетов
+    num_municipalities = 107
+
     # День месяца
     day = 1
     # Месяц
@@ -650,14 +676,10 @@ function run_simulation(
         num_weeks += 3
     end
 
-    # !!!!!!!!!!!!!!
-    num_weeks = 7
-    max_step = 49
-
     # Выявленная заболеваемость различными вирусами в разных возрастных группах
-    observed_num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4)
+    observed_num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4, num_municipalities)
     # Выявленная заболеваемость различными вирусами в разных возрастных группах для потоков
-    observed_daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, num_viruses, num_threads)
+    observed_daily_new_cases_age_groups_viruses_threads = zeros(Int, max_step, 4, num_viruses, num_municipalities, num_threads)
     # Заболеваемость в коллективах для потоков
     activities_infections_threads = zeros(Int, max_step, 5, num_threads)
     # Сумма всех инфицирований агентами, зараженными на каждом шаге
@@ -668,34 +690,18 @@ function run_simulation(
     num_schools_closed_threads = zeros(Float64, max_step, num_threads)
 
     # Еженедельная заболеваемость
-    observed_num_infected_age_groups_viruses_weekly = zeros(Int, num_weeks, num_viruses, 4)
+    observed_num_infected_age_groups_viruses_weekly = zeros(Int, num_weeks, num_viruses, 4, num_municipalities)
+    # observed_num_infected_municipalities_weekly = zeros(Int, num_weeks, num_municipalities)
+    observed_num_infected_municipalities = zeros(Int, num_municipalities)
 
     # Для отображения результатов
-    xlabel_name = "Месяц"
+    xlabel_name = "Неделя"
     ylabel_name = "Число случаев на 1000 чел. / неделя"
 
-    # Рисунок карты Москвы
+    # Координаты Москвы
     municipalities = get_municipalities()
-    moscow_map = plot(
-        getfield.(municipalities[1], 1),
-        getfield.(municipalities[1], 2),
-        color = :black,
-        legend = false,
-        grid = false,
-    )
-    for i = 2:length(municipalities)
-        plot!(
-            moscow_map,
-            getfield.(municipalities[i], 1),
-            getfield.(municipalities[i], 2),
-            color = :black,
-        )
-    end
-
-    moscow_map_base = deepcopy(moscow_map)
 
     for current_step = 1:max_step
-        println(current_step)
         # Выходные, праздники
         is_holiday = false
         if week_day == 7
@@ -778,7 +784,8 @@ function run_simulation(
                 is_work_holiday,
                 current_step,
                 (temperature[year_day] - min_temp) / max_min_temp,
-                activities_infections_threads)
+                activities_infections_threads,
+                month)
         end
 
         # Если сценарий карантина
@@ -903,8 +910,10 @@ function run_simulation(
         # Записываем заболеваемость разными вирусами в различных возрастных группах
         for i = 1:4
             for j = 1:num_viruses
-                observed_num_infected_age_groups_viruses[current_step, j, i] = sum(
-                    observed_daily_new_cases_age_groups_viruses_threads[current_step, i, j, :])
+                for m = 1:num_municipalities
+                    observed_num_infected_age_groups_viruses[current_step, j, i, m] = sum(
+                        observed_daily_new_cases_age_groups_viruses_threads[current_step, i, j, m, :])
+                end
             end
         end
 
@@ -919,58 +928,37 @@ function run_simulation(
             # end
 
             for i = 1:week_num
-                observed_num_infected_age_groups_viruses_weekly[i, :, :] = sum(observed_num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :], dims = 1)
+                observed_num_infected_age_groups_viruses_weekly[i, :, :, :] = sum(observed_num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :, :], dims = 1)
             end
+            observed_num_infected_municipalities = sum(sum(observed_num_infected_age_groups_viruses_weekly, dims = 3)[:, :, 1, :], dims = 2)[week_num, 1, :]
 
-            # for j = 1:num_years
-            #     incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
-            # end
+            shape = Plots.Shape(
+                municipalities[1],
+            )
+            moscow_map = plot(
+                shape,
+                legend = false,
+                grid = false,
+                fc=RGBA(1, 0, 0, observed_num_infected_municipalities[1] / 3000),
+            )
 
-            # for i = 1:52
-            #     for j = 1:num_years
-            #         for k = 1:num_runs
-            #             incidence_arr_mean[i] += incidence_arr[k, j][i]
-            #         end
-            #     end
-            #     incidence_arr_mean[i] /= num_runs * num_years
-            # end
-
-            # incidence_plot = plot(
-            #     1:week_num,
-            #     observed_num_infected_age_groups_viruses_weekly,
-            #     lw = 1.5,
-            #     # xticks = (ticks, ticklabels),
-            #     grid = true,
-            #     legend = false,
-            #     color = RGB(0.267, 0.467, 0.667),
-            #     foreground_color_legend = nothing,
-            #     background_color_legend = nothing,
-            #     xlabel = xlabel_name,
-            #     ylabel = ylabel_name,
-            # )
-            # savefig(incidence_plot, joinpath(@__DIR__, "..", "output", "plots", "model_incidence.png"))
-            for agent in agents
-                if agent.is_isolated
-                    plot!(
-                        moscow_map,
-                        (households[agent.household_id].x, households[agent.household_id].y),
-                        seriestype = :scatter,
-                        markersize = 2,
-                        markercolor = RGB{Float64}(1,0,0),
-                        markeralpha = 0.33,
-                        markerstrokewidth = 0,
-                    )
-                end
+            for i = 2:length(municipalities)
+                shape = Plots.Shape(
+                    municipalities[i],
+                )
+                plot!(
+                    moscow_map,
+                    shape,
+                    fc=RGBA(1, 0, 0, observed_num_infected_municipalities[i] / 3000),
+                )
             end
-
             savefig(moscow_map, joinpath(@__DIR__, "..", "output", "plots", "moscow_map.png"))
             bytes_moscow_map = read(joinpath(@__DIR__, "..", "output", "plots", "moscow_map.png"))
             img_moscow_map = base64encode(bytes_moscow_map)
 
-            # pl = plot([1, 2, 3], [5 + week_num, 7 + week_num, 9 + week_num])
             pl = plot(
                 1:week_num,
-                sum(sum(observed_num_infected_age_groups_viruses_weekly, dims = 3)[:, :, 1], dims = 2)[1:week_num, 1] ./ population_coef,
+                sum(sum(sum(observed_num_infected_age_groups_viruses_weekly, dims = 4)[:, :, :, 1], dims = 3)[:, :, 1], dims = 2)[1:week_num, 1] ./ population_coef,
                 lw = 1.5,
                 # xticks = (ticks, ticklabels),
                 grid = true,
@@ -983,45 +971,45 @@ function run_simulation(
             )
             savefig(pl, joinpath(@__DIR__, "..", "output", "plots", "model_incidence.png"))
 
-            for age_group = 1:4
-                pl = plot(
-                    1:week_num,
-                    sum(observed_num_infected_age_groups_viruses_weekly, dims = 2)[1:week_num, 1, age_group] ./ population_coef,
-                    lw = 1.5,
-                    # xticks = (ticks, ticklabels),
-                    grid = true,
-                    legend = false,
-                    color = RGB(0.267, 0.467, 0.667),
-                    foreground_color_legend = nothing,
-                    background_color_legend = nothing,
-                    xlabel = xlabel_name,
-                    ylabel = ylabel_name,
-                )
-                savefig(pl, joinpath(@__DIR__, "..", "output", "plots", "model_incidence_$(age_group).png"))
-            end
+            # for age_group = 1:4
+            #     pl = plot(
+            #         1:week_num,
+            #         sum(sum(observed_num_infected_age_groups_viruses_weekly, dims = 4)[:, :, :, 1], dims = 2)[1:week_num, 1, age_group] ./ population_coef,
+            #         lw = 1.5,
+            #         # xticks = (ticks, ticklabels),
+            #         grid = true,
+            #         legend = false,
+            #         color = RGB(0.267, 0.467, 0.667),
+            #         foreground_color_legend = nothing,
+            #         background_color_legend = nothing,
+            #         xlabel = xlabel_name,
+            #         ylabel = ylabel_name,
+            #     )
+            #     savefig(pl, joinpath(@__DIR__, "..", "output", "plots", "model_incidence_$(age_group).png"))
+            # end
 
             bytes_main = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence.png"))
             img_main = base64encode(bytes_main)
-            bytes1 = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence_1.png"))
-            img1 = base64encode(bytes1)
-            bytes2 = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence_2.png"))
-            img2 = base64encode(bytes2)
-            bytes3 = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence_3.png"))
-            img3 = base64encode(bytes3)
-            bytes4 = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence_4.png"))
-            img4 = base64encode(bytes4)
+            # bytes1 = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence_1.png"))
+            # img1 = base64encode(bytes1)
+            # bytes2 = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence_2.png"))
+            # img2 = base64encode(bytes2)
+            # bytes3 = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence_3.png"))
+            # img3 = base64encode(bytes3)
+            # bytes4 = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence_4.png"))
+            # img4 = base64encode(bytes4)
 
             img_json = JSON.json(Dict(
                 "moscowMap" => img_moscow_map,
                 "imgMain" => img_main,
-                "img1" => img1,
-                "img2" => img2,
-                "img3" => img3,
-                "img4" => img4,
+                # "img1" => img1,
+                # "img2" => img2,
+                # "img3" => img3,
+                # "img4" => img4,
             ))
             send(ws, img_json)
 
-            moscow_map = deepcopy(moscow_map_base)
+            # moscow_map = deepcopy(moscow_map_base)
 
             week_num += 1
         else
@@ -1054,8 +1042,8 @@ function run_simulation(
     rt = rt ./ rt_count
 
     # Еженедельная заболеваемость
-    for i = 1:(num_weeks)
-        observed_num_infected_age_groups_viruses_weekly[i, :, :] = sum(observed_num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :], dims = 1)
+    for i = 1:num_weeks
+        observed_num_infected_age_groups_viruses_weekly[i, :, :, :] = sum(observed_num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :, :], dims = 1)
     end
 
     return observed_num_infected_age_groups_viruses_weekly, sum(activities_infections_threads, dims = 3)[:, :, 1], rt, sum(num_schools_closed_threads, dims = 2)[:, 1]

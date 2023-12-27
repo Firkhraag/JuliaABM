@@ -11,13 +11,13 @@ function get_incidence(
 )::Array{Float64, 3}
     # Данные
     # 0-2 лет
-    infected_data_0_all = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu0-2.csv"), ';', Int, '\n')
+    infected_data_0_all = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ';', Int, '\n')
     # 3-6 лет
-    infected_data_3_all = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu3-6.csv"), ';', Int, '\n')
+    infected_data_3_all = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ';', Int, '\n')
     # 7-14 лет
-    infected_data_7_all = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu7-14.csv"), ';', Int, '\n')
+    infected_data_7_all = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu7-14.csv"), ';', Int, '\n')
     # 15+ лет
-    infected_data_15_all = readdlm(joinpath(@__DIR__, "..", "..", "input", "tables", "flu15+.csv"), ';', Int, '\n')
+    infected_data_15_all = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ';', Int, '\n')
 
     # Заболеваемость различными вирусами в разных возрастных группах
     # 0-2 лет
