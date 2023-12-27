@@ -5,7 +5,11 @@ Genie.Configuration.config!(
   server_host                     = "127.0.0.1",
   log_level                       = Logging.Debug,
   log_to_file                     = true,
-  server_handle_static_files      = true
+  server_handle_static_files      = true,
+  cors_headers                    = Dict(
+                                      "Access-Control-Allow-Origin" => "YOUR_ORIGIN",
+                                      "Access-Control-Allow-Headers" => "Content-Type",
+                                      "Access-Control-Allow-Methods" => "GET,POST")
 )
 
 ENV["JULIA_REVISE"] = "off"

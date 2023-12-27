@@ -16,7 +16,7 @@ include("../../global/variables.jl")
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
 const is_russian = false
-const num_years = 2
+const num_years = 1
 const num_runs = 1
 const population_coef = 10072
 
@@ -115,7 +115,7 @@ function plot_incidence(
         legend = (0.9, 0.98),
         ylim = (0.0, maximum([maximum(incidence_arr_mean) + maximum(confidence_model), maximum(infected_data_mean) + maximum(confidence_data)])),
         color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-        ribbon = ribbon,
+        # ribbon = ribbon,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -219,7 +219,7 @@ function plot_incidence_age_groups(
             legend = (0.9, 0.98),
             ylim = (0.0, maximum([maximum(incidence_arr_mean[:, i]) + maximum(confidence_model[:, i]), maximum(infected_data_mean[:, i]) + maximum(confidence_data[:, i])])),
             color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-            ribbon = ribbon,
+            # ribbon = ribbon,
             foreground_color_legend = nothing,
             background_color_legend = nothing,
             xlabel = xlabel_name,
@@ -1471,14 +1471,14 @@ function plot_incidence_with_without_recovered()
 end
 
 plot_incidence()
-# plot_incidence_age_groups()
+plot_incidence_age_groups()
 # plot_incidence_viruses()
 # plot_incidence_viruses_together()
 # plot_incidence_age_groups_viruses_together()
 # plot_rt()
 # plot_infection_activities()
 
-plot_incidence_time_series()
+# plot_incidence_time_series()
 # plot_incidence_age_groups_time_series()
 # plot_incidence_viruses_time_series()
 

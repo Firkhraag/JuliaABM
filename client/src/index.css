@@ -70,6 +70,11 @@ button:focus {
 	outline: none;
 }
 
+button:disabled,
+button[disabled]{
+  	pointer-events: none;
+}
+
 .css-tlfecz-indicatorContainer {
     padding: 5px !important;
 }

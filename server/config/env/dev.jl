@@ -9,7 +9,11 @@ Genie.Configuration.config!(
   path_build                      = "build",
   format_julia_builds             = true,
   format_html_output              = true,
-  watch                           = true
+  watch                           = true,
+  cors_headers                    = Dict(
+                                      "Access-Control-Allow-Origin" => "YOUR_ORIGIN",
+                                      "Access-Control-Allow-Headers" => "Content-Type",
+                                      "Access-Control-Allow-Methods" => "GET,POST")
 )
 
 ENV["JULIA_REVISE"] = "auto"

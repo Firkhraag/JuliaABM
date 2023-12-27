@@ -1,4 +1,4 @@
-module TestABM
+module JuliaABM
 
 using Genie
 
@@ -9,7 +9,7 @@ const down = Genie.down
 export down
 
 function main()
-  Genie.genie(; context = @__MODULE__)
+    Genie.genie(; context = @__MODULE__)
 end
 
 end
