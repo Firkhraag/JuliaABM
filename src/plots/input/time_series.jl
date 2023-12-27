@@ -10,10 +10,10 @@ using CSV
 using DataFrames
 using Distributions
 
-include("../../global/variables.jl")
-include("../../data/etiology.jl")
-include("../../data/incidence.jl")
-include("../../util/moving_avg.jl")
+include("../../../server/lib/global/variables.jl")
+include("../../../server/lib/data/etiology.jl")
+include("../../../server/lib/data/incidence.jl")
+include("../../../server/lib/util/moving_avg.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
@@ -226,7 +226,7 @@ function plot_incidence()
 
     confidence_arr = zeros(Float64, 52)
     for i = 1:52
-        confidence_arr[i] = confidence(incidence_data[i + 1, flu_starting_index:end])
+        confidence_arr[i] = confidence(incidence_data[i + 1, flu_starting_index:end], 2.57)
     end
     incidence_plot = plot(
         1:52,
@@ -247,7 +247,7 @@ function plot_incidence()
     confidence_arr = zeros(Float64, 52)
     for age_index = eachindex(age_groups)
         for i = 1:52
-            confidence_arr[i] = confidence(infected_data_age_groups[i + 1, flu_starting_index:size(infected_data_age_groups, 2), age_index], 2.45)
+            confidence_arr[i] = confidence(infected_data_age_groups[i + 1, flu_starting_index:size(infected_data_age_groups, 2), age_index], 2.57)
         end
         incidence_plot = plot(
             1:52,
@@ -506,12 +506,12 @@ function incidence_temperature_corr()
     println(cor(temperature_data_weekly, incidence_data_mean))
 end
 
-# plot_incidence_time_series()
+plot_incidence_time_series()
 # plot_incidence_time_series_all()
 # plot_incidence()
 
 # plot_incidence_viruses()
-plot_incidence_etiology_bars()
+# plot_incidence_etiology_bars()
 
 # plot_temperature()
 # incidence_temperature_corr()

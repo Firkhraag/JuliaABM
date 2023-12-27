@@ -6,9 +6,9 @@ using LaTeXStrings
 using CSV
 using DataFrames
 
-include("../../model/virus.jl")
-include("../../model/agent.jl")
-include("../../global/variables.jl")
+include("../../../server/lib/model/virus.jl")
+include("../../../server/lib/model/agent.jl")
+include("../../../server/lib/global/variables.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 

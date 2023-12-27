@@ -8,10 +8,10 @@ using CSV
 using DataFrames
 using Distributions
 
-include("../../util/moving_avg.jl")
-include("../../data/etiology.jl")
-include("../../data/incidence.jl")
-include("../../global/variables.jl")
+include("../../../server/lib/util/moving_avg.jl")
+include("../../../server/lib/data/etiology.jl")
+include("../../../server/lib/data/incidence.jl")
+include("../../../server/lib/global/variables.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
