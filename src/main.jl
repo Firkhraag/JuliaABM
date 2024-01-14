@@ -578,38 +578,38 @@ function lhs_simulations(
     latin_hypercube_plan, _ = LHCoptim(num_runs, num_parameters, 500)
 
     # В случае, если значения загружаются из таблицы
-    points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "lhs", "parameters.csv"), header = false)))
+    # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "lhs", "parameters.csv"), header = false)))
 
     # Интервалы значений параметров
-    # points = scaleLHC(latin_hypercube_plan, [
-    #     (0.1, 1.0), # duration_parameter
-    #     (1.0, 7.0), # susceptibility_parameters
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (-1.0, -0.01), # temperature_parameters
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (30, 365), # mean_immunity_durations
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (0.001, 0.002), # random_infection_probabilities
-    #     (0.0005, 0.001),
-    #     (0.0002, 0.0005),
-    #     (0.000005, 0.00001),
-    # ])
-    # writedlm(joinpath(@__DIR__, "..", "output", "tables", "lhs", "parameters.csv"), points, ',')
+    points = scaleLHC(latin_hypercube_plan, [
+        (0.1, 1.0), # duration_parameter
+        (1.0, 7.0), # susceptibility_parameters
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (-1.0, -0.01), # temperature_parameters
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (30, 365), # mean_immunity_durations
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (0.0008, 0.0012), # random_infection_probabilities
+        (0.0005, 0.001),
+        (0.0002, 0.0005),
+        (0.000005, 0.00001),
+    ])
+    writedlm(joinpath(@__DIR__, "..", "output", "tables", "lhs", "parameters.csv"), points, ',')
 
     nMAE_min = 1.0e12
 
@@ -811,17 +811,17 @@ function mcmc_simulations(
     local_rejected_num = 0
 
     # Разброс для значений параметров-кандидатов
-    # duration_parameter_delta = 0.05
-    # susceptibility_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
-    # temperature_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
-    # mean_immunity_duration_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
-    # random_infection_probability_deltas = [0.05, 0.05, 0.05, 0.05]
+    duration_parameter_delta = 0.05
+    susceptibility_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    temperature_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    mean_immunity_duration_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    random_infection_probability_deltas = [0.05, 0.05, 0.05, 0.05]
 
-    duration_parameter_delta = 0.1
-    susceptibility_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    temperature_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    mean_immunity_duration_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
+    # duration_parameter_delta = 0.1
+    # susceptibility_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    # temperature_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    # mean_immunity_duration_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    # random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
 
     nMAE = 0.0
     nMAE_min = 99999.0
@@ -941,10 +941,10 @@ function mcmc_simulations(
         y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[7]))
         mean_immunity_duration_7_candidate = (365 * exp(y) + 30) / (1 + exp(y))
         
-        # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.001, 0.002)
+        # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.0009, 0.0015)
         x = random_infection_probability_1_array[end]
-        y = rand(Normal(log((x - 0.001) / (0.002 - x)), random_infection_probability_deltas[1]))
-        random_infection_probability_1_candidate = (0.002 * exp(y) + 0.001) / (1 + exp(y))
+        y = rand(Normal(log((x - 0.0009) / (0.0015 - x)), random_infection_probability_deltas[1]))
+        random_infection_probability_1_candidate = (0.0015 * exp(y) + 0.0009) / (1 + exp(y))
 
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 3-6 лет в диапазоне (0.0005, 0.001)
         x = random_infection_probability_2_array[end]
@@ -1194,11 +1194,11 @@ end
 
 function main(
     # Набор параметров модели (порядок для вирусов: FluA, FluB, RV, RSV, AdV, PIV, CoV)
-    duration_parameter::Float64 = 0.1574987587578544,
-    susceptibility_parameters::Vector{Float64} = [2.488444411549469, 2.2420906235713205, 3.9285407241514183, 5.256616822399921, 5.151052335043506, 4.236713645881599, 5.040817687679894],
-    temperature_parameters::Vector{Float64} = -[0.8832306653292299, 0.725974206599066, 0.032824212682373066, 0.14050733443495142, 0.04170117493055635, 0.03825624225757124, 0.2574489968859005],
-    mean_immunity_durations::Vector{Float64} = [162.61076947558595, 219.9046948498235, 169.48728310507263, 212.81462197308315, 78.77331950260154, 168.72029171589904, 91.44242069232911],
-    random_infection_probabilities::Vector{Float64} = [0.001, 0.0006812286293964, 0.0004227044312320168, 8.679909046482872e-6],
+    duration_parameter::Float64 = 0.15574760338153604,
+    susceptibility_parameters::Vector{Float64} = [2.432383535521401, 2.238084657549736, 3.9300635165658035, 5.1720010915454235, 5.144684292234647, 4.341625180301945, 5.6260953331716905],
+    temperature_parameters::Vector{Float64} = -[0.9251684333883052, 0.7239220149884157, 0.049812103111112345, 0.10582041043086308, 0.038630895494711034, 0.03723490323281524, 0.20131912645634797],
+    mean_immunity_durations::Vector{Float64} = [155.9752583833697, 247.24115717945472, 147.8575990177909, 203.0420746358355, 79.78372383057398, 177.17279810129776, 99.15211361389254],
+    random_infection_probabilities::Vector{Float64} = [0.001, 0.0007000333340668348, 0.000438925392941535, 8.746936501061745e-6],
 
     # Сценарий работы модели
     # -----------------------------------
@@ -1231,7 +1231,7 @@ function main(
     # Число моделируемых лет
     num_years = 1
     # Среднее по num_years
-    is_one_mean_year_modeled = false
+    is_one_mean_year_modeled = true
 
     # Число потоков
     num_threads = nthreads()
@@ -1354,9 +1354,6 @@ function main(
         num_infected_age_groups_viruses_prev[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
     end
 
-    println(sum(sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1])
-    return
-
     # Создание популяции
     @time @threads for thread_id in 1:num_threads
         create_population(
@@ -1464,34 +1461,34 @@ function main(
 
     # Использование выборки латинского гиперкуба для исследования пространства параметров модели
     # --------------------------
-    # lhs_simulations(
-    #     is_one_mean_year_modeled,
-    #     1000,
-    #     agents,
-    #     households,
-    #     schools,
-    #     num_threads,
-    #     thread_rng,
-    #     start_agent_ids,
-    #     end_agent_ids,
-    #     temperature,
-    #     viruses,
-    #     num_infected_age_groups_viruses,
-    #     num_infected_age_groups_viruses_prev,
-    #     mean_household_contact_durations,
-    #     household_contact_duration_sds,
-    #     other_contact_duration_shapes,
-    #     other_contact_duration_scales,
-    #     isolation_probabilities_day_1,
-    #     isolation_probabilities_day_2,
-    #     isolation_probabilities_day_3,
-    #     recovered_duration_mean,
-    #     recovered_duration_sd,
-    #     random_infection_probabilities,
-    #     mean_immunity_durations,
-    #     num_years,
-    # )
-    # return
+    lhs_simulations(
+        is_one_mean_year_modeled,
+        1000,
+        agents,
+        households,
+        schools,
+        num_threads,
+        thread_rng,
+        start_agent_ids,
+        end_agent_ids,
+        temperature,
+        viruses,
+        num_infected_age_groups_viruses,
+        num_infected_age_groups_viruses_prev,
+        mean_household_contact_durations,
+        household_contact_duration_sds,
+        other_contact_duration_shapes,
+        other_contact_duration_scales,
+        isolation_probabilities_day_1,
+        isolation_probabilities_day_2,
+        isolation_probabilities_day_3,
+        recovered_duration_mean,
+        recovered_duration_sd,
+        random_infection_probabilities,
+        mean_immunity_durations,
+        num_years,
+    )
+    return
     # --------------------------
 
     # Модифицированный алгоритм Метрополиса-Гастингса для поиска значений параметров, дающих минимум для модели
@@ -1586,4 +1583,4 @@ function main(
     end
 end
 
-main()
+# main()
