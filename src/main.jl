@@ -563,10 +563,12 @@ function lhs_simulations(
     mean_immunity_durations::Vector{Float64},
     # Число лет
     num_years::Int,
+    # Имя папки
+    folder_name::String,
 )
     # Число прогонов модели
     num_files = 0
-    for _ in readdir(joinpath(@__DIR__, "..", "output", "tables", "lhs", "initial"))
+    for _ in readdir(joinpath(@__DIR__, "..", "output", "tables", "lhs", folder_name))
         num_files +=1
     end
 
@@ -661,7 +663,7 @@ function lhs_simulations(
             println("random_infection_probabilities = ", random_infection_probabilities)
         end
 
-        save(joinpath(@__DIR__, "..", "output", "tables", "lhs", "initial", "results_$(i).jld"),
+        save(joinpath(@__DIR__, "..", "output", "tables", "lhs", folder_name, "results_$(i).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "duration_parameter", duration_parameter,
             "susceptibility_parameters", susceptibility_parameters,
@@ -1213,9 +1215,6 @@ function main(
     global_warming_temperature::Float64 = 0.0,
     # ["+1 °С" "+2 °С" "+3 °С" "+4 °С"]
     # -----------------------------------
-
-    # Для суррогатной модели
-    surrogate_index::Int = 0,
 )
     println("Initialization...")
 
@@ -1461,34 +1460,36 @@ function main(
 
     # Использование выборки латинского гиперкуба для исследования пространства параметров модели
     # --------------------------
-    lhs_simulations(
-        is_one_mean_year_modeled,
-        1000,
-        agents,
-        households,
-        schools,
-        num_threads,
-        thread_rng,
-        start_agent_ids,
-        end_agent_ids,
-        temperature,
-        viruses,
-        num_infected_age_groups_viruses,
-        num_infected_age_groups_viruses_prev,
-        mean_household_contact_durations,
-        household_contact_duration_sds,
-        other_contact_duration_shapes,
-        other_contact_duration_scales,
-        isolation_probabilities_day_1,
-        isolation_probabilities_day_2,
-        isolation_probabilities_day_3,
-        recovered_duration_mean,
-        recovered_duration_sd,
-        random_infection_probabilities,
-        mean_immunity_durations,
-        num_years,
-    )
-    return
+    # lhs_simulations(
+    #     is_one_mean_year_modeled,
+    #     50,
+    #     agents,
+    #     households,
+    #     schools,
+    #     num_threads,
+    #     thread_rng,
+    #     start_agent_ids,
+    #     end_agent_ids,
+    #     temperature,
+    #     viruses,
+    #     num_infected_age_groups_viruses,
+    #     num_infected_age_groups_viruses_prev,
+    #     mean_household_contact_durations,
+    #     household_contact_duration_sds,
+    #     other_contact_duration_shapes,
+    #     other_contact_duration_scales,
+    #     isolation_probabilities_day_1,
+    #     isolation_probabilities_day_2,
+    #     isolation_probabilities_day_3,
+    #     recovered_duration_mean,
+    #     recovered_duration_sd,
+    #     random_infection_probabilities,
+    #     mean_immunity_durations,
+    #     num_years,
+    #     # "initial",
+    #     "swarm",
+    # )
+    # return
     # --------------------------
 
     # Модифицированный алгоритм Метрополиса-Гастингса для поиска значений параметров, дающих минимум для модели
@@ -1570,17 +1571,6 @@ function main(
         nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
     end
     println("nMAE = $(nMAE)")
-
-    # Результат для суррогатной модели
-    if surrogate_index > 0
-        save(joinpath(@__DIR__, "..", "output", "tables", "lhs", "procedure", "results_$(surrogate_index).jld"),
-            "observed_cases", observed_num_infected_age_groups_viruses,
-            "duration_parameter", duration_parameter,
-            "susceptibility_parameters", susceptibility_parameters,
-            "temperature_parameters", temperature_parameters,
-            "mean_immunity_durations", mean_immunity_durations,
-            "random_infection_probabilities", random_infection_probabilities)
-    end
 end
 
-# main()
+main()
