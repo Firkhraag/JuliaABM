@@ -278,19 +278,19 @@ function main(
     # Сохранение результатов работы модели
     if abs(global_warming_temperature) > 0.1
         # Сценарий глобального потепления
-        save(joinpath(@__DIR__, "output", "tables", "results_warming_$(run_num + 1).jld"),
+        save(joinpath(@__DIR__, "..", "..", "output", "tables", "results_warming_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "activities_cases", activities_infections,
             "rt", rt)
     elseif school_class_closure_period == 0
         # Базовый сценарий
-        save(joinpath(@__DIR__, "output", "tables", "results_$(run_num + 1).jld"),
+        save(joinpath(@__DIR__, "..", "..", "output", "tables", "results_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "activities_cases", activities_infections,
             "rt", rt)
     else
         # Сценарий карантина в школах
-        save(joinpath(@__DIR__, "output", "tables", "results_quarantine_$(run_num + 1).jld"),
+        save(joinpath(@__DIR__, "..", "..", "output", "tables", "results_quarantine_$(run_num + 1).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "activities_cases", activities_infections,
             "rt", rt,
