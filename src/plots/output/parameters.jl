@@ -303,7 +303,7 @@ function plot_swarm_hypercube()
     num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
 
     num_swarm_runs = 27
-    num_particles = 30
+    num_particles = 20
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_swarm_runs)
     duration_parameter = Array{Float64, 1}(undef, num_swarm_runs)
@@ -329,7 +329,7 @@ function plot_swarm_hypercube()
     end
     
     # println(duration_parameter)
-    println(duration_parameter_velocity)
+    # println(duration_parameter_velocity)
 
     for i = eachindex(nMAE_array)
         nMAE_array[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
@@ -351,6 +351,227 @@ function plot_swarm_hypercube()
     # println("plot_swarm_hypercube")
     # println(nMAE_array)
     # println()
+
+    println("duration_parameter")
+    println(duration_parameter)
+
+    println("susceptibility_parameter (FluA)")
+    for i = 1:num_swarm_runs
+        print(susceptibility_parameters[i][1])
+        print(" ")
+    end
+    println()
+
+    println("susceptibility_parameter (FluB)")
+    for i = 1:num_swarm_runs
+        print(susceptibility_parameters[i][2])
+        print(" ")
+    end
+    println()
+
+    println("susceptibility_parameter (RV)")
+    for i = 1:num_swarm_runs
+        print(susceptibility_parameters[i][3])
+        print(" ")
+    end
+    println()
+
+    println("susceptibility_parameter (RSV)")
+    for i = 1:num_swarm_runs
+        print(susceptibility_parameters[i][4])
+        print(" ")
+    end
+    println()
+
+    println("susceptibility_parameter (AdV)")
+    for i = 1:num_swarm_runs
+        print(susceptibility_parameters[i][5])
+        print(" ")
+    end
+    println()
+
+    println("susceptibility_parameter (PIV)")
+    for i = 1:num_swarm_runs
+        print(susceptibility_parameters[i][6])
+        print(" ")
+    end
+    println()
+
+    println("susceptibility_parameter (CoV)")
+    for i = 1:num_swarm_runs
+        print(susceptibility_parameters[i][7])
+        print(" ")
+    end
+    println()
+
+    println("----------------------------")
+
+    println("temperature_parameter (FluA)")
+    for i = 1:num_swarm_runs
+        print(temperature_parameters[i][1])
+        print(" ")
+    end
+    println()
+
+    println("temperature_parameter (FluB)")
+    for i = 1:num_swarm_runs
+        print(temperature_parameters[i][2])
+        print(" ")
+    end
+    println()
+
+    println("temperature_parameter (RV)")
+    for i = 1:num_swarm_runs
+        print(temperature_parameters[i][3])
+        print(" ")
+    end
+    println()
+
+    println("temperature_parameter (RSV)")
+    for i = 1:num_swarm_runs
+        print(temperature_parameters[i][4])
+        print(" ")
+    end
+    println()
+
+    println("temperature_parameter (AdV)")
+    for i = 1:num_swarm_runs
+        print(temperature_parameters[i][5])
+        print(" ")
+    end
+    println()
+
+    println("temperature_parameter (PIV)")
+    for i = 1:num_swarm_runs
+        print(temperature_parameters[i][6])
+        print(" ")
+    end
+    println()
+
+    println("temperature_parameter (CoV)")
+    for i = 1:num_swarm_runs
+        print(temperature_parameters[i][7])
+        print(" ")
+    end
+    println()
+
+    println("----------------------------")
+
+    println("mean_immunity_duration (FluA)")
+    for i = 1:num_swarm_runs
+        print(mean_immunity_durations[i][1])
+        print(" ")
+    end
+    println()
+
+    println("mean_immunity_duration (FluB)")
+    for i = 1:num_swarm_runs
+        print(mean_immunity_durations[i][2])
+        print(" ")
+    end
+    println()
+
+    println("mean_immunity_duration (RV)")
+    for i = 1:num_swarm_runs
+        print(mean_immunity_durations[i][3])
+        print(" ")
+    end
+    println()
+
+    println("mean_immunity_duration (RSV)")
+    for i = 1:num_swarm_runs
+        print(mean_immunity_durations[i][4])
+        print(" ")
+    end
+    println()
+
+    println("mean_immunity_duration (AdV)")
+    for i = 1:num_swarm_runs
+        print(mean_immunity_durations[i][5])
+        print(" ")
+    end
+    println()
+
+    println("mean_immunity_duration (PIV)")
+    for i = 1:num_swarm_runs
+        print(mean_immunity_durations[i][6])
+        print(" ")
+    end
+    println()
+
+    println("mean_immunity_duration (CoV)")
+    for i = 1:num_swarm_runs
+        print(mean_immunity_durations[i][7])
+        print(" ")
+    end
+    println()
+
+    println("----------------------------")
+
+    println("random_infection_probability (0-2)")
+    for i = 1:num_swarm_runs
+        print(random_infection_probabilities[i][1])
+        print(" ")
+    end
+    println()
+
+    println("random_infection_probability (3-6)")
+    for i = 1:num_swarm_runs
+        print(random_infection_probabilities[i][2])
+        print(" ")
+    end
+    println()
+
+    println("random_infection_probability (7-14)")
+    for i = 1:num_swarm_runs
+        print(random_infection_probabilities[i][3])
+        print(" ")
+    end
+    println()
+
+    println("random_infection_probability (15+)")
+    for i = 1:num_swarm_runs
+        print(random_infection_probabilities[i][4])
+        print(" ")
+    end
+    println()
+
+    return
+
+    println("susceptibility_parameters")
+    println(susceptibility_parameters[1])
+    println(susceptibility_parameters[2])
+    println(susceptibility_parameters[3])
+    println(susceptibility_parameters[4])
+    println(susceptibility_parameters[5])
+    println(susceptibility_parameters[6])
+    println(susceptibility_parameters[7])
+
+    println("temperature_parameters")
+    println(temperature_parameters[1])
+    println(temperature_parameters[2])
+    println(temperature_parameters[3])
+    println(temperature_parameters[4])
+    println(temperature_parameters[5])
+    println(temperature_parameters[6])
+    println(temperature_parameters[7])
+
+    println("mean_immunity_durations")
+    println(mean_immunity_durations[1])
+    println(mean_immunity_durations[2])
+    println(mean_immunity_durations[3])
+    println(mean_immunity_durations[4])
+    println(mean_immunity_durations[5])
+    println(mean_immunity_durations[6])
+    println(mean_immunity_durations[7])
+
+    println("random_infection_probabilities")
+    println(random_infection_probabilities[1])
+    println(random_infection_probabilities[2])
+    println(random_infection_probabilities[3])
+    println(random_infection_probabilities[4])
+    println()
+    return
 
     for j = 2:num_particles
         for i = 1:num_swarm_runs
