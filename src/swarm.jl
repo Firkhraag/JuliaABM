@@ -191,19 +191,10 @@ function run_swarm_model()
 
     println("Simulation")
 
-    num_swarm_model_runs = 1000
+    num_swarm_model_runs = 50
     num_particles = 20
 
-    # w = 1.0
-    # c1 = 0.1
-    # c2 = 0.3
-
-    # c1 = 0.5
-    # c2 = 1.5
-
-    w = 0.0
-    w_min = 0.4
-    w_max = 0.9
+    w = 0.5
     c1 = 2.0
     c2 = 2.0
 
@@ -373,6 +364,14 @@ function run_swarm_model()
             mean_immunity_durations_best = points[i, 16:22]
             random_infection_probabilities_best = points[i, 23:26]
         end
+
+        save(joinpath(@__DIR__, "..", "output", "tables", "swarm", "0", "results_$(i).jld"),
+            "observed_cases", observed_num_infected_age_groups_viruses,
+            "duration_parameter", duration_parameter_particles_best[i],
+            "susceptibility_parameters", susceptibility_parameters_particles_best[i],
+            "temperature_parameters", temperature_parameters_particles_best[i],
+            "mean_immunity_durations", mean_immunity_durations_particles_best[i],
+            "random_infection_probabilities", random_infection_probabilities_particles_best[i],)
     end
 
     # for k = 1:length(viruses)
@@ -492,16 +491,15 @@ function run_swarm_model()
     # return
 
     for curr_run = 1:num_swarm_model_runs
-        w = (num_swarm_model_runs - curr_run) / num_swarm_model_runs * (w_max - w_min) + w_min
         for i = 1:num_particles
-            duration_parameter_particles_velocity[i] = w * duration_parameter_particles_velocity[i] + c1 * rand(Float64) * (duration_parameter_particles_best[i] - duration_parameter_particles[i]) + c2 * rand(Float64) * (duration_parameter_best - duration_parameter_particles[i])
+            duration_parameter_particles_velocity[i] = w * duration_parameter_particles_velocity[i] + c1 * rand(thread_rng[1], Float64) * (duration_parameter_particles_best[i] - duration_parameter_particles[i]) + c2 * rand(thread_rng[1], Float64) * (duration_parameter_best - duration_parameter_particles[i])
             for j = 1:num_viruses
-                susceptibility_parameters_particles_velocity[i, j] = w * susceptibility_parameters_particles_velocity[i, j] +  c1 * rand(Float64) * (susceptibility_parameters_particles_best[i][j] - susceptibility_parameters_particles[i][j]) + c2 * rand(Float64) * (susceptibility_parameters_best[j] - susceptibility_parameters_particles[i][j])
-                temperature_parameters_particles_velocity[i, j] =  w * temperature_parameters_particles_velocity[i, j] + c1 * rand(Float64) * (temperature_parameters_particles_best[i][j] - temperature_parameters_particles[i][j]) + c2 * rand(Float64) * (temperature_parameters_best[j] - temperature_parameters_particles[i][j])
-                mean_immunity_durations_particles_velocity[i, j] = w * mean_immunity_durations_particles_velocity[i, j] + c1 * rand(Float64) * (mean_immunity_durations_particles_best[i][j] - mean_immunity_durations_particles[i][j]) + c2 * rand(Float64) * (mean_immunity_durations_best[j] - mean_immunity_durations_particles[i][j])
+                susceptibility_parameters_particles_velocity[i, j] = w * susceptibility_parameters_particles_velocity[i, j] +  c1 * rand(thread_rng[1], Float64) * (susceptibility_parameters_particles_best[i][j] - susceptibility_parameters_particles[i][j]) + c2 * rand(thread_rng[1], Float64) * (susceptibility_parameters_best[j] - susceptibility_parameters_particles[i][j])
+                temperature_parameters_particles_velocity[i, j] =  w * temperature_parameters_particles_velocity[i, j] + c1 * rand(thread_rng[1], Float64) * (temperature_parameters_particles_best[i][j] - temperature_parameters_particles[i][j]) + c2 * rand(thread_rng[1], Float64) * (temperature_parameters_best[j] - temperature_parameters_particles[i][j])
+                mean_immunity_durations_particles_velocity[i, j] = w * mean_immunity_durations_particles_velocity[i, j] + c1 * rand(thread_rng[1], Float64) * (mean_immunity_durations_particles_best[i][j] - mean_immunity_durations_particles[i][j]) + c2 * rand(thread_rng[1], Float64) * (mean_immunity_durations_best[j] - mean_immunity_durations_particles[i][j])
             end
             for j = 1:4
-                random_infection_probabilities_particles_velocity[i, j] = w * random_infection_probabilities_particles_velocity[i, j] + c1 * rand(Float64) * (random_infection_probabilities_particles_best[i][j] - random_infection_probabilities_particles[i][j]) + c2 * rand(Float64) * (random_infection_probabilities_best[j] - random_infection_probabilities_particles[i][j])
+                random_infection_probabilities_particles_velocity[i, j] = w * random_infection_probabilities_particles_velocity[i, j] + c1 * rand(thread_rng[1], Float64) * (random_infection_probabilities_particles_best[i][j] - random_infection_probabilities_particles[i][j]) + c2 * rand(thread_rng[1], Float64) * (random_infection_probabilities_best[j] - random_infection_probabilities_particles[i][j])
             end
 
             duration_parameter_particles[i] += duration_parameter_particles_velocity[i]
@@ -520,13 +518,23 @@ function run_swarm_model()
             if duration_parameter_particles[i] > 1.0
                 duration_parameter_particles[i] = 2 * 1.0 - duration_parameter_particles[i]
             end
+            if duration_parameter_particles[i] < 0.1
+                open(joinpath(@__DIR__, "..", "output", "tables", "swarm", "log.txt"), "a") do io
+                    println(io, "duration_parameter_particles[$(i)]: $(duration_parameter_particles[i])")
+                end
+            end
+
             for j = 1:num_viruses
                 if mean_immunity_durations_particles[i][j] < 30
                     mean_immunity_durations_particles[i][j] = 2 * 30 - mean_immunity_durations_particles[i][j]
                 end
-
                 if mean_immunity_durations_particles[i][j] > 365
                     mean_immunity_durations_particles[i][j] = 2 * 365 - mean_immunity_durations_particles[i][j]
+                end
+                if mean_immunity_durations_particles[i][j] < 30
+                    open(joinpath(@__DIR__, "..", "output", "tables", "swarm", "log.txt"), "a") do io
+                        println(io, "mean_immunity_durations_particles[$(i)][$(j)]: $(mean_immunity_durations_particles[i][j])")
+                    end
                 end
 
                 if susceptibility_parameters_particles[i][j] < 1.0
@@ -535,37 +543,71 @@ function run_swarm_model()
                 if susceptibility_parameters_particles[i][j] > 7.0
                     susceptibility_parameters_particles[i][j] = 2 * 7.0 - susceptibility_parameters_particles[i][j]
                 end
+                if susceptibility_parameters_particles[i][j] < 1.0
+                    open(joinpath(@__DIR__, "..", "output", "tables", "swarm", "log.txt"), "a") do io
+                        println(io, "susceptibility_parameters_particles[$(i)][$(j)]: $(susceptibility_parameters_particles[i][j])")
+                    end
+                end
 
+                if temperature_parameters_particles[i][j] < -1.0
+                    temperature_parameters_particles[i][j] = 2 * (-1.0) - temperature_parameters_particles[i][j]
+                end
                 if temperature_parameters_particles[i][j] > -0.01
                     temperature_parameters_particles[i][j] = 2 * (-0.01) - temperature_parameters_particles[i][j]
                 end
                 if temperature_parameters_particles[i][j] < -1.0
-                    temperature_parameters_particles[i][j] = 2 * (-1.0) - temperature_parameters_particles[i][j]
+                    open(joinpath(@__DIR__, "..", "output", "tables", "swarm", "log.txt"), "a") do io
+                        println(io, "temperature_parameters_particles[$(i)][$(j)]: $(temperature_parameters_particles[i][j])")
+                    end
                 end
+            end
+
+            if random_infection_probabilities_particles[i][1] < 0.0008
+                random_infection_probabilities_particles[i][1] = 2 * 0.0008 - random_infection_probabilities_particles[i][1]
             end
             if random_infection_probabilities_particles[i][1] > 0.0012
                 random_infection_probabilities_particles[i][1] = 2 * 0.0012 - random_infection_probabilities_particles[i][1]
             end
-            if random_infection_probabilities_particles[i][1] < 0.0008
-                random_infection_probabilities_particles[i][1] = 2 * 0.0008 - random_infection_probabilities_particles[i][1]
+            if random_infection_probabilities_particles[i][j] < 0.0008
+                open(joinpath(@__DIR__, "..", "output", "tables", "swarm", "log.txt"), "a") do io
+                    println(io, "random_infection_probabilities_particles[$(i)][1]: $(random_infection_probabilities_particles[i][1])")
+                end
+            end
+
+            if random_infection_probabilities_particles[i][2] < 0.0005
+                random_infection_probabilities_particles[i][2] = 2 * 0.0005 - random_infection_probabilities_particles[i][2]
             end
             if random_infection_probabilities_particles[i][2] > 0.001
                 random_infection_probabilities_particles[i][2] = 2 * 0.001 - random_infection_probabilities_particles[i][2]
             end
-            if random_infection_probabilities_particles[i][2] < 0.0005
-                random_infection_probabilities_particles[i][2] = 2 * 0.0005 - random_infection_probabilities_particles[i][2]
+            if random_infection_probabilities_particles[i][j] < 0.0005
+                open(joinpath(@__DIR__, "..", "output", "tables", "swarm", "log.txt"), "a") do io
+                    println(io, "random_infection_probabilities_particles[$(i)][2]: $(random_infection_probabilities_particles[i][2])")
+                end
+            end
+
+            if random_infection_probabilities_particles[i][3] < 0.0002
+                random_infection_probabilities_particles[i][3] = 2 * 0.0002 - random_infection_probabilities_particles[i][3]
             end
             if random_infection_probabilities_particles[i][3] > 0.0005
                 random_infection_probabilities_particles[i][3] = 2 * 0.0005 - random_infection_probabilities_particles[i][3]
             end
-            if random_infection_probabilities_particles[i][3] < 0.0002
-                random_infection_probabilities_particles[i][3] = 2 * 0.0002 - random_infection_probabilities_particles[i][3]
+            if random_infection_probabilities_particles[i][j] < 0.0002
+                open(joinpath(@__DIR__, "..", "output", "tables", "swarm", "log.txt"), "a") do io
+                    println(io, "random_infection_probabilities_particles[$(i)][3]: $(random_infection_probabilities_particles[i][3])")
+                end
+            end
+
+            if random_infection_probabilities_particles[i][4] < 0.000005
+                random_infection_probabilities_particles[i][4] = 2 * 0.000005 - random_infection_probabilities_particles[i][4]
             end
             if random_infection_probabilities_particles[i][4] > 0.00001
                 random_infection_probabilities_particles[i][4] = 2 * 0.00001 - random_infection_probabilities_particles[i][4]
             end
-            if random_infection_probabilities_particles[i][4] < 0.000005
-                random_infection_probabilities_particles[i][4] = 2 * 0.000005 - random_infection_probabilities_particles[i][4]
+            if random_infection_probabilities_particles[i][j] < 0.000005
+                open(joinpath(@__DIR__, "..", "output", "tables", "swarm", "log.txt"), "a") do io
+                    println(io, "random_infection_probabilities_particles[$(i)][4]: $(random_infection_probabilities_particles[i][4])")
+                end
             end
 
             for j = 1:num_viruses
