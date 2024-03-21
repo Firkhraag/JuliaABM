@@ -568,7 +568,7 @@ function run_swarm_model()
             if random_infection_probabilities_particles[i][1] > 0.0012
                 random_infection_probabilities_particles[i][1] = 2 * 0.0012 - random_infection_probabilities_particles[i][1]
             end
-            if random_infection_probabilities_particles[i][j] < 0.0008
+            if random_infection_probabilities_particles[i][1] < 0.0008
                 open(joinpath(@__DIR__, "..", "output", "tables", "swarm", "log.txt"), "a") do io
                     println(io, "random_infection_probabilities_particles[$(i)][1]: $(random_infection_probabilities_particles[i][1])")
                 end
@@ -580,7 +580,7 @@ function run_swarm_model()
             if random_infection_probabilities_particles[i][2] > 0.001
                 random_infection_probabilities_particles[i][2] = 2 * 0.001 - random_infection_probabilities_particles[i][2]
             end
-            if random_infection_probabilities_particles[i][j] < 0.0005
+            if random_infection_probabilities_particles[i][2] < 0.0005
                 open(joinpath(@__DIR__, "..", "output", "tables", "swarm", "log.txt"), "a") do io
                     println(io, "random_infection_probabilities_particles[$(i)][2]: $(random_infection_probabilities_particles[i][2])")
                 end
@@ -592,7 +592,7 @@ function run_swarm_model()
             if random_infection_probabilities_particles[i][3] > 0.0005
                 random_infection_probabilities_particles[i][3] = 2 * 0.0005 - random_infection_probabilities_particles[i][3]
             end
-            if random_infection_probabilities_particles[i][j] < 0.0002
+            if random_infection_probabilities_particles[i][3] < 0.0002
                 open(joinpath(@__DIR__, "..", "output", "tables", "swarm", "log.txt"), "a") do io
                     println(io, "random_infection_probabilities_particles[$(i)][3]: $(random_infection_probabilities_particles[i][3])")
                 end
@@ -604,7 +604,7 @@ function run_swarm_model()
             if random_infection_probabilities_particles[i][4] > 0.00001
                 random_infection_probabilities_particles[i][4] = 2 * 0.00001 - random_infection_probabilities_particles[i][4]
             end
-            if random_infection_probabilities_particles[i][j] < 0.000005
+            if random_infection_probabilities_particles[i][4] < 0.000005
                 open(joinpath(@__DIR__, "..", "output", "tables", "swarm", "log.txt"), "a") do io
                     println(io, "random_infection_probabilities_particles[$(i)][4]: $(random_infection_probabilities_particles[i][4])")
                 end

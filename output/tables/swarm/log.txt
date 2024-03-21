@@ -1,0 +1,10 @@
+susceptibility_parameters_particles[10][4]: -0.03625871824790039
+random_infection_probabilities_particles[14][4]: 4.871891036524994e-6
+susceptibility_parameters_particles[17][6]: 0.20545767753031718
+susceptibility_parameters_particles[10][4]: -4.306348119196766
+random_infection_probabilities_particles[10][4]: 4.474474735361829e-6
+random_infection_probabilities_particles[14][4]: 3.839448275640039e-6
+susceptibility_parameters_particles[17][6]: -1.1921295340235236
+random_infection_probabilities_particles[17][4]: 2.7473075883560706e-6
+random_infection_probabilities_particles[10][4]: 1.910220491027797e-6
+random_infection_probabilities_particles[14][4]: 1.4285912182307143e-6
