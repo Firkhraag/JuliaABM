@@ -306,12 +306,12 @@ function plot_swarm_hypercube()
     num_swarm_runs = 3
     num_particles = 20
 
-    incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_swarm_runs)
-    duration_parameter = Array{Float64, 1}(undef, num_swarm_runs)
-    susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_swarm_runs)
-    temperature_parameters = Array{Vector{Float64}, 1}(undef, num_swarm_runs)
-    mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_swarm_runs)
-    random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_swarm_runs)
+    incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_swarm_runs + 1)
+    duration_parameter = Array{Float64, 1}(undef, num_swarm_runs + 1)
+    susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_swarm_runs + 1)
+    temperature_parameters = Array{Vector{Float64}, 1}(undef, num_swarm_runs + 1)
+    mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_swarm_runs + 1)
+    random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_swarm_runs + 1)
 
     duration_parameter_velocity = Array{Float64, 1}(undef, num_swarm_runs)
     susceptibility_parameters_velocity = Array{Vector{Float64}, 1}(undef, num_swarm_runs)
@@ -324,18 +324,13 @@ function plot_swarm_hypercube()
     xlabel_name = "Шаг"
     ylabel_name = "nMAE"
 
-    for i = 1:num_swarm_runs
-        incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "1", "results_$(i).jld"))["observed_cases"]
-        duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "1", "results_$(i).jld"))["duration_parameter"]
-        duration_parameter_velocity[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "1", "results_$(i).jld"))["duration_parameter_velocity"]
-        susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "1", "results_$(i).jld"))["susceptibility_parameters"]
-        susceptibility_parameters_velocity[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "1", "results_$(i).jld"))["susceptibility_parameters_velocity"]
-        temperature_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "1", "results_$(i).jld"))["temperature_parameters"]
-        temperature_parameters_velocity[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "1", "results_$(i).jld"))["temperature_parameters_velocity"]
-        mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "1", "results_$(i).jld"))["mean_immunity_durations"]
-        mean_immunity_durations_velocity[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "1", "results_$(i).jld"))["mean_immunity_durations_velocity"]
-        random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "1", "results_$(i).jld"))["random_infection_probabilities"]
-        random_infection_probabilities_velocity[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "1", "results_$(i).jld"))["random_infection_probabilities_velocity"]
+    for i = 1:num_particles
+        incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["observed_cases"]
+        duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["duration_parameter"]
+        susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["susceptibility_parameters"]
+        temperature_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["temperature_parameters"]
+        mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["mean_immunity_durations"]
+        random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["random_infection_probabilities"]
     end
     
     for i = eachindex(nMAE_array)
@@ -361,11 +356,42 @@ function plot_swarm_hypercube()
 
 
 
-    println("duration_parameter")
-    println(duration_parameter)
-    println(duration_parameter_velocity)
-    println()
-    println()
+
+
+
+    # -------------------------------------
+    # incidence_arr[1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_10.jld"))["observed_cases"]
+    # duration_parameter[1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_10.jld"))["duration_parameter"]
+    # susceptibility_parameters[1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_10.jld"))["susceptibility_parameters"]
+    # temperature_parameters[1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_10.jld"))["temperature_parameters"]
+    # mean_immunity_durations[1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_10.jld"))["mean_immunity_durations"]
+    # random_infection_probabilities[1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_10.jld"))["random_infection_probabilities"]
+
+    # for i = 1:num_swarm_runs
+    #     incidence_arr[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "10", "results_$(i).jld"))["observed_cases"]
+    #     duration_parameter[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "10", "results_$(i).jld"))["duration_parameter"]
+    #     duration_parameter_velocity[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "10", "results_$(i).jld"))["duration_parameter_velocity"]
+    #     susceptibility_parameters[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "10", "results_$(i).jld"))["susceptibility_parameters"]
+    #     susceptibility_parameters_velocity[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "10", "results_$(i).jld"))["susceptibility_parameters_velocity"]
+    #     temperature_parameters[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "10", "results_$(i).jld"))["temperature_parameters"]
+    #     temperature_parameters_velocity[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "10", "results_$(i).jld"))["temperature_parameters_velocity"]
+    #     mean_immunity_durations[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "10", "results_$(i).jld"))["mean_immunity_durations"]
+    #     mean_immunity_durations_velocity[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "10", "results_$(i).jld"))["mean_immunity_durations_velocity"]
+    #     random_infection_probabilities[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "10", "results_$(i).jld"))["random_infection_probabilities"]
+    #     random_infection_probabilities_velocity[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "10", "results_$(i).jld"))["random_infection_probabilities_velocity"]
+    # end
+    
+    # for i = eachindex(nMAE_array)
+    #     nMAE_array[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    # end
+
+
+
+    # println("duration_parameter")
+    # println(duration_parameter)
+    # println(duration_parameter_velocity)
+    # println()
+    # println()
     # return
 
     # println("susceptibility_parameter (FluA)")
@@ -389,12 +415,62 @@ function plot_swarm_hypercube()
     # end
     # println()
 
+
+
     # println("susceptibility_parameter (RSV)")
-    # for i = 1:num_swarm_runs
+    # for i = 1:(num_swarm_runs + 1)
     #     print(susceptibility_parameters[i][4])
     #     print(" ")
     # end
     # println()
+    # println("susceptibility_parameter_velocity (RSV)")
+    # for i = 1:num_swarm_runs
+    #     print(susceptibility_parameters_velocity[i][4])
+    #     print(" ")
+    # end
+    # println()
+
+
+
+    # println(argmin(nMAE_array))
+    # w = 0.5
+    # c1 = 2.0
+    # c2 = 2.0
+    # num_swarm_model_runs = 50
+
+    # curr_run = length(duration_parameter) + 1
+
+
+
+
+
+    # mean_immunity_durations_particles_velocity = zeros(Float64, num_viruses)
+
+    # mean_immunity_durations_best = mean_immunity_durations[argmin(nMAE_array)]
+
+    # for j = 1:num_viruses
+    #     mean_immunity_durations_particles_velocity[j] = w * mean_immunity_durations_velocity[curr_run - 1][j] + c1 * rand(Float64) * (mean_immunity_durations[argmin(nMAE_array)][j] - mean_immunity_durations[curr_run - 1][j]) + c2 * rand(Float64) * (mean_immunity_durations_best[j] - mean_immunity_durations[curr_run - 1][j])
+    # end
+    # println(mean_immunity_durations_particles_velocity)
+    # println(mean_immunity_durations[curr_run - 1] + mean_immunity_durations_particles_velocity)
+
+
+
+
+    # rng = MersenneTwister(1)
+
+    # rand1 = rand(rng, Float64)
+    # rand2 = rand(rng, Float64)
+
+    # susceptibility_parameters_particles_velocity = c2 * rand2 * (susceptibility_parameters_best - susceptibility_parameters[1][4])
+
+
+
+
+    # susceptibility_parameters_particles_velocity = w * susceptibility_parameters_velocity[curr_run - 1] + c1 * rand1 * (susceptibility_parameters[argmin(nMAE_array)] - susceptibility_parameters[curr_run - 1]) + c2 * rand2 * (susceptibility_parameters_best - susceptibility_parameters[curr_run - 1])
+
+
+
 
     # println("susceptibility_parameter (AdV)")
     # for i = 1:num_swarm_runs
@@ -416,6 +492,9 @@ function plot_swarm_hypercube()
     #     print(" ")
     # end
     # println()
+
+
+    # return
 
     # println("----------------------------")
 
@@ -470,179 +549,181 @@ function plot_swarm_hypercube()
 
     # println("----------------------------")
 
-    println(argmin(nMAE_array))
-    w = 0.5
-    c1 = 2.0
-    c2 = 2.0
-    num_swarm_model_runs = 1000
-
-    curr_run = length(duration_parameter) + 1
-    # mean_immunity_durations_particles_velocity = zeros(Float64, num_viruses)
-
-    # mean_immunity_durations_best = mean_immunity_durations[argmin(nMAE_array)]
-
-    # for j = 1:num_viruses
-    #     mean_immunity_durations_particles_velocity[j] = w * mean_immunity_durations_velocity[curr_run - 1][j] + c1 * rand(Float64) * (mean_immunity_durations[argmin(nMAE_array)][j] - mean_immunity_durations[curr_run - 1][j]) + c2 * rand(Float64) * (mean_immunity_durations_best[j] - mean_immunity_durations[curr_run - 1][j])
-    # end
-    # println(mean_immunity_durations_particles_velocity)
-    # println(mean_immunity_durations[curr_run - 1] + mean_immunity_durations_particles_velocity)
-
-    rng = MersenneTwister(1)
-
-    duration_parameter_particles_velocity = 0.0
-
-    duration_parameter_best = duration_parameter[argmin(nMAE_array)]
-
-    println("ok")
-    rand1 = rand(rng, Float64)
-    rand2 = rand(rng, Float64)
-
-    println(duration_parameter[argmin(nMAE_array)])
-    println(duration_parameter[curr_run - 1])
-    println()
-
-    println(duration_parameter[argmin(nMAE_array)] - duration_parameter[curr_run - 1])
-    println(duration_parameter_best - duration_parameter[curr_run - 1])
-    println()
-
-    println(w * duration_parameter_velocity[curr_run - 1])
-    println(c1 * rand1 * (duration_parameter[argmin(nMAE_array)] - duration_parameter[curr_run - 1]))
-    println(c2 * rand2 * (duration_parameter_best - duration_parameter[curr_run - 1]))
-
-    println()
-
-    duration_parameter_particles_velocity = w * duration_parameter_velocity[curr_run - 1] + c1 * rand1 * (duration_parameter[argmin(nMAE_array)] - duration_parameter[curr_run - 1]) + c2 * rand2 * (duration_parameter_best - duration_parameter[curr_run - 1])
-    println(duration_parameter_particles_velocity)
-    println(duration_parameter[curr_run - 1] + duration_parameter_particles_velocity)
-
-    return
-
-
-    println("mean_immunity_duration (FluA)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations[i][1])
-        print(" ")
-    end
-    println()
-    println("mean_immunity_duration_velocity (FluA)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations_velocity[i][1])
-        print(" ")
-    end
-    println()
-    println()
-
-    println("mean_immunity_duration (FluB)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations[i][2])
-        print(" ")
-    end
-    println()
-    println("mean_immunity_duration_velocity (FluB)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations_velocity[i][2])
-        print(" ")
-    end
-    println()
-    println()
-
-    println("mean_immunity_duration (RV)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations[i][3])
-        print(" ")
-    end
-    println()
-    println("mean_immunity_duration_velocity (RV)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations_velocity[i][3])
-        print(" ")
-    end
-    println()
-    println()
-
-    println("mean_immunity_duration (RSV)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations[i][4])
-        print(" ")
-    end
-    println()
-    println("mean_immunity_duration_velocity (RSV)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations_velocity[i][4])
-        print(" ")
-    end
-    println()
-    println()
-
-    println("mean_immunity_duration (AdV)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations[i][5])
-        print(" ")
-    end
-    println()
-    println("mean_immunity_duration_velocity (AdV)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations_velocity[i][5])
-        print(" ")
-    end
-    println()
-    println()
-
-    println("mean_immunity_duration (PIV)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations[i][6])
-        print(" ")
-    end
-    println()
-    println("mean_immunity_duration_velocity (PIV)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations_velocity[i][6])
-        print(" ")
-    end
-    println()
-    println()
-
-    println("mean_immunity_duration (CoV)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations[i][7])
-        print(" ")
-    end
-    println()
-    println("mean_immunity_duration_velocity (CoV)")
-    for i = 1:num_swarm_runs
-        print(mean_immunity_durations_velocity[i][7])
-        print(" ")
-    end
-    println()
-    println("----------------------")
-
-
     # println(argmin(nMAE_array))
-    # w = 0.0
-    # w_min = 0.4
-    # w_max = 0.9
+    # w = 0.5
     # c1 = 2.0
     # c2 = 2.0
     # num_swarm_model_runs = 1000
 
     # curr_run = length(duration_parameter) + 1
-    # w = (num_swarm_model_runs - curr_run) / num_swarm_model_runs * (w_max - w_min) + w_min
-    # mean_immunity_durations_particles_velocity = zeros(Float64, num_viruses)
+    # # mean_immunity_durations_particles_velocity = zeros(Float64, num_viruses)
 
-    # mean_immunity_durations_best = mean_immunity_durations[argmin(nMAE_array)]
+    # # mean_immunity_durations_best = mean_immunity_durations[argmin(nMAE_array)]
 
-    # for j = 1:num_viruses
-    #     mean_immunity_durations_particles_velocity[j] = w * mean_immunity_durations_velocity[curr_run - 1][j] + c1 * rand(Float64) * (mean_immunity_durations[argmin(nMAE_array)][j] - mean_immunity_durations[curr_run - 1][j]) + c2 * rand(Float64) * (mean_immunity_durations_best[j] - mean_immunity_durations[curr_run - 1][j])
+    # # for j = 1:num_viruses
+    # #     mean_immunity_durations_particles_velocity[j] = w * mean_immunity_durations_velocity[curr_run - 1][j] + c1 * rand(Float64) * (mean_immunity_durations[argmin(nMAE_array)][j] - mean_immunity_durations[curr_run - 1][j]) + c2 * rand(Float64) * (mean_immunity_durations_best[j] - mean_immunity_durations[curr_run - 1][j])
+    # # end
+    # # println(mean_immunity_durations_particles_velocity)
+    # # println(mean_immunity_durations[curr_run - 1] + mean_immunity_durations_particles_velocity)
+
+    # rng = MersenneTwister(1)
+
+    # duration_parameter_particles_velocity = 0.0
+
+    # duration_parameter_best = duration_parameter[argmin(nMAE_array)]
+
+    # println("ok")
+    # rand1 = rand(rng, Float64)
+    # rand2 = rand(rng, Float64)
+
+
+
+    # println(duration_parameter[argmin(nMAE_array)])
+    # println(duration_parameter[curr_run - 1])
+    # println()
+
+    # println(duration_parameter[argmin(nMAE_array)] - duration_parameter[curr_run - 1])
+    # println(duration_parameter_best - duration_parameter[curr_run - 1])
+    # println()
+
+    # println(w * duration_parameter_velocity[curr_run - 1])
+    # println(c1 * rand1 * (duration_parameter[argmin(nMAE_array)] - duration_parameter[curr_run - 1]))
+    # println(c2 * rand2 * (duration_parameter_best - duration_parameter[curr_run - 1]))
+
+    # println()
+
+    # duration_parameter_particles_velocity = w * duration_parameter_velocity[curr_run - 1] + c1 * rand1 * (duration_parameter[argmin(nMAE_array)] - duration_parameter[curr_run - 1]) + c2 * rand2 * (duration_parameter_best - duration_parameter[curr_run - 1])
+    # println(duration_parameter_particles_velocity)
+    # println(duration_parameter[curr_run - 1] + duration_parameter_particles_velocity)
+
+    # return
+
+
+    # println("mean_immunity_duration (FluA)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations[i][1])
+    #     print(" ")
     # end
-    # println(mean_immunity_durations_particles_velocity)
-    # println(mean_immunity_durations[curr_run - 1] + mean_immunity_durations_particles_velocity)
+    # println()
+    # println("mean_immunity_duration_velocity (FluA)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations_velocity[i][1])
+    #     print(" ")
+    # end
+    # println()
+    # println()
+
+    # println("mean_immunity_duration (FluB)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations[i][2])
+    #     print(" ")
+    # end
+    # println()
+    # println("mean_immunity_duration_velocity (FluB)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations_velocity[i][2])
+    #     print(" ")
+    # end
+    # println()
+    # println()
+
+    # println("mean_immunity_duration (RV)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations[i][3])
+    #     print(" ")
+    # end
+    # println()
+    # println("mean_immunity_duration_velocity (RV)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations_velocity[i][3])
+    #     print(" ")
+    # end
+    # println()
+    # println()
+
+    # println("mean_immunity_duration (RSV)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations[i][4])
+    #     print(" ")
+    # end
+    # println()
+    # println("mean_immunity_duration_velocity (RSV)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations_velocity[i][4])
+    #     print(" ")
+    # end
+    # println()
+    # println()
+
+    # println("mean_immunity_duration (AdV)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations[i][5])
+    #     print(" ")
+    # end
+    # println()
+    # println("mean_immunity_duration_velocity (AdV)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations_velocity[i][5])
+    #     print(" ")
+    # end
+    # println()
+    # println()
+
+    # println("mean_immunity_duration (PIV)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations[i][6])
+    #     print(" ")
+    # end
+    # println()
+    # println("mean_immunity_duration_velocity (PIV)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations_velocity[i][6])
+    #     print(" ")
+    # end
+    # println()
+    # println()
+
+    # println("mean_immunity_duration (CoV)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations[i][7])
+    #     print(" ")
+    # end
+    # println()
+    # println("mean_immunity_duration_velocity (CoV)")
+    # for i = 1:num_swarm_runs
+    #     print(mean_immunity_durations_velocity[i][7])
+    #     print(" ")
+    # end
+    # println()
+    # println("----------------------")
+
+
+    # # println(argmin(nMAE_array))
+    # # w = 0.0
+    # # w_min = 0.4
+    # # w_max = 0.9
+    # # c1 = 2.0
+    # # c2 = 2.0
+    # # num_swarm_model_runs = 1000
+
+    # # curr_run = length(duration_parameter) + 1
+    # # w = (num_swarm_model_runs - curr_run) / num_swarm_model_runs * (w_max - w_min) + w_min
+    # # mean_immunity_durations_particles_velocity = zeros(Float64, num_viruses)
+
+    # # mean_immunity_durations_best = mean_immunity_durations[argmin(nMAE_array)]
+
+    # # for j = 1:num_viruses
+    # #     mean_immunity_durations_particles_velocity[j] = w * mean_immunity_durations_velocity[curr_run - 1][j] + c1 * rand(Float64) * (mean_immunity_durations[argmin(nMAE_array)][j] - mean_immunity_durations[curr_run - 1][j]) + c2 * rand(Float64) * (mean_immunity_durations_best[j] - mean_immunity_durations[curr_run - 1][j])
+    # # end
+    # # println(mean_immunity_durations_particles_velocity)
+    # # println(mean_immunity_durations[curr_run - 1] + mean_immunity_durations_particles_velocity)
 
 
 
 
 
     
-    return
+    # return
 
     
     
@@ -651,37 +732,37 @@ function plot_swarm_hypercube()
 
     
 
-    println("random_infection_probability (0-2)")
-    for i = 1:num_swarm_runs
-        print(random_infection_probabilities[i][1])
-        print(" ")
-    end
-    println()
+    # println("random_infection_probability (0-2)")
+    # for i = 1:num_swarm_runs
+    #     print(random_infection_probabilities[i][1])
+    #     print(" ")
+    # end
+    # println()
 
-    println("random_infection_probability (3-6)")
-    for i = 1:num_swarm_runs
-        print(random_infection_probabilities[i][2])
-        print(" ")
-    end
-    println()
+    # println("random_infection_probability (3-6)")
+    # for i = 1:num_swarm_runs
+    #     print(random_infection_probabilities[i][2])
+    #     print(" ")
+    # end
+    # println()
 
-    println("random_infection_probability (7-14)")
-    for i = 1:num_swarm_runs
-        print(random_infection_probabilities[i][3])
-        print(" ")
-    end
-    println()
+    # println("random_infection_probability (7-14)")
+    # for i = 1:num_swarm_runs
+    #     print(random_infection_probabilities[i][3])
+    #     print(" ")
+    # end
+    # println()
 
-    println("random_infection_probability (15+)")
-    for i = 1:num_swarm_runs
-        print(random_infection_probabilities[i][4])
-        print(" ")
-    end
-    println()
+    # println("random_infection_probability (15+)")
+    # for i = 1:num_swarm_runs
+    #     print(random_infection_probabilities[i][4])
+    #     print(" ")
+    # end
+    # println()
 
-    return
+    # return
 
-    for j = 2:num_particles
+    for j = 1:num_particles
         for i = 1:num_swarm_runs
             incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["observed_cases"]
             duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["duration_parameter"]
@@ -691,9 +772,6 @@ function plot_swarm_hypercube()
             mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["mean_immunity_durations"]
             random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["random_infection_probabilities"]
         end
-
-        # println(duration_parameter)
-        println(duration_parameter_velocity)
 
         for i = eachindex(nMAE_array)
             nMAE_array[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)

@@ -37,36 +37,7 @@ end
 
 function run_test_model()
 
-    println("Simulation")
-
-    etiology = get_etiology()
-    num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
-
-    num_swarm_model_runs = 20
-    num_initial_runs = 1000
-    num_particles = 10
-
-    num_years = 1
-    num_parameters = 26
-    num_viruses = 7
-
-    incidence_arr = Array{Array{Float64, 3}, 1}(undef, 20)
-    duration_parameter = Array{Float64, 1}(undef, 20)
-    susceptibility_parameters = Array{Vector{Float64}, 1}(undef, 20)
-    temperature_parameters = Array{Vector{Float64}, 1}(undef, 20)
-    random_infection_probabilities = Array{Vector{Float64}, 1}(undef, 20)
-    mean_immunity_durations = Array{Vector{Float64}, 1}(undef, 20)
-
-    y = zeros(Float64, 20)
-
-    for i = 1:9
-        for j = 1:20
-            incidence_arr[j] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["observed_cases"]
-            duration_parameter[i] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["duration_parameter"]
-            # println(sum(abs.(incidence_arr[j] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses))
-            println(duration_parameter[i])
-        end
-    end
+    println(rand(Float64, (0.1, 2.0)))
 
 end
 
