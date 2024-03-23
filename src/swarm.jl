@@ -303,7 +303,7 @@ function run_swarm_model()
 
         # Если уже посчитано
         for i = 1:num_particles
-            incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["observed_cases"]
+            incidence_arr[i] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["observed_cases"]
         end
 
         # Если не посчитано
