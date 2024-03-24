@@ -303,7 +303,7 @@ function plot_swarm_hypercube()
     etiology = get_etiology()
     num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
 
-    num_swarm_runs = 3
+    num_swarm_runs = 42
     num_particles = 20
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_swarm_runs + 1)
@@ -343,15 +343,14 @@ function plot_swarm_hypercube()
         nMAE_array[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
     end
 
-    println(nMAE_array)
-
     nMAE_plot = plot(
         1:(num_swarm_runs + 1),
         moving_average(nMAE_array, 10),
         lw = 1.5,
         grid = true,
         legend = false,
-        color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+        # color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+        color = RGB(0.0, 0.0, 0.0),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -384,7 +383,8 @@ function plot_swarm_hypercube()
             lw = 1.5,
             grid = true,
             legend = false,
-            color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+            # color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+            color = RGB(0.0, 0.0, 0.0),
             foreground_color_legend = nothing,
             background_color_legend = nothing,
             xlabel = xlabel_name,
@@ -435,7 +435,7 @@ function plot_surrogate_hypercube()
         lw = 1.5,
         grid = true,
         legend = false,
-        color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
+        color = RGB(0.0, 0.0, 0.0),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,

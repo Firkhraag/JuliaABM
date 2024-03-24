@@ -216,7 +216,7 @@ function run_surrogate_model()
     println("Simulation")
 
     num_initial_runs = 1000
-    num_additional_runs = 0
+    num_additional_runs = 153
     num_runs = num_initial_runs + num_additional_runs
 
     forest_num_rounds = 150
@@ -227,12 +227,12 @@ function run_surrogate_model()
     num_parameters = 26
     num_viruses = 7
 
-    incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_initial_runs)
-    duration_parameter = Array{Float64, 1}(undef, num_initial_runs)
-    susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_initial_runs)
-    temperature_parameters = Array{Vector{Float64}, 1}(undef, num_initial_runs)
-    random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_initial_runs)
-    mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_initial_runs)
+    incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_runs)
+    duration_parameter = Array{Float64, 1}(undef, num_runs)
+    susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_runs)
+    temperature_parameters = Array{Vector{Float64}, 1}(undef, num_runs)
+    random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_runs)
+    mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_runs)
 
     for i = 1:num_initial_runs
         incidence_arr[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "initial", "results_$(i).jld"))["observed_cases"]
@@ -284,51 +284,34 @@ function run_surrogate_model()
     mean_immunity_durations_default = mean_immunity_durations[argmin(y)]
     random_infection_probabilities_default = random_infection_probabilities[argmin(y)]
 
-    for curr_run = 1:200
-        # bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η)
+    bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η)
+
+    par_vec = []
+    error = 0.0
+
+    for particle_number = 1:20
+        for i = 1:42
+            par_vec = []
+
+            push!(par_vec, load(joinpath(@__DIR__, "..", "output", "tables", "swarm", particle_number, "results_$(i).jld"))["duration_parameter"])
+            append!(par_vec, load(joinpath(@__DIR__, "..", "output", "tables", "swarm", particle_number, "results_$(i).jld"))["susceptibility_parameters"])
+            append!(par_vec, load(joinpath(@__DIR__, "..", "output", "tables", "swarm", particle_number, "results_$(i).jld"))["temperature_parameters"])
+            append!(par_vec, load(joinpath(@__DIR__, "..", "output", "tables", "swarm", particle_number, "results_$(i).jld"))["mean_immunity_durations"])
+            append!(par_vec, load(joinpath(@__DIR__, "..", "output", "tables", "swarm", particle_number, "results_$(i).jld"))["random_infection_probabilities"])
+            r = reshape(par_vec, 1, :)
+            nMAE = predict(bst, r)[1]
+
+            real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", particle_number, "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+
+            error += abs(real_nMAE - nMAE)
+        end
+    end
+    error /= 840.0
+    println(error)
+    return
+
+    for curr_run = 1:500
         bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η, watchlist=[])
-
-        # incidence_arr = Array{Array{Float64, 3}, 1}(undef, 100)
-        # duration_parameter = Array{Float64, 1}(undef, 100)
-        # susceptibility_parameters = Array{Vector{Float64}, 1}(undef, 100)
-        # temperature_parameters = Array{Vector{Float64}, 1}(undef, 100)
-        # random_infection_probabilities = Array{Vector{Float64}, 1}(undef, 100)
-        # mean_immunity_durations = Array{Vector{Float64}, 1}(undef, 100)
-
-        # for i = 1:100
-        #     incidence_arr[i] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate_test", "results_$(i).jld"))["observed_cases"]
-        #     duration_parameter[i] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate_test", "results_$(i).jld"))["duration_parameter"]
-        #     susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate_test", "results_$(i).jld"))["susceptibility_parameters"]
-        #     temperature_parameters[i] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate_test", "results_$(i).jld"))["temperature_parameters"]
-        #     mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate_test", "results_$(i).jld"))["mean_immunity_durations"]
-        #     random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate_test", "results_$(i).jld"))["random_infection_probabilities"]
-        # end
-
-        # etiology = get_etiology()
-        # num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
-
-        # y = zeros(Float64, 100)
-        # for i = eachindex(y)
-        #     y[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
-        # end
-
-        # diff = 0.0
-        # for i = 1:100
-        #     par_vec = [duration_parameter[i]]
-        #     append!(par_vec, susceptibility_parameters[i])
-        #     append!(par_vec, temperature_parameters[i])
-        #     append!(par_vec, mean_immunity_durations[i])
-        #     append!(par_vec, random_infection_probabilities[i])
-
-        #     r = reshape(par_vec, 1, :)
-
-        #     nMAE = predict(bst, r)[1]
-    
-        #     diff += (nMAE - y[i])^2
-        # end
-        # println(diff / 100)
-
-        # return
 
         num_lhs_iterations = 100
         lhs_num_steps = 100
@@ -457,6 +440,21 @@ function run_surrogate_model()
             viruses[j].immunity_duration_sd = mean_immunity_durations_default[j] * 0.33
         end
 
+        # Сбрасываем состояние синтетической популяции до начального
+        @threads for thread_id in 1:num_threads
+            reset_agent_states(
+                agents,
+                start_agent_ids[thread_id],
+                end_agent_ids[thread_id],
+                viruses,
+                num_infected_age_groups_viruses_prev,
+                isolation_probabilities_day_1,
+                isolation_probabilities_day_2,
+                isolation_probabilities_day_3,
+                thread_rng[thread_id],
+            )
+        end
+
         # Моделируем заболеваемость
         @time observed_num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
             num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_default,
@@ -490,21 +488,6 @@ function run_surrogate_model()
             "temperature_parameters", temperature_parameters_default,
             "mean_immunity_durations", mean_immunity_durations_default,
             "random_infection_probabilities", random_infection_probabilities_default)
-
-        # Сбрасываем состояние синтетической популяции до начального
-        @threads for thread_id in 1:num_threads
-            reset_agent_states(
-                agents,
-                start_agent_ids[thread_id],
-                end_agent_ids[thread_id],
-                viruses,
-                num_infected_age_groups_viruses_prev,
-                isolation_probabilities_day_1,
-                isolation_probabilities_day_2,
-                isolation_probabilities_day_3,
-                thread_rng[thread_id],
-            )
-        end
 
         println("Real nMAE: $(nMAE)")
 
