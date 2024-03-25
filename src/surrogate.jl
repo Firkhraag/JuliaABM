@@ -197,31 +197,32 @@ function run_surrogate_model()
         num_infected_age_groups_viruses_prev[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
     end
 
-    # Создание популяции
-    @time @threads for thread_id in 1:num_threads
-        create_population(
-            thread_id, num_threads, thread_rng, start_agent_ids[thread_id],
-            agents, households, viruses, num_infected_age_groups_viruses_prev, isolation_probabilities_day_1,
-            isolation_probabilities_day_2, isolation_probabilities_day_3, start_household_ids[thread_id],
-            homes_coords_df, district_households, district_people, district_people_households)
-    end
+    # # Создание популяции
+    # @time @threads for thread_id in 1:num_threads
+    #     create_population(
+    #         thread_id, num_threads, thread_rng, start_agent_ids[thread_id],
+    #         agents, households, viruses, num_infected_age_groups_viruses_prev, isolation_probabilities_day_1,
+    #         isolation_probabilities_day_2, isolation_probabilities_day_3, start_household_ids[thread_id],
+    #         homes_coords_df, district_households, district_people, district_people_households)
+    # end
 
-    # Установление связей между агентами
-    @time set_connections(
-        agents, households, kindergartens, schools, colleges,
-        workplaces, thread_rng, num_threads, homes_coords_df,
-        firm_min_size, firm_max_size, work_num_barabasi_albert_attachments,
-        school_num_barabasi_albert_attachments)
+    # # Установление связей между агентами
+    # @time set_connections(
+    #     agents, households, kindergartens, schools, colleges,
+    #     workplaces, thread_rng, num_threads, homes_coords_df,
+    #     firm_min_size, firm_max_size, work_num_barabasi_albert_attachments,
+    #     school_num_barabasi_albert_attachments)
 
     println("Simulation")
 
     num_initial_runs = 1000
-    num_additional_runs = 153
+    # num_additional_runs = 153
+    num_additional_runs = 0
     num_runs = num_initial_runs + num_additional_runs
 
-    forest_num_rounds = 150
-    forest_max_depth = 10
-    η = 0.1
+    forest_num_rounds = 170
+    forest_max_depth = 6
+    η = 0.2
 
     num_years = 1
     num_parameters = 26
@@ -284,31 +285,64 @@ function run_surrogate_model()
     mean_immunity_durations_default = mean_immunity_durations[argmin(y)]
     random_infection_probabilities_default = random_infection_probabilities[argmin(y)]
 
-    bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η)
+    # min_error = 99999.0
+    # for η = 0.19:0.01:0.21
+    #     for forest_num_rounds = 165:5:175
+    #         for forest_max_depth = 5:1:7
+    #             @time bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η, watchlist = [])
 
-    par_vec = []
-    error = 0.0
+    #             par_vec = zeros(Float64, 26)
+    #             error = 0.0
 
-    for particle_number = 1:20
-        for i = 1:42
-            par_vec = []
+    #             for particle_number = 1:20
+    #                 for i = 1:42
+    #                     for k = 1:26
+    #                         par_vec[k] = 0.0
+    #                     end
 
-            push!(par_vec, load(joinpath(@__DIR__, "..", "output", "tables", "swarm", particle_number, "results_$(i).jld"))["duration_parameter"])
-            append!(par_vec, load(joinpath(@__DIR__, "..", "output", "tables", "swarm", particle_number, "results_$(i).jld"))["susceptibility_parameters"])
-            append!(par_vec, load(joinpath(@__DIR__, "..", "output", "tables", "swarm", particle_number, "results_$(i).jld"))["temperature_parameters"])
-            append!(par_vec, load(joinpath(@__DIR__, "..", "output", "tables", "swarm", particle_number, "results_$(i).jld"))["mean_immunity_durations"])
-            append!(par_vec, load(joinpath(@__DIR__, "..", "output", "tables", "swarm", particle_number, "results_$(i).jld"))["random_infection_probabilities"])
-            r = reshape(par_vec, 1, :)
-            nMAE = predict(bst, r)[1]
+    #                     par_vec[1] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["duration_parameter"]
+    #                     par_vec[2:8] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["susceptibility_parameters"]
+    #                     par_vec[9:15] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["temperature_parameters"]
+    #                     par_vec[16:22] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["mean_immunity_durations"]
+    #                     par_vec[23:26] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["random_infection_probabilities"]
+    #                     r = reshape(par_vec, 1, :)
+    #                     nMAE = predict(bst, r)[1]
 
-            real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", particle_number, "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    #                     real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
 
-            error += abs(real_nMAE - nMAE)
-        end
+    #                     error += abs(real_nMAE - nMAE)
+    #                 end
+    #             end
+    #             error /= 840.0
+    #             if error < min_error
+    #                 min_error = error
+    #                 println()
+    #                 println(forest_num_rounds)
+    #                 println(forest_max_depth)
+    #                 println(η)
+    #                 println(error)
+    #                 println()
+    #             end
+    #         end
+    #     end
+    # end
+    # return
+
+    # Создание популяции
+    @time @threads for thread_id in 1:num_threads
+        create_population(
+            thread_id, num_threads, thread_rng, start_agent_ids[thread_id],
+            agents, households, viruses, num_infected_age_groups_viruses_prev, isolation_probabilities_day_1,
+            isolation_probabilities_day_2, isolation_probabilities_day_3, start_household_ids[thread_id],
+            homes_coords_df, district_households, district_people, district_people_households)
     end
-    error /= 840.0
-    println(error)
-    return
+
+    # Установление связей между агентами
+    @time set_connections(
+        agents, households, kindergartens, schools, colleges,
+        workplaces, thread_rng, num_threads, homes_coords_df,
+        firm_min_size, firm_max_size, work_num_barabasi_albert_attachments,
+        school_num_barabasi_albert_attachments)
 
     for curr_run = 1:500
         bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η, watchlist=[])
