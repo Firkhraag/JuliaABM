@@ -328,6 +328,11 @@ function run_surrogate_model()
     # end
     # return
 
+    for j = 1:num_viruses
+        viruses[j].mean_immunity_duration = mean_immunity_durations_default[j]
+        viruses[j].immunity_duration_sd = mean_immunity_durations_default[j] * 0.33
+    end
+
     # Создание популяции
     @time @threads for thread_id in 1:num_threads
         create_population(
