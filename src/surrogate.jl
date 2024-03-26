@@ -7,6 +7,10 @@ using JLD
 using DataFrames
 using Distributions
 using XGBoost
+using Lux
+using Random
+using Zygote
+using Optimisers
 
 # Модель на сервере
 include("../server/lib/data/etiology.jl")
@@ -261,21 +265,39 @@ function run_surrogate_model()
         y[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
     end
 
-    X = zeros(Float64, num_runs, num_parameters)
+    # X = zeros(Float64, num_runs, num_parameters)
+
+    # for i = 1:num_runs
+    #     X[i, 1] = duration_parameter[i]
+    #     for k = 1:num_viruses
+    #         X[i, 1 + k] = susceptibility_parameters[i][k]
+    #     end
+    #     for k = 1:num_viruses
+    #         X[i, 1 + num_viruses + k] = temperature_parameters[i][k]
+    #     end
+    #     for k = 1:num_viruses
+    #         X[i, 1 + 2 * num_viruses + k] = mean_immunity_durations[i][k]
+    #     end
+    #     for k = 1:4
+    #         X[i, 1 + 3 * num_viruses + k] = random_infection_probabilities[i][k]
+    #     end
+    # end
+
+    X = zeros(Float64, num_parameters, num_runs)
 
     for i = 1:num_runs
-        X[i, 1] = duration_parameter[i]
+        X[1, i] = duration_parameter[i]
         for k = 1:num_viruses
-            X[i, 1 + k] = susceptibility_parameters[i][k]
+            X[1 + k, i] = susceptibility_parameters[i][k]
         end
         for k = 1:num_viruses
-            X[i, 1 + num_viruses + k] = temperature_parameters[i][k]
+            X[1 + num_viruses + k, i] = temperature_parameters[i][k]
         end
         for k = 1:num_viruses
-            X[i, 1 + 2 * num_viruses + k] = mean_immunity_durations[i][k]
+            X[1 + 2 * num_viruses + k, i] = mean_immunity_durations[i][k]
         end
         for k = 1:4
-            X[i, 1 + 3 * num_viruses + k] = random_infection_probabilities[i][k]
+            X[1 + 3 * num_viruses + k, i] = random_infection_probabilities[i][k]
         end
     end
 
@@ -284,6 +306,83 @@ function run_surrogate_model()
     temperature_parameters_default = temperature_parameters[argmin(y)]
     mean_immunity_durations_default = mean_immunity_durations[argmin(y)]
     random_infection_probabilities_default = random_infection_probabilities[argmin(y)]
+
+    # println(size(X))
+    # return
+
+    LAYERS = [26, 20, 20, 20, 1]
+    LEARNING_RATE = 0.1
+    N_EPOCHS = 15_000
+
+    # Pseudo-Random number generator
+    rng = Xoshiro(42)
+
+    # Network architecture
+    model = Chain(
+        # Dense(LAYERS[1]=>LAYERS[2], relu),
+        [Dense(fan_in=>fan_out, relu) for (fan_in, fan_out) in zip(LAYERS[1:end-2], LAYERS[2:end-1])]...,
+        Dense(LAYERS[end - 1]=>LAYERS[end], identity),
+    )
+
+    # Initializing parameters (and stateful layers if we have them)
+    parameters, layer_states = Lux.setup(rng, model)
+
+    # Loss function
+    function loss_fn(x_samples, y_samples, parameters, layer_states)
+        y_prediction, new_layer_states = model(x_samples, parameters, layer_states)
+        loss = 0.5 * mean((y_prediction .- y_samples).^2)
+        return loss, new_layer_states
+    end
+
+    # Gradient descent, can be swapped for ADAM
+    opt = Descent(LEARNING_RATE)
+    opt_state = Optimisers.setup(opt, parameters)
+
+    # Train loop
+    loss_history = []
+    for epoch = 1:N_EPOCHS
+        (loss, layer_states), back = pullback(loss_fn, X, y, parameters, layer_states)
+        grad, _ = back((1.0, nothing))
+
+        opt_state, parameters = Optimisers.update(opt_state, parameters, grad)
+        push!(loss_history, loss)
+        if epoch % 100 == 0
+            println("Epoch: $(epoch), loss: $(loss)")
+        end
+    end
+
+    return
+
+    for particle_number = 1:20
+        for i = 1:42
+            for k = 1:26
+                par_vec[k] = 0.0
+            end
+
+            par_vec[1] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["duration_parameter"]
+            par_vec[2:8] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["susceptibility_parameters"]
+            par_vec[9:15] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["temperature_parameters"]
+            par_vec[16:22] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["mean_immunity_durations"]
+            par_vec[23:26] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["random_infection_probabilities"]
+            r = reshape(par_vec, :, 1)
+            nMAE, layer_states = model(r, parameters, layer_states)
+
+            real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+
+            error += abs(real_nMAE - nMAE)
+        end
+    end
+    error /= 840.0
+    if error < min_error
+        min_error = error
+        println()
+        println(forest_num_rounds)
+        println(forest_max_depth)
+        println(η)
+        println(error)
+        println()
+    end
+    return
 
     # min_error = 99999.0
     # for η = 0.19:0.01:0.21
@@ -327,11 +426,6 @@ function run_surrogate_model()
     #     end
     # end
     # return
-
-    for j = 1:num_viruses
-        viruses[j].mean_immunity_duration = mean_immunity_durations_default[j]
-        viruses[j].immunity_duration_sd = mean_immunity_durations_default[j] * 0.33
-    end
 
     # Создание популяции
     @time @threads for thread_id in 1:num_threads
