@@ -34,6 +34,13 @@ include("../server/lib/util/reset.jl")
 # Локальная модель
 include("model/simulation.jl")
 
+# Loss function
+function loss_fn(x_samples, y_samples, model, parameters, layer_states)
+    y_prediction, new_layer_states = model(x_samples, parameters, layer_states)
+    loss = 0.5 * mean((y_prediction .- y_samples).^2)
+    return loss, new_layer_states
+end
+
 function run_surrogate_model()
 
     # incidence_arr = Array{Array{Float64, 3}, 1}(undef, 100)
@@ -224,9 +231,9 @@ function run_surrogate_model()
     num_additional_runs = 0
     num_runs = num_initial_runs + num_additional_runs
 
-    forest_num_rounds = 170
-    forest_max_depth = 6
-    η = 0.2
+    # forest_num_rounds = 170
+    # forest_max_depth = 6
+    # η = 0.2
 
     num_years = 1
     num_parameters = 26
@@ -310,77 +317,84 @@ function run_surrogate_model()
     # println(size(X))
     # return
 
-    LAYERS = [26, 20, 20, 20, 1]
-    LEARNING_RATE = 0.1
-    N_EPOCHS = 15_000
+    n_epochs = 10_000
 
-    # Pseudo-Random number generator
     rng = Xoshiro(42)
 
-    # Network architecture
-    model = Chain(
-        # Dense(LAYERS[1]=>LAYERS[2], relu),
-        [Dense(fan_in=>fan_out, relu) for (fan_in, fan_out) in zip(LAYERS[1:end-2], LAYERS[2:end-1])]...,
-        Dense(LAYERS[end - 1]=>LAYERS[end], identity),
-    )
+    # for num_hidden_layers = 1:10
+        # for num_hidden_neurons = 2:20
+    # lux_model = Chain(
+    #     BatchNorm(26),
+    #     Dense(26 => 18, relu),
+    #     [Dense(18 => 18, relu) for _ = 1:num_hidden_layers]...,
+    #     Dense(18 => 1),
+    # )
 
-    # Initializing parameters (and stateful layers if we have them)
-    parameters, layer_states = Lux.setup(rng, model)
+    min_error = 99999.0
 
-    # Loss function
-    function loss_fn(x_samples, y_samples, parameters, layer_states)
-        y_prediction, new_layer_states = model(x_samples, parameters, layer_states)
-        loss = 0.5 * mean((y_prediction .- y_samples).^2)
-        return loss, new_layer_states
-    end
+    for num_hidden_layers = 1:10
+        for num_hidden_neurons = 2:20
+            lux_model = Chain(
+                Dense(26 => num_hidden_neurons, relu),
+                [Dense(num_hidden_neurons => num_hidden_neurons, relu) for _ = 1:num_hidden_layers]...,
+                Dense(num_hidden_neurons => 1),
+            )
 
-    # Gradient descent, can be swapped for ADAM
-    opt = Descent(LEARNING_RATE)
-    opt_state = Optimisers.setup(opt, parameters)
+            params, lux_state = Lux.setup(rng, lux_model)
 
-    # Train loop
-    loss_history = []
-    for epoch = 1:N_EPOCHS
-        (loss, layer_states), back = pullback(loss_fn, X, y, parameters, layer_states)
-        grad, _ = back((1.0, nothing))
+            rule = Optimisers.Adam()
+            opt_state = Optimisers.setup(rule, params);  # optimiser state based on model parameters
 
-        opt_state, parameters = Optimisers.update(opt_state, parameters, grad)
-        push!(loss_history, loss)
-        if epoch % 100 == 0
-            println("Epoch: $(epoch), loss: $(loss)")
-        end
-    end
+            # Train loop
+            loss_history = []
+            for epoch = 1:n_epochs
+                (loss, lux_state), back = Zygote.pullback(params, X) do p, x
+                    y_model, st = Lux.apply(lux_model, x, p, lux_state)
+                    0.5 * mean((y_model .- y).^2), st
+                end
+                ∇params, _ = back((one.(loss), nothing))  # gradient of only the loss, with respect to parameter tree
 
-    return
+                opt_state, params = Optimisers.update!(opt_state, params, ∇params)
 
-    for particle_number = 1:20
-        for i = 1:42
-            for k = 1:26
-                par_vec[k] = 0.0
+                if epoch % 100 == 0
+                    println("Epoch: $(epoch), loss: $(loss)")
+                end
             end
 
-            par_vec[1] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["duration_parameter"]
-            par_vec[2:8] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["susceptibility_parameters"]
-            par_vec[9:15] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["temperature_parameters"]
-            par_vec[16:22] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["mean_immunity_durations"]
-            par_vec[23:26] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["random_infection_probabilities"]
-            r = reshape(par_vec, :, 1)
-            nMAE, layer_states = model(r, parameters, layer_states)
+            par_vec = zeros(Float64, 26)
+            error = 0.0
 
-            real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+            for particle_number = 1:20
+                for i = 1:42
+                    for k = 1:26
+                        par_vec[k] = 0.0
+                    end
 
-            error += abs(real_nMAE - nMAE)
+                    par_vec[1] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["duration_parameter"]
+                    par_vec[2:8] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["susceptibility_parameters"]
+                    par_vec[9:15] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["temperature_parameters"]
+                    par_vec[16:22] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["mean_immunity_durations"]
+                    par_vec[23:26] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["random_infection_probabilities"]
+                    r = reshape(par_vec, :, 1)
+
+                    nMAE, _ = Lux.apply(lux_model, r, params, opt_state)
+
+                    real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+                    error += abs(real_nMAE - nMAE[:][1])
+                end
+            end
+            error /= 840.0
+
+            # println("Error: $(error)")
+
+            if error < min_error
+                min_error = error
+                println()
+                println("Num_hidden_layers: $(num_hidden_layers)")
+                println("Num_hidden_neurons: $(num_hidden_neurons)")
+                println("Error: $(error)")
+            end
         end
-    end
-    error /= 840.0
-    if error < min_error
-        min_error = error
-        println()
-        println(forest_num_rounds)
-        println(forest_max_depth)
-        println(η)
-        println(error)
-        println()
     end
     return
 
