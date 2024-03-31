@@ -267,10 +267,18 @@ function run_surrogate_model()
     etiology = get_etiology()
     num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
 
-    y = zeros(Float64, num_runs)
-    for i = eachindex(y)
-        y[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    # y = zeros(Float64, num_runs)
+    # for i = eachindex(y)
+    #     y[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    # end
+
+    y = zeros(Float64, num_years * 52 * num_viruses * 4, num_runs)
+    for i = 1:num_runs
+        y[:, i] = vec(incidence_arr[i])
     end
+
+    # println(y[1, :])
+    # return
 
     # X = zeros(Float64, num_runs, num_parameters)
 
@@ -308,11 +316,21 @@ function run_surrogate_model()
         end
     end
 
-    duration_parameter_default = duration_parameter[argmin(y)]
-    susceptibility_parameters_default = susceptibility_parameters[argmin(y)]
-    temperature_parameters_default = temperature_parameters[argmin(y)]
-    mean_immunity_durations_default = mean_immunity_durations[argmin(y)]
-    random_infection_probabilities_default = random_infection_probabilities[argmin(y)]
+    # duration_parameter_default = duration_parameter[argmin(y)]
+    # susceptibility_parameters_default = susceptibility_parameters[argmin(y)]
+    # temperature_parameters_default = temperature_parameters[argmin(y)]
+    # mean_immunity_durations_default = mean_immunity_durations[argmin(y)]
+    # random_infection_probabilities_default = random_infection_probabilities[argmin(y)]
+
+    duration_parameter_default = duration_parameter[1]
+    susceptibility_parameters_default = susceptibility_parameters[1]
+    temperature_parameters_default = temperature_parameters[1]
+    mean_immunity_durations_default = mean_immunity_durations[1]
+    random_infection_probabilities_default = random_infection_probabilities[1]
+
+
+
+
 
     # println(size(X))
     # return
@@ -321,15 +339,6 @@ function run_surrogate_model()
 
     rng = Xoshiro(42)
 
-    # for num_hidden_layers = 1:10
-        # for num_hidden_neurons = 2:20
-    # lux_model = Chain(
-    #     BatchNorm(26),
-    #     Dense(26 => 18, relu),
-    #     [Dense(18 => 18, relu) for _ = 1:num_hidden_layers]...,
-    #     Dense(18 => 1),
-    # )
-
     min_error = 99999.0
 
     for num_hidden_layers = 1:10
@@ -337,8 +346,13 @@ function run_surrogate_model()
             lux_model = Chain(
                 Dense(26 => num_hidden_neurons, relu),
                 [Dense(num_hidden_neurons => num_hidden_neurons, relu) for _ = 1:num_hidden_layers]...,
-                Dense(num_hidden_neurons => 1),
+                Dense(num_hidden_neurons => num_years * 52 * num_viruses * 4),
             )
+            # lux_model = Chain(
+            #     Dense(26 => num_hidden_neurons, relu),
+            #     [Dense(num_hidden_neurons => num_hidden_neurons, relu) for _ = 1:num_hidden_layers]...,
+            #     Dense(num_hidden_neurons => 1),
+            # )
 
             params, lux_state = Lux.setup(rng, lux_model)
 
@@ -350,7 +364,8 @@ function run_surrogate_model()
             for epoch = 1:n_epochs
                 (loss, lux_state), back = Zygote.pullback(params, X) do p, x
                     y_model, st = Lux.apply(lux_model, x, p, lux_state)
-                    0.5 * mean((y_model .- y).^2), st
+                    # 0.5 * mean((y_model .- y).^2), st
+                    sum(abs.(y_model - y)) / sum(y), st
                 end
                 ∇params, _ = back((one.(loss), nothing))  # gradient of only the loss, with respect to parameter tree
 
@@ -377,10 +392,14 @@ function run_surrogate_model()
                     par_vec[23:26] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["random_infection_probabilities"]
                     r = reshape(par_vec, :, 1)
 
-                    nMAE, _ = Lux.apply(lux_model, r, params, opt_state)
+                    # nMAE, _ = Lux.apply(lux_model, r, params, opt_state)
 
-                    real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
-                    error += abs(real_nMAE - nMAE[:][1])
+                    # real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+                    # error += abs(real_nMAE - nMAE[:][1])
+
+                    y_predicted, _ = Lux.apply(lux_model, r, params, opt_state)
+                    y_model = vec(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"])
+                    error += sum(abs.(y_predicted - y_model)) / sum(y_model)
                 end
             end
             error /= 840.0
