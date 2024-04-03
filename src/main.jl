@@ -879,10 +879,6 @@ function mcmc_simulations(
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[4]))
         susceptibility_parameter_4_candidate = (7 * exp(y) + 1) / (1 + exp(y))
 
-        x = susceptibility_parameter_4_array[end]
-        y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[4]))
-        susceptibility_parameter_4_candidate = (7 * exp(y) + 1) / (1 + exp(y))
-
         x = susceptibility_parameter_5_array[end]
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[5]))
         susceptibility_parameter_5_candidate = (7 * exp(y) + 1) / (1 + exp(y))

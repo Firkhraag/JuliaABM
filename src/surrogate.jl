@@ -208,32 +208,10 @@ function run_surrogate_model()
         num_infected_age_groups_viruses_prev[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
     end
 
-    # # Создание популяции
-    # @time @threads for thread_id in 1:num_threads
-    #     create_population(
-    #         thread_id, num_threads, thread_rng, start_agent_ids[thread_id],
-    #         agents, households, viruses, num_infected_age_groups_viruses_prev, isolation_probabilities_day_1,
-    #         isolation_probabilities_day_2, isolation_probabilities_day_3, start_household_ids[thread_id],
-    #         homes_coords_df, district_households, district_people, district_people_households)
-    # end
-
-    # # Установление связей между агентами
-    # @time set_connections(
-    #     agents, households, kindergartens, schools, colleges,
-    #     workplaces, thread_rng, num_threads, homes_coords_df,
-    #     firm_min_size, firm_max_size, work_num_barabasi_albert_attachments,
-    #     school_num_barabasi_albert_attachments)
-
-    println("Simulation")
-
     num_initial_runs = 1000
     # num_additional_runs = 153
     num_additional_runs = 0
     num_runs = num_initial_runs + num_additional_runs
-
-    # forest_num_rounds = 170
-    # forest_max_depth = 6
-    # η = 0.2
 
     num_years = 1
     num_parameters = 26
@@ -267,36 +245,19 @@ function run_surrogate_model()
     etiology = get_etiology()
     num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
 
-    # y = zeros(Float64, num_runs)
-    # for i = eachindex(y)
-    #     y[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
-    # end
-
-    y = zeros(Float64, num_years * 52 * num_viruses * 4, num_runs)
+    min_i = 0
+    min_nMAE = 9999.0
+    y = zeros(Float64, num_years * 52, num_runs)
     for i = 1:num_runs
-        y[:, i] = vec(incidence_arr[i])
+        for j = 1:52
+            y[j, i] = sum(abs.(incidence_arr[i][j, :, :] - num_infected_age_groups_viruses[j, :, :])) / sum(num_infected_age_groups_viruses[j, :, :])
+        end
+        nMAE = sum(y[:, i])
+        if nMAE < min_nMAE
+            min_i = i
+            min_nMAE = nMAE
+        end
     end
-
-    # println(y[1, :])
-    # return
-
-    # X = zeros(Float64, num_runs, num_parameters)
-
-    # for i = 1:num_runs
-    #     X[i, 1] = duration_parameter[i]
-    #     for k = 1:num_viruses
-    #         X[i, 1 + k] = susceptibility_parameters[i][k]
-    #     end
-    #     for k = 1:num_viruses
-    #         X[i, 1 + num_viruses + k] = temperature_parameters[i][k]
-    #     end
-    #     for k = 1:num_viruses
-    #         X[i, 1 + 2 * num_viruses + k] = mean_immunity_durations[i][k]
-    #     end
-    #     for k = 1:4
-    #         X[i, 1 + 3 * num_viruses + k] = random_infection_probabilities[i][k]
-    #     end
-    # end
 
     X = zeros(Float64, num_parameters, num_runs)
 
@@ -316,151 +277,97 @@ function run_surrogate_model()
         end
     end
 
-    # duration_parameter_default = duration_parameter[argmin(y)]
-    # susceptibility_parameters_default = susceptibility_parameters[argmin(y)]
-    # temperature_parameters_default = temperature_parameters[argmin(y)]
-    # mean_immunity_durations_default = mean_immunity_durations[argmin(y)]
-    # random_infection_probabilities_default = random_infection_probabilities[argmin(y)]
-
-    duration_parameter_default = duration_parameter[1]
-    susceptibility_parameters_default = susceptibility_parameters[1]
-    temperature_parameters_default = temperature_parameters[1]
-    mean_immunity_durations_default = mean_immunity_durations[1]
-    random_infection_probabilities_default = random_infection_probabilities[1]
-
-
-
-
-
-    # println(size(X))
-    # return
-
     n_epochs = 10_000
-
     rng = Xoshiro(42)
-
     min_error = 99999.0
+    num_hidden_layers = 7
+    num_hidden_neurons = 15
 
-    for num_hidden_layers = 1:10
-        for num_hidden_neurons = 2:20
-            lux_model = Chain(
-                Dense(26 => num_hidden_neurons, relu),
-                [Dense(num_hidden_neurons => num_hidden_neurons, relu) for _ = 1:num_hidden_layers]...,
-                Dense(num_hidden_neurons => num_years * 52 * num_viruses * 4),
-            )
-            # lux_model = Chain(
-            #     Dense(26 => num_hidden_neurons, relu),
-            #     [Dense(num_hidden_neurons => num_hidden_neurons, relu) for _ = 1:num_hidden_layers]...,
-            #     Dense(num_hidden_neurons => 1),
-            # )
+    lux_model = Chain(
+        BatchNorm(26),
+        Dense(26 => num_hidden_neurons, relu),
+        [Dense(num_hidden_neurons => num_hidden_neurons, relu) for _ = 1:num_hidden_layers]...,
+        Dense(num_hidden_neurons => num_years * 52),
+    )
 
-            params, lux_state = Lux.setup(rng, lux_model)
+    rule = Optimisers.Adam()
+    par_vec = zeros(Float64, 26)
+    error = 0.0
 
-            rule = Optimisers.Adam()
-            opt_state = Optimisers.setup(rule, params);  # optimiser state based on model parameters
+    duration_parameter_default = 0.0
+    duration_parameter_min = 0.0
 
-            # Train loop
-            loss_history = []
-            for epoch = 1:n_epochs
-                (loss, lux_state), back = Zygote.pullback(params, X) do p, x
-                    y_model, st = Lux.apply(lux_model, x, p, lux_state)
-                    # 0.5 * mean((y_model .- y).^2), st
-                    sum(abs.(y_model - y)) / sum(y), st
-                end
-                ∇params, _ = back((one.(loss), nothing))  # gradient of only the loss, with respect to parameter tree
+    susceptibility_parameters_default = zeros(Float64, num_viruses)
+    susceptibility_parameters_min = zeros(Float64, num_viruses)
 
-                opt_state, params = Optimisers.update!(opt_state, params, ∇params)
+    temperature_parameters_default = zeros(Float64, num_viruses)
+    temperature_parameters_min = zeros(Float64, num_viruses)
 
-                if epoch % 100 == 0
-                    println("Epoch: $(epoch), loss: $(loss)")
-                end
-            end
+    mean_immunity_durations_default = zeros(Float64, num_viruses)
+    mean_immunity_durations_min = zeros(Float64, num_viruses)
 
-            par_vec = zeros(Float64, 26)
-            error = 0.0
+    random_infection_probabilities_default = zeros(Float64, 4)
+    random_infection_probabilities_min = zeros(Float64, 4)
 
-            for particle_number = 1:20
-                for i = 1:42
-                    for k = 1:26
-                        par_vec[k] = 0.0
-                    end
+    # params, lux_state = Lux.setup(rng, lux_model)
 
-                    par_vec[1] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["duration_parameter"]
-                    par_vec[2:8] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["susceptibility_parameters"]
-                    par_vec[9:15] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["temperature_parameters"]
-                    par_vec[16:22] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["mean_immunity_durations"]
-                    par_vec[23:26] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["random_infection_probabilities"]
-                    r = reshape(par_vec, :, 1)
+    # opt_state = Optimisers.setup(rule, params)  # optimiser state based on model parameters
 
-                    # nMAE, _ = Lux.apply(lux_model, r, params, opt_state)
+    # # Train loop
+    # for epoch = 1:n_epochs
+    #     (loss, lux_state), back = Zygote.pullback(params, X) do p, x
+    #         nMAE_model, st = Lux.apply(lux_model, x, p, lux_state)
+    #         0.5 * mean((nMAE_model .- y).^2), st
+    #     end
+    #     ∇params, _ = back((one.(loss), nothing))  # gradient of only the loss, with respect to parameter tree
 
-                    # real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
-                    # error += abs(real_nMAE - nMAE[:][1])
+    #     opt_state, params = Optimisers.update!(opt_state, params, ∇params)
 
-                    y_predicted, _ = Lux.apply(lux_model, r, params, opt_state)
-                    y_model = vec(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"])
-                    error += sum(abs.(y_predicted - y_model)) / sum(y_model)
-                end
-            end
-            error /= 840.0
-
-            # println("Error: $(error)")
-
-            if error < min_error
-                min_error = error
-                println()
-                println("Num_hidden_layers: $(num_hidden_layers)")
-                println("Num_hidden_neurons: $(num_hidden_neurons)")
-                println("Error: $(error)")
-            end
-        end
-    end
-    return
-
-    # min_error = 99999.0
-    # for η = 0.19:0.01:0.21
-    #     for forest_num_rounds = 165:5:175
-    #         for forest_max_depth = 5:1:7
-    #             @time bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η, watchlist = [])
-
-    #             par_vec = zeros(Float64, 26)
-    #             error = 0.0
-
-    #             for particle_number = 1:20
-    #                 for i = 1:42
-    #                     for k = 1:26
-    #                         par_vec[k] = 0.0
-    #                     end
-
-    #                     par_vec[1] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["duration_parameter"]
-    #                     par_vec[2:8] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["susceptibility_parameters"]
-    #                     par_vec[9:15] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["temperature_parameters"]
-    #                     par_vec[16:22] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["mean_immunity_durations"]
-    #                     par_vec[23:26] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["random_infection_probabilities"]
-    #                     r = reshape(par_vec, 1, :)
-    #                     nMAE = predict(bst, r)[1]
-
-    #                     real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
-
-    #                     error += abs(real_nMAE - nMAE)
-    #                 end
-    #             end
-    #             error /= 840.0
-    #             if error < min_error
-    #                 min_error = error
-    #                 println()
-    #                 println(forest_num_rounds)
-    #                 println(forest_max_depth)
-    #                 println(η)
-    #                 println(error)
-    #                 println()
-    #             end
-    #         end
+    #     if epoch % 2000 == 0
+    #         println("Epoch: $(epoch), loss: $(loss)")
     #     end
     # end
+
+    # for particle_number = 1:20
+    #     for i = 1:42
+    #         for k = 1:26
+    #             par_vec[k] = 0.0
+    #         end
+
+    #         swarm_incidence = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"]
+    #         swarm_nMAE = zeros(Float64, 52)
+    #         for j = 1:52
+    #             swarm_nMAE[j] = sum(abs.(swarm_incidence[j, :, :] - num_infected_age_groups_viruses[j, :, :])) / sum(num_infected_age_groups_viruses[j, :, :])
+    #         end
+
+    #         par_vec[1] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["duration_parameter"]
+    #         par_vec[2:8] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["susceptibility_parameters"]
+    #         par_vec[9:15] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["temperature_parameters"]
+    #         par_vec[16:22] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["mean_immunity_durations"]
+    #         par_vec[23:26] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["random_infection_probabilities"]
+    #         r = reshape(par_vec, :, 1)
+
+    #         # nMAE, _ = Lux.apply(lux_model, r, params, opt_state)
+
+    #         # real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    #         # error += abs(real_nMAE - nMAE[:][1])
+
+    #         # y_predicted, _ = Lux.apply(lux_model, r, params, opt_state)
+    #         # y_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
+    #         # y_model = vec(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"])
+    #         # error += sum(abs.(y_predicted - y_model)) / sum(y_model)
+
+    #         nMAE_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
+    #         error += 0.5 * mean((nMAE_predicted .- swarm_nMAE).^2)
+    #     end
+    # end
+    # error /= 840.0
+
+    # println("Error: $(error)")
     # return
 
-    # Создание популяции
+    println("Simulation")
+
     @time @threads for thread_id in 1:num_threads
         create_population(
             thread_id, num_threads, thread_rng, start_agent_ids[thread_id],
@@ -476,134 +383,288 @@ function run_surrogate_model()
         firm_min_size, firm_max_size, work_num_barabasi_albert_attachments,
         school_num_barabasi_albert_attachments)
 
+    duration_parameter_delta = 0.1
+    susceptibility_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    temperature_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    mean_immunity_duration_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+    random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
+
     for curr_run = 1:500
-        bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η, watchlist=[])
+        # bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η, watchlist=[])
+        # Train loop
+        params, lux_state = Lux.setup(rng, lux_model)
+        opt_state = Optimisers.setup(rule, params)  # optimiser state based on model parameters
+        # Train loop
+        for epoch = 1:n_epochs
+            (loss, lux_state), back = Zygote.pullback(params, X) do p, x
+                nMAE_model, st = Lux.apply(lux_model, x, p, lux_state)
+                0.5 * mean((nMAE_model .- y).^2), st
+            end
+            ∇params, _ = back((one.(loss), nothing))  # gradient of only the loss, with respect to parameter tree
 
-        num_lhs_iterations = 100
-        lhs_num_steps = 100
-        nMAE_min = 9999.0
+            opt_state, params = Optimisers.update!(opt_state, params, ∇params)
 
-        for m = 1:num_lhs_iterations
-            latin_hypercube_plan, _ = LHCoptim(lhs_num_steps, num_parameters, 100)
-            points = scaleLHC(latin_hypercube_plan, [
-                (duration_parameter_default - 0.05, duration_parameter_default + 0.05),
-                (susceptibility_parameters_default[1] - 0.2, susceptibility_parameters_default[1] + 0.2),
-                (susceptibility_parameters_default[2] - 0.2, susceptibility_parameters_default[2] + 0.2),
-                (susceptibility_parameters_default[3] - 0.2, susceptibility_parameters_default[3] + 0.2),
-                (susceptibility_parameters_default[4] - 0.2, susceptibility_parameters_default[4] + 0.2),
-                (susceptibility_parameters_default[5] - 0.2, susceptibility_parameters_default[5] + 0.2),
-                (susceptibility_parameters_default[6] - 0.2, susceptibility_parameters_default[6] + 0.2),
-                (susceptibility_parameters_default[7] - 0.2, susceptibility_parameters_default[7] + 0.2),
-                (temperature_parameters_default[1] - 0.05, temperature_parameters_default[1] + 0.05),
-                (temperature_parameters_default[2] - 0.05, temperature_parameters_default[2] + 0.05),
-                (temperature_parameters_default[3] - 0.05, temperature_parameters_default[3] + 0.05),
-                (temperature_parameters_default[4] - 0.05, temperature_parameters_default[4] + 0.05),
-                (temperature_parameters_default[5] - 0.05, temperature_parameters_default[5] + 0.05),
-                (temperature_parameters_default[6] - 0.05, temperature_parameters_default[6] + 0.05),
-                (temperature_parameters_default[7] - 0.05, temperature_parameters_default[7] + 0.05),
-                (mean_immunity_durations_default[1] - 10.0, mean_immunity_durations_default[1] + 10.0),
-                (mean_immunity_durations_default[2] - 10.0, mean_immunity_durations_default[2] + 10.0),
-                (mean_immunity_durations_default[3] - 10.0, mean_immunity_durations_default[3] + 10.0),
-                (mean_immunity_durations_default[4] - 10.0, mean_immunity_durations_default[4] + 10.0),
-                (mean_immunity_durations_default[5] - 10.0, mean_immunity_durations_default[5] + 10.0),
-                (mean_immunity_durations_default[6] - 10.0, mean_immunity_durations_default[6] + 10.0),
-                (mean_immunity_durations_default[7] - 10.0, mean_immunity_durations_default[7] + 10.0),
-                (random_infection_probabilities_default[1] - random_infection_probabilities_default[1] * 0.1, random_infection_probabilities_default[1] + random_infection_probabilities_default[1] * 0.1),
-                (random_infection_probabilities_default[2] - random_infection_probabilities_default[2] * 0.1, random_infection_probabilities_default[2] + random_infection_probabilities_default[2] * 0.1),
-                (random_infection_probabilities_default[3] - random_infection_probabilities_default[3] * 0.1, random_infection_probabilities_default[3] + random_infection_probabilities_default[3] * 0.1),
-                (random_infection_probabilities_default[4] - random_infection_probabilities_default[4] * 0.1, random_infection_probabilities_default[4] + random_infection_probabilities_default[4] * 0.1),
-            ])
-
-            for i = 1:lhs_num_steps
-                duration_parameter_lhs = points[i, 1]
-                susceptibility_parameters_lhs = points[i, 2:8]
-                temperature_parameters_lhs = points[i, 9:15]
-                mean_immunity_durations_lhs = points[i, 16:22]
-                random_infection_probabilities_lhs = points[i, 23:26]
-
-                if duration_parameter_lhs < 0.1
-                    duration_parameter_lhs = 0.1
-                end
-                if duration_parameter_lhs > 1.0
-                    duration_parameter_lhs = 1.0
-                end
-                for j = 1:num_viruses
-                    if mean_immunity_durations_lhs[j] < 30
-                        mean_immunity_durations_lhs[j] = 30
-                    end
-        
-                    if mean_immunity_durations_lhs[j] > 365
-                        mean_immunity_durations_lhs[j] = 365
-                    end
-        
-                    if susceptibility_parameters_lhs[j] < 1.0
-                        susceptibility_parameters_lhs[j] = 1.0
-                    end
-                    if susceptibility_parameters_lhs[j] > 7.0
-                        susceptibility_parameters_lhs[j] = 7.0
-                    end
-        
-                    if temperature_parameters_lhs[j] > -0.01
-                        temperature_parameters_lhs[j] = -0.01
-                    end
-                    if temperature_parameters_lhs[j] < -1.0
-                        temperature_parameters_lhs[j] = -1.0
-                    end
-                end
-                if random_infection_probabilities_lhs[1] > 0.0012
-                    random_infection_probabilities_lhs[1] = 0.0012
-                end
-                if random_infection_probabilities_lhs[1] < 0.0008
-                    random_infection_probabilities_lhs[1] = 0.0008
-                end
-                if random_infection_probabilities_lhs[2] > 0.001
-                    random_infection_probabilities_lhs[2] = 0.001
-                end
-                if random_infection_probabilities_lhs[2] < 0.0005
-                    random_infection_probabilities_lhs[2] = 0.0005
-                end
-                if random_infection_probabilities_lhs[3] > 0.0005
-                    random_infection_probabilities_lhs[3] = 0.0005
-                end
-                if random_infection_probabilities_lhs[3] < 0.0002
-                    random_infection_probabilities_lhs[3] = 0.0002
-                end
-                if random_infection_probabilities_lhs[4] > 0.00001
-                    random_infection_probabilities_lhs[4] = 0.00001
-                end
-                if random_infection_probabilities_lhs[4] < 0.000005
-                    random_infection_probabilities_lhs[4] = 0.000005
-                end
-                
-                par_vec = [duration_parameter_lhs]
-                append!(par_vec, susceptibility_parameters_lhs)
-                append!(par_vec, temperature_parameters_lhs)
-                append!(par_vec, mean_immunity_durations_lhs)
-                append!(par_vec, random_infection_probabilities_lhs)
-
-                r = reshape(par_vec, 1, :)
-
-                nMAE = predict(bst, r)[1]
-                if nMAE < nMAE_min
-                    nMAE_min = nMAE
-                    duration_parameter_default = duration_parameter_lhs
-                    for j = 1:num_viruses
-                        susceptibility_parameters_default[j] = susceptibility_parameters_lhs[j]
-                        temperature_parameters_default[j] = temperature_parameters_lhs[j]
-                        mean_immunity_durations_default[j] = mean_immunity_durations_lhs[j]
-                    end
-                    for j = 1:4
-                        random_infection_probabilities_default[j] = random_infection_probabilities_lhs[j]
-                    end
-                end
+            if epoch % 2000 == 0
+                println("Epoch: $(epoch), loss: $(loss)")
             end
         end
 
-        println("Predicted nMAE_min: $(nMAE_min)")
+        nMAE = 0.0
+        nMAE_min = 99999.0
+        nMAE_prev = 99999.0
+        # nMAE = sum(abs.(incidence_arr[min_i]  - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        # nMAE_prev = nMAE
+        # nMAE_min = nMAE
+
+        duration_parameter_default = duration_parameter[min_i]
+        duration_parameter_min = duration_parameter[min_i]
+
+        for v = 1:7
+            susceptibility_parameters_default[v] = susceptibility_parameters[min_i][v]
+            susceptibility_parameters_min[v] = susceptibility_parameters[min_i][v]
+
+            temperature_parameters_default[v] = -temperature_parameters[min_i][v]
+            temperature_parameters_min[v] = -temperature_parameters[min_i][v]
+
+            mean_immunity_durations_default[v] = mean_immunity_durations[min_i][v]
+            mean_immunity_durations_min[v] = mean_immunity_durations[min_i][v]
+        end
+
+        for a = 1:4
+            random_infection_probabilities_default[a] = random_infection_probabilities[min_i][a]
+            random_infection_probabilities_min[a] = random_infection_probabilities[min_i][a]
+        end
+        
+        local_rejected_num = 0
+
+        for n = 1:1000
+            # Кандидат для параметра продолжительности контакта в диапазоне (0.1, 1)
+            x_cand = duration_parameter_default
+            y_cand = rand(Normal(log((x_cand - 0.1) / (1 - x_cand)), duration_parameter_delta))
+            duration_parameter_candidate = (exp(y_cand) + 0.1) / (1 + exp(y_cand))
+
+            # Кандидаты для параметров неспецифической восприимчивости к вирусам в диапазоне (1, 7)
+            x_cand = susceptibility_parameters_default[1]
+            y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[1]))
+            susceptibility_parameter_1_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+            x_cand = susceptibility_parameters_default[2]
+            y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[2]))
+            susceptibility_parameter_2_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+            x_cand = susceptibility_parameters_default[3]
+            y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[3]))
+            susceptibility_parameter_3_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+            x_cand = susceptibility_parameters_default[4]
+            y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[4]))
+            susceptibility_parameter_4_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+            x_cand = susceptibility_parameters_default[5]
+            y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[5]))
+            susceptibility_parameter_5_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+            x_cand = susceptibility_parameters_default[6]
+            y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[6]))
+            susceptibility_parameter_6_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+            x_cand = susceptibility_parameters_default[7]
+            y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[7]))
+            susceptibility_parameter_7_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+            # Кандидаты для параметров температуры воздуха в диапазоне (0.01, 1)
+            x_cand = temperature_parameters_default[1]
+            y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[1]))
+            temperature_parameter_1_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+            x_cand = temperature_parameters_default[2]
+            y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[2]))
+            temperature_parameter_2_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+            x_cand = temperature_parameters_default[3]
+            y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[3]))
+            temperature_parameter_3_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+            x_cand = temperature_parameters_default[4]
+            y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[4]))
+            temperature_parameter_4_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+            x_cand = temperature_parameters_default[5]
+            y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[5]))
+            temperature_parameter_5_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+            x_cand = temperature_parameters_default[6]
+            y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[6]))
+            temperature_parameter_6_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+            x_cand = temperature_parameters_default[7]
+            y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[7]))
+            temperature_parameter_7_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+            # Кандидаты для параметров температуры воздуха в диапазоне (30, 365)
+            x_cand = mean_immunity_durations_default[1]
+            y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[1]))
+            mean_immunity_duration_1_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+            x_cand = mean_immunity_durations_default[2]
+            y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[2]))
+            mean_immunity_duration_2_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+            x_cand = mean_immunity_durations_default[3]
+            y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[3]))
+            mean_immunity_duration_3_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+            x_cand = mean_immunity_durations_default[4]
+            y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[4]))
+            mean_immunity_duration_4_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+            x_cand = mean_immunity_durations_default[5]
+            y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[5]))
+            mean_immunity_duration_5_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+            x_cand = mean_immunity_durations_default[6]
+            y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[6]))
+            mean_immunity_duration_6_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+            x_cand = mean_immunity_durations_default[7]
+            y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[7]))
+            mean_immunity_duration_7_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+            
+            # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.0009, 0.0015)
+            x_cand = random_infection_probabilities_default[1]
+            y_cand = rand(Normal(log((x_cand - 0.0009) / (0.0015 - x_cand)), random_infection_probability_deltas[1]))
+            random_infection_probability_1_candidate = (0.0015 * exp(y_cand) + 0.0009) / (1 + exp(y_cand))
+
+            # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 3-6 лет в диапазоне (0.0005, 0.001)
+            x_cand = random_infection_probabilities_default[2]
+            y_cand = rand(Normal(log((x_cand - 0.0005) / (0.001 - x_cand)), random_infection_probability_deltas[2]))
+            random_infection_probability_2_candidate = (0.001 * exp(y_cand) + 0.0005) / (1 + exp(y_cand))
+
+            # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 7-14 лет в диапазоне (0.0002, 0.0005)
+            x_cand = random_infection_probabilities_default[3]
+            y_cand = rand(Normal(log((x_cand - 0.0002) / (0.0005 - x_cand)), random_infection_probability_deltas[3]))
+            random_infection_probability_3_candidate = (0.0005 * exp(y_cand) + 0.0002) / (1 + exp(y_cand))
+
+            # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 15+ лет в диапазоне (0.000005, 0.00001)
+            x_cand = random_infection_probabilities_default[4]
+            y_cand = rand(Normal(log((x_cand - 0.000005) / (0.00001 - x_cand)), random_infection_probability_deltas[4]))
+            random_infection_probability_4_candidate = (0.00001 * exp(y_cand) + 0.000005) / (1 + exp(y_cand))
+
+            par_vec[1] = duration_parameter_candidate
+
+            par_vec[2] = susceptibility_parameter_1_candidate
+            par_vec[3] = susceptibility_parameter_2_candidate
+            par_vec[4] = susceptibility_parameter_3_candidate
+            par_vec[5] = susceptibility_parameter_4_candidate
+            par_vec[6] = susceptibility_parameter_5_candidate
+            par_vec[7] = susceptibility_parameter_6_candidate
+            par_vec[8] = susceptibility_parameter_7_candidate
+
+            par_vec[9] = -temperature_parameter_1_candidate
+            par_vec[10] = -temperature_parameter_2_candidate
+            par_vec[11] = -temperature_parameter_3_candidate
+            par_vec[12] = -temperature_parameter_4_candidate
+            par_vec[13] = -temperature_parameter_5_candidate
+            par_vec[14] = -temperature_parameter_6_candidate
+            par_vec[15] = -temperature_parameter_7_candidate
+
+            par_vec[16] = mean_immunity_duration_1_candidate
+            par_vec[17] = mean_immunity_duration_2_candidate
+            par_vec[18] = mean_immunity_duration_3_candidate
+            par_vec[19] = mean_immunity_duration_4_candidate
+            par_vec[20] = mean_immunity_duration_5_candidate
+            par_vec[21] = mean_immunity_duration_6_candidate
+            par_vec[22] = mean_immunity_duration_7_candidate
+
+            par_vec[23] = random_infection_probability_1_candidate
+            par_vec[24] = random_infection_probability_2_candidate
+            par_vec[25] = random_infection_probability_3_candidate
+            par_vec[26] = random_infection_probability_4_candidate
+
+            r = reshape(par_vec, :, 1)
+    
+            nMAE_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
+            nMAE = sum(nMAE_predicted)
+
+            # Если ошибка меньше ошибки на предыдущем шаге или число последовательных отказов больше 10
+            if nMAE < nMAE_prev || local_rejected_num >= 10
+                if nMAE < nMAE_min
+                    nMAE_min = nMAE
+
+                    duration_parameter_min = duration_parameter_candidate
+
+                    susceptibility_parameters_min[1] = susceptibility_parameter_1_candidate
+                    susceptibility_parameters_min[2] = susceptibility_parameter_2_candidate
+                    susceptibility_parameters_min[3] = susceptibility_parameter_3_candidate
+                    susceptibility_parameters_min[4] = susceptibility_parameter_4_candidate
+                    susceptibility_parameters_min[5] = susceptibility_parameter_5_candidate
+                    susceptibility_parameters_min[6] = susceptibility_parameter_6_candidate
+                    susceptibility_parameters_min[7] = susceptibility_parameter_7_candidate
+
+                    temperature_parameters_min[1] = temperature_parameter_1_candidate
+                    temperature_parameters_min[2] = temperature_parameter_2_candidate
+                    temperature_parameters_min[3] = temperature_parameter_3_candidate
+                    temperature_parameters_min[4] = temperature_parameter_4_candidate
+                    temperature_parameters_min[5] = temperature_parameter_5_candidate
+                    temperature_parameters_min[6] = temperature_parameter_6_candidate
+                    temperature_parameters_min[7] = temperature_parameter_7_candidate
+
+                    mean_immunity_durations_min[1] = mean_immunity_duration_1_candidate
+                    mean_immunity_durations_min[2] = mean_immunity_duration_2_candidate
+                    mean_immunity_durations_min[3] = mean_immunity_duration_3_candidate
+                    mean_immunity_durations_min[4] = mean_immunity_duration_4_candidate
+                    mean_immunity_durations_min[5] = mean_immunity_duration_5_candidate
+                    mean_immunity_durations_min[6] = mean_immunity_duration_6_candidate
+                    mean_immunity_durations_min[7] = mean_immunity_duration_7_candidate
+
+                    random_infection_probabilities_min[1] = random_infection_probability_1_candidate
+                    random_infection_probabilities_min[2] = random_infection_probability_2_candidate
+                    random_infection_probabilities_min[3] = random_infection_probability_3_candidate
+                    random_infection_probabilities_min[4] = random_infection_probability_4_candidate
+                end
+                duration_parameter_default = duration_parameter_candidate
+
+                susceptibility_parameters_default[1] = susceptibility_parameter_1_candidate
+                susceptibility_parameters_default[2] = susceptibility_parameter_2_candidate
+                susceptibility_parameters_default[3] = susceptibility_parameter_3_candidate
+                susceptibility_parameters_default[4] = susceptibility_parameter_4_candidate
+                susceptibility_parameters_default[5] = susceptibility_parameter_5_candidate
+                susceptibility_parameters_default[6] = susceptibility_parameter_6_candidate
+                susceptibility_parameters_default[7] = susceptibility_parameter_7_candidate
+
+                temperature_parameters_default[1] = temperature_parameter_1_candidate
+                temperature_parameters_default[2] = temperature_parameter_2_candidate
+                temperature_parameters_default[3] = temperature_parameter_3_candidate
+                temperature_parameters_default[4] = temperature_parameter_4_candidate
+                temperature_parameters_default[5] = temperature_parameter_5_candidate
+                temperature_parameters_default[6] = temperature_parameter_6_candidate
+                temperature_parameters_default[7] = temperature_parameter_7_candidate
+
+                mean_immunity_durations_default[1] = mean_immunity_duration_1_candidate
+                mean_immunity_durations_default[2] = mean_immunity_duration_2_candidate
+                mean_immunity_durations_default[3] = mean_immunity_duration_3_candidate
+                mean_immunity_durations_default[4] = mean_immunity_duration_4_candidate
+                mean_immunity_durations_default[5] = mean_immunity_duration_5_candidate
+                mean_immunity_durations_default[6] = mean_immunity_duration_6_candidate
+                mean_immunity_durations_default[7] = mean_immunity_duration_7_candidate
+
+                random_infection_probabilities_default[1] = random_infection_probability_1_candidate
+                random_infection_probabilities_default[2] = random_infection_probability_2_candidate
+                random_infection_probabilities_default[3] = random_infection_probability_3_candidate
+                random_infection_probabilities_default[4] = random_infection_probability_4_candidate
+
+                nMAE_prev = nMAE
+
+                # Число последовательных отказов приравниваем нулю
+                local_rejected_num = 0
+            else
+                local_rejected_num += 1
+            end
+        end
 
         for j = 1:num_viruses
-            viruses[j].mean_immunity_duration = mean_immunity_durations_default[j]
-            viruses[j].immunity_duration_sd = mean_immunity_durations_default[j] * 0.33
+            viruses[j].mean_immunity_duration = mean_immunity_durations_min[j]
+            viruses[j].immunity_duration_sd = mean_immunity_durations_min[j] * 0.33
         end
 
         # Сбрасываем состояние синтетической популяции до начального
@@ -623,12 +684,12 @@ function run_surrogate_model()
 
         # Моделируем заболеваемость
         @time observed_num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
-            num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_default,
-            susceptibility_parameters_default, temperature_parameters_default, temperature,
+            num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_min,
+            susceptibility_parameters_min, -temperature_parameters_min, temperature,
             mean_household_contact_durations, household_contact_duration_sds,
             other_contact_duration_shapes, other_contact_duration_scales,
             isolation_probabilities_day_1, isolation_probabilities_day_2,
-            isolation_probabilities_day_3, random_infection_probabilities_default,
+            isolation_probabilities_day_3, random_infection_probabilities_min,
             recovered_duration_mean, recovered_duration_sd, num_years, false)
 
         # Функция потерь
@@ -649,16 +710,25 @@ function run_surrogate_model()
 
         save(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(curr_run).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
-            "duration_parameter", duration_parameter_default,
-            "susceptibility_parameters", susceptibility_parameters_default,
-            "temperature_parameters", temperature_parameters_default,
-            "mean_immunity_durations", mean_immunity_durations_default,
-            "random_infection_probabilities", random_infection_probabilities_default)
+            "duration_parameter", duration_parameter_min,
+            "susceptibility_parameters", susceptibility_parameters_min,
+            "temperature_parameters", temperature_parameters_min,
+            "mean_immunity_durations", mean_immunity_durations_min,
+            "random_infection_probabilities", random_infection_probabilities_min)
 
         println("Real nMAE: $(nMAE)")
 
-        push!(y, nMAE)
-        X = vcat(X, [duration_parameter_default, susceptibility_parameters_default[1], susceptibility_parameters_default[2], susceptibility_parameters_default[3], susceptibility_parameters_default[4], susceptibility_parameters_default[5], susceptibility_parameters_default[6], susceptibility_parameters_default[7], temperature_parameters_default[1], temperature_parameters_default[2], temperature_parameters_default[3], temperature_parameters_default[4], temperature_parameters_default[5], temperature_parameters_default[6], temperature_parameters_default[7], mean_immunity_durations_default[1], mean_immunity_durations_default[2], mean_immunity_durations_default[3], mean_immunity_durations_default[4], mean_immunity_durations_default[5], mean_immunity_durations_default[6], mean_immunity_durations_default[7], random_infection_probabilities_default[1], random_infection_probabilities_default[2], random_infection_probabilities_default[3], random_infection_probabilities_default[4]]')
+        # push!(y, nMAE)
+        # X = vcat(X, [duration_parameter_default, susceptibility_parameters_default[1], susceptibility_parameters_default[2], susceptibility_parameters_default[3], susceptibility_parameters_default[4], susceptibility_parameters_default[5], susceptibility_parameters_default[6], susceptibility_parameters_default[7], temperature_parameters_default[1], temperature_parameters_default[2], temperature_parameters_default[3], temperature_parameters_default[4], temperature_parameters_default[5], temperature_parameters_default[6], temperature_parameters_default[7], mean_immunity_durations_default[1], mean_immunity_durations_default[2], mean_immunity_durations_default[3], mean_immunity_durations_default[4], mean_immunity_durations_default[5], mean_immunity_durations_default[6], mean_immunity_durations_default[7], random_infection_probabilities_default[1], random_infection_probabilities_default[2], random_infection_probabilities_default[3], random_infection_probabilities_default[4]]')
+        # y = cat(y, vec(observed_num_infected_age_groups_viruses), dims = 2)
+
+        nMAE_arr = zeros(Float64, 52)
+        for j = 1:52
+            nMAE_arr[j] = sum(abs.(observed_num_infected_age_groups_viruses[j, :, :] - num_infected_age_groups_viruses[j, :, :])) / sum(num_infected_age_groups_viruses[j, :, :])
+        end
+
+        y = cat(y, nMAE_arr, dims = 2)
+        X = cat(X, [duration_parameter_min, susceptibility_parameters_min[1], susceptibility_parameters_min[2], susceptibility_parameters_min[3], susceptibility_parameters_min[4], susceptibility_parameters_min[5], susceptibility_parameters_min[6], susceptibility_parameters_min[7], temperature_parameters_min[1], temperature_parameters_min[2], temperature_parameters_min[3], temperature_parameters_min[4], temperature_parameters_min[5], temperature_parameters_min[6], temperature_parameters_min[7], mean_immunity_durations_min[1], mean_immunity_durations_min[2], mean_immunity_durations_min[3], mean_immunity_durations_min[4], mean_immunity_durations_min[5], mean_immunity_durations_min[6], mean_immunity_durations_min[7], random_infection_probabilities_min[1], random_infection_probabilities_min[2], random_infection_probabilities_min[3], random_infection_probabilities_min[4]], dims = 2)
     end
 end
 
