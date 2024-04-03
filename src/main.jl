@@ -732,8 +732,8 @@ function mcmc_simulations(
     num_years::Int,
 )
     # hypercube / manual
-    nMAE_output_table_name = "tables_mcmc_hypercube"
-    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_mcmc_hypercube.txt")
+    nMAE_output_table_name = "tables_mcmc_manual"
+    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_mcmc_manual.txt")
 
     # Получаем значения параметров
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "duration_parameter_array.csv"), ',', Float64, '\n'))
@@ -854,9 +854,7 @@ function mcmc_simulations(
         end
     end
 
-    n = 1
-    N = 1000
-    while n <= N
+    for n = 1:1000
         # Кандидат для параметра продолжительности контакта в диапазоне (0.1, 1)
         x = duration_parameter_array[end]
         y = rand(Normal(log((x - 0.1) / (1 - x)), duration_parameter_delta))
@@ -1033,6 +1031,14 @@ function mcmc_simulations(
             isolation_probabilities_day_1, isolation_probabilities_day_2,
             isolation_probabilities_day_3, random_infection_probabilities,
             recovered_duration_mean, recovered_duration_sd, num_years, false)
+
+        save(joinpath(@__DIR__, "..", "output", "tables", "mcmc", "results_$(n).jld"),
+            "observed_cases", observed_num_infected_age_groups_viruses,
+            "duration_parameter", duration_parameter,
+            "susceptibility_parameters", susceptibility_parameters,
+            "temperature_parameters", temperature_parameters,
+            "mean_immunity_durations", mean_immunity_durations,
+            "random_infection_probabilities", random_infection_probabilities)
 
         nMAE = 0.0
         # Если рассматривается 1 год

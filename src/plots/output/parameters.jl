@@ -396,13 +396,12 @@ function plot_swarm_hypercube()
 end
 
 function plot_surrogate_hypercube()
-    num_surrogate_runs = 153
+    num_surrogate_runs = 200
+    # num_surrogate_runs = 153
+    # num_surrogate_runs = 100
 
     etiology = get_etiology()
     num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
-
-    num_swarm_runs = 28
-    num_particles = 25
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_surrogate_runs)
     duration_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
@@ -432,6 +431,7 @@ function plot_surrogate_hypercube()
     nMAE_plot = plot(
         1:num_surrogate_runs,
         moving_average(nMAE_array, 10),
+        
         lw = 1.5,
         grid = true,
         legend = false,
@@ -455,7 +455,7 @@ end
 # plot_metropolis_manual()
 # plot_metropolis_hypercube()
 
-plot_swarm_hypercube()
+# plot_swarm_hypercube()
 
-# plot_surrogate_hypercube()
+plot_surrogate_hypercube()
 
