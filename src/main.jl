@@ -1202,7 +1202,6 @@ function mcmc_simulations(
             writedlm(joinpath(
                 @__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_4_array.csv"), random_infection_probability_4_array, ',')
         end
-        n += 1
     end
 end
 

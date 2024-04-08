@@ -312,12 +312,13 @@ function run_metropolis_model()
     # mean_immunity_duration_deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
     # random_infection_probability_deltas = [0.2, 0.2, 0.2, 0.2]
 
-    prob_prev_age_groups = zeros(Float64, 7, 4, 52 * num_years)
-    prob_prev = 0.0
+    prob_prev = zeros(Float64, 52 * num_years, 4, 7)
+    prob = zeros(Float64, 52 * num_years, 4, 7)
+
     for i in 1:(52 * num_years)
         for j in 1:4
             for k in 1:7
-                prob_prev += log_g(observed_num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses[i, k, j], sqrt(num_infected_age_groups_viruses[i, k, j]))
+                prob_prev[i, j, k] = log_g(observed_num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses[i, k, j], sqrt(num_infected_age_groups_viruses[i, k, j]))
             end
         end
     end
@@ -350,117 +351,217 @@ function run_metropolis_model()
     n = 1
     N = 1000
     while n <= N
-        # Кандидат для параметра продолжительности контакта в диапазоне (0.1, 1)
-        x = duration_parameter_array[end]
-        y = rand(Normal(log((x - 0.1) / (1 - x)), duration_parameter_delta))
-        duration_parameter_candidate = (exp(y) + 0.1) / (1 + exp(y))
+        duration_parameter_candidate = rand(Normal(duration_parameter_array[end], 0.1 * (1 - 0.1)))
+        if duration_parameter_candidate < 0.1
+            duration_parameter_candidate = 0.1
+        end
+        if duration_parameter_candidate > 1
+            duration_parameter_candidate = 1
+        end
 
-        # Кандидаты для параметров неспецифической восприимчивости к вирусам в диапазоне (1, 7)
-        x = susceptibility_parameter_1_array[end]
-        y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[1]))
-        susceptibility_parameter_1_candidate = (7 * exp(y) + 1) / (1 + exp(y))
 
-        x = susceptibility_parameter_2_array[end]
-        y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[2]))
-        susceptibility_parameter_2_candidate = (7 * exp(y) + 1) / (1 + exp(y))
+        susceptibility_parameter_1_candidate = rand(Normal(susceptibility_parameter_1_array[end], 0.1 * (7 - 1)))
+        if susceptibility_parameter_1_candidate < 1
+            susceptibility_parameter_1_candidate = 1
+        end
+        if susceptibility_parameter_1_candidate > 7
+            susceptibility_parameter_1_candidate = 7
+        end
 
-        x = susceptibility_parameter_3_array[end]
-        y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[3]))
-        susceptibility_parameter_3_candidate = (7 * exp(y) + 1) / (1 + exp(y))
+        susceptibility_parameter_2_candidate = rand(Normal(susceptibility_parameter_2_array[end], 0.1 * (7 - 1)))
+        if susceptibility_parameter_2_candidate < 1
+            susceptibility_parameter_2_candidate = 1
+        end
+        if susceptibility_parameter_2_candidate > 7
+            susceptibility_parameter_2_candidate = 7
+        end
 
-        x = susceptibility_parameter_4_array[end]
-        y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[4]))
-        susceptibility_parameter_4_candidate = (7 * exp(y) + 1) / (1 + exp(y))
+        susceptibility_parameter_3_candidate = rand(Normal(susceptibility_parameter_3_array[end], 0.1 * (7 - 1)))
+        if susceptibility_parameter_3_candidate < 1
+            susceptibility_parameter_3_candidate = 1
+        end
+        if susceptibility_parameter_3_candidate > 7
+            susceptibility_parameter_3_candidate = 7
+        end
 
-        x = susceptibility_parameter_5_array[end]
-        y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[5]))
-        susceptibility_parameter_5_candidate = (7 * exp(y) + 1) / (1 + exp(y))
+        susceptibility_parameter_4_candidate = rand(Normal(susceptibility_parameter_4_array[end], 0.1 * (7 - 1)))
+        if susceptibility_parameter_4_candidate < 1
+            susceptibility_parameter_4_candidate = 1
+        end
+        if susceptibility_parameter_4_candidate > 7
+            susceptibility_parameter_4_candidate = 7
+        end
 
-        x = susceptibility_parameter_6_array[end]
-        y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[6]))
-        susceptibility_parameter_6_candidate = (7 * exp(y) + 1) / (1 + exp(y))
+        susceptibility_parameter_5_candidate = rand(Normal(susceptibility_parameter_5_array[end], 0.1 * (7 - 1)))
+        if susceptibility_parameter_5_candidate < 1
+            susceptibility_parameter_5_candidate = 1
+        end
+        if susceptibility_parameter_5_candidate > 7
+            susceptibility_parameter_5_candidate = 7
+        end
 
-        x = susceptibility_parameter_7_array[end]
-        y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[7]))
-        susceptibility_parameter_7_candidate = (7 * exp(y) + 1) / (1 + exp(y))
+        susceptibility_parameter_6_candidate = rand(Normal(susceptibility_parameter_6_array[end], 0.1 * (7 - 1)))
+        if susceptibility_parameter_6_candidate < 1
+            susceptibility_parameter_6_candidate = 1
+        end
+        if susceptibility_parameter_6_candidate > 7
+            susceptibility_parameter_6_candidate = 7
+        end
 
-        # Кандидаты для параметров температуры воздуха в диапазоне (0.01, 1)
-        x = temperature_parameter_1_array[end]
-        y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[1]))
-        temperature_parameter_1_candidate = (exp(y) + 0.01) / (1 + exp(y))
+        susceptibility_parameter_7_candidate = rand(Normal(susceptibility_parameter_7_array[end], 0.1 * (7 - 1)))
+        if susceptibility_parameter_7_candidate < 1
+            susceptibility_parameter_7_candidate = 1
+        end
+        if susceptibility_parameter_7_candidate > 7
+            susceptibility_parameter_7_candidate = 7
+        end
 
-        x = temperature_parameter_2_array[end]
-        y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[2]))
-        temperature_parameter_2_candidate = (exp(y) + 0.01) / (1 + exp(y))
 
-        x = temperature_parameter_3_array[end]
-        y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[3]))
-        temperature_parameter_3_candidate = (exp(y) + 0.01) / (1 + exp(y))
+        temperature_parameter_1_candidate = rand(Normal(temperature_parameter_1_array[end], 0.1 * (1 - 0.01)))
+        if temperature_parameter_1_candidate < 0.01
+            temperature_parameter_1_candidate = 0.01
+        end
+        if temperature_parameter_1_candidate > 1
+            temperature_parameter_1_candidate = 1
+        end
 
-        x = temperature_parameter_4_array[end]
-        y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[4]))
-        temperature_parameter_4_candidate = (exp(y) + 0.01) / (1 + exp(y))
+        temperature_parameter_2_candidate = rand(Normal(temperature_parameter_2_array[end], 0.1 * (1 - 0.01)))
+        if temperature_parameter_2_candidate < 0.01
+            temperature_parameter_2_candidate = 0.01
+        end
+        if temperature_parameter_2_candidate > 1
+            temperature_parameter_2_candidate = 1
+        end
 
-        x = temperature_parameter_5_array[end]
-        y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[5]))
-        temperature_parameter_5_candidate = (exp(y) + 0.01) / (1 + exp(y))
+        temperature_parameter_3_candidate = rand(Normal(temperature_parameter_3_array[end], 0.1 * (1 - 0.01)))
+        if temperature_parameter_3_candidate < 0.01
+            temperature_parameter_3_candidate = 0.01
+        end
+        if temperature_parameter_3_candidate > 1
+            temperature_parameter_3_candidate = 1
+        end
 
-        x = temperature_parameter_6_array[end]
-        y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[6]))
-        temperature_parameter_6_candidate = (exp(y) + 0.01) / (1 + exp(y))
+        temperature_parameter_4_candidate = rand(Normal(temperature_parameter_4_array[end], 0.1 * (1 - 0.01)))
+        if temperature_parameter_4_candidate < 0.01
+            temperature_parameter_4_candidate = 0.01
+        end
+        if temperature_parameter_4_candidate > 1
+            temperature_parameter_4_candidate = 1
+        end
 
-        x = temperature_parameter_7_array[end]
-        y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[7]))
-        temperature_parameter_7_candidate = (exp(y) + 0.01) / (1 + exp(y))
+        temperature_parameter_5_candidate = rand(Normal(temperature_parameter_5_array[end], 0.1 * (1 - 0.01)))
+        if temperature_parameter_5_candidate < 0.01
+            temperature_parameter_5_candidate = 0.01
+        end
+        if temperature_parameter_5_candidate > 1
+            temperature_parameter_5_candidate = 1
+        end
 
-        # Кандидаты для параметров температуры воздуха в диапазоне (30, 365)
-        x = mean_immunity_duration_1_array[end]
-        y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[1]))
-        mean_immunity_duration_1_candidate = (365 * exp(y) + 30) / (1 + exp(y))
+        temperature_parameter_6_candidate = rand(Normal(temperature_parameter_6_array[end], 0.1 * (1 - 0.01)))
+        if temperature_parameter_6_candidate < 0.01
+            temperature_parameter_6_candidate = 0.01
+        end
+        if temperature_parameter_6_candidate > 1
+            temperature_parameter_6_candidate = 1
+        end
 
-        x = mean_immunity_duration_2_array[end]
-        y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[2]))
-        mean_immunity_duration_2_candidate = (365 * exp(y) + 30) / (1 + exp(y))
+        temperature_parameter_7_candidate = rand(Normal(temperature_parameter_7_array[end], 0.1 * (1 - 0.01)))
+        if temperature_parameter_7_candidate < 0.01
+            temperature_parameter_7_candidate = 0.01
+        end
+        if temperature_parameter_7_candidate > 1
+            temperature_parameter_7_candidate = 1
+        end
 
-        x = mean_immunity_duration_3_array[end]
-        y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[3]))
-        mean_immunity_duration_3_candidate = (365 * exp(y) + 30) / (1 + exp(y))
 
-        x = mean_immunity_duration_4_array[end]
-        y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[4]))
-        mean_immunity_duration_4_candidate = (365 * exp(y) + 30) / (1 + exp(y))
+        mean_immunity_duration_1_candidate = rand(Normal(mean_immunity_duration_1_array[end], 0.1 * (365 - 30)))
+        if mean_immunity_duration_1_candidate < 30
+            mean_immunity_duration_1_candidate = 30
+        end
+        if mean_immunity_duration_1_candidate > 365
+            mean_immunity_duration_1_candidate = 365
+        end
 
-        x = mean_immunity_duration_5_array[end]
-        y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[5]))
-        mean_immunity_duration_5_candidate = (365 * exp(y) + 30) / (1 + exp(y))
+        mean_immunity_duration_2_candidate = rand(Normal(mean_immunity_duration_2_array[end], 0.1 * (365 - 30)))
+        if mean_immunity_duration_2_candidate < 30
+            mean_immunity_duration_2_candidate = 30
+        end
+        if mean_immunity_duration_2_candidate > 365
+            mean_immunity_duration_2_candidate = 365
+        end
 
-        x = mean_immunity_duration_6_array[end]
-        y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[6]))
-        mean_immunity_duration_6_candidate = (365 * exp(y) + 30) / (1 + exp(y))
+        mean_immunity_duration_3_candidate = rand(Normal(mean_immunity_duration_3_array[end], 0.1 * (365 - 30)))
+        if mean_immunity_duration_3_candidate < 30
+            mean_immunity_duration_3_candidate = 30
+        end
+        if mean_immunity_duration_3_candidate > 365
+            mean_immunity_duration_3_candidate = 365
+        end
 
-        x = mean_immunity_duration_7_array[end]
-        y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[7]))
-        mean_immunity_duration_7_candidate = (365 * exp(y) + 30) / (1 + exp(y))
-        
-        # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.0009, 0.0015)
-        x = random_infection_probability_1_array[end]
-        y = rand(Normal(log((x - 0.0009) / (0.0015 - x)), random_infection_probability_deltas[1]))
-        random_infection_probability_1_candidate = (0.0015 * exp(y) + 0.0009) / (1 + exp(y))
+        mean_immunity_duration_4_candidate = rand(Normal(mean_immunity_duration_4_array[end], 0.1 * (365 - 30)))
+        if mean_immunity_duration_4_candidate < 30
+            mean_immunity_duration_4_candidate = 30
+        end
+        if mean_immunity_duration_4_candidate > 365
+            mean_immunity_duration_4_candidate = 365
+        end
 
-        # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 3-6 лет в диапазоне (0.0005, 0.001)
-        x = random_infection_probability_2_array[end]
-        y = rand(Normal(log((x - 0.0005) / (0.001 - x)), random_infection_probability_deltas[2]))
-        random_infection_probability_2_candidate = (0.001 * exp(y) + 0.0005) / (1 + exp(y))
+        mean_immunity_duration_5_candidate = rand(Normal(mean_immunity_duration_5_array[end], 0.1 * (365 - 30)))
+        if mean_immunity_duration_5_candidate < 30
+            mean_immunity_duration_5_candidate = 30
+        end
+        if mean_immunity_duration_5_candidate > 365
+            mean_immunity_duration_5_candidate = 365
+        end
 
-        # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 7-14 лет в диапазоне (0.0002, 0.0005)
-        x = random_infection_probability_3_array[end]
-        y = rand(Normal(log((x - 0.0002) / (0.0005 - x)), random_infection_probability_deltas[3]))
-        random_infection_probability_3_candidate = (0.0005 * exp(y) + 0.0002) / (1 + exp(y))
+        mean_immunity_duration_6_candidate = rand(Normal(mean_immunity_duration_6_array[end], 0.1 * (365 - 30)))
+        if mean_immunity_duration_6_candidate < 30
+            mean_immunity_duration_6_candidate = 30
+        end
+        if mean_immunity_duration_6_candidate > 365
+            mean_immunity_duration_6_candidate = 365
+        end
 
-        # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 15+ лет в диапазоне (0.000005, 0.00001)
-        x = random_infection_probability_4_array[end]
-        y = rand(Normal(log((x - 0.000005) / (0.00001 - x)), random_infection_probability_deltas[4]))
-        random_infection_probability_4_candidate = (0.00001 * exp(y) + 0.000005) / (1 + exp(y))
+        mean_immunity_duration_7_candidate = rand(Normal(mean_immunity_duration_7_array[end], 0.1 * (365 - 30)))
+        if mean_immunity_duration_7_candidate < 30
+            mean_immunity_duration_7_candidate = 30
+        end
+        if mean_immunity_duration_7_candidate > 365
+            mean_immunity_duration_7_candidate = 365
+        end
+
+
+        random_infection_probability_1_candidate = rand(Normal(random_infection_probability_1_array[end], 0.1 * (0.0012 - 0.0008)))
+        if random_infection_probability_1_candidate < 0.0008
+            random_infection_probability_1_candidate = 0.0008
+        end
+        if random_infection_probability_1_candidate > 0.0012
+            random_infection_probability_1_candidate = 0.0012
+        end
+
+        random_infection_probability_2_candidate = rand(Normal(random_infection_probability_2_array[end], 0.1 * (0.001 - 0.0005)))
+        if random_infection_probability_2_candidate < 0.0005
+            random_infection_probability_2_candidate = 0.0005
+        end
+        if random_infection_probability_2_candidate > 0.001
+            random_infection_probability_2_candidate = 0.001
+        end
+
+        random_infection_probability_3_candidate = rand(Normal(random_infection_probability_3_array[end], 0.1 * (0.0005 - 0.0002)))
+        if random_infection_probability_3_candidate < 0.0002
+            random_infection_probability_3_candidate = 0.0002
+        end
+        if random_infection_probability_3_candidate > 0.0005
+            random_infection_probability_3_candidate = 0.0005
+        end
+
+        random_infection_probability_4_candidate = rand(Normal(random_infection_probability_4_array[end], 0.1 * (0.00001 - 0.000005)))
+        if random_infection_probability_4_candidate < 0.000005
+            random_infection_probability_4_candidate = 0.000005
+        end
+        if random_infection_probability_4_candidate > 0.00001
+            random_infection_probability_4_candidate = 0.00001
+        end
 
         duration_parameter = duration_parameter_candidate
         susceptibility_parameters = [
@@ -557,27 +658,25 @@ function run_metropolis_model()
             println(io, nMAE)
         end
 
-        prob = 0.0
         for i in 1:(52 * num_years)
             for j in 1:4
                 for k in 1:7
-                    prob += log_g(observed_num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses[i, k, j], sqrt(num_infected_age_groups_viruses[i, k, j]))
+                    prob[i, j, k] = log_g(observed_num_infected_age_groups_viruses[i, k, j], num_infected_age_groups_viruses[i, k, j], sqrt(num_infected_age_groups_viruses[i, k, j]))
                 end
             end
         end
 
-        accept_prob = exp(prob - prob_prev)
-
-        if rand(Float64) < accept_prob || local_rejected_num >= 10
-            if nMAE < nMAE_min
-                println("nMAE min = $(nMAE)")
-                println("duration_parameter = $(duration_parameter_candidate)")
-                println("susceptibility_parameters = $(susceptibility_parameters)")
-                println("temperature_parameters = $(temperature_parameters)")
-                println("mean_immunity_durations = $(mean_immunity_durations)")
-                println("random_infection_probabilities = $(random_infection_probabilities)")
-                nMAE_min = nMAE
+        accept_prob = 0.0
+        for i in 1:(52 * num_years)
+            for j in 1:4
+                for k in 1:7
+                    accept_prob += prob[i, j, k] - prob_prev[i, j, k]
+                end
             end
+        end
+        accept_prob_final = min(1.0, exp(accept_prob))
+
+        if rand(Float64) < accept_prob_final || local_rejected_num >= 10
             push!(duration_parameter_array, duration_parameter_candidate)
 
             push!(susceptibility_parameter_1_array, susceptibility_parameter_1_candidate)
@@ -609,7 +708,7 @@ function run_metropolis_model()
             push!(random_infection_probability_3_array, random_infection_probability_3_candidate)
             push!(random_infection_probability_4_array, random_infection_probability_4_candidate)
 
-            prob_prev = prob
+            prob_prev = copy(prob)
 
             # Увеличиваем число принятий новых параметров
             accept_num += 1
