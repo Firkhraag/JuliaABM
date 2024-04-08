@@ -36,8 +36,8 @@ end
 function run_metropolis_model()
     println("Initialization...")
 
-    nMAE_output_table_name = "tables_metropolis_hypercube"
-    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_metropolis_hypercube.txt")
+    nMAE_output_table_name = "tables_metropolis_manual"
+    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_metropolis_manual.txt")
 
     # Номер запуска модели
     run_num = 0
@@ -292,25 +292,6 @@ function run_metropolis_model()
     accept_num = 0
     # Число последовательных отказов
     local_rejected_num = 0
-
-    # Разброс для значений параметров-кандидатов
-    # duration_parameter_delta = 0.05
-    # susceptibility_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
-    # temperature_parameter_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
-    # mean_immunity_duration_deltas = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
-    # random_infection_probability_deltas = [0.05, 0.05, 0.05, 0.05]
-
-    duration_parameter_delta = 0.1
-    susceptibility_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    temperature_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    mean_immunity_duration_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
-
-    # duration_parameter_delta = 0.2
-    # susceptibility_parameter_deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
-    # temperature_parameter_deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
-    # mean_immunity_duration_deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
-    # random_infection_probability_deltas = [0.2, 0.2, 0.2, 0.2]
 
     prob_prev = zeros(Float64, 52 * num_years, 4, 7)
     prob = zeros(Float64, 52 * num_years, 4, 7)

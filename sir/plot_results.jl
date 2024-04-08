@@ -44,7 +44,7 @@ function plot_mcmc_manual()
         end
     end
 
-    xlabel_name = "Шаг"
+    xlabel_name = "Step"
     ylabel_name = "nMAE"
 
     println(nMAE_array)
@@ -86,7 +86,7 @@ function plot_mcmc_metropolis_manual()
         end
     end
 
-    xlabel_name = "Шаг"
+    xlabel_name = "Step"
     ylabel_name = "nMAE"
 
     # nMAE_plot = plot(
@@ -126,7 +126,7 @@ function plot_swarm_hypercube()
     c_parameter = Array{Float64, 1}(undef, num_swarm_runs + 1)
     γ_parameter = Array{Float64, 1}(undef, num_swarm_runs + 1)
 
-    xlabel_name = "Шаг"
+    xlabel_name = "Step"
     ylabel_name = "nMAE"
 
     nMAE_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["nMAE"]
@@ -192,7 +192,7 @@ function plot_surrogate_hypercube()
     c_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     γ_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
 
-    xlabel_name = "Шаг"
+    xlabel_name = "Step"
     ylabel_name = "nMAE"
 
     for i = 1:num_surrogate_runs
@@ -226,7 +226,7 @@ function plot_surrogate_hypercube_NN()
     c_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     γ_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
 
-    xlabel_name = "Шаг"
+    xlabel_name = "Step"
     ylabel_name = "nMAE"
 
     for i = 1:num_surrogate_runs
@@ -272,7 +272,7 @@ function plot_all()
         end
     end
 
-    xlabel_name = "Шаг"
+    xlabel_name = "Step"
     ylabel_name = "nMAE"
 
     nMAE_plot = plot(
@@ -307,7 +307,7 @@ function plot_all()
         end
     end
 
-    xlabel_name = "Шаг"
+    xlabel_name = "Step"
     ylabel_name = "nMAE"
 
     plot!(
@@ -330,7 +330,7 @@ function plot_all()
     c_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     γ_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
 
-    xlabel_name = "Шаг"
+    xlabel_name = "Step"
     ylabel_name = "nMAE"
 
     for i = 1:num_surrogate_runs
@@ -362,7 +362,7 @@ function plot_all()
     nMAE_arr = Array{Float64, 1}(undef, num_swarm_runs)
     nMAE_arr_temp = Array{Float64, 1}(undef, 20)
 
-    xlabel_name = "Шаг"
+    xlabel_name = "Step"
     ylabel_name = "nMAE"
 
     for i = 1:50
@@ -432,7 +432,7 @@ end
 # plot_mcmc_manual()
 # plot_mcmc_metropolis_manual()
 # plot_swarm_hypercube()
-plot_surrogate_hypercube()
+# plot_surrogate_hypercube()
 
 plot_all()
 

@@ -105,22 +105,22 @@ function run_model(agents_initial, nsteps, δt, β, c, γ)
     s = sum(abs.(df_abm.S - S_ref))
     s += sum(abs.(df_abm.I - I_ref))
     s += sum(abs.(df_abm.R - R_ref))
+
+    pl = plot(
+        df_abm.t,
+        [df_abm.S df_abm.I df_abm.R],
+        label=["S" "I" "R"],
+        xlabel="Time",
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    savefig(pl, joinpath(@__DIR__, "sir.pdf"))
     
     nMAE = s / sum(S_ref + I_ref + R_ref)
     return nMAE
 
     # println(nMAE)
-
-    # pl = plot(
-    #     df_abm.t,
-    #     [df_abm.S df_abm.I df_abm.R],
-    #     label=["S" "I" "R"],
-    #     xlabel="Time",
-    #     ylabel="Number of people",
-    #     foreground_color_legend = nothing,
-    #     background_color_legend = nothing,
-    # )
-    # savefig(pl, joinpath(@__DIR__, "sir.pdf"))
 end
 
 function run_model_metropolis(agents_initial, nsteps, δt, β, c, γ)
@@ -1187,11 +1187,14 @@ function main()
         agents_initial[i] = s
     end
 
+
+    run_model(agents_initial, nsteps, δt, 0.05, 10.0, 0.02)
+
     # mcmc_simulations(500,agents_initial,nsteps,δt)
     # mcmc_simulations_metropolis(1000,agents_initial,nsteps,δt)
     # run_swarm_model(agents_initial,nsteps,δt)
     # lhs_simulations(50,agents_initial,nsteps,δt)
-    run_surrogate_model(250,agents_initial,nsteps,δt)
+    # run_surrogate_model(250,agents_initial,nsteps,δt)
     # run_surrogate_model_NN(100,agents_initial,nsteps,δt)
 end
 
