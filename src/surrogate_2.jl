@@ -173,7 +173,7 @@ function run_surrogate_model()
     end
 
     num_initial_runs = 1000
-    num_additional_runs = 309
+    num_additional_runs = 164
     num_runs = num_initial_runs + num_additional_runs
     # num_swarm_runs = 42
     # num_swarm_particles = 20
@@ -199,44 +199,13 @@ function run_surrogate_model()
         random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "initial", "results_$(i).jld"))["random_infection_probabilities"]
     end
 
-    duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "duration_parameter_array.csv"), ',', Float64, '\n'))
-
-    susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_3_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_4_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_5_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
-
-    temperature_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_1_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_2_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_3_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_4_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_5_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_6_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_7_array.csv"), ',', Float64, '\n'))
-
-    mean_immunity_duration_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_1_array.csv"), ',', Float64, '\n'))
-    mean_immunity_duration_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_2_array.csv"), ',', Float64, '\n'))
-    mean_immunity_duration_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_3_array.csv"), ',', Float64, '\n'))
-    mean_immunity_duration_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_4_array.csv"), ',', Float64, '\n'))
-    mean_immunity_duration_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_5_array.csv"), ',', Float64, '\n'))
-    mean_immunity_duration_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_6_array.csv"), ',', Float64, '\n'))
-    mean_immunity_duration_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_7_array.csv"), ',', Float64, '\n'))
-
-    random_infection_probability_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_1_array.csv"), ',', Float64, '\n'))
-    random_infection_probability_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_2_array.csv"), ',', Float64, '\n'))
-    random_infection_probability_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_3_array.csv"), ',', Float64, '\n'))
-    random_infection_probability_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_4_array.csv"), ',', Float64, '\n'))
-
     for i = 1:num_additional_runs
-        incidence_arr[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld"))["observed_cases"]
-        duration_parameter[i + num_initial_runs] = duration_parameter_array[i]
-        susceptibility_parameters[i + num_initial_runs] = [susceptibility_parameter_1_array[i], susceptibility_parameter_2_array[i], susceptibility_parameter_3_array[i], susceptibility_parameter_4_array[i], susceptibility_parameter_5_array[i], susceptibility_parameter_6_array[i], susceptibility_parameter_7_array[i]]
-        temperature_parameters[i + num_initial_runs] = -[temperature_parameter_1_array[i], temperature_parameter_2_array[i], temperature_parameter_3_array[i], temperature_parameter_4_array[i], temperature_parameter_5_array[i], temperature_parameter_6_array[i], temperature_parameter_7_array[i]]
-        mean_immunity_durations[i + num_initial_runs] = [mean_immunity_duration_1_array[i], mean_immunity_duration_2_array[i], mean_immunity_duration_3_array[i], mean_immunity_duration_4_array[i], mean_immunity_duration_5_array[i], mean_immunity_duration_6_array[i], mean_immunity_duration_7_array[i]]
-        random_infection_probabilities[i + num_initial_runs] = [random_infection_probability_1_array[i], random_infection_probability_2_array[i], random_infection_probability_3_array[i], random_infection_probability_4_array[i]]
+        incidence_arr[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "mcmc", "results_$(i).jld"))["observed_cases"]
+        duration_parameter[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "mcmc", "results_$(i).jld"))["duration_parameter"]
+        susceptibility_parameters[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "mcmc", "results_$(i).jld"))["susceptibility_parameters"]
+        temperature_parameters[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "mcmc", "results_$(i).jld"))["temperature_parameters"]
+        mean_immunity_durations[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "mcmc", "results_$(i).jld"))["mean_immunity_durations"]
+        random_infection_probabilities[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "mcmc", "results_$(i).jld"))["random_infection_probabilities"]
     end
 
     # for i = 1:num_additional_runs
