@@ -332,7 +332,7 @@ function run_metropolis_model()
     n = 1
     N = 1000
     while n <= N
-        duration_parameter_candidate = rand(Normal(duration_parameter_array[end], 0.1 * (1 - 0.1)))
+        duration_parameter_candidate = rand(Normal(duration_parameter_array[end], 0.05 * (1 - 0.1)))
         if duration_parameter_candidate < 0.1
             duration_parameter_candidate = 0.1
         end
@@ -341,7 +341,7 @@ function run_metropolis_model()
         end
 
 
-        susceptibility_parameter_1_candidate = rand(Normal(susceptibility_parameter_1_array[end], 0.1 * (7 - 1)))
+        susceptibility_parameter_1_candidate = rand(Normal(susceptibility_parameter_1_array[end], 0.05 * (7 - 1)))
         if susceptibility_parameter_1_candidate < 1
             susceptibility_parameter_1_candidate = 1
         end
@@ -349,7 +349,7 @@ function run_metropolis_model()
             susceptibility_parameter_1_candidate = 7
         end
 
-        susceptibility_parameter_2_candidate = rand(Normal(susceptibility_parameter_2_array[end], 0.1 * (7 - 1)))
+        susceptibility_parameter_2_candidate = rand(Normal(susceptibility_parameter_2_array[end], 0.05 * (7 - 1)))
         if susceptibility_parameter_2_candidate < 1
             susceptibility_parameter_2_candidate = 1
         end
@@ -357,7 +357,7 @@ function run_metropolis_model()
             susceptibility_parameter_2_candidate = 7
         end
 
-        susceptibility_parameter_3_candidate = rand(Normal(susceptibility_parameter_3_array[end], 0.1 * (7 - 1)))
+        susceptibility_parameter_3_candidate = rand(Normal(susceptibility_parameter_3_array[end], 0.05 * (7 - 1)))
         if susceptibility_parameter_3_candidate < 1
             susceptibility_parameter_3_candidate = 1
         end
@@ -365,7 +365,7 @@ function run_metropolis_model()
             susceptibility_parameter_3_candidate = 7
         end
 
-        susceptibility_parameter_4_candidate = rand(Normal(susceptibility_parameter_4_array[end], 0.1 * (7 - 1)))
+        susceptibility_parameter_4_candidate = rand(Normal(susceptibility_parameter_4_array[end], 0.05 * (7 - 1)))
         if susceptibility_parameter_4_candidate < 1
             susceptibility_parameter_4_candidate = 1
         end
@@ -373,7 +373,7 @@ function run_metropolis_model()
             susceptibility_parameter_4_candidate = 7
         end
 
-        susceptibility_parameter_5_candidate = rand(Normal(susceptibility_parameter_5_array[end], 0.1 * (7 - 1)))
+        susceptibility_parameter_5_candidate = rand(Normal(susceptibility_parameter_5_array[end], 0.05 * (7 - 1)))
         if susceptibility_parameter_5_candidate < 1
             susceptibility_parameter_5_candidate = 1
         end
@@ -381,7 +381,7 @@ function run_metropolis_model()
             susceptibility_parameter_5_candidate = 7
         end
 
-        susceptibility_parameter_6_candidate = rand(Normal(susceptibility_parameter_6_array[end], 0.1 * (7 - 1)))
+        susceptibility_parameter_6_candidate = rand(Normal(susceptibility_parameter_6_array[end], 0.05 * (7 - 1)))
         if susceptibility_parameter_6_candidate < 1
             susceptibility_parameter_6_candidate = 1
         end
@@ -389,7 +389,7 @@ function run_metropolis_model()
             susceptibility_parameter_6_candidate = 7
         end
 
-        susceptibility_parameter_7_candidate = rand(Normal(susceptibility_parameter_7_array[end], 0.1 * (7 - 1)))
+        susceptibility_parameter_7_candidate = rand(Normal(susceptibility_parameter_7_array[end], 0.05 * (7 - 1)))
         if susceptibility_parameter_7_candidate < 1
             susceptibility_parameter_7_candidate = 1
         end
@@ -398,7 +398,7 @@ function run_metropolis_model()
         end
 
 
-        temperature_parameter_1_candidate = rand(Normal(temperature_parameter_1_array[end], 0.1 * (1 - 0.01)))
+        temperature_parameter_1_candidate = rand(Normal(temperature_parameter_1_array[end], 0.05 * (1 - 0.01)))
         if temperature_parameter_1_candidate < 0.01
             temperature_parameter_1_candidate = 0.01
         end
@@ -406,7 +406,7 @@ function run_metropolis_model()
             temperature_parameter_1_candidate = 1
         end
 
-        temperature_parameter_2_candidate = rand(Normal(temperature_parameter_2_array[end], 0.1 * (1 - 0.01)))
+        temperature_parameter_2_candidate = rand(Normal(temperature_parameter_2_array[end], 0.05 * (1 - 0.01)))
         if temperature_parameter_2_candidate < 0.01
             temperature_parameter_2_candidate = 0.01
         end
@@ -414,7 +414,7 @@ function run_metropolis_model()
             temperature_parameter_2_candidate = 1
         end
 
-        temperature_parameter_3_candidate = rand(Normal(temperature_parameter_3_array[end], 0.1 * (1 - 0.01)))
+        temperature_parameter_3_candidate = rand(Normal(temperature_parameter_3_array[end], 0.05 * (1 - 0.01)))
         if temperature_parameter_3_candidate < 0.01
             temperature_parameter_3_candidate = 0.01
         end
@@ -422,7 +422,7 @@ function run_metropolis_model()
             temperature_parameter_3_candidate = 1
         end
 
-        temperature_parameter_4_candidate = rand(Normal(temperature_parameter_4_array[end], 0.1 * (1 - 0.01)))
+        temperature_parameter_4_candidate = rand(Normal(temperature_parameter_4_array[end], 0.05 * (1 - 0.01)))
         if temperature_parameter_4_candidate < 0.01
             temperature_parameter_4_candidate = 0.01
         end
@@ -430,7 +430,7 @@ function run_metropolis_model()
             temperature_parameter_4_candidate = 1
         end
 
-        temperature_parameter_5_candidate = rand(Normal(temperature_parameter_5_array[end], 0.1 * (1 - 0.01)))
+        temperature_parameter_5_candidate = rand(Normal(temperature_parameter_5_array[end], 0.05 * (1 - 0.01)))
         if temperature_parameter_5_candidate < 0.01
             temperature_parameter_5_candidate = 0.01
         end
@@ -438,7 +438,7 @@ function run_metropolis_model()
             temperature_parameter_5_candidate = 1
         end
 
-        temperature_parameter_6_candidate = rand(Normal(temperature_parameter_6_array[end], 0.1 * (1 - 0.01)))
+        temperature_parameter_6_candidate = rand(Normal(temperature_parameter_6_array[end], 0.05 * (1 - 0.01)))
         if temperature_parameter_6_candidate < 0.01
             temperature_parameter_6_candidate = 0.01
         end
@@ -446,7 +446,7 @@ function run_metropolis_model()
             temperature_parameter_6_candidate = 1
         end
 
-        temperature_parameter_7_candidate = rand(Normal(temperature_parameter_7_array[end], 0.1 * (1 - 0.01)))
+        temperature_parameter_7_candidate = rand(Normal(temperature_parameter_7_array[end], 0.05 * (1 - 0.01)))
         if temperature_parameter_7_candidate < 0.01
             temperature_parameter_7_candidate = 0.01
         end
@@ -455,7 +455,7 @@ function run_metropolis_model()
         end
 
 
-        mean_immunity_duration_1_candidate = rand(Normal(mean_immunity_duration_1_array[end], 0.1 * (365 - 30)))
+        mean_immunity_duration_1_candidate = rand(Normal(mean_immunity_duration_1_array[end], 0.05 * (365 - 30)))
         if mean_immunity_duration_1_candidate < 30
             mean_immunity_duration_1_candidate = 30
         end
@@ -463,7 +463,7 @@ function run_metropolis_model()
             mean_immunity_duration_1_candidate = 365
         end
 
-        mean_immunity_duration_2_candidate = rand(Normal(mean_immunity_duration_2_array[end], 0.1 * (365 - 30)))
+        mean_immunity_duration_2_candidate = rand(Normal(mean_immunity_duration_2_array[end], 0.05 * (365 - 30)))
         if mean_immunity_duration_2_candidate < 30
             mean_immunity_duration_2_candidate = 30
         end
@@ -471,7 +471,7 @@ function run_metropolis_model()
             mean_immunity_duration_2_candidate = 365
         end
 
-        mean_immunity_duration_3_candidate = rand(Normal(mean_immunity_duration_3_array[end], 0.1 * (365 - 30)))
+        mean_immunity_duration_3_candidate = rand(Normal(mean_immunity_duration_3_array[end], 0.05 * (365 - 30)))
         if mean_immunity_duration_3_candidate < 30
             mean_immunity_duration_3_candidate = 30
         end
@@ -479,7 +479,7 @@ function run_metropolis_model()
             mean_immunity_duration_3_candidate = 365
         end
 
-        mean_immunity_duration_4_candidate = rand(Normal(mean_immunity_duration_4_array[end], 0.1 * (365 - 30)))
+        mean_immunity_duration_4_candidate = rand(Normal(mean_immunity_duration_4_array[end], 0.05 * (365 - 30)))
         if mean_immunity_duration_4_candidate < 30
             mean_immunity_duration_4_candidate = 30
         end
@@ -487,7 +487,7 @@ function run_metropolis_model()
             mean_immunity_duration_4_candidate = 365
         end
 
-        mean_immunity_duration_5_candidate = rand(Normal(mean_immunity_duration_5_array[end], 0.1 * (365 - 30)))
+        mean_immunity_duration_5_candidate = rand(Normal(mean_immunity_duration_5_array[end], 0.05 * (365 - 30)))
         if mean_immunity_duration_5_candidate < 30
             mean_immunity_duration_5_candidate = 30
         end
@@ -495,7 +495,7 @@ function run_metropolis_model()
             mean_immunity_duration_5_candidate = 365
         end
 
-        mean_immunity_duration_6_candidate = rand(Normal(mean_immunity_duration_6_array[end], 0.1 * (365 - 30)))
+        mean_immunity_duration_6_candidate = rand(Normal(mean_immunity_duration_6_array[end], 0.05 * (365 - 30)))
         if mean_immunity_duration_6_candidate < 30
             mean_immunity_duration_6_candidate = 30
         end
@@ -503,7 +503,7 @@ function run_metropolis_model()
             mean_immunity_duration_6_candidate = 365
         end
 
-        mean_immunity_duration_7_candidate = rand(Normal(mean_immunity_duration_7_array[end], 0.1 * (365 - 30)))
+        mean_immunity_duration_7_candidate = rand(Normal(mean_immunity_duration_7_array[end], 0.05 * (365 - 30)))
         if mean_immunity_duration_7_candidate < 30
             mean_immunity_duration_7_candidate = 30
         end
@@ -512,7 +512,7 @@ function run_metropolis_model()
         end
 
 
-        random_infection_probability_1_candidate = rand(Normal(random_infection_probability_1_array[end], 0.1 * (0.0012 - 0.0008)))
+        random_infection_probability_1_candidate = rand(Normal(random_infection_probability_1_array[end], 0.05 * (0.0012 - 0.0008)))
         if random_infection_probability_1_candidate < 0.0008
             random_infection_probability_1_candidate = 0.0008
         end
@@ -520,7 +520,7 @@ function run_metropolis_model()
             random_infection_probability_1_candidate = 0.0012
         end
 
-        random_infection_probability_2_candidate = rand(Normal(random_infection_probability_2_array[end], 0.1 * (0.001 - 0.0005)))
+        random_infection_probability_2_candidate = rand(Normal(random_infection_probability_2_array[end], 0.05 * (0.001 - 0.0005)))
         if random_infection_probability_2_candidate < 0.0005
             random_infection_probability_2_candidate = 0.0005
         end
@@ -528,7 +528,7 @@ function run_metropolis_model()
             random_infection_probability_2_candidate = 0.001
         end
 
-        random_infection_probability_3_candidate = rand(Normal(random_infection_probability_3_array[end], 0.1 * (0.0005 - 0.0002)))
+        random_infection_probability_3_candidate = rand(Normal(random_infection_probability_3_array[end], 0.05 * (0.0005 - 0.0002)))
         if random_infection_probability_3_candidate < 0.0002
             random_infection_probability_3_candidate = 0.0002
         end
@@ -536,7 +536,7 @@ function run_metropolis_model()
             random_infection_probability_3_candidate = 0.0005
         end
 
-        random_infection_probability_4_candidate = rand(Normal(random_infection_probability_4_array[end], 0.1 * (0.00001 - 0.000005)))
+        random_infection_probability_4_candidate = rand(Normal(random_infection_probability_4_array[end], 0.05 * (0.00001 - 0.000005)))
         if random_infection_probability_4_candidate < 0.000005
             random_infection_probability_4_candidate = 0.000005
         end
