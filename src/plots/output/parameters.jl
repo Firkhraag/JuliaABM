@@ -128,11 +128,12 @@ function plot_mcmc_manual()
         lines = eachline(datafile)
         line_num = 1
         for line in lines
-            if line_num == 1 || abs(duration_parameter_array[line_num] - duration_parameter_array[line_num - 1]) > 0.0001
-                nMAE_array[line_num] = parse.(Float64, line)
-            else
-                nMAE_array[line_num] = nMAE_array[line_num - 1]
-            end
+            # if line_num == 1 || abs(duration_parameter_array[line_num] - duration_parameter_array[line_num - 1]) > 0.0001
+            #     nMAE_array[line_num] = parse.(Float64, line)
+            # else
+            #     nMAE_array[line_num] = nMAE_array[line_num - 1]
+            # end
+            nMAE_array[line_num] = parse.(Float64, line)
             line_num += 1
         end
     end
@@ -198,11 +199,12 @@ function plot_metropolis_manual()
         lines = eachline(datafile)
         line_num = 1
         for line in lines
-            if line_num == 1 || abs(duration_parameter_array[line_num] - duration_parameter_array[line_num - 1]) > 0.0001
-                nMAE_array[line_num] = parse.(Float64, line)
-            else
-                nMAE_array[line_num] = nMAE_array[line_num - 1]
-            end
+            # if line_num == 1 || abs(duration_parameter_array[line_num] - duration_parameter_array[line_num - 1]) > 0.0001
+            #     nMAE_array[line_num] = parse.(Float64, line)
+            # else
+            #     nMAE_array[line_num] = nMAE_array[line_num - 1]
+            # end
+            nMAE_array[line_num] = parse.(Float64, line)
             line_num += 1
         end
     end
@@ -487,11 +489,12 @@ function plot_all()
         lines = eachline(datafile)
         line_num = 1
         for line in lines
-            if line_num == 1 || abs(duration_parameter_array[line_num] - duration_parameter_array[line_num - 1]) > 0.0001
-                nMAE_array[line_num] = parse.(Float64, line)
-            else
-                nMAE_array[line_num] = nMAE_array[line_num - 1]
-            end
+            # if line_num == 1 || abs(duration_parameter_array[line_num] - duration_parameter_array[line_num - 1]) > 0.0001
+            #     nMAE_array[line_num] = parse.(Float64, line)
+            # else
+            #     nMAE_array[line_num] = nMAE_array[line_num - 1]
+            # end
+            nMAE_array[line_num] = parse.(Float64, line)
             line_num += 1
         end
     end
@@ -550,11 +553,12 @@ function plot_all()
         lines = eachline(datafile)
         line_num = 1
         for line in lines
-            if line_num == 1 || abs(duration_parameter_array[line_num] - duration_parameter_array[line_num - 1]) > 0.0001
-                nMAE_array[line_num] = parse.(Float64, line)
-            else
-                nMAE_array[line_num] = nMAE_array[line_num - 1]
-            end
+            # if line_num == 1 || abs(duration_parameter_array[line_num] - duration_parameter_array[line_num - 1]) > 0.0001
+            #     nMAE_array[line_num] = parse.(Float64, line)
+            # else
+            #     nMAE_array[line_num] = nMAE_array[line_num - 1]
+            # end
+            nMAE_array[line_num] = parse.(Float64, line)
             line_num += 1
         end
     end
@@ -563,9 +567,11 @@ function plot_all()
     ylabel_name = "nMAE"
 
     plot!(
-        1:num_metropolis_runs,
-        moving_average(nMAE_array, 10),
+        # 1:num_metropolis_runs,
+        # moving_average(nMAE_array, 10),
         # nMAE_array,
+        1:150,
+        moving_average(nMAE_array[1:150], 10),
         lw = 1.5,
         grid = true,
         label = "MH",
@@ -660,11 +666,11 @@ end
 # plot_mcmc_hypercube()
 # plot_mcmc_manual()
 
-plot_metropolis_manual()
+# plot_metropolis_manual()
 # plot_metropolis_hypercube()
 
 # plot_swarm_hypercube()
 
 # plot_surrogate_hypercube()
 
-# plot_all()
+plot_all()
