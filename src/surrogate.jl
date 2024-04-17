@@ -209,6 +209,10 @@ function run_surrogate_model()
     y = zeros(Float64, num_runs)
     for i = eachindex(y)
         y[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        if y[i] < min_nMAE
+            min_nMAE = y[i]
+            min_i = i
+        end
     end
 
     X = zeros(Float64, num_runs, num_parameters)
