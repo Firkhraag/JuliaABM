@@ -452,6 +452,51 @@ function plot_surrogate_hypercube()
 end
 
 function plot_all()
+    duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube", "duration_parameter_array.csv"), ';', Float64, '\n')
+    num_mcmc_runs = length(duration_parameter_array)
+    nMAE_array = zeros(Float64, num_mcmc_runs)
+
+    susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
+    susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
+
+    open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_hypercube.txt"),"r") do datafile
+        lines = eachline(datafile)
+        line_num = 1
+        for line in lines
+            if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
+                nMAE_array[line_num] = parse.(Float64, line)
+            else
+                nMAE_array[line_num] = nMAE_array[line_num - 1]
+            end
+            # nMAE_array[line_num] = parse.(Float64, line)
+            line_num += 1
+        end
+    end
+
+    xlabel_name = "Step"
+    ylabel_name = "nMAE"
+
+    nMAE_plot = plot(
+        1:225,
+        # moving_average(nMAE_array[1:225], 3),
+        nMAE_array[1:225],
+        # 1:num_mcmc_runs,
+        # moving_average(nMAE_array, 10),
+        # nMAE_array,
+        lw = 1.5,
+        grid = true,
+        label = "MCMC LHS",
+        color = RGB(0.267, 0.467, 0.667),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+
+
+
+
+
     duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual", "duration_parameter_array.csv"), ';', Float64, '\n')
     num_mcmc_runs = length(duration_parameter_array)
     nMAE_array = zeros(Float64, num_mcmc_runs)
@@ -489,12 +534,12 @@ function plot_all()
         lines = eachline(datafile)
         line_num = 1
         for line in lines
-            # if line_num == 1 || abs(duration_parameter_array[line_num] - duration_parameter_array[line_num - 1]) > 0.0001
-            #     nMAE_array[line_num] = parse.(Float64, line)
-            # else
-            #     nMAE_array[line_num] = nMAE_array[line_num - 1]
-            # end
-            nMAE_array[line_num] = parse.(Float64, line)
+            if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
+                nMAE_array[line_num] = parse.(Float64, line)
+            else
+                nMAE_array[line_num] = nMAE_array[line_num - 1]
+            end
+            # nMAE_array[line_num] = parse.(Float64, line)
             line_num += 1
         end
     end
@@ -502,14 +547,58 @@ function plot_all()
     xlabel_name = "Step"
     ylabel_name = "nMAE"
 
-    nMAE_plot = plot(
-        1:num_mcmc_runs,
-        moving_average(nMAE_array, 10),
+    plot!(
+        1:150,
+        # moving_average(nMAE_array[1:150], 3),
+        nMAE_array[1:150],
+        # 1:num_mcmc_runs,
+        # moving_average(nMAE_array, 10),
         # nMAE_array,
         lw = 1.5,
         grid = true,
-        label = "MCMC",
-        color = RGB(0.267, 0.467, 0.667),
+        label = "MCMC MAN",
+        color = RGB(0.933, 0.4, 0.467),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+
+    duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "duration_parameter_array.csv"), ';', Float64, '\n')
+    num_metropolis_runs = length(duration_parameter_array)
+    nMAE_array = zeros(Float64, num_metropolis_runs)
+
+    susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
+    susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
+
+    open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_metropolis_hypercube.txt"),"r") do datafile
+        lines = eachline(datafile)
+        line_num = 1
+        for line in lines
+            if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
+                nMAE_array[line_num] = parse.(Float64, line)
+            else
+                nMAE_array[line_num] = nMAE_array[line_num - 1]
+            end
+            # nMAE_array[line_num] = parse.(Float64, line)
+            line_num += 1
+        end
+    end
+
+    xlabel_name = "Step"
+    ylabel_name = "nMAE"
+
+    plot!(
+        # 1:num_metropolis_runs,
+        # moving_average(nMAE_array, 10),
+        # nMAE_array,
+        1:200,
+        # moving_average(nMAE_array[1:200], 3),
+        nMAE_array[1:200],
+        lw = 1.5,
+        grid = true,
+        label = "MH LHS",
+        color = RGB(0.133, 0.533, 0.2),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -553,12 +642,12 @@ function plot_all()
         lines = eachline(datafile)
         line_num = 1
         for line in lines
-            # if line_num == 1 || abs(duration_parameter_array[line_num] - duration_parameter_array[line_num - 1]) > 0.0001
-            #     nMAE_array[line_num] = parse.(Float64, line)
-            # else
-            #     nMAE_array[line_num] = nMAE_array[line_num - 1]
-            # end
-            nMAE_array[line_num] = parse.(Float64, line)
+            if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
+                nMAE_array[line_num] = parse.(Float64, line)
+            else
+                nMAE_array[line_num] = nMAE_array[line_num - 1]
+            end
+            # nMAE_array[line_num] = parse.(Float64, line)
             line_num += 1
         end
     end
@@ -570,21 +659,20 @@ function plot_all()
         # 1:num_metropolis_runs,
         # moving_average(nMAE_array, 10),
         # nMAE_array,
-        1:150,
-        moving_average(nMAE_array[1:150], 10),
+        1:200,
+        # moving_average(nMAE_array[1:200], 3),
+        nMAE_array[1:200],
         lw = 1.5,
         grid = true,
-        label = "MH",
-        color = RGB(0.933, 0.4, 0.467),
+        label = "MH MAN",
+        color = RGB(0.667, 0.2, 0.467),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
 
-    num_surrogate_runs = 200
-    # num_surrogate_runs = 153
-    # num_surrogate_runs = 100
+    num_surrogate_runs = 150
 
     etiology = get_etiology()
     num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
@@ -616,11 +704,13 @@ function plot_all()
 
     plot!(
         1:num_surrogate_runs,
-        moving_average(nMAE_array, 10),
+        # moving_average(nMAE_array, 3),
+        # moving_average(nMAE_array, 10),
+        nMAE_array,
         lw = 1.5,
         grid = true,
         label = "SM",
-        color = RGB(0.133, 0.533, 0.2),
+        color = RGB(0.8, 0.733, 0.267),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -648,12 +738,13 @@ function plot_all()
 
     plot!(
         1:40,
-        moving_average(nMAE_array, 10),
+        # moving_average(nMAE_array, 3),
+        nMAE_array,
         lw = 1.5,
         grid = true,
         label = "PSO_20",
         legend = (0.35, 0.98),
-        color = RGB(0.667, 0.2, 0.467),
+        color = RGB(0.5, 0.5, 0.5),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
