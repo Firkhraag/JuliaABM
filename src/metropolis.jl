@@ -36,8 +36,8 @@ end
 function run_metropolis_model()
     println("Initialization...")
 
-    nMAE_output_table_name = "tables_metropolis_manual"
-    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_metropolis_manual.txt")
+    nMAE_output_table_name = "tables_metropolis_hypercube"
+    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_metropolis_hypercube.txt")
 
     # Номер запуска модели
     run_num = 0
