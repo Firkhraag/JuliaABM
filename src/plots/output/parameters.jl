@@ -477,8 +477,8 @@ function plot_all()
     ylabel_name = "nMAE"
 
     nMAE_plot = plot(
-        1:225,
-        moving_average(nMAE_array[1:225], 3),
+        1:237,
+        moving_average(nMAE_array[1:237], 3),
         # nMAE_array[1:250],
         # 1:num_mcmc_runs,
         # moving_average(nMAE_array, 10),
@@ -548,8 +548,8 @@ function plot_all()
     ylabel_name = "nMAE"
 
     plot!(
-        1:165,
-        moving_average(nMAE_array[1:165], 3),
+        1:150,
+        moving_average(nMAE_array[1:150], 3),
         # nMAE_array[1:165],
         # 1:num_mcmc_runs,
         # moving_average(nMAE_array, 10),
@@ -672,7 +672,7 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
-    num_surrogate_runs = 200
+    num_surrogate_runs = 250
 
     etiology = get_etiology()
     num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
@@ -704,9 +704,9 @@ function plot_all()
 
     plot!(
         1:num_surrogate_runs,
-        # moving_average(nMAE_array, 3),
+        moving_average(nMAE_array, 3),
         # moving_average(nMAE_array, 10),
-        nMAE_array,
+        # nMAE_array,
         lw = 1.5,
         grid = true,
         label = "SM",

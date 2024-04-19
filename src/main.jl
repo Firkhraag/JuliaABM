@@ -732,8 +732,8 @@ function mcmc_simulations(
     num_years::Int,
 )
     # hypercube / manual
-    nMAE_output_table_name = "tables_mcmc_manual"
-    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_mcmc_manual.txt")
+    nMAE_output_table_name = "tables_mcmc_hypercube"
+    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_mcmc_hypercube.txt")
 
     # Получаем значения параметров
     duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "duration_parameter_array.csv"), ',', Float64, '\n'))
