@@ -329,220 +329,338 @@ function run_metropolis_model()
         end
     end
 
+    duration_parameter_delta = 0.2
+    susceptibility_parameter_deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+    temperature_parameter_deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+    mean_immunity_duration_deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+    random_infection_probability_deltas = [0.2, 0.2, 0.2, 0.2]
+
     n = 1
     N = 1000
     while n <= N
-        duration_parameter_candidate = rand(Normal(duration_parameter_array[end], 0.05 * (1 - 0.1)))
-        if duration_parameter_candidate < 0.1
-            duration_parameter_candidate = 0.1
-        end
-        if duration_parameter_candidate > 1
-            duration_parameter_candidate = 1
-        end
+        # Кандидат для параметра продолжительности контакта в диапазоне (0.1, 1)
+        x_cand = duration_parameter_default
+        y_cand = rand(Normal(log((x_cand - 0.1) / (1 - x_cand)), duration_parameter_delta))
+        duration_parameter_candidate = (exp(y_cand) + 0.1) / (1 + exp(y_cand))
+
+        # Кандидаты для параметров неспецифической восприимчивости к вирусам в диапазоне (1, 7)
+        x_cand = susceptibility_parameters_default[1]
+        y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[1]))
+        susceptibility_parameter_1_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+        x_cand = susceptibility_parameters_default[2]
+        y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[2]))
+        susceptibility_parameter_2_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+        x_cand = susceptibility_parameters_default[3]
+        y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[3]))
+        susceptibility_parameter_3_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+        x_cand = susceptibility_parameters_default[4]
+        y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[4]))
+        susceptibility_parameter_4_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+        x_cand = susceptibility_parameters_default[5]
+        y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[5]))
+        susceptibility_parameter_5_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+        x_cand = susceptibility_parameters_default[6]
+        y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[6]))
+        susceptibility_parameter_6_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+        x_cand = susceptibility_parameters_default[7]
+        y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[7]))
+        susceptibility_parameter_7_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
+        # Кандидаты для параметров температуры воздуха в диапазоне (0.01, 1)
+        x_cand = temperature_parameters_default[1]
+        y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[1]))
+        temperature_parameter_1_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+        x_cand = temperature_parameters_default[2]
+        y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[2]))
+        temperature_parameter_2_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+        x_cand = temperature_parameters_default[3]
+        y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[3]))
+        temperature_parameter_3_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+        x_cand = temperature_parameters_default[4]
+        y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[4]))
+        temperature_parameter_4_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+        x_cand = temperature_parameters_default[5]
+        y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[5]))
+        temperature_parameter_5_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+        x_cand = temperature_parameters_default[6]
+        y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[6]))
+        temperature_parameter_6_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+        x_cand = temperature_parameters_default[7]
+        y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[7]))
+        temperature_parameter_7_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
+
+        # Кандидаты для параметров температуры воздуха в диапазоне (30, 365)
+        x_cand = mean_immunity_durations_default[1]
+        y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[1]))
+        mean_immunity_duration_1_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+        x_cand = mean_immunity_durations_default[2]
+        y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[2]))
+        mean_immunity_duration_2_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+        x_cand = mean_immunity_durations_default[3]
+        y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[3]))
+        mean_immunity_duration_3_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+        x_cand = mean_immunity_durations_default[4]
+        y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[4]))
+        mean_immunity_duration_4_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+        x_cand = mean_immunity_durations_default[5]
+        y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[5]))
+        mean_immunity_duration_5_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+        x_cand = mean_immunity_durations_default[6]
+        y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[6]))
+        mean_immunity_duration_6_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+        x_cand = mean_immunity_durations_default[7]
+        y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[7]))
+        mean_immunity_duration_7_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+        
+        # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.0009, 0.0015)
+        x_cand = random_infection_probabilities_default[1]
+        y_cand = rand(Normal(log((x_cand - 0.0009) / (0.0015 - x_cand)), random_infection_probability_deltas[1]))
+        random_infection_probability_1_candidate = (0.0015 * exp(y_cand) + 0.0009) / (1 + exp(y_cand))
+
+        # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 3-6 лет в диапазоне (0.0005, 0.001)
+        x_cand = random_infection_probabilities_default[2]
+        y_cand = rand(Normal(log((x_cand - 0.0005) / (0.001 - x_cand)), random_infection_probability_deltas[2]))
+        random_infection_probability_2_candidate = (0.001 * exp(y_cand) + 0.0005) / (1 + exp(y_cand))
+
+        # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 7-14 лет в диапазоне (0.0002, 0.0005)
+        x_cand = random_infection_probabilities_default[3]
+        y_cand = rand(Normal(log((x_cand - 0.0002) / (0.0005 - x_cand)), random_infection_probability_deltas[3]))
+        random_infection_probability_3_candidate = (0.0005 * exp(y_cand) + 0.0002) / (1 + exp(y_cand))
+
+        # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 15+ лет в диапазоне (0.000005, 0.00001)
+        x_cand = random_infection_probabilities_default[4]
+        y_cand = rand(Normal(log((x_cand - 0.000005) / (0.00001 - x_cand)), random_infection_probability_deltas[4]))
+        random_infection_probability_4_candidate = (0.00001 * exp(y_cand) + 0.000005) / (1 + exp(y_cand))
+        
+        # duration_parameter_candidate = rand(Normal(duration_parameter_array[end], 0.05 * (1 - 0.1)))
+        # if duration_parameter_candidate < 0.1
+        #     duration_parameter_candidate = 0.1
+        # end
+        # if duration_parameter_candidate > 1
+        #     duration_parameter_candidate = 1
+        # end
 
 
-        susceptibility_parameter_1_candidate = rand(Normal(susceptibility_parameter_1_array[end], 0.05 * (7 - 1)))
-        if susceptibility_parameter_1_candidate < 1
-            susceptibility_parameter_1_candidate = 1
-        end
-        if susceptibility_parameter_1_candidate > 7
-            susceptibility_parameter_1_candidate = 7
-        end
+        # susceptibility_parameter_1_candidate = rand(Normal(susceptibility_parameter_1_array[end], 0.05 * (7 - 1)))
+        # if susceptibility_parameter_1_candidate < 1
+        #     susceptibility_parameter_1_candidate = 1
+        # end
+        # if susceptibility_parameter_1_candidate > 7
+        #     susceptibility_parameter_1_candidate = 7
+        # end
 
-        susceptibility_parameter_2_candidate = rand(Normal(susceptibility_parameter_2_array[end], 0.05 * (7 - 1)))
-        if susceptibility_parameter_2_candidate < 1
-            susceptibility_parameter_2_candidate = 1
-        end
-        if susceptibility_parameter_2_candidate > 7
-            susceptibility_parameter_2_candidate = 7
-        end
+        # susceptibility_parameter_2_candidate = rand(Normal(susceptibility_parameter_2_array[end], 0.05 * (7 - 1)))
+        # if susceptibility_parameter_2_candidate < 1
+        #     susceptibility_parameter_2_candidate = 1
+        # end
+        # if susceptibility_parameter_2_candidate > 7
+        #     susceptibility_parameter_2_candidate = 7
+        # end
 
-        susceptibility_parameter_3_candidate = rand(Normal(susceptibility_parameter_3_array[end], 0.05 * (7 - 1)))
-        if susceptibility_parameter_3_candidate < 1
-            susceptibility_parameter_3_candidate = 1
-        end
-        if susceptibility_parameter_3_candidate > 7
-            susceptibility_parameter_3_candidate = 7
-        end
+        # susceptibility_parameter_3_candidate = rand(Normal(susceptibility_parameter_3_array[end], 0.05 * (7 - 1)))
+        # if susceptibility_parameter_3_candidate < 1
+        #     susceptibility_parameter_3_candidate = 1
+        # end
+        # if susceptibility_parameter_3_candidate > 7
+        #     susceptibility_parameter_3_candidate = 7
+        # end
 
-        susceptibility_parameter_4_candidate = rand(Normal(susceptibility_parameter_4_array[end], 0.05 * (7 - 1)))
-        if susceptibility_parameter_4_candidate < 1
-            susceptibility_parameter_4_candidate = 1
-        end
-        if susceptibility_parameter_4_candidate > 7
-            susceptibility_parameter_4_candidate = 7
-        end
+        # susceptibility_parameter_4_candidate = rand(Normal(susceptibility_parameter_4_array[end], 0.05 * (7 - 1)))
+        # if susceptibility_parameter_4_candidate < 1
+        #     susceptibility_parameter_4_candidate = 1
+        # end
+        # if susceptibility_parameter_4_candidate > 7
+        #     susceptibility_parameter_4_candidate = 7
+        # end
 
-        susceptibility_parameter_5_candidate = rand(Normal(susceptibility_parameter_5_array[end], 0.05 * (7 - 1)))
-        if susceptibility_parameter_5_candidate < 1
-            susceptibility_parameter_5_candidate = 1
-        end
-        if susceptibility_parameter_5_candidate > 7
-            susceptibility_parameter_5_candidate = 7
-        end
+        # susceptibility_parameter_5_candidate = rand(Normal(susceptibility_parameter_5_array[end], 0.05 * (7 - 1)))
+        # if susceptibility_parameter_5_candidate < 1
+        #     susceptibility_parameter_5_candidate = 1
+        # end
+        # if susceptibility_parameter_5_candidate > 7
+        #     susceptibility_parameter_5_candidate = 7
+        # end
 
-        susceptibility_parameter_6_candidate = rand(Normal(susceptibility_parameter_6_array[end], 0.05 * (7 - 1)))
-        if susceptibility_parameter_6_candidate < 1
-            susceptibility_parameter_6_candidate = 1
-        end
-        if susceptibility_parameter_6_candidate > 7
-            susceptibility_parameter_6_candidate = 7
-        end
+        # susceptibility_parameter_6_candidate = rand(Normal(susceptibility_parameter_6_array[end], 0.05 * (7 - 1)))
+        # if susceptibility_parameter_6_candidate < 1
+        #     susceptibility_parameter_6_candidate = 1
+        # end
+        # if susceptibility_parameter_6_candidate > 7
+        #     susceptibility_parameter_6_candidate = 7
+        # end
 
-        susceptibility_parameter_7_candidate = rand(Normal(susceptibility_parameter_7_array[end], 0.05 * (7 - 1)))
-        if susceptibility_parameter_7_candidate < 1
-            susceptibility_parameter_7_candidate = 1
-        end
-        if susceptibility_parameter_7_candidate > 7
-            susceptibility_parameter_7_candidate = 7
-        end
-
-
-        temperature_parameter_1_candidate = rand(Normal(temperature_parameter_1_array[end], 0.05 * (1 - 0.01)))
-        if temperature_parameter_1_candidate < 0.01
-            temperature_parameter_1_candidate = 0.01
-        end
-        if temperature_parameter_1_candidate > 1
-            temperature_parameter_1_candidate = 1
-        end
-
-        temperature_parameter_2_candidate = rand(Normal(temperature_parameter_2_array[end], 0.05 * (1 - 0.01)))
-        if temperature_parameter_2_candidate < 0.01
-            temperature_parameter_2_candidate = 0.01
-        end
-        if temperature_parameter_2_candidate > 1
-            temperature_parameter_2_candidate = 1
-        end
-
-        temperature_parameter_3_candidate = rand(Normal(temperature_parameter_3_array[end], 0.05 * (1 - 0.01)))
-        if temperature_parameter_3_candidate < 0.01
-            temperature_parameter_3_candidate = 0.01
-        end
-        if temperature_parameter_3_candidate > 1
-            temperature_parameter_3_candidate = 1
-        end
-
-        temperature_parameter_4_candidate = rand(Normal(temperature_parameter_4_array[end], 0.05 * (1 - 0.01)))
-        if temperature_parameter_4_candidate < 0.01
-            temperature_parameter_4_candidate = 0.01
-        end
-        if temperature_parameter_4_candidate > 1
-            temperature_parameter_4_candidate = 1
-        end
-
-        temperature_parameter_5_candidate = rand(Normal(temperature_parameter_5_array[end], 0.05 * (1 - 0.01)))
-        if temperature_parameter_5_candidate < 0.01
-            temperature_parameter_5_candidate = 0.01
-        end
-        if temperature_parameter_5_candidate > 1
-            temperature_parameter_5_candidate = 1
-        end
-
-        temperature_parameter_6_candidate = rand(Normal(temperature_parameter_6_array[end], 0.05 * (1 - 0.01)))
-        if temperature_parameter_6_candidate < 0.01
-            temperature_parameter_6_candidate = 0.01
-        end
-        if temperature_parameter_6_candidate > 1
-            temperature_parameter_6_candidate = 1
-        end
-
-        temperature_parameter_7_candidate = rand(Normal(temperature_parameter_7_array[end], 0.05 * (1 - 0.01)))
-        if temperature_parameter_7_candidate < 0.01
-            temperature_parameter_7_candidate = 0.01
-        end
-        if temperature_parameter_7_candidate > 1
-            temperature_parameter_7_candidate = 1
-        end
+        # susceptibility_parameter_7_candidate = rand(Normal(susceptibility_parameter_7_array[end], 0.05 * (7 - 1)))
+        # if susceptibility_parameter_7_candidate < 1
+        #     susceptibility_parameter_7_candidate = 1
+        # end
+        # if susceptibility_parameter_7_candidate > 7
+        #     susceptibility_parameter_7_candidate = 7
+        # end
 
 
-        mean_immunity_duration_1_candidate = rand(Normal(mean_immunity_duration_1_array[end], 0.05 * (365 - 30)))
-        if mean_immunity_duration_1_candidate < 30
-            mean_immunity_duration_1_candidate = 30
-        end
-        if mean_immunity_duration_1_candidate > 365
-            mean_immunity_duration_1_candidate = 365
-        end
+        # temperature_parameter_1_candidate = rand(Normal(temperature_parameter_1_array[end], 0.05 * (1 - 0.01)))
+        # if temperature_parameter_1_candidate < 0.01
+        #     temperature_parameter_1_candidate = 0.01
+        # end
+        # if temperature_parameter_1_candidate > 1
+        #     temperature_parameter_1_candidate = 1
+        # end
 
-        mean_immunity_duration_2_candidate = rand(Normal(mean_immunity_duration_2_array[end], 0.05 * (365 - 30)))
-        if mean_immunity_duration_2_candidate < 30
-            mean_immunity_duration_2_candidate = 30
-        end
-        if mean_immunity_duration_2_candidate > 365
-            mean_immunity_duration_2_candidate = 365
-        end
+        # temperature_parameter_2_candidate = rand(Normal(temperature_parameter_2_array[end], 0.05 * (1 - 0.01)))
+        # if temperature_parameter_2_candidate < 0.01
+        #     temperature_parameter_2_candidate = 0.01
+        # end
+        # if temperature_parameter_2_candidate > 1
+        #     temperature_parameter_2_candidate = 1
+        # end
 
-        mean_immunity_duration_3_candidate = rand(Normal(mean_immunity_duration_3_array[end], 0.05 * (365 - 30)))
-        if mean_immunity_duration_3_candidate < 30
-            mean_immunity_duration_3_candidate = 30
-        end
-        if mean_immunity_duration_3_candidate > 365
-            mean_immunity_duration_3_candidate = 365
-        end
+        # temperature_parameter_3_candidate = rand(Normal(temperature_parameter_3_array[end], 0.05 * (1 - 0.01)))
+        # if temperature_parameter_3_candidate < 0.01
+        #     temperature_parameter_3_candidate = 0.01
+        # end
+        # if temperature_parameter_3_candidate > 1
+        #     temperature_parameter_3_candidate = 1
+        # end
 
-        mean_immunity_duration_4_candidate = rand(Normal(mean_immunity_duration_4_array[end], 0.05 * (365 - 30)))
-        if mean_immunity_duration_4_candidate < 30
-            mean_immunity_duration_4_candidate = 30
-        end
-        if mean_immunity_duration_4_candidate > 365
-            mean_immunity_duration_4_candidate = 365
-        end
+        # temperature_parameter_4_candidate = rand(Normal(temperature_parameter_4_array[end], 0.05 * (1 - 0.01)))
+        # if temperature_parameter_4_candidate < 0.01
+        #     temperature_parameter_4_candidate = 0.01
+        # end
+        # if temperature_parameter_4_candidate > 1
+        #     temperature_parameter_4_candidate = 1
+        # end
 
-        mean_immunity_duration_5_candidate = rand(Normal(mean_immunity_duration_5_array[end], 0.05 * (365 - 30)))
-        if mean_immunity_duration_5_candidate < 30
-            mean_immunity_duration_5_candidate = 30
-        end
-        if mean_immunity_duration_5_candidate > 365
-            mean_immunity_duration_5_candidate = 365
-        end
+        # temperature_parameter_5_candidate = rand(Normal(temperature_parameter_5_array[end], 0.05 * (1 - 0.01)))
+        # if temperature_parameter_5_candidate < 0.01
+        #     temperature_parameter_5_candidate = 0.01
+        # end
+        # if temperature_parameter_5_candidate > 1
+        #     temperature_parameter_5_candidate = 1
+        # end
 
-        mean_immunity_duration_6_candidate = rand(Normal(mean_immunity_duration_6_array[end], 0.05 * (365 - 30)))
-        if mean_immunity_duration_6_candidate < 30
-            mean_immunity_duration_6_candidate = 30
-        end
-        if mean_immunity_duration_6_candidate > 365
-            mean_immunity_duration_6_candidate = 365
-        end
+        # temperature_parameter_6_candidate = rand(Normal(temperature_parameter_6_array[end], 0.05 * (1 - 0.01)))
+        # if temperature_parameter_6_candidate < 0.01
+        #     temperature_parameter_6_candidate = 0.01
+        # end
+        # if temperature_parameter_6_candidate > 1
+        #     temperature_parameter_6_candidate = 1
+        # end
 
-        mean_immunity_duration_7_candidate = rand(Normal(mean_immunity_duration_7_array[end], 0.05 * (365 - 30)))
-        if mean_immunity_duration_7_candidate < 30
-            mean_immunity_duration_7_candidate = 30
-        end
-        if mean_immunity_duration_7_candidate > 365
-            mean_immunity_duration_7_candidate = 365
-        end
+        # temperature_parameter_7_candidate = rand(Normal(temperature_parameter_7_array[end], 0.05 * (1 - 0.01)))
+        # if temperature_parameter_7_candidate < 0.01
+        #     temperature_parameter_7_candidate = 0.01
+        # end
+        # if temperature_parameter_7_candidate > 1
+        #     temperature_parameter_7_candidate = 1
+        # end
 
 
-        random_infection_probability_1_candidate = rand(Normal(random_infection_probability_1_array[end], 0.05 * (0.0012 - 0.0008)))
-        if random_infection_probability_1_candidate < 0.0008
-            random_infection_probability_1_candidate = 0.0008
-        end
-        if random_infection_probability_1_candidate > 0.0012
-            random_infection_probability_1_candidate = 0.0012
-        end
+        # mean_immunity_duration_1_candidate = rand(Normal(mean_immunity_duration_1_array[end], 0.05 * (365 - 30)))
+        # if mean_immunity_duration_1_candidate < 30
+        #     mean_immunity_duration_1_candidate = 30
+        # end
+        # if mean_immunity_duration_1_candidate > 365
+        #     mean_immunity_duration_1_candidate = 365
+        # end
 
-        random_infection_probability_2_candidate = rand(Normal(random_infection_probability_2_array[end], 0.05 * (0.001 - 0.0005)))
-        if random_infection_probability_2_candidate < 0.0005
-            random_infection_probability_2_candidate = 0.0005
-        end
-        if random_infection_probability_2_candidate > 0.001
-            random_infection_probability_2_candidate = 0.001
-        end
+        # mean_immunity_duration_2_candidate = rand(Normal(mean_immunity_duration_2_array[end], 0.05 * (365 - 30)))
+        # if mean_immunity_duration_2_candidate < 30
+        #     mean_immunity_duration_2_candidate = 30
+        # end
+        # if mean_immunity_duration_2_candidate > 365
+        #     mean_immunity_duration_2_candidate = 365
+        # end
 
-        random_infection_probability_3_candidate = rand(Normal(random_infection_probability_3_array[end], 0.05 * (0.0005 - 0.0002)))
-        if random_infection_probability_3_candidate < 0.0002
-            random_infection_probability_3_candidate = 0.0002
-        end
-        if random_infection_probability_3_candidate > 0.0005
-            random_infection_probability_3_candidate = 0.0005
-        end
+        # mean_immunity_duration_3_candidate = rand(Normal(mean_immunity_duration_3_array[end], 0.05 * (365 - 30)))
+        # if mean_immunity_duration_3_candidate < 30
+        #     mean_immunity_duration_3_candidate = 30
+        # end
+        # if mean_immunity_duration_3_candidate > 365
+        #     mean_immunity_duration_3_candidate = 365
+        # end
 
-        random_infection_probability_4_candidate = rand(Normal(random_infection_probability_4_array[end], 0.05 * (0.00001 - 0.000005)))
-        if random_infection_probability_4_candidate < 0.000005
-            random_infection_probability_4_candidate = 0.000005
-        end
-        if random_infection_probability_4_candidate > 0.00001
-            random_infection_probability_4_candidate = 0.00001
-        end
+        # mean_immunity_duration_4_candidate = rand(Normal(mean_immunity_duration_4_array[end], 0.05 * (365 - 30)))
+        # if mean_immunity_duration_4_candidate < 30
+        #     mean_immunity_duration_4_candidate = 30
+        # end
+        # if mean_immunity_duration_4_candidate > 365
+        #     mean_immunity_duration_4_candidate = 365
+        # end
+
+        # mean_immunity_duration_5_candidate = rand(Normal(mean_immunity_duration_5_array[end], 0.05 * (365 - 30)))
+        # if mean_immunity_duration_5_candidate < 30
+        #     mean_immunity_duration_5_candidate = 30
+        # end
+        # if mean_immunity_duration_5_candidate > 365
+        #     mean_immunity_duration_5_candidate = 365
+        # end
+
+        # mean_immunity_duration_6_candidate = rand(Normal(mean_immunity_duration_6_array[end], 0.05 * (365 - 30)))
+        # if mean_immunity_duration_6_candidate < 30
+        #     mean_immunity_duration_6_candidate = 30
+        # end
+        # if mean_immunity_duration_6_candidate > 365
+        #     mean_immunity_duration_6_candidate = 365
+        # end
+
+        # mean_immunity_duration_7_candidate = rand(Normal(mean_immunity_duration_7_array[end], 0.05 * (365 - 30)))
+        # if mean_immunity_duration_7_candidate < 30
+        #     mean_immunity_duration_7_candidate = 30
+        # end
+        # if mean_immunity_duration_7_candidate > 365
+        #     mean_immunity_duration_7_candidate = 365
+        # end
+
+
+        # random_infection_probability_1_candidate = rand(Normal(random_infection_probability_1_array[end], 0.05 * (0.0012 - 0.0008)))
+        # if random_infection_probability_1_candidate < 0.0008
+        #     random_infection_probability_1_candidate = 0.0008
+        # end
+        # if random_infection_probability_1_candidate > 0.0012
+        #     random_infection_probability_1_candidate = 0.0012
+        # end
+
+        # random_infection_probability_2_candidate = rand(Normal(random_infection_probability_2_array[end], 0.05 * (0.001 - 0.0005)))
+        # if random_infection_probability_2_candidate < 0.0005
+        #     random_infection_probability_2_candidate = 0.0005
+        # end
+        # if random_infection_probability_2_candidate > 0.001
+        #     random_infection_probability_2_candidate = 0.001
+        # end
+
+        # random_infection_probability_3_candidate = rand(Normal(random_infection_probability_3_array[end], 0.05 * (0.0005 - 0.0002)))
+        # if random_infection_probability_3_candidate < 0.0002
+        #     random_infection_probability_3_candidate = 0.0002
+        # end
+        # if random_infection_probability_3_candidate > 0.0005
+        #     random_infection_probability_3_candidate = 0.0005
+        # end
+
+        # random_infection_probability_4_candidate = rand(Normal(random_infection_probability_4_array[end], 0.05 * (0.00001 - 0.000005)))
+        # if random_infection_probability_4_candidate < 0.000005
+        #     random_infection_probability_4_candidate = 0.000005
+        # end
+        # if random_infection_probability_4_candidate > 0.00001
+        #     random_infection_probability_4_candidate = 0.00001
+        # end
 
         duration_parameter = duration_parameter_candidate
         susceptibility_parameters = [

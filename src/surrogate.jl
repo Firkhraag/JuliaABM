@@ -307,11 +307,11 @@ function run_surrogate_model()
         firm_min_size, firm_max_size, work_num_barabasi_albert_attachments,
         school_num_barabasi_albert_attachments)
 
-    duration_parameter_delta = 0.1
-    susceptibility_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    temperature_parameter_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    mean_immunity_duration_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-    random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
+    duration_parameter_delta = 0.2
+    susceptibility_parameter_deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+    temperature_parameter_deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+    mean_immunity_duration_deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+    random_infection_probability_deltas = [0.2, 0.2, 0.2, 0.2]
 
     for curr_run = 1:500
         # XGBoost

@@ -477,9 +477,9 @@ function plot_all()
     ylabel_name = "nMAE"
 
     nMAE_plot = plot(
-        1:225,
-        # moving_average(nMAE_array[1:225], 3),
-        nMAE_array[1:225],
+        1:250,
+        moving_average(nMAE_array[1:250], 3),
+        # nMAE_array[1:250],
         # 1:num_mcmc_runs,
         # moving_average(nMAE_array, 10),
         # nMAE_array,
@@ -548,15 +548,15 @@ function plot_all()
     ylabel_name = "nMAE"
 
     plot!(
-        1:150,
-        # moving_average(nMAE_array[1:150], 3),
-        nMAE_array[1:150],
+        1:165,
+        moving_average(nMAE_array[1:165], 3),
+        # nMAE_array[1:165],
         # 1:num_mcmc_runs,
         # moving_average(nMAE_array, 10),
         # nMAE_array,
         lw = 1.5,
         grid = true,
-        label = "MCMC MAN",
+        label = "MCMC manual",
         color = RGB(0.933, 0.4, 0.467),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -597,7 +597,7 @@ function plot_all()
         nMAE_array[1:200],
         lw = 1.5,
         grid = true,
-        label = "MH LHS",
+        label = "MA LHS",
         color = RGB(0.133, 0.533, 0.2),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -664,7 +664,7 @@ function plot_all()
         nMAE_array[1:200],
         lw = 1.5,
         grid = true,
-        label = "MH MAN",
+        label = "MA manual",
         color = RGB(0.667, 0.2, 0.467),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -722,28 +722,38 @@ function plot_all()
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_swarm_runs)
     incidence_arr_temp = Array{Array{Float64, 3}, 1}(undef, num_particles)
-    nMAE_array = zeros(Float64, num_swarm_runs)
-    nMAE_array_temp = zeros(Float64, num_particles)
+    nMAE_array = zeros(Float64, num_swarm_runs * num_particles)
 
     xlabel_name = "Step"
     ylabel_name = "nMAE"
 
+    # for i = 1:num_swarm_runs
+    #     for j = 1:num_particles
+    #         incidence_arr_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["observed_cases"]
+    #         nMAE_array_temp[j] = sum(abs.(incidence_arr_temp[j] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    #     end
+    #     nMAE_array[i] = minimum(nMAE_array_temp)
+    # end
+
     for i = 1:num_swarm_runs
+        nMAE_arr_temp = 0.0
         for j = 1:num_particles
-            incidence_arr_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["observed_cases"]
-            nMAE_array_temp[j] = sum(abs.(incidence_arr_temp[j] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+            temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["observed_cases"]
+            nMAE_arr_temp = sum(abs.(temp - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
         end
-        nMAE_array[i] = minimum(nMAE_array_temp)
+        for j = 1:num_particles
+            nMAE_array[(i - 1) * num_particles + j] = minimum(nMAE_arr_temp)
+        end
     end
 
     plot!(
-        1:40,
-        # moving_average(nMAE_array, 3),
-        nMAE_array,
+        1:250,
+        moving_average(nMAE_array[1:250], 3),
+        # nMAE_array[1:200],
         lw = 1.5,
         grid = true,
-        label = "PSO_20",
-        legend = (0.35, 0.98),
+        label = "PSO 20",
+        legend = (0.66, 0.98),
         color = RGB(0.5, 0.5, 0.5),
         foreground_color_legend = nothing,
         background_color_legend = nothing,

@@ -271,20 +271,20 @@ function run_swarm_model()
 
     for i = 1:num_particles
         duration_parameter_particles_best[i] = points[i, 1]
-        susceptibility_parameters_particles_best[i] = points[i, 2:8]
-        temperature_parameters_particles_best[i] = points[i, 9:15]
-        mean_immunity_durations_particles_best[i] = points[i, 16:22]
+        susceptibility_parameters_particles_best[i] = copy(points[i, 2:8])
+        temperature_parameters_particles_best[i] = copy(points[i, 9:15])
+        mean_immunity_durations_particles_best[i] = copy(points[i, 16:22])
         for k = 1:length(viruses)
             viruses[k].mean_immunity_duration = points[i, 15 + k]
             viruses[k].immunity_duration_sd = points[i, 15 + k] * 0.33
         end
-        random_infection_probabilities_particles_best[i] = points[i, 23:26]
+        random_infection_probabilities_particles_best[i] = copy(points[i, 23:26])
 
         duration_parameter_particles[i] = points[i, 1]
-        susceptibility_parameters_particles[i] = points[i, 2:8]
-        temperature_parameters_particles[i] = points[i, 9:15]
-        mean_immunity_durations_particles[i] = points[i, 16:22]
-        random_infection_probabilities_particles[i] = points[i, 23:26]
+        susceptibility_parameters_particles[i] = copy(points[i, 2:8])
+        temperature_parameters_particles[i] = copy(points[i, 9:15])
+        mean_immunity_durations_particles[i] = copy(points[i, 16:22])
+        random_infection_probabilities_particles[i] = copy(points[i, 23:26])
 
         # Сбрасываем состояние синтетической популяции до начального
         @threads for thread_id in 1:num_threads

@@ -168,7 +168,7 @@ function lhs_simulations(
     δt,
 )
     # Число параметров
-    num_parameters = 3
+    num_parameters = 4
 
     # Латинский гиперкуб
     latin_hypercube_plan, _ = LHCoptim(num_runs, num_parameters, 200)
@@ -178,6 +178,7 @@ function lhs_simulations(
         (0.02, 0.2), # β
         (5, 25), # c
         (0.01, 0.05), # γ
+        (1, 50), # I0
     ])
 
     nMAE_min = 1.0e12
@@ -188,7 +189,16 @@ function lhs_simulations(
         β_parameter = points[i, 1]
         c_parameter = points[i, 2]
         γ_parameter = points[i, 3]
+        I0_parameter = points[i, 4]
 
+        # Reset
+        for i in 1:length(agents)
+            if i <= I0_parameter # I0
+                agents[i] = Infected
+            else
+                agents[i] = Susceptible
+            end
+        end
         # Моделируем заболеваемость
         nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
@@ -197,20 +207,144 @@ function lhs_simulations(
             println("β_parameter = ", β_parameter)
             println("c_parameter = ", c_parameter)
             println("γ_parameter = ", γ_parameter)
+            println("I0_parameter = ", I0_parameter)
         end
         save(joinpath(@__DIR__, "lhs", "results_$(i).jld"),
             "nMAE", nMAE,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
-            "γ_parameter", γ_parameter)
+            "γ_parameter", γ_parameter,
+            "I0_parameter", I0_parameter)
+    end
+end
+
+function mcmc_simulations_lhs(
+    # Число прогонов модели
+    num_runs::Int,
+    # Агенты
+    agents::Vector{InfectionStatus},
+    nsteps,
+    δt,
+)
+    # Получаем значения параметров
+    β_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "1_array.csv"), ',', Float64, '\n'))
+    β_parameter = β_parameter_array[end]
+
+    c_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "2_array.csv"), ',', Float64, '\n'))
+    c_parameter = c_parameter_array[end]
+
+    γ_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "3_array.csv"), ',', Float64, '\n'))
+    γ_parameter = γ_parameter_array[end]
+
+    I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "4_array.csv"), ',', Float64, '\n'))
+    I0_parameter = I0_parameter_array[end]
+
+    nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+    # Reset
+    for i in 1:length(agents)
+        if i <= I0_parameter # I0
+            agents[i] = Infected
+        else
+            agents[i] = Susceptible
+        end
+    end
+    open(joinpath(@__DIR__, "mcmc_lhs.txt"), "a") do io
+        println(io, nMAE)
+    end
+
+    # Число принятий новых значений параметров
+    accept_num = 0
+    # Число последовательных отказов
+    local_rejected_num = 0
+
+    β_parameter_delta = 0.1
+    c_parameter_delta = 0.1
+    γ_parameter_delta = 0.1
+    I0_parameter_delta = 0.1
+
+    nMAE_min = 99999.0
+    nMAE_prev = nMAE
+    nMAE_min = nMAE
+
+    # (0.02, 0.2), # β
+    # (5, 25), # c
+    # (0.01, 0.05), # γ
+    for n = 1:num_runs
+        x = β_parameter_array[end]
+        y = rand(Normal(log((x - 0.02) / (0.2 - x)), β_parameter_delta))
+        β_parameter = (0.2 * exp(y) + 0.02) / (1 + exp(y))
+
+        x = c_parameter_array[end]
+        y = rand(Normal(log((x - 5) / (25 - x)), c_parameter_delta))
+        c_parameter = (25 * exp(y) + 5) / (1 + exp(y))
+
+        x = γ_parameter_array[end]
+        y = rand(Normal(log((x - 0.01) / (0.05 - x)), γ_parameter_delta))
+        γ_parameter = (0.05 * exp(y) + 0.01) / (1 + exp(y))
+
+        x = I0_parameter_array[end]
+        y = rand(Normal(log((x - 1) / (50 - x)), I0_parameter_delta))
+        I0_parameter = (50 * exp(y) + 1) / (1 + exp(y))
 
         # Reset
         for i in 1:length(agents)
-            if i <= 10 # I0
+            if i <= I0_parameter # I0
                 agents[i] = Infected
             else
                 agents[i] = Susceptible
             end
+        end
+        nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+
+        save(joinpath(@__DIR__, "mcmc_lhs", "results_$(n).jld"),
+            "nMAE", nMAE,
+            "β_parameter", β_parameter,
+            "c_parameter", c_parameter,
+            "γ_parameter", γ_parameter,
+            "I0_parameter", I0_parameter)
+
+        open(joinpath(@__DIR__, "mcmc_lhs.txt"), "a") do io
+            println(io, nMAE)
+        end
+
+        # Если ошибка меньше ошибки на предыдущем шаге или число последовательных отказов больше 10
+        if nMAE < nMAE_prev || local_rejected_num >= 10
+            if nMAE < nMAE_min
+                nMAE_min = nMAE
+                println("nMAE min = $(nMAE)")
+                println("β_parameter = $(β_parameter)")
+                println("c_parameter = $(c_parameter)")
+                println("γ_parameter = $(γ_parameter)")
+                println("I0_parameter = $(I0_parameter)")
+            end
+            push!(β_parameter_array, β_parameter)
+            push!(c_parameter_array, c_parameter)
+            push!(γ_parameter_array, γ_parameter)
+            push!(I0_parameter_array, I0_parameter)
+
+            nMAE_prev = nMAE
+
+            # Увеличиваем число принятий новых параметров
+            accept_num += 1
+            # Число последовательных отказов приравниваем нулю
+            local_rejected_num = 0
+        else
+            # Добавляем предыдущие значения параметров
+            push!(β_parameter_array, β_parameter_array[end])
+            push!(c_parameter_array, c_parameter_array[end])
+            push!(γ_parameter_array, γ_parameter_array[end])
+            push!(I0_parameter_array, I0_parameter_array[end])
+            
+            local_rejected_num += 1
+        end
+
+        # Раз в 2 шага
+        if n % 2 == 0
+            # Сохраняем значения параметров
+            writedlm(joinpath(@__DIR__, "parameters_lhs", "1_parameter_array.csv"), β_parameter_array, ',')
+            writedlm(joinpath(@__DIR__, "parameters_lhs", "2_parameter_array.csv"), c_parameter_array, ',')
+            writedlm(joinpath(@__DIR__, "parameters_lhs", "3_parameter_array.csv"), γ_parameter_array, ',')
+            writedlm(joinpath(@__DIR__, "parameters_lhs", "4_parameter_array.csv"), I0_parameter_array, ',')
         end
     end
 end
@@ -233,10 +367,13 @@ function mcmc_simulations(
     γ_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters", "3_array.csv"), ',', Float64, '\n'))
     γ_parameter = γ_parameter_array[end]
 
+    I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters", "4_array.csv"), ',', Float64, '\n'))
+    I0_parameter = I0_parameter_array[end]
+
     nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
     # Reset
     for i in 1:length(agents)
-        if i <= 10 # I0
+        if i <= I0_parameter # I0
             agents[i] = Infected
         else
             agents[i] = Susceptible
@@ -254,6 +391,7 @@ function mcmc_simulations(
     β_parameter_delta = 0.1
     c_parameter_delta = 0.1
     γ_parameter_delta = 0.1
+    I0_parameter_delta = 0.1
 
     nMAE_min = 99999.0
     nMAE_prev = nMAE
@@ -275,21 +413,26 @@ function mcmc_simulations(
         y = rand(Normal(log((x - 0.01) / (0.05 - x)), γ_parameter_delta))
         γ_parameter = (0.05 * exp(y) + 0.01) / (1 + exp(y))
 
-        nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+        x = I0_parameter_array[end]
+        y = rand(Normal(log((x - 1) / (50 - x)), I0_parameter_delta))
+        I0_parameter = (50 * exp(y) + 1) / (1 + exp(y))
+
         # Reset
         for i in 1:length(agents)
-            if i <= 10 # I0
+            if i <= I0_parameter # I0
                 agents[i] = Infected
             else
                 agents[i] = Susceptible
             end
         end
+        nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
         save(joinpath(@__DIR__, "mcmc", "results_$(n).jld"),
             "nMAE", nMAE,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
-            "γ_parameter", γ_parameter)
+            "γ_parameter", γ_parameter,
+            "I0_parameter", I0_parameter)
 
         open(joinpath(@__DIR__, "mcmc.txt"), "a") do io
             println(io, nMAE)
@@ -303,10 +446,12 @@ function mcmc_simulations(
                 println("β_parameter = $(β_parameter)")
                 println("c_parameter = $(c_parameter)")
                 println("γ_parameter = $(γ_parameter)")
+                println("I0_parameter = $(I0_parameter)")
             end
             push!(β_parameter_array, β_parameter)
             push!(c_parameter_array, c_parameter)
             push!(γ_parameter_array, γ_parameter)
+            push!(I0_parameter_array, I0_parameter)
 
             nMAE_prev = nMAE
 
@@ -319,6 +464,7 @@ function mcmc_simulations(
             push!(β_parameter_array, β_parameter_array[end])
             push!(c_parameter_array, c_parameter_array[end])
             push!(γ_parameter_array, γ_parameter_array[end])
+            push!(I0_parameter_array, I0_parameter_array[end])
             
             local_rejected_num += 1
         end
@@ -329,6 +475,7 @@ function mcmc_simulations(
             writedlm(joinpath(@__DIR__, "parameters", "1_parameter_array.csv"), β_parameter_array, ',')
             writedlm(joinpath(@__DIR__, "parameters", "2_parameter_array.csv"), c_parameter_array, ',')
             writedlm(joinpath(@__DIR__, "parameters", "3_parameter_array.csv"), γ_parameter_array, ',')
+            writedlm(joinpath(@__DIR__, "parameters", "4_parameter_array.csv"), I0_parameter_array, ',')
         end
     end
 end
@@ -351,15 +498,18 @@ function mcmc_simulations_metropolis(
     γ_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_metropolis", "3_array.csv"), ',', Float64, '\n'))
     γ_parameter = γ_parameter_array[end]
 
-    S, I, R, nMAE = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+    I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_metropolis", "4_array.csv"), ',', Float64, '\n'))
+    I0_parameter = I0_parameter_array[end]
+
     # Reset
     for i in 1:length(agents)
-        if i <= 10 # I0
+        if i <= I0_parameter # I0
             agents[i] = Infected
         else
             agents[i] = Susceptible
         end
     end
+    S, I, R, nMAE = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
     open(joinpath(@__DIR__, "mcmc_metropolis.txt"), "a") do io
         println(io, nMAE)
     end
@@ -380,53 +530,79 @@ function mcmc_simulations_metropolis(
     # Число последовательных отказов
     local_rejected_num = 0
 
-    β_parameter_delta = 0.05
-    c_parameter_delta = 0.05
-    γ_parameter_delta = 0.05
+    β_parameter_delta = 0.2
+    c_parameter_delta = 0.2
+    γ_parameter_delta = 0.2
+    I0_parameter_delta = 0.2
 
     # (0.02, 0.2), # β
     # (5, 25), # c
     # (0.01, 0.05), # γ
     for n = 1:num_runs
-        β_parameter = rand(Normal(β_parameter_array[end], 0.1 * (0.2 - 0.02)))
-        if β_parameter < 0.02
-            β_parameter = 0.02
-        end
-        if β_parameter > 0.2
-            β_parameter = 0.2
-        end
+        # β_parameter = rand(Normal(β_parameter_array[end], 0.05 * (0.2 - 0.02)))
+        # if β_parameter < 0.02
+        #     β_parameter = 0.02
+        # end
+        # if β_parameter > 0.2
+        #     β_parameter = 0.2
+        # end
 
-        c_parameter = rand(Normal(c_parameter_array[end], 0.1 * (25 - 5)))
-        if c_parameter < 5
-            c_parameter = 5
-        end
-        if c_parameter > 25
-            c_parameter = 25
-        end
+        # c_parameter = rand(Normal(c_parameter_array[end], 0.05 * (25 - 5)))
+        # if c_parameter < 5
+        #     c_parameter = 5
+        # end
+        # if c_parameter > 25
+        #     c_parameter = 25
+        # end
 
-        γ_parameter = rand(Normal(γ_parameter_array[end], 0.1 * (0.05 - 0.01)))
-        if γ_parameter < 0.01
-            γ_parameter = 0.01
-        end
-        if γ_parameter > 0.05
-            γ_parameter = 0.05
-        end
+        # γ_parameter = rand(Normal(γ_parameter_array[end], 0.05 * (0.05 - 0.01)))
+        # if γ_parameter < 0.01
+        #     γ_parameter = 0.01
+        # end
+        # if γ_parameter > 0.05
+        #     γ_parameter = 0.05
+        # end
 
-        S, I, R, nMAE = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+        # I0_parameter = rand(Normal(I0_parameter_array[end], 0.05 * (0.05 - 0.01)))
+        # if I0_parameter < 1
+        #     I0_parameter = 1
+        # end
+        # if I0_parameter > 50
+        #     I0_parameter = 50
+        # end
+
+        x = β_parameter_array[end]
+        y = rand(Normal(log((x - 0.02) / (0.2 - x)), β_parameter_delta))
+        β_parameter = (0.2 * exp(y) + 0.02) / (1 + exp(y))
+
+        x = c_parameter_array[end]
+        y = rand(Normal(log((x - 5) / (25 - x)), c_parameter_delta))
+        c_parameter = (25 * exp(y) + 5) / (1 + exp(y))
+
+        x = γ_parameter_array[end]
+        y = rand(Normal(log((x - 0.01) / (0.05 - x)), γ_parameter_delta))
+        γ_parameter = (0.05 * exp(y) + 0.01) / (1 + exp(y))
+
+        x = I0_parameter_array[end]
+        y = rand(Normal(log((x - 1) / (50 - x)), I0_parameter_delta))
+        I0_parameter = (50 * exp(y) + 1) / (1 + exp(y))
+
         # Reset
         for i in 1:length(agents)
-            if i <= 10 # I0
+            if i <= I0_parameter # I0
                 agents[i] = Infected
             else
                 agents[i] = Susceptible
             end
         end
+        S, I, R, nMAE = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
         save(joinpath(@__DIR__, "mcmc_metropolis", "results_$(n).jld"),
             "nMAE", nMAE,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
-            "γ_parameter", γ_parameter)
+            "γ_parameter", γ_parameter,
+            "I0_parameter", I0_parameter)
 
         open(joinpath(@__DIR__, "mcmc_metropolis.txt"), "a") do io
             println(io, nMAE)
@@ -453,6 +629,7 @@ function mcmc_simulations_metropolis(
             push!(β_parameter_array, β_parameter)
             push!(c_parameter_array, c_parameter)
             push!(γ_parameter_array, γ_parameter)
+            push!(I0_parameter_array, I0_parameter)
 
             prob_prev = copy(prob)
 
@@ -465,6 +642,7 @@ function mcmc_simulations_metropolis(
             push!(β_parameter_array, β_parameter_array[end])
             push!(c_parameter_array, c_parameter_array[end])
             push!(γ_parameter_array, γ_parameter_array[end])
+            push!(I0_parameter_array, I0_parameter_array[end])
             
             local_rejected_num += 1
         end
@@ -475,17 +653,196 @@ function mcmc_simulations_metropolis(
             writedlm(joinpath(@__DIR__, "parameters_metropolis", "1_parameter_array.csv"), β_parameter_array, ',')
             writedlm(joinpath(@__DIR__, "parameters_metropolis", "2_parameter_array.csv"), c_parameter_array, ',')
             writedlm(joinpath(@__DIR__, "parameters_metropolis", "3_parameter_array.csv"), γ_parameter_array, ',')
+            writedlm(joinpath(@__DIR__, "parameters_metropolis", "4_parameter_array.csv"), I0_parameter_array, ',')
         end
     end
 end
 
-function run_swarm_model(
+function mcmc_simulations_metropolis_lhs(
+    # Число прогонов модели
+    num_runs::Int,
     # Агенты
     agents::Vector{InfectionStatus},
     nsteps,
     δt,
 )
-    num_swarm_model_runs = 50
+    # Получаем значения параметров
+    β_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "1_array.csv"), ',', Float64, '\n'))
+    β_parameter = β_parameter_array[end]
+
+    c_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "2_array.csv"), ',', Float64, '\n'))
+    c_parameter = c_parameter_array[end]
+
+    γ_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "3_array.csv"), ',', Float64, '\n'))
+    γ_parameter = γ_parameter_array[end]
+
+    I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "4_array.csv"), ',', Float64, '\n'))
+    I0_parameter = I0_parameter_array[end]
+
+    # Reset
+    for i in 1:length(agents)
+        if i <= I0_parameter # I0
+            agents[i] = Infected
+        else
+            agents[i] = Susceptible
+        end
+    end
+    S, I, R, nMAE = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+    open(joinpath(@__DIR__, "mcmc_metropolis_lhs.txt"), "a") do io
+        println(io, nMAE)
+    end
+
+    prob_prev = zeros(Float64, length(S) + length(I) + length(R))
+    for i = 1:length(S)
+        prob_prev[i] = log_g(S[i], S_ref[i], sqrt(S_ref[i]))
+    end
+    for i = 1:length(I)
+        prob_prev[i + length(S)] = log_g(I[i], I_ref[i], sqrt(I_ref[i]))
+    end
+    for i = 1:length(R)
+        prob_prev[i + length(S) + length(I)] = log_g(R[i], R_ref[i], sqrt(R_ref[i]))
+    end
+
+    # Число принятий новых значений параметров
+    accept_num = 0
+    # Число последовательных отказов
+    local_rejected_num = 0
+
+    β_parameter_delta = 0.2
+    c_parameter_delta = 0.2
+    γ_parameter_delta = 0.2
+    I0_parameter_delta = 0.2
+
+    # (0.02, 0.2), # β
+    # (5, 25), # c
+    # (0.01, 0.05), # γ
+    for n = 1:num_runs
+        # β_parameter = rand(Normal(β_parameter_array[end], 0.05 * (0.2 - 0.02)))
+        # if β_parameter < 0.02
+        #     β_parameter = 0.02
+        # end
+        # if β_parameter > 0.2
+        #     β_parameter = 0.2
+        # end
+
+        # c_parameter = rand(Normal(c_parameter_array[end], 0.05 * (25 - 5)))
+        # if c_parameter < 5
+        #     c_parameter = 5
+        # end
+        # if c_parameter > 25
+        #     c_parameter = 25
+        # end
+
+        # γ_parameter = rand(Normal(γ_parameter_array[end], 0.05 * (0.05 - 0.01)))
+        # if γ_parameter < 0.01
+        #     γ_parameter = 0.01
+        # end
+        # if γ_parameter > 0.05
+        #     γ_parameter = 0.05
+        # end
+
+        # I0_parameter = rand(Normal(I0_parameter_array[end], 0.05 * (0.05 - 0.01)))
+        # if I0_parameter < 1
+        #     I0_parameter = 1
+        # end
+        # if I0_parameter > 50
+        #     I0_parameter = 50
+        # end
+
+        x = β_parameter_array[end]
+        y = rand(Normal(log((x - 0.02) / (0.2 - x)), β_parameter_delta))
+        β_parameter = (0.2 * exp(y) + 0.02) / (1 + exp(y))
+
+        x = c_parameter_array[end]
+        y = rand(Normal(log((x - 5) / (25 - x)), c_parameter_delta))
+        c_parameter = (25 * exp(y) + 5) / (1 + exp(y))
+
+        x = γ_parameter_array[end]
+        y = rand(Normal(log((x - 0.01) / (0.05 - x)), γ_parameter_delta))
+        γ_parameter = (0.05 * exp(y) + 0.01) / (1 + exp(y))
+
+        x = I0_parameter_array[end]
+        y = rand(Normal(log((x - 1) / (50 - x)), I0_parameter_delta))
+        I0_parameter = (50 * exp(y) + 1) / (1 + exp(y))
+
+        # Reset
+        for i in 1:length(agents)
+            if i <= I0_parameter # I0
+                agents[i] = Infected
+            else
+                agents[i] = Susceptible
+            end
+        end
+        S, I, R, nMAE = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+
+        save(joinpath(@__DIR__, "mcmc_metropolis_lhs", "results_$(n).jld"),
+            "nMAE", nMAE,
+            "β_parameter", β_parameter,
+            "c_parameter", c_parameter,
+            "γ_parameter", γ_parameter,
+            "I0_parameter", I0_parameter)
+
+        open(joinpath(@__DIR__, "mcmc_metropolis_lhs.txt"), "a") do io
+            println(io, nMAE)
+        end
+
+        prob = zeros(Float64, length(S) + length(I) + length(R))
+        for i = 1:length(S)
+            prob[i] = log_g(S[i], S_ref[i], sqrt(S_ref[i]))
+        end
+        for i = 1:length(I)
+            prob[i + length(S)] = log_g(I[i], I_ref[i], sqrt(I_ref[i]))
+        end
+        for i = 1:length(R)
+            prob[i + length(S) + length(I)] = log_g(R[i], R_ref[i], sqrt(R_ref[i]))
+        end
+
+        accept_prob = 0.0
+        for i = 1:(3*length(S))
+            accept_prob += prob[i] - prob_prev[i]
+        end
+        accept_prob_final = min(1.0, exp(accept_prob))
+
+        if rand(Float64) < accept_prob_final || local_rejected_num >= 10
+            push!(β_parameter_array, β_parameter)
+            push!(c_parameter_array, c_parameter)
+            push!(γ_parameter_array, γ_parameter)
+            push!(I0_parameter_array, I0_parameter)
+
+            prob_prev = copy(prob)
+
+            # Увеличиваем число принятий новых параметров
+            accept_num += 1
+            # Число последовательных отказов приравниваем нулю
+            local_rejected_num = 0
+        else
+            # Добавляем предыдущие значения параметров
+            push!(β_parameter_array, β_parameter_array[end])
+            push!(c_parameter_array, c_parameter_array[end])
+            push!(γ_parameter_array, γ_parameter_array[end])
+            push!(I0_parameter_array, I0_parameter_array[end])
+            
+            local_rejected_num += 1
+        end
+
+        # Раз в 2 шага
+        if n % 2 == 0
+            # Сохраняем значения параметров
+            writedlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "1_parameter_array.csv"), β_parameter_array, ',')
+            writedlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "2_parameter_array.csv"), c_parameter_array, ',')
+            writedlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "3_parameter_array.csv"), γ_parameter_array, ',')
+            writedlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "4_parameter_array.csv"), I0_parameter_array, ',')
+        end
+    end
+end
+
+function run_swarm_model(
+    num_swarm_model_runs,
+    # Агенты
+    agents::Vector{InfectionStatus},
+    nsteps,
+    δt,
+)
     num_particles = 20
 
     best_nMAE = 9999.0
@@ -499,74 +856,115 @@ function run_swarm_model(
     β_parameter_particles = Array{Float64, 1}(undef, num_particles)
     c_parameter_particles = Array{Float64, 1}(undef, num_particles)
     γ_parameter_particles = Array{Float64, 1}(undef, num_particles)
+    I0_parameter_particles = Array{Float64, 1}(undef, num_particles)
 
     β_parameter_particles_velocity = zeros(Float64, num_particles)
     c_parameter_particles_velocity = zeros(Float64, num_particles)
     γ_parameter_particles_velocity = zeros(Float64, num_particles)
+    I0_parameter_particles_velocity = zeros(Float64, num_particles)
 
     β_parameter_particles_best = Array{Float64, 1}(undef, num_particles)
     c_parameter_particles_best = Array{Float64, 1}(undef, num_particles)
     γ_parameter_particles_best = Array{Float64, 1}(undef, num_particles)
+    I0_parameter_particles_best = Array{Float64, 1}(undef, num_particles)
 
     β_parameter_best = 0.0
     c_parameter_best = 0.0
     γ_parameter_best = 0.0
+    I0_parameter_best = 0.0
 
     velocity_particles = zeros(Float64, num_particles)
 
-    # Латинский гиперкуб
-    latin_hypercube_plan, _ = LHCoptim(num_particles, 3, 200)
-
-    # Интервалы значений параметров
-    points = scaleLHC(latin_hypercube_plan, [
-        (0.02, 0.2), # β
-        (5, 25), # c
-        (0.01, 0.05), # γ
-    ])
+    num_parameters = 4
 
     for i = 1:num_particles
-        β_parameter_particles_best[i] = points[i, 1]
-        c_parameter_particles_best[i] = points[i, 2]
-        γ_parameter_particles_best[i] = points[i, 3]
+        nMAE_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["nMAE"]
 
-        β_parameter_particles[i] = points[i, 1]
-        c_parameter_particles[i] = points[i, 1]
-        γ_parameter_particles[i] = points[i, 1]
+        β_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
+        c_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
+        γ_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
+        I0_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["I0_parameter"]
 
-        nMAE_particles[i] = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles_best[i], γ_parameter_particles_best[i])
-        # Reset
-        for i in 1:length(agents)
-            if i <= 10 # I0
-                agents[i] = Infected
-            else
-                agents[i] = Susceptible
-            end
-        end
-
-        if nMAE_particles[i] < best_nMAE
-            best_nMAE = nMAE_particles[i]
-
-            β_parameter_best = points[i, 1]
-            c_parameter_best = points[i, 2]
-            γ_parameter_best = points[i, 3]
-        end
-
-        save(joinpath(@__DIR__, "swarm", "0", "results_$(i).jld"),
-            "nMAE", nMAE_particles[i],
-            "β_parameter", β_parameter_particles[i],
-            "c_parameter", c_parameter_particles[i],
-            "γ_parameter", γ_parameter_particles[i],)
+        β_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
+        c_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
+        γ_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
+        I0_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["I0_parameter"]
     end
+
+    k = argmin(nMAE_particles)
+    β_parameter_best = β_parameter_particles[k]
+    c_parameter_best = c_parameter_particles[k]
+    γ_parameter_best = γ_parameter_particles[k]
+    I0_parameter_best = I0_parameter_particles[k]
+
+    # println(β_parameter_best)
+    # println(c_parameter_best)
+    # println(γ_parameter_best)
+    # println(I0_parameter_best)
+    # return
+
+    # # Латинский гиперкуб
+    # latin_hypercube_plan, _ = LHCoptim(num_particles, num_parameters, 200)
+
+    # # Интервалы значений параметров
+    # points = scaleLHC(latin_hypercube_plan, [
+    #     (0.02, 0.2), # β
+    #     (5, 25), # c
+    #     (0.01, 0.05), # γ
+    #     (1, 50), # I0
+    # ])
+
+    # for i = 1:num_particles
+    #     β_parameter_particles_best[i] = points[i, 1]
+    #     c_parameter_particles_best[i] = points[i, 2]
+    #     γ_parameter_particles_best[i] = points[i, 3]
+    #     I0_parameter_particles_best[i] = points[i, 4]
+
+    #     β_parameter_particles[i] = points[i, 1]
+    #     c_parameter_particles[i] = points[i, 2]
+    #     γ_parameter_particles[i] = points[i, 3]
+    #     I0_parameter_particles[i] = points[i, 4]
+
+    #     # Reset
+    #     for j in 1:length(agents)
+    #         if j <= I0_parameter_particles_best[i] # I0
+    #             agents[j] = Infected
+    #         else
+    #             agents[j] = Susceptible
+    #         end
+    #     end
+    #     nMAE_particles[i] = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles_best[i], γ_parameter_particles_best[i])
+
+    #     if nMAE_particles[i] < best_nMAE
+    #         best_nMAE = nMAE_particles[i]
+
+    #         β_parameter_best = points[i, 1]
+    #         c_parameter_best = points[i, 2]
+    #         γ_parameter_best = points[i, 3]
+    #         I0_parameter_best = points[i, 4]
+    #     end
+
+    #     save(joinpath(@__DIR__, "swarm", "0", "results_$(i).jld"),
+    #         "nMAE", nMAE_particles[i],
+    #         "β_parameter", β_parameter_particles[i],
+    #         "c_parameter", c_parameter_particles[i],
+    #         "γ_parameter", γ_parameter_particles[i],
+    #         "I0_parameter", I0_parameter_particles[i])
+    # end
+
+    
 
     for curr_run = 1:num_swarm_model_runs
         for i = 1:num_particles
             β_parameter_particles_velocity[i] = w * β_parameter_particles_velocity[i] + c1 * rand() * (β_parameter_particles_best[i] - β_parameter_particles[i]) + c2 * rand() * (β_parameter_best - β_parameter_particles[i])
             c_parameter_particles_velocity[i] = w * c_parameter_particles_velocity[i] + c1 * rand() * (c_parameter_particles_best[i] - c_parameter_particles[i]) + c2 * rand() * (c_parameter_best - c_parameter_particles[i])
             γ_parameter_particles_velocity[i] = w * γ_parameter_particles_velocity[i] + c1 * rand() * (γ_parameter_particles_best[i] - γ_parameter_particles[i]) + c2 * rand() * (γ_parameter_best - γ_parameter_particles[i])
+            I0_parameter_particles_velocity[i] = w * I0_parameter_particles_velocity[i] + c1 * rand() * (I0_parameter_particles_best[i] - I0_parameter_particles[i]) + c2 * rand() * (I0_parameter_best - I0_parameter_particles[i])
 
             β_parameter_particles[i] += β_parameter_particles_velocity[i]
             c_parameter_particles[i] += c_parameter_particles_velocity[i]
             γ_parameter_particles[i] += γ_parameter_particles_velocity[i]
+            I0_parameter_particles[i] += I0_parameter_particles_velocity[i]
 
             # (0.02, 0.2), # β
             # (5, 25), # c
@@ -583,22 +981,27 @@ function run_swarm_model(
             if γ_parameter_particles[i] < 0.01 || γ_parameter_particles[i] > 0.05
                 γ_parameter_particles[i] = rand(Uniform(0.01, 0.05))
             end
+            # Ограничения на область значений параметров
+            if I0_parameter_particles[i] < 1 || I0_parameter_particles[i] > 50
+                I0_parameter_particles[i] = rand(Uniform(1, 50))
+            end
 
-            nMAE = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles_best[i], γ_parameter_particles_best[i])
             # Reset
-            for i in 1:length(agents)
-                if i <= 10 # I0
-                    agents[i] = Infected
+            for j in 1:length(agents)
+                if j <= I0_parameter_particles[i] # I0
+                    agents[j] = Infected
                 else
-                    agents[i] = Susceptible
+                    agents[j] = Susceptible
                 end
             end
+            nMAE = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles_best[i], γ_parameter_particles_best[i])
 
             save(joinpath(@__DIR__, "swarm", "$(i)", "results_$(curr_run).jld"),
                 "nMAE", nMAE,
                 "β_parameter", β_parameter_particles[i],
                 "c_parameter", c_parameter_particles[i],
                 "γ_parameter", γ_parameter_particles[i],
+                "I0_parameter", I0_parameter_particles[i],
             )
 
             if nMAE < best_nMAE
@@ -607,12 +1010,14 @@ function run_swarm_model(
                 β_parameter_best = β_parameter_particles[i]
                 c_parameter_best = c_parameter_particles[i]
                 γ_parameter_best = γ_parameter_particles[i]
+                I0_parameter_best = I0_parameter_particles[i]
 
                 println("Best!!!")
                 println("nMAE_best = ", nMAE)
                 println("β_parameter = ", β_parameter_best)
                 println("c_parameter = ", c_parameter_best)
                 println("γ_parameter = ", γ_parameter_best)
+                println("I0_parameter = ", I0_parameter_best)
                 println()
             end
 
@@ -622,12 +1027,14 @@ function run_swarm_model(
                 β_parameter_particles_best[i] = β_parameter_particles[i]
                 c_parameter_particles_best[i] = c_parameter_particles[i]
                 γ_parameter_particles_best[i] = γ_parameter_particles[i]
+                I0_parameter_particles_best[i] = I0_parameter_particles[i]
 
                 println("Particle")
                 println("nMAE_particle $(i) = ", nMAE)
                 println("β_parameter = ", β_parameter_particles_best[i])
                 println("c_parameter = ", c_parameter_particles_best[i])
                 println("γ_parameter = ", γ_parameter_particles_best[i])
+                println("I0_parameter = ", I0_parameter_particles_best[i])
                 println()
             end
         end
@@ -642,22 +1049,24 @@ function run_surrogate_model(
     nsteps,
     δt,
 )
-    num_initial_runs = 50
+    num_initial_runs = 20
     num_additional_runs = 0
     num_runs = num_initial_runs + num_additional_runs
 
-    num_parameters = 3
+    num_parameters = 4
 
     nMAE_arr = Array{Float64, 1}(undef, num_runs)
     β_parameter = Array{Float64, 1}(undef, num_runs)
     c_parameter = Array{Float64, 1}(undef, num_runs)
     γ_parameter = Array{Float64, 1}(undef, num_runs)
+    I0_parameter = Array{Float64, 1}(undef, num_runs)
 
     for i = 1:num_initial_runs
         nMAE_arr[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["nMAE"]
         β_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
         c_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
         γ_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
+        I0_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["I0_parameter"]
     end
 
     # for i = 1:num_additional_runs
@@ -693,11 +1102,12 @@ function run_surrogate_model(
     # end
 
     # XGBoost
-    X = zeros(Float64, num_runs, 3)
+    X = zeros(Float64, num_runs, num_parameters)
     for i = 1:num_runs
         X[i, 1] = β_parameter[i]
         X[i, 2] = c_parameter[i]
         X[i, 3] = γ_parameter[i]
+        X[i, 4] = I0_parameter[i]
     end
 
     forest_num_rounds = 150
@@ -720,7 +1130,7 @@ function run_surrogate_model(
     # rule = Optimisers.Adam()
     # error = 0.0
 
-    par_vec = zeros(Float64, 3)
+    par_vec = zeros(Float64, num_parameters)
 
     β_parameter_default = 0.0
     β_parameter_min = 0.0
@@ -730,6 +1140,9 @@ function run_surrogate_model(
 
     γ_parameter_default = 0.0
     γ_parameter_min = 0.0
+
+    I0_parameter_default = 0.0
+    I0_parameter_min = 0.0
 
     # XGBoost
     # bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η, watchlist=[])
@@ -792,6 +1205,7 @@ function run_surrogate_model(
     β_parameter_delta = 0.1
     c_parameter_delta = 0.1
     γ_parameter_delta = 0.1
+    I0_parameter_delta = 0.1
 
     for curr_run = 1:num_runs_surrogate
         # XGBoost
@@ -828,6 +1242,9 @@ function run_surrogate_model(
         γ_parameter_default = γ_parameter[min_i]
         γ_parameter_min = γ_parameter[min_i]
 
+        I0_parameter_default = I0_parameter[min_i]
+        I0_parameter_min = I0_parameter[min_i]
+
         local_rejected_num = 0
 
         for n = 1:1000
@@ -843,9 +1260,14 @@ function run_surrogate_model(
             y_cand = rand(Normal(log((x_cand - 0.01) / (0.05 - x_cand)), γ_parameter_delta))
             γ_parameter_candidate = (0.05 * exp(y_cand) + 0.01) / (1 + exp(y_cand))
 
+            x_cand = I0_parameter_default
+            y_cand = rand(Normal(log((x_cand - 1) / (50 - x_cand)), I0_parameter_delta))
+            I0_parameter_candidate = (50 * exp(y_cand) + 1) / (1 + exp(y_cand))
+
             par_vec[1] = β_parameter_candidate
             par_vec[2] = c_parameter_candidate
             par_vec[3] = γ_parameter_candidate
+            par_vec[4] = I0_parameter_candidate
 
             # NN
             # r = reshape(par_vec, :, 1)
@@ -866,10 +1288,12 @@ function run_surrogate_model(
                     β_parameter_min = β_parameter_candidate
                     c_parameter_min = c_parameter_candidate
                     γ_parameter_min = γ_parameter_candidate
+                    I0_parameter_min = I0_parameter_candidate
                 end
                 β_parameter_default = β_parameter_candidate
                 c_parameter_default = c_parameter_candidate
                 γ_parameter_default = γ_parameter_candidate
+                I0_parameter_default = I0_parameter_candidate
 
                 nMAE_prev = nMAE
 
@@ -880,21 +1304,22 @@ function run_surrogate_model(
             end
         end
 
-        nMAE = run_model(agents, nsteps, δt, β_parameter_min, c_parameter_min, γ_parameter_min)
         # Reset
         for i in 1:length(agents)
-            if i <= 10 # I0
+            if i <= I0_parameter_min # I0
                 agents[i] = Infected
             else
                 agents[i] = Susceptible
             end
         end
+        nMAE = run_model(agents, nsteps, δt, β_parameter_min, c_parameter_min, γ_parameter_min)
 
         save(joinpath(@__DIR__, "surrogate", "results_$(curr_run).jld"),
             "nMAE", nMAE,
             "β_parameter", β_parameter_min,
             "c_parameter", c_parameter_min,
-            "γ_parameter", γ_parameter_min,)
+            "γ_parameter", γ_parameter_min,
+            "I0_parameter", I0_parameter_min)
 
         println("Real nMAE: $(nMAE)")
 
@@ -904,7 +1329,7 @@ function run_surrogate_model(
         # XGBoost
         # y = vcat(y, nMAE)
         push!(y, nMAE)
-        X = vcat(X, [β_parameter_min, c_parameter_min, γ_parameter_min]')
+        X = vcat(X, [β_parameter_min, c_parameter_min, γ_parameter_min, I0_parameter_min]')
     end
 end
 
@@ -920,7 +1345,7 @@ function run_surrogate_model_NN(
     num_additional_runs = 0
     num_runs = num_initial_runs + num_additional_runs
 
-    num_parameters = 3
+    num_parameters = 4
 
     nMAE_arr = Array{Float64, 1}(undef, num_runs)
     β_parameter = Array{Float64, 1}(undef, num_runs)
@@ -1055,6 +1480,7 @@ function run_surrogate_model_NN(
     β_parameter_delta = 0.1
     c_parameter_delta = 0.1
     γ_parameter_delta = 0.1
+    I0_parameter_delta = 0.1
 
     for curr_run = 1:num_runs_surrogate
         # Train loop
@@ -1176,26 +1602,29 @@ function main()
 
     # Начальные условия
     N = 10000
-    I0 = 10
+    # I0 = 10
     agents_initial = Array{InfectionStatus}(undef, N)
-    for i in 1:N
-        if i <= I0
-            s = Infected
-        else
-            s = Susceptible
-        end
-        agents_initial[i] = s
-    end
+    # for i in 1:N
+    #     if i <= I0
+    #         s = Infected
+    #     else
+    #         s = Susceptible
+    #     end
+    #     agents_initial[i] = s
+    # end
 
 
-    run_model(agents_initial, nsteps, δt, 0.05, 10.0, 0.02)
+    # run_model(agents_initial, nsteps, δt, 0.05, 10.0, 0.02)
 
     # mcmc_simulations(500,agents_initial,nsteps,δt)
-    # mcmc_simulations_metropolis(1000,agents_initial,nsteps,δt)
-    # run_swarm_model(agents_initial,nsteps,δt)
-    # lhs_simulations(50,agents_initial,nsteps,δt)
-    # run_surrogate_model(250,agents_initial,nsteps,δt)
+    # mcmc_simulations_metropolis(500,agents_initial,nsteps,δt)
+    # run_swarm_model(25, agents_initial,nsteps,δt)
+    # lhs_simulations(20,agents_initial,nsteps,δt)
+    run_surrogate_model(500,agents_initial,nsteps,δt)
     # run_surrogate_model_NN(100,agents_initial,nsteps,δt)
+
+    # mcmc_simulations_lhs(500,agents_initial,nsteps,δt)
+    # mcmc_simulations_metropolis_lhs(500,agents_initial,nsteps,δt)
 end
 
 main()
