@@ -477,8 +477,8 @@ function plot_all()
     ylabel_name = "nMAE"
 
     nMAE_plot = plot(
-        1:250,
-        moving_average(nMAE_array[1:250], 3),
+        1:225,
+        moving_average(nMAE_array[1:225], 3),
         # nMAE_array[1:250],
         # 1:num_mcmc_runs,
         # moving_average(nMAE_array, 10),
@@ -672,7 +672,7 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
-    num_surrogate_runs = 150
+    num_surrogate_runs = 200
 
     etiology = get_etiology()
     num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
@@ -747,12 +747,12 @@ function plot_all()
     end
 
     plot!(
-        1:250,
-        moving_average(nMAE_array[1:250], 3),
+        1:225,
+        moving_average(nMAE_array[1:225], 3),
         # nMAE_array[1:200],
         lw = 1.5,
         grid = true,
-        label = "PSO 20",
+        label = "PSO LHS",
         legend = (0.66, 0.98),
         color = RGB(0.5, 0.5, 0.5),
         foreground_color_legend = nothing,

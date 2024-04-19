@@ -169,7 +169,7 @@ function run_surrogate_model()
     end
 
     num_initial_runs = 1000
-    num_additional_runs = 0
+    num_additional_runs = 208
     num_runs = num_initial_runs + num_additional_runs
 
     num_years = 1
@@ -313,7 +313,7 @@ function run_surrogate_model()
     mean_immunity_duration_deltas = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
     random_infection_probability_deltas = [0.2, 0.2, 0.2, 0.2]
 
-    for curr_run = 1:500
+    for curr_run = (1 + num_additional_runs):500
         # XGBoost
         bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η, watchlist=[])
 
