@@ -36,8 +36,8 @@ end
 function run_metropolis_model()
     println("Initialization...")
 
-    nMAE_output_table_name = "tables_metropolis_hypercube"
-    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_metropolis_hypercube.txt")
+    nMAE_output_table_name = "tables_metropolis_manual"
+    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_metropolis_manual.txt")
 
     # Номер запуска модели
     run_num = 0
@@ -339,114 +339,114 @@ function run_metropolis_model()
     N = 1000
     while n <= N
         # Кандидат для параметра продолжительности контакта в диапазоне (0.1, 1)
-        x_cand = duration_parameter_default
+        x_cand = duration_parameter_array[end]
         y_cand = rand(Normal(log((x_cand - 0.1) / (1 - x_cand)), duration_parameter_delta))
         duration_parameter_candidate = (exp(y_cand) + 0.1) / (1 + exp(y_cand))
 
         # Кандидаты для параметров неспецифической восприимчивости к вирусам в диапазоне (1, 7)
-        x_cand = susceptibility_parameters_default[1]
+        x_cand = susceptibility_parameter_1_array[end]
         y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[1]))
         susceptibility_parameter_1_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
 
-        x_cand = susceptibility_parameters_default[2]
+        x_cand = susceptibility_parameter_2_array[end]
         y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[2]))
         susceptibility_parameter_2_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
 
-        x_cand = susceptibility_parameters_default[3]
+        x_cand = susceptibility_parameter_3_array[end]
         y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[3]))
         susceptibility_parameter_3_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
 
-        x_cand = susceptibility_parameters_default[4]
+        x_cand = susceptibility_parameter_4_array[end]
         y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[4]))
         susceptibility_parameter_4_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
 
-        x_cand = susceptibility_parameters_default[5]
+        x_cand = susceptibility_parameter_5_array[end]
         y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[5]))
         susceptibility_parameter_5_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
 
-        x_cand = susceptibility_parameters_default[6]
+        x_cand = susceptibility_parameter_6_array[end]
         y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[6]))
         susceptibility_parameter_6_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
 
-        x_cand = susceptibility_parameters_default[7]
+        x_cand = susceptibility_parameter_7_array[end]
         y_cand = rand(Normal(log((x_cand - 1) / (7 - x_cand)), susceptibility_parameter_deltas[7]))
         susceptibility_parameter_7_candidate = (7 * exp(y_cand) + 1) / (1 + exp(y_cand))
 
         # Кандидаты для параметров температуры воздуха в диапазоне (0.01, 1)
-        x_cand = temperature_parameters_default[1]
+        x_cand = temperature_parameter_1_array[end]
         y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[1]))
         temperature_parameter_1_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
 
-        x_cand = temperature_parameters_default[2]
+        x_cand = temperature_parameter_2_array[end]
         y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[2]))
         temperature_parameter_2_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
 
-        x_cand = temperature_parameters_default[3]
+        x_cand = temperature_parameter_3_array[end]
         y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[3]))
         temperature_parameter_3_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
 
-        x_cand = temperature_parameters_default[4]
+        x_cand = temperature_parameter_4_array[end]
         y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[4]))
         temperature_parameter_4_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
 
-        x_cand = temperature_parameters_default[5]
+        x_cand = temperature_parameter_5_array[end]
         y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[5]))
         temperature_parameter_5_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
 
-        x_cand = temperature_parameters_default[6]
+        x_cand = temperature_parameter_6_array[end]
         y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[6]))
         temperature_parameter_6_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
 
-        x_cand = temperature_parameters_default[7]
+        x_cand = temperature_parameter_7_array[end]
         y_cand = rand(Normal(log((x_cand - 0.01) / (1 - x_cand)), temperature_parameter_deltas[7]))
         temperature_parameter_7_candidate = (exp(y_cand) + 0.01) / (1 + exp(y_cand))
 
         # Кандидаты для параметров температуры воздуха в диапазоне (30, 365)
-        x_cand = mean_immunity_durations_default[1]
+        x_cand = mean_immunity_duration_1_array[end]
         y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[1]))
         mean_immunity_duration_1_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
 
-        x_cand = mean_immunity_durations_default[2]
+        x_cand = mean_immunity_duration_2_array[end]
         y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[2]))
         mean_immunity_duration_2_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
 
-        x_cand = mean_immunity_durations_default[3]
+        x_cand = mean_immunity_duration_3_array[end]
         y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[3]))
         mean_immunity_duration_3_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
 
-        x_cand = mean_immunity_durations_default[4]
+        x_cand = mean_immunity_duration_4_array[end]
         y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[4]))
         mean_immunity_duration_4_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
 
-        x_cand = mean_immunity_durations_default[5]
+        x_cand = mean_immunity_duration_5_array[end]
         y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[5]))
         mean_immunity_duration_5_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
 
-        x_cand = mean_immunity_durations_default[6]
+        x_cand = mean_immunity_duration_6_array[end]
         y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[6]))
         mean_immunity_duration_6_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
 
-        x_cand = mean_immunity_durations_default[7]
+        x_cand = mean_immunity_duration_7_array[end]
         y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[7]))
         mean_immunity_duration_7_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
         
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.0009, 0.0015)
-        x_cand = random_infection_probabilities_default[1]
+        x_cand = random_infection_probability_1_array[end]
         y_cand = rand(Normal(log((x_cand - 0.0009) / (0.0015 - x_cand)), random_infection_probability_deltas[1]))
         random_infection_probability_1_candidate = (0.0015 * exp(y_cand) + 0.0009) / (1 + exp(y_cand))
 
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 3-6 лет в диапазоне (0.0005, 0.001)
-        x_cand = random_infection_probabilities_default[2]
+        x_cand = random_infection_probability_2_array[end]
         y_cand = rand(Normal(log((x_cand - 0.0005) / (0.001 - x_cand)), random_infection_probability_deltas[2]))
         random_infection_probability_2_candidate = (0.001 * exp(y_cand) + 0.0005) / (1 + exp(y_cand))
 
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 7-14 лет в диапазоне (0.0002, 0.0005)
-        x_cand = random_infection_probabilities_default[3]
+        x_cand = random_infection_probability_3_array[end]
         y_cand = rand(Normal(log((x_cand - 0.0002) / (0.0005 - x_cand)), random_infection_probability_deltas[3]))
         random_infection_probability_3_candidate = (0.0005 * exp(y_cand) + 0.0002) / (1 + exp(y_cand))
 
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 15+ лет в диапазоне (0.000005, 0.00001)
-        x_cand = random_infection_probabilities_default[4]
+        x_cand = random_infection_probability_4_array[end]
         y_cand = rand(Normal(log((x_cand - 0.000005) / (0.00001 - x_cand)), random_infection_probability_deltas[4]))
         random_infection_probability_4_candidate = (0.00001 * exp(y_cand) + 0.000005) / (1 + exp(y_cand))
         
