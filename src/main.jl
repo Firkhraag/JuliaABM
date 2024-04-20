@@ -563,10 +563,12 @@ function lhs_simulations(
     mean_immunity_durations::Vector{Float64},
     # Число лет
     num_years::Int,
+    # Имя папки
+    folder_name::String,
 )
     # Число прогонов модели
     num_files = 0
-    for _ in readdir(joinpath(@__DIR__, "..", "output", "tables", "lhs", "initial"))
+    for _ in readdir(joinpath(@__DIR__, "..", "output", "tables", "lhs", folder_name))
         num_files +=1
     end
 
@@ -578,38 +580,38 @@ function lhs_simulations(
     latin_hypercube_plan, _ = LHCoptim(num_runs, num_parameters, 500)
 
     # В случае, если значения загружаются из таблицы
-    points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "lhs", "parameters.csv"), header = false)))
+    # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "lhs", "parameters.csv"), header = false)))
 
     # Интервалы значений параметров
-    # points = scaleLHC(latin_hypercube_plan, [
-    #     (0.1, 1.0), # duration_parameter
-    #     (1.0, 7.0), # susceptibility_parameters
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (-1.0, -0.01), # temperature_parameters
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (30, 365), # mean_immunity_durations
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (0.001, 0.002), # random_infection_probabilities
-    #     (0.0005, 0.001),
-    #     (0.0002, 0.0005),
-    #     (0.000005, 0.00001),
-    # ])
-    # writedlm(joinpath(@__DIR__, "..", "output", "tables", "lhs", "parameters.csv"), points, ',')
+    points = scaleLHC(latin_hypercube_plan, [
+        (0.1, 1.0), # duration_parameter
+        (1.0, 7.0), # susceptibility_parameters
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (-1.0, -0.01), # temperature_parameters
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (30, 365), # mean_immunity_durations
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (0.0008, 0.0012), # random_infection_probabilities
+        (0.0005, 0.001),
+        (0.0002, 0.0005),
+        (0.000005, 0.00001),
+    ])
+    writedlm(joinpath(@__DIR__, "..", "output", "tables", "lhs", "parameters.csv"), points, ',')
 
     nMAE_min = 1.0e12
 
@@ -661,7 +663,7 @@ function lhs_simulations(
             println("random_infection_probabilities = ", random_infection_probabilities)
         end
 
-        save(joinpath(@__DIR__, "..", "output", "tables", "lhs", "initial", "results_$(i).jld"),
+        save(joinpath(@__DIR__, "..", "output", "tables", "lhs", folder_name, "results_$(i).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "duration_parameter", duration_parameter,
             "susceptibility_parameters", susceptibility_parameters,
@@ -729,17 +731,21 @@ function mcmc_simulations(
     # Число лет для моделирования
     num_years::Int,
 )
+    # hypercube / manual
+    nMAE_output_table_name = "tables_mcmc_hypercube"
+    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_mcmc_hypercube.txt")
+
     # Получаем значения параметров
-    duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), ',', Float64, '\n'))
+    duration_parameter_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "duration_parameter_array.csv"), ',', Float64, '\n'))
     duration_parameter = duration_parameter_array[end]
 
-    susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_3_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_4_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_5_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
-    susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_1_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_2_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_3_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_4_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_5_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_6_array.csv"), ',', Float64, '\n'))
+    susceptibility_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_7_array.csv"), ',', Float64, '\n'))
     susceptibility_parameters = [
         susceptibility_parameter_1_array[end],
         susceptibility_parameter_2_array[end],
@@ -750,13 +756,13 @@ function mcmc_simulations(
         susceptibility_parameter_7_array[end]
     ]
 
-    temperature_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_1_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_2_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_3_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_4_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_5_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_6_array.csv"), ',', Float64, '\n'))
-    temperature_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "temperature_parameter_7_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_1_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_2_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_3_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_4_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_5_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_6_array.csv"), ',', Float64, '\n'))
+    temperature_parameter_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_7_array.csv"), ',', Float64, '\n'))
     temperature_parameters = -[
         temperature_parameter_1_array[end],
         temperature_parameter_2_array[end],
@@ -767,13 +773,13 @@ function mcmc_simulations(
         temperature_parameter_7_array[end]
     ]
 
-    mean_immunity_duration_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "mean_immunity_duration_1_array.csv"), ',', Float64, '\n'))
-    mean_immunity_duration_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "mean_immunity_duration_2_array.csv"), ',', Float64, '\n'))
-    mean_immunity_duration_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "mean_immunity_duration_3_array.csv"), ',', Float64, '\n'))
-    mean_immunity_duration_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "mean_immunity_duration_4_array.csv"), ',', Float64, '\n'))
-    mean_immunity_duration_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "mean_immunity_duration_5_array.csv"), ',', Float64, '\n'))
-    mean_immunity_duration_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "mean_immunity_duration_6_array.csv"), ',', Float64, '\n'))
-    mean_immunity_duration_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "mean_immunity_duration_7_array.csv"), ',', Float64, '\n'))
+    mean_immunity_duration_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_1_array.csv"), ',', Float64, '\n'))
+    mean_immunity_duration_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_2_array.csv"), ',', Float64, '\n'))
+    mean_immunity_duration_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_3_array.csv"), ',', Float64, '\n'))
+    mean_immunity_duration_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_4_array.csv"), ',', Float64, '\n'))
+    mean_immunity_duration_5_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_5_array.csv"), ',', Float64, '\n'))
+    mean_immunity_duration_6_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_6_array.csv"), ',', Float64, '\n'))
+    mean_immunity_duration_7_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_7_array.csv"), ',', Float64, '\n'))
     mean_immunity_duration = [
         mean_immunity_duration_1_array[end],
         mean_immunity_duration_2_array[end],
@@ -784,10 +790,10 @@ function mcmc_simulations(
         mean_immunity_duration_7_array[end]
     ]
 
-    random_infection_probability_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "random_infection_probability_1_array.csv"), ',', Float64, '\n'))
-    random_infection_probability_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "random_infection_probability_2_array.csv"), ',', Float64, '\n'))
-    random_infection_probability_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "random_infection_probability_3_array.csv"), ',', Float64, '\n'))
-    random_infection_probability_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", "tables", "random_infection_probability_4_array.csv"), ',', Float64, '\n'))
+    random_infection_probability_1_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_1_array.csv"), ',', Float64, '\n'))
+    random_infection_probability_2_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_2_array.csv"), ',', Float64, '\n'))
+    random_infection_probability_3_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_3_array.csv"), ',', Float64, '\n'))
+    random_infection_probability_4_array = vec(readdlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_4_array.csv"), ',', Float64, '\n'))
     random_infection_probability = [
         random_infection_probability_1_array[end],
         random_infection_probability_2_array[end],
@@ -842,9 +848,13 @@ function mcmc_simulations(
     nMAE_prev = nMAE
     nMAE_min = nMAE
 
-    n = 1
-    N = 1000
-    while n <= N
+    if countlines(nMAE_output_file_location) == 0
+        open(nMAE_output_file_location, "a") do io
+            println(io, nMAE)
+        end
+    end
+
+    for n = 1:1000
         # Кандидат для параметра продолжительности контакта в диапазоне (0.1, 1)
         x = duration_parameter_array[end]
         y = rand(Normal(log((x - 0.1) / (1 - x)), duration_parameter_delta))
@@ -862,10 +872,6 @@ function mcmc_simulations(
         x = susceptibility_parameter_3_array[end]
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[3]))
         susceptibility_parameter_3_candidate = (7 * exp(y) + 1) / (1 + exp(y))
-
-        x = susceptibility_parameter_4_array[end]
-        y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[4]))
-        susceptibility_parameter_4_candidate = (7 * exp(y) + 1) / (1 + exp(y))
 
         x = susceptibility_parameter_4_array[end]
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[4]))
@@ -941,10 +947,10 @@ function mcmc_simulations(
         y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[7]))
         mean_immunity_duration_7_candidate = (365 * exp(y) + 30) / (1 + exp(y))
         
-        # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.001, 0.002)
+        # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.0009, 0.0015)
         x = random_infection_probability_1_array[end]
-        y = rand(Normal(log((x - 0.001) / (0.002 - x)), random_infection_probability_deltas[1]))
-        random_infection_probability_1_candidate = (0.002 * exp(y) + 0.001) / (1 + exp(y))
+        y = rand(Normal(log((x - 0.0009) / (0.0015 - x)), random_infection_probability_deltas[1]))
+        random_infection_probability_1_candidate = (0.0015 * exp(y) + 0.0009) / (1 + exp(y))
 
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 3-6 лет в диапазоне (0.0005, 0.001)
         x = random_infection_probability_2_array[end]
@@ -1026,6 +1032,14 @@ function mcmc_simulations(
             isolation_probabilities_day_3, random_infection_probabilities,
             recovered_duration_mean, recovered_duration_sd, num_years, false)
 
+        save(joinpath(@__DIR__, "..", "output", "tables", "mcmc", "results_$(n + 249).jld"),
+            "observed_cases", observed_num_infected_age_groups_viruses,
+            "duration_parameter", duration_parameter,
+            "susceptibility_parameters", susceptibility_parameters,
+            "temperature_parameters", temperature_parameters,
+            "mean_immunity_durations", mean_immunity_durations,
+            "random_infection_probabilities", random_infection_probabilities)
+
         nMAE = 0.0
         # Если рассматривается 1 год
         if is_one_mean_year_modeled
@@ -1042,7 +1056,7 @@ function mcmc_simulations(
             nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
         end
 
-        open("parameters/output.txt", "a") do io
+        open(nMAE_output_file_location, "a") do io
             println(io, nMAE)
         end
 
@@ -1130,75 +1144,75 @@ function mcmc_simulations(
         end
 
         # Раз в 2 шага
-        if n % 2 == 0
+        # if n % 2 == 0
+        if n % 1 == 0
             # Сохраняем значения параметров
-            writedlm(joinpath(@__DIR__, "..", "parameters", "tables", "duration_parameter_array.csv"), duration_parameter_array, ',')
+            writedlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "duration_parameter_array.csv"), duration_parameter_array, ',')
 
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "susceptibility_parameter_1_array.csv"), susceptibility_parameter_1_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_1_array.csv"), susceptibility_parameter_1_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "susceptibility_parameter_2_array.csv"), susceptibility_parameter_2_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_2_array.csv"), susceptibility_parameter_2_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "susceptibility_parameter_3_array.csv"), susceptibility_parameter_3_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_3_array.csv"), susceptibility_parameter_3_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "susceptibility_parameter_4_array.csv"), susceptibility_parameter_4_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_4_array.csv"), susceptibility_parameter_4_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "susceptibility_parameter_5_array.csv"), susceptibility_parameter_5_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_5_array.csv"), susceptibility_parameter_5_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "susceptibility_parameter_6_array.csv"), susceptibility_parameter_6_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_6_array.csv"), susceptibility_parameter_6_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "susceptibility_parameter_7_array.csv"), susceptibility_parameter_7_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "susceptibility_parameter_7_array.csv"), susceptibility_parameter_7_array, ',')
 
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "temperature_parameter_1_array.csv"), temperature_parameter_1_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_1_array.csv"), temperature_parameter_1_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "temperature_parameter_2_array.csv"), temperature_parameter_2_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_2_array.csv"), temperature_parameter_2_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "temperature_parameter_3_array.csv"), temperature_parameter_3_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_3_array.csv"), temperature_parameter_3_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "temperature_parameter_4_array.csv"), temperature_parameter_4_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_4_array.csv"), temperature_parameter_4_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "temperature_parameter_5_array.csv"), temperature_parameter_5_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_5_array.csv"), temperature_parameter_5_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "temperature_parameter_6_array.csv"), temperature_parameter_6_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_6_array.csv"), temperature_parameter_6_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "temperature_parameter_7_array.csv"), temperature_parameter_7_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "temperature_parameter_7_array.csv"), temperature_parameter_7_array, ',')
 
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "mean_immunity_duration_1_array.csv"), mean_immunity_duration_1_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_1_array.csv"), mean_immunity_duration_1_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "mean_immunity_duration_2_array.csv"), mean_immunity_duration_2_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_2_array.csv"), mean_immunity_duration_2_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "mean_immunity_duration_3_array.csv"), mean_immunity_duration_3_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_3_array.csv"), mean_immunity_duration_3_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "mean_immunity_duration_4_array.csv"), mean_immunity_duration_4_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_4_array.csv"), mean_immunity_duration_4_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "mean_immunity_duration_5_array.csv"), mean_immunity_duration_5_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_5_array.csv"), mean_immunity_duration_5_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "mean_immunity_duration_6_array.csv"), mean_immunity_duration_6_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_6_array.csv"), mean_immunity_duration_6_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "mean_immunity_duration_7_array.csv"), mean_immunity_duration_7_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "mean_immunity_duration_7_array.csv"), mean_immunity_duration_7_array, ',')
 
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "random_infection_probability_1_array.csv"), random_infection_probability_1_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_1_array.csv"), random_infection_probability_1_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "random_infection_probability_2_array.csv"), random_infection_probability_2_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_2_array.csv"), random_infection_probability_2_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "random_infection_probability_3_array.csv"), random_infection_probability_3_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_3_array.csv"), random_infection_probability_3_array, ',')
             writedlm(joinpath(
-                @__DIR__, "..", "parameters", "tables", "random_infection_probability_4_array.csv"), random_infection_probability_4_array, ',')
+                @__DIR__, "..", "parameters", nMAE_output_table_name, "random_infection_probability_4_array.csv"), random_infection_probability_4_array, ',')
         end
-        n += 1
     end
 end
 
 function main(
     # Набор параметров модели (порядок для вирусов: FluA, FluB, RV, RSV, AdV, PIV, CoV)
-    duration_parameter::Float64 = 0.1574987587578544,
-    susceptibility_parameters::Vector{Float64} = [2.488444411549469, 2.2420906235713205, 3.9285407241514183, 5.256616822399921, 5.151052335043506, 4.236713645881599, 5.040817687679894],
-    temperature_parameters::Vector{Float64} = -[0.8832306653292299, 0.725974206599066, 0.032824212682373066, 0.14050733443495142, 0.04170117493055635, 0.03825624225757124, 0.2574489968859005],
-    mean_immunity_durations::Vector{Float64} = [162.61076947558595, 219.9046948498235, 169.48728310507263, 212.81462197308315, 78.77331950260154, 168.72029171589904, 91.44242069232911],
-    random_infection_probabilities::Vector{Float64} = [0.001, 0.0006812286293964, 0.0004227044312320168, 8.679909046482872e-6],
+    duration_parameter::Float64 = 0.15574760338153604,
+    susceptibility_parameters::Vector{Float64} = [2.432383535521401, 2.238084657549736, 3.9300635165658035, 5.1720010915454235, 5.144684292234647, 4.341625180301945, 5.6260953331716905],
+    temperature_parameters::Vector{Float64} = -[0.9251684333883052, 0.7239220149884157, 0.049812103111112345, 0.10582041043086308, 0.038630895494711034, 0.03723490323281524, 0.20131912645634797],
+    mean_immunity_durations::Vector{Float64} = [155.9752583833697, 247.24115717945472, 147.8575990177909, 203.0420746358355, 79.78372383057398, 177.17279810129776, 99.15211361389254],
+    random_infection_probabilities::Vector{Float64} = [0.001, 0.0007000333340668348, 0.000438925392941535, 8.746936501061745e-6],
 
     # Сценарий работы модели
     # -----------------------------------
@@ -1213,9 +1227,6 @@ function main(
     global_warming_temperature::Float64 = 0.0,
     # ["+1 °С" "+2 °С" "+3 °С" "+4 °С"]
     # -----------------------------------
-
-    # Для суррогатной модели
-    surrogate_index::Int = 0,
 )
     println("Initialization...")
 
@@ -1231,7 +1242,7 @@ function main(
     # Число моделируемых лет
     num_years = 1
     # Среднее по num_years
-    is_one_mean_year_modeled = false
+    is_one_mean_year_modeled = true
 
     # Число потоков
     num_threads = nthreads()
@@ -1354,9 +1365,6 @@ function main(
         num_infected_age_groups_viruses_prev[:, virus_id, 4] ./= viruses[virus_id].symptomatic_probability_adult * (1 - (1 - isolation_probabilities_day_1[4]) * (1 - isolation_probabilities_day_2[4]) * (1 - isolation_probabilities_day_3[4]))
     end
 
-    println(sum(sum(num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1])
-    return
-
     # Создание популяции
     @time @threads for thread_id in 1:num_threads
         create_population(
@@ -1466,7 +1474,7 @@ function main(
     # --------------------------
     # lhs_simulations(
     #     is_one_mean_year_modeled,
-    #     1000,
+    #     50,
     #     agents,
     #     households,
     #     schools,
@@ -1490,38 +1498,40 @@ function main(
     #     random_infection_probabilities,
     #     mean_immunity_durations,
     #     num_years,
+    #     # "initial",
+    #     "swarm",
     # )
     # return
     # --------------------------
 
     # Модифицированный алгоритм Метрополиса-Гастингса для поиска значений параметров, дающих минимум для модели
     # --------------------------
-    # mcmc_simulations(
-    #     is_one_mean_year_modeled,
-    #     agents,
-    #     households,
-    #     schools,
-    #     num_threads,
-    #     thread_rng,
-    #     start_agent_ids,
-    #     end_agent_ids,
-    #     temperature,
-    #     viruses,
-    #     num_infected_age_groups_viruses,
-    #     num_infected_age_groups_viruses_prev,
-    #     mean_household_contact_durations,
-    #     household_contact_duration_sds,
-    #     other_contact_duration_shapes,
-    #     other_contact_duration_scales,
-    #     isolation_probabilities_day_1,
-    #     isolation_probabilities_day_2,
-    #     isolation_probabilities_day_3,
-    #     recovered_duration_mean,
-    #     recovered_duration_sd,
-    #     random_infection_probabilities,
-    #     num_years
-    # )
-    # return
+    mcmc_simulations(
+        is_one_mean_year_modeled,
+        agents,
+        households,
+        schools,
+        num_threads,
+        thread_rng,
+        start_agent_ids,
+        end_agent_ids,
+        temperature,
+        viruses,
+        num_infected_age_groups_viruses,
+        num_infected_age_groups_viruses_prev,
+        mean_household_contact_durations,
+        household_contact_duration_sds,
+        other_contact_duration_shapes,
+        other_contact_duration_scales,
+        isolation_probabilities_day_1,
+        isolation_probabilities_day_2,
+        isolation_probabilities_day_3,
+        recovered_duration_mean,
+        recovered_duration_sd,
+        random_infection_probabilities,
+        num_years
+    )
+    return
     # --------------------------
     
     # Моделируем заболеваемость
@@ -1573,17 +1583,6 @@ function main(
         nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
     end
     println("nMAE = $(nMAE)")
-
-    # Результат для суррогатной модели
-    if surrogate_index > 0
-        save(joinpath(@__DIR__, "..", "output", "tables", "lhs", "procedure", "results_$(surrogate_index).jld"),
-            "observed_cases", observed_num_infected_age_groups_viruses,
-            "duration_parameter", duration_parameter,
-            "susceptibility_parameters", susceptibility_parameters,
-            "temperature_parameters", temperature_parameters,
-            "mean_immunity_durations", mean_immunity_durations,
-            "random_infection_probabilities", random_infection_probabilities)
-    end
 end
 
 main()
