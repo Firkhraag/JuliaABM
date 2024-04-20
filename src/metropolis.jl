@@ -36,8 +36,8 @@ end
 function run_metropolis_model()
     println("Initialization...")
 
-    nMAE_output_table_name = "tables_metropolis_manual"
-    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_metropolis_manual.txt")
+    nMAE_output_table_name = "tables_metropolis_hypercube"
+    nMAE_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_metropolis_hypercube.txt")
 
     # Номер запуска модели
     run_num = 0
@@ -429,6 +429,8 @@ function run_metropolis_model()
         x_cand = mean_immunity_duration_7_array[end]
         y_cand = rand(Normal(log((x_cand - 30) / (365 - x_cand)), mean_immunity_duration_deltas[7]))
         mean_immunity_duration_7_candidate = (365 * exp(y_cand) + 30) / (1 + exp(y_cand))
+
+        0.0012888145553041667
         
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.0009, 0.0015)
         x_cand = random_infection_probability_1_array[end]

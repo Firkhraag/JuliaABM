@@ -477,8 +477,8 @@ function plot_all()
     ylabel_name = "nMAE"
 
     nMAE_plot = plot(
-        1:237,
-        moving_average(nMAE_array[1:237], 3),
+        1:250,
+        moving_average(nMAE_array[1:250], 3),
         # nMAE_array[1:250],
         # 1:num_mcmc_runs,
         # moving_average(nMAE_array, 10),
@@ -592,9 +592,9 @@ function plot_all()
         # 1:num_metropolis_runs,
         # moving_average(nMAE_array, 10),
         # nMAE_array,
-        1:200,
-        # moving_average(nMAE_array[1:200], 3),
-        nMAE_array[1:200],
+        1:250,
+        moving_average(nMAE_array[1:250], 3),
+        # nMAE_array[1:200],
         lw = 1.5,
         grid = true,
         label = "MA LHS",
@@ -659,9 +659,9 @@ function plot_all()
         # 1:num_metropolis_runs,
         # moving_average(nMAE_array, 10),
         # nMAE_array,
-        1:200,
-        # moving_average(nMAE_array[1:200], 3),
-        nMAE_array[1:200],
+        1:250,
+        moving_average(nMAE_array[1:250], 3),
+        # nMAE_array[1:200],
         lw = 1.5,
         grid = true,
         label = "MA manual",
@@ -747,8 +747,8 @@ function plot_all()
     end
 
     plot!(
-        1:225,
-        moving_average(nMAE_array[1:225], 3),
+        1:250,
+        moving_average(nMAE_array[1:250], 3),
         # nMAE_array[1:200],
         lw = 1.5,
         grid = true,

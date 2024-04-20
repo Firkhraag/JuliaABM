@@ -1032,7 +1032,7 @@ function mcmc_simulations(
             isolation_probabilities_day_3, random_infection_probabilities,
             recovered_duration_mean, recovered_duration_sd, num_years, false)
 
-        save(joinpath(@__DIR__, "..", "output", "tables", "mcmc", "results_$(n).jld"),
+        save(joinpath(@__DIR__, "..", "output", "tables", "mcmc", "results_$(n + 249).jld"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "duration_parameter", duration_parameter,
             "susceptibility_parameters", susceptibility_parameters,
@@ -1144,7 +1144,8 @@ function mcmc_simulations(
         end
 
         # Раз в 2 шага
-        if n % 2 == 0
+        # if n % 2 == 0
+        if n % 1 == 0
             # Сохраняем значения параметров
             writedlm(joinpath(@__DIR__, "..", "parameters", nMAE_output_table_name, "duration_parameter_array.csv"), duration_parameter_array, ',')
 
