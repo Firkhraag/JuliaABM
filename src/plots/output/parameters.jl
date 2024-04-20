@@ -753,7 +753,7 @@ function plot_all()
         lw = 1.5,
         grid = true,
         label = "PSO LHS",
-        legend = (0.66, 0.98),
+        legend = (0.74, 0.98),
         color = RGB(0.5, 0.5, 0.5),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
