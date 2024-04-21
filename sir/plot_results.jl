@@ -8,6 +8,8 @@ using JLD
 using CSV
 using Random
 
+default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
+
 function moving_average(A::AbstractArray, m::Int)
     out = similar(A)
     R = CartesianIndices(A)
@@ -270,6 +272,7 @@ function plot_all()
     β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "1_parameter_array.csv"), ';', Float64, '\n')
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "2_parameter_array.csv"), ';', Float64, '\n')
     γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "3_parameter_array.csv"), ';', Float64, '\n')
+    I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "4_parameter_array.csv"), ';', Float64, '\n')
     num_mcmc_runs = length(β_parameter_array)
     nMAE_array = zeros(Float64, num_mcmc_runs)
 
@@ -290,8 +293,8 @@ function plot_all()
     ylabel_name = "nMAE"
 
     nMAE_plot = plot(
-        1:500,
-        moving_average(nMAE_array[1:500], 3),
+        1:250,
+        moving_average(nMAE_array[1:250], 3),
         # nMAE_array[1:500],
         lw = 1.5,
         grid = true,
@@ -303,12 +306,20 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
-
-
+    # min_argument = argmin(nMAE_array[1:250])
+    # println("MCMC LHS")
+    # println(min_argument)
+    # println(β_parameter_array[min_argument])
+    # println(c_parameter_array[min_argument])
+    # println(γ_parameter_array[min_argument])
+    # println(I0_parameter_array[min_argument])
+    # println()
+    # return
 
     β_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "1_parameter_array.csv"), ';', Float64, '\n')
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "2_parameter_array.csv"), ';', Float64, '\n')
     γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "3_parameter_array.csv"), ';', Float64, '\n')
+    I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "4_parameter_array.csv"), ';', Float64, '\n')
     num_mcmc_runs = length(β_parameter_array)
     nMAE_array = zeros(Float64, num_mcmc_runs)
 
@@ -329,8 +340,8 @@ function plot_all()
     ylabel_name = "nMAE"
 
     plot!(
-        1:500,
-        moving_average(nMAE_array[1:500], 3),
+        1:250,
+        moving_average(nMAE_array[1:250], 3),
         # nMAE_array[1:500],
         lw = 1.5,
         grid = true,
@@ -342,9 +353,21 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
+    # min_argument = argmin(nMAE_array[1:250])
+    # println(nMAE_array[min_argument])
+    # println("MCMC manual")
+    # println(min_argument)
+    # println(β_parameter_array[min_argument])
+    # println(c_parameter_array[min_argument])
+    # println(γ_parameter_array[min_argument])
+    # println(I0_parameter_array[min_argument])
+    # println()
+    # return
+
     β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "1_parameter_array.csv"), ';', Float64, '\n')
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "2_parameter_array.csv"), ';', Float64, '\n')
     γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "3_parameter_array.csv"), ';', Float64, '\n')
+    I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "4_parameter_array.csv"), ';', Float64, '\n')
     num_mcmc_runs = length(β_parameter_array)
     nMAE_array = zeros(Float64, num_mcmc_runs)
 
@@ -365,8 +388,8 @@ function plot_all()
     ylabel_name = "nMAE"
 
     plot!(
-        1:500,
-        moving_average(nMAE_array[1:500], 3),
+        1:250,
+        moving_average(nMAE_array[1:250], 3),
         # nMAE_array[1:500],
         lw = 1.5,
         grid = true,
@@ -378,9 +401,21 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
+    # min_argument = argmin(nMAE_array[1:250])
+    # println(nMAE_array[min_argument])
+    # println("MA LHS")
+    # println(min_argument)
+    # println(β_parameter_array[min_argument])
+    # println(c_parameter_array[min_argument])
+    # println(γ_parameter_array[min_argument])
+    # println(I0_parameter_array[min_argument])
+    # println()
+    # return
+
     β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "1_parameter_array.csv"), ';', Float64, '\n')
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "2_parameter_array.csv"), ';', Float64, '\n')
     γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "3_parameter_array.csv"), ';', Float64, '\n')
+    I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "4_parameter_array.csv"), ';', Float64, '\n')
     num_mcmc_runs = length(β_parameter_array)
     nMAE_array = zeros(Float64, num_mcmc_runs)
 
@@ -401,8 +436,8 @@ function plot_all()
     ylabel_name = "nMAE"
 
     plot!(
-        1:500,
-        moving_average(nMAE_array[1:500], 3),
+        1:250,
+        moving_average(nMAE_array[1:250], 3),
         # nMAE_array[1:500],
         lw = 1.5,
         grid = true,
@@ -414,12 +449,24 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
-    num_surrogate_runs = 500
+    # min_argument = argmin(nMAE_array[1:250])
+    # println(nMAE_array[min_argument])
+    # println("MA manual")
+    # println(min_argument)
+    # println(β_parameter_array[min_argument])
+    # println(c_parameter_array[min_argument])
+    # println(γ_parameter_array[min_argument])
+    # println(I0_parameter_array[min_argument])
+    # println()
+    # return
+
+    num_surrogate_runs = 250
 
     nMAE_arr = Array{Float64, 1}(undef, num_surrogate_runs + 1)
     β_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     c_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     γ_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
+    I0_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
 
     nMAE_arr[1] = 0.18346184538653368
 
@@ -431,6 +478,7 @@ function plot_all()
         β_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["β_parameter"]
         c_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["c_parameter"]
         γ_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["γ_parameter"]
+        I0_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["I0_parameter"]
     end
 
     plot!(
@@ -447,14 +495,31 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
-    # RGB(0.667, 0.2, 0.467)
-
+    # min_argument = argmin(nMAE_arr[1:250])
+    # println(nMAE_arr[min_argument])
+    # println("SM LHS")
+    # println(min_argument)
+    # println(β_parameter[min_argument])
+    # println(c_parameter[min_argument])
+    # println(γ_parameter[min_argument])
+    # println(I0_parameter[min_argument])
+    # println()
+    # return
 
     num_swarm_runs = 25
     num_particles = 20
 
     nMAE_arr = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
+    β_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
+    c_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
+    γ_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
+    I0_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
+
     nMAE_arr_temp = Array{Float64, 1}(undef, 20)
+    β_parameter_temp = Array{Float64, 1}(undef, 20)
+    c_parameter_temp = Array{Float64, 1}(undef, 20)
+    γ_parameter_temp = Array{Float64, 1}(undef, 20)
+    I0_parameter_temp = Array{Float64, 1}(undef, 20)
 
     xlabel_name = "Step"
     ylabel_name = "nMAE"
@@ -472,6 +537,10 @@ function plot_all()
     for i = 1:num_swarm_runs
         for j = 1:num_particles
             nMAE_arr_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["nMAE"]
+            β_parameter_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["β_parameter"]
+            c_parameter_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["c_parameter"]
+            γ_parameter_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["γ_parameter"]
+            I0_parameter_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["I0_parameter"]
             # nMAE_arr[1 + (i - 1) * num_particles + j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["nMAE"]
             # if nMAE_arr[1 + (i - 1) * num_particles + j] > nMAE_arr[1 + (i - 1) * num_particles + j - 1]
             #     nMAE_arr[1 + (i - 1) * num_particles + j] = nMAE_arr[1 + (i - 1) * num_particles + j - 1]
@@ -479,6 +548,10 @@ function plot_all()
         end
         for j = 1:num_particles
             nMAE_arr[1 + (i - 1) * num_particles + j] = minimum(nMAE_arr_temp)
+            β_parameter[1 + (i - 1) * num_particles + j] = β_parameter_temp[argmin(nMAE_arr_temp)]
+            c_parameter[1 + (i - 1) * num_particles + j] = c_parameter_temp[argmin(nMAE_arr_temp)]
+            γ_parameter[1 + (i - 1) * num_particles + j] = γ_parameter_temp[argmin(nMAE_arr_temp)]
+            I0_parameter[1 + (i - 1) * num_particles + j] = I0_parameter_temp[argmin(nMAE_arr_temp)]
             # if nMAE_arr[1 + (i - 1) * num_particles + j] > nMAE_arr[1 + (i - 1) * num_particles + j - 1]
             #     nMAE_arr[1 + (i - 1) * num_particles + j] = nMAE_arr[1 + (i - 1) * num_particles + j - 1]
             # end
@@ -489,19 +562,30 @@ function plot_all()
     end
 
     plot!(
-        1:(num_swarm_runs * num_particles),
-        moving_average(nMAE_arr[1:(num_swarm_runs * num_particles)], 3),
+        1:250,
+        moving_average(nMAE_arr[1:250], 3),
         # nMAE_arr[1:(num_swarm_runs * num_particles)],
         lw = 1.5,
         grid = true,
         label = "PSO LHS",
-        legend = (0.72, 0.98),
+        legend = (0.74, 0.98),
         color = RGB(0.5, 0.5, 0.5),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
+
+    min_argument = argmin(nMAE_arr[1:250])
+    println(nMAE_arr[min_argument])
+    println("PSO LHS")
+    println(min_argument)
+    println(β_parameter[min_argument])
+    println(c_parameter[min_argument])
+    println(γ_parameter[min_argument])
+    println(I0_parameter[min_argument])
+    println()
+    return
 
     # nMAE_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["nMAE"]
     # for i = 1:num_swarm_runs

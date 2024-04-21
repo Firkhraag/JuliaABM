@@ -11,6 +11,8 @@ using Lux
 using Zygote
 using Optimisers
 
+default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
+
 function log_g(x, mu, sigma)
     return -log(sqrt(2 * pi) * sigma) - 0.5 * ((x - mu) / sigma)^2
 end
@@ -92,6 +94,354 @@ function sim!(agents_initial, nsteps, dt, p)
     return DataFrame(t=ta, S=Sa, I=Ia, R=Ra)
 end
 
+function run_model_plot(agents_initial, nsteps, δt)
+    β, c, γ, I0 = 0.08431094039131717, 5.0, 0.01711191343061375, 31.7329502542059
+
+    # Reset
+    for i in 1:length(agents_initial)
+        if i <= I0 # I0
+            agents_initial[i] = Infected
+        else
+            agents_initial[i] = Susceptible
+        end
+    end
+    p = [β, c, γ, δt]
+    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    s = sum(abs.(df_abm.S - S_ref))
+    s += sum(abs.(df_abm.I - I_ref))
+    s += sum(abs.(df_abm.R - R_ref))
+
+    pl = plot(
+        df_abm.t,
+        df_abm.S,
+        label="MCMC LHS",
+        xlabel="Time",
+        lw = 1.5,
+        color = RGB(0.267, 0.467, 0.667),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        df_abm.I,
+        xlabel="Time",
+        label = false,
+        lw = 1.5,
+        color = RGB(0.267, 0.467, 0.667),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        df_abm.R,
+        xlabel="Time",
+        label = false,
+        lw = 1.5,
+        color = RGB(0.267, 0.467, 0.667),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    β, c, γ, I0 = 0.053685481704768515, 11.851275167913915, 0.0316088560089201, 13.331041519206677
+
+    # Reset
+    for i in 1:length(agents_initial)
+        if i <= I0 # I0
+            agents_initial[i] = Infected
+        else
+            agents_initial[i] = Susceptible
+        end
+    end
+    p = [β, c, γ, δt]
+    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    s = sum(abs.(df_abm.S - S_ref))
+    s += sum(abs.(df_abm.I - I_ref))
+    s += sum(abs.(df_abm.R - R_ref))
+
+    plot!(
+        df_abm.t,
+        df_abm.S,
+        label="MCMC manual",
+        xlabel="Time",
+        lw = 1.5,
+        color = RGB(0.933, 0.4, 0.467),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        df_abm.I,
+        xlabel="Time",
+        label = false,
+        lw = 1.5,
+        color = RGB(0.933, 0.4, 0.467),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        df_abm.R,
+        xlabel="Time",
+        label = false,
+        lw = 1.5,
+        color = RGB(0.933, 0.4, 0.467),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    β, c, γ, I0 = 0.08442353592331978, 5.0, 0.016001790923900215, 30.31581156584824
+
+    # Reset
+    for i in 1:length(agents_initial)
+        if i <= I0 # I0
+            agents_initial[i] = Infected
+        else
+            agents_initial[i] = Susceptible
+        end
+    end
+    p = [β, c, γ, δt]
+    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    s = sum(abs.(df_abm.S - S_ref))
+    s += sum(abs.(df_abm.I - I_ref))
+    s += sum(abs.(df_abm.R - R_ref))
+
+    plot!(
+        df_abm.t,
+        df_abm.S,
+        label="MA LHS",
+        xlabel="Time",
+        lw = 1.5,
+        color = RGB(0.133, 0.533, 0.2),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        df_abm.I,
+        xlabel="Time",
+        label = false,
+        lw = 1.5,
+        color = RGB(0.133, 0.533, 0.2),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        df_abm.R,
+        xlabel="Time",
+        label = false,
+        lw = 1.5,
+        color = RGB(0.133, 0.533, 0.2),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    β, c, γ, I0 = 0.06976332393517669, 7.3440641320089055, 0.027419841333460867, 28.988843268269655
+
+    # Reset
+    for i in 1:length(agents_initial)
+        if i <= I0 # I0
+            agents_initial[i] = Infected
+        else
+            agents_initial[i] = Susceptible
+        end
+    end
+    p = [β, c, γ, δt]
+    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    s = sum(abs.(df_abm.S - S_ref))
+    s += sum(abs.(df_abm.I - I_ref))
+    s += sum(abs.(df_abm.R - R_ref))
+
+    plot!(
+        df_abm.t,
+        df_abm.S,
+        label="MA manual",
+        xlabel="Time",
+        lw = 1.5,
+        color = RGB(0.667, 0.2, 0.467),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        df_abm.I,
+        xlabel="Time",
+        label = false,
+        lw = 1.5,
+        color = RGB(0.667, 0.2, 0.467),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        df_abm.R,
+        xlabel="Time",
+        label = false,
+        lw = 1.5,
+        color = RGB(0.667, 0.2, 0.467),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    β, c, γ, I0 = 0.08840396604277137, 5.0, 0.01968145062083871, 27.846237373245387
+
+    # Reset
+    for i in 1:length(agents_initial)
+        if i <= I0 # I0
+            agents_initial[i] = Infected
+        else
+            agents_initial[i] = Susceptible
+        end
+    end
+    p = [β, c, γ, δt]
+    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    s = sum(abs.(df_abm.S - S_ref))
+    s += sum(abs.(df_abm.I - I_ref))
+    s += sum(abs.(df_abm.R - R_ref))
+
+    plot!(
+        df_abm.t,
+        df_abm.S,
+        label="SM LHS",
+        xlabel="Time",
+        lw = 1.5,
+        color = RGB(0.8, 0.733, 0.267),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        df_abm.I,
+        xlabel="Time",
+        label = false,
+        lw = 1.5,
+        color = RGB(0.8, 0.733, 0.267),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        df_abm.R,
+        xlabel="Time",
+        label = false,
+        lw = 1.5,
+        color = RGB(0.8, 0.733, 0.267),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    β, c, γ, I0 = 0.03667128918811457, 14.16668086779658, 0.020893212181909607, 3.587486375952777
+
+    # Reset
+    for i in 1:length(agents_initial)
+        if i <= I0 # I0
+            agents_initial[i] = Infected
+        else
+            agents_initial[i] = Susceptible
+        end
+    end
+    p = [β, c, γ, δt]
+    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    s = sum(abs.(df_abm.S - S_ref))
+    s += sum(abs.(df_abm.I - I_ref))
+    s += sum(abs.(df_abm.R - R_ref))
+
+    plot!(
+        df_abm.t,
+        df_abm.S,
+        label="PSO LHS",
+        xlabel="Time",
+        lw = 1.5,
+        color = RGB(0.5, 0.5, 0.5),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        df_abm.I,
+        xlabel="Time",
+        label = false,
+        lw = 1.5,
+        color = RGB(0.5, 0.5, 0.5),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        df_abm.R,
+        xlabel="Time",
+        label = false,
+        lw = 1.5,
+        color = RGB(0.5, 0.5, 0.5),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    # Ref
+    plot!(
+        df_abm.t,
+        S_ref,
+        label="Reference",
+        lw = 2.0,
+        color = :black,
+        xlabel="Time",
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        I_ref,
+        label=false,
+        lw = 2.0,
+        color = :black,
+        xlabel="Time",
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        df_abm.t,
+        R_ref,
+        label=false,
+        lw = 2.0,
+        color = :black,
+        xlabel="Time",
+        ylabel="Number of agents",
+        legend = (0.13, 0.7),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    savefig(pl, joinpath(@__DIR__, "sir.pdf"))
+    
+    nMAE = s / sum(S_ref + I_ref + R_ref)
+    return nMAE
+end
+
 function run_model(agents_initial, nsteps, δt, β, c, γ)
     p = [β, c, γ, δt]
     # Running the model
@@ -106,17 +456,6 @@ function run_model(agents_initial, nsteps, δt, β, c, γ)
     s += sum(abs.(df_abm.I - I_ref))
     s += sum(abs.(df_abm.R - R_ref))
 
-    pl = plot(
-        df_abm.t,
-        [df_abm.S df_abm.I df_abm.R],
-        label=["S" "I" "R"],
-        xlabel="Time",
-        ylabel="Number of agents",
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-    )
-    savefig(pl, joinpath(@__DIR__, "sir.pdf"))
-    
     nMAE = s / sum(S_ref + I_ref + R_ref)
     return nMAE
 
@@ -239,7 +578,6 @@ function mcmc_simulations_lhs(
     I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "4_array.csv"), ',', Float64, '\n'))
     I0_parameter = I0_parameter_array[end]
 
-    nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
     # Reset
     for i in 1:length(agents)
         if i <= I0_parameter # I0
@@ -248,6 +586,7 @@ function mcmc_simulations_lhs(
             agents[i] = Susceptible
         end
     end
+    nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
     open(joinpath(@__DIR__, "mcmc_lhs.txt"), "a") do io
         println(io, nMAE)
     end
@@ -370,7 +709,6 @@ function mcmc_simulations(
     I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters", "4_array.csv"), ',', Float64, '\n'))
     I0_parameter = I0_parameter_array[end]
 
-    nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
     # Reset
     for i in 1:length(agents)
         if i <= I0_parameter # I0
@@ -379,6 +717,7 @@ function mcmc_simulations(
             agents[i] = Susceptible
         end
     end
+    nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
     open(joinpath(@__DIR__, "mcmc.txt"), "a") do io
         println(io, nMAE)
     end
@@ -825,14 +1164,11 @@ function mcmc_simulations_metropolis_lhs(
             local_rejected_num += 1
         end
 
-        # Раз в 2 шага
-        if n % 2 == 0
-            # Сохраняем значения параметров
-            writedlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "1_parameter_array.csv"), β_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "2_parameter_array.csv"), c_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "3_parameter_array.csv"), γ_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "4_parameter_array.csv"), I0_parameter_array, ',')
-        end
+        # Сохраняем значения параметров
+        writedlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "1_parameter_array.csv"), β_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "2_parameter_array.csv"), c_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "3_parameter_array.csv"), γ_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "4_parameter_array.csv"), I0_parameter_array, ',')
     end
 end
 
@@ -1560,7 +1896,6 @@ function run_surrogate_model_NN(
             end
         end
 
-        nMAE = run_model(agents, nsteps, δt, β_parameter_min, c_parameter_min, γ_parameter_min)
         # Reset
         for i in 1:length(agents)
             if i <= 10 # I0
@@ -1569,6 +1904,7 @@ function run_surrogate_model_NN(
                 agents[i] = Susceptible
             end
         end
+        nMAE = run_model(agents, nsteps, δt, β_parameter_min, c_parameter_min, γ_parameter_min)
 
         save(joinpath(@__DIR__, "surrogate_NN", "results_$(curr_run).jld"),
             "nMAE", nMAE,
@@ -1614,17 +1950,21 @@ function main()
     # end
 
 
-    # run_model(agents_initial, nsteps, δt, 0.05, 10.0, 0.02)
+    # Reference
+    # run_model_plot(agents_initial, nsteps, δt, 0.05, 10.0, 0.02, 10)
+    # MCMC LHS
+    run_model_plot(agents_initial, nsteps, δt)
+    # MCMC manual
+    # run_model_plot(agents_initial, nsteps, δt, 0.04093677812571722, 12.331615035509843, 0.021270271821084624, 6.557318477183501)
 
-    # mcmc_simulations(500,agents_initial,nsteps,δt)
-    # mcmc_simulations_metropolis(500,agents_initial,nsteps,δt)
+    # mcmc_simulations(250,agents_initial,nsteps,δt)
+    # mcmc_simulations_lhs(250,agents_initial,nsteps,δt)
+    # mcmc_simulations_metropolis(250,agents_initial,nsteps,δt)
+    # mcmc_simulations_metropolis_lhs(250,agents_initial,nsteps,δt)
     # run_swarm_model(25, agents_initial,nsteps,δt)
     # lhs_simulations(20,agents_initial,nsteps,δt)
-    run_surrogate_model(500,agents_initial,nsteps,δt)
+    # run_surrogate_model(250,agents_initial,nsteps,δt)
     # run_surrogate_model_NN(100,agents_initial,nsteps,δt)
-
-    # mcmc_simulations_lhs(500,agents_initial,nsteps,δt)
-    # mcmc_simulations_metropolis_lhs(500,agents_initial,nsteps,δt)
 end
 
 main()
