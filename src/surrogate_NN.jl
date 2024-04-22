@@ -222,19 +222,6 @@ function run_surrogate_model()
         end
     end
 
-    # XGBoost
-    # y = zeros(Float64, num_runs, num_years * 52)
-    # for i = 1:num_runs
-    #     for j = 1:52
-    #         y[i, j] = sum(abs.(incidence_arr[i][j, :, :] - num_infected_age_groups_viruses[j, :, :])) / sum(num_infected_age_groups_viruses[j, :, :])
-    #     end
-    #     nMAE = sum(y[i, :])
-    #     if nMAE < min_nMAE
-    #         min_i = i
-    #         min_nMAE = nMAE
-    #     end
-    # end
-
     X = zeros(Float64, num_parameters, num_runs)
     for i = 1:num_runs
         X[1, i] = duration_parameter[i]
@@ -251,28 +238,6 @@ function run_surrogate_model()
             X[1 + 3 * num_viruses + k, i] = random_infection_probabilities[i][k]
         end
     end
-
-    # XGBoost
-    # X = zeros(Float64, num_runs, num_parameters)
-    # for i = 1:num_runs
-    #     X[i, 1] = duration_parameter[i]
-    #     for k = 1:num_viruses
-    #         X[i, 1 + k] = susceptibility_parameters[i][k]
-    #     end
-    #     for k = 1:num_viruses
-    #         X[i, 1 + num_viruses + k] = temperature_parameters[i][k]
-    #     end
-    #     for k = 1:num_viruses
-    #         X[i, 1 + 2 * num_viruses + k] = mean_immunity_durations[i][k]
-    #     end
-    #     for k = 1:4
-    #         X[i, 1 + 3 * num_viruses + k] = random_infection_probabilities[i][k]
-    #     end
-    # end
-
-    # forest_num_rounds = 150
-    # forest_max_depth = 10
-    # η = 0.1
 
     n_epochs = 10_000
     rng = Xoshiro(42)
@@ -305,9 +270,6 @@ function run_surrogate_model()
 
     random_infection_probabilities_default = zeros(Float64, 4)
     random_infection_probabilities_min = zeros(Float64, 4)
-
-    # XGBoost
-    # bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η, watchlist=[])
 
     # params, lux_state = Lux.setup(rng, lux_model)
 
@@ -390,9 +352,6 @@ function run_surrogate_model()
     random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
 
     for curr_run = 1:500
-        # XGBoost
-        # bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η, watchlist=[])
-
         # Train loop
         params, lux_state = Lux.setup(rng, lux_model)
         opt_state = Optimisers.setup(rule, params)  # optimiser state based on model parameters
@@ -584,8 +543,6 @@ function run_surrogate_model()
             par_vec[26] = random_infection_probability_4_candidate
 
             r = reshape(par_vec, :, 1)
-            # XGBoost
-            # r = reshape(par_vec, 1, :)
     
             nMAE_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
             nMAE = sum(nMAE_predicted)
@@ -722,10 +679,6 @@ function run_surrogate_model()
 
         println("Real nMAE: $(nMAE)")
 
-        # push!(y, nMAE)
-        # X = vcat(X, [duration_parameter_default, susceptibility_parameters_default[1], susceptibility_parameters_default[2], susceptibility_parameters_default[3], susceptibility_parameters_default[4], susceptibility_parameters_default[5], susceptibility_parameters_default[6], susceptibility_parameters_default[7], temperature_parameters_default[1], temperature_parameters_default[2], temperature_parameters_default[3], temperature_parameters_default[4], temperature_parameters_default[5], temperature_parameters_default[6], temperature_parameters_default[7], mean_immunity_durations_default[1], mean_immunity_durations_default[2], mean_immunity_durations_default[3], mean_immunity_durations_default[4], mean_immunity_durations_default[5], mean_immunity_durations_default[6], mean_immunity_durations_default[7], random_infection_probabilities_default[1], random_infection_probabilities_default[2], random_infection_probabilities_default[3], random_infection_probabilities_default[4]]')
-        # y = cat(y, vec(observed_num_infected_age_groups_viruses), dims = 2)
-
         nMAE_arr = zeros(Float64, 52)
         for j = 1:52
             nMAE_arr[j] = sum(abs.(observed_num_infected_age_groups_viruses[j, :, :] - num_infected_age_groups_viruses[j, :, :])) / sum(num_infected_age_groups_viruses[j, :, :])
@@ -733,10 +686,6 @@ function run_surrogate_model()
 
         y = cat(y, nMAE_arr, dims = 2)
         X = cat(X, [duration_parameter_min, susceptibility_parameters_min[1], susceptibility_parameters_min[2], susceptibility_parameters_min[3], susceptibility_parameters_min[4], susceptibility_parameters_min[5], susceptibility_parameters_min[6], susceptibility_parameters_min[7], temperature_parameters_min[1], temperature_parameters_min[2], temperature_parameters_min[3], temperature_parameters_min[4], temperature_parameters_min[5], temperature_parameters_min[6], temperature_parameters_min[7], mean_immunity_durations_min[1], mean_immunity_durations_min[2], mean_immunity_durations_min[3], mean_immunity_durations_min[4], mean_immunity_durations_min[5], mean_immunity_durations_min[6], mean_immunity_durations_min[7], random_infection_probabilities_min[1], random_infection_probabilities_min[2], random_infection_probabilities_min[3], random_infection_probabilities_min[4]], dims = 2)
-
-        # XGBoost
-        # y = vcat(y, nMAE_arr)
-        # X = vcat(X, [duration_parameter_min, susceptibility_parameters_min[1], susceptibility_parameters_min[2], susceptibility_parameters_min[3], susceptibility_parameters_min[4], susceptibility_parameters_min[5], susceptibility_parameters_min[6], susceptibility_parameters_min[7], temperature_parameters_min[1], temperature_parameters_min[2], temperature_parameters_min[3], temperature_parameters_min[4], temperature_parameters_min[5], temperature_parameters_min[6], temperature_parameters_min[7], mean_immunity_durations_min[1], mean_immunity_durations_min[2], mean_immunity_durations_min[3], mean_immunity_durations_min[4], mean_immunity_durations_min[5], mean_immunity_durations_min[6], mean_immunity_durations_min[7], random_infection_probabilities_min[1], random_infection_probabilities_min[2], random_infection_probabilities_min[3], random_infection_probabilities_min[4]]')
     end
 end
 

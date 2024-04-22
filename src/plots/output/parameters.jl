@@ -18,6 +18,8 @@ default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
 
 const is_russian = false
 const num_years = 1
+const num_runs = 1
+const population_coef = 10072
 
 function plot_mcmc_hypercube()
     duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube", "duration_parameter_array.csv"), ';', Float64, '\n')
@@ -516,11 +518,12 @@ function plot_all()
     )
 
     # min_argument = argmin(nMAE_array[1:250])
+    # println(min_argument)
     # println(nMAE_array[min_argument])
     # println("MCMC LHS")
     # println("duration_parameter = $(duration_parameter_array[min_argument])")
     # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
-    # println("temperature_parameters = $([temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
+    # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
     # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
     # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
     # println()
@@ -589,12 +592,12 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
-    # min_argument = argmin(nMAE_array[1:250])
+    # min_argument = argmin(nMAE_array[1:150])
     # println(nMAE_array[min_argument])
     # println("MCMC manual")
     # println("duration_parameter = $(duration_parameter_array[min_argument])")
     # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
-    # println("temperature_parameters = $([temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
+    # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
     # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
     # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
     # println()
@@ -668,7 +671,7 @@ function plot_all()
     # println("MA LHS")
     # println("duration_parameter = $(duration_parameter_array[min_argument])")
     # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
-    # println("temperature_parameters = $([temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
+    # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
     # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
     # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
     # println()
@@ -739,10 +742,10 @@ function plot_all()
 
     # min_argument = argmin(nMAE_array[1:250])
     # println(nMAE_array[min_argument])
-    # println("MA LHS")
+    # println("MA manual")
     # println("duration_parameter = $(duration_parameter_array[min_argument])")
     # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
-    # println("temperature_parameters = $([temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
+    # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
     # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
     # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
     # println()
@@ -796,7 +799,7 @@ function plot_all()
     # println("SM")
     # println("duration_parameter = $(duration_parameter[min_argument])")
     # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
-    # println("temperature_parameters = $(temperature_parameters[min_argument])")
+    # println("temperature_parameters = $(-temperature_parameters[min_argument])")
     # println("mean_immunity_durations = $(mean_immunity_durations[min_argument])")
     # println("random_infection_probabilities = $(random_infection_probabilities[min_argument])")
     # println()
@@ -875,6 +878,121 @@ function plot_all()
     savefig(nMAE_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "plot_all.pdf"))
 end
 
+function plot_all_incidence()
+    incidence_arr = Array{Vector{Float64}, 1}(undef, num_years)
+
+    incidence_arr_mean_MCMC_LHS = zeros(Float64, 52)
+    incidence_arr_mean_MCMC_manual = zeros(Float64, 52)
+    incidence_arr_mean_MA_LHS = zeros(Float64, 52)
+    incidence_arr_mean_MA_manual = zeros(Float64, 52)
+    incidence_arr_mean_SM_LHS = zeros(Float64, 52)
+    incidence_arr_mean_PSO_LHS = zeros(Float64, 52)
+
+    observed_num_infected_age_groups_viruses_MCMC_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_LHS.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_MCMC_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_manual.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_MA_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MA_LHS.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_MA_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MA_manual.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_SM_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_SM_LHS.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_PSO_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_PSO_LHS.jld"))["observed_cases"] ./ population_coef
+
+    for j = 1:num_years
+        incidence_arr[j] = sum(sum(observed_num_infected_age_groups_viruses_MCMC_LHS, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+    end
+    for i = 1:52
+        for j = 1:num_years
+            incidence_arr_mean_MCMC_LHS[i] += incidence_arr[j][i]
+        end
+        incidence_arr_mean_MCMC_LHS[i] /= num_years
+    end
+
+    for j = 1:num_years
+        incidence_arr[j] = sum(sum(observed_num_infected_age_groups_viruses_MCMC_manual, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+    end
+    for i = 1:52
+        for j = 1:num_years
+            incidence_arr_mean_MCMC_manual[i] += incidence_arr[j][i]
+        end
+        incidence_arr_mean_MCMC_manual[i] /= num_years
+    end
+
+    for j = 1:num_years
+        incidence_arr[j] = sum(sum(observed_num_infected_age_groups_viruses_MA_LHS, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+    end
+    for i = 1:52
+        for j = 1:num_years
+            incidence_arr_mean_MA_LHS[i] += incidence_arr[j][i]
+        end
+        incidence_arr_mean_MA_LHS[i] /= num_years
+    end
+
+    for j = 1:num_years
+        incidence_arr[j] = sum(sum(observed_num_infected_age_groups_viruses_MA_manual, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+    end
+    for i = 1:52
+        for j = 1:num_years
+            incidence_arr_mean_MA_manual[i] += incidence_arr[j][i]
+        end
+        incidence_arr_mean_MA_manual[i] /= num_years
+    end
+
+    for j = 1:num_years
+        incidence_arr[j] = sum(sum(observed_num_infected_age_groups_viruses_SM_LHS, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+    end
+    for i = 1:52
+        for j = 1:num_years
+            incidence_arr_mean_SM_LHS[i] += incidence_arr[j][i]
+        end
+        incidence_arr_mean_SM_LHS[i] /= num_years
+    end
+
+    for j = 1:num_years
+        incidence_arr[j] = sum(sum(observed_num_infected_age_groups_viruses_PSO_LHS, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
+    end
+    for i = 1:52
+        for j = 1:num_years
+            incidence_arr_mean_PSO_LHS[i] += incidence_arr[j][i]
+        end
+        incidence_arr_mean_PSO_LHS[i] /= num_years
+    end
+
+    infected_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Int, '\n') ./ population_coef
+    infected_data_mean = mean(infected_data[2:53, flu_starting_index:end], dims = 2)[:, 1]
+
+    ticks = range(1, stop = 52, length = 7)
+    ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+    if is_russian
+        ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+    end
+
+    label_names = ["MCMC LHS" "MCMC manual" "MA LHS" "MA manual" "SM LHS" "PSO LHS" "Reference"]
+
+    xlabel_name = "Month"
+    if is_russian
+        xlabel_name = "Месяц"
+    end
+
+    ylabel_name = "Weekly incidence rate per 1000"
+    if is_russian
+        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    end
+
+    incidence_plot = plot(
+        1:52,
+        [incidence_arr_mean_MCMC_LHS incidence_arr_mean_MCMC_manual incidence_arr_mean_MA_LHS incidence_arr_mean_MA_manual incidence_arr_mean_SM_LHS incidence_arr_mean_PSO_LHS infected_data_mean],
+        lw = 1.5,
+        xticks = (ticks, ticklabels),
+        label = label_names,
+        grid = true,
+        legend = (0.75, 0.98),
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.0, 0.0, 0.0)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "plot_all_incidence.pdf"))
+end
+
 # plot_mcmc_hypercube()
 # plot_mcmc_manual()
 
@@ -885,4 +1003,6 @@ end
 
 # plot_surrogate_hypercube()
 
-plot_all()
+# plot_all()
+
+plot_all_incidence()
