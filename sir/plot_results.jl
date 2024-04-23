@@ -308,6 +308,7 @@ function plot_all()
 
     # min_argument = argmin(nMAE_array[1:250])
     # println("MCMC LHS")
+    # println(minimum(nMAE_array[1:250]))
     # println(min_argument)
     # println(β_parameter_array[min_argument])
     # println(c_parameter_array[min_argument])
@@ -356,6 +357,7 @@ function plot_all()
     # min_argument = argmin(nMAE_array[1:250])
     # println(nMAE_array[min_argument])
     # println("MCMC manual")
+    # println(minimum(nMAE_array[1:250]))
     # println(min_argument)
     # println(β_parameter_array[min_argument])
     # println(c_parameter_array[min_argument])
@@ -404,6 +406,7 @@ function plot_all()
     # min_argument = argmin(nMAE_array[1:250])
     # println(nMAE_array[min_argument])
     # println("MA LHS")
+    # println(minimum(nMAE_array[1:250]))
     # println(min_argument)
     # println(β_parameter_array[min_argument])
     # println(c_parameter_array[min_argument])
@@ -452,6 +455,7 @@ function plot_all()
     # min_argument = argmin(nMAE_array[1:250])
     # println(nMAE_array[min_argument])
     # println("MA manual")
+    # println(minimum(nMAE_array[1:250]))
     # println(min_argument)
     # println(β_parameter_array[min_argument])
     # println(c_parameter_array[min_argument])
@@ -462,19 +466,21 @@ function plot_all()
 
     num_surrogate_runs = 250
 
-    nMAE_arr = Array{Float64, 1}(undef, num_surrogate_runs + 1)
+    # nMAE_arr = Array{Float64, 1}(undef, num_surrogate_runs + 1)
+    nMAE_arr = Array{Float64, 1}(undef, num_surrogate_runs)
     β_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     c_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     γ_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     I0_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
 
-    nMAE_arr[1] = 0.18346184538653368
+    # nMAE_arr[1] = 0.18346184538653368
 
     xlabel_name = "Step"
     ylabel_name = "nMAE"
 
     for i = 1:num_surrogate_runs
-        nMAE_arr[i + 1] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["nMAE"]
+        # nMAE_arr[i + 1] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["nMAE"]
+        nMAE_arr[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["nMAE"]
         β_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["β_parameter"]
         c_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["c_parameter"]
         γ_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["γ_parameter"]
@@ -498,6 +504,7 @@ function plot_all()
     # min_argument = argmin(nMAE_arr[1:250])
     # println(nMAE_arr[min_argument])
     # println("SM LHS")
+    # println(minimum(nMAE_arr[1:250]))
     # println(min_argument)
     # println(β_parameter[min_argument])
     # println(c_parameter[min_argument])
@@ -509,11 +516,16 @@ function plot_all()
     num_swarm_runs = 25
     num_particles = 20
 
-    nMAE_arr = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
-    β_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
-    c_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
-    γ_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
-    I0_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
+    # nMAE_arr = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
+    # β_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
+    # c_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
+    # γ_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
+    # I0_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
+    nMAE_arr = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
+    β_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
+    c_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
+    γ_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
+    I0_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
 
     nMAE_arr_temp = Array{Float64, 1}(undef, 20)
     β_parameter_temp = Array{Float64, 1}(undef, 20)
@@ -524,15 +536,7 @@ function plot_all()
     xlabel_name = "Step"
     ylabel_name = "nMAE"
 
-    nMAE_arr[1] = 0.18346184538653368
-    # for j = 1:num_particles
-    #     # nMAE_arr_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["nMAE"]
-    #     nMAE_temp = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld"))["nMAE"]
-    #     if nMAE_temp < nMAE_arr[1]
-    #         nMAE_arr[1] = nMAE_temp
-    #     end
-    # end
-    # println(nMAE_arr[1])
+    # nMAE_arr[1] = 0.18346184538653368
 
     for i = 1:num_swarm_runs
         for j = 1:num_particles
@@ -541,24 +545,19 @@ function plot_all()
             c_parameter_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["c_parameter"]
             γ_parameter_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["γ_parameter"]
             I0_parameter_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["I0_parameter"]
-            # nMAE_arr[1 + (i - 1) * num_particles + j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["nMAE"]
-            # if nMAE_arr[1 + (i - 1) * num_particles + j] > nMAE_arr[1 + (i - 1) * num_particles + j - 1]
-            #     nMAE_arr[1 + (i - 1) * num_particles + j] = nMAE_arr[1 + (i - 1) * num_particles + j - 1]
-            # end
         end
         for j = 1:num_particles
-            nMAE_arr[1 + (i - 1) * num_particles + j] = minimum(nMAE_arr_temp)
-            β_parameter[1 + (i - 1) * num_particles + j] = β_parameter_temp[argmin(nMAE_arr_temp)]
-            c_parameter[1 + (i - 1) * num_particles + j] = c_parameter_temp[argmin(nMAE_arr_temp)]
-            γ_parameter[1 + (i - 1) * num_particles + j] = γ_parameter_temp[argmin(nMAE_arr_temp)]
-            I0_parameter[1 + (i - 1) * num_particles + j] = I0_parameter_temp[argmin(nMAE_arr_temp)]
-            # if nMAE_arr[1 + (i - 1) * num_particles + j] > nMAE_arr[1 + (i - 1) * num_particles + j - 1]
-            #     nMAE_arr[1 + (i - 1) * num_particles + j] = nMAE_arr[1 + (i - 1) * num_particles + j - 1]
-            # end
+            # nMAE_arr[1 + (i - 1) * num_particles + j] = minimum(nMAE_arr_temp)
+            # β_parameter[1 + (i - 1) * num_particles + j] = β_parameter_temp[argmin(nMAE_arr_temp)]
+            # c_parameter[1 + (i - 1) * num_particles + j] = c_parameter_temp[argmin(nMAE_arr_temp)]
+            # γ_parameter[1 + (i - 1) * num_particles + j] = γ_parameter_temp[argmin(nMAE_arr_temp)]
+            # I0_parameter[1 + (i - 1) * num_particles + j] = I0_parameter_temp[argmin(nMAE_arr_temp)]
+            nMAE_arr[(i - 1) * num_particles + j] = minimum(nMAE_arr_temp)
+            β_parameter[(i - 1) * num_particles + j] = β_parameter_temp[argmin(nMAE_arr_temp)]
+            c_parameter[(i - 1) * num_particles + j] = c_parameter_temp[argmin(nMAE_arr_temp)]
+            γ_parameter[(i - 1) * num_particles + j] = γ_parameter_temp[argmin(nMAE_arr_temp)]
+            I0_parameter[(i - 1) * num_particles + j] = I0_parameter_temp[argmin(nMAE_arr_temp)]
         end
-        # if i != 1 && nMAE_arr[i] > nMAE_arr[i - 1]
-        #     nMAE_arr[i] = nMAE_arr[i - 1]
-        # end
     end
 
     plot!(
@@ -577,55 +576,15 @@ function plot_all()
     )
 
     min_argument = argmin(nMAE_arr[1:250])
-    println(nMAE_arr[min_argument])
     println("PSO LHS")
+    println(nMAE_arr[min_argument])
     println(min_argument)
     println(β_parameter[min_argument])
     println(c_parameter[min_argument])
     println(γ_parameter[min_argument])
     println(I0_parameter[min_argument])
     println()
-    return
-
-    # nMAE_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["nMAE"]
-    # for i = 1:num_swarm_runs
-    #     nMAE_arr[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld"))["nMAE"]
-    # end
-
-    # nMAE_plot = plot(
-    #     1:(num_swarm_runs + 1),
-    #     moving_average(nMAE_arr, 10),
-    #     lw = 1.5,
-    #     grid = true,
-    #     legend = false,
-    #     # color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-    #     color = RGB(0.0, 0.0, 0.0),
-    #     foreground_color_legend = nothing,
-    #     background_color_legend = nothing,
-    #     xlabel = xlabel_name,
-    #     ylabel = ylabel_name,
-    # )
-
-    # for j = 2:num_particles
-    #     nMAE_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld"))["nMAE"]
-    #     for i = 1:num_swarm_runs
-    #         nMAE_arr[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["nMAE"]
-    #     end
-
-    #     plot!(
-    #         1:(num_swarm_runs + 1),
-    #         moving_average(nMAE_arr, 10),
-    #         lw = 1.5,
-    #         grid = true,
-    #         legend = false,
-    #         # color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-    #         # color = RGB(0.0, 0.0, 0.0),
-    #         foreground_color_legend = nothing,
-    #         background_color_legend = nothing,
-    #         xlabel = xlabel_name,
-    #         ylabel = ylabel_name,
-    #     )
-    # end
+    # return
 
     savefig(nMAE_plot, joinpath(@__DIR__, "all_plot.pdf"))
 end

@@ -964,7 +964,7 @@ function plot_all_incidence()
         ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
     end
 
-    label_names = ["MCMC LHS" "MCMC manual" "MA LHS" "MA manual" "SM LHS" "PSO LHS" "Reference"]
+    label_names = ["MCMC LHS" "MCMC manual" "MA LHS" "MA manual" "SM LHS" "PSO LHS"]
 
     xlabel_name = "Month"
     if is_russian
@@ -976,6 +976,20 @@ function plot_all_incidence()
         ylabel_name = "Число случаев на 1000 чел. / неделя"
     end
 
+    # incidence_plot = plot(
+    #     1:52,
+    #     [incidence_arr_mean_MCMC_LHS incidence_arr_mean_MCMC_manual incidence_arr_mean_MA_LHS incidence_arr_mean_MA_manual incidence_arr_mean_SM_LHS incidence_arr_mean_PSO_LHS infected_data_mean],
+    #     lw = 1.5,
+    #     xticks = (ticks, ticklabels),
+    #     label = label_names,
+    #     grid = true,
+    #     legend = (0.75, 0.98),
+    #     color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.0, 0.0, 0.0)],
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    # )
     incidence_plot = plot(
         1:52,
         [incidence_arr_mean_MCMC_LHS incidence_arr_mean_MCMC_manual incidence_arr_mean_MA_LHS incidence_arr_mean_MA_manual incidence_arr_mean_SM_LHS incidence_arr_mean_PSO_LHS infected_data_mean],
@@ -984,7 +998,21 @@ function plot_all_incidence()
         label = label_names,
         grid = true,
         legend = (0.75, 0.98),
-        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5) RGB(0.0, 0.0, 0.0)],
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5)],
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+    plot!(
+        1:52,
+        infected_data_mean,
+        lw = 2.0,
+        xticks = (ticks, ticklabels),
+        label = "Reference",
+        grid = true,
+        legend = (0.75, 0.98),
+        color = :black,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,

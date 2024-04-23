@@ -457,9 +457,8 @@ function run_model(agents_initial, nsteps, δt, β, c, γ)
     s += sum(abs.(df_abm.R - R_ref))
 
     nMAE = s / sum(S_ref + I_ref + R_ref)
+    println(nMAE)
     return nMAE
-
-    # println(nMAE)
 end
 
 function run_model_metropolis(agents_initial, nsteps, δt, β, c, γ)
@@ -1950,12 +1949,17 @@ function main()
     # end
 
 
-    # Reference
-    # run_model_plot(agents_initial, nsteps, δt, 0.05, 10.0, 0.02, 10)
-    # MCMC LHS
-    run_model_plot(agents_initial, nsteps, δt)
-    # MCMC manual
-    # run_model_plot(agents_initial, nsteps, δt, 0.04093677812571722, 12.331615035509843, 0.021270271821084624, 6.557318477183501)
+    # run_model_plot(agents_initial, nsteps, δt)
+
+    for i in 1:N
+        if i <= 20
+            s = Infected
+        else
+            s = Susceptible
+        end
+        agents_initial[i] = s
+    end
+    run_model(agents_initial, nsteps, δt, 0.1, 18.0, 0.035)
 
     # mcmc_simulations(250,agents_initial,nsteps,δt)
     # mcmc_simulations_lhs(250,agents_initial,nsteps,δt)
