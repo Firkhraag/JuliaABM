@@ -307,8 +307,8 @@ function plot_swarm_hypercube()
     etiology = get_etiology()
     num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
 
-    num_swarm_runs = 42
-    num_particles = 20
+    num_swarm_runs = 23
+    num_particles = 10
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_swarm_runs + 1)
     duration_parameter = Array{Float64, 1}(undef, num_swarm_runs + 1)
@@ -323,10 +323,10 @@ function plot_swarm_hypercube()
     mean_immunity_durations_velocity = Array{Vector{Float64}, 1}(undef, num_swarm_runs)
     random_infection_probabilities_velocity = Array{Vector{Float64}, 1}(undef, num_swarm_runs)
 
-    nMAE_array = zeros(Float64, num_swarm_runs + 1)
+    error_array = zeros(Float64, num_swarm_runs + 1)
 
     xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    ylabel_name = "RMSE"
 
     incidence_arr[1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_1.jld"))["observed_cases"]
     duration_parameter[1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_1.jld"))["duration_parameter"]
@@ -343,18 +343,19 @@ function plot_swarm_hypercube()
         random_infection_probabilities[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "1", "results_$(i).jld"))["random_infection_probabilities"]
     end
 
-    for i = eachindex(nMAE_array)
-        nMAE_array[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    for i = eachindex(error_array)
+        # error_array[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        error_array[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
     end
 
-    nMAE_plot = plot(
+    error_plot = plot(
         1:(num_swarm_runs + 1),
-        moving_average(nMAE_array, 10),
+        moving_average(error_array, 10),
         lw = 1.5,
         grid = true,
         legend = false,
         # color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-        color = RGB(0.0, 0.0, 0.0),
+        # color = RGB(0.0, 0.0, 0.0),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -371,24 +372,28 @@ function plot_swarm_hypercube()
         for i = 1:num_swarm_runs
             incidence_arr[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["observed_cases"]
             duration_parameter[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["duration_parameter"]
+            if j == 2
+                println(temperature_parameters[i + 1])
+            end
             susceptibility_parameters[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["susceptibility_parameters"]
             temperature_parameters[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["temperature_parameters"]
             mean_immunity_durations[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["mean_immunity_durations"]
             random_infection_probabilities[i + 1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["random_infection_probabilities"]
         end
 
-        for i = eachindex(nMAE_array)
-            nMAE_array[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        for i = eachindex(error_array)
+            # error_array[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+            error_array[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
         end
 
         plot!(
             1:(num_swarm_runs + 1),
-            moving_average(nMAE_array, 10),
+            moving_average(error_array, 3),
             lw = 1.5,
             grid = true,
             legend = false,
             # color = [RGB(0.267, 0.467, 0.667) RGB(0.933, 0.4, 0.467)],
-            color = RGB(0.0, 0.0, 0.0),
+            # color = RGB(0.0, 0.0, 0.0),
             foreground_color_legend = nothing,
             background_color_legend = nothing,
             xlabel = xlabel_name,
@@ -396,7 +401,7 @@ function plot_swarm_hypercube()
         )
     end
 
-    savefig(nMAE_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "plot_swarm_hypercube.pdf"))
+    savefig(error_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "plot_swarm_hypercube.pdf"))
 end
 
 function plot_surrogate_hypercube()
@@ -579,29 +584,29 @@ function plot_all()
     xlabel_name = "Step"
     ylabel_name = "nMAE"
 
-    plot!(
-        1:150,
-        moving_average(nMAE_array[1:150], 3),
-        lw = 1.5,
-        grid = true,
-        label = "MCMC manual",
-        color = RGB(0.933, 0.4, 0.467),
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-    )
+    # plot!(
+    #     1:150,
+    #     moving_average(nMAE_array[1:150], 3),
+    #     lw = 1.5,
+    #     grid = true,
+    #     label = "MCMC manual",
+    #     color = RGB(0.933, 0.4, 0.467),
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    # )
 
-    # min_argument = argmin(nMAE_array[1:150])
-    # println(nMAE_array[min_argument])
-    # println("MCMC manual")
-    # println("duration_parameter = $(duration_parameter_array[min_argument])")
-    # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
-    # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
-    # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
-    # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
-    # println()
-    # return
+    min_argument = argmin(nMAE_array)
+    println(nMAE_array[min_argument])
+    println("MCMC manual")
+    println("duration_parameter = $(duration_parameter_array[min_argument])")
+    println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
+    println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
+    println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
+    println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
+    println()
+    return
 
     duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "duration_parameter_array.csv"), ';', Float64, '\n')
     num_metropolis_runs = length(duration_parameter_array)
