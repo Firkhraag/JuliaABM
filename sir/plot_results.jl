@@ -586,6 +586,44 @@ function plot_all()
     println()
     # return
 
+
+
+    num_ga_runs = 250
+
+    # nMAE_arr = Array{Float64, 1}(undef, num_ga_runs + 1)
+    nMAE_arr = Array{Float64, 1}(undef, num_ga_runs)
+    β_parameter = Array{Float64, 1}(undef, num_ga_runs)
+    c_parameter = Array{Float64, 1}(undef, num_ga_runs)
+    γ_parameter = Array{Float64, 1}(undef, num_ga_runs)
+    I0_parameter = Array{Float64, 1}(undef, num_ga_runs)
+
+    # nMAE_arr[1] = 0.18346184538653368
+
+    xlabel_name = "Step"
+    ylabel_name = "nMAE"
+
+    for i = 1:num_ga_runs
+        # nMAE_arr[i + 1] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["nMAE"]
+        nMAE_arr[i] = load(joinpath(@__DIR__, "ga", "results_$(i).jld"))["nMAE"]
+        β_parameter[i] = load(joinpath(@__DIR__, "ga", "results_$(i).jld"))["β_parameter"]
+        c_parameter[i] = load(joinpath(@__DIR__, "ga", "results_$(i).jld"))["c_parameter"]
+        γ_parameter[i] = load(joinpath(@__DIR__, "ga", "results_$(i).jld"))["γ_parameter"]
+        I0_parameter[i] = load(joinpath(@__DIR__, "ga", "results_$(i).jld"))["I0_parameter"]
+    end
+
+    plot!(
+        1:num_ga_runs,
+        moving_average(nMAE_arr[1:num_ga_runs], 3),
+        lw = 1.5,
+        grid = true,
+        label = "GA LHS",
+        color = RGB(0.4, 0.8, 0.933),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+
     savefig(nMAE_plot, joinpath(@__DIR__, "all_plot.pdf"))
 end
 

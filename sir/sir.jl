@@ -457,7 +457,7 @@ function run_model(agents_initial, nsteps, δt, β, c, γ)
     s += sum(abs.(df_abm.R - R_ref))
 
     nMAE = s / sum(S_ref + I_ref + R_ref)
-    println(nMAE)
+    # println(nMAE)
     return nMAE
 end
 
@@ -1918,6 +1918,258 @@ function run_surrogate_model_NN(
     end
 end
 
+# function selection(parameters, errors, k = 3)
+#     pop_el_selected_num = rand(1:length(parameters))
+#     for pop_el_num in rand(1:length(parameters), 3)
+#         if errors[pop_el_num] < errors[pop_el_selected_num]
+#             pop_el_selected_num = pop_el_num
+#         end
+#     end
+#     return parameters[pop_el_selected_num]
+# end
+
+function selection(
+    pop_size,
+    errors,
+    num_parents,
+    k = 3
+)
+    mating_pool_indecies = []
+    for i = 1:num_parents
+        tournament_indicies = rand(setdiff(vec(1:pop_size), mating_pool_indecies), k + 1)
+        pop_el_selected_num = tournament_indicies[1]
+        for pop_el_num in tournament_indicies[2:end]
+            if errors[pop_el_num] < errors[pop_el_selected_num]
+                pop_el_selected_num = pop_el_num
+            end
+        end
+        push!(mating_pool_indecies, pop_el_selected_num)
+    end
+    return mating_pool_indecies
+end
+
+function crossover(
+    p1_parameters,
+    p2_parameters,
+    cross_rate = 0.7
+)
+    if rand(Float64) < cross_rate
+        split_pos = rand(1:(length(p1_parameters) - 1))
+        c1_parameters = vcat(p1_parameters[1:split_pos], p2_parameters[(split_pos + 1):end])
+        c2_parameters = vcat(p2_parameters[1:split_pos], p1_parameters[(split_pos + 1):end])
+        return c1_parameters, c2_parameters
+    end
+    return p1_parameters, p2_parameters
+end
+
+# function mutation(
+#     β_parameter,
+#     c_parameter,
+#     γ_parameter,
+#     I0_parameter,
+#     mut_rate = 0.1,
+#     disturbance = 0.05,
+# )
+#     if rand(Float64) < mut_rate
+#         β_parameter += rand(Normal(0, disturbance * β_parameter))
+#         if β_parameter < 0.02 || β_parameter > 0.2
+#             β_parameter = rand(Uniform(0.02, 0.2))
+#         end
+#     end
+#     if rand(Float64) < mut_rate
+#         c_parameter += rand(Normal(0, disturbance * c_parameter))
+#         if c_parameter < 5 || c_parameter > 25
+#             c_parameter = rand(Uniform(5, 25))
+#         end
+#     end
+#     if rand(Float64) < mut_rate
+#         γ_parameter += rand(Normal(0, disturbance * γ_parameter))
+#         if γ_parameter < 0.01 || γ_parameter > 0.05
+#             γ_parameter = rand(Uniform(0.01, 0.05))
+#         end
+#     end
+#     if rand(Float64) < mut_rate
+#         I0_parameter += rand(Normal(0, disturbance * I0_parameter))
+#         if I0_parameter < 1 || I0_parameter > 50
+#             I0_parameter = rand(Uniform(1, 50))
+#         end
+#     end
+# end
+
+function mutation(
+    parameters,
+    # β_parameter,
+    # c_parameter,
+    # γ_parameter,
+    # I0_parameter,
+    mut_rate = 0.1,
+    disturbance = 0.05,
+)
+    for i = 1:length(parameters)
+        if rand(Float64) < mut_rate
+            parameters[i] += rand(Normal(0, disturbance * parameters[i]))
+        end
+    end
+    if parameters[1] < 0.02 || parameters[1] > 0.2
+        parameters[1] = rand(Uniform(0.02, 0.2))
+    end
+    if parameters[2] < 5 || parameters[2] > 25
+        parameters[2] = rand(Uniform(5, 25))
+    end
+    if parameters[3] < 0.01 || parameters[3] > 0.05
+        parameters[3] = rand(Uniform(0.01, 0.05))
+    end
+    if parameters[4] < 1 || parameters[4] > 50
+        parameters[4] = rand(Uniform(1, 50))
+    end
+end
+
+function genetic_algorithm(
+    # Число прогонов модели
+    num_ga_runs::Int,
+    # Агенты
+    agents::Vector{InfectionStatus},
+    nsteps,
+    δt,
+)
+    population_size = 10
+    num_parents = 5
+
+    # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), header = false)))
+    # Латинский гиперкуб
+    latin_hypercube_plan, _ = LHCoptim(population_size, 4, 200)
+
+    # Интервалы значений параметров
+    points = scaleLHC(latin_hypercube_plan, [
+        (0.02, 0.2), # β
+        (5, 25), # c
+        (0.01, 0.05), # γ
+        (1, 50), # I0
+    ])
+
+    run_num = 1
+
+    β_parameter_array = points[:, 1]
+    c_parameter_array = points[:, 2]
+    γ_parameter_array = points[:, 3]
+    I0_parameter_array = points[:, 4]
+
+    for k = 1:population_size
+        # Reset
+        for j in 1:length(agents)
+            if j <= I0_parameter_array[k] # I0
+                agents[j] = Infected
+            else
+                agents[j] = Susceptible
+            end
+        end
+        nMAE = run_model(agents, nsteps, δt, β_parameter_array[k], c_parameter_array[k], γ_parameter_array[k])
+
+        save(joinpath(@__DIR__, "ga", "results_$(run_num).jld"),
+            "nMAE", nMAE,
+            "β_parameter", β_parameter_array[k],
+            "c_parameter", c_parameter_array[k],
+            "γ_parameter", γ_parameter_array[k],
+            "I0_parameter", I0_parameter_array[k],
+        )
+        run_num += 1
+    end
+
+    errors = zeros(Float64, population_size)
+
+    β_ref = 0.05 
+    c_ref = 10.0
+    γ_ref = 0.02
+    I0_ref = 10
+
+    for curr_run = 1:num_ga_runs
+        println("curr_num = $(curr_run)")
+        for p = 1:population_size
+            # Reset
+            for i in 1:length(agents)
+                if i <= I0_parameter_array[p] # I0
+                    agents[i] = Infected
+                else
+                    agents[i] = Susceptible
+                end
+            end
+            errors[p] = run_model(agents, nsteps, δt, β_parameter_array[p], c_parameter_array[p], γ_parameter_array[p])
+        end
+        # println(errors)
+        # println(errors)
+        # return
+        # β_parameter_selected = [selection(β_parameter_array, errors) for _ in 1:population_size]
+        mating_pool_indecies = selection(population_size, errors, num_parents)
+        sum_of_errors = 0.0
+        for mating_index in mating_pool_indecies
+            sum_of_errors += errors[mating_index]
+        end
+        # create the next generation
+        β_parameter_children = []
+        c_parameter_children = []
+        γ_parameter_children = []
+        I0_parameter_children = []
+        for k = 1:population_size
+            rand_num = rand(Float64)
+            errors_cumulative = errors[mating_pool_indecies[1]]
+            p1_mating_index = 1
+            for mating_index in mating_pool_indecies[2:end]
+                if rand_num < errors_cumulative / sum_of_errors
+                    break
+                end
+                p1_mating_index += 1
+                errors_cumulative += errors[mating_index]
+            end
+            
+            rand_num = rand(Float64)
+            errors_cumulative = errors[mating_pool_indecies[1]]
+            p2_mating_index = 1
+            for mating_index in mating_pool_indecies[2:end]
+                if p2_mating_index != p1_mating_index && rand_num < errors_cumulative / sum_of_errors
+                    break
+                end
+                p2_mating_index += 1
+                errors_cumulative += errors[mating_index]
+            end
+            
+            for c in crossover(
+                [β_parameter_array[mating_pool_indecies[p1_mating_index]], c_parameter_array[mating_pool_indecies[p1_mating_index]], γ_parameter_array[mating_pool_indecies[p1_mating_index]], I0_parameter_array[mating_pool_indecies[p1_mating_index]]],
+                [β_parameter_array[mating_pool_indecies[p2_mating_index]], c_parameter_array[mating_pool_indecies[p2_mating_index]], γ_parameter_array[mating_pool_indecies[p2_mating_index]], I0_parameter_array[mating_pool_indecies[p2_mating_index]]],
+            )
+                mutation(c)
+                push!(β_parameter_children, c[1])
+                push!(c_parameter_children, c[2])
+                push!(γ_parameter_children, c[3])
+                push!(I0_parameter_children, c[4])
+            end
+        end
+        β_parameter_array = copy(β_parameter_children)
+        c_parameter_array = copy(c_parameter_children)
+        γ_parameter_array = copy(γ_parameter_children)
+        I0_parameter_array = copy(I0_parameter_children)
+        for k = 1:population_size
+            # Reset
+            for j in 1:length(agents)
+                if j <= I0_parameter_array[k] # I0
+                    agents[j] = Infected
+                else
+                    agents[j] = Susceptible
+                end
+            end
+            nMAE = run_model(agents, nsteps, δt, β_parameter_array[k], c_parameter_array[k], γ_parameter_array[k])
+
+            save(joinpath(@__DIR__, "ga", "results_$(run_num).jld"),
+                "nMAE", nMAE,
+                "β_parameter", β_parameter_array[k],
+                "c_parameter", c_parameter_array[k],
+                "γ_parameter", γ_parameter_array[k],
+                "I0_parameter", I0_parameter_array[k],
+            )
+            run_num += 1
+        end
+    end
+end
+
 function main()
     # Time domain
     δt = 0.1
@@ -1951,15 +2203,15 @@ function main()
 
     # run_model_plot(agents_initial, nsteps, δt)
 
-    for i in 1:N
-        if i <= 20
-            s = Infected
-        else
-            s = Susceptible
-        end
-        agents_initial[i] = s
-    end
-    run_model(agents_initial, nsteps, δt, 0.1, 18.0, 0.035)
+    # for i in 1:N
+    #     if i <= 20
+    #         s = Infected
+    #     else
+    #         s = Susceptible
+    #     end
+    #     agents_initial[i] = s
+    # end
+    # run_model(agents_initial, nsteps, δt, 0.1, 18.0, 0.035)
 
     # mcmc_simulations(250,agents_initial,nsteps,δt)
     # mcmc_simulations_lhs(250,agents_initial,nsteps,δt)
@@ -1969,6 +2221,8 @@ function main()
     # lhs_simulations(20,agents_initial,nsteps,δt)
     # run_surrogate_model(250,agents_initial,nsteps,δt)
     # run_surrogate_model_NN(100,agents_initial,nsteps,δt)
+    genetic_algorithm(25,agents_initial,nsteps,δt)
+
 end
 
 main()
