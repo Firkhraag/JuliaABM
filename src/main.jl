@@ -731,7 +731,7 @@ function mcmc_simulations(
     num_years::Int,
 )
     # hypercube / manual
-    sampling_type = "manual"
+    sampling_type = "hypercube"
     error_output_table_name = "tables_mcmc_$(sampling_type)"
     error_output_file_location = joinpath(@__DIR__, "..", "parameters", "output_mcmc_$(sampling_type).txt")
 
@@ -830,7 +830,7 @@ function mcmc_simulations(
     random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
 
     error = 0.0
-    error_min = 9.0e10
+    error_min = 9.0e12
     # Если рассматривается 1 год
     if is_one_mean_year_modeled
         observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
@@ -1590,32 +1590,32 @@ function main(
 
     # Модифицированный алгоритм Метрополиса-Гастингса для поиска значений параметров, дающих минимум для модели
     # --------------------------
-    # mcmc_simulations(
-    #     is_one_mean_year_modeled,
-    #     agents,
-    #     households,
-    #     schools,
-    #     num_threads,
-    #     thread_rng,
-    #     start_agent_ids,
-    #     end_agent_ids,
-    #     temperature,
-    #     viruses,
-    #     num_infected_age_groups_viruses,
-    #     num_infected_age_groups_viruses_prev,
-    #     mean_household_contact_durations,
-    #     household_contact_duration_sds,
-    #     other_contact_duration_shapes,
-    #     other_contact_duration_scales,
-    #     isolation_probabilities_day_1,
-    #     isolation_probabilities_day_2,
-    #     isolation_probabilities_day_3,
-    #     recovered_duration_mean,
-    #     recovered_duration_sd,
-    #     random_infection_probabilities,
-    #     num_years
-    # )
-    # return
+    mcmc_simulations(
+        is_one_mean_year_modeled,
+        agents,
+        households,
+        schools,
+        num_threads,
+        thread_rng,
+        start_agent_ids,
+        end_agent_ids,
+        temperature,
+        viruses,
+        num_infected_age_groups_viruses,
+        num_infected_age_groups_viruses_prev,
+        mean_household_contact_durations,
+        household_contact_duration_sds,
+        other_contact_duration_shapes,
+        other_contact_duration_scales,
+        isolation_probabilities_day_1,
+        isolation_probabilities_day_2,
+        isolation_probabilities_day_3,
+        recovered_duration_mean,
+        recovered_duration_sd,
+        random_infection_probabilities,
+        num_years
+    )
+    return
     # --------------------------
     
     # Моделируем заболеваемость
