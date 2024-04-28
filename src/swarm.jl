@@ -205,8 +205,8 @@ function run_swarm_model()
     num_viruses = 7
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_particles)
-    best_error = 9.0e11
-    error_particles = zeros(Float64, num_particles) .+ 9999999.0
+    best_error = 9.0e12
+    error_particles = zeros(Float64, num_particles) .+ 9.0e12
 
     duration_parameter_particles = Array{Float64, 1}(undef, num_particles)
     susceptibility_parameters_particles = Array{Vector{Float64}, 1}(undef, num_particles)
@@ -238,7 +238,7 @@ function run_swarm_model()
     points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), header = false)))
 
     # Латинский гиперкуб
-    latin_hypercube_plan, _ = LHCoptim(num_particles, num_parameters, 500)
+    # latin_hypercube_plan, _ = LHCoptim(num_particles, num_parameters, 500)
 
     # Интервалы значений параметров
     # points = scaleLHC(latin_hypercube_plan, [
@@ -304,8 +304,8 @@ function run_swarm_model()
         end
 
         # Если уже посчитано
-        for i = 1:num_particles
-            incidence_arr[i] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["observed_cases"]
+        for k = 1:num_particles
+            incidence_arr[k] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["observed_cases"]
         end
 
         # Если не посчитано

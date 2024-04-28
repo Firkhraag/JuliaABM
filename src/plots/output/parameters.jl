@@ -762,45 +762,46 @@ function plot_all()
     # # println()
     # # return
 
-    # num_surrogate_runs = 250
+    num_surrogate_runs = 79
 
-    # incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_surrogate_runs)
-    # duration_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
-    # susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
-    # temperature_parameters = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
-    # mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
-    # random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
+    incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_surrogate_runs)
+    duration_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
+    susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
+    temperature_parameters = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
+    mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
+    random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
 
-    # error_array = zeros(Float64, num_surrogate_runs)
+    error_array = zeros(Float64, num_surrogate_runs)
 
-    # xlabel_name = "Step"
-    # ylabel_name = "RMSE"
+    xlabel_name = "Step"
+    ylabel_name = "RMSE"
 
-    # for i = 1:num_surrogate_runs
-    #     incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate", "results_$(i).jld"))["observed_cases"]
-    #     duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate", "results_$(i).jld"))["duration_parameter"]
-    #     susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate", "results_$(i).jld"))["susceptibility_parameters"]
-    #     temperature_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate", "results_$(i).jld"))["temperature_parameters"]
-    #     mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate", "results_$(i).jld"))["mean_immunity_durations"]
-    #     random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate", "results_$(i).jld"))["random_infection_probabilities"]
-    # end
+    for i = 1:num_surrogate_runs
+        incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate", "results_$(i).jld"))["observed_cases"]
+        duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate", "results_$(i).jld"))["duration_parameter"]
+        susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate", "results_$(i).jld"))["susceptibility_parameters"]
+        temperature_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate", "results_$(i).jld"))["temperature_parameters"]
+        mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate", "results_$(i).jld"))["mean_immunity_durations"]
+        random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate", "results_$(i).jld"))["random_infection_probabilities"]
+    end
 
-    # for i = eachindex(error_array)
-    #     error_array[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
-    # end
+    for i = eachindex(error_array)
+        # error_array[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        error_array[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
+    end
 
-    # plot!(
-    #     1:num_surrogate_runs,
-    #     moving_average(error_array, 3),
-    #     lw = 1.5,
-    #     grid = true,
-    #     label = "SM LHS",
-    #     color = RGB(0.8, 0.733, 0.267),
-    #     foreground_color_legend = nothing,
-    #     background_color_legend = nothing,
-    #     xlabel = xlabel_name,
-    #     ylabel = ylabel_name,
-    # )
+    plot!(
+        1:num_surrogate_runs,
+        moving_average(sqrt.(error_array / num_error_points), 3),
+        lw = 1.5,
+        grid = true,
+        label = "SM LHS",
+        color = RGB(0.8, 0.733, 0.267),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
 
     # min_argument = argmin(error_array[1:250])
     # println(error_array[min_argument])
