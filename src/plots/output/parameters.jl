@@ -463,7 +463,7 @@ function plot_all()
     etiology = get_etiology()
     num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
 
-    num_mcmc_runs = 240
+    num_mcmc_runs = 200
     
     duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube", "duration_parameter_array.csv"), ';', Float64, '\n')
     error_array = zeros(Float64, length(duration_parameter_array))
@@ -539,7 +539,7 @@ function plot_all()
     # println()
     # return
 
-    num_mcmc_runs = 222
+    num_mcmc_runs = 200
 
     duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual", "duration_parameter_array.csv"), ';', Float64, '\n')
     error_array = zeros(Float64, length(duration_parameter_array))
@@ -762,7 +762,7 @@ function plot_all()
     # # println()
     # # return
 
-    num_surrogate_runs = 79
+    num_surrogate_runs = 200
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_surrogate_runs)
     duration_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
@@ -796,7 +796,7 @@ function plot_all()
         lw = 1.5,
         grid = true,
         label = "SM LHS",
-        color = RGB(0.8, 0.733, 0.267),
+        color = RGB(0.133, 0.533, 0.2),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -814,7 +814,7 @@ function plot_all()
     # println()
     # return
 
-    num_swarm_runs = 25
+    num_swarm_runs = 20
     num_particles = 10
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_swarm_runs)
@@ -841,7 +841,6 @@ function plot_all()
         for j = 1:num_particles
             temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["observed_cases"]
             error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
-            # error_array[(i - 1) * num_particles + j] = sum((temp - num_infected_age_groups_viruses).^2)
             
             duration_parameter_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["duration_parameter"]
             susceptibility_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["susceptibility_parameters"]
@@ -866,6 +865,102 @@ function plot_all()
         lw = 1.5,
         grid = true,
         label = "PSO LHS",
+        legend = (0.74, 0.98),
+        color = RGB(0.667, 0.2, 0.467),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+
+    # min_argument = argmin(error_array[1:250])
+    # println(error_array[min_argument])
+    # println("PSO LHS")
+    # println("duration_parameter = $(duration_parameter[min_argument])")
+    # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
+    # println("temperature_parameters = $(temperature_parameters[min_argument])")
+    # println("mean_immunity_durations = $(mean_immunity_durations[min_argument])")
+    # println("random_infection_probabilities = $(random_infection_probabilities[min_argument])")
+    # println()
+    # return
+
+    savefig(error_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "plot_all.pdf"))
+
+    # num_ga_runs = 13
+    num_ga_runs = 14
+    population_size = 10
+
+    incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_ga_runs)
+    incidence_arr_temp = Array{Array{Float64, 3}, 1}(undef, population_size)
+    error_array = zeros(Float64, num_ga_runs * population_size)
+
+    duration_parameter = Array{Float64, 1}(undef, num_ga_runs * population_size)
+    susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_ga_runs * population_size)
+    temperature_parameters = Array{Vector{Float64}, 1}(undef, num_ga_runs * population_size)
+    mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_ga_runs * population_size)
+    random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_ga_runs * population_size)
+
+    error_arr_temp = zeros(Float64, population_size)
+    duration_parameter_temp = zeros(Float64, population_size)
+    susceptibility_parameters_temp = Array{Vector{Float64}, 1}(undef, population_size)
+    temperature_parameters_temp = Array{Vector{Float64}, 1}(undef, population_size)
+    mean_immunity_durations_temp = Array{Vector{Float64}, 1}(undef, population_size)
+    random_infection_probabilities_temp = Array{Vector{Float64}, 1}(undef, population_size)
+
+    xlabel_name = "Step"
+    ylabel_name = "RMSE"
+
+    for j = 1:10
+        temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga", "11", "results_$(j).jld"))["observed_cases"]
+        error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
+
+        duration_parameter_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga", "11", "results_$(j).jld"))["duration_parameter"]
+        susceptibility_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga", "11", "results_$(j).jld"))["susceptibility_parameters"]
+        temperature_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga", "11", "results_$(j).jld"))["temperature_parameters"]
+        mean_immunity_durations_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga", "11", "results_$(j).jld"))["mean_immunity_durations"]
+        random_infection_probabilities_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga", "11", "results_$(j).jld"))["random_infection_probabilities"]
+    end
+    println(error_arr_temp)
+    # println(duration_parameter_temp)
+    # println(susceptibility_parameters_temp[2])
+    # println(susceptibility_parameters_temp[3])
+    # println(susceptibility_parameters_temp[6])
+    # println(susceptibility_parameters_temp[10])
+
+    # println(temperature_parameters_temp[2])
+    # println(temperature_parameters_temp[3])
+    # println(temperature_parameters_temp[6])
+    # println(temperature_parameters_temp[10])
+
+    # return
+
+    for i = 1:num_ga_runs
+        for j = 1:population_size
+            temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga", "$(i)", "results_$(j).jld"))["observed_cases"]
+            error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
+            
+            duration_parameter_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga", "$(i)", "results_$(j).jld"))["duration_parameter"]
+            susceptibility_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga", "$(i)", "results_$(j).jld"))["susceptibility_parameters"]
+            temperature_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga", "$(i)", "results_$(j).jld"))["temperature_parameters"]
+            mean_immunity_durations_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga", "$(i)", "results_$(j).jld"))["mean_immunity_durations"]
+            random_infection_probabilities_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga", "$(i)", "results_$(j).jld"))["random_infection_probabilities"]
+        end
+        for j = 1:num_particles
+            error_array[(i - 1) * num_particles + j] = minimum(error_arr_temp)
+            min_arg = argmin(error_arr_temp)
+            duration_parameter[(i - 1) * num_particles + j] = duration_parameter_temp[min_arg]
+            susceptibility_parameters[(i - 1) * num_particles + j] = susceptibility_parameters_temp[min_arg]
+            temperature_parameters[(i - 1) * num_particles + j] = temperature_parameters_temp[min_arg]
+            mean_immunity_durations[(i - 1) * num_particles + j] = mean_immunity_durations_temp[min_arg]
+            random_infection_probabilities[(i - 1) * num_particles + j] = random_infection_probabilities_temp[min_arg]
+        end
+    end
+    plot!(
+        1:(num_ga_runs * population_size),
+        moving_average(sqrt.(error_array[1:(num_ga_runs * population_size)] / num_error_points), 3),
+        lw = 1.5,
+        grid = true,
+        label = "GA LHS",
         legend = (0.74, 0.98),
         color = RGB(0.5, 0.5, 0.5),
         foreground_color_legend = nothing,
