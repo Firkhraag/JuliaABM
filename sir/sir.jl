@@ -13,6 +13,12 @@ using Optimisers
 
 default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
 
+function arg_n_smallest_values(A::AbstractArray{T,N}, n::Integer) where {T,N}
+    perm = sortperm(vec(A))
+    ci = CartesianIndices(A)
+    return ci[perm[1:n]]
+end
+
 function log_g(x, mu, sigma)
     return -log(sqrt(2 * pi) * sigma) - 0.5 * ((x - mu) / sigma)^2
 end
@@ -108,10 +114,6 @@ function run_model_plot(agents_initial, nsteps, δt)
     p = [β, c, γ, δt]
     df_abm = sim!(agents_initial, nsteps, δt, p)
 
-    s = sum(abs.(df_abm.S - S_ref))
-    s += sum(abs.(df_abm.I - I_ref))
-    s += sum(abs.(df_abm.R - R_ref))
-
     pl = plot(
         df_abm.t,
         df_abm.S,
@@ -158,10 +160,6 @@ function run_model_plot(agents_initial, nsteps, δt)
     end
     p = [β, c, γ, δt]
     df_abm = sim!(agents_initial, nsteps, δt, p)
-
-    s = sum(abs.(df_abm.S - S_ref))
-    s += sum(abs.(df_abm.I - I_ref))
-    s += sum(abs.(df_abm.R - R_ref))
 
     plot!(
         df_abm.t,
@@ -210,10 +208,6 @@ function run_model_plot(agents_initial, nsteps, δt)
     p = [β, c, γ, δt]
     df_abm = sim!(agents_initial, nsteps, δt, p)
 
-    s = sum(abs.(df_abm.S - S_ref))
-    s += sum(abs.(df_abm.I - I_ref))
-    s += sum(abs.(df_abm.R - R_ref))
-
     plot!(
         df_abm.t,
         df_abm.S,
@@ -260,10 +254,6 @@ function run_model_plot(agents_initial, nsteps, δt)
     end
     p = [β, c, γ, δt]
     df_abm = sim!(agents_initial, nsteps, δt, p)
-
-    s = sum(abs.(df_abm.S - S_ref))
-    s += sum(abs.(df_abm.I - I_ref))
-    s += sum(abs.(df_abm.R - R_ref))
 
     plot!(
         df_abm.t,
@@ -312,10 +302,6 @@ function run_model_plot(agents_initial, nsteps, δt)
     p = [β, c, γ, δt]
     df_abm = sim!(agents_initial, nsteps, δt, p)
 
-    s = sum(abs.(df_abm.S - S_ref))
-    s += sum(abs.(df_abm.I - I_ref))
-    s += sum(abs.(df_abm.R - R_ref))
-
     plot!(
         df_abm.t,
         df_abm.S,
@@ -362,10 +348,6 @@ function run_model_plot(agents_initial, nsteps, δt)
     end
     p = [β, c, γ, δt]
     df_abm = sim!(agents_initial, nsteps, δt, p)
-
-    s = sum(abs.(df_abm.S - S_ref))
-    s += sum(abs.(df_abm.I - I_ref))
-    s += sum(abs.(df_abm.R - R_ref))
 
     plot!(
         df_abm.t,
@@ -438,48 +420,26 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     savefig(pl, joinpath(@__DIR__, "sir.pdf"))
     
-    nMAE = s / sum(S_ref + I_ref + R_ref)
-    return nMAE
+    error = sqrt(1 / 1200 * sum((df_abm.S - S_ref).^2) + 1 / 1200 * sum((df_abm.I - I_ref).^2) + 1 / 1200 * sum((df_abm.R - R_ref).^2))
+    return error
 end
 
 function run_model(agents_initial, nsteps, δt, β, c, γ)
     p = [β, c, γ, δt]
     # Running the model
     df_abm = sim!(agents_initial, nsteps, δt, p)
-    # println(df_abm.t)
-
-    # println("S_ref = $(df_abm.S)")
-    # println("I_ref = $(df_abm.I)")
-    # println("R_ref = $(df_abm.R)")
-
-    s = sum(abs.(df_abm.S - S_ref))
-    s += sum(abs.(df_abm.I - I_ref))
-    s += sum(abs.(df_abm.R - R_ref))
-
-    nMAE = s / sum(S_ref + I_ref + R_ref)
-    # println(nMAE)
-    return nMAE
+    error = sqrt(1 / 1200 * sum((df_abm.S - S_ref).^2) + 1 / 1200 * sum((df_abm.I - I_ref).^2) + 1 / 1200 * sum((df_abm.R - R_ref).^2))
+    return error
 end
 
 function run_model_metropolis(agents_initial, nsteps, δt, β, c, γ)
     p = [β, c, γ, δt]
     # Running the model
     df_abm = sim!(agents_initial, nsteps, δt, p)
-    # println(df_abm.t)
+    error = sqrt(1 / 1200 * sum((df_abm.S - S_ref).^2) + 1 / 1200 * sum((df_abm.I - I_ref).^2) + 1 / 1200 * sum((df_abm.R - R_ref).^2))
+    return error
 
-    # println("S_ref = $(df_abm.S)")
-    # println("I_ref = $(df_abm.I)")
-    # println("R_ref = $(df_abm.R)")
-
-    s = sum(abs.(df_abm.S - S_ref))
-    s += sum(abs.(df_abm.I - I_ref))
-    s += sum(abs.(df_abm.R - R_ref))
-    
-    nMAE = s / sum(S_ref + I_ref + R_ref)
-
-    return df_abm.S, df_abm.I, df_abm.R, nMAE
-
-    # println(nMAE)
+    # println(error)
 
     # pl = plot(
     #     df_abm.t,
@@ -492,10 +452,6 @@ function run_model_metropolis(agents_initial, nsteps, δt, β, c, γ)
     # )
     # savefig(pl, joinpath(@__DIR__, "sir.pdf"))
 end
-
-
-
-
 
 function lhs_simulations(
     # Число прогонов модели
@@ -519,7 +475,7 @@ function lhs_simulations(
         (1, 50), # I0
     ])
 
-    nMAE_min = 1.0e12
+    error_min = 1.0e12
 
     for i = 1:num_runs
         println(i)
@@ -538,17 +494,17 @@ function lhs_simulations(
             end
         end
         # Моделируем заболеваемость
-        nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+        error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
-        if nMAE < nMAE_min
-            nMAE_min = nMAE
+        if error < error_min
+            error_min = error
             println("β_parameter = ", β_parameter)
             println("c_parameter = ", c_parameter)
             println("γ_parameter = ", γ_parameter)
             println("I0_parameter = ", I0_parameter)
         end
         save(joinpath(@__DIR__, "lhs", "results_$(i).jld"),
-            "nMAE", nMAE,
+            "error", error,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
             "γ_parameter", γ_parameter,
@@ -585,9 +541,9 @@ function mcmc_simulations_lhs(
             agents[i] = Susceptible
         end
     end
-    nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+    error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
     open(joinpath(@__DIR__, "mcmc_lhs.txt"), "a") do io
-        println(io, nMAE)
+        println(io, error)
     end
 
     # Число принятий новых значений параметров
@@ -600,9 +556,9 @@ function mcmc_simulations_lhs(
     γ_parameter_delta = 0.1
     I0_parameter_delta = 0.1
 
-    nMAE_min = 99999.0
-    nMAE_prev = nMAE
-    nMAE_min = nMAE
+    error_min = 9.e12
+    error_prev = error
+    error_min = error
 
     # (0.02, 0.2), # β
     # (5, 25), # c
@@ -632,24 +588,24 @@ function mcmc_simulations_lhs(
                 agents[i] = Susceptible
             end
         end
-        nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+        error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
         save(joinpath(@__DIR__, "mcmc_lhs", "results_$(n).jld"),
-            "nMAE", nMAE,
+            "error", error,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
             "γ_parameter", γ_parameter,
             "I0_parameter", I0_parameter)
 
         open(joinpath(@__DIR__, "mcmc_lhs.txt"), "a") do io
-            println(io, nMAE)
+            println(io, error)
         end
 
         # Если ошибка меньше ошибки на предыдущем шаге или число последовательных отказов больше 10
-        if nMAE < nMAE_prev || local_rejected_num >= 10
-            if nMAE < nMAE_min
-                nMAE_min = nMAE
-                println("nMAE min = $(nMAE)")
+        if error < error_prev || local_rejected_num >= 10
+            if error < error_min
+                error_min = error
+                println("error min = $(error)")
                 println("β_parameter = $(β_parameter)")
                 println("c_parameter = $(c_parameter)")
                 println("γ_parameter = $(γ_parameter)")
@@ -660,7 +616,7 @@ function mcmc_simulations_lhs(
             push!(γ_parameter_array, γ_parameter)
             push!(I0_parameter_array, I0_parameter)
 
-            nMAE_prev = nMAE
+            error_prev = error
 
             # Увеличиваем число принятий новых параметров
             accept_num += 1
@@ -716,9 +672,9 @@ function mcmc_simulations(
             agents[i] = Susceptible
         end
     end
-    nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+    error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
     open(joinpath(@__DIR__, "mcmc.txt"), "a") do io
-        println(io, nMAE)
+        println(io, error)
     end
 
     # Число принятий новых значений параметров
@@ -731,9 +687,9 @@ function mcmc_simulations(
     γ_parameter_delta = 0.1
     I0_parameter_delta = 0.1
 
-    nMAE_min = 99999.0
-    nMAE_prev = nMAE
-    nMAE_min = nMAE
+    error_min = 9.e12
+    error_prev = error
+    error_min = error
 
     # (0.02, 0.2), # β
     # (5, 25), # c
@@ -763,24 +719,24 @@ function mcmc_simulations(
                 agents[i] = Susceptible
             end
         end
-        nMAE = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+        error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
         save(joinpath(@__DIR__, "mcmc", "results_$(n).jld"),
-            "nMAE", nMAE,
+            "error", error,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
             "γ_parameter", γ_parameter,
             "I0_parameter", I0_parameter)
 
         open(joinpath(@__DIR__, "mcmc.txt"), "a") do io
-            println(io, nMAE)
+            println(io, error)
         end
 
         # Если ошибка меньше ошибки на предыдущем шаге или число последовательных отказов больше 10
-        if nMAE < nMAE_prev || local_rejected_num >= 10
-            if nMAE < nMAE_min
-                nMAE_min = nMAE
-                println("nMAE min = $(nMAE)")
+        if error < error_prev || local_rejected_num >= 10
+            if error < error_min
+                error_min = error
+                println("error min = $(error)")
                 println("β_parameter = $(β_parameter)")
                 println("c_parameter = $(c_parameter)")
                 println("γ_parameter = $(γ_parameter)")
@@ -791,7 +747,7 @@ function mcmc_simulations(
             push!(γ_parameter_array, γ_parameter)
             push!(I0_parameter_array, I0_parameter)
 
-            nMAE_prev = nMAE
+            error_prev = error
 
             # Увеличиваем число принятий новых параметров
             accept_num += 1
@@ -847,9 +803,9 @@ function mcmc_simulations_metropolis(
             agents[i] = Susceptible
         end
     end
-    S, I, R, nMAE = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+    S, I, R, error = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
     open(joinpath(@__DIR__, "mcmc_metropolis.txt"), "a") do io
-        println(io, nMAE)
+        println(io, error)
     end
 
     prob_prev = zeros(Float64, length(S) + length(I) + length(R))
@@ -933,17 +889,17 @@ function mcmc_simulations_metropolis(
                 agents[i] = Susceptible
             end
         end
-        S, I, R, nMAE = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+        S, I, R, error = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
         save(joinpath(@__DIR__, "mcmc_metropolis", "results_$(n).jld"),
-            "nMAE", nMAE,
+            "error", error,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
             "γ_parameter", γ_parameter,
             "I0_parameter", I0_parameter)
 
         open(joinpath(@__DIR__, "mcmc_metropolis.txt"), "a") do io
-            println(io, nMAE)
+            println(io, error)
         end
 
         prob = zeros(Float64, length(S) + length(I) + length(R))
@@ -1025,9 +981,9 @@ function mcmc_simulations_metropolis_lhs(
             agents[i] = Susceptible
         end
     end
-    S, I, R, nMAE = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+    S, I, R, error = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
     open(joinpath(@__DIR__, "mcmc_metropolis_lhs.txt"), "a") do io
-        println(io, nMAE)
+        println(io, error)
     end
 
     prob_prev = zeros(Float64, length(S) + length(I) + length(R))
@@ -1111,17 +1067,17 @@ function mcmc_simulations_metropolis_lhs(
                 agents[i] = Susceptible
             end
         end
-        S, I, R, nMAE = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+        S, I, R, error = run_model_metropolis(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
         save(joinpath(@__DIR__, "mcmc_metropolis_lhs", "results_$(n).jld"),
-            "nMAE", nMAE,
+            "error", error,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
             "γ_parameter", γ_parameter,
             "I0_parameter", I0_parameter)
 
         open(joinpath(@__DIR__, "mcmc_metropolis_lhs.txt"), "a") do io
-            println(io, nMAE)
+            println(io, error)
         end
 
         prob = zeros(Float64, length(S) + length(I) + length(R))
@@ -1178,15 +1134,17 @@ function run_swarm_model(
     nsteps,
     δt,
 )
-    num_particles = 20
+    num_particles = 10
 
-    best_nMAE = 9999.0
+    best_error = 9.e12
 
     w = 0.5
-    c1 = 1.0
-    c2 = 1.0
+    w_min = 0.4
+    w_max = 0.9
+    c1 = 2.0
+    c2 = 2.0
 
-    nMAE_particles = zeros(Float64, num_particles) .+ 9999.0
+    error_particles = zeros(Float64, num_particles) .+ 9.e12
 
     β_parameter_particles = Array{Float64, 1}(undef, num_particles)
     c_parameter_particles = Array{Float64, 1}(undef, num_particles)
@@ -1213,7 +1171,7 @@ function run_swarm_model(
     num_parameters = 4
 
     for i = 1:num_particles
-        nMAE_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["nMAE"]
+        error_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["error"]
 
         β_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
         c_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
@@ -1226,7 +1184,7 @@ function run_swarm_model(
         I0_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["I0_parameter"]
     end
 
-    k = argmin(nMAE_particles)
+    k = argmin(error_particles)
     β_parameter_best = β_parameter_particles[k]
     c_parameter_best = c_parameter_particles[k]
     γ_parameter_best = γ_parameter_particles[k]
@@ -1268,10 +1226,10 @@ function run_swarm_model(
     #             agents[j] = Susceptible
     #         end
     #     end
-    #     nMAE_particles[i] = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles_best[i], γ_parameter_particles_best[i])
+    #     error_particles[i] = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles_best[i], γ_parameter_particles_best[i])
 
-    #     if nMAE_particles[i] < best_nMAE
-    #         best_nMAE = nMAE_particles[i]
+    #     if error_particles[i] < best_error
+    #         best_error = error_particles[i]
 
     #         β_parameter_best = points[i, 1]
     #         c_parameter_best = points[i, 2]
@@ -1280,16 +1238,15 @@ function run_swarm_model(
     #     end
 
     #     save(joinpath(@__DIR__, "swarm", "0", "results_$(i).jld"),
-    #         "nMAE", nMAE_particles[i],
+    #         "error", error_particles[i],
     #         "β_parameter", β_parameter_particles[i],
     #         "c_parameter", c_parameter_particles[i],
     #         "γ_parameter", γ_parameter_particles[i],
     #         "I0_parameter", I0_parameter_particles[i])
     # end
 
-    
-
     for curr_run = 1:num_swarm_model_runs
+        w = (num_swarm_model_runs - curr_run) / num_swarm_model_runs * (w_max - w_min) + w_min
         for i = 1:num_particles
             β_parameter_particles_velocity[i] = w * β_parameter_particles_velocity[i] + c1 * rand() * (β_parameter_particles_best[i] - β_parameter_particles[i]) + c2 * rand() * (β_parameter_best - β_parameter_particles[i])
             c_parameter_particles_velocity[i] = w * c_parameter_particles_velocity[i] + c1 * rand() * (c_parameter_particles_best[i] - c_parameter_particles[i]) + c2 * rand() * (c_parameter_best - c_parameter_particles[i])
@@ -1329,18 +1286,18 @@ function run_swarm_model(
                     agents[j] = Susceptible
                 end
             end
-            nMAE = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles_best[i], γ_parameter_particles_best[i])
+            error = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles_best[i], γ_parameter_particles_best[i])
 
             save(joinpath(@__DIR__, "swarm", "$(i)", "results_$(curr_run).jld"),
-                "nMAE", nMAE,
+                "error", error,
                 "β_parameter", β_parameter_particles[i],
                 "c_parameter", c_parameter_particles[i],
                 "γ_parameter", γ_parameter_particles[i],
                 "I0_parameter", I0_parameter_particles[i],
             )
 
-            if nMAE < best_nMAE
-                best_nMAE = nMAE
+            if error < best_error
+                best_error = error
 
                 β_parameter_best = β_parameter_particles[i]
                 c_parameter_best = c_parameter_particles[i]
@@ -1348,7 +1305,7 @@ function run_swarm_model(
                 I0_parameter_best = I0_parameter_particles[i]
 
                 println("Best!!!")
-                println("nMAE_best = ", nMAE)
+                println("error_best = ", error)
                 println("β_parameter = ", β_parameter_best)
                 println("c_parameter = ", c_parameter_best)
                 println("γ_parameter = ", γ_parameter_best)
@@ -1356,8 +1313,8 @@ function run_swarm_model(
                 println()
             end
 
-            if nMAE < nMAE_particles[i]
-                nMAE_particles[i] = nMAE
+            if error < error_particles[i]
+                error_particles[i] = error
 
                 β_parameter_particles_best[i] = β_parameter_particles[i]
                 c_parameter_particles_best[i] = c_parameter_particles[i]
@@ -1365,7 +1322,7 @@ function run_swarm_model(
                 I0_parameter_particles_best[i] = I0_parameter_particles[i]
 
                 println("Particle")
-                println("nMAE_particle $(i) = ", nMAE)
+                println("error_particle $(i) = ", error)
                 println("β_parameter = ", β_parameter_particles_best[i])
                 println("c_parameter = ", c_parameter_particles_best[i])
                 println("γ_parameter = ", γ_parameter_particles_best[i])
@@ -1384,20 +1341,20 @@ function run_surrogate_model(
     nsteps,
     δt,
 )
-    num_initial_runs = 20
+    num_initial_runs = 10
     num_additional_runs = 0
     num_runs = num_initial_runs + num_additional_runs
 
     num_parameters = 4
 
-    nMAE_arr = Array{Float64, 1}(undef, num_runs)
+    error_arr = Array{Float64, 1}(undef, num_runs)
     β_parameter = Array{Float64, 1}(undef, num_runs)
     c_parameter = Array{Float64, 1}(undef, num_runs)
     γ_parameter = Array{Float64, 1}(undef, num_runs)
     I0_parameter = Array{Float64, 1}(undef, num_runs)
 
     for i = 1:num_initial_runs
-        nMAE_arr[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["nMAE"]
+        error_arr[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["error"]
         β_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
         c_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
         γ_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
@@ -1405,28 +1362,28 @@ function run_surrogate_model(
     end
 
     # for i = 1:num_additional_runs
-    #     nMAE_arr[i + num_initial_runs] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["nMAE"]
+    #     error_arr[i + num_initial_runs] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["error"]
     #     β_parameter[i + num_initial_runs] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["β_parameter"]
     # end
 
     min_i = 0
-    min_nMAE = 9999.0
+    min_error = 9.e12
 
     # y = zeros(Float64, x, num_runs)
     # for i = 1:num_runs
     #     for j = 1:52
     #         y[j, i] = sum(abs.(incidence_arr[i][j, :, :] - num_infected_age_groups_viruses[j, :, :])) / sum(num_infected_age_groups_viruses[j, :, :])
     #     end
-    #     nMAE = sum(y[:, i])
-    #     if nMAE < min_nMAE
+    #     error = sum(y[:, i])
+    #     if error < min_error
     #         min_i = i
-    #         min_nMAE = nMAE
+    #         min_error = error
     #     end
     # end
 
     # XGBoost
-    y = copy(nMAE_arr)
-    min_i = argmin(nMAE_arr)
+    y = copy(error_arr)
+    min_i = argmin(error_arr)
     # y = zeros(Float64, 400, num_runs)
 
     # X = zeros(Float64, 3, num_runs)
@@ -1489,8 +1446,8 @@ function run_surrogate_model(
     # # Train loop
     # for epoch = 1:n_epochs
     #     (loss, lux_state), back = Zygote.pullback(params, X) do p, x
-    #         nMAE_model, st = Lux.apply(lux_model, x, p, lux_state)
-    #         0.5 * mean((nMAE_model .- y).^2), st
+    #         error_model, st = Lux.apply(lux_model, x, p, lux_state)
+    #         0.5 * mean((error_model .- y).^2), st
     #     end
     #     ∇params, _ = back((one.(loss), nothing))  # gradient of only the loss, with respect to parameter tree
 
@@ -1508,9 +1465,9 @@ function run_surrogate_model(
     #         end
 
     #         swarm_incidence = load(joinpath(@__DIR__, "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"]
-    #         swarm_nMAE = zeros(Float64, 52)
+    #         swarm_error = zeros(Float64, 52)
     #         for j = 1:52
-    #             swarm_nMAE[j] = sum(abs.(swarm_incidence[j, :, :] - num_infected_age_groups_viruses[j, :, :])) / sum(num_infected_age_groups_viruses[j, :, :])
+    #             swarm_error[j] = sum(abs.(swarm_incidence[j, :, :] - num_infected_age_groups_viruses[j, :, :])) / sum(num_infected_age_groups_viruses[j, :, :])
     #         end
 
     #         par_vec[1] = load(joinpath(@__DIR__, "swarm", "$(particle_number)", "results_$(i).jld"))["β_parameter"]
@@ -1518,18 +1475,18 @@ function run_surrogate_model(
     #         par_vec[1] = load(joinpath(@__DIR__, "swarm", "$(particle_number)", "results_$(i).jld"))["γ_parameter"]
     #         r = reshape(par_vec, :, 1)
 
-    #         # nMAE, _ = Lux.apply(lux_model, r, params, opt_state)
+    #         # error, _ = Lux.apply(lux_model, r, params, opt_state)
 
-    #         # real_nMAE = sum(abs.(load(joinpath(@__DIR__, "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
-    #         # error += abs(real_nMAE - nMAE[:][1])
+    #         # real_error = sum(abs.(load(joinpath(@__DIR__, "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    #         # error += abs(real_error - error[:][1])
 
     #         # y_predicted, _ = Lux.apply(lux_model, r, params, opt_state)
     #         # y_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
     #         # y_model = vec(load(joinpath(@__DIR__, "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"])
     #         # error += sum(abs.(y_predicted - y_model)) / sum(y_model)
 
-    #         nMAE_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
-    #         error += 0.5 * mean((nMAE_predicted .- swarm_nMAE).^2)
+    #         error_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
+    #         error += 0.5 * mean((error_predicted .- swarm_error).^2)
     #     end
     # end
     # error /= 840.0
@@ -1552,8 +1509,8 @@ function run_surrogate_model(
         # # Train loop
         # for epoch = 1:n_epochs
         #     (loss, lux_state), back = Zygote.pullback(params, X) do p, x
-        #         nMAE_model, st = Lux.apply(lux_model, x, p, lux_state)
-        #         0.5 * mean((nMAE_model .- y).^2), st
+        #         error_model, st = Lux.apply(lux_model, x, p, lux_state)
+        #         0.5 * mean((error_model .- y).^2), st
         #     end
         #     ∇params, _ = back((one.(loss), nothing))  # gradient of only the loss, with respect to parameter tree
 
@@ -1564,9 +1521,9 @@ function run_surrogate_model(
         #     end
         # end
 
-        nMAE = 0.0
-        nMAE_min = 99999.0
-        nMAE_prev = 99999.0
+        error = 0.0
+        error_min = 9.e12
+        error_prev = 9.e12
 
         β_parameter_default = β_parameter[min_i]
         β_parameter_min = β_parameter[min_i]
@@ -1609,16 +1566,16 @@ function run_surrogate_model(
             # XGBoost
             r = reshape(par_vec, 1, :)
     
-            # nMAE_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
-            # nMAE = sum(nMAE_predicted)
+            # error_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
+            # error = sum(error_predicted)
 
             # XGBoost
-            nMAE = predict(bst, r)[1]
+            error = predict(bst, r)[1]
 
             # Если ошибка меньше ошибки на предыдущем шаге или число последовательных отказов больше 10
-            if nMAE < nMAE_prev || local_rejected_num >= 10
-                if nMAE < nMAE_min
-                    nMAE_min = nMAE
+            if error < error_prev || local_rejected_num >= 10
+                if error < error_min
+                    error_min = error
 
                     β_parameter_min = β_parameter_candidate
                     c_parameter_min = c_parameter_candidate
@@ -1630,7 +1587,7 @@ function run_surrogate_model(
                 γ_parameter_default = γ_parameter_candidate
                 I0_parameter_default = I0_parameter_candidate
 
-                nMAE_prev = nMAE
+                error_prev = error
 
                 # Число последовательных отказов приравниваем нулю
                 local_rejected_num = 0
@@ -1647,23 +1604,23 @@ function run_surrogate_model(
                 agents[i] = Susceptible
             end
         end
-        nMAE = run_model(agents, nsteps, δt, β_parameter_min, c_parameter_min, γ_parameter_min)
+        error = run_model(agents, nsteps, δt, β_parameter_min, c_parameter_min, γ_parameter_min)
 
         save(joinpath(@__DIR__, "surrogate", "results_$(curr_run).jld"),
-            "nMAE", nMAE,
+            "error", error,
             "β_parameter", β_parameter_min,
             "c_parameter", c_parameter_min,
             "γ_parameter", γ_parameter_min,
             "I0_parameter", I0_parameter_min)
 
-        println("Real nMAE: $(nMAE)")
+        println("Real error: $(error)")
 
-        # y = cat(y, nMAE_arr, dims = 2)
+        # y = cat(y, error_arr, dims = 2)
         # X = cat(X, [β_parameter_min, c_parameter_min, γ_parameter_min], dims = 2)
 
         # XGBoost
-        # y = vcat(y, nMAE)
-        push!(y, nMAE)
+        # y = vcat(y, error)
+        push!(y, error)
         X = vcat(X, [β_parameter_min, c_parameter_min, γ_parameter_min, I0_parameter_min]')
     end
 end
@@ -1682,37 +1639,37 @@ function run_surrogate_model_NN(
 
     num_parameters = 4
 
-    nMAE_arr = Array{Float64, 1}(undef, num_runs)
+    error_arr = Array{Float64, 1}(undef, num_runs)
     β_parameter = Array{Float64, 1}(undef, num_runs)
     c_parameter = Array{Float64, 1}(undef, num_runs)
     γ_parameter = Array{Float64, 1}(undef, num_runs)
 
     for i = 1:num_initial_runs
-        nMAE_arr[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["nMAE"]
+        error_arr[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["error"]
         β_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
         c_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
         γ_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
     end
 
     # for i = 1:num_additional_runs
-    #     nMAE_arr[i + num_initial_runs] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["nMAE"]
+    #     error_arr[i + num_initial_runs] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["error"]
     #     β_parameter[i + num_initial_runs] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["β_parameter"]
     # end
 
     min_i = 0
-    min_nMAE = 9999.0
+    min_error = 9.e12
 
-    y = copy(nMAE_arr)
-    min_i = argmin(nMAE_arr)
+    y = copy(error_arr)
+    min_i = argmin(error_arr)
     # y = zeros(Float64, x, num_runs)
     # for i = 1:num_runs
     #     for j = 1:52
     #         y[j, i] = sum(abs.(incidence_arr[i][j, :, :] - num_infected_age_groups_viruses[j, :, :])) / sum(num_infected_age_groups_viruses[j, :, :])
     #     end
-    #     nMAE = sum(y[:, i])
-    #     if nMAE < min_nMAE
+    #     error = sum(y[:, i])
+    #     if error < min_error
     #         min_i = i
-    #         min_nMAE = nMAE
+    #         min_error = error
     #     end
     # end
 
@@ -1729,7 +1686,7 @@ function run_surrogate_model_NN(
 
     n_epochs = 1_000
     rng = Xoshiro(42)
-    min_error = 99999.0
+    min_error = 9.e12
     num_hidden_layers = 7
     num_hidden_neurons = 15
 
@@ -1764,8 +1721,8 @@ function run_surrogate_model_NN(
     # # Train loop
     # for epoch = 1:n_epochs
     #     (loss, lux_state), back = Zygote.pullback(params, X) do p, x
-    #         nMAE_model, st = Lux.apply(lux_model, x, p, lux_state)
-    #         0.5 * mean((nMAE_model .- y).^2), st
+    #         error_model, st = Lux.apply(lux_model, x, p, lux_state)
+    #         0.5 * mean((error_model .- y).^2), st
     #     end
     #     ∇params, _ = back((one.(loss), nothing))  # gradient of only the loss, with respect to parameter tree
 
@@ -1783,9 +1740,9 @@ function run_surrogate_model_NN(
     #         end
 
     #         swarm_incidence = load(joinpath(@__DIR__, "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"]
-    #         swarm_nMAE = zeros(Float64, 52)
+    #         swarm_error = zeros(Float64, 52)
     #         for j = 1:52
-    #             swarm_nMAE[j] = sum(abs.(swarm_incidence[j, :, :] - num_infected_age_groups_viruses[j, :, :])) / sum(num_infected_age_groups_viruses[j, :, :])
+    #             swarm_error[j] = sum(abs.(swarm_incidence[j, :, :] - num_infected_age_groups_viruses[j, :, :])) / sum(num_infected_age_groups_viruses[j, :, :])
     #         end
 
     #         par_vec[1] = load(joinpath(@__DIR__, "swarm", "$(particle_number)", "results_$(i).jld"))["β_parameter"]
@@ -1793,18 +1750,18 @@ function run_surrogate_model_NN(
     #         par_vec[1] = load(joinpath(@__DIR__, "swarm", "$(particle_number)", "results_$(i).jld"))["γ_parameter"]
     #         r = reshape(par_vec, :, 1)
 
-    #         # nMAE, _ = Lux.apply(lux_model, r, params, opt_state)
+    #         # error, _ = Lux.apply(lux_model, r, params, opt_state)
 
-    #         # real_nMAE = sum(abs.(load(joinpath(@__DIR__, "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
-    #         # error += abs(real_nMAE - nMAE[:][1])
+    #         # real_error = sum(abs.(load(joinpath(@__DIR__, "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    #         # error += abs(real_error - error[:][1])
 
     #         # y_predicted, _ = Lux.apply(lux_model, r, params, opt_state)
     #         # y_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
     #         # y_model = vec(load(joinpath(@__DIR__, "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"])
     #         # error += sum(abs.(y_predicted - y_model)) / sum(y_model)
 
-    #         nMAE_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
-    #         error += 0.5 * mean((nMAE_predicted .- swarm_nMAE).^2)
+    #         error_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
+    #         error += 0.5 * mean((error_predicted .- swarm_error).^2)
     #     end
     # end
     # error /= 840.0
@@ -1824,8 +1781,8 @@ function run_surrogate_model_NN(
         # Train loop
         for epoch = 1:n_epochs
             (loss, lux_state), back = Zygote.pullback(params, X) do p, x
-                nMAE_model, st = Lux.apply(lux_model, x, p, lux_state)
-                0.5 * mean((nMAE_model .- y).^2), st
+                error_model, st = Lux.apply(lux_model, x, p, lux_state)
+                0.5 * mean((error_model .- y).^2), st
             end
             ∇params, _ = back((one.(loss), nothing))  # gradient of only the loss, with respect to parameter tree
 
@@ -1836,9 +1793,9 @@ function run_surrogate_model_NN(
             end
         end
 
-        nMAE = 0.0
-        nMAE_min = 99999.0
-        nMAE_prev = 99999.0
+        error = 0.0
+        error_min = 9.e12
+        error_prev = 9.e12
 
         β_parameter_default = β_parameter[min_i]
         β_parameter_min = β_parameter[min_i]
@@ -1871,12 +1828,12 @@ function run_surrogate_model_NN(
             # NN
             r = reshape(par_vec, :, 1)
     
-            nMAE, _ = Lux.apply(lux_model, r, params, lux_state)
+            error, _ = Lux.apply(lux_model, r, params, lux_state)
 
             # Если ошибка меньше ошибки на предыдущем шаге или число последовательных отказов больше 10
-            if nMAE[1][1] < nMAE_prev || local_rejected_num >= 10
-                if nMAE[1][1] < nMAE_min
-                    nMAE_min = nMAE[1][1]
+            if error[1][1] < error_prev || local_rejected_num >= 10
+                if error[1][1] < error_min
+                    error_min = error[1][1]
 
                     β_parameter_min = β_parameter_candidate
                     c_parameter_min = c_parameter_candidate
@@ -1886,7 +1843,7 @@ function run_surrogate_model_NN(
                 c_parameter_default = c_parameter_candidate
                 γ_parameter_default = γ_parameter_candidate
 
-                nMAE_prev = nMAE[1][1]
+                error_prev = error[1][1]
 
                 # Число последовательных отказов приравниваем нулю
                 local_rejected_num = 0
@@ -1903,56 +1860,49 @@ function run_surrogate_model_NN(
                 agents[i] = Susceptible
             end
         end
-        nMAE = run_model(agents, nsteps, δt, β_parameter_min, c_parameter_min, γ_parameter_min)
+        error = run_model(agents, nsteps, δt, β_parameter_min, c_parameter_min, γ_parameter_min)
 
         save(joinpath(@__DIR__, "surrogate_NN", "results_$(curr_run).jld"),
-            "nMAE", nMAE,
+            "error", error,
             "β_parameter", β_parameter_min,
             "c_parameter", c_parameter_min,
             "γ_parameter", γ_parameter_min,)
 
-        println("Real nMAE: $(nMAE)")
+        println("Real error: $(error)")
 
-        push!(y, nMAE)
+        push!(y, error)
         X = cat(X, [β_parameter_min, c_parameter_min, γ_parameter_min], dims = 2)
     end
 end
 
-# function selection(parameters, errors, k = 3)
-#     pop_el_selected_num = rand(1:length(parameters))
-#     for pop_el_num in rand(1:length(parameters), 3)
-#         if errors[pop_el_num] < errors[pop_el_selected_num]
-#             pop_el_selected_num = pop_el_num
-#         end
-#     end
-#     return parameters[pop_el_selected_num]
-# end
-
 function selection(
-    pop_size,
-    errors,
-    num_parents,
-    k = 3
-)
-    mating_pool_indecies = []
+    pop_size::Int,
+    errors::Vector{Float64},
+    num_parents::Int,
+    k::Int = 2
+)::Vector{Int}
+    mating_pool_indicies = Int[]
+    # Tournament selection
     for i = 1:num_parents
-        tournament_indicies = rand(setdiff(vec(1:pop_size), mating_pool_indecies), k + 1)
+        tournament_indicies = rand(setdiff(vec(1:pop_size), mating_pool_indicies), k)
         pop_el_selected_num = tournament_indicies[1]
         for pop_el_num in tournament_indicies[2:end]
             if errors[pop_el_num] < errors[pop_el_selected_num]
                 pop_el_selected_num = pop_el_num
             end
         end
-        push!(mating_pool_indecies, pop_el_selected_num)
+        push!(mating_pool_indicies, pop_el_selected_num)
     end
-    return mating_pool_indecies
+    # Other - Proportional Roulette Wheel Selection
+    return mating_pool_indicies
 end
 
 function crossover(
     p1_parameters,
     p2_parameters,
-    cross_rate = 0.7
+    cross_rate::Float64 = 0.8
 )
+    # One-point crossover
     if rand(Float64) < cross_rate
         split_pos = rand(1:(length(p1_parameters) - 1))
         c1_parameters = vcat(p1_parameters[1:split_pos], p2_parameters[(split_pos + 1):end])
@@ -1962,54 +1912,27 @@ function crossover(
     return p1_parameters, p2_parameters
 end
 
-# function mutation(
-#     β_parameter,
-#     c_parameter,
-#     γ_parameter,
-#     I0_parameter,
-#     mut_rate = 0.1,
-#     disturbance = 0.05,
-# )
-#     if rand(Float64) < mut_rate
-#         β_parameter += rand(Normal(0, disturbance * β_parameter))
-#         if β_parameter < 0.02 || β_parameter > 0.2
-#             β_parameter = rand(Uniform(0.02, 0.2))
-#         end
-#     end
-#     if rand(Float64) < mut_rate
-#         c_parameter += rand(Normal(0, disturbance * c_parameter))
-#         if c_parameter < 5 || c_parameter > 25
-#             c_parameter = rand(Uniform(5, 25))
-#         end
-#     end
-#     if rand(Float64) < mut_rate
-#         γ_parameter += rand(Normal(0, disturbance * γ_parameter))
-#         if γ_parameter < 0.01 || γ_parameter > 0.05
-#             γ_parameter = rand(Uniform(0.01, 0.05))
-#         end
-#     end
-#     if rand(Float64) < mut_rate
-#         I0_parameter += rand(Normal(0, disturbance * I0_parameter))
-#         if I0_parameter < 1 || I0_parameter > 50
-#             I0_parameter = rand(Uniform(1, 50))
-#         end
-#     end
-# end
-
 function mutation(
     parameters,
-    # β_parameter,
-    # c_parameter,
-    # γ_parameter,
-    # I0_parameter,
-    mut_rate = 0.1,
-    disturbance = 0.05,
+    mut_rate::Float64 = 0.15,
+    disturbance::Float64 = 0.33,
 )
-    for i = 1:length(parameters)
-        if rand(Float64) < mut_rate
-            parameters[i] += rand(Normal(0, disturbance * parameters[i]))
-        end
+    if rand(Float64) < mut_rate
+        parameters[1] += rand(Normal(0, disturbance * 0.18))
     end
+    if rand(Float64) < mut_rate
+        parameters[2] += rand(Normal(0, disturbance * 20))
+    end
+    if rand(Float64) < mut_rate
+        parameters[3] += rand(Normal(0, disturbance * 0.04))
+    end
+    if rand(Float64) < mut_rate
+        parameters[4] += rand(Normal(0, disturbance * 49))
+    end
+    # [0.02, 0.2]
+    # [5, 25]
+    # [0.01, 0.05]
+    # [1, 50]
     if parameters[1] < 0.02 || parameters[1] > 0.2
         parameters[1] = rand(Uniform(0.02, 0.2))
     end
@@ -2035,106 +1958,59 @@ function genetic_algorithm(
     population_size = 10
     num_parents = 5
 
+    incidence_arr = Array{Array{Float64, 3}, 1}(undef, population_size)
+    best_error = 9.0e12
+    error_population = zeros(Float64, population_size) .+ 9.0e12
+    error_population_children = zeros(Float64, population_size) .+ 9.0e12
+
+    β_parameter_array = Array{Float64, 1}(undef, population_size)
+    c_parameter_array = Array{Float64, 1}(undef, population_size)
+    γ_parameter_array = Array{Float64, 1}(undef, population_size)
+    I0_parameter_array = Array{Float64, 1}(undef, population_size)
+
     # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), header = false)))
     # Латинский гиперкуб
-    latin_hypercube_plan, _ = LHCoptim(population_size, 4, 200)
+    # latin_hypercube_plan, _ = LHCoptim(population_size, 4, 200)
 
-    # Интервалы значений параметров
-    points = scaleLHC(latin_hypercube_plan, [
-        (0.02, 0.2), # β
-        (5, 25), # c
-        (0.01, 0.05), # γ
-        (1, 50), # I0
-    ])
+    # # Интервалы значений параметров
+    # points = scaleLHC(latin_hypercube_plan, [
+    #     (0.02, 0.2), # β
+    #     (5, 25), # c
+    #     (0.01, 0.05), # γ
+    #     (1, 50), # I0
+    # ])
 
-    run_num = 1
-
-    β_parameter_array = points[:, 1]
-    c_parameter_array = points[:, 2]
-    γ_parameter_array = points[:, 3]
-    I0_parameter_array = points[:, 4]
-
-    for k = 1:population_size
-        # Reset
-        for j in 1:length(agents)
-            if j <= I0_parameter_array[k] # I0
-                agents[j] = Infected
-            else
-                agents[j] = Susceptible
-            end
-        end
-        nMAE = run_model(agents, nsteps, δt, β_parameter_array[k], c_parameter_array[k], γ_parameter_array[k])
-
-        save(joinpath(@__DIR__, "ga", "results_$(run_num).jld"),
-            "nMAE", nMAE,
-            "β_parameter", β_parameter_array[k],
-            "c_parameter", c_parameter_array[k],
-            "γ_parameter", γ_parameter_array[k],
-            "I0_parameter", I0_parameter_array[k],
-        )
-        run_num += 1
+    for i = 1:population_size
+        error_population[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["error"]
+        β_parameter_array[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
+        c_parameter_array[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
+        γ_parameter_array[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
+        I0_parameter_array[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["I0_parameter"]
     end
 
-    errors = zeros(Float64, population_size)
-
-    β_ref = 0.05 
-    c_ref = 10.0
-    γ_ref = 0.02
-    I0_ref = 10
+    # β_parameter_array = points[:, 1]
+    # c_parameter_array = points[:, 2]
+    # γ_parameter_array = points[:, 3]
+    # I0_parameter_array = points[:, 4]
 
     for curr_run = 1:num_ga_runs
         println("curr_num = $(curr_run)")
-        for p = 1:population_size
-            # Reset
-            for i in 1:length(agents)
-                if i <= I0_parameter_array[p] # I0
-                    agents[i] = Infected
-                else
-                    agents[i] = Susceptible
-                end
-            end
-            errors[p] = run_model(agents, nsteps, δt, β_parameter_array[p], c_parameter_array[p], γ_parameter_array[p])
-        end
-        # println(errors)
-        # println(errors)
-        # return
-        # β_parameter_selected = [selection(β_parameter_array, errors) for _ in 1:population_size]
-        mating_pool_indecies = selection(population_size, errors, num_parents)
-        sum_of_errors = 0.0
-        for mating_index in mating_pool_indecies
-            sum_of_errors += errors[mating_index]
-        end
+        mating_pool_indicies = selection(population_size, error_population, num_parents)
         # create the next generation
         β_parameter_children = []
         c_parameter_children = []
         γ_parameter_children = []
         I0_parameter_children = []
-        for k = 1:population_size
-            rand_num = rand(Float64)
-            errors_cumulative = errors[mating_pool_indecies[1]]
-            p1_mating_index = 1
-            for mating_index in mating_pool_indecies[2:end]
-                if rand_num < errors_cumulative / sum_of_errors
-                    break
-                end
-                p1_mating_index += 1
-                errors_cumulative += errors[mating_index]
-            end
-            
-            rand_num = rand(Float64)
-            errors_cumulative = errors[mating_pool_indecies[1]]
-            p2_mating_index = 1
-            for mating_index in mating_pool_indecies[2:end]
-                if p2_mating_index != p1_mating_index && rand_num < errors_cumulative / sum_of_errors
-                    break
-                end
-                p2_mating_index += 1
-                errors_cumulative += errors[mating_index]
+        for i = 1:(population_size / 2)
+            p1_mating_index = rand(mating_pool_indicies)
+            p2_mating_index = rand(mating_pool_indicies)
+            while p1_mating_index == p2_mating_index
+                p2_mating_index = rand(mating_pool_indicies)
             end
             
             for c in crossover(
-                [β_parameter_array[mating_pool_indecies[p1_mating_index]], c_parameter_array[mating_pool_indecies[p1_mating_index]], γ_parameter_array[mating_pool_indecies[p1_mating_index]], I0_parameter_array[mating_pool_indecies[p1_mating_index]]],
-                [β_parameter_array[mating_pool_indecies[p2_mating_index]], c_parameter_array[mating_pool_indecies[p2_mating_index]], γ_parameter_array[mating_pool_indecies[p2_mating_index]], I0_parameter_array[mating_pool_indecies[p2_mating_index]]],
+                [β_parameter_array[p1_mating_index], c_parameter_array[p1_mating_index], γ_parameter_array[p1_mating_index], I0_parameter_array[p1_mating_index]],
+                [β_parameter_array[p2_mating_index], c_parameter_array[p2_mating_index], γ_parameter_array[p2_mating_index], I0_parameter_array[p2_mating_index]],
             )
                 mutation(c)
                 push!(β_parameter_children, c[1])
@@ -2143,29 +2019,45 @@ function genetic_algorithm(
                 push!(I0_parameter_children, c[4])
             end
         end
-        β_parameter_array = copy(β_parameter_children)
-        c_parameter_array = copy(c_parameter_children)
-        γ_parameter_array = copy(γ_parameter_children)
-        I0_parameter_array = copy(I0_parameter_children)
-        for k = 1:population_size
+        for i = 1:population_size
             # Reset
             for j in 1:length(agents)
-                if j <= I0_parameter_array[k] # I0
+                if j <= I0_parameter_children[i] # I0
                     agents[j] = Infected
                 else
                     agents[j] = Susceptible
                 end
             end
-            nMAE = run_model(agents, nsteps, δt, β_parameter_array[k], c_parameter_array[k], γ_parameter_array[k])
+            error_population_children[i] = run_model(agents, nsteps, δt, β_parameter_children[i], c_parameter_children[i], γ_parameter_children[i])
+        end
+        # β_parameter_array = copy(β_parameter_children)
+        # c_parameter_array = copy(c_parameter_children)
+        # γ_parameter_array = copy(γ_parameter_children)
+        # I0_parameter_array = copy(I0_parameter_children)
+        # error_population = copy(error_population_children)
 
-            save(joinpath(@__DIR__, "ga", "results_$(run_num).jld"),
-                "nMAE", nMAE,
-                "β_parameter", β_parameter_array[k],
-                "c_parameter", c_parameter_array[k],
-                "γ_parameter", γ_parameter_array[k],
-                "I0_parameter", I0_parameter_array[k],
+        args = [a[1] for a in arg_n_smallest_values(vcat(error_population, error_population_children), population_size)]
+
+        β_parameter_concatenated = vcat(β_parameter_array, β_parameter_children)
+        c_parameter_concatenated = vcat(c_parameter_array, c_parameter_children)
+        γ_parameter_concatenated = vcat(γ_parameter_array, γ_parameter_children)
+        I0_parameter_concatenated = vcat(I0_parameter_array, I0_parameter_children)
+        error_population_concatenated = vcat(error_population, error_population_children)
+
+        for i = 1:population_size
+            β_parameter_array[i] = β_parameter_concatenated[args[i]]
+            c_parameter_array[i] = c_parameter_concatenated[args[i]]
+            γ_parameter_array[i] = γ_parameter_concatenated[args[i]]
+            I0_parameter_array[i] = I0_parameter_concatenated[args[i]]
+            error_population[i] = error_population_concatenated[args[i]]
+
+            save(joinpath(@__DIR__, "ga", "$(curr_run)", "results_$(i).jld"),
+                "error", error_population[i],
+                "β_parameter", β_parameter_array[i],
+                "c_parameter", c_parameter_array[i],
+                "γ_parameter", γ_parameter_array[i],
+                "I0_parameter", I0_parameter_array[i],
             )
-            run_num += 1
         end
     end
 end
@@ -2181,6 +2073,7 @@ function main()
     # [0.02, 0.2]
     # [5, 25]
     # [0.01, 0.05]
+    # [1, 50]
     # β = 0.05 
     # c = 10.0
     # γ = 0.02
@@ -2213,16 +2106,17 @@ function main()
     # end
     # run_model(agents_initial, nsteps, δt, 0.1, 18.0, 0.035)
 
+    # lhs_simulations(100,agents_initial,nsteps,δt)
+    # lhs_simulations(10,agents_initial,nsteps,δt)
+
     # mcmc_simulations(250,agents_initial,nsteps,δt)
-    # mcmc_simulations_lhs(250,agents_initial,nsteps,δt)
+    # mcmc_simulations_lhs(200,agents_initial,nsteps,δt)
     # mcmc_simulations_metropolis(250,agents_initial,nsteps,δt)
     # mcmc_simulations_metropolis_lhs(250,agents_initial,nsteps,δt)
-    # run_swarm_model(25, agents_initial,nsteps,δt)
-    # lhs_simulations(20,agents_initial,nsteps,δt)
-    # run_surrogate_model(250,agents_initial,nsteps,δt)
+    # run_swarm_model(20, agents_initial,nsteps,δt)
+    # run_surrogate_model(200,agents_initial,nsteps,δt)
     # run_surrogate_model_NN(100,agents_initial,nsteps,δt)
-    genetic_algorithm(25,agents_initial,nsteps,δt)
-
+    genetic_algorithm(20,agents_initial,nsteps,δt)
 end
 
 main()

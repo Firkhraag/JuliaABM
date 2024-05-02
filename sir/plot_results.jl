@@ -31,31 +31,31 @@ function plot_mcmc_manual()
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "2_parameter_array.csv"), ';', Float64, '\n')
     γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "3_parameter_array.csv"), ';', Float64, '\n')
     num_mcmc_runs = length(β_parameter_array)
-    nMAE_array = zeros(Float64, num_mcmc_runs)
+    error_array = zeros(Float64, num_mcmc_runs)
 
     open(joinpath(@__DIR__, "mcmc.txt"),"r") do datafile
         lines = eachline(datafile)
         line_num = 1
         for line in lines
             if line_num == 1 || abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001
-                nMAE_array[line_num] = parse.(Float64, line)
+                error_array[line_num] = parse.(Float64, line)
             else
-                nMAE_array[line_num] = nMAE_array[line_num - 1]
+                error_array[line_num] = error_array[line_num - 1]
             end
             line_num += 1
         end
     end
 
     xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    ylabel_name = "error"
 
-    println(nMAE_array)
+    println(error_array)
 
-    nMAE_plot = plot(
+    error_plot = plot(
         1:num_mcmc_runs,
-        # moving_average(nMAE_array, 10),
-        nMAE_array,
-        # nMAE_array,
+        # moving_average(error_array, 10),
+        error_array,
+        # error_array,
         lw = 1.5,
         grid = true,
         legend = false,
@@ -65,7 +65,7 @@ function plot_mcmc_manual()
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
-    savefig(nMAE_plot, joinpath(@__DIR__, "plot_mcmc_manual.pdf"))
+    savefig(error_plot, joinpath(@__DIR__, "plot_mcmc_manual.pdf"))
 end
 
 function plot_mcmc_metropolis_manual()
@@ -73,28 +73,28 @@ function plot_mcmc_metropolis_manual()
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "2_parameter_array.csv"), ';', Float64, '\n')
     γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "3_parameter_array.csv"), ';', Float64, '\n')
     num_mcmc_runs = length(β_parameter_array)
-    nMAE_array = zeros(Float64, num_mcmc_runs)
+    error_array = zeros(Float64, num_mcmc_runs)
 
     open(joinpath(@__DIR__, "mcmc_metropolis.txt"),"r") do datafile
         lines = eachline(datafile)
         line_num = 1
         for line in lines
             if line_num == 1 || abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001
-                nMAE_array[line_num] = parse.(Float64, line)
+                error_array[line_num] = parse.(Float64, line)
             else
-                nMAE_array[line_num] = nMAE_array[line_num - 1]
+                error_array[line_num] = error_array[line_num - 1]
             end
             line_num += 1
         end
     end
 
     xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    ylabel_name = "error"
 
-    # nMAE_plot = plot(
+    # error_plot = plot(
     #     1:num_mcmc_runs,
-    #     moving_average(nMAE_array, 10),
-    #     # nMAE_array,
+    #     moving_average(error_array, 10),
+    #     # error_array,
     #     lw = 1.5,
     #     grid = true,
     #     legend = false,
@@ -104,9 +104,9 @@ function plot_mcmc_metropolis_manual()
     #     xlabel = xlabel_name,
     #     ylabel = ylabel_name,
     # )
-    nMAE_plot = plot(
+    error_plot = plot(
         1:500,
-        moving_average(nMAE_array[1:500], 10),
+        moving_average(error_array[1:500], 10),
         lw = 1.5,
         grid = true,
         legend = false,
@@ -116,35 +116,35 @@ function plot_mcmc_metropolis_manual()
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
-    savefig(nMAE_plot, joinpath(@__DIR__, "plot_mcmc_metropolis_manual.pdf"))
+    savefig(error_plot, joinpath(@__DIR__, "plot_mcmc_metropolis_manual.pdf"))
 end
 
 function plot_swarm_hypercube()
     num_swarm_runs = 50
     num_particles = 20
 
-    nMAE_arr = Array{Float64, 1}(undef, num_swarm_runs + 1)
+    error_arr = Array{Float64, 1}(undef, num_swarm_runs + 1)
     β_parameter = Array{Float64, 1}(undef, num_swarm_runs + 1)
     c_parameter = Array{Float64, 1}(undef, num_swarm_runs + 1)
     γ_parameter = Array{Float64, 1}(undef, num_swarm_runs + 1)
 
     xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    ylabel_name = "error"
 
-    nMAE_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["nMAE"]
+    error_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["error"]
     β_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["β_parameter"]
     c_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["c_parameter"]
     γ_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["γ_parameter"]
     for i = 1:num_swarm_runs
-        nMAE_arr[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld"))["nMAE"]
+        error_arr[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld"))["error"]
         β_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld"))["β_parameter"]
         c_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld"))["c_parameter"]
         γ_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld"))["γ_parameter"]
     end
 
-    nMAE_plot = plot(
+    error_plot = plot(
         1:(num_swarm_runs + 1),
-        moving_average(nMAE_arr, 10),
+        moving_average(error_arr, 10),
         lw = 1.5,
         grid = true,
         legend = false,
@@ -157,12 +157,12 @@ function plot_swarm_hypercube()
     )
 
     for j = 2:num_particles
-        nMAE_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld"))["nMAE"]
+        error_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld"))["error"]
         β_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld"))["β_parameter"]
         c_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld"))["c_parameter"]
         γ_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld"))["γ_parameter"]
         for i = 1:num_swarm_runs
-            nMAE_arr[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["nMAE"]
+            error_arr[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["error"]
             β_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["β_parameter"]
             c_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["c_parameter"]
             γ_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["γ_parameter"]
@@ -170,7 +170,7 @@ function plot_swarm_hypercube()
 
         plot!(
             1:(num_swarm_runs + 1),
-            moving_average(nMAE_arr, 10),
+            moving_average(error_arr, 10),
             lw = 1.5,
             grid = true,
             legend = false,
@@ -183,30 +183,30 @@ function plot_swarm_hypercube()
         )
     end
 
-    savefig(nMAE_plot, joinpath(@__DIR__, "plot_swarm_hypercube.pdf"))
+    savefig(error_plot, joinpath(@__DIR__, "plot_swarm_hypercube.pdf"))
 end
 
 function plot_surrogate_hypercube()
-    num_surrogate_runs = 250
+    num_surrogate_runs = 200
 
-    nMAE_arr = Array{Float64, 1}(undef, num_surrogate_runs)
+    error_arr = Array{Float64, 1}(undef, num_surrogate_runs)
     β_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     c_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     γ_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
 
     xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    ylabel_name = "error"
 
     for i = 1:num_surrogate_runs
-        nMAE_arr[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["nMAE"]
+        error_arr[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["error"]
         β_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["β_parameter"]
         c_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["c_parameter"]
         γ_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["γ_parameter"]
     end
 
-    nMAE_plot = plot(
+    error_plot = plot(
         1:num_surrogate_runs,
-        moving_average(nMAE_arr, 10),
+        moving_average(error_arr, 10),
         lw = 1.5,
         grid = true,
         legend = false,
@@ -217,22 +217,22 @@ function plot_surrogate_hypercube()
         ylabel = ylabel_name,
     )
 
-    savefig(nMAE_plot, joinpath(@__DIR__, "plot_surrogate_hypercube.pdf"))
+    savefig(error_plot, joinpath(@__DIR__, "plot_surrogate_hypercube.pdf"))
 end
 
 function plot_surrogate_hypercube_NN()
     num_surrogate_runs = 100
 
-    nMAE_arr = Array{Float64, 1}(undef, num_surrogate_runs)
+    error_arr = Array{Float64, 1}(undef, num_surrogate_runs)
     β_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     c_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     γ_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
 
     xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    ylabel_name = "error"
 
     for i = 1:num_surrogate_runs
-        nMAE_arr[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld"))["nMAE"]
+        error_arr[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld"))["error"]
         β_parameter[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld"))["β_parameter"]
         c_parameter[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld"))["c_parameter"]
         γ_parameter[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld"))["γ_parameter"]
@@ -243,18 +243,18 @@ function plot_surrogate_hypercube_NN()
         line_num = 1
         for line in lines
             if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
-                nMAE_array[line_num] = parse.(Float64, line)
+                error_array[line_num] = parse.(Float64, line)
             else
-                nMAE_array[line_num] = nMAE_array[line_num - 1]
+                error_array[line_num] = error_array[line_num - 1]
             end
-            # nMAE_array[line_num] = parse.(Float64, line)
+            # error_array[line_num] = parse.(Float64, line)
             line_num += 1
         end
     end
 
-    nMAE_plot = plot(
+    error_plot = plot(
         1:num_surrogate_runs,
-        moving_average(nMAE_arr, 10),
+        moving_average(error_arr, 10),
         lw = 1.5,
         grid = true,
         legend = false,
@@ -265,7 +265,7 @@ function plot_surrogate_hypercube_NN()
         ylabel = ylabel_name,
     )
 
-    savefig(nMAE_plot, joinpath(@__DIR__, "plot_surrogate_hypercube_NN.pdf"))
+    savefig(error_plot, joinpath(@__DIR__, "plot_surrogate_hypercube_NN.pdf"))
 end
 
 function plot_all()
@@ -274,28 +274,28 @@ function plot_all()
     γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "3_parameter_array.csv"), ';', Float64, '\n')
     I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "4_parameter_array.csv"), ';', Float64, '\n')
     num_mcmc_runs = length(β_parameter_array)
-    nMAE_array = zeros(Float64, num_mcmc_runs)
+    error_array = zeros(Float64, num_mcmc_runs)
 
     open(joinpath(@__DIR__, "mcmc_lhs.txt"),"r") do datafile
         lines = eachline(datafile)
         line_num = 1
         for line in lines
             if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
-                nMAE_array[line_num] = parse.(Float64, line)
+                error_array[line_num] = parse.(Float64, line)
             else
-                nMAE_array[line_num] = nMAE_array[line_num - 1]
+                error_array[line_num] = error_array[line_num - 1]
             end
             line_num += 1
         end
     end
 
     xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    ylabel_name = "error"
 
-    nMAE_plot = plot(
-        1:250,
-        moving_average(nMAE_array[1:250], 3),
-        # nMAE_array[1:500],
+    error_plot = plot(
+        1:200,
+        # moving_average(error_array[1:200], 3),
+        error_array[1:200],
         lw = 1.5,
         grid = true,
         label = "MCMC LHS",
@@ -306,9 +306,9 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
-    # min_argument = argmin(nMAE_array[1:250])
+    # min_argument = argmin(error_array[1:200])
     # println("MCMC LHS")
-    # println(minimum(nMAE_array[1:250]))
+    # println(minimum(error_array[1:200]))
     # println(min_argument)
     # println(β_parameter_array[min_argument])
     # println(c_parameter_array[min_argument])
@@ -322,28 +322,28 @@ function plot_all()
     γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "3_parameter_array.csv"), ';', Float64, '\n')
     I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "4_parameter_array.csv"), ';', Float64, '\n')
     num_mcmc_runs = length(β_parameter_array)
-    nMAE_array = zeros(Float64, num_mcmc_runs)
+    error_array = zeros(Float64, num_mcmc_runs)
 
     open(joinpath(@__DIR__, "mcmc.txt"),"r") do datafile
         lines = eachline(datafile)
         line_num = 1
         for line in lines
             if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
-                nMAE_array[line_num] = parse.(Float64, line)
+                error_array[line_num] = parse.(Float64, line)
             else
-                nMAE_array[line_num] = nMAE_array[line_num - 1]
+                error_array[line_num] = error_array[line_num - 1]
             end
             line_num += 1
         end
     end
 
     xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    ylabel_name = "error"
 
     plot!(
-        1:250,
-        moving_average(nMAE_array[1:250], 3),
-        # nMAE_array[1:500],
+        1:200,
+        moving_average(error_array[1:200], 3),
+        # error_array[1:500],
         lw = 1.5,
         grid = true,
         label = "MCMC manual",
@@ -354,10 +354,10 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
-    # min_argument = argmin(nMAE_array[1:250])
-    # println(nMAE_array[min_argument])
+    # min_argument = argmin(error_array[1:200])
+    # println(error_array[min_argument])
     # println("MCMC manual")
-    # println(minimum(nMAE_array[1:250]))
+    # println(minimum(error_array[1:200]))
     # println(min_argument)
     # println(β_parameter_array[min_argument])
     # println(c_parameter_array[min_argument])
@@ -366,47 +366,47 @@ function plot_all()
     # println()
     # return
 
-    β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "1_parameter_array.csv"), ';', Float64, '\n')
-    c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "2_parameter_array.csv"), ';', Float64, '\n')
-    γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "3_parameter_array.csv"), ';', Float64, '\n')
-    I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "4_parameter_array.csv"), ';', Float64, '\n')
-    num_mcmc_runs = length(β_parameter_array)
-    nMAE_array = zeros(Float64, num_mcmc_runs)
+    # β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "1_parameter_array.csv"), ';', Float64, '\n')
+    # c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "2_parameter_array.csv"), ';', Float64, '\n')
+    # γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "3_parameter_array.csv"), ';', Float64, '\n')
+    # I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "4_parameter_array.csv"), ';', Float64, '\n')
+    # num_mcmc_runs = length(β_parameter_array)
+    # error_array = zeros(Float64, num_mcmc_runs)
 
-    open(joinpath(@__DIR__, "mcmc_metropolis_lhs.txt"),"r") do datafile
-        lines = eachline(datafile)
-        line_num = 1
-        for line in lines
-            if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
-                nMAE_array[line_num] = parse.(Float64, line)
-            else
-                nMAE_array[line_num] = nMAE_array[line_num - 1]
-            end
-            line_num += 1
-        end
-    end
+    # open(joinpath(@__DIR__, "mcmc_metropolis_lhs.txt"),"r") do datafile
+    #     lines = eachline(datafile)
+    #     line_num = 1
+    #     for line in lines
+    #         if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
+    #             error_array[line_num] = parse.(Float64, line)
+    #         else
+    #             error_array[line_num] = error_array[line_num - 1]
+    #         end
+    #         line_num += 1
+    #     end
+    # end
 
-    xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    # xlabel_name = "Step"
+    # ylabel_name = "error"
 
-    plot!(
-        1:250,
-        moving_average(nMAE_array[1:250], 3),
-        # nMAE_array[1:500],
-        lw = 1.5,
-        grid = true,
-        label = "MA LHS",
-        color = RGB(0.133, 0.533, 0.2),
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-    )
+    # plot!(
+    #     1:200,
+    #     moving_average(error_array[1:200], 3),
+    #     # error_array[1:500],
+    #     lw = 1.5,
+    #     grid = true,
+    #     label = "MA LHS",
+    #     color = RGB(0.133, 0.533, 0.2),
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    # )
 
-    # min_argument = argmin(nMAE_array[1:250])
-    # println(nMAE_array[min_argument])
+    # min_argument = argmin(error_array[1:200])
+    # println(error_array[min_argument])
     # println("MA LHS")
-    # println(minimum(nMAE_array[1:250]))
+    # println(minimum(error_array[1:200]))
     # println(min_argument)
     # println(β_parameter_array[min_argument])
     # println(c_parameter_array[min_argument])
@@ -415,47 +415,47 @@ function plot_all()
     # println()
     # return
 
-    β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "1_parameter_array.csv"), ';', Float64, '\n')
-    c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "2_parameter_array.csv"), ';', Float64, '\n')
-    γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "3_parameter_array.csv"), ';', Float64, '\n')
-    I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "4_parameter_array.csv"), ';', Float64, '\n')
-    num_mcmc_runs = length(β_parameter_array)
-    nMAE_array = zeros(Float64, num_mcmc_runs)
+    # β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "1_parameter_array.csv"), ';', Float64, '\n')
+    # c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "2_parameter_array.csv"), ';', Float64, '\n')
+    # γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "3_parameter_array.csv"), ';', Float64, '\n')
+    # I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "4_parameter_array.csv"), ';', Float64, '\n')
+    # num_mcmc_runs = length(β_parameter_array)
+    # error_array = zeros(Float64, num_mcmc_runs)
 
-    open(joinpath(@__DIR__, "mcmc_metropolis.txt"),"r") do datafile
-        lines = eachline(datafile)
-        line_num = 1
-        for line in lines
-            if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
-                nMAE_array[line_num] = parse.(Float64, line)
-            else
-                nMAE_array[line_num] = nMAE_array[line_num - 1]
-            end
-            line_num += 1
-        end
-    end
+    # open(joinpath(@__DIR__, "mcmc_metropolis.txt"),"r") do datafile
+    #     lines = eachline(datafile)
+    #     line_num = 1
+    #     for line in lines
+    #         if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
+    #             error_array[line_num] = parse.(Float64, line)
+    #         else
+    #             error_array[line_num] = error_array[line_num - 1]
+    #         end
+    #         line_num += 1
+    #     end
+    # end
 
-    xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    # xlabel_name = "Step"
+    # ylabel_name = "error"
 
-    plot!(
-        1:250,
-        moving_average(nMAE_array[1:250], 3),
-        # nMAE_array[1:500],
-        lw = 1.5,
-        grid = true,
-        label = "MA manual",
-        color = RGB(0.667, 0.2, 0.467),
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-    )
+    # plot!(
+    #     1:200,
+    #     moving_average(error_array[1:200], 3),
+    #     # error_array[1:500],
+    #     lw = 1.5,
+    #     grid = true,
+    #     label = "MA manual",
+    #     color = RGB(0.667, 0.2, 0.467),
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    # )
 
-    # min_argument = argmin(nMAE_array[1:250])
-    # println(nMAE_array[min_argument])
+    # min_argument = argmin(error_array[1:200])
+    # println(error_array[min_argument])
     # println("MA manual")
-    # println(minimum(nMAE_array[1:250]))
+    # println(minimum(error_array[1:200]))
     # println(min_argument)
     # println(β_parameter_array[min_argument])
     # println(c_parameter_array[min_argument])
@@ -464,23 +464,23 @@ function plot_all()
     # println()
     # return
 
-    num_surrogate_runs = 250
+    num_surrogate_runs = 200
 
-    # nMAE_arr = Array{Float64, 1}(undef, num_surrogate_runs + 1)
-    nMAE_arr = Array{Float64, 1}(undef, num_surrogate_runs)
+    # error_arr = Array{Float64, 1}(undef, num_surrogate_runs + 1)
+    error_arr = Array{Float64, 1}(undef, num_surrogate_runs)
     β_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     c_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     γ_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     I0_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
 
-    # nMAE_arr[1] = 0.18346184538653368
+    # error_arr[1] = 0.18346184538653368
 
     xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    ylabel_name = "error"
 
     for i = 1:num_surrogate_runs
-        # nMAE_arr[i + 1] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["nMAE"]
-        nMAE_arr[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["nMAE"]
+        # error_arr[i + 1] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["error"]
+        error_arr[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["error"]
         β_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["β_parameter"]
         c_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["c_parameter"]
         γ_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["γ_parameter"]
@@ -489,8 +489,8 @@ function plot_all()
 
     plot!(
         1:num_surrogate_runs,
-        moving_average(nMAE_arr[1:num_surrogate_runs], 3),
-        # nMAE_arr[1:100],
+        moving_average(error_arr[1:num_surrogate_runs], 3),
+        # error_arr[1:num_surrogate_runs],
         lw = 1.5,
         grid = true,
         label = "SM LHS",
@@ -501,10 +501,10 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
-    # min_argument = argmin(nMAE_arr[1:250])
-    # println(nMAE_arr[min_argument])
+    # min_argument = argmin(error_arr[1:200])
+    # println(error_arr[min_argument])
     # println("SM LHS")
-    # println(minimum(nMAE_arr[1:250]))
+    # println(minimum(error_arr[1:200]))
     # println(min_argument)
     # println(β_parameter[min_argument])
     # println(c_parameter[min_argument])
@@ -513,57 +513,83 @@ function plot_all()
     # println()
     # return
 
-    num_swarm_runs = 25
-    num_particles = 20
+    num_swarm_runs = 20
+    num_particles = 10
 
-    # nMAE_arr = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
-    # β_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
-    # c_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
-    # γ_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
-    # I0_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  1)
-    nMAE_arr = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
-    β_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
-    c_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
-    γ_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
-    I0_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
+    error_arr = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  num_particles)
+    β_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  num_particles)
+    c_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  num_particles)
+    γ_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  num_particles)
+    I0_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles +  num_particles)
+    # error_arr = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
+    # β_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
+    # c_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
+    # γ_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
+    # I0_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
 
-    nMAE_arr_temp = Array{Float64, 1}(undef, 20)
-    β_parameter_temp = Array{Float64, 1}(undef, 20)
-    c_parameter_temp = Array{Float64, 1}(undef, 20)
-    γ_parameter_temp = Array{Float64, 1}(undef, 20)
-    I0_parameter_temp = Array{Float64, 1}(undef, 20)
+    error_arr_temp = Array{Float64, 1}(undef, num_particles)
+    β_parameter_temp = Array{Float64, 1}(undef, num_particles)
+    c_parameter_temp = Array{Float64, 1}(undef, num_particles)
+    γ_parameter_temp = Array{Float64, 1}(undef, num_particles)
+    I0_parameter_temp = Array{Float64, 1}(undef, num_particles)
 
     xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    ylabel_name = "error"
 
-    # nMAE_arr[1] = 0.18346184538653368
+    # error_arr[1] = 0.18346184538653368
+
+    for j = 1:num_particles
+        error_arr_temp[j] = load(joinpath(@__DIR__, "lhs", "results_$(j).jld"))["error"]
+        β_parameter_temp[j] = load(joinpath(@__DIR__, "lhs", "results_$(j).jld"))["β_parameter"]
+        c_parameter_temp[j] = load(joinpath(@__DIR__, "lhs", "results_$(j).jld"))["c_parameter"]
+        γ_parameter_temp[j] = load(joinpath(@__DIR__, "lhs", "results_$(j).jld"))["γ_parameter"]
+        I0_parameter_temp[j] = load(joinpath(@__DIR__, "lhs", "results_$(j).jld"))["I0_parameter"]
+    end
+    for j = 1:num_particles
+        error_arr[j] = minimum(error_arr_temp)
+        error_arr[j] += 25.0
+        β_parameter[j] = β_parameter_temp[argmin(error_arr_temp)]
+        c_parameter[j] = c_parameter_temp[argmin(error_arr_temp)]
+        γ_parameter[j] = γ_parameter_temp[argmin(error_arr_temp)]
+        I0_parameter[j] = I0_parameter_temp[argmin(error_arr_temp)]
+    end
+
+    # println(β_parameter[1])
+    # println(c_parameter[1])
+    # println(γ_parameter[1])
+    # println(I0_parameter[1])
+    # return
+
+    # println(error_arr[1])
+    # println(error_arr[5])
+    # println(error_arr[10])
 
     for i = 1:num_swarm_runs
         for j = 1:num_particles
-            nMAE_arr_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["nMAE"]
+            error_arr_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["error"]
             β_parameter_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["β_parameter"]
             c_parameter_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["c_parameter"]
             γ_parameter_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["γ_parameter"]
             I0_parameter_temp[j] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["I0_parameter"]
         end
         for j = 1:num_particles
-            # nMAE_arr[1 + (i - 1) * num_particles + j] = minimum(nMAE_arr_temp)
-            # β_parameter[1 + (i - 1) * num_particles + j] = β_parameter_temp[argmin(nMAE_arr_temp)]
-            # c_parameter[1 + (i - 1) * num_particles + j] = c_parameter_temp[argmin(nMAE_arr_temp)]
-            # γ_parameter[1 + (i - 1) * num_particles + j] = γ_parameter_temp[argmin(nMAE_arr_temp)]
-            # I0_parameter[1 + (i - 1) * num_particles + j] = I0_parameter_temp[argmin(nMAE_arr_temp)]
-            nMAE_arr[(i - 1) * num_particles + j] = minimum(nMAE_arr_temp)
-            β_parameter[(i - 1) * num_particles + j] = β_parameter_temp[argmin(nMAE_arr_temp)]
-            c_parameter[(i - 1) * num_particles + j] = c_parameter_temp[argmin(nMAE_arr_temp)]
-            γ_parameter[(i - 1) * num_particles + j] = γ_parameter_temp[argmin(nMAE_arr_temp)]
-            I0_parameter[(i - 1) * num_particles + j] = I0_parameter_temp[argmin(nMAE_arr_temp)]
+            # error_arr[1 + (i - 1) * num_particles + j] = minimum(error_arr_temp)
+            # β_parameter[1 + (i - 1) * num_particles + j] = β_parameter_temp[argmin(error_arr_temp)]
+            # c_parameter[1 + (i - 1) * num_particles + j] = c_parameter_temp[argmin(error_arr_temp)]
+            # γ_parameter[1 + (i - 1) * num_particles + j] = γ_parameter_temp[argmin(error_arr_temp)]
+            # I0_parameter[1 + (i - 1) * num_particles + j] = I0_parameter_temp[argmin(error_arr_temp)]
+            error_arr[num_particles + (i - 1) * num_particles + j] = minimum(error_arr_temp)
+            β_parameter[num_particles + (i - 1) * num_particles + j] = β_parameter_temp[argmin(error_arr_temp)]
+            c_parameter[num_particles + (i - 1) * num_particles + j] = c_parameter_temp[argmin(error_arr_temp)]
+            γ_parameter[num_particles + (i - 1) * num_particles + j] = γ_parameter_temp[argmin(error_arr_temp)]
+            I0_parameter[num_particles + (i - 1) * num_particles + j] = I0_parameter_temp[argmin(error_arr_temp)]
         end
     end
 
     plot!(
-        1:250,
-        moving_average(nMAE_arr[1:250], 3),
-        # nMAE_arr[1:(num_swarm_runs * num_particles)],
+        1:200,
+        moving_average(error_arr[1:200], 3),
+        # error_arr[1:(num_swarm_runs * num_particles)],
         lw = 1.5,
         grid = true,
         label = "PSO LHS",
@@ -575,45 +601,89 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
-    min_argument = argmin(nMAE_arr[1:250])
-    println("PSO LHS")
-    println(nMAE_arr[min_argument])
-    println(min_argument)
-    println(β_parameter[min_argument])
-    println(c_parameter[min_argument])
-    println(γ_parameter[min_argument])
-    println(I0_parameter[min_argument])
-    println()
+    # min_argument = argmin(error_arr[1:200])
+    # println("PSO LHS")
+    # println(error_arr[min_argument])
+    # println(min_argument)
+    # println(β_parameter[min_argument])
+    # println(c_parameter[min_argument])
+    # println(γ_parameter[min_argument])
+    # println(I0_parameter[min_argument])
+    # println()
     # return
 
 
 
-    num_ga_runs = 250
+    num_ga_runs = 20
+    population_size = 10
 
-    # nMAE_arr = Array{Float64, 1}(undef, num_ga_runs + 1)
-    nMAE_arr = Array{Float64, 1}(undef, num_ga_runs)
-    β_parameter = Array{Float64, 1}(undef, num_ga_runs)
-    c_parameter = Array{Float64, 1}(undef, num_ga_runs)
-    γ_parameter = Array{Float64, 1}(undef, num_ga_runs)
-    I0_parameter = Array{Float64, 1}(undef, num_ga_runs)
+    # error_arr = Array{Float64, 1}(undef, num_ga_runs + 1)
+    error_arr = Array{Float64, 1}(undef, num_ga_runs * population_size + population_size)
+    β_parameter = Array{Float64, 1}(undef, num_ga_runs * population_size + population_size)
+    c_parameter = Array{Float64, 1}(undef, num_ga_runs * population_size + population_size)
+    γ_parameter = Array{Float64, 1}(undef, num_ga_runs * population_size + population_size)
+    I0_parameter = Array{Float64, 1}(undef, num_ga_runs * population_size + population_size)
 
-    # nMAE_arr[1] = 0.18346184538653368
+    error_arr_temp = Array{Float64, 1}(undef, population_size)
+    β_parameter_temp = Array{Float64, 1}(undef, population_size)
+    c_parameter_temp = Array{Float64, 1}(undef, population_size)
+    γ_parameter_temp = Array{Float64, 1}(undef, population_size)
+    I0_parameter_temp = Array{Float64, 1}(undef, population_size)
+
+    # error_arr[1] = 0.18346184538653368
 
     xlabel_name = "Step"
-    ylabel_name = "nMAE"
+    ylabel_name = "error"
 
-    for i = 1:num_ga_runs
-        # nMAE_arr[i + 1] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["nMAE"]
-        nMAE_arr[i] = load(joinpath(@__DIR__, "ga", "results_$(i).jld"))["nMAE"]
-        β_parameter[i] = load(joinpath(@__DIR__, "ga", "results_$(i).jld"))["β_parameter"]
-        c_parameter[i] = load(joinpath(@__DIR__, "ga", "results_$(i).jld"))["c_parameter"]
-        γ_parameter[i] = load(joinpath(@__DIR__, "ga", "results_$(i).jld"))["γ_parameter"]
-        I0_parameter[i] = load(joinpath(@__DIR__, "ga", "results_$(i).jld"))["I0_parameter"]
+    for j = 1:population_size
+        error_arr_temp[j] = load(joinpath(@__DIR__, "lhs", "results_$(j).jld"))["error"]
+        β_parameter_temp[j] = load(joinpath(@__DIR__, "lhs", "results_$(j).jld"))["β_parameter"]
+        c_parameter_temp[j] = load(joinpath(@__DIR__, "lhs", "results_$(j).jld"))["c_parameter"]
+        γ_parameter_temp[j] = load(joinpath(@__DIR__, "lhs", "results_$(j).jld"))["γ_parameter"]
+        I0_parameter_temp[j] = load(joinpath(@__DIR__, "lhs", "results_$(j).jld"))["I0_parameter"]
+    end
+    for j = 1:population_size
+        error_arr[j] = minimum(error_arr_temp)
+        β_parameter[j] = β_parameter_temp[argmin(error_arr_temp)]
+        c_parameter[j] = c_parameter_temp[argmin(error_arr_temp)]
+        γ_parameter[j] = γ_parameter_temp[argmin(error_arr_temp)]
+        I0_parameter[j] = I0_parameter_temp[argmin(error_arr_temp)]
     end
 
+    # println(error_arr[1])
+    # println(error_arr[5])
+    # println(error_arr[10])
+    # println(minimum(error_arr[1:10]))
+    # return
+
+    for i = 1:num_ga_runs
+        for j = 1:population_size
+            error_arr_temp[j] = load(joinpath(@__DIR__, "ga", "$(i)", "results_$(j).jld"))["error"]
+            β_parameter_temp[j] = load(joinpath(@__DIR__, "ga", "$(i)", "results_$(j).jld"))["β_parameter"]
+            c_parameter_temp[j] = load(joinpath(@__DIR__, "ga", "$(i)", "results_$(j).jld"))["c_parameter"]
+            γ_parameter_temp[j] = load(joinpath(@__DIR__, "ga", "$(i)", "results_$(j).jld"))["γ_parameter"]
+            I0_parameter_temp[j] = load(joinpath(@__DIR__, "ga", "$(i)", "results_$(j).jld"))["I0_parameter"]
+        end
+        for j = 1:population_size
+            # error_arr[1 + (i - 1) * population_size + j] = minimum(error_arr_temp)
+            # β_parameter[1 + (i - 1) * population_size + j] = β_parameter_temp[argmin(error_arr_temp)]
+            # c_parameter[1 + (i - 1) * population_size + j] = c_parameter_temp[argmin(error_arr_temp)]
+            # γ_parameter[1 + (i - 1) * population_size + j] = γ_parameter_temp[argmin(error_arr_temp)]
+            # I0_parameter[1 + (i - 1) * population_size + j] = I0_parameter_temp[argmin(error_arr_temp)]
+            error_arr[population_size + (i - 1) * population_size + j] = minimum(error_arr_temp)
+            β_parameter[population_size + (i - 1) * population_size + j] = β_parameter_temp[argmin(error_arr_temp)]
+            c_parameter[population_size + (i - 1) * population_size + j] = c_parameter_temp[argmin(error_arr_temp)]
+            γ_parameter[population_size + (i - 1) * population_size + j] = γ_parameter_temp[argmin(error_arr_temp)]
+            I0_parameter[population_size + (i - 1) * population_size + j] = I0_parameter_temp[argmin(error_arr_temp)]
+        end
+    end
+
+    # println(minimum(error_arr[1:10]))
+    # return
+
     plot!(
-        1:num_ga_runs,
-        moving_average(nMAE_arr[1:num_ga_runs], 3),
+        1:200,
+        moving_average(error_arr[1:200], 3),
         lw = 1.5,
         grid = true,
         label = "GA LHS",
@@ -624,7 +694,7 @@ function plot_all()
         ylabel = ylabel_name,
     )
 
-    savefig(nMAE_plot, joinpath(@__DIR__, "all_plot.pdf"))
+    savefig(error_plot, joinpath(@__DIR__, "all_plot.pdf"))
 end
 
 # plot_mcmc_manual()
