@@ -1,0 +1,138 @@
+julia -t 4 src/ga.jl
+Initialization...
+ 30.226759 seconds (89.15 M allocations: 7.010 GiB, 9.93% gc time, 107.55% compilation time)
+  4.875018 seconds (12.69 M allocations: 1.729 GiB, 18.84% compilation time)
+Simulation
+Error pop = [6.30210518658725e11, 1.0966705128602166e12, 1.6766645068768096e12, 8.9942104205945e11, 5.838094955771829e11, 1.0816500815351372e11, 5.72517658122642e11, 3.7805229226164575e12, 2.0887205875670667e12, 3.656786898287941e11]
+mating pool = [10, 6, 5, 1, 2]
+490.788844 seconds (164.87 M allocations: 46.621 GiB, 8.65% gc time, 0.65% compilation time)
+529.091775 seconds (220.33 M allocations: 62.374 GiB, 6.01% gc time)
+402.297132 seconds (133.39 M allocations: 37.758 GiB, 4.87% gc time)
+542.283206 seconds (202.91 M allocations: 57.443 GiB, 3.95% gc time)
+500.766846 seconds (239.14 M allocations: 67.699 GiB, 4.75% gc time)
+374.751923 seconds (126.09 M allocations: 35.692 GiB, 3.62% gc time)
+344.332381 seconds (115.40 M allocations: 32.665 GiB, 3.80% gc time)
+333.975307 seconds (118.88 M allocations: 33.649 GiB, 5.68% gc time)
+418.511324 seconds (137.96 M allocations: 39.053 GiB, 3.80% gc time)
+449.948823 seconds (151.83 M allocations: 42.980 GiB, 3.74% gc time)
+Error pop = [1.0816500815351372e11, 3.656786898287941e11, 3.733573365444632e11, 3.9988894791781726e11, 5.2323011537884064e11, 5.72517658122642e11, 5.838094955771829e11, 6.128556882072703e11, 6.30210518658725e11, 6.302696832629246e11]
+mating pool = [4, 3, 7, 9, 5]
+417.802992 seconds (151.59 M allocations: 42.909 GiB, 6.19% gc time, 0.01% compilation time: 61% of which was recompilation)
+477.559029 seconds (146.68 M allocations: 41.520 GiB, 3.33% gc time)
+394.866015 seconds (130.42 M allocations: 36.919 GiB, 4.07% gc time)
+444.818611 seconds (139.42 M allocations: 39.465 GiB, 3.54% gc time)
+417.675335 seconds (133.30 M allocations: 37.733 GiB, 3.82% gc time)
+435.531540 seconds (154.28 M allocations: 43.675 GiB, 3.37% gc time)
+457.261260 seconds (159.27 M allocations: 45.086 GiB, 4.43% gc time)
+443.335604 seconds (144.42 M allocations: 40.881 GiB, 3.75% gc time)
+438.484278 seconds (164.99 M allocations: 46.705 GiB, 4.35% gc time)
+420.347577 seconds (126.71 M allocations: 35.867 GiB, 3.81% gc time)
+Error pop = [1.0816500815351372e11, 1.6841997880269012e11, 3.491060454232533e11, 3.656786898287941e11, 3.733573365444632e11, 3.9060909609286523e11, 3.9754062405253375e11, 3.9988894791781726e11, 4.211930249419649e11, 5.2323011537884064e11]
+mating pool = [1, 5, 4, 2, 6]
+355.386829 seconds (110.15 M allocations: 31.179 GiB, 3.34% gc time)
+197.731301 seconds (53.02 M allocations: 15.004 GiB, 3.23% gc time)
+410.216193 seconds (126.07 M allocations: 35.687 GiB, 2.72% gc time)
+309.773269 seconds (80.43 M allocations: 22.764 GiB, 2.82% gc time)
+340.504395 seconds (108.54 M allocations: 30.723 GiB, 3.50% gc time)
+501.179726 seconds (154.00 M allocations: 43.594 GiB, 3.14% gc time)
+196.959548 seconds (51.23 M allocations: 14.498 GiB, 3.60% gc time)
+490.762944 seconds (145.92 M allocations: 41.307 GiB, 3.72% gc time)
+221.273849 seconds (59.41 M allocations: 16.814 GiB, 3.05% gc time)
+426.368716 seconds (138.81 M allocations: 39.294 GiB, 3.26% gc time)
+Error pop = [9.488569778184554e10, 1.0816500815351372e11, 1.100396102488978e11, 1.2036985438218098e11, 1.4792404433045035e11, 1.6841997880269012e11, 1.8498859804872583e11, 2.631847345355784e11, 3.491060454232533e11, 3.5857824489398254e11]
+mating pool = [2, 8, 5, 7, 6]
+403.240765 seconds (123.82 M allocations: 35.049 GiB, 2.95% gc time)
+388.517096 seconds (111.10 M allocations: 31.448 GiB, 2.65% gc time)
+355.867927 seconds (93.55 M allocations: 26.479 GiB, 2.51% gc time)
+369.891932 seconds (111.77 M allocations: 31.636 GiB, 3.09% gc time)
+366.074572 seconds (105.72 M allocations: 29.924 GiB, 3.01% gc time)
+389.504252 seconds (114.50 M allocations: 32.410 GiB, 3.16% gc time)
+319.544007 seconds (82.77 M allocations: 23.426 GiB, 2.73% gc time)
+421.066912 seconds (126.88 M allocations: 35.914 GiB, 3.63% gc time)
+218.152639 seconds (47.93 M allocations: 13.563 GiB, 2.57% gc time)
+279.350407 seconds (95.53 M allocations: 27.041 GiB, 3.39% gc time)
+Error pop = [6.8479550914017845e10, 9.488569778184554e10, 1.0654656720642271e11, 1.0816500815351372e11, 1.100396102488978e11, 1.2036985438218098e11, 1.2606421804525687e11, 1.4792404433045035e11, 1.668526184837548e11, 1.6841997880269012e11]
+mating pool = [8, 4, 1, 10, 7]
+225.410703 seconds (51.47 M allocations: 14.566 GiB, 3.11% gc time)
+332.458576 seconds (89.58 M allocations: 25.356 GiB, 2.90% gc time)
+491.592689 seconds (159.93 M allocations: 45.274 GiB, 3.27% gc time)
+214.537088 seconds (43.72 M allocations: 12.372 GiB, 2.51% gc time)
+205.281069 seconds (47.39 M allocations: 13.411 GiB, 1.36% gc time)
+398.603339 seconds (111.72 M allocations: 31.624 GiB, 2.86% gc time)
+444.340475 seconds (144.11 M allocations: 40.795 GiB, 3.26% gc time)
+319.042156 seconds (83.01 M allocations: 23.495 GiB, 2.62% gc time)
+320.756971 seconds (79.66 M allocations: 22.546 GiB, 2.65% gc time)
+194.814460 seconds (44.82 M allocations: 12.683 GiB, 4.50% gc time)
+Error pop = [6.8086942046581055e10, 6.8479550914017845e10, 8.724877346521268e10, 9.488569778184554e10, 1.0242608801156137e11, 1.0654656720642271e11, 1.0816500815351372e11, 1.0875739966260387e11, 1.100396102488978e11, 1.2036985438218098e11]
+mating pool = [5, 3, 2, 4, 6]
+354.626130 seconds (110.26 M allocations: 31.212 GiB, 3.59% gc time)
+193.983445 seconds (49.58 M allocations: 14.031 GiB, 2.99% gc time)
+381.449583 seconds (110.82 M allocations: 31.368 GiB, 3.01% gc time)
+215.438638 seconds (48.56 M allocations: 13.742 GiB, 1.36% gc time)
+228.612935 seconds (62.03 M allocations: 17.554 GiB, 5.00% gc time)
+197.692142 seconds (45.78 M allocations: 12.955 GiB, 1.48% gc time)
+206.657053 seconds (46.61 M allocations: 13.189 GiB, 3.39% gc time)
+221.065305 seconds (47.45 M allocations: 13.427 GiB, 2.90% gc time)
+213.130502 seconds (47.84 M allocations: 13.537 GiB, 1.33% gc time)
+195.564705 seconds (51.00 M allocations: 14.432 GiB, 4.20% gc time)
+Error pop = [6.598850435957584e10, 6.8086942046581055e10, 6.8301748081802864e10, 6.8479550914017845e10, 6.981271236030772e10, 7.328787190444159e10, 8.724877346521268e10, 9.410165448427156e10, 9.488569778184554e10, 1.0164924945013548e11]
+mating pool = [6, 1, 5, 7, 3]
+220.909866 seconds (42.13 M allocations: 11.921 GiB, 3.24% gc time)
+205.782624 seconds (45.63 M allocations: 12.913 GiB, 1.60% gc time)
+277.585774 seconds (69.21 M allocations: 19.589 GiB, 2.89% gc time)
+243.238804 seconds (53.36 M allocations: 15.099 GiB, 2.65% gc time)
+178.902038 seconds (35.44 M allocations: 10.026 GiB, 1.55% gc time)
+168.842600 seconds (30.73 M allocations: 8.695 GiB, 1.93% gc time)
+232.243648 seconds (47.06 M allocations: 13.316 GiB, 2.73% gc time)
+207.366211 seconds (42.57 M allocations: 12.046 GiB, 1.81% gc time)
+198.205553 seconds (38.89 M allocations: 11.004 GiB, 1.76% gc time)
+152.153984 seconds (28.42 M allocations: 8.039 GiB, 3.23% gc time)
+Error pop = [2.6165470215455376e10, 2.7243396262421993e10, 3.0423571300297157e10, 5.5738599494616295e10, 6.495731479501268e10, 6.598850435957584e10, 6.6835099532975555e10, 6.762473262794898e10, 6.8086942046581055e10, 6.8301748081802864e10]
+mating pool = [2, 1, 7, 3, 4]
+278.785868 seconds (68.30 M allocations: 19.330 GiB, 2.20% gc time)
+218.949475 seconds (46.84 M allocations: 13.255 GiB, 2.71% gc time)
+199.616767 seconds (41.03 M allocations: 11.609 GiB, 3.17% gc time)
+218.107114 seconds (29.41 M allocations: 8.320 GiB, 1.64% gc time)
+176.770067 seconds (35.65 M allocations: 10.085 GiB, 1.69% gc time)
+148.308659 seconds (28.35 M allocations: 8.021 GiB, 2.65% gc time)
+218.494096 seconds (45.91 M allocations: 12.990 GiB, 3.48% gc time)
+153.013129 seconds (28.46 M allocations: 8.049 GiB, 2.50% gc time)
+467.654015 seconds (179.35 M allocations: 50.772 GiB, 3.61% gc time)
+147.120050 seconds (26.35 M allocations: 7.454 GiB, 1.86% gc time)
+Error pop = [2.4939036354050728e10, 2.6165470215455376e10, 2.6466579362125e10, 2.7243396262421993e10, 2.7290921753724407e10, 3.0423571300297157e10, 3.0472129375050934e10, 3.0548328470274376e10, 3.830158631161062e10, 5.559375834181238e10]
+mating pool = [4, 3, 2, 6, 5]
+191.133830 seconds (43.81 M allocations: 12.397 GiB, 3.23% gc time)
+179.965013 seconds (23.24 M allocations: 6.574 GiB, 1.86% gc time)
+167.438757 seconds (31.72 M allocations: 8.975 GiB, 1.87% gc time)
+156.919829 seconds (28.32 M allocations: 8.011 GiB, 2.37% gc time)
+179.142917 seconds (35.59 M allocations: 10.069 GiB, 1.80% gc time)
+150.254940 seconds (24.84 M allocations: 7.026 GiB, 2.17% gc time)
+168.222022 seconds (32.20 M allocations: 9.110 GiB, 1.80% gc time)
+154.393297 seconds (27.41 M allocations: 7.754 GiB, 2.64% gc time)
+221.121115 seconds (52.18 M allocations: 14.767 GiB, 2.92% gc time)
+430.340607 seconds (141.61 M allocations: 40.086 GiB, 3.76% gc time)
+Error pop = [1.9771464062399506e10, 2.3426495077744617e10, 2.4325806696264534e10, 2.4461818341261124e10, 2.4939036354050728e10, 2.6165470215455376e10, 2.6353329071440845e10, 2.6466579362125e10, 2.6920934409881176e10, 2.7243396262421993e10]
+mating pool = [2, 1, 5, 3, 6]
+253.327762 seconds (46.84 M allocations: 13.254 GiB, 2.60% gc time)
+161.715013 seconds (35.22 M allocations: 9.965 GiB, 2.50% gc time)
+186.246124 seconds (37.95 M allocations: 10.737 GiB, 2.20% gc time)
+180.580462 seconds (32.12 M allocations: 9.086 GiB, 3.92% gc time)
+176.599818 seconds (34.34 M allocations: 9.716 GiB, 1.81% gc time)
+172.112148 seconds (34.00 M allocations: 9.619 GiB, 1.92% gc time)
+143.560978 seconds (20.13 M allocations: 5.691 GiB, 2.04% gc time)
+168.178729 seconds (32.95 M allocations: 9.323 GiB, 2.17% gc time)
+265.170426 seconds (64.77 M allocations: 18.331 GiB, 2.62% gc time)
+198.502571 seconds (30.22 M allocations: 8.550 GiB, 1.95% gc time)
+Error pop = [1.777691512618701e10, 1.9771464062399506e10, 2.0592755075921627e10, 2.3426495077744617e10, 2.3524167410284386e10, 2.4325806696264534e10, 2.4461818341261124e10, 2.4939036354050728e10, 2.5459366384006634e10, 2.6165470215455376e10]
+mating pool = [3, 2, 5, 1, 9]
+386.859501 seconds (135.36 M allocations: 38.317 GiB, 3.73% gc time)
+151.746026 seconds (25.20 M allocations: 7.129 GiB, 2.07% gc time)
+375.492173 seconds (106.74 M allocations: 30.212 GiB, 3.36% gc time)
+268.000993 seconds (71.64 M allocations: 20.277 GiB, 3.57% gc time)
+414.701548 seconds (116.20 M allocations: 32.892 GiB, 2.61% gc time)
+186.413819 seconds (31.15 M allocations: 8.814 GiB, 1.52% gc time)
+184.469477 seconds (31.87 M allocations: 9.015 GiB, 2.18% gc time)
+196.880535 seconds (34.44 M allocations: 9.744 GiB, 2.06% gc time)
+162.968252 seconds (26.78 M allocations: 7.575 GiB, 1.70% gc time)
+191.314100 seconds (33.64 M allocations: 9.518 GiB, 3.10% gc time)
+Error pop = [1.510148375894304e10, 1.7718290292893658e10, 1.777691512618701e10, 1.924653072474791e10, 1.9771464062399506e10, 2.016296109062252e10, 2.0592755075921627e10, 2.3257887086155506e10, 2.3426495077744617e10, 2.3524167410284386e10]

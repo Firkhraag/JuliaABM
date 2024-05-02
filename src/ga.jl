@@ -287,7 +287,7 @@ function run_ga_model()
     num_parents = 5
     num_ga_runs = 25
 
-    observed_num_infected_age_groups_viruses = Array{Array{Int, 3}}(undef, population_size)
+    observed_num_infected_age_groups_viruses_children = Array{Array{Int, 3}}(undef, population_size)
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, population_size)
     best_error = 9.0e12
@@ -301,7 +301,7 @@ function run_ga_model()
     random_infection_probabilities_array = Array{Vector{Float64}, 1}(undef, population_size)
 
     # В случае, если значения загружаются из таблицы
-    points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "ga", "parameters_ga.csv"), header = false)))
+    # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "ga", "parameters_ga.csv"), header = false)))
 
     # Латинский гиперкуб
     # latin_hypercube_plan, _ = LHCoptim(population_size, num_parameters, 500)
@@ -337,68 +337,69 @@ function run_ga_model()
     # ])
     # writedlm(joinpath(@__DIR__, "..", "output", "tables", "ga", "parameters_ga.csv"), points, ',')
 
-    for i = 1:population_size
-        duration_parameter_array[i] = points[i, 1]
-        susceptibility_parameters_array[i] = copy(points[i, 2:8])
-        temperature_parameters_array[i] = copy(points[i, 9:15])
-        mean_immunity_durations_array[i] = copy(points[i, 16:22])
-        random_infection_probabilities_array[i] = copy(points[i, 23:26])
-        for v = 1:length(viruses)
-            viruses[v].mean_immunity_duration = points[i, 15 + v]
-            viruses[v].immunity_duration_sd = points[i, 15 + v] * 0.33
-        end
+    # for i = 1:population_size
+    #     duration_parameter_array[i] = points[i, 1]
+    #     susceptibility_parameters_array[i] = copy(points[i, 2:8])
+    #     temperature_parameters_array[i] = copy(points[i, 9:15])
+    #     mean_immunity_durations_array[i] = copy(points[i, 16:22])
+    #     random_infection_probabilities_array[i] = copy(points[i, 23:26])
+    #     for v = 1:length(viruses)
+    #         viruses[v].mean_immunity_duration = points[i, 15 + v]
+    #         viruses[v].immunity_duration_sd = points[i, 15 + v] * 0.33
+    #     end
 
-        # Если уже посчитано
-        for p = 1:population_size
-            incidence_arr[p] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "0", "results_$(p).jld"))["observed_cases"]
-        end
+    #     # Если уже посчитано
+    #     for p = 1:population_size
+    #         incidence_arr[p] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "0", "results_$(p).jld"))["observed_cases"]
+    #     end
 
-        # Сбрасываем состояние синтетической популяции до начального
-        # @threads for thread_id in 1:num_threads
-        #     reset_agent_states(
-        #         agents,
-        #         start_agent_ids[thread_id],
-        #         end_agent_ids[thread_id],
-        #         viruses,
-        #         num_infected_age_groups_viruses_prev,
-        #         isolation_probabilities_day_1,
-        #         isolation_probabilities_day_2,
-        #         isolation_probabilities_day_3,
-        #         thread_rng[thread_id],
-        #     )
-        # end
+    #     # Сбрасываем состояние синтетической популяции до начального
+    #     # @threads for thread_id in 1:num_threads
+    #     #     reset_agent_states(
+    #     #         agents,
+    #     #         start_agent_ids[thread_id],
+    #     #         end_agent_ids[thread_id],
+    #     #         viruses,
+    #     #         num_infected_age_groups_viruses_prev,
+    #     #         isolation_probabilities_day_1,
+    #     #         isolation_probabilities_day_2,
+    #     #         isolation_probabilities_day_3,
+    #     #         thread_rng[thread_id],
+    #     #     )
+    #     # end
 
-        # Если не посчитано
-        # @time incidence_arr[i], activities_infections, rt, num_schools_closed = run_simulation(
-        #     num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_array[i],
-        #     susceptibility_parameters_array[i], temperature_parameters_array[i], temperature,
-        #     mean_household_contact_durations, household_contact_duration_sds,
-        #     other_contact_duration_shapes, other_contact_duration_scales,
-        #     isolation_probabilities_day_1, isolation_probabilities_day_2,
-        #     isolation_probabilities_day_3, random_infection_probabilities_array[i],
-        #     recovered_duration_mean, recovered_duration_sd, num_years, false)
+    #     # Если не посчитано
+    #     # @time incidence_arr[i], activities_infections, rt, num_schools_closed = run_simulation(
+    #     #     num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_array[i],
+    #     #     susceptibility_parameters_array[i], temperature_parameters_array[i], temperature,
+    #     #     mean_household_contact_durations, household_contact_duration_sds,
+    #     #     other_contact_duration_shapes, other_contact_duration_scales,
+    #     #     isolation_probabilities_day_1, isolation_probabilities_day_2,
+    #     #     isolation_probabilities_day_3, random_infection_probabilities_array[i],
+    #     #     recovered_duration_mean, recovered_duration_sd, num_years, false)
 
-        error_population[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
+    #     error_population[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
 
-        # Если не посчитано
-        # save(joinpath(@__DIR__, "..", "output", "tables", "ga", "0", "results_$(i).jld"),
-        #     "observed_cases", incidence_arr[i],
-        #     "duration_parameter", duration_parameter_array[i],
-        #     "susceptibility_parameters", susceptibility_parameters_array[i],
-        #     "temperature_parameters", temperature_parameters_array[i],
-        #     "mean_immunity_durations", mean_immunity_durations_array[i],
-        #     "random_infection_probabilities", random_infection_probabilities_array[i])
-    end
-
-    # for j = 1:population_size
-    #     temp = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "4", "results_$(j).jld"))["observed_cases"]
-    #     error_population[j] = sum((temp - num_infected_age_groups_viruses).^2)
-    #     duration_parameter_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "4", "results_$(j).jld"))["duration_parameter"]
-    #     susceptibility_parameters_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "4", "results_$(j).jld"))["susceptibility_parameters"]
-    #     temperature_parameters_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "4", "results_$(j).jld"))["temperature_parameters"]
-    #     mean_immunity_durations_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "4", "results_$(j).jld"))["mean_immunity_durations"]
-    #     random_infection_probabilities_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "4", "results_$(j).jld"))["random_infection_probabilities"]
+    #     # Если не посчитано
+    #     # save(joinpath(@__DIR__, "..", "output", "tables", "ga", "0", "results_$(i).jld"),
+    #     #     "observed_cases", incidence_arr[i],
+    #     #     "duration_parameter", duration_parameter_array[i],
+    #     #     "susceptibility_parameters", susceptibility_parameters_array[i],
+    #     #     "temperature_parameters", temperature_parameters_array[i],
+    #     #     "mean_immunity_durations", mean_immunity_durations_array[i],
+    #     #     "random_infection_probabilities", random_infection_probabilities_array[i])
     # end
+
+    error_population = [1.510148375894304e10, 1.7718290292893658e10, 1.777691512618701e10, 1.924653072474791e10, 1.9771464062399506e10, 2.016296109062252e10, 2.0592755075921627e10, 2.3257887086155506e10, 2.3426495077744617e10, 2.3524167410284386e10]
+    for j = 1:population_size
+        # temp = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "4", "results_$(j).jld"))["observed_cases"]
+        # error_population[j] = sum((temp - num_infected_age_groups_viruses).^2)
+        duration_parameter_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "11", "results_$(j).jld"))["duration_parameter"]
+        susceptibility_parameters_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "11", "results_$(j).jld"))["susceptibility_parameters"]
+        temperature_parameters_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "11", "results_$(j).jld"))["temperature_parameters"]
+        mean_immunity_durations_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "11", "results_$(j).jld"))["mean_immunity_durations"]
+        random_infection_probabilities_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "11", "results_$(j).jld"))["random_infection_probabilities"]
+    end
 
     # println(error_population)
     # println(duration_parameter_array)
@@ -411,7 +412,7 @@ function run_ga_model()
     # mean_immunity_durations_children = Array{Vector{Float64}, 1}(undef, population_size)
     # random_infection_probabilities_children = Array{Vector{Float64}, 1}(undef, population_size)
 
-    for curr_run = 1:num_ga_runs
+    for curr_run = 12:num_ga_runs
     # for curr_run = 1:num_ga_runs
         println("Error pop = $(error_population)")
         mating_pool_indicies = selection(population_size, error_population, num_parents)
@@ -473,7 +474,7 @@ function run_ga_model()
             end
 
             # Моделируем заболеваемость
-            @time observed_num_infected_age_groups_viruses[i], activities_infections, rt, num_schools_closed = run_simulation(
+            @time observed_num_infected_age_groups_viruses_children[i], activities_infections, rt, num_schools_closed = run_simulation(
                 num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_children[i],
                 susceptibility_parameters_children[i], temperature_parameters_children[i], temperature,
                 mean_household_contact_durations, household_contact_duration_sds,
@@ -484,7 +485,7 @@ function run_ga_model()
 
             # Если рассматривается 1 год
             if is_one_mean_year_modeled
-                observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[i][1:52, :, :]
+                observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses_children[i][1:52, :, :]
                 for i = 2:num_years
                     for j = 1:52
                         observed_num_infected_age_groups_viruses_mean[j, :, :] += observed_num_infected_age_groups_viruses[i][(i - 1) * 52 + j, :, :]
@@ -493,7 +494,7 @@ function run_ga_model()
                 observed_num_infected_age_groups_viruses_mean ./= num_years
                 error_population_children[i] = sum((observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses).^2)
             else
-                error_population_children[i] = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses).^2)
+                error_population_children[i] = sum(abs.(observed_num_infected_age_groups_viruses_children[i] - num_infected_age_groups_viruses).^2)
             end
 
             # save(joinpath(@__DIR__, "..", "output", "tables", "ga", "$(curr_run)", "results_$(i).jld"),
@@ -526,6 +527,7 @@ function run_ga_model()
 
         args = [a[1] for a in arg_n_smallest_values(vcat(error_population, error_population_children), population_size)]
 
+        observed_num_infected_age_groups_viruses_concatenated = vcat(incidence_arr, observed_num_infected_age_groups_viruses_children)
         duration_parameter_concatenated = vcat(duration_parameter_array, duration_parameter_children)
         susceptibility_parameters_concatenated = vcat(susceptibility_parameters_array, susceptibility_parameters_children)
         temperature_parameters_concatenated = vcat(temperature_parameters_array, temperature_parameters_children)
@@ -534,6 +536,7 @@ function run_ga_model()
         error_population_concatenated = vcat(error_population, error_population_children)
 
         for i = 1:population_size
+            incidence_arr[i] = observed_num_infected_age_groups_viruses_concatenated[args[i]]
             duration_parameter_array[i] = duration_parameter_concatenated[args[i]]
             susceptibility_parameters_array[i] = copy(susceptibility_parameters_concatenated[args[i]])
             temperature_parameters_array[i] = copy(temperature_parameters_concatenated[args[i]])
@@ -542,7 +545,7 @@ function run_ga_model()
             error_population[i] = error_population_concatenated[args[i]]
 
             save(joinpath(@__DIR__, "..", "output", "tables", "ga", "$(curr_run)", "results_$(i).jld"),
-                "observed_cases", observed_num_infected_age_groups_viruses[i],
+                "observed_cases", incidence_arr[i],
                 "duration_parameter", duration_parameter_array[i],
                 "susceptibility_parameters", susceptibility_parameters_array[i],
                 "temperature_parameters", temperature_parameters_array[i],
