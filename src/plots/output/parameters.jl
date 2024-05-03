@@ -1029,7 +1029,7 @@ function optimization_methods()
         grid = true,
         label = "GA",
         legend = (0.74, 0.98),
-        color = RGB(0.5, 0.5, 0.5),
+        color = RGB(0.8, 0.733, 0.267),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -1250,7 +1250,7 @@ function optimization_methods_incidence_age_groups()
         xticks = (ticks, ticklabels),
         label = label_names,
         grid = true,
-        legend = (0.75, 0.98),
+        legend = (0.8, 1.01),
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5)],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -1264,7 +1264,7 @@ function optimization_methods_incidence_age_groups()
         xticks = (ticks, ticklabels),
         label = "Reference",
         grid = true,
-        legend = (0.75, 0.98),
+        legend = (0.8, 1.01),
         color = :black,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -1280,7 +1280,7 @@ function optimization_methods_incidence_age_groups()
         xticks = (ticks, ticklabels),
         label = label_names,
         grid = true,
-        legend = (0.75, 0.98),
+        legend = (0.77, 0.98),
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5)],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -1294,7 +1294,7 @@ function optimization_methods_incidence_age_groups()
         xticks = (ticks, ticklabels),
         label = "Reference",
         grid = true,
-        legend = (0.75, 0.98),
+        legend = (0.77, 0.98),
         color = :black,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -1310,7 +1310,7 @@ function optimization_methods_incidence_age_groups()
         xticks = (ticks, ticklabels),
         label = label_names,
         grid = true,
-        legend = (0.75, 0.98),
+        legend = (0.77, 0.98),
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5)],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -1324,7 +1324,7 @@ function optimization_methods_incidence_age_groups()
         xticks = (ticks, ticklabels),
         label = "Reference",
         grid = true,
-        legend = (0.75, 0.98),
+        legend = (0.77, 0.98),
         color = :black,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -1340,7 +1340,7 @@ function optimization_methods_incidence_age_groups()
         xticks = (ticks, ticklabels),
         label = label_names,
         grid = true,
-        legend = (0.75, 0.98),
+        legend = (0.77, 0.98),
         color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5)],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -1354,7 +1354,7 @@ function optimization_methods_incidence_age_groups()
         xticks = (ticks, ticklabels),
         label = "Reference",
         grid = true,
-        legend = (0.75, 0.98),
+        legend = (0.77, 0.98),
         color = :black,
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -1374,7 +1374,7 @@ end
 
 # plot_surrogate_hypercube()
 
-# optimization_methods()
+optimization_methods()
 
 # optimization_methods_incidence()
-optimization_methods_incidence_age_groups()
+# optimization_methods_incidence_age_groups()

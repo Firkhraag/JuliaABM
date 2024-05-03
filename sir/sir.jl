@@ -29,9 +29,9 @@ function f(x, mu, sigma)
 end
 
 # References
-const S_ref = [9990, 9989, 9989, 9989, 9988, 9988, 9988, 9987, 9986, 9986, 9986, 9985, 9985, 9985, 9985, 9983, 9982, 9982, 9982, 9981, 9979, 9978, 9978, 9977, 9974, 9972, 9972, 9972, 9971, 9970, 9967, 9965, 9963, 9963, 9961, 9960, 9959, 9958, 9956, 9953, 9951, 9946, 9943, 9943, 9940, 9937, 9935, 9935, 9933, 9932, 9931, 9929, 9925, 9925, 9923, 9920, 9919, 9916, 9914, 9912, 9910, 9909, 9908, 9905, 9903, 9901, 9897, 9897, 9893, 9888, 9887, 9885, 9881, 9880, 9876, 9871, 9870, 9867, 9861, 9860, 9856, 9852, 9848, 9848, 9842, 9838, 9832, 9829, 9826, 9823, 9821, 9817, 9813, 9803, 9799, 9794, 9788, 9782, 9775, 9766, 9762, 9755, 9749, 9738, 9733, 9729, 9724, 9714, 9706, 9698, 9695, 9684, 9674, 9666, 9656, 9651, 9641, 9630, 9617, 9612, 9601, 9588, 9582, 9569, 9559, 9544, 9532, 9524, 9516, 9507, 9491, 9480, 9466, 9455, 9440, 9427, 9410, 9391, 9367, 9350, 9328, 9311, 9294, 9277, 9258, 9240, 9222, 9199, 9181, 9159, 9137, 9124, 9101, 9079, 9061, 9036, 9012, 8991, 8966, 8937, 8909, 8872, 8846, 8821, 8794, 8770, 8737, 8707, 8671, 8647, 8610, 8574, 8533, 8492, 8451, 8413, 8381, 8343, 8304, 8258, 8212, 8172, 8133, 8101, 8054, 8001, 7961, 7914, 7867, 7827, 7790, 7743, 7703, 7655, 7614, 7574, 7527, 7479, 7442, 7391, 7343, 7307, 7260, 7208, 7152, 7102, 7051, 7010, 6962, 6907, 6863, 6811, 6742, 6680, 6630, 6578, 6510, 6448, 6399, 6347, 6291, 6235, 6180, 6135, 6084, 6026, 5974, 5916, 5858, 5810, 5762, 5710, 5660, 5615, 5560, 5509, 5451, 5407, 5352, 5297, 5250, 5193, 5135, 5070, 5025, 4975, 4930, 4859, 4805, 4753, 4691, 4638, 4586, 4537, 4491, 4441, 4384, 4332, 4288, 4224, 4177, 4125, 4073, 4027, 3998, 3962, 3922, 3888, 3840, 3793, 3749, 3708, 3657, 3623, 3590, 3550, 3505, 3473, 3432, 3399, 3355, 3316, 3279, 3243, 3208, 3170, 3134, 3100, 3077, 3052, 3016, 2986, 2958, 2930, 2888, 2854, 2826, 2802, 2777, 2751, 2729, 2702, 2680, 2661, 2638, 2615, 2586, 2562, 2531, 2507, 2488, 2465, 2447, 2429, 2404, 2383, 2362, 2342, 2318, 2291, 2265, 2247, 2234, 2222, 2206, 2199, 2178, 2154, 2137, 2118, 2105, 2090, 2077, 2055, 2036, 2014, 2003, 1984, 1970, 1955, 1938, 1927, 1912, 1898, 1884, 1872, 1860, 1851, 1839, 1831, 1814, 1804, 1787, 1778, 1763, 1752, 1743, 1736, 1726, 1714, 1706, 1697, 1685, 1676, 1663, 1652, 1638, 1632, 1622, 1613, 1606, 1599, 1589, 1583, 1573, 1565, 1558, 1547, 1539, 1533, 1527, 1520, 1514, 1505, 1502, 1496, 1485, 1478, 1475, 1468, 1466, 1459, 1452, 1449, 1443, 1439, 1430, 1424, 1419, 1412, 1411]
-const I_ref = [10, 11, 10, 9, 9, 9, 9, 10, 11, 11, 10, 11, 11, 11, 11, 13, 14, 14, 14, 15, 17, 18, 18, 19, 22, 24, 23, 23, 24, 25, 28, 27, 29, 29, 30, 31, 32, 33, 35, 36, 36, 40, 43, 43, 45, 47, 49, 49, 50, 51, 50, 51, 55, 54, 55, 56, 53, 55, 57, 58, 58, 58, 58, 58, 59, 59, 62, 60, 62, 66, 67, 67, 69, 69, 71, 74, 73, 75, 80, 80, 83, 87, 89, 89, 93, 95, 98, 99, 101, 100, 100, 102, 106, 114, 116, 121, 123, 127, 133, 137, 139, 143, 147, 158, 158, 157, 157, 161, 168, 172, 170, 176, 184, 188, 195, 195, 201, 209, 218, 220, 226, 237, 236, 246, 252, 259, 265, 268, 273, 279, 290, 295, 305, 305, 313, 321, 327, 340, 359, 370, 382, 392, 397, 404, 415, 430, 440, 451, 458, 468, 486, 490, 507, 524, 530, 547, 560, 568, 580, 603, 623, 651, 663, 671, 681, 689, 713, 732, 752, 759, 779, 803, 823, 843, 868, 896, 910, 932, 957, 979, 999, 1010, 1023, 1038, 1063, 1101, 1124, 1152, 1182, 1195, 1215, 1239, 1253, 1285, 1303, 1315, 1344, 1362, 1369, 1389, 1412, 1417, 1439, 1457, 1478, 1497, 1515, 1514, 1525, 1554, 1567, 1578, 1618, 1648, 1667, 1682, 1714, 1739, 1758, 1777, 1803, 1823, 1838, 1841, 1856, 1877, 1889, 1920, 1941, 1955, 1953, 1974, 1977, 1980, 1992, 2005, 2015, 2014, 2029, 2048, 2051, 2078, 2082, 2095, 2092, 2095, 2094, 2134, 2137, 2154, 2175, 2176, 2184, 2186, 2185, 2185, 2202, 2221, 2231, 2256, 2248, 2254, 2260, 2260, 2245, 2251, 2255, 2233, 2245, 2248, 2251, 2249, 2255, 2246, 2239, 2230, 2228, 2221, 2217, 2208, 2205, 2194, 2176, 2167, 2155, 2148, 2138, 2135, 2128, 2106, 2105, 2096, 2071, 2061, 2054, 2034, 2032, 2013, 1996, 1983, 1964, 1946, 1929, 1912, 1889, 1871, 1857, 1845, 1843, 1828, 1812, 1793, 1777, 1753, 1731, 1722, 1709, 1688, 1685, 1675, 1664, 1660, 1633, 1609, 1598, 1569, 1564, 1548, 1534, 1518, 1504, 1496, 1486, 1486, 1482, 1469, 1446, 1428, 1426, 1417, 1397, 1384, 1380, 1372, 1356, 1342, 1317, 1298, 1285, 1277, 1265, 1250, 1243, 1233, 1230, 1220, 1199, 1181, 1171, 1162, 1144, 1135, 1119, 1103, 1104, 1091, 1091, 1077, 1062, 1055, 1039, 1026, 1018, 1007, 997, 979, 965, 959, 944, 930, 907, 897, 882, 874, 859, 847, 843, 830, 813, 803, 791, 781, 767, 756, 748, 738, 724, 715, 707, 704, 684]
-const R_ref = [0, 0, 1, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 8, 8, 8, 9, 9, 9, 9, 9, 11, 13, 14, 14, 14, 15, 16, 16, 16, 17, 17, 19, 20, 20, 21, 22, 24, 28, 29, 29, 30, 32, 33, 34, 37, 38, 40, 41, 43, 45, 46, 46, 48, 50, 51, 53, 55, 57, 58, 59, 60, 61, 61, 63, 63, 65, 67, 70, 72, 73, 77, 79, 81, 81, 83, 85, 85, 89, 91, 92, 97, 99, 102, 104, 104, 109, 114, 119, 125, 126, 130, 135, 140, 142, 146, 149, 154, 158, 161, 165, 168, 173, 175, 182, 185, 189, 197, 203, 208, 211, 214, 219, 225, 229, 240, 247, 252, 263, 269, 274, 280, 290, 297, 309, 319, 327, 330, 338, 350, 361, 373, 377, 386, 392, 397, 409, 417, 428, 441, 454, 460, 468, 477, 491, 508, 525, 541, 550, 561, 577, 594, 611, 623, 644, 665, 681, 691, 709, 725, 739, 763, 789, 818, 844, 861, 883, 898, 915, 934, 951, 978, 995, 1018, 1044, 1060, 1083, 1111, 1129, 1159, 1189, 1220, 1245, 1276, 1301, 1335, 1370, 1401, 1434, 1476, 1513, 1539, 1570, 1611, 1640, 1672, 1703, 1740, 1776, 1813, 1843, 1876, 1906, 1942, 1982, 2024, 2060, 2097, 2137, 2164, 2201, 2235, 2285, 2316, 2363, 2405, 2448, 2486, 2534, 2579, 2619, 2655, 2699, 2729, 2783, 2835, 2883, 2930, 2976, 3007, 3058, 3093, 3134, 3186, 3230, 3277, 3324, 3374, 3414, 3447, 3481, 3520, 3575, 3621, 3667, 3713, 3757, 3787, 3823, 3879, 3915, 3959, 4000, 4043, 4088, 4131, 4171, 4220, 4267, 4306, 4351, 4393, 4440, 4490, 4545, 4590, 4637, 4682, 4728, 4765, 4795, 4842, 4879, 4918, 4971, 5009, 5058, 5112, 5142, 5185, 5227, 5266, 5307, 5352, 5391, 5427, 5473, 5514, 5557, 5593, 5626, 5665, 5700, 5742, 5776, 5818, 5865, 5895, 5929, 5970, 5997, 6034, 6071, 6093, 6133, 6169, 6196, 6232, 6258, 6298, 6329, 6364, 6391, 6414, 6437, 6459, 6482, 6517, 6551, 6588, 6604, 6628, 6665, 6689, 6708, 6730, 6760, 6786, 6823, 6851, 6876, 6892, 6921, 6946, 6970, 6989, 7007, 7028, 7058, 7083, 7103, 7124, 7150, 7168, 7196, 7221, 7233, 7257, 7271, 7291, 7316, 7332, 7355, 7375, 7393, 7410, 7430, 7456, 7477, 7494, 7517, 7537, 7566, 7583, 7604, 7621, 7639, 7657, 7672, 7692, 7712, 7729, 7743, 7760, 7781, 7795, 7809, 7823, 7846, 7861, 7874, 7884, 7905]
+const S_ref = Any[99975, 99971, 99971, 99969, 99968, 99966, 99964, 99961, 99959, 99953, 99951, 99951, 99948, 99946, 99946, 99946, 99942, 99939, 99937, 99934, 99934, 99931, 99930, 99928, 99924, 99924, 99923, 99914, 99911, 99906, 99904, 99901, 99899, 99895, 99893, 99886, 99883, 99878, 99875, 99868, 99865, 99861, 99854, 99851, 99844, 99839, 99833, 99828, 99822, 99819, 99816, 99811, 99803, 99790, 99785, 99774, 99765, 99756, 99744, 99737, 99726, 99719, 99711, 99700, 99688, 99680, 99672, 99653, 99641, 99628, 99618, 99607, 99591, 99583, 99569, 99561, 99550, 99533, 99517, 99496, 99484, 99469, 99456, 99431, 99412, 99395, 99380, 99357, 99333, 99307, 99289, 99261, 99238, 99219, 99200, 99182, 99163, 99137, 99115, 99096, 99072, 99046, 99015, 98980, 98951, 98916, 98887, 98849, 98808, 98784, 98742, 98705, 98659, 98622, 98578, 98530, 98493, 98455, 98409, 98367, 98314, 98262, 98215, 98169, 98114, 98037, 97970, 97918, 97848, 97782, 97706, 97642, 97584, 97521, 97451, 97386, 97311, 97239, 97140, 97051, 96954, 96868, 96777, 96701, 96611, 96501, 96381, 96260, 96158, 96051, 95924, 95806, 95698, 95579, 95443, 95321, 95178, 95054, 94921, 94781, 94632, 94483, 94329, 94154, 93997, 93837, 93662, 93489, 93296, 93113, 92915, 92729, 92541, 92310, 92095, 91872, 91630, 91387, 91138, 90908, 90635, 90356, 90096, 89814, 89568, 89303, 88994, 88689, 88395, 88095, 87804, 87482, 87167, 86871, 86553, 86208, 85865, 85524, 85123, 84770, 84422, 84058, 83683, 83289, 82879, 82497, 82071, 81629, 81195, 80754, 80297, 79878, 79417, 78971, 78519, 78056, 77553, 77060, 76556, 76050, 75497, 74986, 74485, 73936, 73403, 72890, 72346, 71828, 71251, 70722, 70145, 69577, 69058, 68518, 67983, 67400, 66815, 66236, 65684, 65124, 64519, 63971, 63375, 62801, 62240, 61631, 61030, 60439, 59833, 59253, 58707, 58102, 57540, 56989, 56409, 55808, 55237, 54659, 54043, 53449, 52908, 52332, 51752, 51172, 50633, 50055, 49531, 48941, 48411, 47834, 47255, 46722, 46201, 45633, 45157, 44667, 44126, 43616, 43122, 42581, 42083, 41570, 41133, 40633, 40152, 39646, 39193, 38695, 38245, 37765, 37309, 36870, 36449, 36005, 35574, 35185, 34791, 34399, 33986, 33571, 33200, 32821, 32420, 32037, 31658, 31357, 31005, 30639, 30289, 29980, 29659, 29344, 29002, 28716, 28381, 28065, 27789, 27493, 27205, 26908, 26644, 26378, 26100, 25804, 25554, 25330, 25054, 24799, 24531, 24297, 24086, 23853, 23595, 23369, 23145, 22897, 22693, 22482, 22271, 22083, 21844, 21626, 21449, 21250, 21065, 20884, 20699, 20534, 20344, 20184, 20023, 19876, 19716, 19557, 19419, 19259, 19119, 18996, 18875, 18729, 18595, 18459, 18307, 18161, 18040, 17898, 17762, 17637, 17520, 17416, 17289, 17183, 17057, 16942, 16838, 16740, 16628, 16529, 16423, 16320, 16220, 16130, 16031, 15955, 15852, 15773, 15683, 15600, 15514, 15447, 15357, 15271, 15195, 15124, 15045, 14964, 14892, 14813, 14742, 14684, 14626]
+const I_ref = Any[25, 25, 25, 26, 25, 27, 29, 32, 34, 40, 41, 41, 43, 45, 44, 43, 44, 45, 44, 46, 46, 48, 49, 49, 51, 51, 51, 60, 62, 67, 68, 69, 70, 73, 72, 78, 81, 86, 86, 92, 91, 95, 102, 104, 108, 111, 117, 120, 125, 125, 125, 129, 135, 147, 149, 157, 160, 162, 173, 175, 182, 185, 191, 199, 205, 210, 212, 231, 239, 243, 246, 247, 259, 258, 267, 271, 274, 282, 293, 309, 316, 325, 335, 354, 361, 369, 375, 390, 405, 422, 431, 448, 465, 471, 479, 484, 490, 509, 524, 532, 546, 567, 584, 604, 623, 651, 668, 698, 725, 731, 760, 778, 808, 822, 858, 894, 917, 936, 970, 982, 1014, 1045, 1073, 1109, 1146, 1196, 1236, 1264, 1315, 1355, 1412, 1446, 1474, 1507, 1554, 1588, 1631, 1666, 1739, 1793, 1858, 1905, 1963, 2003, 2053, 2121, 2197, 2272, 2332, 2388, 2467, 2537, 2595, 2660, 2751, 2817, 2895, 2954, 3036, 3114, 3194, 3268, 3369, 3481, 3575, 3661, 3771, 3855, 3966, 4060, 4173, 4268, 4375, 4524, 4641, 4782, 4944, 5086, 5247, 5375, 5547, 5715, 5858, 6030, 6135, 6299, 6477, 6651, 6827, 6988, 7148, 7328, 7488, 7635, 7799, 8003, 8200, 8385, 8609, 8785, 8956, 9152, 9348, 9545, 9771, 9944, 10179, 10423, 10657, 10879, 11142, 11323, 11554, 11776, 12008, 12207, 12455, 12695, 12930, 13156, 13435, 13662, 13890, 14156, 14402, 14637, 14888, 15118, 15384, 15618, 15851, 16122, 16324, 16554, 16742, 17014, 17244, 17445, 17666, 17883, 18122, 18280, 18507, 18697, 18899, 19162, 19392, 19609, 19786, 19951, 20119, 20310, 20459, 20633, 20804, 20999, 21152, 21299, 21497, 21669, 21805, 21930, 22068, 22210, 22314, 22440, 22520, 22624, 22697, 22881, 22951, 23009, 23082, 23217, 23203, 23246, 23313, 23385, 23426, 23531, 23530, 23577, 23554, 23570, 23580, 23636, 23629, 23639, 23615, 23607, 23615, 23604, 23531, 23486, 23437, 23394, 23292, 23231, 23196, 23129, 22998, 22917, 22832, 22771, 22680, 22571, 22457, 22366, 22282, 22133, 22026, 21919, 21849, 21697, 21554, 21442, 21294, 21209, 21086, 20963, 20819, 20673, 20547, 20458, 20299, 20102, 20007, 19870, 19714, 19521, 19352, 19187, 19034, 18856, 18691, 18601, 18408, 18246, 18097, 17940, 17794, 17665, 17499, 17335, 17197, 17039, 16876, 16710, 16578, 16406, 16253, 16061, 15874, 15710, 15557, 15377, 15239, 15071, 14904, 14796, 14639, 14489, 14339, 14208, 14051, 13902, 13795, 13638, 13493, 13337, 13214, 13038, 12895, 12779, 12651, 12493, 12361, 12201, 12089, 11957, 11821, 11675, 11545, 11382, 11251, 11090, 10979, 10835, 10703, 10546, 10428, 10285, 10166, 10035, 9909, 9785, 9661, 9547, 9429, 9281, 9146]
+const R_ref = Any[0, 4, 4, 5, 7, 7, 7, 7, 7, 7, 8, 8, 9, 9, 10, 11, 14, 16, 19, 20, 20, 21, 21, 23, 25, 25, 26, 26, 27, 27, 28, 30, 31, 32, 35, 36, 36, 36, 39, 40, 44, 44, 44, 45, 48, 50, 50, 52, 53, 56, 59, 60, 62, 63, 66, 69, 75, 82, 83, 88, 92, 96, 98, 101, 107, 110, 116, 116, 120, 129, 136, 146, 150, 159, 164, 168, 176, 185, 190, 195, 200, 206, 209, 215, 227, 236, 245, 253, 262, 271, 280, 291, 297, 310, 321, 334, 347, 354, 361, 372, 382, 387, 401, 416, 426, 433, 445, 453, 467, 485, 498, 517, 533, 556, 564, 576, 590, 609, 621, 651, 672, 693, 712, 722, 740, 767, 794, 818, 837, 863, 882, 912, 942, 972, 995, 1026, 1058, 1095, 1121, 1156, 1188, 1227, 1260, 1296, 1336, 1378, 1422, 1468, 1510, 1561, 1609, 1657, 1707, 1761, 1806, 1862, 1927, 1992, 2043, 2105, 2174, 2249, 2302, 2365, 2428, 2502, 2567, 2656, 2738, 2827, 2912, 3003, 3084, 3166, 3264, 3346, 3426, 3527, 3615, 3717, 3818, 3929, 4046, 4156, 4297, 4398, 4529, 4660, 4778, 4917, 5048, 5190, 5345, 5494, 5648, 5789, 5935, 6091, 6268, 6445, 6622, 6790, 6969, 7166, 7350, 7559, 7750, 7948, 8148, 8367, 8561, 8799, 9029, 9253, 9473, 9737, 9992, 10245, 10514, 10794, 11068, 11352, 11625, 11908, 12195, 12473, 12766, 13054, 13365, 13660, 14004, 14301, 14618, 14928, 15275, 15586, 15941, 16319, 16650, 16993, 17359, 17749, 18118, 18502, 18861, 19207, 19578, 19952, 20381, 20796, 21174, 21588, 22001, 22378, 22787, 23193, 23611, 24042, 24460, 24882, 25287, 25738, 26180, 26618, 27053, 27505, 27949, 28435, 28892, 29285, 29794, 30269, 30717, 31150, 31640, 32087, 32561, 32999, 33452, 33888, 34387, 34853, 35313, 35797, 36268, 36718, 37178, 37666, 38140, 38628, 39076, 39526, 40020, 40509, 40989, 41421, 41917, 42370, 42818, 43300, 43802, 44262, 44748, 45192, 45662, 46072, 46538, 46995, 47429, 47887, 48315, 48737, 49149, 49587, 50065, 50493, 50917, 51298, 51709, 52129, 52537, 52949, 53353, 53738, 54147, 54568, 54939, 55331, 55755, 56182, 56562, 56960, 57371, 57775, 58164, 58502, 58899, 59272, 59632, 59977, 60362, 60709, 61052, 61415, 61738, 62077, 62425, 62756, 63078, 63410, 63724, 64063, 64410, 64733, 65024, 65364, 65642, 65933, 66221, 66475, 66766, 67052, 67354, 67631, 67909, 68200, 68443, 68725, 68987, 69247, 69497, 69779, 70048, 70279, 70511, 70767, 71011, 71270, 71488, 71723, 71959, 72195, 72424, 72663, 72897, 73137, 73338, 73565, 73783, 74007, 74215, 74444, 74639, 74841, 75046, 75251, 75447, 75640, 75829, 76035, 76228]
 
 @enum InfectionStatus Susceptible Infected Recovered
 
@@ -101,7 +101,7 @@ function sim!(agents_initial, nsteps, dt, p)
 end
 
 function run_model_plot(agents_initial, nsteps, δt)
-    β, c, γ, I0 = 0.08431094039131717, 5.0, 0.01711191343061375, 31.7329502542059
+    β, c, γ, I0 = 0.030430197420209068, 15.924772119635719, 0.0194959896879141, 45.555913601651035
 
     # Reset
     for i in 1:length(agents_initial)
@@ -114,7 +114,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     p = [β, c, γ, δt]
     df_abm = sim!(agents_initial, nsteps, δt, p)
 
-    pl = plot(
+    pl1 = plot(
         df_abm.t,
         df_abm.S,
         label="MCMC LHS",
@@ -125,22 +125,22 @@ function run_model_plot(agents_initial, nsteps, δt)
         foreground_color_legend = nothing,
         background_color_legend = nothing,
     )
-    plot!(
+    pl2 = plot(
         df_abm.t,
         df_abm.I,
         xlabel="Time",
-        label = false,
+        label="MCMC LHS",
         lw = 1.5,
         color = RGB(0.267, 0.467, 0.667),
         ylabel="Number of agents",
         foreground_color_legend = nothing,
         background_color_legend = nothing,
     )
-    plot!(
+    pl3 = plot(
         df_abm.t,
         df_abm.R,
         xlabel="Time",
-        label = false,
+        label="MCMC LHS",
         lw = 1.5,
         color = RGB(0.267, 0.467, 0.667),
         ylabel="Number of agents",
@@ -148,7 +148,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
-    β, c, γ, I0 = 0.053685481704768515, 11.851275167913915, 0.0316088560089201, 13.331041519206677
+    β, c, γ, I0 = 0.06308478645916318, 8.620302179936914, 0.02120364824191881, 13.030465864640968
 
     # Reset
     for i in 1:length(agents_initial)
@@ -162,6 +162,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     df_abm = sim!(agents_initial, nsteps, δt, p)
 
     plot!(
+        pl1,
         df_abm.t,
         df_abm.S,
         label="MCMC manual",
@@ -173,10 +174,11 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     plot!(
+        pl2,
         df_abm.t,
         df_abm.I,
         xlabel="Time",
-        label = false,
+        label="MCMC manual",
         lw = 1.5,
         color = RGB(0.933, 0.4, 0.467),
         ylabel="Number of agents",
@@ -184,10 +186,11 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     plot!(
+        pl3,
         df_abm.t,
         df_abm.R,
         xlabel="Time",
-        label = false,
+        label="MCMC manual",
         lw = 1.5,
         color = RGB(0.933, 0.4, 0.467),
         ylabel="Number of agents",
@@ -195,7 +198,106 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
-    β, c, γ, I0 = 0.08442353592331978, 5.0, 0.016001790923900215, 30.31581156584824
+    # savefig(pl1, joinpath(@__DIR__, "sir_S.pdf"))
+    # savefig(pl2, joinpath(@__DIR__, "sir_I.pdf"))
+    # savefig(pl3, joinpath(@__DIR__, "sir_R.pdf"))
+    # return
+
+    # β, c, γ, I0 = 0.08442353592331978, 5.0, 0.016001790923900215, 30.31581156584824
+
+    # # Reset
+    # for i in 1:length(agents_initial)
+    #     if i <= I0 # I0
+    #         agents_initial[i] = Infected
+    #     else
+    #         agents_initial[i] = Susceptible
+    #     end
+    # end
+    # p = [β, c, γ, δt]
+    # df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    # plot!(
+    #     df_abm.t,
+    #     df_abm.S,
+    #     label="MA LHS",
+    #     xlabel="Time",
+    #     lw = 1.5,
+    #     color = RGB(0.133, 0.533, 0.2),
+    #     ylabel="Number of agents",
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    # )
+    # plot!(
+    #     df_abm.t,
+    #     df_abm.I,
+    #     xlabel="Time",
+    #     label = false,
+    #     lw = 1.5,
+    #     color = RGB(0.133, 0.533, 0.2),
+    #     ylabel="Number of agents",
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    # )
+    # plot!(
+    #     df_abm.t,
+    #     df_abm.R,
+    #     xlabel="Time",
+    #     label = false,
+    #     lw = 1.5,
+    #     color = RGB(0.133, 0.533, 0.2),
+    #     ylabel="Number of agents",
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    # )
+
+    # β, c, γ, I0 = 0.06976332393517669, 7.3440641320089055, 0.027419841333460867, 28.988843268269655
+
+    # # Reset
+    # for i in 1:length(agents_initial)
+    #     if i <= I0 # I0
+    #         agents_initial[i] = Infected
+    #     else
+    #         agents_initial[i] = Susceptible
+    #     end
+    # end
+    # p = [β, c, γ, δt]
+    # df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    # plot!(
+    #     df_abm.t,
+    #     df_abm.S,
+    #     label="MA manual",
+    #     xlabel="Time",
+    #     lw = 1.5,
+    #     color = RGB(0.667, 0.2, 0.467),
+    #     ylabel="Number of agents",
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    # )
+    # plot!(
+    #     df_abm.t,
+    #     df_abm.I,
+    #     xlabel="Time",
+    #     label = false,
+    #     lw = 1.5,
+    #     color = RGB(0.667, 0.2, 0.467),
+    #     ylabel="Number of agents",
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    # )
+    # plot!(
+    #     df_abm.t,
+    #     df_abm.R,
+    #     xlabel="Time",
+    #     label = false,
+    #     lw = 1.5,
+    #     color = RGB(0.667, 0.2, 0.467),
+    #     ylabel="Number of agents",
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    # )
+
+    β, c, γ, I0 = 0.04015588000792237, 14.042766928236292, 0.025306519444912277, 39.473420356197515
 
     # Reset
     for i in 1:length(agents_initial)
@@ -209,9 +311,10 @@ function run_model_plot(agents_initial, nsteps, δt)
     df_abm = sim!(agents_initial, nsteps, δt, p)
 
     plot!(
+        pl1,
         df_abm.t,
         df_abm.S,
-        label="MA LHS",
+        label="SM",
         xlabel="Time",
         lw = 1.5,
         color = RGB(0.133, 0.533, 0.2),
@@ -220,10 +323,11 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     plot!(
+        pl2,
         df_abm.t,
         df_abm.I,
+        label="SM",
         xlabel="Time",
-        label = false,
         lw = 1.5,
         color = RGB(0.133, 0.533, 0.2),
         ylabel="Number of agents",
@@ -231,10 +335,11 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     plot!(
+        pl3,
         df_abm.t,
         df_abm.R,
+        label="SM",
         xlabel="Time",
-        label = false,
         lw = 1.5,
         color = RGB(0.133, 0.533, 0.2),
         ylabel="Number of agents",
@@ -242,7 +347,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
-    β, c, γ, I0 = 0.06976332393517669, 7.3440641320089055, 0.027419841333460867, 28.988843268269655
+    β, c, γ, I0 = 0.05653644928215323, 10.097903296569601, 0.026037690277114615, 35.80276197473462
 
     # Reset
     for i in 1:length(agents_initial)
@@ -256,9 +361,10 @@ function run_model_plot(agents_initial, nsteps, δt)
     df_abm = sim!(agents_initial, nsteps, δt, p)
 
     plot!(
+        pl1,
         df_abm.t,
         df_abm.S,
-        label="MA manual",
+        label="PSO",
         xlabel="Time",
         lw = 1.5,
         color = RGB(0.667, 0.2, 0.467),
@@ -267,10 +373,11 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     plot!(
+        pl2,
         df_abm.t,
         df_abm.I,
+        label="PSO",
         xlabel="Time",
-        label = false,
         lw = 1.5,
         color = RGB(0.667, 0.2, 0.467),
         ylabel="Number of agents",
@@ -278,10 +385,11 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     plot!(
+        pl3,
         df_abm.t,
         df_abm.R,
+        label="PSO",
         xlabel="Time",
-        label = false,
         lw = 1.5,
         color = RGB(0.667, 0.2, 0.467),
         ylabel="Number of agents",
@@ -289,7 +397,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
-    β, c, γ, I0 = 0.08840396604277137, 5.0, 0.01968145062083871, 27.846237373245387
+    β, c, γ, I0 = 0.02, 24.026775144773154, 0.01573309815588694, 28.22222222222222
 
     # Reset
     for i in 1:length(agents_initial)
@@ -303,9 +411,10 @@ function run_model_plot(agents_initial, nsteps, δt)
     df_abm = sim!(agents_initial, nsteps, δt, p)
 
     plot!(
+        pl1,
         df_abm.t,
         df_abm.S,
-        label="SM LHS",
+        label="GA",
         xlabel="Time",
         lw = 1.5,
         color = RGB(0.8, 0.733, 0.267),
@@ -314,10 +423,11 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     plot!(
+        pl2,
         df_abm.t,
         df_abm.I,
+        label="GA",
         xlabel="Time",
-        label = false,
         lw = 1.5,
         color = RGB(0.8, 0.733, 0.267),
         ylabel="Number of agents",
@@ -325,59 +435,13 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     plot!(
+        pl3,
         df_abm.t,
         df_abm.R,
+        label="GA",
         xlabel="Time",
-        label = false,
         lw = 1.5,
         color = RGB(0.8, 0.733, 0.267),
-        ylabel="Number of agents",
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-    )
-
-    β, c, γ, I0 = 0.03667128918811457, 14.16668086779658, 0.020893212181909607, 3.587486375952777
-
-    # Reset
-    for i in 1:length(agents_initial)
-        if i <= I0 # I0
-            agents_initial[i] = Infected
-        else
-            agents_initial[i] = Susceptible
-        end
-    end
-    p = [β, c, γ, δt]
-    df_abm = sim!(agents_initial, nsteps, δt, p)
-
-    plot!(
-        df_abm.t,
-        df_abm.S,
-        label="PSO LHS",
-        xlabel="Time",
-        lw = 1.5,
-        color = RGB(0.5, 0.5, 0.5),
-        ylabel="Number of agents",
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-    )
-    plot!(
-        df_abm.t,
-        df_abm.I,
-        xlabel="Time",
-        label = false,
-        lw = 1.5,
-        color = RGB(0.5, 0.5, 0.5),
-        ylabel="Number of agents",
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-    )
-    plot!(
-        df_abm.t,
-        df_abm.R,
-        xlabel="Time",
-        label = false,
-        lw = 1.5,
-        color = RGB(0.5, 0.5, 0.5),
         ylabel="Number of agents",
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -385,6 +449,7 @@ function run_model_plot(agents_initial, nsteps, δt)
 
     # Ref
     plot!(
+        pl1,
         df_abm.t,
         S_ref,
         label="Reference",
@@ -396,9 +461,10 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     plot!(
+        pl2,
         df_abm.t,
         I_ref,
-        label=false,
+        label="Reference",
         lw = 2.0,
         color = :black,
         xlabel="Time",
@@ -407,9 +473,10 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     plot!(
+        pl3,
         df_abm.t,
         R_ref,
-        label=false,
+        label="Reference",
         lw = 2.0,
         color = :black,
         xlabel="Time",
@@ -418,7 +485,9 @@ function run_model_plot(agents_initial, nsteps, δt)
         foreground_color_legend = nothing,
         background_color_legend = nothing,
     )
-    savefig(pl, joinpath(@__DIR__, "sir.pdf"))
+    savefig(pl1, joinpath(@__DIR__, "sir_S.pdf"))
+    savefig(pl2, joinpath(@__DIR__, "sir_I.pdf"))
+    savefig(pl3, joinpath(@__DIR__, "sir_R.pdf"))
     
     error = sqrt(1 / 1200 * sum((df_abm.S - S_ref).^2) + 1 / 1200 * sum((df_abm.I - I_ref).^2) + 1 / 1200 * sum((df_abm.R - R_ref).^2))
     return error
@@ -428,6 +497,19 @@ function run_model(agents_initial, nsteps, δt, β, c, γ)
     p = [β, c, γ, δt]
     # Running the model
     df_abm = sim!(agents_initial, nsteps, δt, p)
+    pl = plot(
+        df_abm.t,
+        [df_abm.S df_abm.I df_abm.R],
+        label=["S" "I" "R"],
+        xlabel="Time",
+        ylabel="Number of people",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    savefig(pl, joinpath(@__DIR__, "sir.pdf"))
+    # println("S_ref = $(df_abm.S)")
+    # println("I_ref = $(df_abm.I)")
+    # println("R_ref = $(df_abm.R)")
     error = sqrt(1 / 1200 * sum((df_abm.S - S_ref).^2) + 1 / 1200 * sum((df_abm.I - I_ref).^2) + 1 / 1200 * sum((df_abm.R - R_ref).^2))
     return error
 end
@@ -1286,7 +1368,7 @@ function run_swarm_model(
                     agents[j] = Susceptible
                 end
             end
-            error = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles_best[i], γ_parameter_particles_best[i])
+            error = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles[i], γ_parameter_particles[i])
 
             save(joinpath(@__DIR__, "swarm", "$(i)", "results_$(curr_run).jld"),
                 "error", error,
@@ -1968,30 +2050,41 @@ function genetic_algorithm(
     γ_parameter_array = Array{Float64, 1}(undef, population_size)
     I0_parameter_array = Array{Float64, 1}(undef, population_size)
 
-    # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), header = false)))
     # Латинский гиперкуб
-    # latin_hypercube_plan, _ = LHCoptim(population_size, 4, 200)
+    latin_hypercube_plan, _ = LHCoptim(population_size, 4, 200)
 
-    # # Интервалы значений параметров
-    # points = scaleLHC(latin_hypercube_plan, [
-    #     (0.02, 0.2), # β
-    #     (5, 25), # c
-    #     (0.01, 0.05), # γ
-    #     (1, 50), # I0
-    # ])
+    # Интервалы значений параметров
+    points = scaleLHC(latin_hypercube_plan, [
+        (0.02, 0.2), # β
+        (5, 25), # c
+        (0.01, 0.05), # γ
+        (1, 50), # I0
+    ])
+
+    # for i = 1:population_size
+    #     error_population[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["error"]
+    #     β_parameter_array[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
+    #     c_parameter_array[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
+    #     γ_parameter_array[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
+    #     I0_parameter_array[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["I0_parameter"]
+    # end
+
+    β_parameter_array = points[:, 1]
+    c_parameter_array = points[:, 2]
+    γ_parameter_array = points[:, 3]
+    I0_parameter_array = points[:, 4]
 
     for i = 1:population_size
-        error_population[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["error"]
-        β_parameter_array[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
-        c_parameter_array[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
-        γ_parameter_array[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
-        I0_parameter_array[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["I0_parameter"]
+        # Reset
+        for j in 1:length(agents)
+            if j <= I0_parameter_array[i] # I0
+                agents[j] = Infected
+            else
+                agents[j] = Susceptible
+            end
+        end
+        error_population[i] = run_model(agents, nsteps, δt, β_parameter_array[i], c_parameter_array[i], γ_parameter_array[i])
     end
-
-    # β_parameter_array = points[:, 1]
-    # c_parameter_array = points[:, 2]
-    # γ_parameter_array = points[:, 3]
-    # I0_parameter_array = points[:, 4]
 
     for curr_run = 1:num_ga_runs
         println("curr_num = $(curr_run)")
@@ -2081,20 +2174,34 @@ function main()
     # p = [β, c, γ, δt]
 
     # Начальные условия
-    N = 10000
+    N = 100000
     # I0 = 10
     agents_initial = Array{InfectionStatus}(undef, N)
+
     # for i in 1:N
-    #     if i <= I0
+    #     if i <= 25
     #         s = Infected
     #     else
     #         s = Susceptible
     #     end
     #     agents_initial[i] = s
     # end
+    # run_model(agents_initial, nsteps, δt, 0.05, 10.0, 0.02)
+    # return
+
+    # for i in 1:N
+    #     if i <= 19.143075017374898
+    #         s = Infected
+    #     else
+    #         s = Susceptible
+    #     end
+    #     agents_initial[i] = s
+    # end
+    # println(run_model(agents_initial, nsteps, δt, 0.04435752824364243, 20.727694942223863, 0.04445284459329697))
+    # return
 
 
-    # run_model_plot(agents_initial, nsteps, δt)
+    run_model_plot(agents_initial, nsteps, δt)
 
     # for i in 1:N
     #     if i <= 20
@@ -2109,14 +2216,18 @@ function main()
     # lhs_simulations(100,agents_initial,nsteps,δt)
     # lhs_simulations(10,agents_initial,nsteps,δt)
 
-    # mcmc_simulations(250,agents_initial,nsteps,δt)
+    # mcmc_simulations(200,agents_initial,nsteps,δt)
     # mcmc_simulations_lhs(200,agents_initial,nsteps,δt)
+
     # mcmc_simulations_metropolis(250,agents_initial,nsteps,δt)
     # mcmc_simulations_metropolis_lhs(250,agents_initial,nsteps,δt)
+
     # run_swarm_model(20, agents_initial,nsteps,δt)
     # run_surrogate_model(200,agents_initial,nsteps,δt)
+
     # run_surrogate_model_NN(100,agents_initial,nsteps,δt)
-    genetic_algorithm(20,agents_initial,nsteps,δt)
+
+    # genetic_algorithm(20,agents_initial,nsteps,δt)
 end
 
 main()
