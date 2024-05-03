@@ -285,7 +285,7 @@ function run_ga_model()
 
     population_size = 10
     num_parents = 5
-    num_ga_runs = 25
+    num_ga_runs = 20
 
     observed_num_infected_age_groups_viruses_children = Array{Array{Int, 3}}(undef, population_size)
 
@@ -394,6 +394,7 @@ function run_ga_model()
     for j = 1:population_size
         # temp = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "4", "results_$(j).jld"))["observed_cases"]
         # error_population[j] = sum((temp - num_infected_age_groups_viruses).^2)
+        # incidence_arr[i] = ...
         duration_parameter_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "11", "results_$(j).jld"))["duration_parameter"]
         susceptibility_parameters_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "11", "results_$(j).jld"))["susceptibility_parameters"]
         temperature_parameters_array[j] = load(joinpath(@__DIR__, "..", "output", "tables", "ga", "11", "results_$(j).jld"))["temperature_parameters"]
@@ -527,7 +528,7 @@ function run_ga_model()
 
         args = [a[1] for a in arg_n_smallest_values(vcat(error_population, error_population_children), population_size)]
 
-        observed_num_infected_age_groups_viruses_concatenated = vcat(incidence_arr, observed_num_infected_age_groups_viruses_children)
+        # observed_num_infected_age_groups_viruses_concatenated = vcat(incidence_arr, observed_num_infected_age_groups_viruses_children)
         duration_parameter_concatenated = vcat(duration_parameter_array, duration_parameter_children)
         susceptibility_parameters_concatenated = vcat(susceptibility_parameters_array, susceptibility_parameters_children)
         temperature_parameters_concatenated = vcat(temperature_parameters_array, temperature_parameters_children)
@@ -536,7 +537,7 @@ function run_ga_model()
         error_population_concatenated = vcat(error_population, error_population_children)
 
         for i = 1:population_size
-            incidence_arr[i] = observed_num_infected_age_groups_viruses_concatenated[args[i]]
+            # incidence_arr[i] = observed_num_infected_age_groups_viruses_concatenated[args[i]]
             duration_parameter_array[i] = duration_parameter_concatenated[args[i]]
             susceptibility_parameters_array[i] = copy(susceptibility_parameters_concatenated[args[i]])
             temperature_parameters_array[i] = copy(temperature_parameters_concatenated[args[i]])
@@ -545,7 +546,7 @@ function run_ga_model()
             error_population[i] = error_population_concatenated[args[i]]
 
             save(joinpath(@__DIR__, "..", "output", "tables", "ga", "$(curr_run)", "results_$(i).jld"),
-                "observed_cases", incidence_arr[i],
+                "observed_cases", observed_num_infected_age_groups_viruses_children[i],
                 "duration_parameter", duration_parameter_array[i],
                 "susceptibility_parameters", susceptibility_parameters_array[i],
                 "temperature_parameters", temperature_parameters_array[i],
