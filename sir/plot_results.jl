@@ -269,6 +269,8 @@ function plot_surrogate_hypercube_NN()
 end
 
 function optimization_methods()
+    num_error_points = 1456
+
     β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "1_parameter_array.csv"), ';', Float64, '\n')
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "2_parameter_array.csv"), ';', Float64, '\n')
     γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "3_parameter_array.csv"), ';', Float64, '\n')
@@ -308,7 +310,7 @@ function optimization_methods()
 
     # min_argument = argmin(error_array[1:200])
     # println("MCMC LHS")
-    # println(minimum(error_array[1:200]))
+    # println(error_array[min_argument])
     # println(min_argument)
     # println(β_parameter_array[min_argument])
     # println(c_parameter_array[min_argument])
@@ -357,7 +359,6 @@ function optimization_methods()
     # min_argument = argmin(error_array[1:200])
     # println(error_array[min_argument])
     # println("MCMC manual")
-    # println(minimum(error_array[1:200]))
     # println(min_argument)
     # println(β_parameter_array[min_argument])
     # println(c_parameter_array[min_argument])
@@ -489,8 +490,8 @@ function optimization_methods()
 
     plot!(
         1:num_surrogate_runs,
-        moving_average(error_arr[1:num_surrogate_runs], 3),
-        # error_arr[1:num_surrogate_runs],
+        # moving_average(error_arr[1:num_surrogate_runs], 3),
+        error_arr[1:num_surrogate_runs],
         lw = 1.5,
         grid = true,
         label = "SM",
@@ -503,9 +504,8 @@ function optimization_methods()
 
     # min_argument = argmin(error_arr[1:200])
     # println(error_arr[min_argument])
-    # println("SM LHS")
-    # println(minimum(error_arr[1:200]))
     # println(min_argument)
+    # println("SM LHS")
     # println(β_parameter[min_argument])
     # println(c_parameter[min_argument])
     # println(γ_parameter[min_argument])
@@ -600,6 +600,8 @@ function optimization_methods()
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
+
+    # println(minimum(error_arr[1:10]))
 
     # min_argument = argmin(error_arr[1:200])
     # println("PSO")
