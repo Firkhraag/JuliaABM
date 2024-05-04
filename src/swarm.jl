@@ -191,20 +191,22 @@ function run_swarm_model()
 
     println("Simulation")
 
-    num_swarm_model_runs = 50
-    num_particles = 20
+    num_swarm_model_runs = 25
+    num_particles = 10
 
     w = 0.5
-    c1 = 1.0
-    c2 = 1.0
+    w_min = 0.4
+    w_max = 0.9
+    c1 = 2.0
+    c2 = 2.0
 
     num_years = 1
     num_parameters = 26
     num_viruses = 7
 
     incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_particles)
-    best_nMAE = 99999.0
-    nMAE_particles = zeros(Float64, num_particles) .+ 9999.0
+    best_error = 9.0e12
+    error_particles = zeros(Float64, num_particles) .+ 9.0e12
 
     duration_parameter_particles = Array{Float64, 1}(undef, num_particles)
     susceptibility_parameters_particles = Array{Vector{Float64}, 1}(undef, num_particles)
@@ -235,10 +237,10 @@ function run_swarm_model()
     # В случае, если значения загружаются из таблицы
     points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), header = false)))
 
-    # # Латинский гиперкуб
+    # Латинский гиперкуб
     # latin_hypercube_plan, _ = LHCoptim(num_particles, num_parameters, 500)
 
-    # # Интервалы значений параметров
+    # Интервалы значений параметров
     # points = scaleLHC(latin_hypercube_plan, [
     #     (0.1, 1.0), # duration_parameter
     #     (1.0, 7.0), # susceptibility_parameters
@@ -302,8 +304,8 @@ function run_swarm_model()
         end
 
         # Если уже посчитано
-        for i = 1:num_particles
-            incidence_arr[i] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["observed_cases"]
+        for k = 1:num_particles
+            incidence_arr[k] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["observed_cases"]
         end
 
         # Если не посчитано
@@ -316,28 +318,29 @@ function run_swarm_model()
         #     isolation_probabilities_day_3, random_infection_probabilities_particles_best[i],
         #     recovered_duration_mean, recovered_duration_sd, num_years, false)
 
-        nMAE_particles[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
-        if nMAE_particles[i] < best_nMAE
-            best_nMAE = nMAE_particles[i]
+        error_particles[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
+        if error_particles[i] < best_error
+            best_error = error_particles[i]
 
             duration_parameter_best = points[i, 1]
-            susceptibility_parameters_best = points[i, 2:8]
-            temperature_parameters_best = points[i, 9:15]
-            mean_immunity_durations_best = points[i, 16:22]
-            random_infection_probabilities_best = points[i, 23:26]
+            susceptibility_parameters_best = copy(points[i, 2:8])
+            temperature_parameters_best = copy(points[i, 9:15])
+            mean_immunity_durations_best = copy(points[i, 16:22])
+            random_infection_probabilities_best = copy(points[i, 23:26])
         end
 
         # Если не посчитано
         # save(joinpath(@__DIR__, "..", "output", "tables", "swarm", "0", "results_$(i).jld"),
-        #     "observed_cases", observed_num_infected_age_groups_viruses,
+        #     "observed_cases", incidence_arr[i],
         #     "duration_parameter", duration_parameter_particles_best[i],
         #     "susceptibility_parameters", susceptibility_parameters_particles_best[i],
         #     "temperature_parameters", temperature_parameters_particles_best[i],
         #     "mean_immunity_durations", mean_immunity_durations_particles_best[i],
-        #     "random_infection_probabilities", random_infection_probabilities_particles_best[i],)
+        #     "random_infection_probabilities", random_infection_probabilities_particles_best[i])
     end
 
     for curr_run = 1:num_swarm_model_runs
+        w = (num_swarm_model_runs - curr_run) / num_swarm_model_runs * (w_max - w_min) + w_min
         for i = 1:num_particles
             duration_parameter_particles_velocity[i] = w * duration_parameter_particles_velocity[i] + c1 * rand(thread_rng[1], Float64) * (duration_parameter_particles_best[i] - duration_parameter_particles[i]) + c2 * rand(thread_rng[1], Float64) * (duration_parameter_best - duration_parameter_particles[i])
             for j = 1:num_viruses
@@ -415,7 +418,7 @@ function run_swarm_model()
                 recovered_duration_mean, recovered_duration_sd, num_years, false)
 
             # Функция потерь
-            nMAE = 0.0
+            error = 0.0
             # Если рассматривается 1 год
             if is_one_mean_year_modeled
                 observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
@@ -425,9 +428,9 @@ function run_swarm_model()
                     end
                 end
                 observed_num_infected_age_groups_viruses_mean ./= num_years
-                nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+                error = sum((observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses).^2)
             else
-                nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+                error = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses).^2)
             end
 
             save(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(i)", "results_$(curr_run).jld"),
@@ -443,8 +446,8 @@ function run_swarm_model()
                 "mean_immunity_durations_velocity", mean_immunity_durations_particles_velocity[i, :],
                 "random_infection_probabilities_velocity", random_infection_probabilities_particles_velocity[i, :],)
 
-            if nMAE < best_nMAE
-                best_nMAE = nMAE
+            if error < best_error
+                best_error = error
 
                 duration_parameter_best = duration_parameter_particles[i]
                 susceptibility_parameters_best = copy(susceptibility_parameters_particles[i])
@@ -453,7 +456,7 @@ function run_swarm_model()
                 mean_immunity_durations_best = copy(mean_immunity_durations_particles[i])
 
                 println("Best!!!")
-                println("nMAE_best = ", nMAE)
+                println("error_best = ", error)
                 println("duration_parameter = ", duration_parameter_best)
                 println("susceptibility_parameters = ", susceptibility_parameters_best)
                 println("temperature_parameters = ", temperature_parameters_best)
@@ -462,8 +465,8 @@ function run_swarm_model()
                 println()
             end
 
-            if nMAE < nMAE_particles[i]
-                nMAE_particles[i] = nMAE
+            if error < error_particles[i]
+                error_particles[i] = error
 
                 duration_parameter_particles_best[i] = duration_parameter_particles[i]
                 susceptibility_parameters_particles_best[i] = copy(susceptibility_parameters_particles[i])
@@ -472,7 +475,7 @@ function run_swarm_model()
                 mean_immunity_durations_particles_best[i] = copy(mean_immunity_durations_particles[i])
 
                 println("Particle")
-                println("nMAE_particle $(i) = ", nMAE)
+                println("error_particle $(i) = ", error)
                 println("duration_parameter = ", duration_parameter_particles_best[i])
                 println("susceptibility_parameters = ", susceptibility_parameters_particles_best[i])
                 println("temperature_parameters = ", temperature_parameters_particles_best[i])

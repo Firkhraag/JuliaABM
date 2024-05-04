@@ -169,7 +169,7 @@ function run_surrogate_model()
     end
 
     num_initial_runs = 1000
-    num_additional_runs = 237
+    num_additional_runs = 92
     num_runs = num_initial_runs + num_additional_runs
 
     num_years = 1
@@ -205,15 +205,27 @@ function run_surrogate_model()
     num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
 
     min_i = 0
-    min_nMAE = 9999.0
+    min_error = 9.9e12
     y = zeros(Float64, num_runs)
     for i = eachindex(y)
-        y[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
-        if y[i] < min_nMAE
-            min_nMAE = y[i]
+        # y[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        y[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
+        if y[i] < min_error
+            min_error = y[i]
             min_i = i
         end
     end
+    # y = zeros(Float64, num_runs, 52)
+    # for i = 1:num_runs
+    #     # y[i] = sum(abs.(incidence_arr[i] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    #     for w = 1:52
+    #         y[i, w] = sum((incidence_arr[i][w, :, :] - num_infected_age_groups_viruses[w, :, :]).^2)
+    #     end
+    #     if sum((incidence_arr[i] - num_infected_age_groups_viruses).^2) < min_error
+    #         min_error = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
+    #         min_i = i
+    #     end
+    # end
 
     X = zeros(Float64, num_runs, num_parameters)
     for i = 1:num_runs
@@ -313,16 +325,18 @@ function run_surrogate_model()
     mean_immunity_duration_deltas = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
     random_infection_probability_deltas = [0.1, 0.1, 0.1, 0.1]
 
-    for curr_run = (1 + num_additional_runs):500
+    num_surrogate_runs = 300
+
+    for curr_run = (1 + num_additional_runs):num_surrogate_runs
         # XGBoost
         bst = xgboost((X, y), num_round=forest_num_rounds, max_depth=forest_max_depth, objective="reg:squarederror", η = η, watchlist=[])
 
-        nMAE = 0.0
-        nMAE_min = 99999.0
-        nMAE_prev = 99999.0
-        # nMAE = sum(abs.(incidence_arr[min_i]  - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
-        # nMAE_prev = nMAE
-        # nMAE_min = nMAE
+        error = 0.0
+        error_min = 9.0e12
+        error_prev = 9.0e12
+        # error = sum(abs.(incidence_arr[min_i]  - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        # error_prev = error
+        # error_min = error
 
         duration_parameter_default = duration_parameter[min_i]
         duration_parameter_min = duration_parameter[min_i]
@@ -491,12 +505,12 @@ function run_surrogate_model()
 
             r = reshape(par_vec, 1, :)
     
-            nMAE = predict(bst, r)[1]
+            error = predict(bst, r)[1]
 
             # Если ошибка меньше ошибки на предыдущем шаге или число последовательных отказов больше 10
-            if nMAE < nMAE_prev || local_rejected_num >= 10
-                if nMAE < nMAE_min
-                    nMAE_min = nMAE
+            if error < error_prev || local_rejected_num >= 10
+                if error < error_min
+                    error_min = error
 
                     duration_parameter_min = duration_parameter_candidate
 
@@ -560,7 +574,7 @@ function run_surrogate_model()
                 random_infection_probabilities_default[3] = random_infection_probability_3_candidate
                 random_infection_probabilities_default[4] = random_infection_probability_4_candidate
 
-                nMAE_prev = nMAE
+                error_prev = error
 
                 # Число последовательных отказов приравниваем нулю
                 local_rejected_num = 0
@@ -600,7 +614,7 @@ function run_surrogate_model()
             recovered_duration_mean, recovered_duration_sd, num_years, false)
 
         # Функция потерь
-        nMAE = 0.0
+        error = 0.0
         # Если рассматривается 1 год
         if is_one_mean_year_modeled
             observed_num_infected_age_groups_viruses_mean = observed_num_infected_age_groups_viruses[1:52, :, :]
@@ -610,9 +624,11 @@ function run_surrogate_model()
                 end
             end
             observed_num_infected_age_groups_viruses_mean ./= num_years
-            nMAE = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+            # error = sum(abs.(observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+            error = sum((observed_num_infected_age_groups_viruses_mean - num_infected_age_groups_viruses).^2)
         else
-            nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+            # error = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+            error = sum((observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses).^2)
         end
 
         save(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(curr_run).jld"),
@@ -623,11 +639,12 @@ function run_surrogate_model()
             "mean_immunity_durations", mean_immunity_durations_min,
             "random_infection_probabilities", random_infection_probabilities_min)
 
-        println("Real nMAE: $(nMAE)")
+        println("Real error: $(error)")
 
-        nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        # nMAE = sum(abs.(observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+        error = sum((observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses).^2)
 
-        push!(y, nMAE)
+        push!(y, error)
         X = vcat(X, [duration_parameter_min, susceptibility_parameters_min[1], susceptibility_parameters_min[2], susceptibility_parameters_min[3], susceptibility_parameters_min[4], susceptibility_parameters_min[5], susceptibility_parameters_min[6], susceptibility_parameters_min[7], temperature_parameters_min[1], temperature_parameters_min[2], temperature_parameters_min[3], temperature_parameters_min[4], temperature_parameters_min[5], temperature_parameters_min[6], temperature_parameters_min[7], mean_immunity_durations_min[1], mean_immunity_durations_min[2], mean_immunity_durations_min[3], mean_immunity_durations_min[4], mean_immunity_durations_min[5], mean_immunity_durations_min[6], mean_immunity_durations_min[7], random_infection_probabilities_min[1], random_infection_probabilities_min[2], random_infection_probabilities_min[3], random_infection_probabilities_min[4]]')
     end
 end

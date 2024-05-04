@@ -636,7 +636,7 @@ function run_simulation(
     school_class_closure_threshold::Float64 = 0.0,
     # Сценарий глобального потепления
     global_warming_temperature::Float64 = 0.0,
-)::Tuple{Array{Float64, 4}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
+)::Tuple{Array{Int, 4}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
     # Размер популяции / 1000
     population_coef = 10072
     # Число муниципалитетов

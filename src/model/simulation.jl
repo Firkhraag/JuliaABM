@@ -665,7 +665,7 @@ function run_simulation(
     school_class_closure_threshold::Float64 = 0.0,
     # Сценарий глобального потепления
     global_warming_temperature::Float64 = 0.0,
-)::Tuple{Array{Float64, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
+)::Tuple{Array{Int, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
     # День месяца
     day = 1
     # Месяц
@@ -674,6 +674,9 @@ function run_simulation(
     week_day = 1
     # Номер недели
     week_num = 1
+
+    # For testing purposes
+    # return zeros(Int, 52, 7, 4) + rand([1000, 2000, 3000, 4000, 50000, 6000, 7000, 8000, 9000, 10000], 52, 7, 4), zeros(Float64, 2, 2), zeros(Float64, 2), zeros(Int, 2)
 
     # Если глобальное потепление
     if abs(global_warming_temperature) > 0.1
