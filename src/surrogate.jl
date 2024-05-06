@@ -169,7 +169,7 @@ function run_surrogate_model()
     end
 
     num_initial_runs = 1000
-    num_additional_runs = 92
+    num_additional_runs = 0
     num_runs = num_initial_runs + num_additional_runs
 
     num_years = 1

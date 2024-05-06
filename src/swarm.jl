@@ -237,7 +237,7 @@ function run_swarm_model()
     for i = 1:15
         for j = 1:num_particles
             incidence_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["observed_cases"]
-            error_temp = sum((temp - num_infected_age_groups_viruses).^2)
+            error_temp = sum((incidence_temp - num_infected_age_groups_viruses).^2)
 
             duration_parameter_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["duration_parameter"]
             susceptibility_parameters_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["susceptibility_parameters"]
@@ -254,51 +254,41 @@ function run_swarm_model()
             if error_temp < error_particles[j]
                 error_particles[j] = error_temp
     
-                duration_parameter_particles_best[j] = copy(duration_parameter_temp)
-                susceptibility_parameters_particles_best[j] = deepcopy(susceptibility_parameters_temp)
-                temperature_parameters_particles_best[j] = deepcopy(temperature_parameters_temp)
-                mean_immunity_durations_particles_best[j] = deepcopy(mean_immunity_durations_temp)
-                random_infection_probabilities_particles_best[j] = deepcopy(random_infection_probabilities_temp)
+                duration_parameter_particles_best[j] = duration_parameter_temp
+                susceptibility_parameters_particles_best[j] = copy(susceptibility_parameters_temp)
+                temperature_parameters_particles_best[j] = copy(temperature_parameters_temp)
+                mean_immunity_durations_particles_best[j] = copy(mean_immunity_durations_temp)
+                random_infection_probabilities_particles_best[j] = copy(random_infection_probabilities_temp)
             end
 
             if error_temp < best_error
                 best_error = error_temp
     
-                duration_parameter_best = copy(duration_parameter_temp)
-                susceptibility_parameters_best = deepcopy(susceptibility_parameters_temp)
-                temperature_parameters_best = deepcopy(temperature_parameters_temp)
-                mean_immunity_durations_best = deepcopy(mean_immunity_durations_temp)
-                random_infection_probabilities_best = deepcopy(random_infection_probabilities_temp)
+                duration_parameter_best = duration_parameter_temp
+                susceptibility_parameters_best = copy(susceptibility_parameters_temp)
+                temperature_parameters_best = copy(temperature_parameters_temp)
+                mean_immunity_durations_best = copy(mean_immunity_durations_temp)
+                random_infection_probabilities_best = copy(random_infection_probabilities_temp)
             end
 
             if i == 15
                 incidence_arr[j] = deepcopy(incidence_temp)
                 error_particles[j] = error_temp
 
-                duration_parameter_particles[j] = copy(duration_parameter_temp)
-                susceptibility_parameters_particles[j] = deepcopy(susceptibility_parameters_temp)
-                temperature_parameters_particles[j] = deepcopy(temperature_parameters_temp)
-                mean_immunity_durations_particles[j] = deepcopy(mean_immunity_durations_temp)
-                random_infection_probabilities_particles[j] = deepcopy(random_infection_probabilities_temp)
+                duration_parameter_particles[j] = duration_parameter_temp
+                susceptibility_parameters_particles[j] = copy(susceptibility_parameters_temp)
+                temperature_parameters_particles[j] = copy(temperature_parameters_temp)
+                mean_immunity_durations_particles[j] = copy(mean_immunity_durations_temp)
+                random_infection_probabilities_particles[j] = copy(random_infection_probabilities_temp)
 
-                duration_parameter_particles_velocity[j] = copy(duration_parameter_velocity_temp)
-                susceptibility_parameters_particles_velocity[j] = deepcopy(susceptibility_parameters_velocity_temp)
-                temperature_parameters_particles_velocity[j] = deepcopy(temperature_parameters_velocity_temp)
-                mean_immunity_durations_particles_velocity[j] = deepcopy(mean_immunity_durations_velocity_temp)
-                random_infection_probabilities_particles_velocity[j] = deepcopy(random_infection_probabilities_velocity_temp)
+                duration_parameter_particles_velocity[j] = duration_parameter_velocity_temp
+                susceptibility_parameters_particles_velocity[j, :] = copy(susceptibility_parameters_velocity_temp)
+                temperature_parameters_particles_velocity[j, :] = copy(temperature_parameters_velocity_temp)
+                mean_immunity_durations_particles_velocity[j, :] = copy(mean_immunity_durations_velocity_temp)
+                random_infection_probabilities_particles_velocity[j, :] = copy(random_infection_probabilities_velocity_temp)
             end
         end
     end
-
-        duration_parameter_particles_best[i] = points[i, 1]
-        susceptibility_parameters_particles_best[i] = copy(points[i, 2:8])
-        temperature_parameters_particles_best[i] = copy(points[i, 9:15])
-        mean_immunity_durations_particles_best[i] = copy(points[i, 16:22])
-        for k = 1:length(viruses)
-            viruses[k].mean_immunity_duration = points[i, 15 + k]
-            viruses[k].immunity_duration_sd = points[i, 15 + k] * 0.33
-        end
-        random_infection_probabilities_particles_best[i] = copy(points[i, 23:26])
 
     # В случае, если значения загружаются из таблицы
     # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), header = false)))
