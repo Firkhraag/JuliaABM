@@ -273,62 +273,121 @@ function optimization_methods()
     minimum_arr = zeros(Float64, 10)
     minimum_step_arr = zeros(Float64, 10)
 
-    # β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "1_parameter_array.csv"), ';', Float64, '\n')
-    # c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "2_parameter_array.csv"), ';', Float64, '\n')
-    # γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "3_parameter_array.csv"), ';', Float64, '\n')
-    # I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "4_parameter_array.csv"), ';', Float64, '\n')
+    β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "1_parameter_array.csv"), ';', Float64, '\n')
+    c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "2_parameter_array.csv"), ';', Float64, '\n')
+    γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "3_parameter_array.csv"), ';', Float64, '\n')
+    I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "4_parameter_array.csv"), ';', Float64, '\n')
+    num_mcmc_runs = length(β_parameter_array)
+    error_array = zeros(Float64, num_mcmc_runs)
+
+    for method_run = 1:10
+        open(joinpath(@__DIR__, "mcmc_lhs$(method_run).txt"),"r") do datafile
+            lines = eachline(datafile)
+            line_num = 1
+            for line in lines
+                if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
+                    error_array[line_num] = parse.(Float64, line)
+                else
+                    error_array[line_num] = error_array[line_num - 1]
+                end
+                line_num += 1
+            end
+        end
+    end
+
+    xlabel_name = "Step"
+    ylabel_name = "RMSE"
+
+    error_plot = plot(
+        1:200,
+        # moving_average(error_array[1:200], 3),
+        error_array[1:200],
+        lw = 1.5,
+        grid = true,
+        label = "MCMC LHS",
+        color = RGB(0.267, 0.467, 0.667),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+
+    # min_argument = argmin(error_array[1:200])
+    # println("MCMC LHS")
+    # println(error_array[min_argument])
+    # println(min_argument)
+    # println(β_parameter_array[min_argument])
+    # println(c_parameter_array[min_argument])
+    # println(γ_parameter_array[min_argument])
+    # println(I0_parameter_array[min_argument])
+    # println()
+    # return
+
+    β_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "1_parameter_array.csv"), ';', Float64, '\n')
+    c_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "2_parameter_array.csv"), ';', Float64, '\n')
+    γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "3_parameter_array.csv"), ';', Float64, '\n')
+    I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "4_parameter_array.csv"), ';', Float64, '\n')
+    num_mcmc_runs = length(β_parameter_array)
+    error_array = zeros(Float64, num_mcmc_runs)
+
+    for method_run = 1:10
+        open(joinpath(@__DIR__, "mcmc$(method_run).txt"),"r") do datafile
+            lines = eachline(datafile)
+            line_num = 1
+            for line in lines
+                if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
+                    error_array[line_num] = parse.(Float64, line)
+                else
+                    error_array[line_num] = error_array[line_num - 1]
+                end
+                line_num += 1
+            end
+        end
+    end
+
+    println("MCMC minimum method run = $(argmin(minimum_arr))")
+    println("MCMC min error = $(minimum(minimum_arr))")
+    println("MCMC mean error = $(mean(minimum_arr))")
+    println("MCMC min step = $(minimum(minimum_step_arr))")
+    println("MCMC mean step = $(mean(minimum_step_arr))")
+    return
+
+    xlabel_name = "Step"
+    ylabel_name = "RMSE"
+
+    plot!(
+        1:200,
+        moving_average(error_array[1:200], 3),
+        # error_array[1:500],
+        lw = 1.5,
+        grid = true,
+        label = "MCMC manual",
+        color = RGB(0.933, 0.4, 0.467),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+
+    # min_argument = argmin(error_array[1:200])
+    # println(error_array[min_argument])
+    # println("MCMC manual")
+    # println(min_argument)
+    # println(β_parameter_array[min_argument])
+    # println(c_parameter_array[min_argument])
+    # println(γ_parameter_array[min_argument])
+    # println(I0_parameter_array[min_argument])
+    # println()
+    # return
+
+    # β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "1_parameter_array.csv"), ';', Float64, '\n')
+    # c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "2_parameter_array.csv"), ';', Float64, '\n')
+    # γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "3_parameter_array.csv"), ';', Float64, '\n')
+    # I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "4_parameter_array.csv"), ';', Float64, '\n')
     # num_mcmc_runs = length(β_parameter_array)
     # error_array = zeros(Float64, num_mcmc_runs)
 
-    # open(joinpath(@__DIR__, "mcmc_lhs.txt"),"r") do datafile
-    #     lines = eachline(datafile)
-    #     line_num = 1
-    #     for line in lines
-    #         if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
-    #             error_array[line_num] = parse.(Float64, line)
-    #         else
-    #             error_array[line_num] = error_array[line_num - 1]
-    #         end
-    #         line_num += 1
-    #     end
-    # end
-
-    # xlabel_name = "Step"
-    # ylabel_name = "RMSE"
-
-    # error_plot = plot(
-    #     1:200,
-    #     # moving_average(error_array[1:200], 3),
-    #     error_array[1:200],
-    #     lw = 1.5,
-    #     grid = true,
-    #     label = "MCMC LHS",
-    #     color = RGB(0.267, 0.467, 0.667),
-    #     foreground_color_legend = nothing,
-    #     background_color_legend = nothing,
-    #     xlabel = xlabel_name,
-    #     ylabel = ylabel_name,
-    # )
-
-    # # min_argument = argmin(error_array[1:200])
-    # # println("MCMC LHS")
-    # # println(error_array[min_argument])
-    # # println(min_argument)
-    # # println(β_parameter_array[min_argument])
-    # # println(c_parameter_array[min_argument])
-    # # println(γ_parameter_array[min_argument])
-    # # println(I0_parameter_array[min_argument])
-    # # println()
-    # # return
-
-    # β_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "1_parameter_array.csv"), ';', Float64, '\n')
-    # c_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "2_parameter_array.csv"), ';', Float64, '\n')
-    # γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "3_parameter_array.csv"), ';', Float64, '\n')
-    # I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "4_parameter_array.csv"), ';', Float64, '\n')
-    # num_mcmc_runs = length(β_parameter_array)
-    # error_array = zeros(Float64, num_mcmc_runs)
-
-    # open(joinpath(@__DIR__, "mcmc.txt"),"r") do datafile
+    # open(joinpath(@__DIR__, "mcmc_metropolis_lhs.txt"),"r") do datafile
     #     lines = eachline(datafile)
     #     line_num = 1
     #     for line in lines
@@ -350,168 +409,7 @@ function optimization_methods()
     #     # error_array[1:500],
     #     lw = 1.5,
     #     grid = true,
-    #     label = "MCMC manual",
-    #     color = RGB(0.933, 0.4, 0.467),
-    #     foreground_color_legend = nothing,
-    #     background_color_legend = nothing,
-    #     xlabel = xlabel_name,
-    #     ylabel = ylabel_name,
-    # )
-
-    # # min_argument = argmin(error_array[1:200])
-    # # println(error_array[min_argument])
-    # # println("MCMC manual")
-    # # println(min_argument)
-    # # println(β_parameter_array[min_argument])
-    # # println(c_parameter_array[min_argument])
-    # # println(γ_parameter_array[min_argument])
-    # # println(I0_parameter_array[min_argument])
-    # # println()
-    # # return
-
-    # # β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "1_parameter_array.csv"), ';', Float64, '\n')
-    # # c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "2_parameter_array.csv"), ';', Float64, '\n')
-    # # γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "3_parameter_array.csv"), ';', Float64, '\n')
-    # # I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis_lhs", "4_parameter_array.csv"), ';', Float64, '\n')
-    # # num_mcmc_runs = length(β_parameter_array)
-    # # error_array = zeros(Float64, num_mcmc_runs)
-
-    # # open(joinpath(@__DIR__, "mcmc_metropolis_lhs.txt"),"r") do datafile
-    # #     lines = eachline(datafile)
-    # #     line_num = 1
-    # #     for line in lines
-    # #         if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
-    # #             error_array[line_num] = parse.(Float64, line)
-    # #         else
-    # #             error_array[line_num] = error_array[line_num - 1]
-    # #         end
-    # #         line_num += 1
-    # #     end
-    # # end
-
-    # # xlabel_name = "Step"
-    # # ylabel_name = "RMSE"
-
-    # # plot!(
-    # #     1:200,
-    # #     moving_average(error_array[1:200], 3),
-    # #     # error_array[1:500],
-    # #     lw = 1.5,
-    # #     grid = true,
-    # #     label = "MA LHS",
-    # #     color = RGB(0.133, 0.533, 0.2),
-    # #     foreground_color_legend = nothing,
-    # #     background_color_legend = nothing,
-    # #     xlabel = xlabel_name,
-    # #     ylabel = ylabel_name,
-    # # )
-
-    # # min_argument = argmin(error_array[1:200])
-    # # println(error_array[min_argument])
-    # # println("MA LHS")
-    # # println(minimum(error_array[1:200]))
-    # # println(min_argument)
-    # # println(β_parameter_array[min_argument])
-    # # println(c_parameter_array[min_argument])
-    # # println(γ_parameter_array[min_argument])
-    # # println(I0_parameter_array[min_argument])
-    # # println()
-    # # return
-
-    # # β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "1_parameter_array.csv"), ';', Float64, '\n')
-    # # c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "2_parameter_array.csv"), ';', Float64, '\n')
-    # # γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "3_parameter_array.csv"), ';', Float64, '\n')
-    # # I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "4_parameter_array.csv"), ';', Float64, '\n')
-    # # num_mcmc_runs = length(β_parameter_array)
-    # # error_array = zeros(Float64, num_mcmc_runs)
-
-    # # open(joinpath(@__DIR__, "mcmc_metropolis.txt"),"r") do datafile
-    # #     lines = eachline(datafile)
-    # #     line_num = 1
-    # #     for line in lines
-    # #         if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
-    # #             error_array[line_num] = parse.(Float64, line)
-    # #         else
-    # #             error_array[line_num] = error_array[line_num - 1]
-    # #         end
-    # #         line_num += 1
-    # #     end
-    # # end
-
-    # # xlabel_name = "Step"
-    # # ylabel_name = "RMSE"
-
-    # # plot!(
-    # #     1:200,
-    # #     moving_average(error_array[1:200], 3),
-    # #     # error_array[1:500],
-    # #     lw = 1.5,
-    # #     grid = true,
-    # #     label = "MA manual",
-    # #     color = RGB(0.667, 0.2, 0.467),
-    # #     foreground_color_legend = nothing,
-    # #     background_color_legend = nothing,
-    # #     xlabel = xlabel_name,
-    # #     ylabel = ylabel_name,
-    # # )
-
-    # # min_argument = argmin(error_array[1:200])
-    # # println(error_array[min_argument])
-    # # println("MA manual")
-    # # println(minimum(error_array[1:200]))
-    # # println(min_argument)
-    # # println(β_parameter_array[min_argument])
-    # # println(c_parameter_array[min_argument])
-    # # println(γ_parameter_array[min_argument])
-    # # println(I0_parameter_array[min_argument])
-    # # println()
-    # # return
-
-    # # 219.395291 + 131.025134 second
-
-    # num_surrogate_runs = 200
-
-    # error_arr = zeros(Float64, num_surrogate_runs)
-    # β_parameter = zeros(Float64, num_surrogate_runs)
-    # c_parameter = zeros(Float64, num_surrogate_runs)
-    # γ_parameter = zeros(Float64, num_surrogate_runs)
-    # I0_parameter = zeros(Float64, num_surrogate_runs)
-
-    # xlabel_name = "Step"
-    # ylabel_name = "RMSE"
-
-    # for method_run = 1:2
-    #     for i = 1:num_surrogate_runs
-    #         error_arr[i] += load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["error"]
-    #         β_parameter[i] += load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["β_parameter"]
-    #         c_parameter[i] += load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["c_parameter"]
-    #         γ_parameter[i] += load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["γ_parameter"]
-    #         I0_parameter[i] += load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["I0_parameter"]
-    #     end
-    #     minimum_step_arr[method_run] = argmin(error_arr)
-    #     # minimum_arr[method_run] = minimum(error_arr ./ 10)
-    #     minimum_arr[method_run] = minimum(error_arr ./ 2)
-    # end
-    # # println(minimum_arr)
-    # # println("SM min step = $(minimum(minimum_step_arr))")
-    # # println("SM mean step = $(mean(minimum_step_arr))")
-    # # println("SM min error = $(minimum(minimum_arr))")
-    # # println("SM mean error = $(mean(minimum_arr))")
-    # # return
-
-    # error_arr ./= 10
-    # β_parameter ./= 10
-    # c_parameter ./= 10
-    # γ_parameter ./= 10
-    # I0_parameter ./= 10
-
-    # error_plot = plot(
-    #     1:num_surrogate_runs,
-    #     # moving_average(error_arr[1:num_surrogate_runs], 3),
-    #     error_arr[1:num_surrogate_runs],
-    #     lw = 1.5,
-    #     grid = true,
-    #     label = "SM",
+    #     label = "MA LHS",
     #     color = RGB(0.133, 0.533, 0.2),
     #     foreground_color_legend = nothing,
     #     background_color_legend = nothing,
@@ -519,20 +417,127 @@ function optimization_methods()
     #     ylabel = ylabel_name,
     # )
 
-    # # min_argument = argmin(error_arr[1:200])
-    # # println(error_arr[min_argument])
-    # # println(min_argument)
-    # # println("SM LHS")
-    # # println(β_parameter[min_argument])
-    # # println(c_parameter[min_argument])
-    # # println(γ_parameter[min_argument])
-    # # println(I0_parameter[min_argument])
-    # # println()
-    # # return
+    # min_argument = argmin(error_array[1:200])
+    # println(error_array[min_argument])
+    # println("MA LHS")
+    # println(minimum(error_array[1:200]))
+    # println(min_argument)
+    # println(β_parameter_array[min_argument])
+    # println(c_parameter_array[min_argument])
+    # println(γ_parameter_array[min_argument])
+    # println(I0_parameter_array[min_argument])
+    # println()
+    # return
 
-    # # (13563 + 20562.204128327296 + 9534.701613142735 + 16975.744686610953 + 16298.887233744927 + 33471.05696169951 + 15111.607207871704 + 5295.894266001415 + 14657.307363052738 + 5547.02397807449) / 10
-    # # Initial RMSE: 15101
-    # # (99.598679 + 132.996304 + 116.850071 + 85.545301 + 87.736391 + 103.61327 + 98.564774 + 91.619292 + 96.379056 + 80.01160) / 10
+    # β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "1_parameter_array.csv"), ';', Float64, '\n')
+    # c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "2_parameter_array.csv"), ';', Float64, '\n')
+    # γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "3_parameter_array.csv"), ';', Float64, '\n')
+    # I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_metropolis", "4_parameter_array.csv"), ';', Float64, '\n')
+    # num_mcmc_runs = length(β_parameter_array)
+    # error_array = zeros(Float64, num_mcmc_runs)
+
+    # open(joinpath(@__DIR__, "mcmc_metropolis.txt"),"r") do datafile
+    #     lines = eachline(datafile)
+    #     line_num = 1
+    #     for line in lines
+    #         if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
+    #             error_array[line_num] = parse.(Float64, line)
+    #         else
+    #             error_array[line_num] = error_array[line_num - 1]
+    #         end
+    #         line_num += 1
+    #     end
+    # end
+
+    # xlabel_name = "Step"
+    # ylabel_name = "RMSE"
+
+    # plot!(
+    #     1:200,
+    #     moving_average(error_array[1:200], 3),
+    #     # error_array[1:500],
+    #     lw = 1.5,
+    #     grid = true,
+    #     label = "MA manual",
+    #     color = RGB(0.667, 0.2, 0.467),
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    # )
+
+    # min_argument = argmin(error_array[1:200])
+    # println(error_array[min_argument])
+    # println("MA manual")
+    # println(minimum(error_array[1:200]))
+    # println(min_argument)
+    # println(β_parameter_array[min_argument])
+    # println(c_parameter_array[min_argument])
+    # println(γ_parameter_array[min_argument])
+    # println(I0_parameter_array[min_argument])
+    # println()
+    # return
+
+    # # 219.395291 + 131.025134 second
+
+    num_surrogate_runs = 200
+
+    error_arr = zeros(Float64, num_surrogate_runs)
+    β_parameter = zeros(Float64, num_surrogate_runs)
+    c_parameter = zeros(Float64, num_surrogate_runs)
+    γ_parameter = zeros(Float64, num_surrogate_runs)
+    I0_parameter = zeros(Float64, num_surrogate_runs)
+
+    xlabel_name = "Step"
+    ylabel_name = "RMSE"
+
+    for method_run = 1:10
+        for i = 1:num_surrogate_runs
+            error_arr[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["error"]
+            β_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["β_parameter"]
+            c_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["c_parameter"]
+            γ_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["γ_parameter"]
+            I0_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["I0_parameter"]
+        end
+        minimum_step_arr[method_run] = argmin(error_arr)
+        minimum_arr[method_run] = minimum(error_arr)
+    end
+
+    # println("SM minimum method run = $(argmin(minimum_arr))")
+    # println("SM min error = $(minimum(minimum_arr))")
+    # println("SM mean error = $(mean(minimum_arr))")
+    # println("SM min step = $(minimum(minimum_step_arr))")
+    # println("SM mean step = $(mean(minimum_step_arr))")
+    # return
+
+    plot!(
+        1:num_surrogate_runs,
+        # moving_average(error_arr[1:num_surrogate_runs], 3),
+        error_arr[1:num_surrogate_runs],
+        lw = 1.5,
+        grid = true,
+        label = "SM",
+        color = RGB(0.133, 0.533, 0.2),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+
+    # min_argument = argmin(error_arr[1:200])
+    # println(error_arr[min_argument])
+    # println(min_argument)
+    # println("SM LHS")
+    # println(β_parameter[min_argument])
+    # println(c_parameter[min_argument])
+    # println(γ_parameter[min_argument])
+    # println(I0_parameter[min_argument])
+    # println()
+    # return
+
+    # (13563 + 20562.204128327296 + 9534.701613142735 + 16975.744686610953 + 16298.887233744927 + 33471.05696169951 + 15111.607207871704 + 5295.894266001415 + 14657.307363052738 + 5547.02397807449) / 10
+    # Initial RMSE: 15101
+    # (99.598679 + 132.996304 + 116.850071 + 85.545301 + 87.736391 + 103.61327 + 98.564774 + 91.619292 + 96.379056 + 80.01160) / 10
 
     num_swarm_runs = 20
     num_particles = 10
@@ -562,21 +567,22 @@ function optimization_methods()
                 I0_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(method_run)", "$(j)", "results_$(i).jld"))["I0_parameter"]
             end
             for j = 1:num_particles
-                error_arr[(i - 1) * num_particles + j] += minimum(error_arr_temp)
-                β_parameter[(i - 1) * num_particles + j] += β_parameter_temp[argmin(error_arr_temp)]
-                c_parameter[(i - 1) * num_particles + j] += c_parameter_temp[argmin(error_arr_temp)]
-                γ_parameter[(i - 1) * num_particles + j] += γ_parameter_temp[argmin(error_arr_temp)]
-                I0_parameter[(i - 1) * num_particles + j] += I0_parameter_temp[argmin(error_arr_temp)]
+                error_arr[(i - 1) * num_particles + j] = minimum(error_arr_temp)
+                β_parameter[(i - 1) * num_particles + j] = β_parameter_temp[argmin(error_arr_temp)]
+                c_parameter[(i - 1) * num_particles + j] = c_parameter_temp[argmin(error_arr_temp)]
+                γ_parameter[(i - 1) * num_particles + j] = γ_parameter_temp[argmin(error_arr_temp)]
+                I0_parameter[(i - 1) * num_particles + j] = I0_parameter_temp[argmin(error_arr_temp)]
             end
         end
         minimum_step_arr[method_run] = argmin(error_arr)
-        minimum_arr[method_run] = minimum(error_arr ./ 10)
+        minimum_arr[method_run] = minimum(error_arr)
     end
 
-    # println("PSO min step = $(minimum(minimum_step_arr))")
-    # println("PSO mean step = $(mean(minimum_step_arr))")
+    # println("PSO minimum method run = $(argmin(minimum_arr))")
     # println("PSO min error = $(minimum(minimum_arr))")
     # println("PSO mean error = $(mean(minimum_arr))")
+    # println("PSO min step = $(minimum(minimum_step_arr))")
+    # println("PSO mean step = $(mean(minimum_step_arr))")
     # return
 
     error_arr ./= 10
@@ -599,18 +605,18 @@ function optimization_methods()
         ylabel = ylabel_name,
     )
 
-    println(minimum(error_arr[1:10]))
+    # println(minimum(error_arr[1:10]))
 
-    min_argument = argmin(error_arr[1:200])
-    println("PSO")
-    println(error_arr[min_argument])
-    println(min_argument)
-    println(β_parameter[min_argument])
-    println(c_parameter[min_argument])
-    println(γ_parameter[min_argument])
-    println(I0_parameter[min_argument])
-    println()
-    return
+    # min_argument = argmin(error_arr[1:200])
+    # println("PSO")
+    # println(error_arr[min_argument])
+    # println(min_argument)
+    # println(β_parameter[min_argument])
+    # println(c_parameter[min_argument])
+    # println(γ_parameter[min_argument])
+    # println(I0_parameter[min_argument])
+    # println()
+    # return
 
     # (19442.367358726322 + 11321.432039425637 + 20106.323596984774 + 16063.736810281724 + 18035.941818213985 + 10940.773697428045 + 7498.821101568788 + 24712.468962786108 + 16784.550897030284 + 22935.43611085257) / 10
     # Initial RMSE: 16784
@@ -619,7 +625,6 @@ function optimization_methods()
     num_ga_runs = 20
     population_size = 10
 
-    # error_arr = Array{Float64, 1}(undef, num_ga_runs + 1)
     # error_arr = Array{Float64, 1}(undef, num_ga_runs * population_size + population_size)
     # β_parameter = Array{Float64, 1}(undef, num_ga_runs * population_size + population_size)
     # c_parameter = Array{Float64, 1}(undef, num_ga_runs * population_size + population_size)
@@ -640,7 +645,7 @@ function optimization_methods()
     xlabel_name = "Step"
     ylabel_name = "RMSE"
 
-    for method_run = 3:3
+    for method_run = 1:10
         for i = 1:num_ga_runs
             for j = 1:population_size
                 error_arr_temp[j] = load(joinpath(@__DIR__, "ga$(method_run)", "$(i)", "results_$(j).jld"))["error"]
@@ -661,11 +666,11 @@ function optimization_methods()
         minimum_arr[method_run] = minimum(error_arr)
     end
 
-    # println("GA min run = $(argmin(minimum_step_arr))")
-    # println("GA min step = $(minimum(minimum_step_arr))")
-    # println("GA mean step = $(mean(minimum_step_arr))")
+    # println("GA minimum method run = $(argmin(minimum_arr))")
     # println("GA min error = $(minimum(minimum_arr))")
     # println("GA mean error = $(mean(minimum_arr))")
+    # println("GA min step = $(minimum(minimum_step_arr))")
+    # println("GA mean step = $(mean(minimum_step_arr))")
     # return
 
     plot!(
