@@ -234,168 +234,168 @@ function run_swarm_model()
 
     velocity_particles = zeros(Float64, num_particles)
 
-    for i = 1:15
-        for j = 1:num_particles
-            incidence_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["observed_cases"]
-            error_temp = sum((incidence_temp - num_infected_age_groups_viruses).^2)
+    # for i = 1:15
+    #     for j = 1:num_particles
+    #         incidence_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["observed_cases"]
+    #         error_temp = sum((incidence_temp - num_infected_age_groups_viruses).^2)
 
-            duration_parameter_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["duration_parameter"]
-            susceptibility_parameters_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["susceptibility_parameters"]
-            temperature_parameters_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["temperature_parameters"]
-            mean_immunity_durations_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["mean_immunity_durations"]
-            random_infection_probabilities_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["random_infection_probabilities"]
+    #         duration_parameter_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["duration_parameter"]
+    #         susceptibility_parameters_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["susceptibility_parameters"]
+    #         temperature_parameters_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["temperature_parameters"]
+    #         mean_immunity_durations_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["mean_immunity_durations"]
+    #         random_infection_probabilities_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["random_infection_probabilities"]
 
-            duration_parameter_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["duration_parameter_velocity"]
-            susceptibility_parameters_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["susceptibility_parameters_velocity"]
-            temperature_parameters_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["temperature_parameters_velocity"]
-            mean_immunity_durations_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["mean_immunity_durations_velocity"]
-            random_infection_probabilities_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["random_infection_probabilities_velocity"]
+    #         duration_parameter_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["duration_parameter_velocity"]
+    #         susceptibility_parameters_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["susceptibility_parameters_velocity"]
+    #         temperature_parameters_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["temperature_parameters_velocity"]
+    #         mean_immunity_durations_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["mean_immunity_durations_velocity"]
+    #         random_infection_probabilities_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["random_infection_probabilities_velocity"]
 
-            if error_temp < error_particles[j]
-                error_particles[j] = error_temp
+    #         if error_temp < error_particles[j]
+    #             error_particles[j] = error_temp
     
-                duration_parameter_particles_best[j] = duration_parameter_temp
-                susceptibility_parameters_particles_best[j] = copy(susceptibility_parameters_temp)
-                temperature_parameters_particles_best[j] = copy(temperature_parameters_temp)
-                mean_immunity_durations_particles_best[j] = copy(mean_immunity_durations_temp)
-                random_infection_probabilities_particles_best[j] = copy(random_infection_probabilities_temp)
-            end
+    #             duration_parameter_particles_best[j] = duration_parameter_temp
+    #             susceptibility_parameters_particles_best[j] = copy(susceptibility_parameters_temp)
+    #             temperature_parameters_particles_best[j] = copy(temperature_parameters_temp)
+    #             mean_immunity_durations_particles_best[j] = copy(mean_immunity_durations_temp)
+    #             random_infection_probabilities_particles_best[j] = copy(random_infection_probabilities_temp)
+    #         end
 
-            if error_temp < best_error
-                best_error = error_temp
+    #         if error_temp < best_error
+    #             best_error = error_temp
     
-                duration_parameter_best = duration_parameter_temp
-                susceptibility_parameters_best = copy(susceptibility_parameters_temp)
-                temperature_parameters_best = copy(temperature_parameters_temp)
-                mean_immunity_durations_best = copy(mean_immunity_durations_temp)
-                random_infection_probabilities_best = copy(random_infection_probabilities_temp)
-            end
+    #             duration_parameter_best = duration_parameter_temp
+    #             susceptibility_parameters_best = copy(susceptibility_parameters_temp)
+    #             temperature_parameters_best = copy(temperature_parameters_temp)
+    #             mean_immunity_durations_best = copy(mean_immunity_durations_temp)
+    #             random_infection_probabilities_best = copy(random_infection_probabilities_temp)
+    #         end
 
-            if i == 15
-                incidence_arr[j] = deepcopy(incidence_temp)
-                error_particles[j] = error_temp
+    #         if i == 15
+    #             incidence_arr[j] = deepcopy(incidence_temp)
+    #             error_particles[j] = error_temp
 
-                duration_parameter_particles[j] = duration_parameter_temp
-                susceptibility_parameters_particles[j] = copy(susceptibility_parameters_temp)
-                temperature_parameters_particles[j] = copy(temperature_parameters_temp)
-                mean_immunity_durations_particles[j] = copy(mean_immunity_durations_temp)
-                random_infection_probabilities_particles[j] = copy(random_infection_probabilities_temp)
+    #             duration_parameter_particles[j] = duration_parameter_temp
+    #             susceptibility_parameters_particles[j] = copy(susceptibility_parameters_temp)
+    #             temperature_parameters_particles[j] = copy(temperature_parameters_temp)
+    #             mean_immunity_durations_particles[j] = copy(mean_immunity_durations_temp)
+    #             random_infection_probabilities_particles[j] = copy(random_infection_probabilities_temp)
 
-                duration_parameter_particles_velocity[j] = duration_parameter_velocity_temp
-                susceptibility_parameters_particles_velocity[j, :] = copy(susceptibility_parameters_velocity_temp)
-                temperature_parameters_particles_velocity[j, :] = copy(temperature_parameters_velocity_temp)
-                mean_immunity_durations_particles_velocity[j, :] = copy(mean_immunity_durations_velocity_temp)
-                random_infection_probabilities_particles_velocity[j, :] = copy(random_infection_probabilities_velocity_temp)
-            end
-        end
-    end
+    #             duration_parameter_particles_velocity[j] = duration_parameter_velocity_temp
+    #             susceptibility_parameters_particles_velocity[j, :] = copy(susceptibility_parameters_velocity_temp)
+    #             temperature_parameters_particles_velocity[j, :] = copy(temperature_parameters_velocity_temp)
+    #             mean_immunity_durations_particles_velocity[j, :] = copy(mean_immunity_durations_velocity_temp)
+    #             random_infection_probabilities_particles_velocity[j, :] = copy(random_infection_probabilities_velocity_temp)
+    #         end
+    #     end
+    # end
 
     # В случае, если значения загружаются из таблицы
     # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), header = false)))
 
     # Латинский гиперкуб
-    # latin_hypercube_plan, _ = LHCoptim(num_particles, num_parameters, 500)
+    latin_hypercube_plan, _ = LHCoptim(num_particles, num_parameters, 500)
 
     # Интервалы значений параметров
-    # points = scaleLHC(latin_hypercube_plan, [
-    #     (0.1, 1.0), # duration_parameter
-    #     (1.0, 7.0), # susceptibility_parameters
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (-1.0, -0.01), # temperature_parameters
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (30, 365), # mean_immunity_durations
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (0.0008, 0.0012), # random_infection_probabilities
-    #     (0.0005, 0.001),
-    #     (0.0002, 0.0005),
-    #     (0.000005, 0.00001),
-    # ])
-    # writedlm(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), points, ',')
+    points = scaleLHC(latin_hypercube_plan, [
+        (0.1, 1.0), # duration_parameter
+        (1.0, 7.0), # susceptibility_parameters
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (-1.0, -0.01), # temperature_parameters
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (30, 365), # mean_immunity_durations
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (0.0008, 0.0012), # random_infection_probabilities
+        (0.0005, 0.001),
+        (0.0002, 0.0005),
+        (0.000005, 0.00001),
+    ])
+    writedlm(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), points, ',')
+
+    for i = 1:num_particles
+        duration_parameter_particles_best[i] = points[i, 1]
+        susceptibility_parameters_particles_best[i] = copy(points[i, 2:8])
+        temperature_parameters_particles_best[i] = copy(points[i, 9:15])
+        mean_immunity_durations_particles_best[i] = copy(points[i, 16:22])
+        for k = 1:length(viruses)
+            viruses[k].mean_immunity_duration = points[i, 15 + k]
+            viruses[k].immunity_duration_sd = points[i, 15 + k] * 0.33
+        end
+        random_infection_probabilities_particles_best[i] = copy(points[i, 23:26])
+
+        duration_parameter_particles[i] = points[i, 1]
+        susceptibility_parameters_particles[i] = copy(points[i, 2:8])
+        temperature_parameters_particles[i] = copy(points[i, 9:15])
+        mean_immunity_durations_particles[i] = copy(points[i, 16:22])
+        random_infection_probabilities_particles[i] = copy(points[i, 23:26])
+
+        # Сбрасываем состояние синтетической популяции до начального
+        @threads for thread_id in 1:num_threads
+            reset_agent_states(
+                agents,
+                start_agent_ids[thread_id],
+                end_agent_ids[thread_id],
+                viruses,
+                num_infected_age_groups_viruses_prev,
+                isolation_probabilities_day_1,
+                isolation_probabilities_day_2,
+                isolation_probabilities_day_3,
+                thread_rng[thread_id],
+            )
+        end
+
+        # Если уже посчитано
+        for k = 1:num_particles
+            incidence_arr[k] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["observed_cases"]
+        end
+
+        # Если не посчитано
+        # @time incidence_arr[i], activities_infections, rt, num_schools_closed = run_simulation(
+        #     num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_particles_best[i],
+        #     susceptibility_parameters_particles_best[i], temperature_parameters_particles_best[i], temperature,
+        #     mean_household_contact_durations, household_contact_duration_sds,
+        #     other_contact_duration_shapes, other_contact_duration_scales,
+        #     isolation_probabilities_day_1, isolation_probabilities_day_2,
+        #     isolation_probabilities_day_3, random_infection_probabilities_particles_best[i],
+        #     recovered_duration_mean, recovered_duration_sd, num_years, false)
+
+        error_particles[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
+        if error_particles[i] < best_error
+            best_error = error_particles[i]
+
+            duration_parameter_best = points[i, 1]
+            susceptibility_parameters_best = copy(points[i, 2:8])
+            temperature_parameters_best = copy(points[i, 9:15])
+            mean_immunity_durations_best = copy(points[i, 16:22])
+            random_infection_probabilities_best = copy(points[i, 23:26])
+        end
+
+        # Если не посчитано
+        # save(joinpath(@__DIR__, "..", "output", "tables", "swarm", "0", "results_$(i).jld"),
+        #     "observed_cases", incidence_arr[i],
+        #     "duration_parameter", duration_parameter_particles_best[i],
+        #     "susceptibility_parameters", susceptibility_parameters_particles_best[i],
+        #     "temperature_parameters", temperature_parameters_particles_best[i],
+        #     "mean_immunity_durations", mean_immunity_durations_particles_best[i],
+        #     "random_infection_probabilities", random_infection_probabilities_particles_best[i])
+    end
     
-    # for i = 1:num_particles
-    #     duration_parameter_particles_best[i] = points[i, 1]
-    #     susceptibility_parameters_particles_best[i] = copy(points[i, 2:8])
-    #     temperature_parameters_particles_best[i] = copy(points[i, 9:15])
-    #     mean_immunity_durations_particles_best[i] = copy(points[i, 16:22])
-    #     for k = 1:length(viruses)
-    #         viruses[k].mean_immunity_duration = points[i, 15 + k]
-    #         viruses[k].immunity_duration_sd = points[i, 15 + k] * 0.33
-    #     end
-    #     random_infection_probabilities_particles_best[i] = copy(points[i, 23:26])
-
-    #     duration_parameter_particles[i] = points[i, 1]
-    #     susceptibility_parameters_particles[i] = copy(points[i, 2:8])
-    #     temperature_parameters_particles[i] = copy(points[i, 9:15])
-    #     mean_immunity_durations_particles[i] = copy(points[i, 16:22])
-    #     random_infection_probabilities_particles[i] = copy(points[i, 23:26])
-
-    #     # Сбрасываем состояние синтетической популяции до начального
-    #     @threads for thread_id in 1:num_threads
-    #         reset_agent_states(
-    #             agents,
-    #             start_agent_ids[thread_id],
-    #             end_agent_ids[thread_id],
-    #             viruses,
-    #             num_infected_age_groups_viruses_prev,
-    #             isolation_probabilities_day_1,
-    #             isolation_probabilities_day_2,
-    #             isolation_probabilities_day_3,
-    #             thread_rng[thread_id],
-    #         )
-    #     end
-
-    #     # Если уже посчитано
-    #     for k = 1:num_particles
-    #         incidence_arr[k] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "0", "results_$(i).jld"))["observed_cases"]
-    #     end
-
-    #     # Если не посчитано
-    #     @time incidence_arr[i], activities_infections, rt, num_schools_closed = run_simulation(
-    #         num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_particles_best[i],
-    #         susceptibility_parameters_particles_best[i], temperature_parameters_particles_best[i], temperature,
-    #         mean_household_contact_durations, household_contact_duration_sds,
-    #         other_contact_duration_shapes, other_contact_duration_scales,
-    #         isolation_probabilities_day_1, isolation_probabilities_day_2,
-    #         isolation_probabilities_day_3, random_infection_probabilities_particles_best[i],
-    #         recovered_duration_mean, recovered_duration_sd, num_years, false)
-
-    #     error_particles[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
-    #     if error_particles[i] < best_error
-    #         best_error = error_particles[i]
-
-    #         duration_parameter_best = points[i, 1]
-    #         susceptibility_parameters_best = copy(points[i, 2:8])
-    #         temperature_parameters_best = copy(points[i, 9:15])
-    #         mean_immunity_durations_best = copy(points[i, 16:22])
-    #         random_infection_probabilities_best = copy(points[i, 23:26])
-    #     end
-
-    #     # Если не посчитано
-    #     save(joinpath(@__DIR__, "..", "output", "tables", "swarm", "0", "results_$(i).jld"),
-    #         "observed_cases", incidence_arr[i],
-    #         "duration_parameter", duration_parameter_particles_best[i],
-    #         "susceptibility_parameters", susceptibility_parameters_particles_best[i],
-    #         "temperature_parameters", temperature_parameters_particles_best[i],
-    #         "mean_immunity_durations", mean_immunity_durations_particles_best[i],
-    #         "random_infection_probabilities", random_infection_probabilities_particles_best[i])
-    # end
-
-    for curr_run = 16:num_swarm_model_runs
+    for curr_run = 1:num_swarm_model_runs
         w = (num_swarm_model_runs - curr_run) / num_swarm_model_runs * (w_max - w_min) + w_min
         for i = 1:num_particles
             duration_parameter_particles_velocity[i] = w * duration_parameter_particles_velocity[i] + c1 * rand(thread_rng[1], Float64) * (duration_parameter_particles_best[i] - duration_parameter_particles[i]) + c2 * rand(thread_rng[1], Float64) * (duration_parameter_best - duration_parameter_particles[i])
