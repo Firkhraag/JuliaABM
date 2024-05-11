@@ -185,15 +185,15 @@ function run_surrogate_model()
     mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_runs)
 
     # initial / 10
-    lhs_subfolder_name = "10"
+    lhs_subfolder_name = "initial"
 
     for i = 1:num_initial_runs
-        incidence_arr[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(i).jld"))["observed_cases"]
-        duration_parameter[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(i).jld"))["duration_parameter"]
-        susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(i).jld"))["susceptibility_parameters"]
-        temperature_parameters[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(i).jld"))["temperature_parameters"]
-        mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(i).jld"))["mean_immunity_durations"]
-        random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(i).jld"))["random_infection_probabilities"]
+        incidence_arr[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld"))["observed_cases"]
+        duration_parameter[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld"))["duration_parameter"]
+        susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld"))["susceptibility_parameters"]
+        temperature_parameters[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld"))["temperature_parameters"]
+        mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld"))["mean_immunity_durations"]
+        random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld"))["random_infection_probabilities"]
     end
 
     for i = 1:num_additional_runs
