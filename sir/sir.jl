@@ -606,18 +606,19 @@ function mcmc_simulations_lhs(
     agents::Vector{InfectionStatus},
     nsteps,
     δt,
+    method_run,
 )
     # Получаем значения параметров
-    β_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "1_array.csv"), ',', Float64, '\n'))
+    β_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "1_array.csv"), ',', Float64, '\n'))
     β_parameter = β_parameter_array[end]
 
-    c_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "2_array.csv"), ',', Float64, '\n'))
+    c_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "2_array.csv"), ',', Float64, '\n'))
     c_parameter = c_parameter_array[end]
 
-    γ_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "3_array.csv"), ',', Float64, '\n'))
+    γ_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "3_array.csv"), ',', Float64, '\n'))
     γ_parameter = γ_parameter_array[end]
 
-    I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "4_array.csv"), ',', Float64, '\n'))
+    I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "4_array.csv"), ',', Float64, '\n'))
     I0_parameter = I0_parameter_array[end]
 
     # Reset
@@ -629,7 +630,7 @@ function mcmc_simulations_lhs(
         end
     end
     error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
-    open(joinpath(@__DIR__, "mcmc_lhs.txt"), "a") do io
+    open(joinpath(@__DIR__, "mcmc_lhs$(method_run).txt"), "a") do io
         println(io, error)
     end
 
@@ -677,14 +678,14 @@ function mcmc_simulations_lhs(
         end
         error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
-        save(joinpath(@__DIR__, "mcmc_lhs", "results_$(n).jld"),
+        save(joinpath(@__DIR__, "mcmc_lhs$(method_run)", "results_$(n).jld"),
             "error", error,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
             "γ_parameter", γ_parameter,
             "I0_parameter", I0_parameter)
 
-        open(joinpath(@__DIR__, "mcmc_lhs.txt"), "a") do io
+        open(joinpath(@__DIR__, "mcmc_lhs$(method_run).txt"), "a") do io
             println(io, error)
         end
 
@@ -719,14 +720,11 @@ function mcmc_simulations_lhs(
             local_rejected_num += 1
         end
 
-        # Раз в 2 шага
-        if n % 2 == 0
-            # Сохраняем значения параметров
-            writedlm(joinpath(@__DIR__, "parameters_lhs", "1_parameter_array.csv"), β_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters_lhs", "2_parameter_array.csv"), c_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters_lhs", "3_parameter_array.csv"), γ_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters_lhs", "4_parameter_array.csv"), I0_parameter_array, ',')
-        end
+        # Сохраняем значения параметров
+        writedlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "1_parameter_array.csv"), β_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "2_parameter_array.csv"), c_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "3_parameter_array.csv"), γ_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "4_parameter_array.csv"), I0_parameter_array, ',')
     end
 end
 
@@ -737,18 +735,19 @@ function mcmc_simulations(
     agents::Vector{InfectionStatus},
     nsteps,
     δt,
+    method_run,
 )
     # Получаем значения параметров
-    β_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters", "1_array.csv"), ',', Float64, '\n'))
+    β_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters$(method_run)", "1_array.csv"), ',', Float64, '\n'))
     β_parameter = β_parameter_array[end]
 
-    c_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters", "2_array.csv"), ',', Float64, '\n'))
+    c_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters$(method_run)", "2_array.csv"), ',', Float64, '\n'))
     c_parameter = c_parameter_array[end]
 
-    γ_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters", "3_array.csv"), ',', Float64, '\n'))
+    γ_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters$(method_run)", "3_array.csv"), ',', Float64, '\n'))
     γ_parameter = γ_parameter_array[end]
 
-    I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters", "4_array.csv"), ',', Float64, '\n'))
+    I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters$(method_run)", "4_array.csv"), ',', Float64, '\n'))
     I0_parameter = I0_parameter_array[end]
 
     # Reset
@@ -760,7 +759,7 @@ function mcmc_simulations(
         end
     end
     error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
-    open(joinpath(@__DIR__, "mcmc.txt"), "a") do io
+    open(joinpath(@__DIR__, "mcmc$(method_run).txt"), "a") do io
         println(io, error)
     end
 
@@ -808,14 +807,14 @@ function mcmc_simulations(
         end
         error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
-        save(joinpath(@__DIR__, "mcmc", "results_$(n).jld"),
+        save(joinpath(@__DIR__, "mcmc$(method_run)", "results_$(n).jld"),
             "error", error,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
             "γ_parameter", γ_parameter,
             "I0_parameter", I0_parameter)
 
-        open(joinpath(@__DIR__, "mcmc.txt"), "a") do io
+        open(joinpath(@__DIR__, "mcmc$(method_run).txt"), "a") do io
             println(io, error)
         end
 
@@ -850,14 +849,11 @@ function mcmc_simulations(
             local_rejected_num += 1
         end
 
-        # Раз в 2 шага
-        if n % 2 == 0
-            # Сохраняем значения параметров
-            writedlm(joinpath(@__DIR__, "parameters", "1_parameter_array.csv"), β_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters", "2_parameter_array.csv"), c_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters", "3_parameter_array.csv"), γ_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters", "4_parameter_array.csv"), I0_parameter_array, ',')
-        end
+        # Сохраняем значения параметров
+        writedlm(joinpath(@__DIR__, "parameters$(method_run)", "1_parameter_array.csv"), β_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters$(method_run)", "2_parameter_array.csv"), c_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters$(method_run)", "3_parameter_array.csv"), γ_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters$(method_run)", "4_parameter_array.csv"), I0_parameter_array, ',')
     end
 end
 
@@ -2238,9 +2234,9 @@ function main()
     # 10 sec
     # @time lhs_simulations(10, agents_initial, nsteps, δt, 10)
 
-    # mcmc_simulations(200,agents_initial,nsteps,δt)
-    # mcmc_simulations_lhs(200,agents_initial,nsteps,δt)
-    @time run_surrogate_model(200, agents_initial, nsteps, δt, 2)
+    # mcmc_simulations(200, agents_initial, nsteps, δt, 10)
+    mcmc_simulations_lhs(200, agents_initial, nsteps, δt, 1)
+    # @time run_surrogate_model(200, agents_initial, nsteps, δt, 2)
     # @time run_swarm_model(20, agents_initial, nsteps, δt, 1)
     # @time genetic_algorithm(20, agents_initial, nsteps, δt, 1)
 

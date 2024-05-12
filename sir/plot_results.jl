@@ -270,17 +270,19 @@ end
 
 function optimization_methods()
     num_error_points = 1456
-    minimum_arr = zeros(Float64, 10)
-    minimum_step_arr = zeros(Float64, 10)
+    num_method_runs = 10
+    minimum_arr = zeros(Float64, num_method_runs)
+    minimum_step_arr = zeros(Float64, num_method_runs)
 
-    β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "1_parameter_array.csv"), ';', Float64, '\n')
-    c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "2_parameter_array.csv"), ';', Float64, '\n')
-    γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "3_parameter_array.csv"), ';', Float64, '\n')
-    I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs", "4_parameter_array.csv"), ';', Float64, '\n')
-    num_mcmc_runs = length(β_parameter_array)
+    num_mcmc_runs = 201
     error_array = zeros(Float64, num_mcmc_runs)
 
-    for method_run = 1:10
+    for method_run = 1:num_method_runs
+        β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "1_parameter_array.csv"), ';', Float64, '\n')
+        c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "2_parameter_array.csv"), ';', Float64, '\n')
+        γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "3_parameter_array.csv"), ';', Float64, '\n')
+        I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "4_parameter_array.csv"), ';', Float64, '\n')
+
         open(joinpath(@__DIR__, "mcmc_lhs$(method_run).txt"),"r") do datafile
             lines = eachline(datafile)
             line_num = 1
@@ -292,6 +294,34 @@ function optimization_methods()
                 end
                 line_num += 1
             end
+        end
+
+        minimum_step_arr[method_run] = argmin(error_array)
+        minimum_arr[method_run] = minimum(error_array)
+    end
+
+    # println("MCMC LHS minimum method run = $(argmin(minimum_arr))")
+    # println("MCMC LHS min error = $(minimum(minimum_arr))")
+    # println("MCMC LHS mean error = $(mean(minimum_arr))")
+    # println("MCMC LHS min step = $(minimum(minimum_step_arr))")
+    # println("MCMC LHS mean step = $(mean(minimum_step_arr))")
+    # return
+
+    β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(argmin(minimum_arr))", "1_parameter_array.csv"), ';', Float64, '\n')
+    c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(argmin(minimum_arr))", "2_parameter_array.csv"), ';', Float64, '\n')
+    γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(argmin(minimum_arr))", "3_parameter_array.csv"), ';', Float64, '\n')
+    I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(argmin(minimum_arr))", "4_parameter_array.csv"), ';', Float64, '\n')
+
+    open(joinpath(@__DIR__, "mcmc_lhs$(argmin(minimum_arr)).txt"),"r") do datafile
+        lines = eachline(datafile)
+        line_num = 1
+        for line in lines
+            if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
+                error_array[line_num] = parse.(Float64, line)
+            else
+                error_array[line_num] = error_array[line_num - 1]
+            end
+            line_num += 1
         end
     end
 
@@ -323,14 +353,15 @@ function optimization_methods()
     # println()
     # return
 
-    β_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "1_parameter_array.csv"), ';', Float64, '\n')
-    c_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "2_parameter_array.csv"), ';', Float64, '\n')
-    γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "3_parameter_array.csv"), ';', Float64, '\n')
-    I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters", "4_parameter_array.csv"), ';', Float64, '\n')
-    num_mcmc_runs = length(β_parameter_array)
+    num_mcmc_runs = 201
     error_array = zeros(Float64, num_mcmc_runs)
 
-    for method_run = 1:10
+    for method_run = 1:num_method_runs
+        β_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(method_run)", "1_parameter_array.csv"), ';', Float64, '\n')
+        c_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(method_run)", "2_parameter_array.csv"), ';', Float64, '\n')
+        γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(method_run)", "3_parameter_array.csv"), ';', Float64, '\n')
+        I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(method_run)", "4_parameter_array.csv"), ';', Float64, '\n')
+
         open(joinpath(@__DIR__, "mcmc$(method_run).txt"),"r") do datafile
             lines = eachline(datafile)
             line_num = 1
@@ -343,14 +374,34 @@ function optimization_methods()
                 line_num += 1
             end
         end
+        minimum_step_arr[method_run] = argmin(error_array)
+        minimum_arr[method_run] = minimum(error_array)
     end
 
-    println("MCMC minimum method run = $(argmin(minimum_arr))")
-    println("MCMC min error = $(minimum(minimum_arr))")
-    println("MCMC mean error = $(mean(minimum_arr))")
-    println("MCMC min step = $(minimum(minimum_step_arr))")
-    println("MCMC mean step = $(mean(minimum_step_arr))")
-    return
+    # println("MCMC manual minimum method run = $(argmin(minimum_arr))")
+    # println("MCMC manual min error = $(minimum(minimum_arr))")
+    # println("MCMC manual mean error = $(mean(minimum_arr))")
+    # println("MCMC manual min step = $(minimum(minimum_step_arr))")
+    # println("MCMC manual mean step = $(mean(minimum_step_arr))")
+    # return
+
+    β_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(argmin(minimum_arr))", "1_parameter_array.csv"), ';', Float64, '\n')
+    c_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(argmin(minimum_arr))", "2_parameter_array.csv"), ';', Float64, '\n')
+    γ_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(argmin(minimum_arr))", "3_parameter_array.csv"), ';', Float64, '\n')
+    I0_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(argmin(minimum_arr))", "4_parameter_array.csv"), ';', Float64, '\n')
+
+    open(joinpath(@__DIR__, "mcmc$(argmin(minimum_arr)).txt"),"r") do datafile
+        lines = eachline(datafile)
+        line_num = 1
+        for line in lines
+            if line_num == 1 || ((abs(β_parameter_array[line_num] - β_parameter_array[line_num - 1]) > 0.0001) && (abs(γ_parameter_array[line_num] - γ_parameter_array[line_num - 1]) > 0.0001))
+                error_array[line_num] = parse.(Float64, line)
+            else
+                error_array[line_num] = error_array[line_num - 1]
+            end
+            line_num += 1
+        end
+    end
 
     xlabel_name = "Step"
     ylabel_name = "RMSE"
@@ -491,7 +542,7 @@ function optimization_methods()
     xlabel_name = "Step"
     ylabel_name = "RMSE"
 
-    for method_run = 1:10
+    for method_run = 1:num_method_runs
         for i = 1:num_surrogate_runs
             error_arr[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["error"]
             β_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["β_parameter"]
@@ -509,6 +560,14 @@ function optimization_methods()
     # println("SM min step = $(minimum(minimum_step_arr))")
     # println("SM mean step = $(mean(minimum_step_arr))")
     # return
+
+    for i = 1:num_surrogate_runs
+        error_arr[i] = load(joinpath(@__DIR__, "surrogate$(argmin(minimum_arr))", "results_$(i).jld"))["error"]
+        β_parameter[i] = load(joinpath(@__DIR__, "surrogate$(argmin(minimum_arr))", "results_$(i).jld"))["β_parameter"]
+        c_parameter[i] = load(joinpath(@__DIR__, "surrogate$(argmin(minimum_arr))", "results_$(i).jld"))["c_parameter"]
+        γ_parameter[i] = load(joinpath(@__DIR__, "surrogate$(argmin(minimum_arr))", "results_$(i).jld"))["γ_parameter"]
+        I0_parameter[i] = load(joinpath(@__DIR__, "surrogate$(argmin(minimum_arr))", "results_$(i).jld"))["I0_parameter"]
+    end
 
     plot!(
         1:num_surrogate_runs,
@@ -557,7 +616,7 @@ function optimization_methods()
     xlabel_name = "Step"
     ylabel_name = "RMSE"
 
-    for method_run = 1:10
+    for method_run = 1:num_method_runs
         for i = 1:num_swarm_runs
             for j = 1:num_particles
                 error_arr_temp[j] = load(joinpath(@__DIR__, "swarm$(method_run)", "$(j)", "results_$(i).jld"))["error"]
@@ -585,11 +644,22 @@ function optimization_methods()
     # println("PSO mean step = $(mean(minimum_step_arr))")
     # return
 
-    error_arr ./= 10
-    β_parameter ./= 10
-    c_parameter ./= 10
-    γ_parameter ./= 10
-    I0_parameter ./= 10
+    for i = 1:num_swarm_runs
+        for j = 1:num_particles
+            error_arr_temp[j] = load(joinpath(@__DIR__, "swarm$(argmin(minimum_arr))", "$(j)", "results_$(i).jld"))["error"]
+            β_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(argmin(minimum_arr))", "$(j)", "results_$(i).jld"))["β_parameter"]
+            c_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(argmin(minimum_arr))", "$(j)", "results_$(i).jld"))["c_parameter"]
+            γ_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(argmin(minimum_arr))", "$(j)", "results_$(i).jld"))["γ_parameter"]
+            I0_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(argmin(minimum_arr))", "$(j)", "results_$(i).jld"))["I0_parameter"]
+        end
+        for j = 1:num_particles
+            error_arr[(i - 1) * num_particles + j] = minimum(error_arr_temp)
+            β_parameter[(i - 1) * num_particles + j] = β_parameter_temp[argmin(error_arr_temp)]
+            c_parameter[(i - 1) * num_particles + j] = c_parameter_temp[argmin(error_arr_temp)]
+            γ_parameter[(i - 1) * num_particles + j] = γ_parameter_temp[argmin(error_arr_temp)]
+            I0_parameter[(i - 1) * num_particles + j] = I0_parameter_temp[argmin(error_arr_temp)]
+        end
+    end
 
     plot!(
         1:(num_swarm_runs * num_particles),
@@ -645,7 +715,7 @@ function optimization_methods()
     xlabel_name = "Step"
     ylabel_name = "RMSE"
 
-    for method_run = 1:10
+    for method_run = 1:num_method_runs
         for i = 1:num_ga_runs
             for j = 1:population_size
                 error_arr_temp[j] = load(joinpath(@__DIR__, "ga$(method_run)", "$(i)", "results_$(j).jld"))["error"]
@@ -673,6 +743,23 @@ function optimization_methods()
     # println("GA mean step = $(mean(minimum_step_arr))")
     # return
 
+    for i = 1:num_ga_runs
+        for j = 1:population_size
+            error_arr_temp[j] = load(joinpath(@__DIR__, "ga$(argmin(minimum_arr))", "$(i)", "results_$(j).jld"))["error"]
+            β_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(argmin(minimum_arr))", "$(i)", "results_$(j).jld"))["β_parameter"]
+            c_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(argmin(minimum_arr))", "$(i)", "results_$(j).jld"))["c_parameter"]
+            γ_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(argmin(minimum_arr))", "$(i)", "results_$(j).jld"))["γ_parameter"]
+            I0_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(argmin(minimum_arr))", "$(i)", "results_$(j).jld"))["I0_parameter"]
+        end
+        for j = 1:population_size
+            error_arr[(i - 1) * population_size + j] = minimum(error_arr_temp)
+            β_parameter[(i - 1) * population_size + j] = β_parameter_temp[argmin(error_arr_temp)]
+            c_parameter[(i - 1) * population_size + j] = c_parameter_temp[argmin(error_arr_temp)]
+            γ_parameter[(i - 1) * population_size + j] = γ_parameter_temp[argmin(error_arr_temp)]
+            I0_parameter[(i - 1) * population_size + j] = I0_parameter_temp[argmin(error_arr_temp)]
+        end
+    end
+
     plot!(
         1:num_ga_runs * population_size,
         moving_average(error_arr[1:num_ga_runs * population_size], 3),
@@ -686,16 +773,16 @@ function optimization_methods()
         ylabel = ylabel_name,
     )
 
-    min_argument = argmin(error_arr[1:200])
-    println("GA")
-    println(error_arr[min_argument])
-    println(min_argument)
-    println(β_parameter[min_argument])
-    println(c_parameter[min_argument])
-    println(γ_parameter[min_argument])
-    println(I0_parameter[min_argument])
-    println()
-    return
+    # min_argument = argmin(error_arr[1:200])
+    # println("GA")
+    # println(error_arr[min_argument])
+    # println(min_argument)
+    # println(β_parameter[min_argument])
+    # println(c_parameter[min_argument])
+    # println(γ_parameter[min_argument])
+    # println(I0_parameter[min_argument])
+    # println()
+    # return
 
     savefig(error_plot, joinpath(@__DIR__, "optimization_methods.pdf"))
 end
