@@ -101,10 +101,17 @@ function sim!(agents_initial, nsteps, dt, p)
 end
 
 function run_model_plot(agents_initial, nsteps, δt)
-    β, c, γ, I0 = 0.030430197420209068, 15.924772119635719, 0.0194959896879141, 45.555913601651035
+    num_runs = 10
+    β, c, γ, I0 = 0.0320317798685097, 15.222030086565974, 0.01947785846755082, 48.01541900675947
 
-    df_abm_arr = []
-    for method_num = :10
+    df_abm_arr_S = []
+    df_abm_arr_I = []
+    df_abm_arr_R = []
+    df_abm_t = []
+    df_abm_S = zeros(Float64, 401)
+    df_abm_I = zeros(Float64, 401)
+    df_abm_R = zeros(Float64, 401)
+    for i = 1:num_runs
         # Reset
         for i in 1:length(agents_initial)
             if i <= I0 # I0
@@ -114,13 +121,36 @@ function run_model_plot(agents_initial, nsteps, δt)
             end
         end
         p = [β, c, γ, δt]
-        push!(df_abm_arr, sim!(agents_initial, nsteps, δt, p))
+        df_abm_temp = sim!(agents_initial, nsteps, δt, p)
+        push!(df_abm_arr_S, df_abm_temp.S)
+        push!(df_abm_arr_I, df_abm_temp.I)
+        push!(df_abm_arr_R, df_abm_temp.R)
+        if i == num_runs
+            df_abm_t = df_abm_temp.t
+        end
     end
-    df_abm = 1
+    for i = 1:length(df_abm_S)
+        for j = 1:num_runs
+            df_abm_S[i] += df_abm_arr_S[j][i]
+        end
+        df_abm_S[i] /= num_runs
+    end
+    for i = 1:length(df_abm_I)
+        for j = 1:num_runs
+            df_abm_I[i] += df_abm_arr_I[j][i]
+        end
+        df_abm_I[i] /= num_runs
+    end
+    for i = 1:length(df_abm_R)
+        for j = 1:num_runs
+            df_abm_R[i] += df_abm_arr_R[j][i]
+        end
+        df_abm_R[i] /= num_runs
+    end
 
     pl1 = plot(
-        df_abm.t,
-        df_abm.S,
+        df_abm_t,
+        df_abm_S,
         label="MCMC LHS",
         xlabel="Time",
         lw = 1.5,
@@ -130,8 +160,8 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     pl2 = plot(
-        df_abm.t,
-        df_abm.I,
+        df_abm_t,
+        df_abm_I,
         xlabel="Time",
         label="MCMC LHS",
         lw = 1.5,
@@ -141,8 +171,8 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     pl3 = plot(
-        df_abm.t,
-        df_abm.R,
+        df_abm_t,
+        df_abm_R,
         xlabel="Time",
         label="MCMC LHS",
         lw = 1.5,
@@ -152,23 +182,58 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
-    β, c, γ, I0 = 0.06308478645916318, 8.620302179936914, 0.02120364824191881, 13.030465864640968
+    β, c, γ, I0 = 0.07447012760371949, 9.231202825682047, 0.03140516369043498, 19.43276986123847
 
-    # Reset
-    for i in 1:length(agents_initial)
-        if i <= I0 # I0
-            agents_initial[i] = Infected
-        else
-            agents_initial[i] = Susceptible
+    df_abm_arr_S = []
+    df_abm_arr_I = []
+    df_abm_arr_R = []
+    df_abm_t = []
+    df_abm_S = zeros(Float64, 401)
+    df_abm_I = zeros(Float64, 401)
+    df_abm_R = zeros(Float64, 401)
+
+    for i = 1:num_runs
+        # Reset
+        for i in 1:length(agents_initial)
+            if i <= I0 # I0
+                agents_initial[i] = Infected
+            else
+                agents_initial[i] = Susceptible
+            end
+        end
+        p = [β, c, γ, δt]
+        df_abm_temp = sim!(agents_initial, nsteps, δt, p)
+        push!(df_abm_arr_S, df_abm_temp.S)
+        push!(df_abm_arr_I, df_abm_temp.I)
+        push!(df_abm_arr_R, df_abm_temp.R)
+        if i == num_runs
+            df_abm_t = df_abm_temp.t
         end
     end
-    p = [β, c, γ, δt]
-    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    for i = 1:length(df_abm_S)
+        for j = 1:num_runs
+            df_abm_S[i] += df_abm_arr_S[j][i]
+        end
+        df_abm_S[i] /= num_runs
+    end
+    for i = 1:length(df_abm_I)
+        for j = 1:num_runs
+            df_abm_I[i] += df_abm_arr_I[j][i]
+        end
+        df_abm_I[i] /= num_runs
+    end
+    for i = 1:length(df_abm_R)
+        for j = 1:num_runs
+            df_abm_R[i] += df_abm_arr_R[j][i]
+        end
+        df_abm_R[i] /= num_runs
+    end
 
     plot!(
         pl1,
-        df_abm.t,
-        df_abm.S,
+        df_abm_t,
+        df_abm_S,
         label="MCMC manual",
         xlabel="Time",
         lw = 1.5,
@@ -179,8 +244,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl2,
-        df_abm.t,
-        df_abm.I,
+        df_abm_t,
+        df_abm_I,
         xlabel="Time",
         label="MCMC manual",
         lw = 1.5,
@@ -191,8 +256,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl3,
-        df_abm.t,
-        df_abm.R,
+        df_abm_t,
+        df_abm_R,
         xlabel="Time",
         label="MCMC manual",
         lw = 1.5,
@@ -221,8 +286,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     # df_abm = sim!(agents_initial, nsteps, δt, p)
 
     # plot!(
-    #     df_abm.t,
-    #     df_abm.S,
+    #     df_abm_t,
+    #     df_abm_S,
     #     label="MA LHS",
     #     xlabel="Time",
     #     lw = 1.5,
@@ -232,8 +297,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     background_color_legend = nothing,
     # )
     # plot!(
-    #     df_abm.t,
-    #     df_abm.I,
+    #     df_abm_t,
+    #     df_abm_I,
     #     xlabel="Time",
     #     label = false,
     #     lw = 1.5,
@@ -243,8 +308,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     background_color_legend = nothing,
     # )
     # plot!(
-    #     df_abm.t,
-    #     df_abm.R,
+    #     df_abm_t,
+    #     df_abm_R,
     #     xlabel="Time",
     #     label = false,
     #     lw = 1.5,
@@ -268,8 +333,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     # df_abm = sim!(agents_initial, nsteps, δt, p)
 
     # plot!(
-    #     df_abm.t,
-    #     df_abm.S,
+    #     df_abm_t,
+    #     df_abm_S,
     #     label="MA manual",
     #     xlabel="Time",
     #     lw = 1.5,
@@ -279,8 +344,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     background_color_legend = nothing,
     # )
     # plot!(
-    #     df_abm.t,
-    #     df_abm.I,
+    #     df_abm_t,
+    #     df_abm_I,
     #     xlabel="Time",
     #     label = false,
     #     lw = 1.5,
@@ -290,8 +355,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     background_color_legend = nothing,
     # )
     # plot!(
-    #     df_abm.t,
-    #     df_abm.R,
+    #     df_abm_t,
+    #     df_abm_R,
     #     xlabel="Time",
     #     label = false,
     #     lw = 1.5,
@@ -303,21 +368,56 @@ function run_model_plot(agents_initial, nsteps, δt)
 
     β, c, γ, I0 = 0.04015588000792237, 14.042766928236292, 0.025306519444912277, 39.473420356197515
 
-    # Reset
-    for i in 1:length(agents_initial)
-        if i <= I0 # I0
-            agents_initial[i] = Infected
-        else
-            agents_initial[i] = Susceptible
+    df_abm_arr_S = []
+    df_abm_arr_I = []
+    df_abm_arr_R = []
+    df_abm_t = []
+    df_abm_S = zeros(Float64, 401)
+    df_abm_I = zeros(Float64, 401)
+    df_abm_R = zeros(Float64, 401)
+
+    for i = 1:num_runs
+        # Reset
+        for i in 1:length(agents_initial)
+            if i <= I0 # I0
+                agents_initial[i] = Infected
+            else
+                agents_initial[i] = Susceptible
+            end
+        end
+        p = [β, c, γ, δt]
+        df_abm_temp = sim!(agents_initial, nsteps, δt, p)
+        push!(df_abm_arr_S, df_abm_temp.S)
+        push!(df_abm_arr_I, df_abm_temp.I)
+        push!(df_abm_arr_R, df_abm_temp.R)
+        if i == num_runs
+            df_abm_t = df_abm_temp.t
         end
     end
-    p = [β, c, γ, δt]
-    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    for i = 1:length(df_abm_S)
+        for j = 1:num_runs
+            df_abm_S[i] += df_abm_arr_S[j][i]
+        end
+        df_abm_S[i] /= num_runs
+    end
+    for i = 1:length(df_abm_I)
+        for j = 1:num_runs
+            df_abm_I[i] += df_abm_arr_I[j][i]
+        end
+        df_abm_I[i] /= num_runs
+    end
+    for i = 1:length(df_abm_R)
+        for j = 1:num_runs
+            df_abm_R[i] += df_abm_arr_R[j][i]
+        end
+        df_abm_R[i] /= num_runs
+    end
 
     plot!(
         pl1,
-        df_abm.t,
-        df_abm.S,
+        df_abm_t,
+        df_abm_S,
         label="SM",
         xlabel="Time",
         lw = 1.5,
@@ -328,8 +428,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl2,
-        df_abm.t,
-        df_abm.I,
+        df_abm_t,
+        df_abm_I,
         label="SM",
         xlabel="Time",
         lw = 1.5,
@@ -340,8 +440,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl3,
-        df_abm.t,
-        df_abm.R,
+        df_abm_t,
+        df_abm_R,
         label="SM",
         xlabel="Time",
         lw = 1.5,
@@ -351,23 +451,58 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
-    β, c, γ, I0 = 0.05653644928215323, 10.097903296569601, 0.026037690277114615, 35.80276197473462
+    β, c, γ, I0 = 0.02566264894291515, 18.4744858309475, 0.01868922377633394, 35.04930705707181
 
-    # Reset
-    for i in 1:length(agents_initial)
-        if i <= I0 # I0
-            agents_initial[i] = Infected
-        else
-            agents_initial[i] = Susceptible
+    df_abm_arr_S = []
+    df_abm_arr_I = []
+    df_abm_arr_R = []
+    df_abm_t = []
+    df_abm_S = zeros(Float64, 401)
+    df_abm_I = zeros(Float64, 401)
+    df_abm_R = zeros(Float64, 401)
+
+    for i = 1:num_runs
+        # Reset
+        for i in 1:length(agents_initial)
+            if i <= I0 # I0
+                agents_initial[i] = Infected
+            else
+                agents_initial[i] = Susceptible
+            end
+        end
+        p = [β, c, γ, δt]
+        df_abm_temp = sim!(agents_initial, nsteps, δt, p)
+        push!(df_abm_arr_S, df_abm_temp.S)
+        push!(df_abm_arr_I, df_abm_temp.I)
+        push!(df_abm_arr_R, df_abm_temp.R)
+        if i == num_runs
+            df_abm_t = df_abm_temp.t
         end
     end
-    p = [β, c, γ, δt]
-    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    for i = 1:length(df_abm_S)
+        for j = 1:num_runs
+            df_abm_S[i] += df_abm_arr_S[j][i]
+        end
+        df_abm_S[i] /= num_runs
+    end
+    for i = 1:length(df_abm_I)
+        for j = 1:num_runs
+            df_abm_I[i] += df_abm_arr_I[j][i]
+        end
+        df_abm_I[i] /= num_runs
+    end
+    for i = 1:length(df_abm_R)
+        for j = 1:num_runs
+            df_abm_R[i] += df_abm_arr_R[j][i]
+        end
+        df_abm_R[i] /= num_runs
+    end
 
     plot!(
         pl1,
-        df_abm.t,
-        df_abm.S,
+        df_abm_t,
+        df_abm_S,
         label="PSO",
         xlabel="Time",
         lw = 1.5,
@@ -378,8 +513,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl2,
-        df_abm.t,
-        df_abm.I,
+        df_abm_t,
+        df_abm_I,
         label="PSO",
         xlabel="Time",
         lw = 1.5,
@@ -390,8 +525,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl3,
-        df_abm.t,
-        df_abm.R,
+        df_abm_t,
+        df_abm_R,
         label="PSO",
         xlabel="Time",
         lw = 1.5,
@@ -401,23 +536,58 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
-    β, c, γ, I0 = 0.02, 24.026775144773154, 0.01573309815588694, 28.22222222222222
+    β, c, γ, I0 = 0.029279761612317372, 19.2731042457002, 0.01941136446065339, 8.97178358572054
 
-    # Reset
-    for i in 1:length(agents_initial)
-        if i <= I0 # I0
-            agents_initial[i] = Infected
-        else
-            agents_initial[i] = Susceptible
+    df_abm_arr_S = []
+    df_abm_arr_I = []
+    df_abm_arr_R = []
+    df_abm_t = []
+    df_abm_S = zeros(Float64, 401)
+    df_abm_I = zeros(Float64, 401)
+    df_abm_R = zeros(Float64, 401)
+
+    for i = 1:num_runs
+        # Reset
+        for i in 1:length(agents_initial)
+            if i <= I0 # I0
+                agents_initial[i] = Infected
+            else
+                agents_initial[i] = Susceptible
+            end
+        end
+        p = [β, c, γ, δt]
+        df_abm_temp = sim!(agents_initial, nsteps, δt, p)
+        push!(df_abm_arr_S, df_abm_temp.S)
+        push!(df_abm_arr_I, df_abm_temp.I)
+        push!(df_abm_arr_R, df_abm_temp.R)
+        if i == num_runs
+            df_abm_t = df_abm_temp.t
         end
     end
-    p = [β, c, γ, δt]
-    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    for i = 1:length(df_abm_S)
+        for j = 1:num_runs
+            df_abm_S[i] += df_abm_arr_S[j][i]
+        end
+        df_abm_S[i] /= num_runs
+    end
+    for i = 1:length(df_abm_I)
+        for j = 1:num_runs
+            df_abm_I[i] += df_abm_arr_I[j][i]
+        end
+        df_abm_I[i] /= num_runs
+    end
+    for i = 1:length(df_abm_R)
+        for j = 1:num_runs
+            df_abm_R[i] += df_abm_arr_R[j][i]
+        end
+        df_abm_R[i] /= num_runs
+    end
 
     plot!(
         pl1,
-        df_abm.t,
-        df_abm.S,
+        df_abm_t,
+        df_abm_S,
         label="GA",
         xlabel="Time",
         lw = 1.5,
@@ -428,8 +598,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl2,
-        df_abm.t,
-        df_abm.I,
+        df_abm_t,
+        df_abm_I,
         label="GA",
         xlabel="Time",
         lw = 1.5,
@@ -440,8 +610,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl3,
-        df_abm.t,
-        df_abm.R,
+        df_abm_t,
+        df_abm_R,
         label="GA",
         xlabel="Time",
         lw = 1.5,
@@ -454,7 +624,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     # Ref
     plot!(
         pl1,
-        df_abm.t,
+        df_abm_t,
         S_ref,
         label="Reference",
         lw = 2.0,
@@ -466,7 +636,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl2,
-        df_abm.t,
+        df_abm_t,
         I_ref,
         label="Reference",
         lw = 2.0,
@@ -478,7 +648,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl3,
-        df_abm.t,
+        df_abm_t,
         R_ref,
         label="Reference",
         lw = 2.0,
@@ -493,7 +663,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     savefig(pl2, joinpath(@__DIR__, "sir_I.pdf"))
     savefig(pl3, joinpath(@__DIR__, "sir_R.pdf"))
     
-    error = sqrt(1 / 1200 * sum((df_abm.S - S_ref).^2) + 1 / 1200 * sum((df_abm.I - I_ref).^2) + 1 / 1200 * sum((df_abm.R - R_ref).^2))
+    error = sqrt(1 / 1200 * sum((df_abm_S - S_ref).^2) + 1 / 1200 * sum((df_abm_I - I_ref).^2) + 1 / 1200 * sum((df_abm_R - R_ref).^2))
     return error
 end
 
@@ -2218,7 +2388,7 @@ function main()
     # return
 
 
-    # run_model_plot(agents_initial, nsteps, δt)
+    run_model_plot(agents_initial, nsteps, δt)
 
     # for i in 1:N
     #     if i <= 20
@@ -2235,7 +2405,7 @@ function main()
     # @time lhs_simulations(10, agents_initial, nsteps, δt, 10)
 
     # mcmc_simulations(200, agents_initial, nsteps, δt, 10)
-    mcmc_simulations_lhs(200, agents_initial, nsteps, δt, 1)
+    # mcmc_simulations_lhs(200, agents_initial, nsteps, δt, 1)
     # @time run_surrogate_model(200, agents_initial, nsteps, δt, 2)
     # @time run_swarm_model(20, agents_initial, nsteps, δt, 1)
     # @time genetic_algorithm(20, agents_initial, nsteps, δt, 1)
