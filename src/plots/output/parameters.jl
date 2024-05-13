@@ -524,9 +524,9 @@ function optimization_methods()
     end
 
     # println("MCMC LHS minimum method run = $(argmin(minimum_arr))")
-    # println("MCMC LHS min error = $(minimum(minimum_arr))")
-    # println("MCMC LHS mean error = $(mean(minimum_arr))")
-    # println("MCMC LHS min step = $(minimum(minimum_step_arr))")
+    # println("MCMC LHS min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
+    # println("MCMC LHS mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
+    # println("MCMC LHS min step = $(minimum_step_arr[argmin(minimum_arr)])")
     # println("MCMC LHS mean step = $(mean(minimum_step_arr))")
     # return
 
@@ -824,9 +824,9 @@ function optimization_methods()
     end
 
     # println("MCMC manual minimum method run = $(argmin(minimum_arr))")
-    # println("MCMC manual min error = $(minimum(minimum_arr))")
-    # println("MCMC manual mean error = $(mean(minimum_arr))")
-    # println("MCMC manual min step = $(minimum(minimum_step_arr))")
+    # println("MCMC manual min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
+    # println("MCMC manual mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
+    # println("MCMC manual min step = $(minimum_step_arr[argmin(minimum_arr)])")
     # println("MCMC manual mean step = $(mean(minimum_step_arr))")
     # return
 
@@ -1092,9 +1092,9 @@ function optimization_methods()
     end
 
     # println("SM minimum method run = $(argmin(minimum_arr))")
-    # println("SM min error = $(minimum(minimum_arr))")
-    # println("SM mean error = $(mean(minimum_arr))")
-    # println("SM min step = $(minimum(minimum_step_arr))")
+    # println("SM min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
+    # println("SM mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
+    # println("SM min step = $(minimum_step_arr[argmin(minimum_arr)])")
     # println("SM mean step = $(mean(minimum_step_arr))")
     # return
 
@@ -1343,12 +1343,13 @@ function optimization_methods()
         end
         minimum_step_arr[method_run] = argmin(error_array)
         minimum_arr[method_run] = minimum(error_array)
+        # minimum_arr[method_run] = error_array[1]
     end
 
     # println("PSO minimum method run = $(argmin(minimum_arr))")
     # println("PSO min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
     # println("PSO mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
-    # println("PSO min step = $(minimum(minimum_step_arr))")
+    # println("PSO min step = $(minimum_step_arr[argmin(minimum_arr)])")
     # println("PSO mean step = $(mean(minimum_step_arr))")
     # return
 
@@ -1509,15 +1510,16 @@ function optimization_methods()
             end
         end
         minimum_step_arr[method_run] = argmin(error_array)
-        minimum_arr[method_run] = minimum(error_array)
+        # minimum_arr[method_run] = minimum(error_array)
+        minimum_arr[method_run] = error_array[1]
     end
 
-    # println("GA minimum method run = $(argmin(minimum_arr))")
-    # println("GA min error = $(minimum(minimum_arr))")
-    # println("GA mean error = $(mean(minimum_arr))")
-    # println("GA min step = $(minimum(minimum_step_arr))")
-    # println("GA mean step = $(mean(minimum_step_arr))")
-    # return
+    println("GA minimum method run = $(argmin(minimum_arr))")
+    println("GA min error = $(minimum(minimum_arr))")
+    println("GA mean error = $(mean(minimum_arr))")
+    println("GA min step = $(minimum_step_arr[argmin(minimum_arr)])")
+    println("GA mean step = $(mean(minimum_step_arr))")
+    return
 
     median_arg = 0
     for i = 1:num_method_runs
@@ -1756,13 +1758,21 @@ function optimization_methods_incidence_age_groups()
     incidence_arr_mean_PSO = zeros(Float64, 52, 4)
     incidence_arr_mean_GA = zeros(Float64, 52, 4)
 
-    observed_num_infected_age_groups_viruses_MCMC_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_LHS.jld"))["observed_cases"] ./ population_coef
-    observed_num_infected_age_groups_viruses_MCMC_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_manual.jld"))["observed_cases"] ./ population_coef
+    # observed_num_infected_age_groups_viruses_MCMC_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_LHS.jld"))["observed_cases"] ./ population_coef
+    # observed_num_infected_age_groups_viruses_MCMC_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_manual.jld"))["observed_cases"] ./ population_coef
+    # # observed_num_infected_age_groups_viruses_MA_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MA_LHS.jld"))["observed_cases"] ./ population_coef
+    # # observed_num_infected_age_groups_viruses_MA_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MA_manual.jld"))["observed_cases"] ./ population_coef
+    # observed_num_infected_age_groups_viruses_SM = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_SM.jld"))["observed_cases"] ./ population_coef
+    # observed_num_infected_age_groups_viruses_PSO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_PSO.jld"))["observed_cases"] ./ population_coef
+    # observed_num_infected_age_groups_viruses_GA = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_GA.jld"))["observed_cases"] ./ population_coef
+
+    observed_num_infected_age_groups_viruses_MCMC_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_LHS_min.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_MCMC_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_manual_min.jld"))["observed_cases"] ./ population_coef
     # observed_num_infected_age_groups_viruses_MA_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MA_LHS.jld"))["observed_cases"] ./ population_coef
     # observed_num_infected_age_groups_viruses_MA_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MA_manual.jld"))["observed_cases"] ./ population_coef
-    observed_num_infected_age_groups_viruses_SM = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_SM.jld"))["observed_cases"] ./ population_coef
-    observed_num_infected_age_groups_viruses_PSO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_PSO.jld"))["observed_cases"] ./ population_coef
-    observed_num_infected_age_groups_viruses_GA = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_GA.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_SM = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_SM_min.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_PSO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_PSO_min.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_GA = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_GA_min.jld"))["observed_cases"] ./ population_coef
 
     incidence_arr_mean_MCMC_LHS = sum(observed_num_infected_age_groups_viruses_MCMC_LHS, dims = 2)[:, 1, :][1:52, :]
     incidence_arr_mean_MCMC_manual = sum(observed_num_infected_age_groups_viruses_MCMC_manual, dims = 2)[:, 1, :][1:52, :]

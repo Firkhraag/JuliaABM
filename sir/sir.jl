@@ -102,7 +102,10 @@ end
 
 function run_model_plot(agents_initial, nsteps, δt)
     num_runs = 10
-    β, c, γ, I0 = 0.0320317798685097, 15.222030086565974, 0.01947785846755082, 48.01541900675947
+    # Best
+    β, c, γ, I0 = 0.02914546000421925, 16.99835897540075, 0.019603036841374714, 40.011319044945466
+    # Median
+    # β, c, γ, I0 = 0.0320317798685097, 15.222030086565974, 0.01947785846755082, 48.01541900675947
 
     df_abm_arr_S = []
     df_abm_arr_I = []
@@ -182,7 +185,10 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
-    β, c, γ, I0 = 0.07447012760371949, 9.231202825682047, 0.03140516369043498, 19.43276986123847
+    # Best
+    β, c, γ, I0 = 0.06308478645916318, 8.620302179936914, 0.02120364824191881, 13.030465864640968
+    # Median
+    # β, c, γ, I0 = 0.07447012760371949, 9.231202825682047, 0.03140516369043498, 19.43276986123847
 
     df_abm_arr_S = []
     df_abm_arr_I = []
@@ -366,7 +372,10 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     background_color_legend = nothing,
     # )
 
-    β, c, γ, I0 = 0.04015588000792237, 14.042766928236292, 0.025306519444912277, 39.473420356197515
+    # Best
+    β, c, γ, I0 = 0.020680567299059184, 24.96253908208722, 0.020729138990765946, 24.014891329173516
+    # Median
+    # β, c, γ, I0 = 0.03927349878742921, 21.66574708234853, 0.04699396824842727, 3.310893118869288
 
     df_abm_arr_S = []
     df_abm_arr_I = []
@@ -451,7 +460,10 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
-    β, c, γ, I0 = 0.02566264894291515, 18.4744858309475, 0.01868922377633394, 35.04930705707181
+    # Best
+    β, c, γ, I0 = 0.043145839036186344, 12.061908252437279, 0.0209793523053137, 25.39745553515337
+    # Median
+    # β, c, γ, I0 = 0.02566264894291515, 18.4744858309475, 0.01868922377633394, 35.04930705707181
 
     df_abm_arr_S = []
     df_abm_arr_I = []
@@ -536,7 +548,10 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
-    β, c, γ, I0 = 0.029279761612317372, 19.2731042457002, 0.01941136446065339, 8.97178358572054
+    # Best
+    β, c, γ, I0 = 0.04000000000000001, 11.3822576069654, 0.018210965408549492, 46.57974385928745
+    # Median
+    # β, c, γ, I0 = 0.029279761612317372, 19.2731042457002, 0.01941136446065339, 8.97178358572054
 
     df_abm_arr_S = []
     df_abm_arr_I = []
@@ -1119,18 +1134,38 @@ function mcmc_simulations_metropolis(
         # end
 
         x = β_parameter_array[end]
+        if abs(x - 0.02) < 0.00001
+            x += 0.001
+        elseif abs(x - 0.2) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 0.02) / (0.2 - x)), β_parameter_delta))
         β_parameter = (0.2 * exp(y) + 0.02) / (1 + exp(y))
 
         x = c_parameter_array[end]
+        if abs(x - 5) < 0.00001
+            x += 0.1
+        elseif abs(x - 25) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 5) / (25 - x)), c_parameter_delta))
         c_parameter = (25 * exp(y) + 5) / (1 + exp(y))
 
         x = γ_parameter_array[end]
+        if abs(x - 0.01) < 0.00001
+            x += 0.001
+        elseif abs(x - 0.05) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 0.01) / (0.05 - x)), γ_parameter_delta))
         γ_parameter = (0.05 * exp(y) + 0.01) / (1 + exp(y))
 
         x = I0_parameter_array[end]
+        if abs(x - 1) < 0.00001
+            x += 0.1
+        elseif abs(x - 50) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 1) / (50 - x)), I0_parameter_delta))
         I0_parameter = (50 * exp(y) + 1) / (1 + exp(y))
 
@@ -1296,19 +1331,40 @@ function mcmc_simulations_metropolis_lhs(
         #     I0_parameter = 50
         # end
 
+        
         x = β_parameter_array[end]
+        if abs(x - 0.02) < 0.00001
+            x += 0.001
+        elseif abs(x - 0.2) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 0.02) / (0.2 - x)), β_parameter_delta))
         β_parameter = (0.2 * exp(y) + 0.02) / (1 + exp(y))
 
         x = c_parameter_array[end]
+        if abs(x - 5) < 0.00001
+            x += 0.1
+        elseif abs(x - 25) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 5) / (25 - x)), c_parameter_delta))
         c_parameter = (25 * exp(y) + 5) / (1 + exp(y))
 
         x = γ_parameter_array[end]
+        if abs(x - 0.01) < 0.00001
+            x += 0.001
+        elseif abs(x - 0.05) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 0.01) / (0.05 - x)), γ_parameter_delta))
         γ_parameter = (0.05 * exp(y) + 0.01) / (1 + exp(y))
 
         x = I0_parameter_array[end]
+        if abs(x - 1) < 0.00001
+            x += 0.1
+        elseif abs(x - 50) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 1) / (50 - x)), I0_parameter_delta))
         I0_parameter = (50 * exp(y) + 1) / (1 + exp(y))
 
@@ -1395,10 +1451,8 @@ function run_swarm_model(
     w = 0.5
     w_min = 0.4
     w_max = 0.9
-    # c1 = 2.0
-    # c2 = 2.0
-    c1 = 1.5
-    c2 = 1.5
+    c1 = 2.0
+    c2 = 2.0
 
     error_particles = zeros(Float64, num_particles) .+ 9.e12
 
@@ -1799,18 +1853,38 @@ function run_surrogate_model(
 
         for n = 1:1000
             x_cand = β_parameter_default
+            if abs(x_cand - 0.02) < 0.00001
+                x_cand += 0.001
+            elseif abs(x_cand - 0.2) < 0.00001
+                x_cand -= 0.001
+            end
             y_cand = rand(Normal(log((x_cand - 0.02) / (0.2 - x_cand)), β_parameter_delta))
             β_parameter_candidate = (0.2 * exp(y_cand) + 0.02) / (1 + exp(y_cand))
 
             x_cand = c_parameter_default
+            if abs(x_cand - 5) < 0.00001
+                x_cand += 0.1
+            elseif abs(x_cand - 25) < 0.00001
+                x_cand -= 0.1
+            end
             y_cand = rand(Normal(log((x_cand - 5) / (25 - x_cand)), c_parameter_delta))
             c_parameter_candidate = (25 * exp(y_cand) + 5) / (1 + exp(y_cand))
 
             x_cand = γ_parameter_default
+            if abs(x_cand - 0.01) < 0.00001
+                x_cand += 0.001
+            elseif abs(x_cand - 0.05) < 0.00001
+                x_cand -= 0.001
+            end
             y_cand = rand(Normal(log((x_cand - 0.01) / (0.05 - x_cand)), γ_parameter_delta))
             γ_parameter_candidate = (0.05 * exp(y_cand) + 0.01) / (1 + exp(y_cand))
 
             x_cand = I0_parameter_default
+            if abs(x_cand - 1) < 0.00001
+                x_cand += 0.1
+            elseif abs(x_cand - 50) < 0.00001
+                x_cand -= 0.1
+            end
             y_cand = rand(Normal(log((x_cand - 1) / (50 - x_cand)), I0_parameter_delta))
             I0_parameter_candidate = (50 * exp(y_cand) + 1) / (1 + exp(y_cand))
 
@@ -2068,10 +2142,20 @@ function run_surrogate_model_NN(
 
         for n = 1:1000
             x_cand = β_parameter_default
+            if abs(x_cand - 0.02) < 0.00001
+                x_cand += 0.001
+            elseif abs(x_cand - 0.2) < 0.00001
+                x_cand -= 0.001
+            end
             y_cand = rand(Normal(log((x_cand - 0.02) / (0.2 - x_cand)), β_parameter_delta))
             β_parameter_candidate = (0.2 * exp(y_cand) + 0.02) / (1 + exp(y_cand))
 
             x_cand = c_parameter_default
+            if abs(x_cand - 5) < 0.00001
+                x_cand += 0.1
+            elseif abs(x_cand - 25) < 0.00001
+                x_cand -= 0.1
+            end
             y_cand = rand(Normal(log((x_cand - 5) / (25 - x_cand)), c_parameter_delta))
             c_parameter_candidate = (25 * exp(y_cand) + 5) / (1 + exp(y_cand))
 
@@ -2404,9 +2488,9 @@ function main()
     # 10 sec
     # @time lhs_simulations(10, agents_initial, nsteps, δt, 10)
 
-    # mcmc_simulations(200, agents_initial, nsteps, δt, 10)
-    # mcmc_simulations_lhs(200, agents_initial, nsteps, δt, 1)
-    # @time run_surrogate_model(200, agents_initial, nsteps, δt, 2)
+    # @time mcmc_simulations(200, agents_initial, nsteps, δt, 10)
+    # @time mcmc_simulations_lhs(200, agents_initial, nsteps, δt, 1)
+    # @time run_surrogate_model(200, agents_initial, nsteps, δt, 9)
     # @time run_swarm_model(20, agents_initial, nsteps, δt, 1)
     # @time genetic_algorithm(20, agents_initial, nsteps, δt, 1)
 
