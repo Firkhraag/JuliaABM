@@ -583,6 +583,34 @@ function lhs_simulations(
     # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "lhs", "parameters.csv"), header = false)))
 
     # Интервалы значений параметров
+    # points = scaleLHC(latin_hypercube_plan, [
+    #     (0.1, 1.0), # duration_parameter
+    #     (1.0, 7.0), # susceptibility_parameters
+    #     (1.0, 7.0),
+    #     (1.0, 7.0),
+    #     (1.0, 7.0),
+    #     (1.0, 7.0),
+    #     (1.0, 7.0),
+    #     (1.0, 7.0),
+    #     (-1.0, -0.01), # temperature_parameters
+    #     (-1.0, -0.01),
+    #     (-1.0, -0.01),
+    #     (-1.0, -0.01),
+    #     (-1.0, -0.01),
+    #     (-1.0, -0.01),
+    #     (-1.0, -0.01),
+    #     (30, 365), # mean_immunity_durations
+    #     (30, 365),
+    #     (30, 365),
+    #     (30, 365),
+    #     (30, 365),
+    #     (30, 365),
+    #     (30, 365),
+    #     (0.0008, 0.0012), # random_infection_probabilities
+    #     (0.0005, 0.001),
+    #     (0.0002, 0.0005),
+    #     (0.000005, 0.00001),
+    # ])
     points = scaleLHC(latin_hypercube_plan, [
         (0.1, 1.0), # duration_parameter
         (1.0, 7.0), # susceptibility_parameters
@@ -856,113 +884,244 @@ function mcmc_simulations(
     for n = 1:1000
         # Кандидат для параметра продолжительности контакта в диапазоне (0.1, 1)
         x = duration_parameter_array[end]
+        # Против NaN
+        if abs(x - 0.1) < 0.00001
+            x += 0.001
+        elseif abs(x - 1) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 0.1) / (1 - x)), duration_parameter_delta))
         duration_parameter_candidate = (exp(y) + 0.1) / (1 + exp(y))
 
         # Кандидаты для параметров неспецифической восприимчивости к вирусам в диапазоне (1, 7)
         x = susceptibility_parameter_1_array[end]
+        if abs(x - 1) < 0.00001
+            x += 0.001
+        elseif abs(x - 7) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[1]))
         susceptibility_parameter_1_candidate = (7 * exp(y) + 1) / (1 + exp(y))
 
         x = susceptibility_parameter_2_array[end]
+        if abs(x - 1) < 0.00001
+            x += 0.001
+        elseif abs(x - 7) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[2]))
         susceptibility_parameter_2_candidate = (7 * exp(y) + 1) / (1 + exp(y))
 
         x = susceptibility_parameter_3_array[end]
+        if abs(x - 1) < 0.00001
+            x += 0.001
+        elseif abs(x - 7) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[3]))
         susceptibility_parameter_3_candidate = (7 * exp(y) + 1) / (1 + exp(y))
 
         x = susceptibility_parameter_4_array[end]
+        if abs(x - 1) < 0.00001
+            x += 0.001
+        elseif abs(x - 7) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[4]))
         susceptibility_parameter_4_candidate = (7 * exp(y) + 1) / (1 + exp(y))
 
         x = susceptibility_parameter_5_array[end]
+        if abs(x - 1) < 0.00001
+            x += 0.001
+        elseif abs(x - 7) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[5]))
         susceptibility_parameter_5_candidate = (7 * exp(y) + 1) / (1 + exp(y))
 
         x = susceptibility_parameter_6_array[end]
+        if abs(x - 1) < 0.00001
+            x += 0.001
+        elseif abs(x - 7) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[6]))
         susceptibility_parameter_6_candidate = (7 * exp(y) + 1) / (1 + exp(y))
 
         x = susceptibility_parameter_7_array[end]
+        if abs(x - 1) < 0.00001
+            x += 0.001
+        elseif abs(x - 7) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 1) / (7 - x)), susceptibility_parameter_deltas[7]))
         susceptibility_parameter_7_candidate = (7 * exp(y) + 1) / (1 + exp(y))
 
         # Кандидаты для параметров температуры воздуха в диапазоне (0.01, 1)
         x = temperature_parameter_1_array[end]
+        if abs(x - 0.01) < 0.00001
+            x += 0.0001
+        elseif abs(x - 0.01) < 0.00001
+            x -= 0.0001
+        end
         y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[1]))
         temperature_parameter_1_candidate = (exp(y) + 0.01) / (1 + exp(y))
 
         x = temperature_parameter_2_array[end]
+        if abs(x - 0.01) < 0.00001
+            x += 0.0001
+        elseif abs(x - 0.01) < 0.00001
+            x -= 0.0001
+        end
         y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[2]))
         temperature_parameter_2_candidate = (exp(y) + 0.01) / (1 + exp(y))
 
         x = temperature_parameter_3_array[end]
+        if abs(x - 0.01) < 0.00001
+            x += 0.0001
+        elseif abs(x - 0.01) < 0.00001
+            x -= 0.0001
+        end
         y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[3]))
         temperature_parameter_3_candidate = (exp(y) + 0.01) / (1 + exp(y))
 
         x = temperature_parameter_4_array[end]
+        if abs(x - 0.01) < 0.00001
+            x += 0.0001
+        elseif abs(x - 0.01) < 0.00001
+            x -= 0.0001
+        end
         y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[4]))
         temperature_parameter_4_candidate = (exp(y) + 0.01) / (1 + exp(y))
 
         x = temperature_parameter_5_array[end]
+        if abs(x - 0.01) < 0.00001
+            x += 0.0001
+        elseif abs(x - 0.01) < 0.00001
+            x -= 0.0001
+        end
         y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[5]))
         temperature_parameter_5_candidate = (exp(y) + 0.01) / (1 + exp(y))
 
         x = temperature_parameter_6_array[end]
+        if abs(x - 0.01) < 0.00001
+            x += 0.0001
+        elseif abs(x - 0.01) < 0.00001
+            x -= 0.0001
+        end
         y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[6]))
         temperature_parameter_6_candidate = (exp(y) + 0.01) / (1 + exp(y))
 
         x = temperature_parameter_7_array[end]
+        if abs(x - 0.01) < 0.00001
+            x += 0.0001
+        elseif abs(x - 0.01) < 0.00001
+            x -= 0.0001
+        end
         y = rand(Normal(log((x - 0.01) / (1 - x)), temperature_parameter_deltas[7]))
         temperature_parameter_7_candidate = (exp(y) + 0.01) / (1 + exp(y))
 
         # Кандидаты для параметров температуры воздуха в диапазоне (30, 365)
         x = mean_immunity_duration_1_array[end]
+        if abs(x - 30) < 0.00001
+            x += 0.1
+        elseif abs(x - 365) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[1]))
         mean_immunity_duration_1_candidate = (365 * exp(y) + 30) / (1 + exp(y))
 
         x = mean_immunity_duration_2_array[end]
+        if abs(x - 30) < 0.00001
+            x += 0.1
+        elseif abs(x - 365) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[2]))
         mean_immunity_duration_2_candidate = (365 * exp(y) + 30) / (1 + exp(y))
 
         x = mean_immunity_duration_3_array[end]
+        if abs(x - 30) < 0.00001
+            x += 0.1
+        elseif abs(x - 365) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[3]))
         mean_immunity_duration_3_candidate = (365 * exp(y) + 30) / (1 + exp(y))
 
         x = mean_immunity_duration_4_array[end]
+        if abs(x - 30) < 0.00001
+            x += 0.1
+        elseif abs(x - 365) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[4]))
         mean_immunity_duration_4_candidate = (365 * exp(y) + 30) / (1 + exp(y))
 
         x = mean_immunity_duration_5_array[end]
+        if abs(x - 30) < 0.00001
+            x += 0.1
+        elseif abs(x - 365) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[5]))
         mean_immunity_duration_5_candidate = (365 * exp(y) + 30) / (1 + exp(y))
 
         x = mean_immunity_duration_6_array[end]
+        if abs(x - 30) < 0.00001
+            x += 0.1
+        elseif abs(x - 365) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[6]))
         mean_immunity_duration_6_candidate = (365 * exp(y) + 30) / (1 + exp(y))
 
         x = mean_immunity_duration_7_array[end]
+        if abs(x - 30) < 0.00001
+            x += 0.1
+        elseif abs(x - 365) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 30) / (365 - x)), mean_immunity_duration_deltas[7]))
         mean_immunity_duration_7_candidate = (365 * exp(y) + 30) / (1 + exp(y))
         
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.0009, 0.0015)
         x = random_infection_probability_1_array[end]
+        if abs(x - 0.000005) < 0.0000001
+            x += 0.000001
+        elseif abs(x - 0.00001) < 0.0000001
+            x -= 0.000001
+        end
         y = rand(Normal(log((x - 0.0009) / (0.0015 - x)), random_infection_probability_deltas[1]))
         random_infection_probability_1_candidate = (0.0015 * exp(y) + 0.0009) / (1 + exp(y))
 
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 3-6 лет в диапазоне (0.0005, 0.001)
         x = random_infection_probability_2_array[end]
+        if abs(x - 0.0005) < 0.0000001
+            x += 0.000001
+        elseif abs(x - 0.001) < 0.0000001
+            x -= 0.000001
+        end
         y = rand(Normal(log((x - 0.0005) / (0.001 - x)), random_infection_probability_deltas[2]))
         random_infection_probability_2_candidate = (0.001 * exp(y) + 0.0005) / (1 + exp(y))
 
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 7-14 лет в диапазоне (0.0002, 0.0005)
         x = random_infection_probability_3_array[end]
+        if abs(x - 0.0002) < 0.0000001
+            x += 0.000001
+        elseif abs(x - 0.0005) < 0.0000001
+            x -= 0.000001
+        end
         y = rand(Normal(log((x - 0.0002) / (0.0005 - x)), random_infection_probability_deltas[3]))
         random_infection_probability_3_candidate = (0.0005 * exp(y) + 0.0002) / (1 + exp(y))
 
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 15+ лет в диапазоне (0.000005, 0.00001)
         x = random_infection_probability_4_array[end]
+        if abs(x - 0.000005) < 0.0000001
+            x += 0.000001
+        elseif abs(x - 0.00001) < 0.0000001
+            x -= 0.000001
+        end
         y = rand(Normal(log((x - 0.000005) / (0.00001 - x)), random_infection_probability_deltas[4]))
         random_infection_probability_4_candidate = (0.00001 * exp(y) + 0.000005) / (1 + exp(y))
 
@@ -1203,57 +1362,99 @@ end
 
 function main(
     # Набор параметров модели (порядок для вирусов: FluA, FluB, RV, RSV, AdV, PIV, CoV)
-    # duration_parameter::Float64 = 0.15574760338153604,
-    # susceptibility_parameters::Vector{Float64} = [2.432383535521401, 2.238084657549736, 3.9300635165658035, 5.1720010915454235, 5.144684292234647, 4.341625180301945, 5.6260953331716905],
-    # temperature_parameters::Vector{Float64} = -[0.9251684333883052, 0.7239220149884157, 0.049812103111112345, 0.10582041043086308, 0.038630895494711034, 0.03723490323281524, 0.20131912645634797],
-    # mean_immunity_durations::Vector{Float64} = [155.9752583833697, 247.24115717945472, 147.8575990177909, 203.0420746358355, 79.78372383057398, 177.17279810129776, 99.15211361389254],
-    # random_infection_probabilities::Vector{Float64} = [0.001, 0.0007000333340668348, 0.000438925392941535, 8.746936501061745e-6],
-
-    # error = 4.38556444505676e9
-    # duration_parameter = 0.12491389530449626,
-    # susceptibility_parameters = [2.0267880699882244, 3.062204171635858, 3.46780036165656, 4.789503090928519, 4.714298782767945, 3.802215748364907, 4.572644681270285],
-    # temperature_parameters = [-0.7153521521673498, -0.9361305043493773, -0.03172172153400624, -0.10630310447323005, -0.10832584012167107, -0.045746010805240656, -0.32629030815255883],
-    # mean_immunity_durations = [68.56969938931888, 210.860988630719, 169.55209070464323, 179.70758859254028, 121.65046669620797, 148.1694280845928, 147.97738323183862],
-    # random_infection_probabilities = [0.001115544545482825, 0.0007317760763034136, 0.00037378024577246135, 9.107902707742333e-6],
-
-    # error = 9.751066385203926e9
-    # duration_parameter = 0.12711879076782193,
-    # susceptibility_parameters = [2.5405397255090687, 1.8527530732836268, 3.6637296216013038, 4.787011400200863, 6.871151124235916, 4.268119625185843, 5.596938224084313],
-    # temperature_parameters = [-0.25921781712363323, -0.6281316953131505, -0.07310551415837968, -0.6751564359343738, -0.7366535157167386, -0.12920317563242972, -0.41600565213437],
-    # mean_immunity_durations = [295.51873863039424, 159.47725061199102, 163.19877181400665, 131.07031971733642, 333.19788631132093, 219.8849551840539, 112.22159862423402],
-    # random_infection_probabilities = [0.0008728419885002607, 0.0007209669579973035, 0.00039770334346275196, 6.282630872363122e-6],
+    duration_parameter::Float64 = 0.15574760338153604,
+    susceptibility_parameters::Vector{Float64} = [2.432383535521401, 2.238084657549736, 3.9300635165658035, 5.1720010915454235, 5.144684292234647, 4.341625180301945, 5.6260953331716905],
+    temperature_parameters::Vector{Float64} = -[0.9251684333883052, 0.7239220149884157, 0.049812103111112345, 0.10582041043086308, 0.038630895494711034, 0.03723490323281524, 0.20131912645634797],
+    mean_immunity_durations::Vector{Float64} = [155.9752583833697, 247.24115717945472, 147.8575990177909, 203.0420746358355, 79.78372383057398, 177.17279810129776, 99.15211361389254],
+    random_infection_probabilities::Vector{Float64} = [0.001, 0.0007000333340668348, 0.000438925392941535, 8.746936501061745e-6],
 
     # MCMC LHS
-    # error = 5.997475577867344e9
+    # error = 5.906491267092039e9
     # duration_parameter = 0.6836096049964684,
     # susceptibility_parameters = [4.422042129636762, 6.674880655823003, 5.416663188728954, 6.911797884673558, 6.515574917304246, 5.89207192875999, 5.984482617057906],
     # temperature_parameters = [-0.4397422029513416, -0.6132760922464195, -0.1007216671230323, -0.3484895233007728, -0.5526386854501036, -0.18359766575695907, -0.5697112516741141],
     # mean_immunity_durations = [66.59361066755274, 167.29430561157912, 181.54168281163075, 82.76190426719762, 229.8826630449047, 106.23663506459398, 207.45624260208092],
     # random_infection_probabilities = [0.0010497196479904256, 0.0008953788980282482, 0.00020959204715157356, 9.014916175469198e-6],
 
-    # MCMC manual
-    # error = 4.447956218200794e9
-    # duration_parameter = 0.12491389530449626,
-    # susceptibility_parameters = [2.0267880699882244, 3.062204171635858, 3.46780036165656, 4.789503090928519, 4.714298782767945, 3.802215748364907, 4.572644681270285],
-    # temperature_parameters = [-0.7153521521673498, -0.9361305043493773, -0.03172172153400624, -0.10630310447323005, -0.10832584012167107, -0.045746010805240656, -0.32629030815255883],
-    # mean_immunity_durations = [68.56969938931888, 210.860988630719, 169.55209070464323, 179.70758859254028, 121.65046669620797, 148.1694280845928, 147.97738323183862],
-    # random_infection_probabilities = [0.001115544545482825, 0.0007317760763034136, 0.00037378024577246135, 9.107902707742333e-6],
+    # MCMC LHS min
+    # error = 5.050658104801099e9
+    # duration_parameter = 0.6287116180864318,
+    # susceptibility_parameters = [4.327698109580688, 6.7206710575008115, 5.312137282696426, 6.876199633375326, 6.485232977401941, 5.802232153312602, 6.901229580301192],
+    # temperature_parameters = [-0.6126564681374802, -0.6309118231483453, -0.11226659978474979, -0.19267424585496967, -0.6884618593461516, -0.11182184030714505, -0.08459717222887626],
+    # mean_immunity_durations = [64.790735105905, 230.04812366450543, 231.68744800699037, 188.30989780585705, 101.75722443617798, 116.84227447498564, 114.90482127612499],
+    # random_infection_probabilities = [0.0009641747785804967, 0.0008172419561387431, 0.00020642588628231356, 8.67591245199362e-6],
 
-    # SM
-    # error = 6.574163805052476e9
+    # MCMC LHS 10
+    # error = 1.4701284360743778e10
+    # duration_parameter = 0.11370463353564061,
+    # susceptibility_parameters = [6.6213665199981815, 5.516714557951025, 3.35527535667794, 4.7476100237267485, 4.771172630269047, 6.928776447035087, 4.855940784229739],
+    # temperature_parameters = [-0.4600370007735176, -0.1436701946651959, -0.014112302259234362, -0.9120192104475546, -0.4989034711827188, -0.5990653794423025, -0.7615609629341725],
+    # mean_immunity_durations = [218.96929523656723, 249.57097134932218, 358.98553186859414, 149.13825639361002, 237.84046947186823, 38.78294886555128, 188.9097089071463],
+    # random_infection_probabilities = [0.0012768526962131444, 0.0009750197256378735, 0.00043867101606958876, 6.918495637830443e-6],
+
+    # MCMC LHS 10
+    # duration_parameter = 0.563963963963964,
+    # susceptibility_parameters = [6.063063063063063, 6.615615615615615, 6.225225225225225, 6.903903903903904, 6.357357357357357, 5.714714714714715, 6.195195195195195],
+    # temperature_parameters = [-0.27558558558558566, -0.6848648648648649, -0.12396396396396403, -0.20126126126126131, -0.45099099099099094, -0.2567567567567568, -0.2617117117117117],
+    # mean_immunity_durations = [101.42642642642643, 195.32032032032032, 217.11711711711712, 112.49249249249249, 194.31431431431432, 132.61261261261262, 174.19419419419418],
+    # random_infection_probabilities = [0.0009701701701701701, 0.0007992992992992993, 0.00021471471471471473, 9.10910910910911e-6],
+
+    # MCMC manual min
+    # error = 4.510619200722299e9
+    # duration_parameter = 0.13140581025936976,
+    # susceptibility_parameters = [2.0566074885330488, 3.0827879756071206, 3.4641451307395497, 4.909062203559194, 4.420707850143307, 4.288324659694328, 4.859037272741698],
+    # temperature_parameters = [-0.815814624332201, -0.9249531831298737, -0.04118966968287925, -0.13681065544828688, -0.08104797563216716, -0.05558050295344709, -0.34100942439049675],
+    # mean_immunity_durations = [87.03289276814318, 222.66100903865174, 178.9082843855448, 144.88742161790404, 128.5711251853953, 190.30705193903222, 155.8898547815887],
+    # random_infection_probabilities = [0.0011284377449172769, 0.0007565560150597702, 0.00038279892155274986, 9.175300894168833e-6],
+
+    # MCMC manual min
+    # error = 3.708175165291914e9
+    # duration_parameter = 0.16689153087048203,
+    # susceptibility_parameters = [2.4736514293964866, 2.448419795706407, 4.028263060779258, 5.172557291296205, 4.9826357856417145, 4.5041322560583135, 4.572313818349621],
+    # temperature_parameters = [-0.9294145759592058, -0.9504417633317794, -0.06630678676027946, -0.2910992446562786, -0.029000645448492676, -0.051003362886909646, -0.5139699456685626],
+    # mean_immunity_durations = [134.75474743806583, 140.93089902267093, 148.22573821255892, 182.90817344184407, 153.59570584593274, 141.50537113612933, 191.30830184986968],
+    # random_infection_probabilities = [0.000998880612437178, 0.0007065878140429894, 0.0003964969182894227, 9.382101442918667e-6],
+
+    # SM 1000
+    # error = 6.527023985341283e9
     # duration_parameter = 0.18191593012049004,
     # susceptibility_parameters = [2.8904192990252424, 5.380791654857798, 4.29300491625977, 6.513037145195764, 5.6375222850106255, 5.449515670317645, 5.955484842758743],
     # temperature_parameters = [-0.9783983355616618, -0.22659309032522906, -0.20747401999160114, -0.03497949354457638, -0.9943621569499794, -0.13364787924638274, -0.7525474062979141],
     # mean_immunity_durations = [58.609136598676976, 58.86540766129654, 137.2608015108401, 87.8717545444819, 42.6916803479778, 72.23768381200641, 320.37089317548833],
     # random_infection_probabilities = [0.0011290279099200906, 0.0007288373441241177, 0.00022958582793487146, 7.764944870145842e-6],
 
+    # SM 1000 min
+    # error = 5.562400833857676e9
+    # duration_parameter = 0.11343039853741697,
+    # susceptibility_parameters = [1.8816134986604256, 1.7771976004666252, 3.256679094645595, 6.039493693267316, 4.170374511137227, 3.924972338949311, 4.283558558897278],
+    # temperature_parameters = [-0.6453669170920932, -0.8654417826193623, -0.01862211791176132, -0.43323736726053264, -0.2534509710722949, -0.45881970271772216, -0.9087671263933059],
+    # mean_immunity_durations = [74.99954103887376, 118.48390950847453, 158.95594293478138, 240.87815793248015, 297.6077421228877, 126.7961668413053, 301.6019886378996], 
+    # random_infection_probabilities = [0.0009640168895852599, 0.0009834285330684671, 0.0004558888968463194, 6.951573466055473e-6],
+
     # PSO
-    # error = 9.69753010948922e9
+    # error = 1.0764802765703148e10
+    # error = 2719
+    # duration_parameter = 0.15860706940683783,
+    # susceptibility_parameters = [2.5239543168499368, 6.329927070163529, 5.039359363115454, 6.525914224951755, 4.1945976110565315, 3.948816070032942, 4.449223010745033],
+    # temperature_parameters = [-0.5112883924566034, -0.5546040003144935, -0.8545378760815658, -0.23302392680779926, -0.30364892777090396, -0.1342993835149351, -0.5901267058609647],
+    # mean_immunity_durations = [78.21441007413543, 263.24000356056166, 315.0272352103529, 153.94000687457827, 215.87664960093824, 174.61460125263557, 266.41960967567314],
+    # random_infection_probabilities = [0.0009512544016685809, 0.0009442124176118237, 0.0003737438941027858, 5.905134180469053e-6],
+
+    # PSO min
+    # error = 9.950705836839746e9
     # duration_parameter = 0.12711879076782193,
     # susceptibility_parameters = [2.5405397255090687, 1.8527530732836268, 3.6637296216013038, 4.787011400200863, 6.871151124235916, 4.268119625185843, 5.596938224084313],
     # temperature_parameters = [-0.25921781712363323, -0.6281316953131505, -0.07310551415837968, -0.6751564359343738, -0.7366535157167386, -0.12920317563242972, -0.41600565213437],
     # mean_immunity_durations = [295.51873863039424, 159.47725061199102, 163.19877181400665, 131.07031971733642, 333.19788631132093, 219.8849551840539, 112.22159862423402],
     # random_infection_probabilities = [0.0008728419885002607, 0.0007209669579973035, 0.00039770334346275196, 6.282630872363122e-6],
+
+    # GA_min
+    # error = 6.639059641832538e9
+    # duration_parameter = 0.3016991597172122,
+    # susceptibility_parameters = [3.1631701788620936, 4.923105114349468, 4.752928583714852, 5.666666666666667, 5.666666666666667, 6.2161920934406005, 6.306980459142542],
+    # temperature_parameters = [-0.9255311045709695, -0.11185246374291652, -0.2080920290324763, -0.5026321500888403, -0.12, -0.5482768940127785, -0.0858897859123411],
+    # mean_immunity_durations = [267.10869758588126, 75.06086442557529, 141.66666666666669, 258.08994943359744, 76.5209466504661, 365.0, 104.44444444444444],
+    # random_infection_probabilities = [0.0010963378762188808, 0.0008738854777935964, 0.0002, 8.749111996192628e-6],
 
     # GA
     # error = 9.223042358989534e9

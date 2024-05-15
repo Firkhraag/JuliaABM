@@ -101,22 +101,59 @@ function sim!(agents_initial, nsteps, dt, p)
 end
 
 function run_model_plot(agents_initial, nsteps, δt)
-    β, c, γ, I0 = 0.030430197420209068, 15.924772119635719, 0.0194959896879141, 45.555913601651035
+    num_runs = 10
+    # Best
+    β, c, γ, I0 = 0.02914546000421925, 16.99835897540075, 0.019603036841374714, 40.011319044945466
+    # Median
+    # β, c, γ, I0 = 0.0320317798685097, 15.222030086565974, 0.01947785846755082, 48.01541900675947
 
-    # Reset
-    for i in 1:length(agents_initial)
-        if i <= I0 # I0
-            agents_initial[i] = Infected
-        else
-            agents_initial[i] = Susceptible
+    df_abm_arr_S = []
+    df_abm_arr_I = []
+    df_abm_arr_R = []
+    df_abm_t = []
+    df_abm_S = zeros(Float64, 401)
+    df_abm_I = zeros(Float64, 401)
+    df_abm_R = zeros(Float64, 401)
+    for i = 1:num_runs
+        # Reset
+        for i in 1:length(agents_initial)
+            if i <= I0 # I0
+                agents_initial[i] = Infected
+            else
+                agents_initial[i] = Susceptible
+            end
+        end
+        p = [β, c, γ, δt]
+        df_abm_temp = sim!(agents_initial, nsteps, δt, p)
+        push!(df_abm_arr_S, df_abm_temp.S)
+        push!(df_abm_arr_I, df_abm_temp.I)
+        push!(df_abm_arr_R, df_abm_temp.R)
+        if i == num_runs
+            df_abm_t = df_abm_temp.t
         end
     end
-    p = [β, c, γ, δt]
-    df_abm = sim!(agents_initial, nsteps, δt, p)
+    for i = 1:length(df_abm_S)
+        for j = 1:num_runs
+            df_abm_S[i] += df_abm_arr_S[j][i]
+        end
+        df_abm_S[i] /= num_runs
+    end
+    for i = 1:length(df_abm_I)
+        for j = 1:num_runs
+            df_abm_I[i] += df_abm_arr_I[j][i]
+        end
+        df_abm_I[i] /= num_runs
+    end
+    for i = 1:length(df_abm_R)
+        for j = 1:num_runs
+            df_abm_R[i] += df_abm_arr_R[j][i]
+        end
+        df_abm_R[i] /= num_runs
+    end
 
     pl1 = plot(
-        df_abm.t,
-        df_abm.S,
+        df_abm_t,
+        df_abm_S,
         label="MCMC LHS",
         xlabel="Time",
         lw = 1.5,
@@ -126,8 +163,8 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     pl2 = plot(
-        df_abm.t,
-        df_abm.I,
+        df_abm_t,
+        df_abm_I,
         xlabel="Time",
         label="MCMC LHS",
         lw = 1.5,
@@ -137,8 +174,8 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
     pl3 = plot(
-        df_abm.t,
-        df_abm.R,
+        df_abm_t,
+        df_abm_R,
         xlabel="Time",
         label="MCMC LHS",
         lw = 1.5,
@@ -148,23 +185,61 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
+    # Best
     β, c, γ, I0 = 0.06308478645916318, 8.620302179936914, 0.02120364824191881, 13.030465864640968
+    # Median
+    # β, c, γ, I0 = 0.07447012760371949, 9.231202825682047, 0.03140516369043498, 19.43276986123847
 
-    # Reset
-    for i in 1:length(agents_initial)
-        if i <= I0 # I0
-            agents_initial[i] = Infected
-        else
-            agents_initial[i] = Susceptible
+    df_abm_arr_S = []
+    df_abm_arr_I = []
+    df_abm_arr_R = []
+    df_abm_t = []
+    df_abm_S = zeros(Float64, 401)
+    df_abm_I = zeros(Float64, 401)
+    df_abm_R = zeros(Float64, 401)
+
+    for i = 1:num_runs
+        # Reset
+        for i in 1:length(agents_initial)
+            if i <= I0 # I0
+                agents_initial[i] = Infected
+            else
+                agents_initial[i] = Susceptible
+            end
+        end
+        p = [β, c, γ, δt]
+        df_abm_temp = sim!(agents_initial, nsteps, δt, p)
+        push!(df_abm_arr_S, df_abm_temp.S)
+        push!(df_abm_arr_I, df_abm_temp.I)
+        push!(df_abm_arr_R, df_abm_temp.R)
+        if i == num_runs
+            df_abm_t = df_abm_temp.t
         end
     end
-    p = [β, c, γ, δt]
-    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    for i = 1:length(df_abm_S)
+        for j = 1:num_runs
+            df_abm_S[i] += df_abm_arr_S[j][i]
+        end
+        df_abm_S[i] /= num_runs
+    end
+    for i = 1:length(df_abm_I)
+        for j = 1:num_runs
+            df_abm_I[i] += df_abm_arr_I[j][i]
+        end
+        df_abm_I[i] /= num_runs
+    end
+    for i = 1:length(df_abm_R)
+        for j = 1:num_runs
+            df_abm_R[i] += df_abm_arr_R[j][i]
+        end
+        df_abm_R[i] /= num_runs
+    end
 
     plot!(
         pl1,
-        df_abm.t,
-        df_abm.S,
+        df_abm_t,
+        df_abm_S,
         label="MCMC manual",
         xlabel="Time",
         lw = 1.5,
@@ -175,8 +250,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl2,
-        df_abm.t,
-        df_abm.I,
+        df_abm_t,
+        df_abm_I,
         xlabel="Time",
         label="MCMC manual",
         lw = 1.5,
@@ -187,8 +262,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl3,
-        df_abm.t,
-        df_abm.R,
+        df_abm_t,
+        df_abm_R,
         xlabel="Time",
         label="MCMC manual",
         lw = 1.5,
@@ -217,8 +292,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     # df_abm = sim!(agents_initial, nsteps, δt, p)
 
     # plot!(
-    #     df_abm.t,
-    #     df_abm.S,
+    #     df_abm_t,
+    #     df_abm_S,
     #     label="MA LHS",
     #     xlabel="Time",
     #     lw = 1.5,
@@ -228,8 +303,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     background_color_legend = nothing,
     # )
     # plot!(
-    #     df_abm.t,
-    #     df_abm.I,
+    #     df_abm_t,
+    #     df_abm_I,
     #     xlabel="Time",
     #     label = false,
     #     lw = 1.5,
@@ -239,8 +314,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     background_color_legend = nothing,
     # )
     # plot!(
-    #     df_abm.t,
-    #     df_abm.R,
+    #     df_abm_t,
+    #     df_abm_R,
     #     xlabel="Time",
     #     label = false,
     #     lw = 1.5,
@@ -264,8 +339,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     # df_abm = sim!(agents_initial, nsteps, δt, p)
 
     # plot!(
-    #     df_abm.t,
-    #     df_abm.S,
+    #     df_abm_t,
+    #     df_abm_S,
     #     label="MA manual",
     #     xlabel="Time",
     #     lw = 1.5,
@@ -275,8 +350,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     background_color_legend = nothing,
     # )
     # plot!(
-    #     df_abm.t,
-    #     df_abm.I,
+    #     df_abm_t,
+    #     df_abm_I,
     #     xlabel="Time",
     #     label = false,
     #     lw = 1.5,
@@ -286,8 +361,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     background_color_legend = nothing,
     # )
     # plot!(
-    #     df_abm.t,
-    #     df_abm.R,
+    #     df_abm_t,
+    #     df_abm_R,
     #     xlabel="Time",
     #     label = false,
     #     lw = 1.5,
@@ -297,23 +372,61 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     background_color_legend = nothing,
     # )
 
-    β, c, γ, I0 = 0.04015588000792237, 14.042766928236292, 0.025306519444912277, 39.473420356197515
+    # Best
+    β, c, γ, I0 = 0.020680567299059184, 24.96253908208722, 0.020729138990765946, 24.014891329173516
+    # Median
+    # β, c, γ, I0 = 0.03927349878742921, 21.66574708234853, 0.04699396824842727, 3.310893118869288
 
-    # Reset
-    for i in 1:length(agents_initial)
-        if i <= I0 # I0
-            agents_initial[i] = Infected
-        else
-            agents_initial[i] = Susceptible
+    df_abm_arr_S = []
+    df_abm_arr_I = []
+    df_abm_arr_R = []
+    df_abm_t = []
+    df_abm_S = zeros(Float64, 401)
+    df_abm_I = zeros(Float64, 401)
+    df_abm_R = zeros(Float64, 401)
+
+    for i = 1:num_runs
+        # Reset
+        for i in 1:length(agents_initial)
+            if i <= I0 # I0
+                agents_initial[i] = Infected
+            else
+                agents_initial[i] = Susceptible
+            end
+        end
+        p = [β, c, γ, δt]
+        df_abm_temp = sim!(agents_initial, nsteps, δt, p)
+        push!(df_abm_arr_S, df_abm_temp.S)
+        push!(df_abm_arr_I, df_abm_temp.I)
+        push!(df_abm_arr_R, df_abm_temp.R)
+        if i == num_runs
+            df_abm_t = df_abm_temp.t
         end
     end
-    p = [β, c, γ, δt]
-    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    for i = 1:length(df_abm_S)
+        for j = 1:num_runs
+            df_abm_S[i] += df_abm_arr_S[j][i]
+        end
+        df_abm_S[i] /= num_runs
+    end
+    for i = 1:length(df_abm_I)
+        for j = 1:num_runs
+            df_abm_I[i] += df_abm_arr_I[j][i]
+        end
+        df_abm_I[i] /= num_runs
+    end
+    for i = 1:length(df_abm_R)
+        for j = 1:num_runs
+            df_abm_R[i] += df_abm_arr_R[j][i]
+        end
+        df_abm_R[i] /= num_runs
+    end
 
     plot!(
         pl1,
-        df_abm.t,
-        df_abm.S,
+        df_abm_t,
+        df_abm_S,
         label="SM",
         xlabel="Time",
         lw = 1.5,
@@ -324,8 +437,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl2,
-        df_abm.t,
-        df_abm.I,
+        df_abm_t,
+        df_abm_I,
         label="SM",
         xlabel="Time",
         lw = 1.5,
@@ -336,8 +449,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl3,
-        df_abm.t,
-        df_abm.R,
+        df_abm_t,
+        df_abm_R,
         label="SM",
         xlabel="Time",
         lw = 1.5,
@@ -347,23 +460,61 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
-    β, c, γ, I0 = 0.05653644928215323, 10.097903296569601, 0.026037690277114615, 35.80276197473462
+    # Best
+    β, c, γ, I0 = 0.043145839036186344, 12.061908252437279, 0.0209793523053137, 25.39745553515337
+    # Median
+    # β, c, γ, I0 = 0.02566264894291515, 18.4744858309475, 0.01868922377633394, 35.04930705707181
 
-    # Reset
-    for i in 1:length(agents_initial)
-        if i <= I0 # I0
-            agents_initial[i] = Infected
-        else
-            agents_initial[i] = Susceptible
+    df_abm_arr_S = []
+    df_abm_arr_I = []
+    df_abm_arr_R = []
+    df_abm_t = []
+    df_abm_S = zeros(Float64, 401)
+    df_abm_I = zeros(Float64, 401)
+    df_abm_R = zeros(Float64, 401)
+
+    for i = 1:num_runs
+        # Reset
+        for i in 1:length(agents_initial)
+            if i <= I0 # I0
+                agents_initial[i] = Infected
+            else
+                agents_initial[i] = Susceptible
+            end
+        end
+        p = [β, c, γ, δt]
+        df_abm_temp = sim!(agents_initial, nsteps, δt, p)
+        push!(df_abm_arr_S, df_abm_temp.S)
+        push!(df_abm_arr_I, df_abm_temp.I)
+        push!(df_abm_arr_R, df_abm_temp.R)
+        if i == num_runs
+            df_abm_t = df_abm_temp.t
         end
     end
-    p = [β, c, γ, δt]
-    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    for i = 1:length(df_abm_S)
+        for j = 1:num_runs
+            df_abm_S[i] += df_abm_arr_S[j][i]
+        end
+        df_abm_S[i] /= num_runs
+    end
+    for i = 1:length(df_abm_I)
+        for j = 1:num_runs
+            df_abm_I[i] += df_abm_arr_I[j][i]
+        end
+        df_abm_I[i] /= num_runs
+    end
+    for i = 1:length(df_abm_R)
+        for j = 1:num_runs
+            df_abm_R[i] += df_abm_arr_R[j][i]
+        end
+        df_abm_R[i] /= num_runs
+    end
 
     plot!(
         pl1,
-        df_abm.t,
-        df_abm.S,
+        df_abm_t,
+        df_abm_S,
         label="PSO",
         xlabel="Time",
         lw = 1.5,
@@ -374,8 +525,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl2,
-        df_abm.t,
-        df_abm.I,
+        df_abm_t,
+        df_abm_I,
         label="PSO",
         xlabel="Time",
         lw = 1.5,
@@ -386,8 +537,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl3,
-        df_abm.t,
-        df_abm.R,
+        df_abm_t,
+        df_abm_R,
         label="PSO",
         xlabel="Time",
         lw = 1.5,
@@ -397,23 +548,61 @@ function run_model_plot(agents_initial, nsteps, δt)
         background_color_legend = nothing,
     )
 
-    β, c, γ, I0 = 0.02, 24.026775144773154, 0.01573309815588694, 28.22222222222222
+    # Best
+    β, c, γ, I0 = 0.04000000000000001, 11.3822576069654, 0.018210965408549492, 46.57974385928745
+    # Median
+    # β, c, γ, I0 = 0.029279761612317372, 19.2731042457002, 0.01941136446065339, 8.97178358572054
 
-    # Reset
-    for i in 1:length(agents_initial)
-        if i <= I0 # I0
-            agents_initial[i] = Infected
-        else
-            agents_initial[i] = Susceptible
+    df_abm_arr_S = []
+    df_abm_arr_I = []
+    df_abm_arr_R = []
+    df_abm_t = []
+    df_abm_S = zeros(Float64, 401)
+    df_abm_I = zeros(Float64, 401)
+    df_abm_R = zeros(Float64, 401)
+
+    for i = 1:num_runs
+        # Reset
+        for i in 1:length(agents_initial)
+            if i <= I0 # I0
+                agents_initial[i] = Infected
+            else
+                agents_initial[i] = Susceptible
+            end
+        end
+        p = [β, c, γ, δt]
+        df_abm_temp = sim!(agents_initial, nsteps, δt, p)
+        push!(df_abm_arr_S, df_abm_temp.S)
+        push!(df_abm_arr_I, df_abm_temp.I)
+        push!(df_abm_arr_R, df_abm_temp.R)
+        if i == num_runs
+            df_abm_t = df_abm_temp.t
         end
     end
-    p = [β, c, γ, δt]
-    df_abm = sim!(agents_initial, nsteps, δt, p)
+
+    for i = 1:length(df_abm_S)
+        for j = 1:num_runs
+            df_abm_S[i] += df_abm_arr_S[j][i]
+        end
+        df_abm_S[i] /= num_runs
+    end
+    for i = 1:length(df_abm_I)
+        for j = 1:num_runs
+            df_abm_I[i] += df_abm_arr_I[j][i]
+        end
+        df_abm_I[i] /= num_runs
+    end
+    for i = 1:length(df_abm_R)
+        for j = 1:num_runs
+            df_abm_R[i] += df_abm_arr_R[j][i]
+        end
+        df_abm_R[i] /= num_runs
+    end
 
     plot!(
         pl1,
-        df_abm.t,
-        df_abm.S,
+        df_abm_t,
+        df_abm_S,
         label="GA",
         xlabel="Time",
         lw = 1.5,
@@ -424,8 +613,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl2,
-        df_abm.t,
-        df_abm.I,
+        df_abm_t,
+        df_abm_I,
         label="GA",
         xlabel="Time",
         lw = 1.5,
@@ -436,8 +625,8 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl3,
-        df_abm.t,
-        df_abm.R,
+        df_abm_t,
+        df_abm_R,
         label="GA",
         xlabel="Time",
         lw = 1.5,
@@ -450,7 +639,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     # Ref
     plot!(
         pl1,
-        df_abm.t,
+        df_abm_t,
         S_ref,
         label="Reference",
         lw = 2.0,
@@ -462,7 +651,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl2,
-        df_abm.t,
+        df_abm_t,
         I_ref,
         label="Reference",
         lw = 2.0,
@@ -474,7 +663,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
     plot!(
         pl3,
-        df_abm.t,
+        df_abm_t,
         R_ref,
         label="Reference",
         lw = 2.0,
@@ -489,7 +678,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     savefig(pl2, joinpath(@__DIR__, "sir_I.pdf"))
     savefig(pl3, joinpath(@__DIR__, "sir_R.pdf"))
     
-    error = sqrt(1 / 1200 * sum((df_abm.S - S_ref).^2) + 1 / 1200 * sum((df_abm.I - I_ref).^2) + 1 / 1200 * sum((df_abm.R - R_ref).^2))
+    error = sqrt(1 / 1200 * sum((df_abm_S - S_ref).^2) + 1 / 1200 * sum((df_abm_I - I_ref).^2) + 1 / 1200 * sum((df_abm_R - R_ref).^2))
     return error
 end
 
@@ -542,6 +731,7 @@ function lhs_simulations(
     agents::Vector{InfectionStatus},
     nsteps,
     δt,
+    method_num,
 )
     # Число параметров
     num_parameters = 4
@@ -585,7 +775,7 @@ function lhs_simulations(
             println("γ_parameter = ", γ_parameter)
             println("I0_parameter = ", I0_parameter)
         end
-        save(joinpath(@__DIR__, "lhs", "results_$(i).jld"),
+        save(joinpath(@__DIR__, "lhs$(method_num)", "results_$(i).jld"),
             "error", error,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
@@ -601,18 +791,19 @@ function mcmc_simulations_lhs(
     agents::Vector{InfectionStatus},
     nsteps,
     δt,
+    method_run,
 )
     # Получаем значения параметров
-    β_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "1_array.csv"), ',', Float64, '\n'))
+    β_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "1_array.csv"), ',', Float64, '\n'))
     β_parameter = β_parameter_array[end]
 
-    c_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "2_array.csv"), ',', Float64, '\n'))
+    c_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "2_array.csv"), ',', Float64, '\n'))
     c_parameter = c_parameter_array[end]
 
-    γ_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "3_array.csv"), ',', Float64, '\n'))
+    γ_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "3_array.csv"), ',', Float64, '\n'))
     γ_parameter = γ_parameter_array[end]
 
-    I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs", "4_array.csv"), ',', Float64, '\n'))
+    I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "4_array.csv"), ',', Float64, '\n'))
     I0_parameter = I0_parameter_array[end]
 
     # Reset
@@ -624,7 +815,7 @@ function mcmc_simulations_lhs(
         end
     end
     error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
-    open(joinpath(@__DIR__, "mcmc_lhs.txt"), "a") do io
+    open(joinpath(@__DIR__, "mcmc_lhs$(method_run).txt"), "a") do io
         println(io, error)
     end
 
@@ -672,14 +863,14 @@ function mcmc_simulations_lhs(
         end
         error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
-        save(joinpath(@__DIR__, "mcmc_lhs", "results_$(n).jld"),
+        save(joinpath(@__DIR__, "mcmc_lhs$(method_run)", "results_$(n).jld"),
             "error", error,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
             "γ_parameter", γ_parameter,
             "I0_parameter", I0_parameter)
 
-        open(joinpath(@__DIR__, "mcmc_lhs.txt"), "a") do io
+        open(joinpath(@__DIR__, "mcmc_lhs$(method_run).txt"), "a") do io
             println(io, error)
         end
 
@@ -714,14 +905,11 @@ function mcmc_simulations_lhs(
             local_rejected_num += 1
         end
 
-        # Раз в 2 шага
-        if n % 2 == 0
-            # Сохраняем значения параметров
-            writedlm(joinpath(@__DIR__, "parameters_lhs", "1_parameter_array.csv"), β_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters_lhs", "2_parameter_array.csv"), c_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters_lhs", "3_parameter_array.csv"), γ_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters_lhs", "4_parameter_array.csv"), I0_parameter_array, ',')
-        end
+        # Сохраняем значения параметров
+        writedlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "1_parameter_array.csv"), β_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "2_parameter_array.csv"), c_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "3_parameter_array.csv"), γ_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "4_parameter_array.csv"), I0_parameter_array, ',')
     end
 end
 
@@ -732,18 +920,19 @@ function mcmc_simulations(
     agents::Vector{InfectionStatus},
     nsteps,
     δt,
+    method_run,
 )
     # Получаем значения параметров
-    β_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters", "1_array.csv"), ',', Float64, '\n'))
+    β_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters$(method_run)", "1_array.csv"), ',', Float64, '\n'))
     β_parameter = β_parameter_array[end]
 
-    c_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters", "2_array.csv"), ',', Float64, '\n'))
+    c_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters$(method_run)", "2_array.csv"), ',', Float64, '\n'))
     c_parameter = c_parameter_array[end]
 
-    γ_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters", "3_array.csv"), ',', Float64, '\n'))
+    γ_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters$(method_run)", "3_array.csv"), ',', Float64, '\n'))
     γ_parameter = γ_parameter_array[end]
 
-    I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters", "4_array.csv"), ',', Float64, '\n'))
+    I0_parameter_array = vec(readdlm(joinpath(@__DIR__, "parameters$(method_run)", "4_array.csv"), ',', Float64, '\n'))
     I0_parameter = I0_parameter_array[end]
 
     # Reset
@@ -755,7 +944,7 @@ function mcmc_simulations(
         end
     end
     error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
-    open(joinpath(@__DIR__, "mcmc.txt"), "a") do io
+    open(joinpath(@__DIR__, "mcmc$(method_run).txt"), "a") do io
         println(io, error)
     end
 
@@ -801,16 +990,16 @@ function mcmc_simulations(
                 agents[i] = Susceptible
             end
         end
-        error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+        @time error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
-        save(joinpath(@__DIR__, "mcmc", "results_$(n).jld"),
+        save(joinpath(@__DIR__, "mcmc$(method_run)", "results_$(n).jld"),
             "error", error,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
             "γ_parameter", γ_parameter,
             "I0_parameter", I0_parameter)
 
-        open(joinpath(@__DIR__, "mcmc.txt"), "a") do io
+        open(joinpath(@__DIR__, "mcmc$(method_run).txt"), "a") do io
             println(io, error)
         end
 
@@ -845,14 +1034,11 @@ function mcmc_simulations(
             local_rejected_num += 1
         end
 
-        # Раз в 2 шага
-        if n % 2 == 0
-            # Сохраняем значения параметров
-            writedlm(joinpath(@__DIR__, "parameters", "1_parameter_array.csv"), β_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters", "2_parameter_array.csv"), c_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters", "3_parameter_array.csv"), γ_parameter_array, ',')
-            writedlm(joinpath(@__DIR__, "parameters", "4_parameter_array.csv"), I0_parameter_array, ',')
-        end
+        # Сохраняем значения параметров
+        writedlm(joinpath(@__DIR__, "parameters$(method_run)", "1_parameter_array.csv"), β_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters$(method_run)", "2_parameter_array.csv"), c_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters$(method_run)", "3_parameter_array.csv"), γ_parameter_array, ',')
+        writedlm(joinpath(@__DIR__, "parameters$(method_run)", "4_parameter_array.csv"), I0_parameter_array, ',')
     end
 end
 
@@ -948,18 +1134,38 @@ function mcmc_simulations_metropolis(
         # end
 
         x = β_parameter_array[end]
+        if abs(x - 0.02) < 0.00001
+            x += 0.001
+        elseif abs(x - 0.2) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 0.02) / (0.2 - x)), β_parameter_delta))
         β_parameter = (0.2 * exp(y) + 0.02) / (1 + exp(y))
 
         x = c_parameter_array[end]
+        if abs(x - 5) < 0.00001
+            x += 0.1
+        elseif abs(x - 25) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 5) / (25 - x)), c_parameter_delta))
         c_parameter = (25 * exp(y) + 5) / (1 + exp(y))
 
         x = γ_parameter_array[end]
+        if abs(x - 0.01) < 0.00001
+            x += 0.001
+        elseif abs(x - 0.05) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 0.01) / (0.05 - x)), γ_parameter_delta))
         γ_parameter = (0.05 * exp(y) + 0.01) / (1 + exp(y))
 
         x = I0_parameter_array[end]
+        if abs(x - 1) < 0.00001
+            x += 0.1
+        elseif abs(x - 50) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 1) / (50 - x)), I0_parameter_delta))
         I0_parameter = (50 * exp(y) + 1) / (1 + exp(y))
 
@@ -1125,19 +1331,40 @@ function mcmc_simulations_metropolis_lhs(
         #     I0_parameter = 50
         # end
 
+        
         x = β_parameter_array[end]
+        if abs(x - 0.02) < 0.00001
+            x += 0.001
+        elseif abs(x - 0.2) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 0.02) / (0.2 - x)), β_parameter_delta))
         β_parameter = (0.2 * exp(y) + 0.02) / (1 + exp(y))
 
         x = c_parameter_array[end]
+        if abs(x - 5) < 0.00001
+            x += 0.1
+        elseif abs(x - 25) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 5) / (25 - x)), c_parameter_delta))
         c_parameter = (25 * exp(y) + 5) / (1 + exp(y))
 
         x = γ_parameter_array[end]
+        if abs(x - 0.01) < 0.00001
+            x += 0.001
+        elseif abs(x - 0.05) < 0.00001
+            x -= 0.001
+        end
         y = rand(Normal(log((x - 0.01) / (0.05 - x)), γ_parameter_delta))
         γ_parameter = (0.05 * exp(y) + 0.01) / (1 + exp(y))
 
         x = I0_parameter_array[end]
+        if abs(x - 1) < 0.00001
+            x += 0.1
+        elseif abs(x - 50) < 0.00001
+            x -= 0.1
+        end
         y = rand(Normal(log((x - 1) / (50 - x)), I0_parameter_delta))
         I0_parameter = (50 * exp(y) + 1) / (1 + exp(y))
 
@@ -1215,6 +1442,7 @@ function run_swarm_model(
     agents::Vector{InfectionStatus},
     nsteps,
     δt,
+    method_num,
 )
     num_particles = 10
 
@@ -1252,19 +1480,19 @@ function run_swarm_model(
 
     num_parameters = 4
 
-    for i = 1:num_particles
-        error_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["error"]
+    # for i = 1:num_particles
+    #     error_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["error"]
 
-        β_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
-        c_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
-        γ_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
-        I0_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["I0_parameter"]
+    #     β_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
+    #     c_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
+    #     γ_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
+    #     I0_parameter_particles[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["I0_parameter"]
 
-        β_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
-        c_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
-        γ_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
-        I0_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["I0_parameter"]
-    end
+    #     β_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
+    #     c_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
+    #     γ_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
+    #     I0_parameter_particles_best[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["I0_parameter"]
+    # end
 
     k = argmin(error_particles)
     β_parameter_best = β_parameter_particles[k]
@@ -1278,54 +1506,55 @@ function run_swarm_model(
     # println(I0_parameter_best)
     # return
 
-    # # Латинский гиперкуб
-    # latin_hypercube_plan, _ = LHCoptim(num_particles, num_parameters, 200)
+    # Латинский гиперкуб
+    latin_hypercube_plan, _ = LHCoptim(num_particles, num_parameters, 200)
 
-    # # Интервалы значений параметров
-    # points = scaleLHC(latin_hypercube_plan, [
-    #     (0.02, 0.2), # β
-    #     (5, 25), # c
-    #     (0.01, 0.05), # γ
-    #     (1, 50), # I0
-    # ])
+    # Интервалы значений параметров
+    points = scaleLHC(latin_hypercube_plan, [
+        (0.02, 0.2), # β
+        (5, 25), # c
+        (0.01, 0.05), # γ
+        (1, 50), # I0
+    ])
 
-    # for i = 1:num_particles
-    #     β_parameter_particles_best[i] = points[i, 1]
-    #     c_parameter_particles_best[i] = points[i, 2]
-    #     γ_parameter_particles_best[i] = points[i, 3]
-    #     I0_parameter_particles_best[i] = points[i, 4]
+    for i = 1:num_particles
+        β_parameter_particles_best[i] = points[i, 1]
+        c_parameter_particles_best[i] = points[i, 2]
+        γ_parameter_particles_best[i] = points[i, 3]
+        I0_parameter_particles_best[i] = points[i, 4]
 
-    #     β_parameter_particles[i] = points[i, 1]
-    #     c_parameter_particles[i] = points[i, 2]
-    #     γ_parameter_particles[i] = points[i, 3]
-    #     I0_parameter_particles[i] = points[i, 4]
+        β_parameter_particles[i] = points[i, 1]
+        c_parameter_particles[i] = points[i, 2]
+        γ_parameter_particles[i] = points[i, 3]
+        I0_parameter_particles[i] = points[i, 4]
 
-    #     # Reset
-    #     for j in 1:length(agents)
-    #         if j <= I0_parameter_particles_best[i] # I0
-    #             agents[j] = Infected
-    #         else
-    #             agents[j] = Susceptible
-    #         end
-    #     end
-    #     error_particles[i] = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles_best[i], γ_parameter_particles_best[i])
+        # Reset
+        for j in 1:length(agents)
+            if j <= I0_parameter_particles_best[i] # I0
+                agents[j] = Infected
+            else
+                agents[j] = Susceptible
+            end
+        end
+        error_particles[i] = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles_best[i], γ_parameter_particles_best[i])
 
-    #     if error_particles[i] < best_error
-    #         best_error = error_particles[i]
+        if error_particles[i] < best_error
+            best_error = error_particles[i]
 
-    #         β_parameter_best = points[i, 1]
-    #         c_parameter_best = points[i, 2]
-    #         γ_parameter_best = points[i, 3]
-    #         I0_parameter_best = points[i, 4]
-    #     end
+            β_parameter_best = points[i, 1]
+            c_parameter_best = points[i, 2]
+            γ_parameter_best = points[i, 3]
+            I0_parameter_best = points[i, 4]
+        end
 
-    #     save(joinpath(@__DIR__, "swarm", "0", "results_$(i).jld"),
-    #         "error", error_particles[i],
-    #         "β_parameter", β_parameter_particles[i],
-    #         "c_parameter", c_parameter_particles[i],
-    #         "γ_parameter", γ_parameter_particles[i],
-    #         "I0_parameter", I0_parameter_particles[i])
-    # end
+        save(joinpath(@__DIR__, "swarm$(method_num)", "0", "results_$(i).jld"),
+            "error", error_particles[i],
+            "β_parameter", β_parameter_particles[i],
+            "c_parameter", c_parameter_particles[i],
+            "γ_parameter", γ_parameter_particles[i],
+            "I0_parameter", I0_parameter_particles[i])
+    end
+    println(minimum(error_particles))
 
     for curr_run = 1:num_swarm_model_runs
         w = (num_swarm_model_runs - curr_run) / num_swarm_model_runs * (w_max - w_min) + w_min
@@ -1370,7 +1599,7 @@ function run_swarm_model(
             end
             error = run_model(agents, nsteps, δt, β_parameter_particles[i], c_parameter_particles[i], γ_parameter_particles[i])
 
-            save(joinpath(@__DIR__, "swarm", "$(i)", "results_$(curr_run).jld"),
+            save(joinpath(@__DIR__, "swarm$(method_num)", "$(i)", "results_$(curr_run).jld"),
                 "error", error,
                 "β_parameter", β_parameter_particles[i],
                 "c_parameter", c_parameter_particles[i],
@@ -1422,6 +1651,7 @@ function run_surrogate_model(
     agents::Vector{InfectionStatus},
     nsteps,
     δt,
+    method_num,
 )
     num_initial_runs = 10
     num_additional_runs = 0
@@ -1436,11 +1666,11 @@ function run_surrogate_model(
     I0_parameter = Array{Float64, 1}(undef, num_runs)
 
     for i = 1:num_initial_runs
-        error_arr[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["error"]
-        β_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["β_parameter"]
-        c_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["c_parameter"]
-        γ_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["γ_parameter"]
-        I0_parameter[i] = load(joinpath(@__DIR__, "lhs", "results_$(i).jld"))["I0_parameter"]
+        error_arr[i] = load(joinpath(@__DIR__, "lhs$(method_num)", "results_$(i).jld"))["error"]
+        β_parameter[i] = load(joinpath(@__DIR__, "lhs$(method_num)", "results_$(i).jld"))["β_parameter"]
+        c_parameter[i] = load(joinpath(@__DIR__, "lhs$(method_num)", "results_$(i).jld"))["c_parameter"]
+        γ_parameter[i] = load(joinpath(@__DIR__, "lhs$(method_num)", "results_$(i).jld"))["γ_parameter"]
+        I0_parameter[i] = load(joinpath(@__DIR__, "lhs$(method_num)", "results_$(i).jld"))["I0_parameter"]
     end
 
     # for i = 1:num_additional_runs
@@ -1623,18 +1853,38 @@ function run_surrogate_model(
 
         for n = 1:1000
             x_cand = β_parameter_default
+            if abs(x_cand - 0.02) < 0.00001
+                x_cand += 0.001
+            elseif abs(x_cand - 0.2) < 0.00001
+                x_cand -= 0.001
+            end
             y_cand = rand(Normal(log((x_cand - 0.02) / (0.2 - x_cand)), β_parameter_delta))
             β_parameter_candidate = (0.2 * exp(y_cand) + 0.02) / (1 + exp(y_cand))
 
             x_cand = c_parameter_default
+            if abs(x_cand - 5) < 0.00001
+                x_cand += 0.1
+            elseif abs(x_cand - 25) < 0.00001
+                x_cand -= 0.1
+            end
             y_cand = rand(Normal(log((x_cand - 5) / (25 - x_cand)), c_parameter_delta))
             c_parameter_candidate = (25 * exp(y_cand) + 5) / (1 + exp(y_cand))
 
             x_cand = γ_parameter_default
+            if abs(x_cand - 0.01) < 0.00001
+                x_cand += 0.001
+            elseif abs(x_cand - 0.05) < 0.00001
+                x_cand -= 0.001
+            end
             y_cand = rand(Normal(log((x_cand - 0.01) / (0.05 - x_cand)), γ_parameter_delta))
             γ_parameter_candidate = (0.05 * exp(y_cand) + 0.01) / (1 + exp(y_cand))
 
             x_cand = I0_parameter_default
+            if abs(x_cand - 1) < 0.00001
+                x_cand += 0.1
+            elseif abs(x_cand - 50) < 0.00001
+                x_cand -= 0.1
+            end
             y_cand = rand(Normal(log((x_cand - 1) / (50 - x_cand)), I0_parameter_delta))
             I0_parameter_candidate = (50 * exp(y_cand) + 1) / (1 + exp(y_cand))
 
@@ -1688,7 +1938,7 @@ function run_surrogate_model(
         end
         error = run_model(agents, nsteps, δt, β_parameter_min, c_parameter_min, γ_parameter_min)
 
-        save(joinpath(@__DIR__, "surrogate", "results_$(curr_run).jld"),
+        save(joinpath(@__DIR__, "surrogate$(method_num)", "results_$(curr_run).jld"),
             "error", error,
             "β_parameter", β_parameter_min,
             "c_parameter", c_parameter_min,
@@ -1892,10 +2142,20 @@ function run_surrogate_model_NN(
 
         for n = 1:1000
             x_cand = β_parameter_default
+            if abs(x_cand - 0.02) < 0.00001
+                x_cand += 0.001
+            elseif abs(x_cand - 0.2) < 0.00001
+                x_cand -= 0.001
+            end
             y_cand = rand(Normal(log((x_cand - 0.02) / (0.2 - x_cand)), β_parameter_delta))
             β_parameter_candidate = (0.2 * exp(y_cand) + 0.02) / (1 + exp(y_cand))
 
             x_cand = c_parameter_default
+            if abs(x_cand - 5) < 0.00001
+                x_cand += 0.1
+            elseif abs(x_cand - 25) < 0.00001
+                x_cand -= 0.1
+            end
             y_cand = rand(Normal(log((x_cand - 5) / (25 - x_cand)), c_parameter_delta))
             c_parameter_candidate = (25 * exp(y_cand) + 5) / (1 + exp(y_cand))
 
@@ -2036,6 +2296,7 @@ function genetic_algorithm(
     agents::Vector{InfectionStatus},
     nsteps,
     δt,
+    method_num,
 )
     population_size = 10
     num_parents = 5
@@ -2084,16 +2345,25 @@ function genetic_algorithm(
             end
         end
         error_population[i] = run_model(agents, nsteps, δt, β_parameter_array[i], c_parameter_array[i], γ_parameter_array[i])
+
+        save(joinpath(@__DIR__, "ga$(method_num)", "0", "results_$(i).jld"),
+            "error", error_population[i],
+            "β_parameter", β_parameter_array[i],
+            "c_parameter", c_parameter_array[i],
+            "γ_parameter", γ_parameter_array[i],
+            "I0_parameter", I0_parameter_array[i])
     end
+    println(minimum(error_population))
+
+    β_parameter_children = zeros(Float64, population_size)
+    c_parameter_children = zeros(Float64, population_size)
+    γ_parameter_children = zeros(Float64, population_size)
+    I0_parameter_children = zeros(Float64, population_size)
 
     for curr_run = 1:num_ga_runs
+        children_k = 1
         println("curr_num = $(curr_run)")
         mating_pool_indicies = selection(population_size, error_population, num_parents)
-        # create the next generation
-        β_parameter_children = []
-        c_parameter_children = []
-        γ_parameter_children = []
-        I0_parameter_children = []
         for i = 1:(population_size / 2)
             p1_mating_index = rand(mating_pool_indicies)
             p2_mating_index = rand(mating_pool_indicies)
@@ -2106,10 +2376,11 @@ function genetic_algorithm(
                 [β_parameter_array[p2_mating_index], c_parameter_array[p2_mating_index], γ_parameter_array[p2_mating_index], I0_parameter_array[p2_mating_index]],
             )
                 mutation(c)
-                push!(β_parameter_children, c[1])
-                push!(c_parameter_children, c[2])
-                push!(γ_parameter_children, c[3])
-                push!(I0_parameter_children, c[4])
+                β_parameter_children[children_k] = c[1]
+                c_parameter_children[children_k] = c[2]
+                γ_parameter_children[children_k] = c[3]
+                I0_parameter_children[children_k] = c[4]
+                children_k += 1
             end
         end
         for i = 1:population_size
@@ -2144,7 +2415,7 @@ function genetic_algorithm(
             I0_parameter_array[i] = I0_parameter_concatenated[args[i]]
             error_population[i] = error_population_concatenated[args[i]]
 
-            save(joinpath(@__DIR__, "ga", "$(curr_run)", "results_$(i).jld"),
+            save(joinpath(@__DIR__, "ga$(method_num)", "$(curr_run)", "results_$(i).jld"),
                 "error", error_population[i],
                 "β_parameter", β_parameter_array[i],
                 "c_parameter", c_parameter_array[i],
@@ -2201,7 +2472,7 @@ function main()
     # return
 
 
-    run_model_plot(agents_initial, nsteps, δt)
+    # run_model_plot(agents_initial, nsteps, δt)
 
     # for i in 1:N
     #     if i <= 20
@@ -2214,20 +2485,18 @@ function main()
     # run_model(agents_initial, nsteps, δt, 0.1, 18.0, 0.035)
 
     # lhs_simulations(100,agents_initial,nsteps,δt)
-    # lhs_simulations(10,agents_initial,nsteps,δt)
+    # 10 sec
+    # @time lhs_simulations(10, agents_initial, nsteps, δt, 10)
 
-    # mcmc_simulations(200,agents_initial,nsteps,δt)
-    # mcmc_simulations_lhs(200,agents_initial,nsteps,δt)
+    @time mcmc_simulations(200, agents_initial, nsteps, δt, 10)
+    # @time mcmc_simulations_lhs(200, agents_initial, nsteps, δt, 1)
+    # @time run_surrogate_model(200, agents_initial, nsteps, δt, 9)
+    # @time run_swarm_model(20, agents_initial, nsteps, δt, 1)
+    # @time genetic_algorithm(20, agents_initial, nsteps, δt, 1)
 
     # mcmc_simulations_metropolis(250,agents_initial,nsteps,δt)
     # mcmc_simulations_metropolis_lhs(250,agents_initial,nsteps,δt)
-
-    # run_swarm_model(20, agents_initial,nsteps,δt)
-    # run_surrogate_model(200,agents_initial,nsteps,δt)
-
     # run_surrogate_model_NN(100,agents_initial,nsteps,δt)
-
-    # genetic_algorithm(20,agents_initial,nsteps,δt)
 end
 
 main()

@@ -191,7 +191,7 @@ function run_swarm_model()
 
     println("Simulation")
 
-    num_swarm_model_runs = 25
+    num_swarm_model_runs = 20
     num_particles = 10
 
     w = 0.5
@@ -234,42 +234,98 @@ function run_swarm_model()
 
     velocity_particles = zeros(Float64, num_particles)
 
+    # for i = 1:15
+    #     for j = 1:num_particles
+    #         incidence_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["observed_cases"]
+    #         error_temp = sum((incidence_temp - num_infected_age_groups_viruses).^2)
+
+    #         duration_parameter_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["duration_parameter"]
+    #         susceptibility_parameters_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["susceptibility_parameters"]
+    #         temperature_parameters_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["temperature_parameters"]
+    #         mean_immunity_durations_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["mean_immunity_durations"]
+    #         random_infection_probabilities_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["random_infection_probabilities"]
+
+    #         duration_parameter_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["duration_parameter_velocity"]
+    #         susceptibility_parameters_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["susceptibility_parameters_velocity"]
+    #         temperature_parameters_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["temperature_parameters_velocity"]
+    #         mean_immunity_durations_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["mean_immunity_durations_velocity"]
+    #         random_infection_probabilities_velocity_temp = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(j)", "results_$(i).jld"))["random_infection_probabilities_velocity"]
+
+    #         if error_temp < error_particles[j]
+    #             error_particles[j] = error_temp
+    
+    #             duration_parameter_particles_best[j] = duration_parameter_temp
+    #             susceptibility_parameters_particles_best[j] = copy(susceptibility_parameters_temp)
+    #             temperature_parameters_particles_best[j] = copy(temperature_parameters_temp)
+    #             mean_immunity_durations_particles_best[j] = copy(mean_immunity_durations_temp)
+    #             random_infection_probabilities_particles_best[j] = copy(random_infection_probabilities_temp)
+    #         end
+
+    #         if error_temp < best_error
+    #             best_error = error_temp
+    
+    #             duration_parameter_best = duration_parameter_temp
+    #             susceptibility_parameters_best = copy(susceptibility_parameters_temp)
+    #             temperature_parameters_best = copy(temperature_parameters_temp)
+    #             mean_immunity_durations_best = copy(mean_immunity_durations_temp)
+    #             random_infection_probabilities_best = copy(random_infection_probabilities_temp)
+    #         end
+
+    #         if i == 15
+    #             incidence_arr[j] = deepcopy(incidence_temp)
+    #             error_particles[j] = error_temp
+
+    #             duration_parameter_particles[j] = duration_parameter_temp
+    #             susceptibility_parameters_particles[j] = copy(susceptibility_parameters_temp)
+    #             temperature_parameters_particles[j] = copy(temperature_parameters_temp)
+    #             mean_immunity_durations_particles[j] = copy(mean_immunity_durations_temp)
+    #             random_infection_probabilities_particles[j] = copy(random_infection_probabilities_temp)
+
+    #             duration_parameter_particles_velocity[j] = duration_parameter_velocity_temp
+    #             susceptibility_parameters_particles_velocity[j, :] = copy(susceptibility_parameters_velocity_temp)
+    #             temperature_parameters_particles_velocity[j, :] = copy(temperature_parameters_velocity_temp)
+    #             mean_immunity_durations_particles_velocity[j, :] = copy(mean_immunity_durations_velocity_temp)
+    #             random_infection_probabilities_particles_velocity[j, :] = copy(random_infection_probabilities_velocity_temp)
+    #         end
+    #     end
+    # end
+
     # В случае, если значения загружаются из таблицы
-    points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), header = false)))
+    # points = Matrix(DataFrame(CSV.File(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), header = false)))
 
     # Латинский гиперкуб
-    # latin_hypercube_plan, _ = LHCoptim(num_particles, num_parameters, 500)
+    latin_hypercube_plan, _ = LHCoptim(num_particles, num_parameters, 500)
 
     # Интервалы значений параметров
-    # points = scaleLHC(latin_hypercube_plan, [
-    #     (0.1, 1.0), # duration_parameter
-    #     (1.0, 7.0), # susceptibility_parameters
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (1.0, 7.0),
-    #     (-1.0, -0.01), # temperature_parameters
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (-1.0, -0.01),
-    #     (30, 365), # mean_immunity_durations
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (30, 365),
-    #     (0.0008, 0.0012), # random_infection_probabilities
-    #     (0.0005, 0.001),
-    #     (0.0002, 0.0005),
-    #     (0.000005, 0.00001),
-    # ])
-    # writedlm(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), points, ',')
+    points = scaleLHC(latin_hypercube_plan, [
+        (0.1, 1.0), # duration_parameter
+        (1.0, 7.0), # susceptibility_parameters
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (1.0, 7.0),
+        (-1.0, -0.01), # temperature_parameters
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (-1.0, -0.01),
+        (30, 365), # mean_immunity_durations
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (30, 365),
+        (0.0008, 0.0012), # random_infection_probabilities
+        (0.0005, 0.001),
+        (0.0002, 0.0005),
+        (0.000005, 0.00001),
+    ])
+    writedlm(joinpath(@__DIR__, "..", "output", "tables", "swarm", "parameters_swarm.csv"), points, ',')
 
     for i = 1:num_particles
         duration_parameter_particles_best[i] = points[i, 1]
@@ -338,7 +394,7 @@ function run_swarm_model()
         #     "mean_immunity_durations", mean_immunity_durations_particles_best[i],
         #     "random_infection_probabilities", random_infection_probabilities_particles_best[i])
     end
-
+    
     for curr_run = 1:num_swarm_model_runs
         w = (num_swarm_model_runs - curr_run) / num_swarm_model_runs * (w_max - w_min) + w_min
         for i = 1:num_particles
