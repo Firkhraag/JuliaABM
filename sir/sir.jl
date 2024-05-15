@@ -990,7 +990,7 @@ function mcmc_simulations(
                 agents[i] = Susceptible
             end
         end
-        error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+        @time error = run_model(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
 
         save(joinpath(@__DIR__, "mcmc$(method_run)", "results_$(n).jld"),
             "error", error,
@@ -2472,7 +2472,7 @@ function main()
     # return
 
 
-    run_model_plot(agents_initial, nsteps, δt)
+    # run_model_plot(agents_initial, nsteps, δt)
 
     # for i in 1:N
     #     if i <= 20
@@ -2488,7 +2488,7 @@ function main()
     # 10 sec
     # @time lhs_simulations(10, agents_initial, nsteps, δt, 10)
 
-    # @time mcmc_simulations(200, agents_initial, nsteps, δt, 10)
+    @time mcmc_simulations(200, agents_initial, nsteps, δt, 10)
     # @time mcmc_simulations_lhs(200, agents_initial, nsteps, δt, 1)
     # @time run_surrogate_model(200, agents_initial, nsteps, δt, 9)
     # @time run_swarm_model(20, agents_initial, nsteps, δt, 1)

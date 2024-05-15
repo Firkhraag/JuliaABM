@@ -568,21 +568,41 @@ function run_surrogate_model()
             
             # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.0009, 0.0015)
             x_cand = random_infection_probabilities_default[1]
+            if abs(x_cand - 0.000005) < 0.0000001
+                x_cand += 0.000001
+            elseif abs(x_cand - 0.00001) < 0.0000001
+                x_cand -= 0.000001
+            end
             y_cand = rand(Normal(log((x_cand - 0.0009) / (0.0015 - x_cand)), random_infection_probability_deltas[1]))
             random_infection_probability_1_candidate = (0.0015 * exp(y_cand) + 0.0009) / (1 + exp(y_cand))
 
             # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 3-6 лет в диапазоне (0.0005, 0.001)
             x_cand = random_infection_probabilities_default[2]
+            if abs(x_cand - 0.0005) < 0.0000001
+                x_cand += 0.000001
+            elseif abs(x_cand - 0.001) < 0.0000001
+                x_cand -= 0.000001
+            end
             y_cand = rand(Normal(log((x_cand - 0.0005) / (0.001 - x_cand)), random_infection_probability_deltas[2]))
             random_infection_probability_2_candidate = (0.001 * exp(y_cand) + 0.0005) / (1 + exp(y_cand))
 
             # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 7-14 лет в диапазоне (0.0002, 0.0005)
             x_cand = random_infection_probabilities_default[3]
+            if abs(x_cand - 0.0002) < 0.0000001
+                x_cand += 0.000001
+            elseif abs(x_cand - 0.0005) < 0.0000001
+                x_cand -= 0.000001
+            end
             y_cand = rand(Normal(log((x_cand - 0.0002) / (0.0005 - x_cand)), random_infection_probability_deltas[3]))
             random_infection_probability_3_candidate = (0.0005 * exp(y_cand) + 0.0002) / (1 + exp(y_cand))
 
             # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 15+ лет в диапазоне (0.000005, 0.00001)
             x_cand = random_infection_probabilities_default[4]
+            if abs(x_cand - 0.000005) < 0.0000001
+                x_cand += 0.000001
+            elseif abs(x_cand - 0.00001) < 0.0000001
+                x_cand -= 0.000001
+            end
             y_cand = rand(Normal(log((x_cand - 0.000005) / (0.00001 - x_cand)), random_infection_probability_deltas[4]))
             random_infection_probability_4_candidate = (0.00001 * exp(y_cand) + 0.000005) / (1 + exp(y_cand))
 

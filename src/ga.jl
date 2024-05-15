@@ -85,16 +85,28 @@ function mutation(
             parameters[1 + j] += rand(Normal(0, disturbance * 6.0))
         end
         if rand(Float64) < mut_rate
-            parameters[8 + j] += -rand(Normal(0, disturbance * (-parameters[8 + j])))
+            parameters[8 + j] += -rand(Normal(0, disturbance * 0.99))
         end
         if rand(Float64) < mut_rate
-            parameters[15 + j] += rand(Normal(0, disturbance * (parameters[15 + j])))
+            parameters[15 + j] += rand(Normal(0, disturbance * 335))
         end
     end
-    for j = 1:4
-        if rand(Float64) < mut_rate
-            parameters[22 + j] += rand(Normal(0, disturbance * (parameters[22 + j])))
-        end
+    # for j = 1:4
+    #     if rand(Float64) < mut_rate
+    #         parameters[22 + j] += rand(Normal(0, disturbance * (parameters[22 + j])))
+    #     end
+    # end
+    if rand(Float64) < mut_rate
+        parameters[23] += rand(Normal(0, disturbance * 0.0004))
+    end
+    if rand(Float64) < mut_rate
+        parameters[24] += rand(Normal(0, disturbance * 0.0005))
+    end
+    if rand(Float64) < mut_rate
+        parameters[25] += rand(Normal(0, disturbance * 0.0003))
+    end
+    if rand(Float64) < mut_rate
+        parameters[26] += rand(Normal(0, disturbance * 0.000005))
     end
     # Ограничения на область значений параметров
     if parameters[1] < 0.1 || parameters[1] > 1

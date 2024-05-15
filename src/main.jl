@@ -1087,21 +1087,41 @@ function mcmc_simulations(
         
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 0-2 лет в диапазоне (0.0009, 0.0015)
         x = random_infection_probability_1_array[end]
+        if abs(x - 0.000005) < 0.0000001
+            x += 0.000001
+        elseif abs(x - 0.00001) < 0.0000001
+            x -= 0.000001
+        end
         y = rand(Normal(log((x - 0.0009) / (0.0015 - x)), random_infection_probability_deltas[1]))
         random_infection_probability_1_candidate = (0.0015 * exp(y) + 0.0009) / (1 + exp(y))
 
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 3-6 лет в диапазоне (0.0005, 0.001)
         x = random_infection_probability_2_array[end]
+        if abs(x - 0.0005) < 0.0000001
+            x += 0.000001
+        elseif abs(x - 0.001) < 0.0000001
+            x -= 0.000001
+        end
         y = rand(Normal(log((x - 0.0005) / (0.001 - x)), random_infection_probability_deltas[2]))
         random_infection_probability_2_candidate = (0.001 * exp(y) + 0.0005) / (1 + exp(y))
 
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 7-14 лет в диапазоне (0.0002, 0.0005)
         x = random_infection_probability_3_array[end]
+        if abs(x - 0.0002) < 0.0000001
+            x += 0.000001
+        elseif abs(x - 0.0005) < 0.0000001
+            x -= 0.000001
+        end
         y = rand(Normal(log((x - 0.0002) / (0.0005 - x)), random_infection_probability_deltas[3]))
         random_infection_probability_3_candidate = (0.0005 * exp(y) + 0.0002) / (1 + exp(y))
 
         # Кандидаты для параметра вероятности случайного инфицирования для возрастной группы 15+ лет в диапазоне (0.000005, 0.00001)
         x = random_infection_probability_4_array[end]
+        if abs(x - 0.000005) < 0.0000001
+            x += 0.000001
+        elseif abs(x - 0.00001) < 0.0000001
+            x -= 0.000001
+        end
         y = rand(Normal(log((x - 0.000005) / (0.00001 - x)), random_infection_probability_deltas[4]))
         random_infection_probability_4_candidate = (0.00001 * exp(y) + 0.000005) / (1 + exp(y))
 
