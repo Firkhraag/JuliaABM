@@ -46,7 +46,8 @@ function plot_mcmc_manual()
         end
     end
 
-    xlabel_name = "Step"
+    # xlabel_name = "Step"
+    xlabel_name = "Шаг"
     ylabel_name = "RMSE"
 
     println(error_array)
@@ -88,7 +89,8 @@ function plot_mcmc_metropolis_manual()
         end
     end
 
-    xlabel_name = "Step"
+    # xlabel_name = "Step"
+    xlabel_name = "Шаг"
     ylabel_name = "RMSE"
 
     # error_plot = plot(
@@ -128,7 +130,8 @@ function plot_swarm_hypercube()
     c_parameter = Array{Float64, 1}(undef, num_swarm_runs + 1)
     γ_parameter = Array{Float64, 1}(undef, num_swarm_runs + 1)
 
-    xlabel_name = "Step"
+    # xlabel_name = "Step"
+    xlabel_name = "Шаг"
     ylabel_name = "RMSE"
 
     error_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["error"]
@@ -194,7 +197,8 @@ function plot_surrogate_hypercube()
     c_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     γ_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
 
-    xlabel_name = "Step"
+    # xlabel_name = "Step"
+    xlabel_name = "Шаг"
     ylabel_name = "RMSE"
 
     for i = 1:num_surrogate_runs
@@ -228,7 +232,8 @@ function plot_surrogate_hypercube_NN()
     c_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     γ_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
 
-    xlabel_name = "Step"
+    # xlabel_name = "Step"
+    xlabel_name = "Шаг"
     ylabel_name = "RMSE"
 
     for i = 1:num_surrogate_runs
@@ -337,7 +342,8 @@ function optimization_methods()
         end
     end
 
-    xlabel_name = "Step"
+    # xlabel_name = "Step"
+    xlabel_name = "Шаг"
     ylabel_name = "RMSE"
 
     error_plot = plot(
@@ -424,7 +430,8 @@ function optimization_methods()
         end
     end
 
-    xlabel_name = "Step"
+    # xlabel_name = "Step"
+    xlabel_name = "Шаг"
     ylabel_name = "RMSE"
 
     plot!(
@@ -472,7 +479,8 @@ function optimization_methods()
     #     end
     # end
 
-    # xlabel_name = "Step"
+    xlabel_name = "Step"
+    # xlabel_name = "Шаг"
     # ylabel_name = "RMSE"
 
     # plot!(
@@ -521,7 +529,8 @@ function optimization_methods()
     #     end
     # end
 
-    # xlabel_name = "Step"
+    xlabel_name = "Step"
+    # xlabel_name = "Шаг"
     # ylabel_name = "RMSE"
 
     # plot!(
@@ -560,7 +569,8 @@ function optimization_methods()
     γ_parameter = zeros(Float64, num_surrogate_runs)
     I0_parameter = zeros(Float64, num_surrogate_runs)
 
-    xlabel_name = "Step"
+    # xlabel_name = "Step"
+    xlabel_name = "Шаг"
     ylabel_name = "RMSE"
 
     for method_run = 1:num_method_runs
@@ -644,7 +654,8 @@ function optimization_methods()
     γ_parameter_temp = zeros(Float64, num_particles)
     I0_parameter_temp = zeros(Float64, num_particles)
 
-    xlabel_name = "Step"
+    # xlabel_name = "Step"
+    xlabel_name = "Шаг"
     ylabel_name = "RMSE"
 
     for method_run = 1:num_method_runs
@@ -753,7 +764,8 @@ function optimization_methods()
     γ_parameter_temp = zeros(Float64, population_size)
     I0_parameter_temp = zeros(Float64, population_size)
 
-    xlabel_name = "Step"
+    # xlabel_name = "Step"
+    xlabel_name = "Шаг"
     ylabel_name = "RMSE"
 
     for method_run = 1:num_method_runs
@@ -774,8 +786,8 @@ function optimization_methods()
             end
         end
         minimum_step_arr[method_run] = argmin(error_arr)
-        # minimum_arr[method_run] = minimum(error_arr)
-        minimum_arr[method_run] = error_arr[1]
+        minimum_arr[method_run] = minimum(error_arr)
+        # minimum_arr[method_run] = error_arr[1]
     end
 
     # println("GA minimum method run = $(median_arg)")
@@ -824,16 +836,16 @@ function optimization_methods()
         ylabel = ylabel_name,
     )
 
-    min_argument = argmin(error_arr[1:200])
-    println("GA")
-    println(error_arr[min_argument])
-    println(min_argument)
-    println(β_parameter[min_argument])
-    println(c_parameter[min_argument])
-    println(γ_parameter[min_argument])
-    println(I0_parameter[min_argument])
-    println()
-    return
+    # min_argument = argmin(error_arr[1:200])
+    # println("GA")
+    # println(error_arr[min_argument])
+    # println(min_argument)
+    # println(β_parameter[min_argument])
+    # println(c_parameter[min_argument])
+    # println(γ_parameter[min_argument])
+    # println(I0_parameter[min_argument])
+    # println()
+    # return
 
     savefig(error_plot, joinpath(@__DIR__, "optimization_methods.pdf"))
 end

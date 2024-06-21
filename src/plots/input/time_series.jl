@@ -17,7 +17,7 @@ include("../../../server/lib/util/moving_avg.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
-const is_russian = false
+const is_russian = true
 const population_coef = 10072
 
 function confidence(x::Vector{Float64}, tstar::Float64 = 2.35)
@@ -28,6 +28,8 @@ end
 function plot_incidence_time_series()
     incidence_data = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu.csv"), ';', Float64, '\n')
     num_years = size(incidence_data, 2) - flu_starting_index_immmunity_bias
+    # println(num_years)
+    # return
     incidence_data = vec(incidence_data[2:53, flu_starting_index:end]) ./ population_coef
 
     infected_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ';', Int, '\n') ./ population_coef
@@ -50,7 +52,7 @@ function plot_incidence_time_series()
     # end
 
     ticks = range(1, stop = (52.14285 * num_years), length = num_years)
-    ticklabels = ["1996" "1997" "1998" "1999" "2000" "2001" "2002"]
+    ticklabels = ["1997" "1998" "1999" "2000" "2001" "2002"]
 
     label_names = ["model" "data"]
     if is_russian
@@ -506,9 +508,9 @@ function incidence_temperature_corr()
     println(cor(temperature_data_weekly, incidence_data_mean))
 end
 
-# plot_incidence_time_series()
+plot_incidence_time_series()
 # plot_incidence_time_series_all()
-plot_incidence()
+# plot_incidence()
 
 # plot_incidence_viruses()
 # plot_incidence_etiology_bars()

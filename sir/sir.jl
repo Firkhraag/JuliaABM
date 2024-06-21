@@ -690,8 +690,10 @@ function run_model(agents_initial, nsteps, δt, β, c, γ)
         df_abm.t,
         [df_abm.S df_abm.I df_abm.R],
         label=["S" "I" "R"],
-        xlabel="Time",
-        ylabel="Number of people",
+        # xlabel="Time",
+        # ylabel="Number of people",
+        xlabel="Время",
+        ylabel="Число агентов",
         foreground_color_legend = nothing,
         background_color_legend = nothing,
     )
@@ -701,6 +703,16 @@ function run_model(agents_initial, nsteps, δt, β, c, γ)
     # println("R_ref = $(df_abm.R)")
     error = sqrt(1 / 1200 * sum((df_abm.S - S_ref).^2) + 1 / 1200 * sum((df_abm.I - I_ref).^2) + 1 / 1200 * sum((df_abm.R - R_ref).^2))
     return error
+end
+
+function run_model_series(agents_initial, nsteps, δt, β, c, γ)
+    p = [β, c, γ, δt]
+    # Running the model
+    df_abm = sim!(agents_initial, nsteps, δt, p)
+    res_arr = copy(df_abm.S[1:400])
+    append!(res_arr, df_abm.I[1:400])
+    append!(res_arr, df_abm.R[1:400])
+    return res_arr
 end
 
 function run_model_metropolis(agents_initial, nsteps, δt, β, c, γ)
@@ -777,6 +789,59 @@ function lhs_simulations(
         end
         save(joinpath(@__DIR__, "lhs$(method_num)", "results_$(i).jld"),
             "error", error,
+            "β_parameter", β_parameter,
+            "c_parameter", c_parameter,
+            "γ_parameter", γ_parameter,
+            "I0_parameter", I0_parameter)
+    end
+end
+
+function lhs_simulations_series(
+    # Число прогонов модели
+    num_runs::Int,
+    # Агенты
+    agents::Vector{InfectionStatus},
+    nsteps,
+    δt,
+    method_num,
+)
+    # Число параметров
+    num_parameters = 4
+
+    # Латинский гиперкуб
+    latin_hypercube_plan, _ = LHCoptim(num_runs, num_parameters, 200)
+
+    # Интервалы значений параметров
+    points = scaleLHC(latin_hypercube_plan, [
+        (0.02, 0.2), # β
+        (5, 25), # c
+        (0.01, 0.05), # γ
+        (1, 50), # I0
+    ])
+
+    error_min = 1.0e12
+
+    for i = 1:num_runs
+        println(i)
+
+        β_parameter = points[i, 1]
+        c_parameter = points[i, 2]
+        γ_parameter = points[i, 3]
+        I0_parameter = points[i, 4]
+
+        # Reset
+        for i in 1:length(agents)
+            if i <= I0_parameter # I0
+                agents[i] = Infected
+            else
+                agents[i] = Susceptible
+            end
+        end
+        # Моделируем заболеваемость
+        res_vec = run_model_series(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+
+        save(joinpath(@__DIR__, "lhs", "results_$(i).jld"),
+            "result", res_vec,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
             "γ_parameter", γ_parameter,
@@ -2487,8 +2552,9 @@ function main()
     # lhs_simulations(100,agents_initial,nsteps,δt)
     # 10 sec
     # @time lhs_simulations(10, agents_initial, nsteps, δt, 10)
+    lhs_simulations_series(10, agents_initial, nsteps, δt, 10)
 
-    @time mcmc_simulations(200, agents_initial, nsteps, δt, 10)
+    # @time mcmc_simulations(200, agents_initial, nsteps, δt, 10)
     # @time mcmc_simulations_lhs(200, agents_initial, nsteps, δt, 1)
     # @time run_surrogate_model(200, agents_initial, nsteps, δt, 9)
     # @time run_swarm_model(20, agents_initial, nsteps, δt, 1)

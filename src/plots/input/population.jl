@@ -42,11 +42,11 @@ function age_distribution_groups()
 
     xlabel_name = "Age"
     if is_russian
-        xlabel_name = "Возраст"
+        xlabel_name = "Возраст агента"
     end
     ylabel_name = "Number"
     if is_russian
-        ylabel_name = "Число"
+        ylabel_name = "Число агентов"
     end
 
     age_distribution_plot = groupedbar(
@@ -133,11 +133,11 @@ function household_size_distribution()
 
     xlabel_name = "Size"
     if is_russian
-        xlabel_name = "Размер"
+        xlabel_name = "Размер домохозяйств"
     end
     ylabel_name = "Number"
     if is_russian
-        ylabel_name = "Число"
+        ylabel_name = "Число домохозяйств"
     end
 
     household_size_distribution_plot = groupedbar(
