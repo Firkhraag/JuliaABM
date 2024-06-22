@@ -282,8 +282,6 @@ function optimization_methods()
     num_mcmc_runs = 201
     error_array = zeros(Float64, num_mcmc_runs)
 
-
-
     for method_run = 1:num_method_runs
         β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "1_parameter_array.csv"), ';', Float64, '\n')
         c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(method_run)", "2_parameter_array.csv"), ';', Float64, '\n')
@@ -830,6 +828,109 @@ function optimization_methods()
         grid = true,
         label = "GA",
         color = RGB(0.8, 0.733, 0.267),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+
+    # min_argument = argmin(error_arr[1:200])
+    # println("GA")
+    # println(error_arr[min_argument])
+    # println(min_argument)
+    # println(β_parameter[min_argument])
+    # println(c_parameter[min_argument])
+    # println(γ_parameter[min_argument])
+    # println(I0_parameter[min_argument])
+    # println()
+    # return
+
+    num_cgo_runs = 5
+    seeds_size = 10
+
+    # error_arr = Array{Float64, 1}(undef, num_cgo_runs * seeds_size + seeds_size)
+    # β_parameter = Array{Float64, 1}(undef, num_cgo_runs * seeds_size + seeds_size)
+    # c_parameter = Array{Float64, 1}(undef, num_cgo_runs * seeds_size + seeds_size)
+    # γ_parameter = Array{Float64, 1}(undef, num_cgo_runs * seeds_size + seeds_size)
+    # I0_parameter = Array{Float64, 1}(undef, num_cgo_runs * seeds_size + seeds_size)
+    error_arr = zeros(Float64, num_cgo_runs * seeds_size)
+    β_parameter = zeros(Float64, num_cgo_runs * seeds_size)
+    c_parameter = zeros(Float64, num_cgo_runs * seeds_size)
+    γ_parameter = zeros(Float64, num_cgo_runs * seeds_size)
+    I0_parameter = zeros(Float64, num_cgo_runs * seeds_size)
+
+    error_arr_temp = zeros(Float64, seeds_size)
+    β_parameter_temp = zeros(Float64, seeds_size)
+    c_parameter_temp = zeros(Float64, seeds_size)
+    γ_parameter_temp = zeros(Float64, seeds_size)
+    I0_parameter_temp = zeros(Float64, seeds_size)
+
+    # xlabel_name = "Step"
+    xlabel_name = "Шаг"
+    ylabel_name = "RMSE"
+
+    for method_run = 1:num_method_runs
+        for i = 1:num_cgo_runs
+            for j = 1:seeds_size
+                error_arr_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld"))["error"]
+                β_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld"))["β_parameter"]
+                c_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld"))["c_parameter"]
+                γ_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld"))["γ_parameter"]
+                I0_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld"))["I0_parameter"]
+            end
+            for j = 1:seeds_size
+                error_arr[(i - 1) * seeds_size + j] = minimum(error_arr_temp)
+                β_parameter[(i - 1) * seeds_size + j] = β_parameter_temp[argmin(error_arr_temp)]
+                c_parameter[(i - 1) * seeds_size + j] = c_parameter_temp[argmin(error_arr_temp)]
+                γ_parameter[(i - 1) * seeds_size + j] = γ_parameter_temp[argmin(error_arr_temp)]
+                I0_parameter[(i - 1) * seeds_size + j] = I0_parameter_temp[argmin(error_arr_temp)]
+            end
+        end
+        minimum_step_arr[method_run] = argmin(error_arr)
+        minimum_arr[method_run] = minimum(error_arr)
+        # minimum_arr[method_run] = error_arr[1]
+    end
+
+    median_arg = 0
+    for i = 1:num_method_runs
+        if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
+            median_arg = i
+            break
+        end
+    end
+    median_arg = argmin(minimum_arr)
+
+    # println("CGO minimum method run = $(median_arg)")
+    # println("CGO min error = $(minimum(minimum_arr))")
+    # println("CGO mean error = $(mean(minimum_arr))")
+    # println("CGO min step = $(minimum_step_arr[argmin(minimum_arr)])")
+    # println("CGO mean step = $(mean(minimum_step_arr))")
+    # return
+
+    for i = 1:num_cgo_runs
+        for j = 1:seeds_size
+            error_arr_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["error"]
+            β_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["β_parameter"]
+            c_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["c_parameter"]
+            γ_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["γ_parameter"]
+            I0_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["I0_parameter"]
+        end
+        for j = 1:seeds_size
+            error_arr[(i - 1) * seeds_size + j] = minimum(error_arr_temp)
+            β_parameter[(i - 1) * seeds_size + j] = β_parameter_temp[argmin(error_arr_temp)]
+            c_parameter[(i - 1) * seeds_size + j] = c_parameter_temp[argmin(error_arr_temp)]
+            γ_parameter[(i - 1) * seeds_size + j] = γ_parameter_temp[argmin(error_arr_temp)]
+            I0_parameter[(i - 1) * seeds_size + j] = I0_parameter_temp[argmin(error_arr_temp)]
+        end
+    end
+
+    plot!(
+        1:num_cgo_runs * seeds_size,
+        moving_average(error_arr[1:num_cgo_runs * seeds_size], 3),
+        lw = 1.5,
+        grid = true,
+        label = "CGO",
+        color = RGB(0.4, 0.8, 0.933),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,

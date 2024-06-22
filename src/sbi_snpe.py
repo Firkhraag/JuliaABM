@@ -41,14 +41,16 @@ prior = utils.BoxUniform(
 #SNPE or SNLE or SNRE
 inference = SNPE(prior=prior)
 
-num_initial_runs = 1000
-
 dirname = os.path.dirname(__file__)
-filename = os.path.join(dirname, '../output/tables/lhs_params.csv')
+# filename = os.path.join(dirname, '../output/tables/lhs_params.csv')
+# filename = os.path.join(dirname, '../output/tables/mcmc_manual_params.csv')
+filename = os.path.join(dirname, '../output/tables/all_params.csv')
 X = df_to_tensor(pd.read_csv(filename, index_col=False, header=None))
 
 dirname = os.path.dirname(__file__)
-filename = os.path.join(dirname, '../output/tables/lhs_y.csv')
+# filename = os.path.join(dirname, '../output/tables/lhs_y.csv')
+# filename = os.path.join(dirname, '../output/tables/mcmc_manual_y.csv')
+filename = os.path.join(dirname, '../output/tables/all_y.csv')
 y = df_to_tensor(pd.read_csv(filename, index_col=False, header=None))
 
 # print(X.shape)

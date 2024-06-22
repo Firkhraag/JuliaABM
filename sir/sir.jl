@@ -2491,6 +2491,235 @@ function genetic_algorithm(
     end
 end
 
+function check_bounds(
+    parameters::Vector{Float64},
+)
+    # Ограничения на область значений параметров
+    # [0.02, 0.2]
+    # [5, 25]
+    # [0.01, 0.05]
+    # [1, 50]
+    if parameters[1] < 0.02 || parameters[1] > 0.2
+        parameters[1] = rand(Uniform(0.02, 0.2))
+    end
+    if parameters[2] < 5 || parameters[2] > 25
+        parameters[2] = rand(Uniform(5, 25))
+    end
+    if parameters[3] < 0.01 || parameters[3] > 0.05
+        parameters[3] = rand(Uniform(0.01, 0.05))
+    end
+    if parameters[4] < 1 || parameters[4] > 50
+        parameters[4] = rand(Uniform(1, 50))
+    end
+end
+
+function run_cgo_model(
+    # Число прогонов модели
+    num_cgo_runs::Int,
+    # Агенты
+    agents::Vector{InfectionStatus},
+    nsteps,
+    δt,
+    method_num,
+)
+    num_parameters = 26
+
+    seeds_size = 10
+
+    best_error = 9.0e12
+
+    error_seeds_arr = Array{Float64, 1}(undef, seeds_size)
+    β_parameter_seeds_array = Array{Float64, 1}(undef, seeds_size)
+    c_parameter_seeds_array = Array{Float64, 1}(undef, seeds_size)
+    γ_parameter_seeds_array = Array{Float64, 1}(undef, seeds_size)
+    I0_parameter_seeds_array = Array{Float64, 1}(undef, seeds_size)
+
+    error_offsprings_arr = Array{Float64, 2}(undef, seeds_size, 4)
+    β_parameter_offsprings_array = Array{Float64, 2}(undef, seeds_size, 4)
+    c_parameter_offsprings_array = Array{Float64, 2}(undef, seeds_size, 4)
+    γ_parameter_offsprings_array = Array{Float64, 2}(undef, seeds_size, 4)
+    I0_parameter_offsprings_array = Array{Float64, 2}(undef, seeds_size, 4)
+
+    β_parameter_best = 0.0
+    c_parameter_best = 0.0
+    γ_parameter_best = 0.0
+    I0_parameter_best = 0.0
+
+    β_parameter_mean_group = 0.0
+    c_parameter_mean_group = 0.0
+    γ_parameter_mean_group = 0.0
+    I0_parameter_mean_group = 0.0
+
+    # Латинский гиперкуб
+    latin_hypercube_plan, _ = LHCoptim(seeds_size, 4, 200)
+
+    # Интервалы значений параметров
+    points = scaleLHC(latin_hypercube_plan, [
+        (0.02, 0.2), # β
+        (5, 25), # c
+        (0.01, 0.05), # γ
+        (1, 50), # I0
+    ])
+
+    β_parameter_seeds_array = points[:, 1]
+    c_parameter_seeds_array = points[:, 2]
+    γ_parameter_seeds_array = points[:, 3]
+    I0_parameter_seeds_array = points[:, 4]
+
+    for i = 1:seeds_size
+        # Reset
+        for j in 1:length(agents)
+            if j <= I0_parameter_seeds_array[i] # I0
+                agents[j] = Infected
+            else
+                agents[j] = Susceptible
+            end
+        end
+        error_seeds_arr[i] = run_model(agents, nsteps, δt, β_parameter_seeds_array[i], c_parameter_seeds_array[i], γ_parameter_seeds_array[i])
+
+        save(joinpath(@__DIR__, "cgo$(method_num)", "0", "results_$(i).jld"),
+            "error", error_seeds_arr[i],
+            "β_parameter", β_parameter_seeds_array[i],
+            "c_parameter", c_parameter_seeds_array[i],
+            "γ_parameter", γ_parameter_seeds_array[i],
+            "I0_parameter", I0_parameter_seeds_array[i])
+    end
+
+    for curr_run = 1:num_cgo_runs
+        for seed = 1:seeds_size
+            group_num = rand(1:seeds_size)
+            el_nums = zeros(Int, group_num)
+            for i = 1:group_num
+                rand_num = rand(1:seeds_size)
+                while rand_num in el_nums
+                    rand_num = rand(1:seeds_size)
+                end
+                el_nums[i] = rand_num
+            end
+
+            β_parameter_mean_group = mean(β_parameter_seeds_array[el_nums])
+            c_parameter_mean_group = mean(c_parameter_seeds_array[el_nums])
+            γ_parameter_mean_group = mean(γ_parameter_seeds_array[el_nums])
+            I0_parameter_mean_group = mean(I0_parameter_seeds_array[el_nums])
+
+            I = rand(0:1, 6) 
+            Ir = rand(0:1, 2)
+
+            alpha = Array{Vector{Float64}, 1}(undef, 4)
+            # alpha[1] = rand(num_parameters)
+            # alpha[2] = 2 * rand(num_parameters) .- 1
+            # alpha[3] = Ir[1] .* rand(num_parameters) .+ 1
+            # alpha[4] = (Ir[2] .* rand(num_parameters) .+ (1 - Ir[2]))
+            alpha[1] = rand(num_parameters)
+            alpha[2] = 2 * rand(num_parameters)
+            alpha[3] = Ir[1] .* rand(num_parameters) .+ 1
+            alpha[4] = (Ir[2] .* rand(num_parameters) .+ (1 - Ir[2]))
+
+            ii = rand(1:4, 1, 3)
+            selected_alpha = alpha[ii]
+
+            β_parameter_offsprings_array[seed, 1] = β_parameter_seeds_array[seed] + selected_alpha[1][1] * (I[1] * β_parameter_best - I[2] * β_parameter_mean_group)
+            c_parameter_offsprings_array[seed, 1] = c_parameter_seeds_array[seed] + selected_alpha[1][2] * (I[1] * c_parameter_best - I[2] * c_parameter_mean_group)
+            γ_parameter_offsprings_array[seed, 1] = γ_parameter_seeds_array[seed] + selected_alpha[1][3] * (I[1] * γ_parameter_best - I[2] * γ_parameter_mean_group)
+            I0_parameter_offsprings_array[seed, 1] = I0_parameter_seeds_array[seed] + selected_alpha[1][4] * (I[1] * I0_parameter_best - I[2] * I0_parameter_mean_group)
+
+            c1 = [β_parameter_offsprings_array[seed, 1], c_parameter_offsprings_array[seed, 1], γ_parameter_offsprings_array[seed, 1], I0_parameter_offsprings_array[seed, 1]]
+            check_bounds(c1)
+
+            # Reset
+            for j in 1:length(agents)
+                if j <= c1[4] # I0
+                    agents[j] = Infected
+                else
+                    agents[j] = Susceptible
+                end
+            end
+            error_offsprings_arr[seed, 1] = run_model(agents, nsteps, δt, c1[1], c1[2], c1[3])
+
+            β_parameter_offsprings_array[seed, 2] = β_parameter_best + selected_alpha[2][1] * (I[3] * β_parameter_mean_group - I[4] * β_parameter_seeds_array[seed])
+            c_parameter_offsprings_array[seed, 2] = c_parameter_best + selected_alpha[2][2] * (I[3] * c_parameter_mean_group - I[4] * c_parameter_seeds_array[seed])
+            γ_parameter_offsprings_array[seed, 2] = γ_parameter_best + selected_alpha[2][3] * (I[3] * γ_parameter_mean_group - I[4] * γ_parameter_seeds_array[seed])
+            I0_parameter_offsprings_array[seed, 2] = I0_parameter_best + selected_alpha[2][4] * (I[3] * I0_parameter_mean_group - I[4] * I0_parameter_seeds_array[seed])
+
+            c2 = [β_parameter_offsprings_array[seed, 2], c_parameter_offsprings_array[seed, 2], γ_parameter_offsprings_array[seed, 2], I0_parameter_offsprings_array[seed, 2]]
+            check_bounds(c2)
+
+            # Reset
+            for j in 1:length(agents)
+                if j <= c2[4] # I0
+                    agents[j] = Infected
+                else
+                    agents[j] = Susceptible
+                end
+            end
+            error_offsprings_arr[seed, 2] = run_model(agents, nsteps, δt, c2[1], c2[2], c2[3])
+
+            β_parameter_offsprings_array[seed, 3] = β_parameter_mean_group + selected_alpha[3][1] * (I[5] * β_parameter_best - I[6] * β_parameter_seeds_array[seed])
+            c_parameter_offsprings_array[seed, 3] = c_parameter_mean_group + selected_alpha[3][2] * (I[5] * c_parameter_best - I[6] * c_parameter_seeds_array[seed])
+            γ_parameter_offsprings_array[seed, 3] = γ_parameter_mean_group + selected_alpha[3][3] * (I[5] * γ_parameter_best - I[6] * γ_parameter_seeds_array[seed])
+            I0_parameter_offsprings_array[seed, 3] = I0_parameter_mean_group + selected_alpha[3][4] * (I[5] * I0_parameter_best - I[6] * I0_parameter_seeds_array[seed])
+
+            c3 = [β_parameter_offsprings_array[seed, 3], c_parameter_offsprings_array[seed, 3], γ_parameter_offsprings_array[seed, 3], I0_parameter_offsprings_array[seed, 3]]
+            check_bounds(c3)
+
+            # Reset
+            for j in 1:length(agents)
+                if j <= c3[4] # I0
+                    agents[j] = Infected
+                else
+                    agents[j] = Susceptible
+                end
+            end
+            error_offsprings_arr[seed, 3] = run_model(agents, nsteps, δt, c3[1], c3[2], c3[3])
+
+            β_parameter_offsprings_array[seed, 4] = rand(Uniform(0.02, 0.2))
+            c_parameter_offsprings_array[seed, 4] = rand(Uniform(5, 25))
+            γ_parameter_offsprings_array[seed, 4] = rand(Uniform(0.01, 0.05))
+            I0_parameter_offsprings_array[seed, 4] = rand(Uniform(1, 50))
+
+            c4 = [β_parameter_offsprings_array[seed, 4], c_parameter_offsprings_array[seed, 4], γ_parameter_offsprings_array[seed, 4], I0_parameter_offsprings_array[seed, 4]]
+            check_bounds(c4)
+
+            # Reset
+            for j in 1:length(agents)
+                if j <= c4[4] # I0
+                    agents[j] = Infected
+                else
+                    agents[j] = Susceptible
+                end
+            end
+            error_offsprings_arr[seed, 4] = run_model(agents, nsteps, δt, c4[1], c4[2], c4[3])
+        end
+
+        args = [a[1] for a in arg_n_smallest_values(vcat(error_seeds_arr, error_offsprings_arr[:, 1], error_offsprings_arr[:, 2], error_offsprings_arr[:, 3], error_offsprings_arr[:, 4]), seeds_size)]
+
+        β_parameter_concatenated = vcat(β_parameter_seeds_array, β_parameter_offsprings_array[:, 1], β_parameter_offsprings_array[:, 2], β_parameter_offsprings_array[:, 3], β_parameter_offsprings_array[:, 4])
+        c_parameter_concatenated = vcat(c_parameter_seeds_array, c_parameter_offsprings_array[:, 1], c_parameter_offsprings_array[:, 2], c_parameter_offsprings_array[:, 3], c_parameter_offsprings_array[:, 4])
+        γ_parameter_concatenated = vcat(γ_parameter_seeds_array, γ_parameter_offsprings_array[:, 1], γ_parameter_offsprings_array[:, 2], γ_parameter_offsprings_array[:, 3], γ_parameter_offsprings_array[:, 4])
+        I0_parameter_concatenated = vcat(I0_parameter_seeds_array, I0_parameter_offsprings_array[:, 1], I0_parameter_offsprings_array[:, 2], I0_parameter_offsprings_array[:, 3], I0_parameter_offsprings_array[:, 4])
+        error_seeds_concatenated = vcat(error_seeds_arr, error_offsprings_arr[:, 1], error_offsprings_arr[:, 2], error_offsprings_arr[:, 3], error_offsprings_arr[:, 4])
+
+        println("Run = $(curr_run)")
+        for i = 1:seeds_size
+            β_parameter_seeds_array[i] = β_parameter_concatenated[args[i]]
+            c_parameter_seeds_array[i] = c_parameter_concatenated[args[i]]
+            γ_parameter_seeds_array[i] = γ_parameter_concatenated[args[i]]
+            I0_parameter_seeds_array[i] = I0_parameter_concatenated[args[i]]
+            error_seeds_arr[i] = error_seeds_concatenated[args[i]]
+
+            println("Seed = $(i): $(error_seeds_arr[i])")
+
+            save(joinpath(@__DIR__, "cgo$(method_num)", "$(curr_run)", "results_$(i).jld"),
+                "error", error_seeds_arr[i],
+                "β_parameter", β_parameter_seeds_array[i],
+                "c_parameter", c_parameter_seeds_array[i],
+                "γ_parameter", γ_parameter_seeds_array[i],
+                "I0_parameter", I0_parameter_seeds_array[i],
+            )
+        end
+    end
+end
+
 function main()
     # Time domain
     δt = 0.1
@@ -2552,13 +2781,15 @@ function main()
     # lhs_simulations(100,agents_initial,nsteps,δt)
     # 10 sec
     # @time lhs_simulations(10, agents_initial, nsteps, δt, 10)
-    lhs_simulations_series(10, agents_initial, nsteps, δt, 10)
+    # lhs_simulations_series(10, agents_initial, nsteps, δt, 10)
 
     # @time mcmc_simulations(200, agents_initial, nsteps, δt, 10)
     # @time mcmc_simulations_lhs(200, agents_initial, nsteps, δt, 1)
     # @time run_surrogate_model(200, agents_initial, nsteps, δt, 9)
     # @time run_swarm_model(20, agents_initial, nsteps, δt, 1)
     # @time genetic_algorithm(20, agents_initial, nsteps, δt, 1)
+    @time run_cgo_model(5, agents_initial, nsteps, δt, 9)
+
 
     # mcmc_simulations_metropolis(250,agents_initial,nsteps,δt)
     # mcmc_simulations_metropolis_lhs(250,agents_initial,nsteps,δt)
