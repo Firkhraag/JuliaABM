@@ -144,7 +144,7 @@ function run_cgo_model()
     agents = Array{Agent, 1}(undef, num_agents)
 
     # Генератор случайных чисел для потоков
-    thread_rng = [MersenneTwister(i + run_num * num_threads) for i = 1:num_threads]
+    thread_rng = [MersenneTwister(i + 6 * num_threads) for i = 1:num_threads]
 
     # Координаты домов
     homes_coords_df = DataFrame(CSV.File(joinpath(@__DIR__, "..", "input", "tables", "space", "homes.csv")))
