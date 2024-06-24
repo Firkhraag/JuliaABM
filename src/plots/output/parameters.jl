@@ -1636,6 +1636,169 @@ function optimization_methods()
     # println()
     # return
 
+    # !!!!!!!!!!!!!!!!!
+    num_method_runs = 2
+
+    num_cgo_runs = 5
+    seeds_size = 10
+
+    incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_cgo_runs)
+    incidence_arr_temp = Array{Array{Float64, 3}, 1}(undef, seeds_size)
+    error_array = zeros(Float64, num_cgo_runs * seeds_size)
+    error_array_final = zeros(Float64, 200)
+
+    duration_parameter = Array{Float64, 1}(undef, num_cgo_runs * seeds_size)
+    susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_cgo_runs * seeds_size)
+    temperature_parameters = Array{Vector{Float64}, 1}(undef, num_cgo_runs * seeds_size)
+    mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_cgo_runs * seeds_size)
+    random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_cgo_runs * seeds_size)
+
+    error_arr_temp = zeros(Float64, seeds_size)
+    duration_parameter_temp = zeros(Float64, seeds_size)
+    susceptibility_parameters_temp = Array{Vector{Float64}, 1}(undef, seeds_size)
+    temperature_parameters_temp = Array{Vector{Float64}, 1}(undef, seeds_size)
+    mean_immunity_durations_temp = Array{Vector{Float64}, 1}(undef, seeds_size)
+    random_infection_probabilities_temp = Array{Vector{Float64}, 1}(undef, seeds_size)
+
+    xlabel_name = "Step"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
+    ylabel_name = "RMSE"
+
+    for method_run = 1:num_method_runs
+        for i = 1:num_cgo_runs
+            for j = 1:seeds_size
+                temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(method_run)", "$(i)", "results_$(i).jld"))["observed_cases"]
+                error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
+                
+                duration_parameter_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(method_run)", "$(i)", "results_$(j).jld"))["duration_parameter"]
+                susceptibility_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(method_run)", "$(i)", "results_$(j).jld"))["susceptibility_parameters"]
+                temperature_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(method_run)", "$(i)", "results_$(j).jld"))["temperature_parameters"]
+                mean_immunity_durations_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(method_run)", "$(i)", "results_$(j).jld"))["mean_immunity_durations"]
+                random_infection_probabilities_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(method_run)", "$(i)", "results_$(j).jld"))["random_infection_probabilities"]
+            end
+            for j = 1:seeds_size
+                error_array[(i - 1) * seeds_size + j] = minimum(error_arr_temp)
+                min_arg = argmin(error_arr_temp)
+                duration_parameter[(i - 1) * seeds_size + j] = duration_parameter_temp[min_arg]
+                susceptibility_parameters[(i - 1) * seeds_size + j] = susceptibility_parameters_temp[min_arg]
+                temperature_parameters[(i - 1) * seeds_size + j] = temperature_parameters_temp[min_arg]
+                mean_immunity_durations[(i - 1) * seeds_size + j] = mean_immunity_durations_temp[min_arg]
+                random_infection_probabilities[(i - 1) * seeds_size + j] = random_infection_probabilities_temp[min_arg]
+            end
+        end
+        minimum_step_arr[method_run] = argmin(error_array)
+        minimum_arr[method_run] = minimum(error_array)
+        # minimum_arr[method_run] = error_array[1]
+    end
+
+    # println("CGO minimum method run = $(argmin(minimum_arr))")
+    # println("CGO min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
+    # println("CGO mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
+    # println("CGO min step = $(minimum_step_arr[argmin(minimum_arr)])")
+    # println("CGO mean step = $(mean(minimum_step_arr))")
+    # return
+
+    median_arg = 0
+    for i = 1:num_method_runs
+        if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
+            median_arg = i
+            break
+        end
+    end
+    median_arg = argmin(minimum_arr)
+
+    median_arg = 1
+
+    # for i = 1:num_swarm_runs
+    #     for j = 1:num_particles
+    #         temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["observed_cases"]
+    #         error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
+            
+    
+    #     end
+    #     for j = 1:num_particles
+    #         error_array[(i - 1) * num_particles + j] = minimum(error_arr_temp)
+    #         min_arg = argmin(error_arr_temp)
+    #         duration_parameter[(i - 1) * num_particles + j] = duration_parameter_temp[min_arg]
+    #         susceptibility_parameters[(i - 1) * num_particles + j] = susceptibility_parameters_temp[min_arg]
+    #         temperature_parameters[(i - 1) * num_particles + j] = temperature_parameters_temp[min_arg]
+    #         mean_immunity_durations[(i - 1) * num_particles + j] = mean_immunity_durations_temp[min_arg]
+    #         random_infection_probabilities[(i - 1) * num_particles + j] = random_infection_probabilities_temp[min_arg]
+    #     end
+    # end
+
+    for i = 1:num_cgo_runs
+        for j = 1:seeds_size
+            temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["observed_cases"]
+            error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
+            duration_parameter_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["duration_parameter"]
+            susceptibility_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["susceptibility_parameters"]
+            temperature_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["temperature_parameters"]
+            mean_immunity_durations_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["mean_immunity_durations"]
+            random_infection_probabilities_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["random_infection_probabilities"]
+        end
+        for j = 1:seeds_size
+            error_array[(i - 1) * seeds_size + j] = minimum(error_arr_temp)
+            duration_parameter[(i - 1) * seeds_size + j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["duration_parameter"]
+            susceptibility_parameters[(i - 1) * seeds_size + j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["susceptibility_parameters"]
+            temperature_parameters[(i - 1) * seeds_size + j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["temperature_parameters"]
+            mean_immunity_durations[(i - 1) * seeds_size + j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["mean_immunity_durations"]
+            random_infection_probabilities[(i - 1) * seeds_size + j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["random_infection_probabilities"]
+        end
+    end
+
+    for i = 1:5
+        for j = 1:40
+            error_array_final[(i - 1) * 40 + j] = error_array[i * 10 - 1]
+        end
+    end
+    
+
+    # error_plot = plot(
+    #     # 1:(num_swarm_runs * num_particles + num_particles),
+    #     # moving_average(sqrt.(error_array[1:(num_swarm_runs * num_particles + num_particles)] / num_error_points), 3),
+    #     1:(num_cgo_runs * seeds_size),
+    #     moving_average(sqrt.(error_array[1:(num_cgo_runs * seeds_size)] / num_error_points), 3),
+    #     lw = 1.5,
+    #     grid = true,
+    #     label = "CGO",
+    #     legend = (0.74, 0.98),
+    #     color = RGB(0.4, 0.8, 0.933),
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    # )
+    plot!(
+        # 1:(num_swarm_runs * num_particles + num_particles),
+        # moving_average(sqrt.(error_array[1:(num_swarm_runs * num_particles + num_particles)] / num_error_points), 3),
+        1:200,
+        moving_average(sqrt.(error_array_final[1:200] / num_error_points), 3),
+        lw = 1.5,
+        grid = true,
+        label = "CGO",
+        legend = (0.74, 0.98),
+        color = RGB(0.4, 0.8, 0.933),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+
+    # min_argument = argmin(error_array)
+    # println(min_argument)
+    # println(sqrt.(error_array[min_argument] / num_error_points))
+    # println("CGO")
+    # println("duration_parameter = $(duration_parameter[min_argument])")
+    # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
+    # println("temperature_parameters = $(temperature_parameters[min_argument])")
+    # println("mean_immunity_durations = $(mean_immunity_durations[min_argument])")
+    # println("random_infection_probabilities = $(random_infection_probabilities[min_argument])")
+    # println()
+    # return
+
     savefig(error_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "optimization_methods.pdf"))
 end
 
@@ -1981,7 +2144,7 @@ end
 
 # plot_surrogate_hypercube()
 
-# optimization_methods()
+optimization_methods()
 
 # optimization_methods_incidence()
-optimization_methods_incidence_age_groups()
+# optimization_methods_incidence_age_groups()

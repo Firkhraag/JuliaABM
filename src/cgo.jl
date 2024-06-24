@@ -273,7 +273,7 @@ function run_cgo_model()
 
             duration_parameter_best = duration_parameter_seeds_array[p]
             susceptibility_parameters_best = susceptibility_parameters_seeds_array[p]
-            temperature_parameters_best = mean_immunity_durations_seeds_array[p]
+            temperature_parameters_best = temperature_parameters_best[p]
             mean_immunity_durations_best = mean_immunity_durations_seeds_array[p]
             random_infection_probabilities_best = random_infection_probabilities_seeds_array[p]
         end
