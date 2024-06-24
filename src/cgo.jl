@@ -496,6 +496,12 @@ function run_cgo_model()
                 error_offsprings[seed, 3] = sum(abs.(incidence_offsprings_arr[seed, 3] - num_infected_age_groups_viruses).^2)
             end
 
+            duration_parameter_offsprings_array[seed, 4] = duration_parameter_seeds_array[seed]
+            susceptibility_parameters_offsprings_array[seed, 4] = copy(susceptibility_parameters_seeds_array[seed])
+            temperature_parameters_offsprings_array[seed, 4] = copy(temperature_parameters_seeds_array[seed])
+            mean_immunity_durations_offsprings_array[seed, 4] = copy(mean_immunity_durations_seeds_array[seed])
+            random_infection_probabilities_offsprings_array[seed, 4] = copy(random_infection_probabilities_seeds_array[seed])
+
             mutation_params = rand(1:num_parameters, rand(1:num_parameters))
             if 1 in mutation_params
                 duration_parameter_offsprings_array[seed, 4] = rand(Uniform(0.1, 1.0))

@@ -2694,6 +2694,11 @@ function run_cgo_model(
             #     I0_parameter_offsprings_array[seed, 4] = rand(Uniform(1, 50))
             # end
 
+            β_parameter_offsprings_array[seed, 4] = β_parameter_seeds_array[seed]
+            c_parameter_offsprings_array[seed, 4] = c_parameter_seeds_array[seed]
+            γ_parameter_offsprings_array[seed, 4] = γ_parameter_seeds_array[seed]
+            I0_parameter_offsprings_array[seed, 4] = I0_parameter_seeds_array[seed]
+
             mutation_params = rand(1:4, rand(1:4))
             if 1 in mutation_params
                 β_parameter_offsprings_array[seed, 4] = rand(Uniform(0.02, 0.2))
