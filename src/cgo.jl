@@ -328,6 +328,16 @@ function run_cgo_model()
             I = rand(0:1, 6) 
             Ir = rand(0:1, 2)
 
+            if I[1] == 0 && I[2] == 0
+                I[rand(1:2)] = 1
+            end
+            if I[3] == 0 && I[4] == 0
+                I[rand(3:4)] = 1
+            end
+            if I[5] == 0 && I[6] == 0
+                I[rand(5:6)] = 1
+            end
+
             alpha = Array{Vector{Float64}, 1}(undef, 4)
             alpha[1] = rand(num_parameters)
             alpha[2] = 2 * rand(num_parameters)
