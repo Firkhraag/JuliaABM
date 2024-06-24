@@ -320,7 +320,7 @@ function optimization_methods()
             break
         end
     end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
     β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(median_arg)", "1_parameter_array.csv"), ';', Float64, '\n')
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(median_arg)", "2_parameter_array.csv"), ';', Float64, '\n')
@@ -408,7 +408,7 @@ function optimization_methods()
             break
         end
     end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
     β_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(median_arg)", "1_parameter_array.csv"), ';', Float64, '\n')
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(median_arg)", "2_parameter_array.csv"), ';', Float64, '\n')
@@ -598,7 +598,7 @@ function optimization_methods()
             break
         end
     end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
     for i = 1:num_surrogate_runs
         error_arr[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld"))["error"]
@@ -692,7 +692,7 @@ function optimization_methods()
             break
         end
     end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
     for i = 1:num_swarm_runs
         for j = 1:num_particles
@@ -802,7 +802,7 @@ function optimization_methods()
             break
         end
     end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
     for i = 1:num_ga_runs
         for j = 1:population_size
@@ -854,6 +854,7 @@ function optimization_methods()
     # γ_parameter = Array{Float64, 1}(undef, num_cgo_runs * seeds_size + seeds_size)
     # I0_parameter = Array{Float64, 1}(undef, num_cgo_runs * seeds_size + seeds_size)
     error_arr = zeros(Float64, num_cgo_runs * seeds_size)
+    error_array_final = zeros(Float64, 200)
     β_parameter = zeros(Float64, num_cgo_runs * seeds_size)
     c_parameter = zeros(Float64, num_cgo_runs * seeds_size)
     γ_parameter = zeros(Float64, num_cgo_runs * seeds_size)
@@ -898,7 +899,7 @@ function optimization_methods()
             break
         end
     end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
     # println("CGO minimum method run = $(median_arg)")
     # println("CGO min error = $(minimum(minimum_arr))")
@@ -924,9 +925,17 @@ function optimization_methods()
         end
     end
 
+    for i = 1:5
+        for j = 1:40
+            error_array_final[(i - 1) * 40 + j] = error_arr[i * 10 - 1]
+        end
+    end
+
     plot!(
-        1:num_cgo_runs * seeds_size,
-        moving_average(error_arr[1:num_cgo_runs * seeds_size], 3),
+        1:200,
+        moving_average(error_array_final[1:200], 3),
+        # 1:num_cgo_runs * seeds_size,
+        # moving_average(error_arr[1:num_cgo_runs * seeds_size], 3),
         lw = 1.5,
         grid = true,
         label = "CGO",
@@ -936,6 +945,21 @@ function optimization_methods()
         xlabel = xlabel_name,
         ylabel = ylabel_name,
     )
+
+    # error_plot = plot(
+    #     1:200,
+    #     moving_average(error_array_final[1:200], 3),
+    #     # 1:num_cgo_runs * seeds_size,
+    #     # moving_average(error_arr[1:num_cgo_runs * seeds_size], 3),
+    #     lw = 1.5,
+    #     grid = true,
+    #     label = "CGO",
+    #     color = RGB(0.4, 0.8, 0.933),
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    # )
 
     # min_argument = argmin(error_arr[1:200])
     # println("GA")

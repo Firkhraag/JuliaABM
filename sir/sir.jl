@@ -2577,6 +2577,14 @@ function run_cgo_model(
         end
         error_seeds_arr[i] = run_model(agents, nsteps, δt, β_parameter_seeds_array[i], c_parameter_seeds_array[i], γ_parameter_seeds_array[i])
 
+        if error_seeds_arr[i] < best_error
+            β_parameter_best = β_parameter_seeds_array[i]
+            c_parameter_best = c_parameter_seeds_array[i]
+            γ_parameter_best = γ_parameter_seeds_array[i]
+            I0_parameter_best = I0_parameter_seeds_array[i]
+            best_error = error_seeds_arr[i]
+        end
+
         save(joinpath(@__DIR__, "cgo$(method_num)", "0", "results_$(i).jld"),
             "error", error_seeds_arr[i],
             "β_parameter", β_parameter_seeds_array[i],
@@ -2672,10 +2680,33 @@ function run_cgo_model(
             end
             error_offsprings_arr[seed, 3] = run_model(agents, nsteps, δt, c3[1], c3[2], c3[3])
 
-            β_parameter_offsprings_array[seed, 4] = rand(Uniform(0.02, 0.2))
-            c_parameter_offsprings_array[seed, 4] = rand(Uniform(5, 25))
-            γ_parameter_offsprings_array[seed, 4] = rand(Uniform(0.01, 0.05))
-            I0_parameter_offsprings_array[seed, 4] = rand(Uniform(1, 50))
+
+            # if rand() < 1 / 4
+            #     β_parameter_offsprings_array[seed, 4] = rand(Uniform(0.02, 0.2))
+            # end
+            # if rand() < 1 / 4
+            #     c_parameter_offsprings_array[seed, 4] = rand(Uniform(5, 25))
+            # end
+            # if rand() < 1 / 4
+            #     γ_parameter_offsprings_array[seed, 4] = rand(Uniform(0.01, 0.05))
+            # end
+            # if rand() < 1 / 4
+            #     I0_parameter_offsprings_array[seed, 4] = rand(Uniform(1, 50))
+            # end
+
+            mutation_params = rand(1:4, rand(1:4))
+            if 1 in mutation_params
+                β_parameter_offsprings_array[seed, 4] = rand(Uniform(0.02, 0.2))
+            end
+            if 2 in mutation_params
+                c_parameter_offsprings_array[seed, 4] = rand(Uniform(5, 25))
+            end
+            if 3 in mutation_params
+                γ_parameter_offsprings_array[seed, 4] = rand(Uniform(0.01, 0.05))
+            end
+            if 4 in mutation_params
+                I0_parameter_offsprings_array[seed, 4] = rand(Uniform(1, 50))
+            end
 
             c4 = [β_parameter_offsprings_array[seed, 4], c_parameter_offsprings_array[seed, 4], γ_parameter_offsprings_array[seed, 4], I0_parameter_offsprings_array[seed, 4]]
             check_bounds(c4)
@@ -2706,6 +2737,14 @@ function run_cgo_model(
             γ_parameter_seeds_array[i] = γ_parameter_concatenated[args[i]]
             I0_parameter_seeds_array[i] = I0_parameter_concatenated[args[i]]
             error_seeds_arr[i] = error_seeds_concatenated[args[i]]
+
+            if error_seeds_arr[i] < best_error
+                β_parameter_best = β_parameter_seeds_array[i]
+                c_parameter_best = c_parameter_seeds_array[i]
+                γ_parameter_best = γ_parameter_seeds_array[i]
+                I0_parameter_best = I0_parameter_seeds_array[i]
+                best_error = error_seeds_arr[i]
+            end
 
             println("Seed = $(i): $(error_seeds_arr[i])")
 
@@ -2788,7 +2827,7 @@ function main()
     # @time run_surrogate_model(200, agents_initial, nsteps, δt, 9)
     # @time run_swarm_model(20, agents_initial, nsteps, δt, 1)
     # @time genetic_algorithm(20, agents_initial, nsteps, δt, 1)
-    @time run_cgo_model(5, agents_initial, nsteps, δt, 9)
+    @time run_cgo_model(5, agents_initial, nsteps, δt, 3)
 
 
     # mcmc_simulations_metropolis(250,agents_initial,nsteps,δt)

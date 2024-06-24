@@ -1709,7 +1709,7 @@ function optimization_methods()
     end
     median_arg = argmin(minimum_arr)
 
-    median_arg = 1
+    median_arg = 2
 
     # for i = 1:num_swarm_runs
     #     for j = 1:num_particles
@@ -1731,6 +1731,7 @@ function optimization_methods()
 
     for i = 1:num_cgo_runs
         for j = 1:seeds_size
+            println("$(i) and $(j)")
             temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["observed_cases"]
             error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
             duration_parameter_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["duration_parameter"]

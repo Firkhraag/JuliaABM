@@ -272,10 +272,10 @@ function run_cgo_model()
             best_error = error_seeds[p]
 
             duration_parameter_best = duration_parameter_seeds_array[p]
-            susceptibility_parameters_best = susceptibility_parameters_seeds_array[p]
-            temperature_parameters_best = temperature_parameters_best[p]
-            mean_immunity_durations_best = mean_immunity_durations_seeds_array[p]
-            random_infection_probabilities_best = random_infection_probabilities_seeds_array[p]
+            susceptibility_parameters_best = copy(susceptibility_parameters_seeds_array[p])
+            temperature_parameters_best = copy(temperature_parameters_seeds_array[p])
+            mean_immunity_durations_best = copy(mean_immunity_durations_seeds_array[p])
+            random_infection_probabilities_best = copy(random_infection_probabilities_seeds_array[p])
         end
     end
 
@@ -496,12 +496,89 @@ function run_cgo_model()
                 error_offsprings[seed, 3] = sum(abs.(incidence_offsprings_arr[seed, 3] - num_infected_age_groups_viruses).^2)
             end
 
-            duration_parameter_offsprings_array[seed, 4] = rand(Uniform(0.1, 1.0))
-            susceptibility_parameters_offsprings_array[seed, 4] = [rand(Uniform(1.0, 7.0)) for _ = 1:num_viruses]
-            temperature_parameters_offsprings_array[seed, 4] = [rand(Uniform(-1.0, -0.01)) for _ = 1:num_viruses]
-            mean_immunity_durations_offsprings_array[seed, 4] = [rand(Uniform(30.0, 365.0)) for _ = 1:num_viruses]
+            mutation_params = rand(1:num_parameters, rand(1:num_parameters))
+            if 1 in mutation_params
+                duration_parameter_offsprings_array[seed, 4] = rand(Uniform(0.1, 1.0))
+            end
 
-            random_infection_probabilities_offsprings_array[seed, 4] = [rand(Uniform(0.0008, 0.0012)), rand(Uniform(0.0005, 0.001)), rand(Uniform(0.0002, 0.0005)), rand(Uniform(0.000005, 0.00001))]
+            if 2 in mutation_params
+                susceptibility_parameters_offsprings_array[seed, 4][1] = rand(Uniform(1.0, 7.0))
+            end
+            if 3 in mutation_params
+                susceptibility_parameters_offsprings_array[seed, 4][2] = rand(Uniform(1.0, 7.0))
+            end
+            if 4 in mutation_params
+                susceptibility_parameters_offsprings_array[seed, 4][3] = rand(Uniform(1.0, 7.0))
+            end
+            if 5 in mutation_params
+                susceptibility_parameters_offsprings_array[seed, 4][4] = rand(Uniform(1.0, 7.0))
+            end
+            if 6 in mutation_params
+                susceptibility_parameters_offsprings_array[seed, 4][5] = rand(Uniform(1.0, 7.0))
+            end
+            if 7 in mutation_params
+                susceptibility_parameters_offsprings_array[seed, 4][6] = rand(Uniform(1.0, 7.0))
+            end
+            if 8 in mutation_params
+                susceptibility_parameters_offsprings_array[seed, 4][7] = rand(Uniform(1.0, 7.0))
+            end
+
+            if 9 in mutation_params
+                temperature_parameters_offsprings_array[seed, 4][1] = rand(Uniform(-1.0, -0.01))
+            end
+            if 10 in mutation_params
+                temperature_parameters_offsprings_array[seed, 4][2] = rand(Uniform(-1.0, -0.01))
+            end
+            if 11 in mutation_params
+                temperature_parameters_offsprings_array[seed, 4][3] = rand(Uniform(-1.0, -0.01))
+            end
+            if 12 in mutation_params
+                temperature_parameters_offsprings_array[seed, 4][4] = rand(Uniform(-1.0, -0.01))
+            end
+            if 13 in mutation_params
+                temperature_parameters_offsprings_array[seed, 4][5] = rand(Uniform(-1.0, -0.01))
+            end
+            if 14 in mutation_params
+                temperature_parameters_offsprings_array[seed, 4][6] = rand(Uniform(-1.0, -0.01))
+            end
+            if 15 in mutation_params
+                temperature_parameters_offsprings_array[seed, 4][7] = rand(Uniform(-1.0, -0.01))
+            end
+
+            if 16 in mutation_params
+                mean_immunity_durations_offsprings_array[seed, 4][1] = rand(Uniform(30.0, 365.0))
+            end
+            if 17 in mutation_params
+                mean_immunity_durations_offsprings_array[seed, 4][2] = rand(Uniform(30.0, 365.0))
+            end
+            if 18 in mutation_params
+                mean_immunity_durations_offsprings_array[seed, 4][3] = rand(Uniform(30.0, 365.0))
+            end
+            if 19 in mutation_params
+                mean_immunity_durations_offsprings_array[seed, 4][4] = rand(Uniform(30.0, 365.0))
+            end
+            if 20 in mutation_params
+                mean_immunity_durations_offsprings_array[seed, 4][5] = rand(Uniform(30.0, 365.0))
+            end
+            if 21 in mutation_params
+                mean_immunity_durations_offsprings_array[seed, 4][6] = rand(Uniform(30.0, 365.0))
+            end
+            if 22 in mutation_params
+                mean_immunity_durations_offsprings_array[seed, 4][7] = rand(Uniform(30.0, 365.0))
+            end
+
+            if 23 in mutation_params
+                random_infection_probabilities_offsprings_array[seed, 4][1] = rand(Uniform(0.0008, 0.0012))
+            end
+            if 24 in mutation_params
+                random_infection_probabilities_offsprings_array[seed, 4][2] = rand(Uniform(0.0005, 0.001))
+            end
+            if 25 in mutation_params
+                random_infection_probabilities_offsprings_array[seed, 4][3] = rand(Uniform(0.0002, 0.0005))
+            end
+            if 26 in mutation_params
+                random_infection_probabilities_offsprings_array[seed, 4][4] = rand(Uniform(0.000005, 0.00001))
+            end
 
             c4 = [duration_parameter_offsprings_array[seed, 4], susceptibility_parameters_offsprings_array[seed, 4][1], susceptibility_parameters_offsprings_array[seed, 4][2], susceptibility_parameters_offsprings_array[seed, 4][3], susceptibility_parameters_offsprings_array[seed, 4][4], susceptibility_parameters_offsprings_array[seed, 4][5], susceptibility_parameters_offsprings_array[seed, 4][6], susceptibility_parameters_offsprings_array[seed, 4][7], temperature_parameters_offsprings_array[seed, 4][1], temperature_parameters_offsprings_array[seed, 4][2], temperature_parameters_offsprings_array[seed, 4][3], temperature_parameters_offsprings_array[seed, 4][4], temperature_parameters_offsprings_array[seed, 4][5], temperature_parameters_offsprings_array[seed, 4][6], temperature_parameters_offsprings_array[seed, 4][7], mean_immunity_durations_offsprings_array[seed, 4][1], mean_immunity_durations_offsprings_array[seed, 4][2], mean_immunity_durations_offsprings_array[seed, 4][3], mean_immunity_durations_offsprings_array[seed, 4][4], mean_immunity_durations_offsprings_array[seed, 4][5], mean_immunity_durations_offsprings_array[seed, 4][6], mean_immunity_durations_offsprings_array[seed, 4][7], random_infection_probabilities_offsprings_array[seed, 4][1], random_infection_probabilities_offsprings_array[seed, 4][2], random_infection_probabilities_offsprings_array[seed, 4][3], random_infection_probabilities_offsprings_array[seed, 4][4]]
             check_bounds(c4)
@@ -565,6 +642,18 @@ function run_cgo_model()
             mean_immunity_durations_seeds_array[i] = copy(mean_immunity_durations_concatenated[args[i]])
             random_infection_probabilities_seeds_array[i] = copy(random_infection_probabilities_concatenated[args[i]])
             error_seeds[i] = error_concatenated[args[i]]
+
+            if error_seeds[i] < best_error
+                best_error = error_seeds[i]
+    
+                duration_parameter_best = duration_parameter_seeds_array[i]
+                susceptibility_parameters_best = copy(susceptibility_parameters_seeds_array[i])
+                temperature_parameters_best = copy(temperature_parameters_seeds_array[i])
+                mean_immunity_durations_best = copy(mean_immunity_durations_seeds_array[i])
+                random_infection_probabilities_best = copy(random_infection_probabilities_seeds_array[i])
+            end
+
+            println("Seed = $(i): $(error_seeds[i])")
 
             save(joinpath(@__DIR__, "..", "output", "tables", "cgo", "$(curr_run)", "results_$(i).jld"),
                 "observed_cases", incidence_seeds_arr[i],
