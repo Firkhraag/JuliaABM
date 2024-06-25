@@ -368,6 +368,12 @@ function run_cgo_model()
             c1 = [duration_parameter_offsprings_array[seed, 1], susceptibility_parameters_offsprings_array[seed, 1][1], susceptibility_parameters_offsprings_array[seed, 1][2], susceptibility_parameters_offsprings_array[seed, 1][3], susceptibility_parameters_offsprings_array[seed, 1][4], susceptibility_parameters_offsprings_array[seed, 1][5], susceptibility_parameters_offsprings_array[seed, 1][6], susceptibility_parameters_offsprings_array[seed, 1][7], temperature_parameters_offsprings_array[seed, 1][1], temperature_parameters_offsprings_array[seed, 1][2], temperature_parameters_offsprings_array[seed, 1][3], temperature_parameters_offsprings_array[seed, 1][4], temperature_parameters_offsprings_array[seed, 1][5], temperature_parameters_offsprings_array[seed, 1][6], temperature_parameters_offsprings_array[seed, 1][7], mean_immunity_durations_offsprings_array[seed, 1][1], mean_immunity_durations_offsprings_array[seed, 1][2], mean_immunity_durations_offsprings_array[seed, 1][3], mean_immunity_durations_offsprings_array[seed, 1][4], mean_immunity_durations_offsprings_array[seed, 1][5], mean_immunity_durations_offsprings_array[seed, 1][6], mean_immunity_durations_offsprings_array[seed, 1][7], random_infection_probabilities_offsprings_array[seed, 1][1], random_infection_probabilities_offsprings_array[seed, 1][2], random_infection_probabilities_offsprings_array[seed, 1][3], random_infection_probabilities_offsprings_array[seed, 1][4]]
             check_bounds(c1)
 
+            duration_parameter_offsprings_array[seed, 1] = c1[1]
+            susceptibility_parameters_offsprings_array[seed, 1] = copy(c1[2:8])
+            temperature_parameters_offsprings_array[seed, 1] = copy(c1[9:15])
+            mean_immunity_durations_offsprings_array[seed, 1] = copy(c1[16:22])
+            random_infection_probabilities_offsprings_array[seed, 1] = copy(c1[23:26])
+
             for j = 1:num_viruses
                 viruses[j].mean_immunity_duration = c1[15 + j]
                 viruses[j].immunity_duration_sd = c1[15 + j] * 0.33
@@ -417,6 +423,12 @@ function run_cgo_model()
             c2 = [duration_parameter_offsprings_array[seed, 2], susceptibility_parameters_offsprings_array[seed, 2][1], susceptibility_parameters_offsprings_array[seed, 2][2], susceptibility_parameters_offsprings_array[seed, 2][3], susceptibility_parameters_offsprings_array[seed, 2][4], susceptibility_parameters_offsprings_array[seed, 2][5], susceptibility_parameters_offsprings_array[seed, 2][6], susceptibility_parameters_offsprings_array[seed, 2][7], temperature_parameters_offsprings_array[seed, 2][1], temperature_parameters_offsprings_array[seed, 2][2], temperature_parameters_offsprings_array[seed, 2][3], temperature_parameters_offsprings_array[seed, 2][4], temperature_parameters_offsprings_array[seed, 2][5], temperature_parameters_offsprings_array[seed, 2][6], temperature_parameters_offsprings_array[seed, 2][7], mean_immunity_durations_offsprings_array[seed, 2][1], mean_immunity_durations_offsprings_array[seed, 2][2], mean_immunity_durations_offsprings_array[seed, 2][3], mean_immunity_durations_offsprings_array[seed, 2][4], mean_immunity_durations_offsprings_array[seed, 2][5], mean_immunity_durations_offsprings_array[seed, 2][6], mean_immunity_durations_offsprings_array[seed, 2][7], random_infection_probabilities_offsprings_array[seed, 2][1], random_infection_probabilities_offsprings_array[seed, 2][2], random_infection_probabilities_offsprings_array[seed, 2][3], random_infection_probabilities_offsprings_array[seed, 2][4]]
             check_bounds(c2)
 
+            duration_parameter_offsprings_array[seed, 2] = c2[1]
+            susceptibility_parameters_offsprings_array[seed, 2] = copy(c2[2:8])
+            temperature_parameters_offsprings_array[seed, 2] = copy(c2[9:15])
+            mean_immunity_durations_offsprings_array[seed, 2] = copy(c2[16:22])
+            random_infection_probabilities_offsprings_array[seed, 2] = copy(c2[23:26])
+
             for j = 1:num_viruses
                 viruses[j].mean_immunity_duration = c2[15 + j]
                 viruses[j].immunity_duration_sd = c2[15 + j] * 0.33
@@ -465,6 +477,12 @@ function run_cgo_model()
 
             c3 = [duration_parameter_offsprings_array[seed, 3], susceptibility_parameters_offsprings_array[seed, 3][1], susceptibility_parameters_offsprings_array[seed, 3][2], susceptibility_parameters_offsprings_array[seed, 3][3], susceptibility_parameters_offsprings_array[seed, 3][4], susceptibility_parameters_offsprings_array[seed, 3][5], susceptibility_parameters_offsprings_array[seed, 3][6], susceptibility_parameters_offsprings_array[seed, 3][7], temperature_parameters_offsprings_array[seed, 3][1], temperature_parameters_offsprings_array[seed, 3][2], temperature_parameters_offsprings_array[seed, 3][3], temperature_parameters_offsprings_array[seed, 3][4], temperature_parameters_offsprings_array[seed, 3][5], temperature_parameters_offsprings_array[seed, 3][6], temperature_parameters_offsprings_array[seed, 3][7], mean_immunity_durations_offsprings_array[seed, 3][1], mean_immunity_durations_offsprings_array[seed, 3][2], mean_immunity_durations_offsprings_array[seed, 3][3], mean_immunity_durations_offsprings_array[seed, 3][4], mean_immunity_durations_offsprings_array[seed, 3][5], mean_immunity_durations_offsprings_array[seed, 3][6], mean_immunity_durations_offsprings_array[seed, 3][7], random_infection_probabilities_offsprings_array[seed, 3][1], random_infection_probabilities_offsprings_array[seed, 3][2], random_infection_probabilities_offsprings_array[seed, 3][3], random_infection_probabilities_offsprings_array[seed, 3][4]]
             check_bounds(c3)
+
+            duration_parameter_offsprings_array[seed, 3] = c3[1]
+            susceptibility_parameters_offsprings_array[seed, 3] = copy(c3[2:8])
+            temperature_parameters_offsprings_array[seed, 3] = copy(c3[9:15])
+            mean_immunity_durations_offsprings_array[seed, 3] = copy(c3[16:22])
+            random_infection_probabilities_offsprings_array[seed, 3] = copy(c3[23:26])
 
             for j = 1:num_viruses
                 viruses[j].mean_immunity_duration = c3[15 + j]
@@ -598,6 +616,12 @@ function run_cgo_model()
 
             c4 = [duration_parameter_offsprings_array[seed, 4], susceptibility_parameters_offsprings_array[seed, 4][1], susceptibility_parameters_offsprings_array[seed, 4][2], susceptibility_parameters_offsprings_array[seed, 4][3], susceptibility_parameters_offsprings_array[seed, 4][4], susceptibility_parameters_offsprings_array[seed, 4][5], susceptibility_parameters_offsprings_array[seed, 4][6], susceptibility_parameters_offsprings_array[seed, 4][7], temperature_parameters_offsprings_array[seed, 4][1], temperature_parameters_offsprings_array[seed, 4][2], temperature_parameters_offsprings_array[seed, 4][3], temperature_parameters_offsprings_array[seed, 4][4], temperature_parameters_offsprings_array[seed, 4][5], temperature_parameters_offsprings_array[seed, 4][6], temperature_parameters_offsprings_array[seed, 4][7], mean_immunity_durations_offsprings_array[seed, 4][1], mean_immunity_durations_offsprings_array[seed, 4][2], mean_immunity_durations_offsprings_array[seed, 4][3], mean_immunity_durations_offsprings_array[seed, 4][4], mean_immunity_durations_offsprings_array[seed, 4][5], mean_immunity_durations_offsprings_array[seed, 4][6], mean_immunity_durations_offsprings_array[seed, 4][7], random_infection_probabilities_offsprings_array[seed, 4][1], random_infection_probabilities_offsprings_array[seed, 4][2], random_infection_probabilities_offsprings_array[seed, 4][3], random_infection_probabilities_offsprings_array[seed, 4][4]]
             check_bounds(c4)
+
+            duration_parameter_offsprings_array[seed, 4] = c4[1]
+            susceptibility_parameters_offsprings_array[seed, 4] = copy(c4[2:8])
+            temperature_parameters_offsprings_array[seed, 4] = copy(c4[9:15])
+            mean_immunity_durations_offsprings_array[seed, 4] = copy(c4[16:22])
+            random_infection_probabilities_offsprings_array[seed, 4] = copy(c4[23:26])
 
             for j = 1:num_viruses
                 viruses[j].mean_immunity_duration = c4[15 + j]

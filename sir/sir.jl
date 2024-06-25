@@ -2613,6 +2613,16 @@ function run_cgo_model(
             I = rand(0:1, 6) 
             Ir = rand(0:1, 2)
 
+            if I[1] == 0 && I[2] == 0
+                I[rand(1:2)] = 1
+            end
+            if I[3] == 0 && I[4] == 0
+                I[rand(3:4)] = 1
+            end
+            if I[5] == 0 && I[6] == 0
+                I[rand(5:6)] = 1
+            end
+
             alpha = Array{Vector{Float64}, 1}(undef, 4)
             # alpha[1] = rand(num_parameters)
             # alpha[2] = 2 * rand(num_parameters) .- 1
@@ -2634,6 +2644,11 @@ function run_cgo_model(
             c1 = [β_parameter_offsprings_array[seed, 1], c_parameter_offsprings_array[seed, 1], γ_parameter_offsprings_array[seed, 1], I0_parameter_offsprings_array[seed, 1]]
             check_bounds(c1)
 
+            β_parameter_offsprings_array[seed, 1] = c1[1]
+            c_parameter_offsprings_array[seed, 1] = c1[2]
+            γ_parameter_offsprings_array[seed, 1] = c1[3]
+            I0_parameter_offsprings_array[seed, 1] = c1[4]
+
             # Reset
             for j in 1:length(agents)
                 if j <= c1[4] # I0
@@ -2652,6 +2667,11 @@ function run_cgo_model(
             c2 = [β_parameter_offsprings_array[seed, 2], c_parameter_offsprings_array[seed, 2], γ_parameter_offsprings_array[seed, 2], I0_parameter_offsprings_array[seed, 2]]
             check_bounds(c2)
 
+            β_parameter_offsprings_array[seed, 2] = c2[1]
+            c_parameter_offsprings_array[seed, 2] = c2[2]
+            γ_parameter_offsprings_array[seed, 2] = c2[3]
+            I0_parameter_offsprings_array[seed, 2] = c2[4]
+
             # Reset
             for j in 1:length(agents)
                 if j <= c2[4] # I0
@@ -2669,6 +2689,11 @@ function run_cgo_model(
 
             c3 = [β_parameter_offsprings_array[seed, 3], c_parameter_offsprings_array[seed, 3], γ_parameter_offsprings_array[seed, 3], I0_parameter_offsprings_array[seed, 3]]
             check_bounds(c3)
+
+            β_parameter_offsprings_array[seed, 3] = c3[1]
+            c_parameter_offsprings_array[seed, 3] = c3[2]
+            γ_parameter_offsprings_array[seed, 3] = c3[3]
+            I0_parameter_offsprings_array[seed, 3] = c3[4]
 
             # Reset
             for j in 1:length(agents)
@@ -2715,6 +2740,11 @@ function run_cgo_model(
 
             c4 = [β_parameter_offsprings_array[seed, 4], c_parameter_offsprings_array[seed, 4], γ_parameter_offsprings_array[seed, 4], I0_parameter_offsprings_array[seed, 4]]
             check_bounds(c4)
+
+            β_parameter_offsprings_array[seed, 4] = c4[1]
+            c_parameter_offsprings_array[seed, 4] = c4[2]
+            γ_parameter_offsprings_array[seed, 4] = c4[3]
+            I0_parameter_offsprings_array[seed, 4] = c4[4]
 
             # Reset
             for j in 1:length(agents)
@@ -2832,7 +2862,7 @@ function main()
     # @time run_surrogate_model(200, agents_initial, nsteps, δt, 9)
     # @time run_swarm_model(20, agents_initial, nsteps, δt, 1)
     # @time genetic_algorithm(20, agents_initial, nsteps, δt, 1)
-    @time run_cgo_model(5, agents_initial, nsteps, δt, 3)
+    @time run_cgo_model(5, agents_initial, nsteps, δt, 9)
 
 
     # mcmc_simulations_metropolis(250,agents_initial,nsteps,δt)

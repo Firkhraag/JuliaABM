@@ -9,6 +9,7 @@ using CSV
 using Random
 
 default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
+const is_russian = false
 
 function moving_average(A::AbstractArray, m::Int)
     out = similar(A)
@@ -46,8 +47,10 @@ function plot_mcmc_manual()
         end
     end
 
-    # xlabel_name = "Step"
-    xlabel_name = "Шаг"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     println(error_array)
@@ -89,8 +92,10 @@ function plot_mcmc_metropolis_manual()
         end
     end
 
-    # xlabel_name = "Step"
-    xlabel_name = "Шаг"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     # error_plot = plot(
@@ -130,8 +135,10 @@ function plot_swarm_hypercube()
     c_parameter = Array{Float64, 1}(undef, num_swarm_runs + 1)
     γ_parameter = Array{Float64, 1}(undef, num_swarm_runs + 1)
 
-    # xlabel_name = "Step"
-    xlabel_name = "Шаг"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     error_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["error"]
@@ -197,8 +204,10 @@ function plot_surrogate_hypercube()
     c_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     γ_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
 
-    # xlabel_name = "Step"
-    xlabel_name = "Шаг"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     for i = 1:num_surrogate_runs
@@ -232,8 +241,10 @@ function plot_surrogate_hypercube_NN()
     c_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
     γ_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
 
-    # xlabel_name = "Step"
-    xlabel_name = "Шаг"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     for i = 1:num_surrogate_runs
@@ -320,7 +331,7 @@ function optimization_methods()
             break
         end
     end
-    # median_arg = argmin(minimum_arr)
+    median_arg = argmin(minimum_arr)
 
     β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(median_arg)", "1_parameter_array.csv"), ';', Float64, '\n')
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(median_arg)", "2_parameter_array.csv"), ';', Float64, '\n')
@@ -340,8 +351,11 @@ function optimization_methods()
         end
     end
 
-    # xlabel_name = "Step"
-    xlabel_name = "Шаг"
+
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     error_plot = plot(
@@ -408,7 +422,7 @@ function optimization_methods()
             break
         end
     end
-    # median_arg = argmin(minimum_arr)
+    median_arg = argmin(minimum_arr)
 
     β_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(median_arg)", "1_parameter_array.csv"), ';', Float64, '\n')
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(median_arg)", "2_parameter_array.csv"), ';', Float64, '\n')
@@ -428,8 +442,10 @@ function optimization_methods()
         end
     end
 
-    # xlabel_name = "Step"
-    xlabel_name = "Шаг"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     plot!(
@@ -477,8 +493,10 @@ function optimization_methods()
     #     end
     # end
 
-    xlabel_name = "Step"
-    # xlabel_name = "Шаг"
+    xlabel_name = "Model run"
+    if is_russian
+    #   xlabel_name = "Шаг"
+    end
     # ylabel_name = "RMSE"
 
     # plot!(
@@ -527,8 +545,10 @@ function optimization_methods()
     #     end
     # end
 
-    xlabel_name = "Step"
-    # xlabel_name = "Шаг"
+    xlabel_name = "Model run"
+    if is_russian
+    #   xlabel_name = "Шаг"
+    end
     # ylabel_name = "RMSE"
 
     # plot!(
@@ -567,8 +587,10 @@ function optimization_methods()
     γ_parameter = zeros(Float64, num_surrogate_runs)
     I0_parameter = zeros(Float64, num_surrogate_runs)
 
-    # xlabel_name = "Step"
-    xlabel_name = "Шаг"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     for method_run = 1:num_method_runs
@@ -584,7 +606,7 @@ function optimization_methods()
         # minimum_arr[method_run] = error_arr[1]
     end
 
-    # println("SM minimum method run = $(median_arg)")
+    # println("SM minimum method run = $(argmin(minimum_arr))")
     # println("SM min error = $(minimum(minimum_arr))")
     # println("SM mean error = $(mean(minimum_arr))")
     # println("SM min step = $(minimum_step_arr[argmin(minimum_arr)])")
@@ -598,7 +620,7 @@ function optimization_methods()
             break
         end
     end
-    # median_arg = argmin(minimum_arr)
+    median_arg = argmin(minimum_arr)
 
     for i = 1:num_surrogate_runs
         error_arr[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld"))["error"]
@@ -652,9 +674,20 @@ function optimization_methods()
     γ_parameter_temp = zeros(Float64, num_particles)
     I0_parameter_temp = zeros(Float64, num_particles)
 
-    # xlabel_name = "Step"
-    xlabel_name = "Шаг"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
+
+    # for j = 1:num_method_runs
+    #     for i = 1:num_particles
+    #         error_arr_temp[i] = load(joinpath(@__DIR__, "swarm$(j)", "0", "results_$(i).jld"))["error"]
+    #     end
+    #     error_arr[j] = minimum(error_arr_temp[1:num_particles])
+    # end
+    # println(mean(error_arr[1:num_method_runs]))
+    # return
 
     for method_run = 1:num_method_runs
         for i = 1:num_swarm_runs
@@ -678,7 +711,7 @@ function optimization_methods()
         # minimum_arr[method_run] = error_arr[1]
     end
 
-    # println("PSO minimum method run = $(median_arg)")
+    # println("PSO minimum method run = $(argmin(minimum_arr))")
     # println("PSO min error = $(minimum(minimum_arr))")
     # println("PSO mean error = $(mean(minimum_arr))")
     # println("PSO min step = $(minimum_step_arr[argmin(minimum_arr)])")
@@ -692,7 +725,7 @@ function optimization_methods()
             break
         end
     end
-    # median_arg = argmin(minimum_arr)
+    median_arg = argmin(minimum_arr)
 
     for i = 1:num_swarm_runs
         for j = 1:num_particles
@@ -738,9 +771,9 @@ function optimization_methods()
     # println()
     # return
 
-    # (19442.367358726322 + 11321.432039425637 + 20106.323596984774 + 16063.736810281724 + 18035.941818213985 + 10940.773697428045 + 7498.821101568788 + 24712.468962786108 + 16784.550897030284 + 22935.43611085257) / 10
-    # Initial RMSE: 16784
-    # 104.269761 + 105.815995 + 118.725183 + 129.584030
+    # # (19442.367358726322 + 11321.432039425637 + 20106.323596984774 + 16063.736810281724 + 18035.941818213985 + 10940.773697428045 + 7498.821101568788 + 24712.468962786108 + 16784.550897030284 + 22935.43611085257) / 10
+    # # Initial RMSE: 16784
+    # # 104.269761 + 105.815995 + 118.725183 + 129.584030
 
     num_ga_runs = 20
     population_size = 10
@@ -762,9 +795,20 @@ function optimization_methods()
     γ_parameter_temp = zeros(Float64, population_size)
     I0_parameter_temp = zeros(Float64, population_size)
 
-    # xlabel_name = "Step"
-    xlabel_name = "Шаг"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
+
+    # for j = 1:num_method_runs
+    #     for i = 1:population_size
+    #         error_arr_temp[i] = load(joinpath(@__DIR__, "ga$(j)", "0", "results_$(i).jld"))["error"]
+    #     end
+    #     error_arr[j] = minimum(error_arr_temp[1:population_size])
+    # end
+    # println(mean(error_arr[1:num_method_runs]))
+    # return
 
     for method_run = 1:num_method_runs
         for i = 1:num_ga_runs
@@ -788,7 +832,7 @@ function optimization_methods()
         # minimum_arr[method_run] = error_arr[1]
     end
 
-    # println("GA minimum method run = $(median_arg)")
+    # println("GA minimum method run = $(argmin(minimum_arr))")
     # println("GA min error = $(minimum(minimum_arr))")
     # println("GA mean error = $(mean(minimum_arr))")
     # println("GA min step = $(minimum_step_arr[argmin(minimum_arr)])")
@@ -802,7 +846,7 @@ function optimization_methods()
             break
         end
     end
-    # median_arg = argmin(minimum_arr)
+    median_arg = argmin(minimum_arr)
 
     for i = 1:num_ga_runs
         for j = 1:population_size
@@ -866,9 +910,20 @@ function optimization_methods()
     γ_parameter_temp = zeros(Float64, seeds_size)
     I0_parameter_temp = zeros(Float64, seeds_size)
 
-    # xlabel_name = "Step"
-    xlabel_name = "Шаг"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
+
+    # for j = 1:num_method_runs
+    #     for i = 1:seeds_size
+    #         error_arr_temp[i] = load(joinpath(@__DIR__, "cgo$(j)", "0", "results_$(i).jld"))["error"]
+    #     end
+    #     error_arr[j] = minimum(error_arr_temp[1:seeds_size])
+    # end
+    # println(mean(error_arr[1:num_method_runs]))
+    # return
 
     for method_run = 1:num_method_runs
         for i = 1:num_cgo_runs
@@ -892,6 +947,13 @@ function optimization_methods()
         # minimum_arr[method_run] = error_arr[1]
     end
 
+    # println("CGO minimum method run = $(argmin(minimum_arr))")
+    # println("CGO min error = $(minimum(minimum_arr))")
+    # println("CGO mean error = $(mean(minimum_arr))")
+    # println("CGO min step = $(minimum_step_arr[argmin(minimum_arr)])")
+    # println("CGO mean step = $(mean(minimum_step_arr))")
+    # return
+
     median_arg = 0
     for i = 1:num_method_runs
         if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
@@ -899,14 +961,7 @@ function optimization_methods()
             break
         end
     end
-    # median_arg = argmin(minimum_arr)
-
-    # println("CGO minimum method run = $(median_arg)")
-    # println("CGO min error = $(minimum(minimum_arr))")
-    # println("CGO mean error = $(mean(minimum_arr))")
-    # println("CGO min step = $(minimum_step_arr[argmin(minimum_arr)])")
-    # println("CGO mean step = $(mean(minimum_step_arr))")
-    # return
+    median_arg = argmin(minimum_arr)
 
     for i = 1:num_cgo_runs
         for j = 1:seeds_size
@@ -961,8 +1016,8 @@ function optimization_methods()
     #     ylabel = ylabel_name,
     # )
 
-    # min_argument = argmin(error_arr[1:200])
-    # println("GA")
+    # min_argument = argmin(error_arr[1:num_cgo_runs * seeds_size])
+    # println("CGO")
     # println(error_arr[min_argument])
     # println(min_argument)
     # println(β_parameter[min_argument])

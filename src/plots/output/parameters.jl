@@ -16,7 +16,7 @@ include("../../../server/lib/global/variables.jl")
 
 default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
 
-const is_russian = true
+const is_russian = false
 const num_years = 1
 const num_runs = 1
 const population_coef = 10072
