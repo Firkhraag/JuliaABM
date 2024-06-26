@@ -331,7 +331,7 @@ function optimization_methods()
             break
         end
     end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
     β_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(median_arg)", "1_parameter_array.csv"), ';', Float64, '\n')
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters_lhs$(median_arg)", "2_parameter_array.csv"), ';', Float64, '\n')
@@ -422,7 +422,7 @@ function optimization_methods()
             break
         end
     end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
     β_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(median_arg)", "1_parameter_array.csv"), ';', Float64, '\n')
     c_parameter_array = readdlm(joinpath(@__DIR__, "parameters$(median_arg)", "2_parameter_array.csv"), ';', Float64, '\n')
@@ -620,7 +620,7 @@ function optimization_methods()
             break
         end
     end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
     for i = 1:num_surrogate_runs
         error_arr[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld"))["error"]
@@ -725,7 +725,7 @@ function optimization_methods()
             break
         end
     end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
     for i = 1:num_swarm_runs
         for j = 1:num_particles
@@ -846,7 +846,7 @@ function optimization_methods()
             break
         end
     end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
     for i = 1:num_ga_runs
         for j = 1:population_size
@@ -961,7 +961,7 @@ function optimization_methods()
             break
         end
     end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
     for i = 1:num_cgo_runs
         for j = 1:seeds_size

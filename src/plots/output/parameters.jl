@@ -485,195 +485,42 @@ function optimization_methods()
     minimum_arr = zeros(Float64, num_method_runs)
     minimum_step_arr = zeros(Float64, num_method_runs)
 
-    num_mcmc_runs = 200
-    error_array = zeros(Float64, num_mcmc_runs)
-
-    for method_run = 1:num_method_runs
-        duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "duration_parameter_array.csv"), ';', Float64, '\n')
-
-        susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
-        susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
-        susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
-        susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
-        susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
-        susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
-        susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
-
-        temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
-        temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
-        temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
-        temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
-        temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
-        temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
-        temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
-
-        mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
-        mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
-        mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
-        mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
-        mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
-        mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
-        mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
-
-        random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
-        random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
-        random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
-        random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
-
-        open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_hypercube$(method_run).txt"),"r") do datafile
-            lines = eachline(datafile)
-            line_num = 1
-            for line in lines
-                if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
-                    error_array[line_num] = parse.(Float64, line)
-                else
-                    error_array[line_num] = error_array[line_num - 1]
-                end
-                # error_array[line_num] = parse.(Float64, line)
-                line_num += 1
-                if line_num > num_mcmc_runs
-                    break
-                end
-            end
-        end
-
-        minimum_step_arr[method_run] = argmin(error_array)
-        minimum_arr[method_run] = minimum(error_array)
-    end
-
-    # println("MCMC LHS minimum method run = $(argmin(minimum_arr))")
-    # println("MCMC LHS min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
-    # println("MCMC LHS mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
-    # println("MCMC LHS min step = $(minimum_step_arr[argmin(minimum_arr)])")
-    # println("MCMC LHS mean step = $(mean(minimum_step_arr))")
-    # return
-
-    median_arg = 0
-    for i = 1:num_method_runs
-        if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
-            median_arg = i
-            break
-        end
-    end
-    median_arg = argmin(minimum_arr)
-
-    duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "duration_parameter_array.csv"), ';', Float64, '\n')
-
-    susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
-    susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
-    susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
-    susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
-    susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
-    susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
-    susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
-
-    temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
-    temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
-    temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
-    temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
-    temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
-    temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
-    temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
-
-    mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
-    mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
-    mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
-    mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
-    mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
-    mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
-    mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
-
-    random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
-    random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
-    random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
-    random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
-    open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_hypercube$(median_arg).txt"),"r") do datafile
-        lines = eachline(datafile)
-        line_num = 1
-        for line in lines
-            if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
-                error_array[line_num] = parse.(Float64, line)
-            else
-                error_array[line_num] = error_array[line_num - 1]
-            end
-            # error_array[line_num] = parse.(Float64, line)
-            line_num += 1
-            if line_num > num_mcmc_runs
-                break
-            end
-        end
-    end
-
-    xlabel_name = "Step"
-    if is_russian
-        xlabel_name = "Шаг"
-    end
-    ylabel_name = "RMSE"
-
-    error_plot = plot(
-        1:num_mcmc_runs,
-        moving_average(sqrt.(error_array[1:num_mcmc_runs] / num_error_points), 3),
-        lw = 1.5,
-        grid = true,
-        label = "MCMC LHS",
-        color = RGB(0.267, 0.467, 0.667),
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-    )
-
-    # min_argument = argmin(error_array[1:num_mcmc_runs])
-    # println(min_argument)
-    # println(sqrt.(error_array[min_argument] / num_error_points))
-    # println("MCMC LHS")
-    # println("duration_parameter = $(duration_parameter_array[min_argument])")
-    # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
-    # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
-    # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
-    # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
-    # println()
-    # return
-
-
-
-
     # num_mcmc_runs = 200
     # error_array = zeros(Float64, num_mcmc_runs)
 
     # for method_run = 1:num_method_runs
-    #     duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "duration_parameter_array.csv"), ';', Float64, '\n')
+    #     duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "duration_parameter_array.csv"), ';', Float64, '\n')
 
-    #     susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
-    #     susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
-    #     susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
-    #     susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
-    #     susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
-    #     susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
-    #     susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
 
-    #     temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
-    #     temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
-    #     temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
-    #     temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
-    #     temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
-    #     temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
-    #     temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
 
-    #     mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
-    #     mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
-    #     mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
-    #     mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
-    #     mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
-    #     mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
-    #     mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
 
-    #     random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
-    #     random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
-    #     random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
-    #     random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
+    #     random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
+    #     random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
+    #     random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
+    #     random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
 
-    #     open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_hypercube_lhs_10_$(method_run).txt"),"r") do datafile
+    #     open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_hypercube$(method_run).txt"),"r") do datafile
     #         lines = eachline(datafile)
     #         line_num = 1
     #         for line in lines
@@ -694,11 +541,11 @@ function optimization_methods()
     #     minimum_arr[method_run] = minimum(error_array)
     # end
 
-    # # println("MCMC LHS 10 minimum method run = $(median_arg)")
-    # # println("MCMC LHS 10 min error = $(minimum(minimum_arr))")
-    # # println("MCMC LHS 10 mean error = $(mean(minimum_arr))")
-    # # println("MCMC LHS 10 min step = $(minimum(minimum_step_arr))")
-    # # println("MCMC LHS 10 mean step = $(mean(minimum_step_arr))")
+    # # println("MCMC LHS minimum method run = $(argmin(minimum_arr))")
+    # # println("MCMC LHS min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
+    # # println("MCMC LHS mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
+    # # println("MCMC LHS min step = $(minimum_step_arr[argmin(minimum_arr)])")
+    # # println("MCMC LHS mean step = $(mean(minimum_step_arr))")
     # # return
 
     # median_arg = 0
@@ -708,39 +555,39 @@ function optimization_methods()
     #         break
     #     end
     # end
-    median_arg = argmin(minimum_arr)
+    # median_arg = argmin(minimum_arr)
 
-    # duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "duration_parameter_array.csv"), ';', Float64, '\n')
+    # duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "duration_parameter_array.csv"), ';', Float64, '\n')
 
-    # susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
 
-    # temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
 
-    # mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
 
-    # random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
-    # random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
-    # random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
-    # random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
-    # open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_hypercube_lhs_10_$(median_arg).txt"),"r") do datafile
+    # random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
+    # random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
+    # random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
+    # random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(median_arg)", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
+    # open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_hypercube$(median_arg).txt"),"r") do datafile
     #     lines = eachline(datafile)
     #     line_num = 1
     #     for line in lines
@@ -758,6 +605,9 @@ function optimization_methods()
     # end
 
     # xlabel_name = "Step"
+    # if is_russian
+    #     xlabel_name = "Шаг"
+    # end
     # ylabel_name = "RMSE"
 
     # error_plot = plot(
@@ -765,214 +615,283 @@ function optimization_methods()
     #     moving_average(sqrt.(error_array[1:num_mcmc_runs] / num_error_points), 3),
     #     lw = 1.5,
     #     grid = true,
-    #     label = "MCMC LHS 10",
-    #     color = RGB(0.5, 0.5, 0.5),
+    #     label = "MCMC LHS",
+    #     color = RGB(0.267, 0.467, 0.667),
     #     foreground_color_legend = nothing,
     #     background_color_legend = nothing,
     #     xlabel = xlabel_name,
     #     ylabel = ylabel_name,
     # )
 
-    # min_argument = argmin(error_array[1:num_mcmc_runs])
-    # println(min_argument)
-    # println(sqrt.(error_array[min_argument] / num_error_points))
-    # println("MCMC LHS 10")
-    # println("duration_parameter = $(duration_parameter_array[min_argument])")
-    # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
-    # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
-    # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
-    # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
-    # println()
-    # return
+    # # min_argument = argmin(error_array[1:num_mcmc_runs])
+    # # println(min_argument)
+    # # println(sqrt.(error_array[min_argument] / num_error_points))
+    # # println("MCMC LHS")
+    # # println("duration_parameter = $(duration_parameter_array[min_argument])")
+    # # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
+    # # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
+    # # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
+    # # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
+    # # println()
+    # # return
 
 
 
 
-    num_mcmc_runs = 200
-    error_array = zeros(Float64, num_mcmc_runs)
+    # # num_mcmc_runs = 200
+    # # error_array = zeros(Float64, num_mcmc_runs)
 
-    for method_run = 1:num_method_runs
-        duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "duration_parameter_array.csv"), ';', Float64, '\n')
+    # # for method_run = 1:num_method_runs
+    # #     duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "duration_parameter_array.csv"), ';', Float64, '\n')
 
-        susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
-        susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
-        susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
-        susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
-        susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
-        susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
-        susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
+    # #     susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
+    # #     susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
+    # #     susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
+    # #     susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
+    # #     susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
+    # #     susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
+    # #     susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
 
-        temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
-        temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
-        temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
-        temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
-        temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
-        temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
-        temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
+    # #     temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
+    # #     temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
+    # #     temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
+    # #     temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
+    # #     temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
+    # #     temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
+    # #     temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
 
-        mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
-        mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
-        mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
-        mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
-        mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
-        mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
-        mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
+    # #     mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
+    # #     mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
+    # #     mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
+    # #     mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
+    # #     mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
+    # #     mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
+    # #     mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
 
-        random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
-        random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
-        random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
-        random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
+    # #     random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
+    # #     random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
+    # #     random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
+    # #     random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
 
-        open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_manual$(method_run).txt"),"r") do datafile
-            lines = eachline(datafile)
-            line_num = 1
-            for line in lines
-                if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
-                    error_array[line_num] = parse.(Float64, line)
-                else
-                    error_array[line_num] = error_array[line_num - 1]
-                end
-                # error_array[line_num] = parse.(Float64, line)
-                line_num += 1
-                if line_num > num_mcmc_runs
-                    break
-                end
-            end
-        end
+    # #     open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_hypercube_lhs_10_$(method_run).txt"),"r") do datafile
+    # #         lines = eachline(datafile)
+    # #         line_num = 1
+    # #         for line in lines
+    # #             if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
+    # #                 error_array[line_num] = parse.(Float64, line)
+    # #             else
+    # #                 error_array[line_num] = error_array[line_num - 1]
+    # #             end
+    # #             # error_array[line_num] = parse.(Float64, line)
+    # #             line_num += 1
+    # #             if line_num > num_mcmc_runs
+    # #                 break
+    # #             end
+    # #         end
+    # #     end
 
-        minimum_step_arr[method_run] = argmin(error_array)
-        minimum_arr[method_run] = minimum(error_array)
-    end
+    # #     minimum_step_arr[method_run] = argmin(error_array)
+    # #     minimum_arr[method_run] = minimum(error_array)
+    # # end
 
-    # println("MCMC manual minimum method run = $(argmin(minimum_arr))")
-    # println("MCMC manual min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
-    # println("MCMC manual mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
-    # println("MCMC manual min step = $(minimum_step_arr[argmin(minimum_arr)])")
-    # println("MCMC manual mean step = $(mean(minimum_step_arr))")
-    # return
+    # # # println("MCMC LHS 10 minimum method run = $(median_arg)")
+    # # # println("MCMC LHS 10 min error = $(minimum(minimum_arr))")
+    # # # println("MCMC LHS 10 mean error = $(mean(minimum_arr))")
+    # # # println("MCMC LHS 10 min step = $(minimum(minimum_step_arr))")
+    # # # println("MCMC LHS 10 mean step = $(mean(minimum_step_arr))")
+    # # # return
 
-    median_arg = 0
-    for i = 1:num_method_runs
-        if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
-            median_arg = i
-            break
-        end
-    end
-    median_arg = argmin(minimum_arr)
+    # # median_arg = 0
+    # # for i = 1:num_method_runs
+    # #     if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
+    # #         median_arg = i
+    # #         break
+    # #     end
+    # # end
+    # median_arg = argmin(minimum_arr)
 
-    duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "duration_parameter_array.csv"), ';', Float64, '\n')
+    # # duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "duration_parameter_array.csv"), ';', Float64, '\n')
 
-    susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
-    susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
-    susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
-    susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
-    susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
-    susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
-    susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
 
-    temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
-    temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
-    temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
-    temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
-    temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
-    temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
-    temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
 
-    mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
-    mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
-    mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
-    mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
-    mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
-    mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
-    mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
 
-    random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
-    random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
-    random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
-    random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
+    # # random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
+    # # random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
+    # # random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
+    # # random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
+    # # open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_hypercube_lhs_10_$(median_arg).txt"),"r") do datafile
+    # #     lines = eachline(datafile)
+    # #     line_num = 1
+    # #     for line in lines
+    # #         if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
+    # #             error_array[line_num] = parse.(Float64, line)
+    # #         else
+    # #             error_array[line_num] = error_array[line_num - 1]
+    # #         end
+    # #         # error_array[line_num] = parse.(Float64, line)
+    # #         line_num += 1
+    # #         if line_num > num_mcmc_runs
+    # #             break
+    # #         end
+    # #     end
+    # # end
 
-    open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_manual$(median_arg).txt"),"r") do datafile
-        lines = eachline(datafile)
-        line_num = 1
-        for line in lines
-            if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
-                error_array[line_num] = parse.(Float64, line)
-            else
-                error_array[line_num] = error_array[line_num - 1]
-            end
-            # error_array[line_num] = parse.(Float64, line)
-            line_num += 1
-            if line_num > num_mcmc_runs
-                break
-            end
-        end
-    end
+    # # xlabel_name = "Step"
+    # # ylabel_name = "RMSE"
 
-    xlabel_name = "Step"
-    if is_russian
-        xlabel_name = "Шаг"
-    end
-    ylabel_name = "RMSE"
+    # # error_plot = plot(
+    # #     1:num_mcmc_runs,
+    # #     moving_average(sqrt.(error_array[1:num_mcmc_runs] / num_error_points), 3),
+    # #     lw = 1.5,
+    # #     grid = true,
+    # #     label = "MCMC LHS 10",
+    # #     color = RGB(0.5, 0.5, 0.5),
+    # #     foreground_color_legend = nothing,
+    # #     background_color_legend = nothing,
+    # #     xlabel = xlabel_name,
+    # #     ylabel = ylabel_name,
+    # # )
 
-    plot!(
-        1:num_mcmc_runs,
-        moving_average(sqrt.(error_array[1:num_mcmc_runs] / num_error_points), 3),
-        lw = 1.5,
-        grid = true,
-        label = "MCMC manual",
-        color = RGB(0.933, 0.4, 0.467),
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-    )
+    # # min_argument = argmin(error_array[1:num_mcmc_runs])
+    # # println(min_argument)
+    # # println(sqrt.(error_array[min_argument] / num_error_points))
+    # # println("MCMC LHS 10")
+    # # println("duration_parameter = $(duration_parameter_array[min_argument])")
+    # # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
+    # # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
+    # # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
+    # # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
+    # # println()
+    # # return
 
-    # min_argument = argmin(error_array[1:num_mcmc_runs])
-    # println(sqrt.(error_array[min_argument] / num_error_points))
-    # println(min_argument)
-    # println("MCMC manual")
-    # println("duration_parameter = $(duration_parameter_array[min_argument])")
-    # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
-    # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
-    # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
-    # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
-    # println()
-    # return
 
-    # duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "duration_parameter_array.csv"), ';', Float64, '\n')
-    # num_metropolis_runs = length(duration_parameter_array)
-    # error_array = zeros(Float64, num_metropolis_runs)
 
-    # susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
 
-    # temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
+    # num_mcmc_runs = 200
+    # error_array = zeros(Float64, num_mcmc_runs)
 
-    # mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
+    # for method_run = 1:num_method_runs
+    #     duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "duration_parameter_array.csv"), ';', Float64, '\n')
 
-    # random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
-    # random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
-    # random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
-    # random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
+    #     susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
 
-    # open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_metropolis_hypercube.txt"),"r") do datafile
+    #     temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
+    #     temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
+
+    #     mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
+    #     mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
+
+    #     random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
+    #     random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
+    #     random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
+    #     random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(method_run)", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
+
+    #     open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_manual$(method_run).txt"),"r") do datafile
+    #         lines = eachline(datafile)
+    #         line_num = 1
+    #         for line in lines
+    #             if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
+    #                 error_array[line_num] = parse.(Float64, line)
+    #             else
+    #                 error_array[line_num] = error_array[line_num - 1]
+    #             end
+    #             # error_array[line_num] = parse.(Float64, line)
+    #             line_num += 1
+    #             if line_num > num_mcmc_runs
+    #                 break
+    #             end
+    #         end
+    #     end
+
+    #     minimum_step_arr[method_run] = argmin(error_array)
+    #     minimum_arr[method_run] = minimum(error_array)
+    # end
+
+    # # println("MCMC manual minimum method run = $(argmin(minimum_arr))")
+    # # println("MCMC manual min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
+    # # println("MCMC manual mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
+    # # println("MCMC manual min step = $(minimum_step_arr[argmin(minimum_arr)])")
+    # # println("MCMC manual mean step = $(mean(minimum_step_arr))")
+    # # return
+
+    # median_arg = 0
+    # for i = 1:num_method_runs
+    #     if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
+    #         median_arg = i
+    #         break
+    #     end
+    # end
+    # median_arg = argmin(minimum_arr)
+
+    # duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "duration_parameter_array.csv"), ';', Float64, '\n')
+
+    # susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
+    # susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
+
+    # temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
+    # temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
+
+    # mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
+    # mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
+
+    # random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
+    # random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
+    # random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
+    # random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_manual$(median_arg)", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
+
+    # open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_mcmc_manual$(median_arg).txt"),"r") do datafile
     #     lines = eachline(datafile)
     #     line_num = 1
     #     for line in lines
@@ -983,102 +902,35 @@ function optimization_methods()
     #         end
     #         # error_array[line_num] = parse.(Float64, line)
     #         line_num += 1
-    #     end
-    # end
-
-    # xlabel_name = "Step"
-    # ylabel_name = "RMSE"
-
-    # plot!(
-    #     1:250,
-    #     moving_average(error_array[1:250], 3),
-    #     lw = 1.5,
-    #     grid = true,
-    #     label = "MA LHS",
-    #     color = RGB(0.133, 0.533, 0.2),
-    #     foreground_color_legend = nothing,
-    #     background_color_legend = nothing,
-    #     xlabel = xlabel_name,
-    #     ylabel = ylabel_name,
-    # )
-
-    # # min_argument = argmin(error_array[1:250])
-    # # println(error_array[min_argument])
-    # # println("MA LHS")
-    # # println("duration_parameter = $(duration_parameter_array[min_argument])")
-    # # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
-    # # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
-    # # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
-    # # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
-    # # println()
-    # # return
-
-    # duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "duration_parameter_array.csv"), ';', Float64, '\n')
-    # num_metropolis_runs = length(duration_parameter_array)
-    # error_array = zeros(Float64, num_metropolis_runs)
-
-    # susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
-    # susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
-
-    # temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
-    # temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
-
-    # mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
-    # mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
-
-    # random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
-    # random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
-    # random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
-    # random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
-
-    # open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_metropolis_manual.txt"),"r") do datafile
-    #     lines = eachline(datafile)
-    #     line_num = 1
-    #     for line in lines
-    #         if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
-    #             error_array[line_num] = parse.(Float64, line)
-    #         else
-    #             error_array[line_num] = error_array[line_num - 1]
+    #         if line_num > num_mcmc_runs
+    #             break
     #         end
-    #         # error_array[line_num] = parse.(Float64, line)
-    #         line_num += 1
     #     end
     # end
 
     # xlabel_name = "Step"
+    # if is_russian
+    #     xlabel_name = "Шаг"
+    # end
     # ylabel_name = "RMSE"
 
     # plot!(
-    #     1:250,
-    #     moving_average(error_array[1:250], 3),
+    #     1:num_mcmc_runs,
+    #     moving_average(sqrt.(error_array[1:num_mcmc_runs] / num_error_points), 3),
     #     lw = 1.5,
     #     grid = true,
-    #     label = "MA manual",
-    #     color = RGB(0.667, 0.2, 0.467),
+    #     label = "MCMC manual",
+    #     color = RGB(0.933, 0.4, 0.467),
     #     foreground_color_legend = nothing,
     #     background_color_legend = nothing,
     #     xlabel = xlabel_name,
     #     ylabel = ylabel_name,
     # )
 
-    # # min_argument = argmin(error_array[1:250])
-    # # println(error_array[min_argument])
-    # # println("MA manual")
+    # # min_argument = argmin(error_array[1:num_mcmc_runs])
+    # # println(sqrt.(error_array[min_argument] / num_error_points))
+    # # println(min_argument)
+    # # println("MCMC manual")
     # # println("duration_parameter = $(duration_parameter_array[min_argument])")
     # # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
     # # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
@@ -1087,92 +939,153 @@ function optimization_methods()
     # # println()
     # # return
 
-    num_surrogate_runs = 200
+    # # duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "duration_parameter_array.csv"), ';', Float64, '\n')
+    # # num_metropolis_runs = length(duration_parameter_array)
+    # # error_array = zeros(Float64, num_metropolis_runs)
 
-    incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_surrogate_runs)
-    duration_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
-    susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
-    temperature_parameters = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
-    mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
-    random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
+    # # susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
 
-    error_array = zeros(Float64, num_surrogate_runs)
+    # # temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
 
-    xlabel_name = "Step"
-    if is_russian
-        xlabel_name = "Шаг"
-    end
-    ylabel_name = "RMSE"
+    # # mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
 
-    for method_run = 1:num_method_runs
-        for i = 1:num_surrogate_runs
-            incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(method_run)", "results_$(i).jld"))["observed_cases"]
-            error_array[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
-            duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(method_run)", "results_$(i).jld"))["duration_parameter"]
-            susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(method_run)", "results_$(i).jld"))["susceptibility_parameters"]
-            temperature_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(method_run)", "results_$(i).jld"))["temperature_parameters"]
-            mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(method_run)", "results_$(i).jld"))["mean_immunity_durations"]
-            random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(method_run)", "results_$(i).jld"))["random_infection_probabilities"]
-        end
-        minimum_step_arr[method_run] = argmin(error_array)
-        minimum_arr[method_run] = minimum(error_array)
-    end
+    # # random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
+    # # random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
+    # # random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
+    # # random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_hypercube", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
 
-    # println("SM minimum method run = $(argmin(minimum_arr))")
-    # println("SM min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
-    # println("SM mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
-    # println("SM min step = $(minimum_step_arr[argmin(minimum_arr)])")
-    # println("SM mean step = $(mean(minimum_step_arr))")
-    # return
+    # # open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_metropolis_hypercube.txt"),"r") do datafile
+    # #     lines = eachline(datafile)
+    # #     line_num = 1
+    # #     for line in lines
+    # #         if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
+    # #             error_array[line_num] = parse.(Float64, line)
+    # #         else
+    # #             error_array[line_num] = error_array[line_num - 1]
+    # #         end
+    # #         # error_array[line_num] = parse.(Float64, line)
+    # #         line_num += 1
+    # #     end
+    # # end
 
-    median_arg = 0
-    for i = 1:num_method_runs
-        if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
-            median_arg = i
-            break
-        end
-    end
-    median_arg = argmin(minimum_arr)
+    # # xlabel_name = "Step"
+    # # ylabel_name = "RMSE"
 
-    for i = 1:num_surrogate_runs
-        incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["observed_cases"]
-        error_array[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
-        duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["duration_parameter"]
-        susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["susceptibility_parameters"]
-        temperature_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["temperature_parameters"]
-        mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["mean_immunity_durations"]
-        random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["random_infection_probabilities"]
-    end
+    # # plot!(
+    # #     1:250,
+    # #     moving_average(error_array[1:250], 3),
+    # #     lw = 1.5,
+    # #     grid = true,
+    # #     label = "MA LHS",
+    # #     color = RGB(0.133, 0.533, 0.2),
+    # #     foreground_color_legend = nothing,
+    # #     background_color_legend = nothing,
+    # #     xlabel = xlabel_name,
+    # #     ylabel = ylabel_name,
+    # # )
 
-    plot!(
-        1:num_surrogate_runs,
-        # moving_average(sqrt.(error_array / num_error_points), 3),
-        sqrt.(error_array / num_error_points),
-        lw = 1.5,
-        grid = true,
-        label = "SM",
-        color = RGB(0.133, 0.533, 0.2),
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-    )
+    # # # min_argument = argmin(error_array[1:250])
+    # # # println(error_array[min_argument])
+    # # # println("MA LHS")
+    # # # println("duration_parameter = $(duration_parameter_array[min_argument])")
+    # # # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
+    # # # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
+    # # # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
+    # # # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
+    # # # println()
+    # # # return
 
-    # min_argument = argmin(error_array)
-    # println(min_argument)
-    # println(sqrt.(error_array[min_argument] / num_error_points))
-    # println("SM 1000")
-    # println("duration_parameter = $(duration_parameter[min_argument])")
-    # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
-    # println("temperature_parameters = $(-temperature_parameters[min_argument])")
-    # println("mean_immunity_durations = $(mean_immunity_durations[min_argument])")
-    # println("random_infection_probabilities = $(random_infection_probabilities[min_argument])")
-    # println()
-    # return
+    # # duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "duration_parameter_array.csv"), ';', Float64, '\n')
+    # # num_metropolis_runs = length(duration_parameter_array)
+    # # error_array = zeros(Float64, num_metropolis_runs)
 
+    # # susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_2_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_3_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_4_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_5_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_6_array.csv"), ';', Float64, '\n')
+    # # susceptibility_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "susceptibility_parameter_7_array.csv"), ';', Float64, '\n')
 
+    # # temperature_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_1_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_2_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_3_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_4_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_5_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_6_array.csv"), ';', Float64, '\n')
+    # # temperature_parameter_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "temperature_parameter_7_array.csv"), ';', Float64, '\n')
 
+    # # mean_immunity_duration_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_1_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_2_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_3_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_4_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_5_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_5_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_6_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_6_array.csv"), ';', Float64, '\n')
+    # # mean_immunity_duration_7_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "mean_immunity_duration_7_array.csv"), ';', Float64, '\n')
 
+    # # random_infection_probability_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "random_infection_probability_1_array.csv"), ';', Float64, '\n')
+    # # random_infection_probability_2_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "random_infection_probability_2_array.csv"), ';', Float64, '\n')
+    # # random_infection_probability_3_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "random_infection_probability_3_array.csv"), ';', Float64, '\n')
+    # # random_infection_probability_4_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_metropolis_manual", "random_infection_probability_4_array.csv"), ';', Float64, '\n')
+
+    # # open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_metropolis_manual.txt"),"r") do datafile
+    # #     lines = eachline(datafile)
+    # #     line_num = 1
+    # #     for line in lines
+    # #         if line_num == 1 || ((abs(susceptibility_parameter_1_array[line_num] - susceptibility_parameter_1_array[line_num - 1]) > 0.0001) && (abs(susceptibility_parameter_2_array[line_num] - susceptibility_parameter_2_array[line_num - 1]) > 0.0001))
+    # #             error_array[line_num] = parse.(Float64, line)
+    # #         else
+    # #             error_array[line_num] = error_array[line_num - 1]
+    # #         end
+    # #         # error_array[line_num] = parse.(Float64, line)
+    # #         line_num += 1
+    # #     end
+    # # end
+
+    # # xlabel_name = "Step"
+    # # ylabel_name = "RMSE"
+
+    # # plot!(
+    # #     1:250,
+    # #     moving_average(error_array[1:250], 3),
+    # #     lw = 1.5,
+    # #     grid = true,
+    # #     label = "MA manual",
+    # #     color = RGB(0.667, 0.2, 0.467),
+    # #     foreground_color_legend = nothing,
+    # #     background_color_legend = nothing,
+    # #     xlabel = xlabel_name,
+    # #     ylabel = ylabel_name,
+    # # )
+
+    # # # min_argument = argmin(error_array[1:250])
+    # # # println(error_array[min_argument])
+    # # # println("MA manual")
+    # # # println("duration_parameter = $(duration_parameter_array[min_argument])")
+    # # # println("susceptibility_parameters = $([susceptibility_parameter_1_array[min_argument], susceptibility_parameter_2_array[min_argument], susceptibility_parameter_3_array[min_argument], susceptibility_parameter_4_array[min_argument], susceptibility_parameter_5_array[min_argument], susceptibility_parameter_6_array[min_argument], susceptibility_parameter_7_array[min_argument]])")
+    # # # println("temperature_parameters = $(-[temperature_parameter_1_array[min_argument], temperature_parameter_2_array[min_argument], temperature_parameter_3_array[min_argument], temperature_parameter_4_array[min_argument], temperature_parameter_5_array[min_argument], temperature_parameter_6_array[min_argument], temperature_parameter_7_array[min_argument]])")
+    # # # println("mean_immunity_durations = $([mean_immunity_duration_1_array[min_argument], mean_immunity_duration_2_array[min_argument], mean_immunity_duration_3_array[min_argument], mean_immunity_duration_4_array[min_argument], mean_immunity_duration_5_array[min_argument], mean_immunity_duration_6_array[min_argument], mean_immunity_duration_7_array[min_argument]])")
+    # # # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
+    # # # println()
+    # # # return
 
     # num_surrogate_runs = 200
 
@@ -1186,56 +1099,29 @@ function optimization_methods()
     # error_array = zeros(Float64, num_surrogate_runs)
 
     # xlabel_name = "Step"
+    # if is_russian
+    #     xlabel_name = "Шаг"
+    # end
     # ylabel_name = "RMSE"
 
-    # for method_run = 1:1
+    # for method_run = 1:num_method_runs
     #     for i = 1:num_surrogate_runs
-    #         incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(method_run)", "results_$(i).jld"))["observed_cases"]
+    #         incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(method_run)", "results_$(i).jld"))["observed_cases"]
     #         error_array[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
-    #         duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(method_run)", "results_$(i).jld"))["duration_parameter"]
-    #         susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(method_run)", "results_$(i).jld"))["susceptibility_parameters"]
-    #         temperature_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(method_run)", "results_$(i).jld"))["temperature_parameters"]
-    #         mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(method_run)", "results_$(i).jld"))["mean_immunity_durations"]
-    #         random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(method_run)", "results_$(i).jld"))["random_infection_probabilities"]
-
-    #         if isnan(duration_parameter[i])
-    #             println("duration_parameter")
-    #             println(error_array[i])
-    #             println(method_run)
-    #         end
-    #         for v = 1:7
-    #             if isnan(susceptibility_parameters[i][v])
-    #                 println("susceptibility_parameters")
-    #                 println(error_array[i])
-    #                 println(method_run)
-    #             end
-    #             if isnan(temperature_parameters[i][v])
-    #                 println("temperature_parameters")
-    #                 println(error_array[i])
-    #                 println(method_run)
-    #             end
-    #             if isnan(mean_immunity_durations[i][v])
-    #                 println("mean_immunity_durations")
-    #                 println(error_array[i])
-    #                 println(method_run)
-    #             end
-    #         end
-    #         for a = 1:4
-    #             if isnan(random_infection_probabilities[i][a])
-    #                 println("random_infection_probabilities")
-    #                 println(error_array[i])
-    #                 println(method_run)
-    #             end
-    #         end
+    #         duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(method_run)", "results_$(i).jld"))["duration_parameter"]
+    #         susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(method_run)", "results_$(i).jld"))["susceptibility_parameters"]
+    #         temperature_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(method_run)", "results_$(i).jld"))["temperature_parameters"]
+    #         mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(method_run)", "results_$(i).jld"))["mean_immunity_durations"]
+    #         random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(method_run)", "results_$(i).jld"))["random_infection_probabilities"]
     #     end
     #     minimum_step_arr[method_run] = argmin(error_array)
     #     minimum_arr[method_run] = minimum(error_array)
     # end
 
     # # println("SM minimum method run = $(argmin(minimum_arr))")
-    # # println("SM min error = $(minimum(minimum_arr))")
-    # # println("SM mean error = $(mean(minimum_arr))")
-    # # println("SM min step = $(minimum(minimum_step_arr))")
+    # # println("SM min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
+    # # println("SM mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
+    # # println("SM min step = $(minimum_step_arr[argmin(minimum_arr)])")
     # # println("SM mean step = $(mean(minimum_step_arr))")
     # # return
 
@@ -1246,15 +1132,16 @@ function optimization_methods()
     #         break
     #     end
     # end
+    # median_arg = argmin(minimum_arr)
 
     # for i = 1:num_surrogate_runs
-    #     incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["observed_cases"]
+    #     incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["observed_cases"]
     #     error_array[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
-    #     duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["duration_parameter"]
-    #     susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["susceptibility_parameters"]
-    #     temperature_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["temperature_parameters"]
-    #     mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["mean_immunity_durations"]
-    #     random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["random_infection_probabilities"]
+    #     duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["duration_parameter"]
+    #     susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["susceptibility_parameters"]
+    #     temperature_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["temperature_parameters"]
+    #     mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["mean_immunity_durations"]
+    #     random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["random_infection_probabilities"]
     # end
 
     # plot!(
@@ -1263,184 +1150,297 @@ function optimization_methods()
     #     sqrt.(error_array / num_error_points),
     #     lw = 1.5,
     #     grid = true,
-    #     label = "SM 10",
-    #     color = RGB(0.4, 0.8, 0.933),
+    #     label = "SM",
+    #     color = RGB(0.133, 0.533, 0.2),
     #     foreground_color_legend = nothing,
     #     background_color_legend = nothing,
     #     xlabel = xlabel_name,
     #     ylabel = ylabel_name,
     # )
 
-    # min_argument = argmin(error_array)
-    # println(min_argument)
-    # println(sqrt.(error_array[min_argument] / num_error_points))
-    # println("SM 10")
-    # println("duration_parameter = $(duration_parameter[min_argument])")
-    # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
-    # println("temperature_parameters = $(-temperature_parameters[min_argument])")
-    # println("mean_immunity_durations = $(mean_immunity_durations[min_argument])")
-    # println("random_infection_probabilities = $(random_infection_probabilities[min_argument])")
-    # println()
-    # return
+    # # min_argument = argmin(error_array)
+    # # println(min_argument)
+    # # println(sqrt.(error_array[min_argument] / num_error_points))
+    # # println("SM 1000")
+    # # println("duration_parameter = $(duration_parameter[min_argument])")
+    # # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
+    # # println("temperature_parameters = $(-temperature_parameters[min_argument])")
+    # # println("mean_immunity_durations = $(mean_immunity_durations[min_argument])")
+    # # println("random_infection_probabilities = $(random_infection_probabilities[min_argument])")
+    # # println()
+    # # return
 
 
 
-    num_swarm_runs = 20
-    num_particles = 10
 
-    incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_swarm_runs)
-    incidence_arr_temp = Array{Array{Float64, 3}, 1}(undef, num_particles)
-    error_array = zeros(Float64, num_swarm_runs * num_particles)
 
-    duration_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
-    susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles)
-    temperature_parameters = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles)
-    mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles)
-    random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles)
+    # # num_surrogate_runs = 200
 
-    # error_array = zeros(Float64, num_swarm_runs * num_particles + num_particles)
+    # # incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_surrogate_runs)
+    # # duration_parameter = Array{Float64, 1}(undef, num_surrogate_runs)
+    # # susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
+    # # temperature_parameters = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
+    # # mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
+    # # random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_surrogate_runs)
 
-    # duration_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles + num_particles)
-    # susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles + num_particles)
-    # temperature_parameters = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles + num_particles)
-    # mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles + num_particles)
-    # random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles + num_particles)
+    # # error_array = zeros(Float64, num_surrogate_runs)
 
-    error_arr_temp = zeros(Float64, num_particles)
-    duration_parameter_temp = zeros(Float64, num_particles)
-    susceptibility_parameters_temp = Array{Vector{Float64}, 1}(undef, num_particles)
-    temperature_parameters_temp = Array{Vector{Float64}, 1}(undef, num_particles)
-    mean_immunity_durations_temp = Array{Vector{Float64}, 1}(undef, num_particles)
-    random_infection_probabilities_temp = Array{Vector{Float64}, 1}(undef, num_particles)
+    # # xlabel_name = "Step"
+    # # ylabel_name = "RMSE"
 
-    xlabel_name = "Step"
-    if is_russian
-        xlabel_name = "Шаг"
-    end
-    ylabel_name = "RMSE"
+    # # for method_run = 1:1
+    # #     for i = 1:num_surrogate_runs
+    # #         incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(method_run)", "results_$(i).jld"))["observed_cases"]
+    # #         error_array[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
+    # #         duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(method_run)", "results_$(i).jld"))["duration_parameter"]
+    # #         susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(method_run)", "results_$(i).jld"))["susceptibility_parameters"]
+    # #         temperature_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(method_run)", "results_$(i).jld"))["temperature_parameters"]
+    # #         mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(method_run)", "results_$(i).jld"))["mean_immunity_durations"]
+    # #         random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(method_run)", "results_$(i).jld"))["random_infection_probabilities"]
 
-    # for i = 1:num_particles
-    #     temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["observed_cases"]
-    #     error_arr_temp[i] = sum((temp - num_infected_age_groups_viruses).^2)
+    # #         if isnan(duration_parameter[i])
+    # #             println("duration_parameter")
+    # #             println(error_array[i])
+    # #             println(method_run)
+    # #         end
+    # #         for v = 1:7
+    # #             if isnan(susceptibility_parameters[i][v])
+    # #                 println("susceptibility_parameters")
+    # #                 println(error_array[i])
+    # #                 println(method_run)
+    # #             end
+    # #             if isnan(temperature_parameters[i][v])
+    # #                 println("temperature_parameters")
+    # #                 println(error_array[i])
+    # #                 println(method_run)
+    # #             end
+    # #             if isnan(mean_immunity_durations[i][v])
+    # #                 println("mean_immunity_durations")
+    # #                 println(error_array[i])
+    # #                 println(method_run)
+    # #             end
+    # #         end
+    # #         for a = 1:4
+    # #             if isnan(random_infection_probabilities[i][a])
+    # #                 println("random_infection_probabilities")
+    # #                 println(error_array[i])
+    # #                 println(method_run)
+    # #             end
+    # #         end
+    # #     end
+    # #     minimum_step_arr[method_run] = argmin(error_array)
+    # #     minimum_arr[method_run] = minimum(error_array)
+    # # end
+
+    # # # println("SM minimum method run = $(argmin(minimum_arr))")
+    # # # println("SM min error = $(minimum(minimum_arr))")
+    # # # println("SM mean error = $(mean(minimum_arr))")
+    # # # println("SM min step = $(minimum(minimum_step_arr))")
+    # # # println("SM mean step = $(mean(minimum_step_arr))")
+    # # # return
+
+    # # median_arg = 0
+    # # for i = 1:num_method_runs
+    # #     if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
+    # #         median_arg = i
+    # #         break
+    # #     end
+    # # end
+
+    # # for i = 1:num_surrogate_runs
+    # #     incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["observed_cases"]
+    # #     error_array[i] = sum((incidence_arr[i] - num_infected_age_groups_viruses).^2)
+    # #     duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["duration_parameter"]
+    # #     susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["susceptibility_parameters"]
+    # #     temperature_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["temperature_parameters"]
+    # #     mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["mean_immunity_durations"]
+    # #     random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["random_infection_probabilities"]
+    # # end
+
+    # # plot!(
+    # #     1:num_surrogate_runs,
+    # #     # moving_average(sqrt.(error_array / num_error_points), 3),
+    # #     sqrt.(error_array / num_error_points),
+    # #     lw = 1.5,
+    # #     grid = true,
+    # #     label = "SM 10",
+    # #     color = RGB(0.4, 0.8, 0.933),
+    # #     foreground_color_legend = nothing,
+    # #     background_color_legend = nothing,
+    # #     xlabel = xlabel_name,
+    # #     ylabel = ylabel_name,
+    # # )
+
+    # # min_argument = argmin(error_array)
+    # # println(min_argument)
+    # # println(sqrt.(error_array[min_argument] / num_error_points))
+    # # println("SM 10")
+    # # println("duration_parameter = $(duration_parameter[min_argument])")
+    # # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
+    # # println("temperature_parameters = $(-temperature_parameters[min_argument])")
+    # # println("mean_immunity_durations = $(mean_immunity_durations[min_argument])")
+    # # println("random_infection_probabilities = $(random_infection_probabilities[min_argument])")
+    # # println()
+    # # return
+
+
+
+    # num_swarm_runs = 20
+    # num_particles = 10
+
+    # incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_swarm_runs)
+    # incidence_arr_temp = Array{Array{Float64, 3}, 1}(undef, num_particles)
+    # error_array = zeros(Float64, num_swarm_runs * num_particles)
+
+    # duration_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles)
+    # susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles)
+    # temperature_parameters = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles)
+    # mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles)
+    # random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles)
+
+    # # error_array = zeros(Float64, num_swarm_runs * num_particles + num_particles)
+
+    # # duration_parameter = Array{Float64, 1}(undef, num_swarm_runs * num_particles + num_particles)
+    # # susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles + num_particles)
+    # # temperature_parameters = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles + num_particles)
+    # # mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles + num_particles)
+    # # random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_swarm_runs * num_particles + num_particles)
+
+    # error_arr_temp = zeros(Float64, num_particles)
+    # duration_parameter_temp = zeros(Float64, num_particles)
+    # susceptibility_parameters_temp = Array{Vector{Float64}, 1}(undef, num_particles)
+    # temperature_parameters_temp = Array{Vector{Float64}, 1}(undef, num_particles)
+    # mean_immunity_durations_temp = Array{Vector{Float64}, 1}(undef, num_particles)
+    # random_infection_probabilities_temp = Array{Vector{Float64}, 1}(undef, num_particles)
+
+    # xlabel_name = "Step"
+    # if is_russian
+    #     xlabel_name = "Шаг"
+    # end
+    # ylabel_name = "RMSE"
+
+    # # for i = 1:num_particles
+    # #     temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["observed_cases"]
+    # #     error_arr_temp[i] = sum((temp - num_infected_age_groups_viruses).^2)
         
-    #     duration_parameter_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["duration_parameter"]
-    #     susceptibility_parameters_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["susceptibility_parameters"]
-    #     temperature_parameters_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["temperature_parameters"]
-    #     mean_immunity_durations_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["mean_immunity_durations"]
-    #     random_infection_probabilities_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["random_infection_probabilities"]
-    # end
+    # #     duration_parameter_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["duration_parameter"]
+    # #     susceptibility_parameters_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["susceptibility_parameters"]
+    # #     temperature_parameters_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["temperature_parameters"]
+    # #     mean_immunity_durations_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["mean_immunity_durations"]
+    # #     random_infection_probabilities_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["random_infection_probabilities"]
+    # # end
 
-    # for i = 1:num_particles
-    #     error_array[i] = minimum(error_arr_temp)
-    #     min_arg = argmin(error_arr_temp)
-    #     duration_parameter[i] = duration_parameter_temp[min_arg]
-    #     susceptibility_parameters[i] = susceptibility_parameters_temp[min_arg]
-    #     temperature_parameters[i] = temperature_parameters_temp[min_arg]
-    #     mean_immunity_durations[i] = mean_immunity_durations_temp[min_arg]
-    #     random_infection_probabilities[i] = random_infection_probabilities_temp[min_arg]
-    # end
+    # # for i = 1:num_particles
+    # #     error_array[i] = minimum(error_arr_temp)
+    # #     min_arg = argmin(error_arr_temp)
+    # #     duration_parameter[i] = duration_parameter_temp[min_arg]
+    # #     susceptibility_parameters[i] = susceptibility_parameters_temp[min_arg]
+    # #     temperature_parameters[i] = temperature_parameters_temp[min_arg]
+    # #     mean_immunity_durations[i] = mean_immunity_durations_temp[min_arg]
+    # #     random_infection_probabilities[i] = random_infection_probabilities_temp[min_arg]
+    # # end
 
-    for method_run = 1:num_method_runs
-        for i = 1:num_swarm_runs
-            for j = 1:num_particles
-                temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(method_run)", "$(j)", "results_$(i).jld"))["observed_cases"]
-                error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
+    # for method_run = 1:num_method_runs
+    #     for i = 1:num_swarm_runs
+    #         for j = 1:num_particles
+    #             temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(method_run)", "$(j)", "results_$(i).jld"))["observed_cases"]
+    #             error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
                 
-                duration_parameter_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(method_run)", "$(j)", "results_$(i).jld"))["duration_parameter"]
-                susceptibility_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(method_run)", "$(j)", "results_$(i).jld"))["susceptibility_parameters"]
-                temperature_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(method_run)", "$(j)", "results_$(i).jld"))["temperature_parameters"]
-                mean_immunity_durations_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(method_run)", "$(j)", "results_$(i).jld"))["mean_immunity_durations"]
-                random_infection_probabilities_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(method_run)", "$(j)", "results_$(i).jld"))["random_infection_probabilities"]
-            end
-            # for j = 1:num_particles
-            #     error_array[num_particles + (i - 1) * num_particles + j] = minimum(error_arr_temp)
-            #     min_arg = argmin(error_arr_temp)
-            #     duration_parameter[num_particles + (i - 1) * num_particles + j] = duration_parameter_temp[min_arg]
-            #     susceptibility_parameters[num_particles + (i - 1) * num_particles + j] = susceptibility_parameters_temp[min_arg]
-            #     temperature_parameters[num_particles + (i - 1) * num_particles + j] = temperature_parameters_temp[min_arg]
-            #     mean_immunity_durations[num_particles + (i - 1) * num_particles + j] = mean_immunity_durations_temp[min_arg]
-            #     random_infection_probabilities[num_particles + (i - 1) * num_particles + j] = random_infection_probabilities_temp[min_arg]
-            # end
-            for j = 1:num_particles
-                error_array[(i - 1) * num_particles + j] = minimum(error_arr_temp)
-                min_arg = argmin(error_arr_temp)
-                duration_parameter[(i - 1) * num_particles + j] = duration_parameter_temp[min_arg]
-                susceptibility_parameters[(i - 1) * num_particles + j] = susceptibility_parameters_temp[min_arg]
-                temperature_parameters[(i - 1) * num_particles + j] = temperature_parameters_temp[min_arg]
-                mean_immunity_durations[(i - 1) * num_particles + j] = mean_immunity_durations_temp[min_arg]
-                random_infection_probabilities[(i - 1) * num_particles + j] = random_infection_probabilities_temp[min_arg]
-            end
-        end
-        minimum_step_arr[method_run] = argmin(error_array)
-        minimum_arr[method_run] = minimum(error_array)
-        # minimum_arr[method_run] = error_array[1]
-    end
+    #             duration_parameter_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(method_run)", "$(j)", "results_$(i).jld"))["duration_parameter"]
+    #             susceptibility_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(method_run)", "$(j)", "results_$(i).jld"))["susceptibility_parameters"]
+    #             temperature_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(method_run)", "$(j)", "results_$(i).jld"))["temperature_parameters"]
+    #             mean_immunity_durations_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(method_run)", "$(j)", "results_$(i).jld"))["mean_immunity_durations"]
+    #             random_infection_probabilities_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(method_run)", "$(j)", "results_$(i).jld"))["random_infection_probabilities"]
+    #         end
+    #         # for j = 1:num_particles
+    #         #     error_array[num_particles + (i - 1) * num_particles + j] = minimum(error_arr_temp)
+    #         #     min_arg = argmin(error_arr_temp)
+    #         #     duration_parameter[num_particles + (i - 1) * num_particles + j] = duration_parameter_temp[min_arg]
+    #         #     susceptibility_parameters[num_particles + (i - 1) * num_particles + j] = susceptibility_parameters_temp[min_arg]
+    #         #     temperature_parameters[num_particles + (i - 1) * num_particles + j] = temperature_parameters_temp[min_arg]
+    #         #     mean_immunity_durations[num_particles + (i - 1) * num_particles + j] = mean_immunity_durations_temp[min_arg]
+    #         #     random_infection_probabilities[num_particles + (i - 1) * num_particles + j] = random_infection_probabilities_temp[min_arg]
+    #         # end
+    #         for j = 1:num_particles
+    #             error_array[(i - 1) * num_particles + j] = minimum(error_arr_temp)
+    #             min_arg = argmin(error_arr_temp)
+    #             duration_parameter[(i - 1) * num_particles + j] = duration_parameter_temp[min_arg]
+    #             susceptibility_parameters[(i - 1) * num_particles + j] = susceptibility_parameters_temp[min_arg]
+    #             temperature_parameters[(i - 1) * num_particles + j] = temperature_parameters_temp[min_arg]
+    #             mean_immunity_durations[(i - 1) * num_particles + j] = mean_immunity_durations_temp[min_arg]
+    #             random_infection_probabilities[(i - 1) * num_particles + j] = random_infection_probabilities_temp[min_arg]
+    #         end
+    #     end
+    #     minimum_step_arr[method_run] = argmin(error_array)
+    #     minimum_arr[method_run] = minimum(error_array)
+    #     # minimum_arr[method_run] = error_array[1]
+    # end
 
-    # println("PSO minimum method run = $(argmin(minimum_arr))")
-    # println("PSO min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
-    # println("PSO mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
-    # println("PSO min step = $(minimum_step_arr[argmin(minimum_arr)])")
-    # println("PSO mean step = $(mean(minimum_step_arr))")
-    # return
+    # # println("PSO minimum method run = $(argmin(minimum_arr))")
+    # # println("PSO min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
+    # # println("PSO mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
+    # # println("PSO min step = $(minimum_step_arr[argmin(minimum_arr)])")
+    # # println("PSO mean step = $(mean(minimum_step_arr))")
+    # # return
 
-    median_arg = 0
-    for i = 1:num_method_runs
-        if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
-            median_arg = i
-            break
-        end
-    end
-    median_arg = argmin(minimum_arr)
+    # median_arg = 0
+    # for i = 1:num_method_runs
+    #     if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
+    #         median_arg = i
+    #         break
+    #     end
+    # end
+    # median_arg = argmin(minimum_arr)
 
-    for i = 1:num_swarm_runs
-        for j = 1:num_particles
-            temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["observed_cases"]
-            error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
+    # for i = 1:num_swarm_runs
+    #     for j = 1:num_particles
+    #         temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["observed_cases"]
+    #         error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
             
-            duration_parameter_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["duration_parameter"]
-            susceptibility_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["susceptibility_parameters"]
-            temperature_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["temperature_parameters"]
-            mean_immunity_durations_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["mean_immunity_durations"]
-            random_infection_probabilities_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["random_infection_probabilities"]
-        end
-        for j = 1:num_particles
-            error_array[(i - 1) * num_particles + j] = minimum(error_arr_temp)
-            min_arg = argmin(error_arr_temp)
-            duration_parameter[(i - 1) * num_particles + j] = duration_parameter_temp[min_arg]
-            susceptibility_parameters[(i - 1) * num_particles + j] = susceptibility_parameters_temp[min_arg]
-            temperature_parameters[(i - 1) * num_particles + j] = temperature_parameters_temp[min_arg]
-            mean_immunity_durations[(i - 1) * num_particles + j] = mean_immunity_durations_temp[min_arg]
-            random_infection_probabilities[(i - 1) * num_particles + j] = random_infection_probabilities_temp[min_arg]
-        end
-    end
+    #         duration_parameter_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["duration_parameter"]
+    #         susceptibility_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["susceptibility_parameters"]
+    #         temperature_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["temperature_parameters"]
+    #         mean_immunity_durations_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["mean_immunity_durations"]
+    #         random_infection_probabilities_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["random_infection_probabilities"]
+    #     end
+    #     for j = 1:num_particles
+    #         error_array[(i - 1) * num_particles + j] = minimum(error_arr_temp)
+    #         min_arg = argmin(error_arr_temp)
+    #         duration_parameter[(i - 1) * num_particles + j] = duration_parameter_temp[min_arg]
+    #         susceptibility_parameters[(i - 1) * num_particles + j] = susceptibility_parameters_temp[min_arg]
+    #         temperature_parameters[(i - 1) * num_particles + j] = temperature_parameters_temp[min_arg]
+    #         mean_immunity_durations[(i - 1) * num_particles + j] = mean_immunity_durations_temp[min_arg]
+    #         random_infection_probabilities[(i - 1) * num_particles + j] = random_infection_probabilities_temp[min_arg]
+    #     end
+    # end
 
-    plot!(
-        # 1:(num_swarm_runs * num_particles + num_particles),
-        # moving_average(sqrt.(error_array[1:(num_swarm_runs * num_particles + num_particles)] / num_error_points), 3),
-        1:(num_swarm_runs * num_particles),
-        moving_average(sqrt.(error_array[1:(num_swarm_runs * num_particles)] / num_error_points), 3),
-        lw = 1.5,
-        grid = true,
-        label = "PSO",
-        legend = (0.74, 0.98),
-        color = RGB(0.667, 0.2, 0.467),
-        foreground_color_legend = nothing,
-        background_color_legend = nothing,
-        xlabel = xlabel_name,
-        ylabel = ylabel_name,
-    )
+    # plot!(
+    #     # 1:(num_swarm_runs * num_particles + num_particles),
+    #     # moving_average(sqrt.(error_array[1:(num_swarm_runs * num_particles + num_particles)] / num_error_points), 3),
+    #     1:(num_swarm_runs * num_particles),
+    #     moving_average(sqrt.(error_array[1:(num_swarm_runs * num_particles)] / num_error_points), 3),
+    #     lw = 1.5,
+    #     grid = true,
+    #     label = "PSO",
+    #     legend = (0.74, 0.98),
+    #     color = RGB(0.667, 0.2, 0.467),
+    #     foreground_color_legend = nothing,
+    #     background_color_legend = nothing,
+    #     xlabel = xlabel_name,
+    #     ylabel = ylabel_name,
+    # )
 
-    # min_argument = argmin(error_array)
-    # println(min_argument)
-    # println(sqrt.(error_array[min_argument] / num_error_points))
-    # println("PSO")
-    # println("duration_parameter = $(duration_parameter[min_argument])")
-    # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
-    # println("temperature_parameters = $(temperature_parameters[min_argument])")
-    # println("mean_immunity_durations = $(mean_immunity_durations[min_argument])")
-    # println("random_infection_probabilities = $(random_infection_probabilities[min_argument])")
-    # println()
-    # return
+    # # min_argument = argmin(error_array)
+    # # println(min_argument)
+    # # println(sqrt.(error_array[min_argument] / num_error_points))
+    # # println("PSO")
+    # # println("duration_parameter = $(duration_parameter[min_argument])")
+    # # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
+    # # println("temperature_parameters = $(temperature_parameters[min_argument])")
+    # # println("mean_immunity_durations = $(mean_immunity_durations[min_argument])")
+    # # println("random_infection_probabilities = $(random_infection_probabilities[min_argument])")
+    # # println()
+    # # return
 
     num_ga_runs = 20
     population_size = 10
@@ -1519,6 +1519,16 @@ function optimization_methods()
     # [-0.78, -0.3512240165328047, -0.0712614184466791, -0.010000000000000009, -0.2070191242631642, -0.2820830210066421, -0.5892266222606137]
     # [154.58424547538954, 282.70343221653434, 80.50441544625477, 151.77744238754525, 243.495255851072, 93.57285276981995, 210.80352028917065]
     # [0.0011505796654931457, 0.0008643362616252045, 0.00030854237718053136, 6.8638947083754706e-6]
+
+    for j = 1:num_method_runs
+        for i = 1:population_size
+            temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga$(j)", "0", "results_$(i).jld"))["observed_cases"]
+            error_arr_temp[i] = sum((temp - num_infected_age_groups_viruses).^2)
+        end
+        error_array[j] = minimum(error_arr_temp[1:population_size])
+    end
+    println(sqrt(mean(error_array[1:num_method_runs]) / num_error_points))
+    return
 
     for method_run = 2:num_method_runs
         for i = 1:num_ga_runs
