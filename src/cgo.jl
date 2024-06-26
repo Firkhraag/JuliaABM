@@ -628,8 +628,8 @@ function run_cgo_model()
             end
 
             for j = 1:num_viruses
-                viruses[j].mean_immunity_duration = mean_immunity_durations_offsprings_array[seed, 4][15 + j]
-                viruses[j].immunity_duration_sd = mean_immunity_durations_offsprings_array[seed, 4][15 + j] * 0.33
+                viruses[j].mean_immunity_duration = mean_immunity_durations_offsprings_array[seed, 4][j]
+                viruses[j].immunity_duration_sd = mean_immunity_durations_offsprings_array[seed, 4][j] * 0.33
             end
             @threads for thread_id in 1:num_threads
                 reset_agent_states(
