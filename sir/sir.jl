@@ -104,7 +104,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     num_runs = 10
     # Best
     β, c, γ, I0 = 0.02914546000421925, 16.99835897540075, 0.019603036841374714, 40.011319044945466
-    # Median
+    # # Median
     # β, c, γ, I0 = 0.0320317798685097, 15.222030086565974, 0.01947785846755082, 48.01541900675947
 
     df_abm_arr_S = []
@@ -155,7 +155,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_S,
         label="MCMC LHS",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.267, 0.467, 0.667),
         ylabel="Number of agents",
@@ -165,7 +165,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     pl2 = plot(
         df_abm_t,
         df_abm_I,
-        xlabel="Time",
+        xlabel="Day",
         label="MCMC LHS",
         lw = 1.5,
         color = RGB(0.267, 0.467, 0.667),
@@ -176,7 +176,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     pl3 = plot(
         df_abm_t,
         df_abm_R,
-        xlabel="Time",
+        xlabel="Day",
         label="MCMC LHS",
         lw = 1.5,
         color = RGB(0.267, 0.467, 0.667),
@@ -187,7 +187,7 @@ function run_model_plot(agents_initial, nsteps, δt)
 
     # Best
     β, c, γ, I0 = 0.06308478645916318, 8.620302179936914, 0.02120364824191881, 13.030465864640968
-    # Median
+    # # Median
     # β, c, γ, I0 = 0.07447012760371949, 9.231202825682047, 0.03140516369043498, 19.43276986123847
 
     df_abm_arr_S = []
@@ -241,7 +241,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_S,
         label="MCMC manual",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.933, 0.4, 0.467),
         ylabel="Number of agents",
@@ -252,7 +252,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         pl2,
         df_abm_t,
         df_abm_I,
-        xlabel="Time",
+        xlabel="Day",
         label="MCMC manual",
         lw = 1.5,
         color = RGB(0.933, 0.4, 0.467),
@@ -264,7 +264,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         pl3,
         df_abm_t,
         df_abm_R,
-        xlabel="Time",
+        xlabel="Day",
         label="MCMC manual",
         lw = 1.5,
         color = RGB(0.933, 0.4, 0.467),
@@ -295,7 +295,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     df_abm_t,
     #     df_abm_S,
     #     label="MA LHS",
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     lw = 1.5,
     #     color = RGB(0.133, 0.533, 0.2),
     #     ylabel="Number of agents",
@@ -305,7 +305,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     # plot!(
     #     df_abm_t,
     #     df_abm_I,
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     label = false,
     #     lw = 1.5,
     #     color = RGB(0.133, 0.533, 0.2),
@@ -316,7 +316,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     # plot!(
     #     df_abm_t,
     #     df_abm_R,
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     label = false,
     #     lw = 1.5,
     #     color = RGB(0.133, 0.533, 0.2),
@@ -342,7 +342,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     df_abm_t,
     #     df_abm_S,
     #     label="MA manual",
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     lw = 1.5,
     #     color = RGB(0.667, 0.2, 0.467),
     #     ylabel="Number of agents",
@@ -352,7 +352,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     # plot!(
     #     df_abm_t,
     #     df_abm_I,
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     label = false,
     #     lw = 1.5,
     #     color = RGB(0.667, 0.2, 0.467),
@@ -363,7 +363,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     # plot!(
     #     df_abm_t,
     #     df_abm_R,
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     label = false,
     #     lw = 1.5,
     #     color = RGB(0.667, 0.2, 0.467),
@@ -374,7 +374,7 @@ function run_model_plot(agents_initial, nsteps, δt)
 
     # Best
     β, c, γ, I0 = 0.020680567299059184, 24.96253908208722, 0.020729138990765946, 24.014891329173516
-    # Median
+    # # Median
     # β, c, γ, I0 = 0.03927349878742921, 21.66574708234853, 0.04699396824842727, 3.310893118869288
 
     df_abm_arr_S = []
@@ -428,7 +428,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_S,
         label="SM",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.133, 0.533, 0.2),
         ylabel="Number of agents",
@@ -440,7 +440,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_I,
         label="SM",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.133, 0.533, 0.2),
         ylabel="Number of agents",
@@ -452,7 +452,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_R,
         label="SM",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.133, 0.533, 0.2),
         ylabel="Number of agents",
@@ -462,7 +462,7 @@ function run_model_plot(agents_initial, nsteps, δt)
 
     # Best
     β, c, γ, I0 = 0.043145839036186344, 12.061908252437279, 0.0209793523053137, 25.39745553515337
-    # Median
+    # # Median
     # β, c, γ, I0 = 0.02566264894291515, 18.4744858309475, 0.01868922377633394, 35.04930705707181
 
     df_abm_arr_S = []
@@ -516,7 +516,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_S,
         label="PSO",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.667, 0.2, 0.467),
         ylabel="Number of agents",
@@ -528,7 +528,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_I,
         label="PSO",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.667, 0.2, 0.467),
         ylabel="Number of agents",
@@ -540,7 +540,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_R,
         label="PSO",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.667, 0.2, 0.467),
         ylabel="Number of agents",
@@ -550,7 +550,7 @@ function run_model_plot(agents_initial, nsteps, δt)
 
     # Best
     β, c, γ, I0 = 0.04000000000000001, 11.3822576069654, 0.018210965408549492, 46.57974385928745
-    # Median
+    # # Median
     # β, c, γ, I0 = 0.029279761612317372, 19.2731042457002, 0.01941136446065339, 8.97178358572054
 
     df_abm_arr_S = []
@@ -604,7 +604,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_S,
         label="GA",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.8, 0.733, 0.267),
         ylabel="Number of agents",
@@ -616,7 +616,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_I,
         label="GA",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.8, 0.733, 0.267),
         ylabel="Number of agents",
@@ -628,7 +628,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_R,
         label="GA",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.8, 0.733, 0.267),
         ylabel="Number of agents",
@@ -637,9 +637,9 @@ function run_model_plot(agents_initial, nsteps, δt)
     )
 
     # Best
-    β, c, γ, I0 = 0.05913441568587332, 8.74280639638074, 0.020898234013919312, 21.91663848843803
-    # Median
-    # β, c, γ, I0 = 0.03461407363871294, 14.947099179964413, 0.01756400223057157, 12.340021249252164
+    β, c, γ, I0 = 0.033833576359600964, 15.777168861917703, 0.02136611083662048, 24.745999687704078
+    # # Median
+    # β, c, γ, I0 = 0.057412732095255534, 8.686077322261115, 0.017701428934867723, 30.0129764526302
 
     df_abm_arr_S = []
     df_abm_arr_I = []
@@ -692,7 +692,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_S,
         label="CGO",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.4, 0.8, 0.933),
         ylabel="Number of agents",
@@ -704,7 +704,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_I,
         label="CGO",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.4, 0.8, 0.933),
         ylabel="Number of agents",
@@ -716,7 +716,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_R,
         label="CGO",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.4, 0.8, 0.933),
         ylabel="Number of agents",
@@ -732,7 +732,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         label="Reference",
         lw = 2.0,
         color = :black,
-        xlabel="Time",
+        xlabel="Day",
         ylabel="Number of agents",
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -744,7 +744,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         label="Reference",
         lw = 2.0,
         color = :black,
-        xlabel="Time",
+        xlabel="Day",
         ylabel="Number of agents",
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -756,15 +756,20 @@ function run_model_plot(agents_initial, nsteps, δt)
         label="Reference",
         lw = 2.0,
         color = :black,
-        xlabel="Time",
+        xlabel="Day",
         ylabel="Number of agents",
         legend = (0.13, 0.7),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
     )
-    savefig(pl1, joinpath(@__DIR__, "sir_S.pdf"))
-    savefig(pl2, joinpath(@__DIR__, "sir_I.pdf"))
-    savefig(pl3, joinpath(@__DIR__, "sir_R.pdf"))
+
+    savefig(pl1, joinpath(@__DIR__, "sir_S_min.pdf"))
+    savefig(pl2, joinpath(@__DIR__, "sir_I_min.pdf"))
+    savefig(pl3, joinpath(@__DIR__, "sir_R_min.pdf"))
+
+    # savefig(pl1, joinpath(@__DIR__, "sir_S_median.pdf"))
+    # savefig(pl2, joinpath(@__DIR__, "sir_I_median.pdf"))
+    # savefig(pl3, joinpath(@__DIR__, "sir_R_median.pdf"))
     
     error = sqrt(1 / 1200 * sum((df_abm_S - S_ref).^2) + 1 / 1200 * sum((df_abm_I - I_ref).^2) + 1 / 1200 * sum((df_abm_R - R_ref).^2))
     return error
@@ -776,12 +781,13 @@ function run_model(agents_initial, nsteps, δt, β, c, γ)
     df_abm = sim!(agents_initial, nsteps, δt, p)
     pl = plot(
         df_abm.t,
-        [df_abm.S df_abm.I df_abm.R],
+        # [df_abm.S df_abm.I df_abm.R],
+        [S_ref I_ref R_ref],
         label=["S" "I" "R"],
-        # xlabel="Time",
-        # ylabel="Number of people",
-        xlabel="Время",
-        ylabel="Число агентов",
+        xlabel="Day",
+        ylabel="Number of people",
+        # xlabel="Время",
+        # ylabel="Число агентов",
         foreground_color_legend = nothing,
         background_color_legend = nothing,
     )
@@ -816,7 +822,7 @@ function run_model_metropolis(agents_initial, nsteps, δt, β, c, γ)
     #     df_abm.t,
     #     [df_abm.S df_abm.I df_abm.R],
     #     label=["S" "I" "R"],
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     ylabel="Number of people",
     #     foreground_color_legend = nothing,
     #     background_color_legend = nothing,
@@ -2908,16 +2914,16 @@ function main()
     # I0 = 10
     agents_initial = Array{InfectionStatus}(undef, N)
 
-    # for i in 1:N
-    #     if i <= 25
-    #         s = Infected
-    #     else
-    #         s = Susceptible
-    #     end
-    #     agents_initial[i] = s
-    # end
-    # run_model(agents_initial, nsteps, δt, 0.05, 10.0, 0.02)
-    # return
+    for i in 1:N
+        if i <= 25
+            s = Infected
+        else
+            s = Susceptible
+        end
+        agents_initial[i] = s
+    end
+    run_model(agents_initial, nsteps, δt, 0.05, 10.0, 0.02)
+    return
 
     # for i in 1:N
     #     if i <= 19.143075017374898
@@ -2953,7 +2959,7 @@ function main()
     # @time run_surrogate_model(200, agents_initial, nsteps, δt, 9)
     # @time run_swarm_model(20, agents_initial, nsteps, δt, 1)
     # @time genetic_algorithm(20, agents_initial, nsteps, δt, 1)
-    @time run_cgo_model(5, agents_initial, nsteps, δt, 10)
+    # @time run_cgo_model(5, agents_initial, nsteps, δt, 1)
 
 
     # mcmc_simulations_metropolis(250,agents_initial,nsteps,δt)
