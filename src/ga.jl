@@ -559,7 +559,7 @@ function run_ga_model()
             error_population[i] = error_population_concatenated[args[i]]
 
             save(joinpath(@__DIR__, "..", "output", "tables", "ga", "$(curr_run)", "results_$(i).jld"),
-                "observed_cases", observed_num_infected_age_groups_viruses_children[i],
+                "observed_cases", incidence_arr[i],
                 "duration_parameter", duration_parameter_array[i],
                 "susceptibility_parameters", susceptibility_parameters_array[i],
                 "temperature_parameters", temperature_parameters_array[i],

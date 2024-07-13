@@ -104,7 +104,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     num_runs = 10
     # Best
     β, c, γ, I0 = 0.02914546000421925, 16.99835897540075, 0.019603036841374714, 40.011319044945466
-    # Median
+    # # Median
     # β, c, γ, I0 = 0.0320317798685097, 15.222030086565974, 0.01947785846755082, 48.01541900675947
 
     df_abm_arr_S = []
@@ -155,7 +155,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_S,
         label="MCMC LHS",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.267, 0.467, 0.667),
         ylabel="Number of agents",
@@ -165,7 +165,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     pl2 = plot(
         df_abm_t,
         df_abm_I,
-        xlabel="Time",
+        xlabel="Day",
         label="MCMC LHS",
         lw = 1.5,
         color = RGB(0.267, 0.467, 0.667),
@@ -176,7 +176,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     pl3 = plot(
         df_abm_t,
         df_abm_R,
-        xlabel="Time",
+        xlabel="Day",
         label="MCMC LHS",
         lw = 1.5,
         color = RGB(0.267, 0.467, 0.667),
@@ -187,7 +187,7 @@ function run_model_plot(agents_initial, nsteps, δt)
 
     # Best
     β, c, γ, I0 = 0.06308478645916318, 8.620302179936914, 0.02120364824191881, 13.030465864640968
-    # Median
+    # # Median
     # β, c, γ, I0 = 0.07447012760371949, 9.231202825682047, 0.03140516369043498, 19.43276986123847
 
     df_abm_arr_S = []
@@ -241,7 +241,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_S,
         label="MCMC manual",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.933, 0.4, 0.467),
         ylabel="Number of agents",
@@ -252,7 +252,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         pl2,
         df_abm_t,
         df_abm_I,
-        xlabel="Time",
+        xlabel="Day",
         label="MCMC manual",
         lw = 1.5,
         color = RGB(0.933, 0.4, 0.467),
@@ -264,7 +264,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         pl3,
         df_abm_t,
         df_abm_R,
-        xlabel="Time",
+        xlabel="Day",
         label="MCMC manual",
         lw = 1.5,
         color = RGB(0.933, 0.4, 0.467),
@@ -295,7 +295,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     df_abm_t,
     #     df_abm_S,
     #     label="MA LHS",
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     lw = 1.5,
     #     color = RGB(0.133, 0.533, 0.2),
     #     ylabel="Number of agents",
@@ -305,7 +305,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     # plot!(
     #     df_abm_t,
     #     df_abm_I,
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     label = false,
     #     lw = 1.5,
     #     color = RGB(0.133, 0.533, 0.2),
@@ -316,7 +316,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     # plot!(
     #     df_abm_t,
     #     df_abm_R,
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     label = false,
     #     lw = 1.5,
     #     color = RGB(0.133, 0.533, 0.2),
@@ -342,7 +342,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     #     df_abm_t,
     #     df_abm_S,
     #     label="MA manual",
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     lw = 1.5,
     #     color = RGB(0.667, 0.2, 0.467),
     #     ylabel="Number of agents",
@@ -352,7 +352,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     # plot!(
     #     df_abm_t,
     #     df_abm_I,
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     label = false,
     #     lw = 1.5,
     #     color = RGB(0.667, 0.2, 0.467),
@@ -363,7 +363,7 @@ function run_model_plot(agents_initial, nsteps, δt)
     # plot!(
     #     df_abm_t,
     #     df_abm_R,
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     label = false,
     #     lw = 1.5,
     #     color = RGB(0.667, 0.2, 0.467),
@@ -374,7 +374,7 @@ function run_model_plot(agents_initial, nsteps, δt)
 
     # Best
     β, c, γ, I0 = 0.020680567299059184, 24.96253908208722, 0.020729138990765946, 24.014891329173516
-    # Median
+    # # Median
     # β, c, γ, I0 = 0.03927349878742921, 21.66574708234853, 0.04699396824842727, 3.310893118869288
 
     df_abm_arr_S = []
@@ -428,7 +428,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_S,
         label="SM",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.133, 0.533, 0.2),
         ylabel="Number of agents",
@@ -440,7 +440,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_I,
         label="SM",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.133, 0.533, 0.2),
         ylabel="Number of agents",
@@ -452,7 +452,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_R,
         label="SM",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.133, 0.533, 0.2),
         ylabel="Number of agents",
@@ -462,7 +462,7 @@ function run_model_plot(agents_initial, nsteps, δt)
 
     # Best
     β, c, γ, I0 = 0.043145839036186344, 12.061908252437279, 0.0209793523053137, 25.39745553515337
-    # Median
+    # # Median
     # β, c, γ, I0 = 0.02566264894291515, 18.4744858309475, 0.01868922377633394, 35.04930705707181
 
     df_abm_arr_S = []
@@ -516,7 +516,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_S,
         label="PSO",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.667, 0.2, 0.467),
         ylabel="Number of agents",
@@ -528,7 +528,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_I,
         label="PSO",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.667, 0.2, 0.467),
         ylabel="Number of agents",
@@ -540,7 +540,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_R,
         label="PSO",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.667, 0.2, 0.467),
         ylabel="Number of agents",
@@ -550,7 +550,7 @@ function run_model_plot(agents_initial, nsteps, δt)
 
     # Best
     β, c, γ, I0 = 0.04000000000000001, 11.3822576069654, 0.018210965408549492, 46.57974385928745
-    # Median
+    # # Median
     # β, c, γ, I0 = 0.029279761612317372, 19.2731042457002, 0.01941136446065339, 8.97178358572054
 
     df_abm_arr_S = []
@@ -604,7 +604,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_S,
         label="GA",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.8, 0.733, 0.267),
         ylabel="Number of agents",
@@ -616,7 +616,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_I,
         label="GA",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.8, 0.733, 0.267),
         ylabel="Number of agents",
@@ -628,9 +628,97 @@ function run_model_plot(agents_initial, nsteps, δt)
         df_abm_t,
         df_abm_R,
         label="GA",
-        xlabel="Time",
+        xlabel="Day",
         lw = 1.5,
         color = RGB(0.8, 0.733, 0.267),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+
+    # Best
+    β, c, γ, I0 = 0.033833576359600964, 15.777168861917703, 0.02136611083662048, 24.745999687704078
+    # # Median
+    # β, c, γ, I0 = 0.057412732095255534, 8.686077322261115, 0.017701428934867723, 30.0129764526302
+
+    df_abm_arr_S = []
+    df_abm_arr_I = []
+    df_abm_arr_R = []
+    df_abm_t = []
+    df_abm_S = zeros(Float64, 401)
+    df_abm_I = zeros(Float64, 401)
+    df_abm_R = zeros(Float64, 401)
+
+    for i = 1:num_runs
+        # Reset
+        for i in 1:length(agents_initial)
+            if i <= I0 # I0
+                agents_initial[i] = Infected
+            else
+                agents_initial[i] = Susceptible
+            end
+        end
+        p = [β, c, γ, δt]
+        df_abm_temp = sim!(agents_initial, nsteps, δt, p)
+        push!(df_abm_arr_S, df_abm_temp.S)
+        push!(df_abm_arr_I, df_abm_temp.I)
+        push!(df_abm_arr_R, df_abm_temp.R)
+        if i == num_runs
+            df_abm_t = df_abm_temp.t
+        end
+    end
+
+    for i = 1:length(df_abm_S)
+        for j = 1:num_runs
+            df_abm_S[i] += df_abm_arr_S[j][i]
+        end
+        df_abm_S[i] /= num_runs
+    end
+    for i = 1:length(df_abm_I)
+        for j = 1:num_runs
+            df_abm_I[i] += df_abm_arr_I[j][i]
+        end
+        df_abm_I[i] /= num_runs
+    end
+    for i = 1:length(df_abm_R)
+        for j = 1:num_runs
+            df_abm_R[i] += df_abm_arr_R[j][i]
+        end
+        df_abm_R[i] /= num_runs
+    end
+
+    plot!(
+        pl1,
+        df_abm_t,
+        df_abm_S,
+        label="CGO",
+        xlabel="Day",
+        lw = 1.5,
+        color = RGB(0.4, 0.8, 0.933),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        pl2,
+        df_abm_t,
+        df_abm_I,
+        label="CGO",
+        xlabel="Day",
+        lw = 1.5,
+        color = RGB(0.4, 0.8, 0.933),
+        ylabel="Number of agents",
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+    )
+    plot!(
+        pl3,
+        df_abm_t,
+        df_abm_R,
+        label="CGO",
+        xlabel="Day",
+        lw = 1.5,
+        color = RGB(0.4, 0.8, 0.933),
         ylabel="Number of agents",
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -644,7 +732,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         label="Reference",
         lw = 2.0,
         color = :black,
-        xlabel="Time",
+        xlabel="Day",
         ylabel="Number of agents",
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -656,7 +744,7 @@ function run_model_plot(agents_initial, nsteps, δt)
         label="Reference",
         lw = 2.0,
         color = :black,
-        xlabel="Time",
+        xlabel="Day",
         ylabel="Number of agents",
         foreground_color_legend = nothing,
         background_color_legend = nothing,
@@ -668,15 +756,20 @@ function run_model_plot(agents_initial, nsteps, δt)
         label="Reference",
         lw = 2.0,
         color = :black,
-        xlabel="Time",
+        xlabel="Day",
         ylabel="Number of agents",
         legend = (0.13, 0.7),
         foreground_color_legend = nothing,
         background_color_legend = nothing,
     )
-    savefig(pl1, joinpath(@__DIR__, "sir_S.pdf"))
-    savefig(pl2, joinpath(@__DIR__, "sir_I.pdf"))
-    savefig(pl3, joinpath(@__DIR__, "sir_R.pdf"))
+
+    savefig(pl1, joinpath(@__DIR__, "sir_S_min.pdf"))
+    savefig(pl2, joinpath(@__DIR__, "sir_I_min.pdf"))
+    savefig(pl3, joinpath(@__DIR__, "sir_R_min.pdf"))
+
+    # savefig(pl1, joinpath(@__DIR__, "sir_S_median.pdf"))
+    # savefig(pl2, joinpath(@__DIR__, "sir_I_median.pdf"))
+    # savefig(pl3, joinpath(@__DIR__, "sir_R_median.pdf"))
     
     error = sqrt(1 / 1200 * sum((df_abm_S - S_ref).^2) + 1 / 1200 * sum((df_abm_I - I_ref).^2) + 1 / 1200 * sum((df_abm_R - R_ref).^2))
     return error
@@ -688,10 +781,13 @@ function run_model(agents_initial, nsteps, δt, β, c, γ)
     df_abm = sim!(agents_initial, nsteps, δt, p)
     pl = plot(
         df_abm.t,
-        [df_abm.S df_abm.I df_abm.R],
+        # [df_abm.S df_abm.I df_abm.R],
+        [S_ref I_ref R_ref],
         label=["S" "I" "R"],
-        xlabel="Time",
+        xlabel="Day",
         ylabel="Number of people",
+        # xlabel="Время",
+        # ylabel="Число агентов",
         foreground_color_legend = nothing,
         background_color_legend = nothing,
     )
@@ -701,6 +797,16 @@ function run_model(agents_initial, nsteps, δt, β, c, γ)
     # println("R_ref = $(df_abm.R)")
     error = sqrt(1 / 1200 * sum((df_abm.S - S_ref).^2) + 1 / 1200 * sum((df_abm.I - I_ref).^2) + 1 / 1200 * sum((df_abm.R - R_ref).^2))
     return error
+end
+
+function run_model_series(agents_initial, nsteps, δt, β, c, γ)
+    p = [β, c, γ, δt]
+    # Running the model
+    df_abm = sim!(agents_initial, nsteps, δt, p)
+    res_arr = copy(df_abm.S[1:400])
+    append!(res_arr, df_abm.I[1:400])
+    append!(res_arr, df_abm.R[1:400])
+    return res_arr
 end
 
 function run_model_metropolis(agents_initial, nsteps, δt, β, c, γ)
@@ -716,7 +822,7 @@ function run_model_metropolis(agents_initial, nsteps, δt, β, c, γ)
     #     df_abm.t,
     #     [df_abm.S df_abm.I df_abm.R],
     #     label=["S" "I" "R"],
-    #     xlabel="Time",
+    #     xlabel="Day",
     #     ylabel="Number of people",
     #     foreground_color_legend = nothing,
     #     background_color_legend = nothing,
@@ -777,6 +883,59 @@ function lhs_simulations(
         end
         save(joinpath(@__DIR__, "lhs$(method_num)", "results_$(i).jld"),
             "error", error,
+            "β_parameter", β_parameter,
+            "c_parameter", c_parameter,
+            "γ_parameter", γ_parameter,
+            "I0_parameter", I0_parameter)
+    end
+end
+
+function lhs_simulations_series(
+    # Число прогонов модели
+    num_runs::Int,
+    # Агенты
+    agents::Vector{InfectionStatus},
+    nsteps,
+    δt,
+    method_num,
+)
+    # Число параметров
+    num_parameters = 4
+
+    # Латинский гиперкуб
+    latin_hypercube_plan, _ = LHCoptim(num_runs, num_parameters, 200)
+
+    # Интервалы значений параметров
+    points = scaleLHC(latin_hypercube_plan, [
+        (0.02, 0.2), # β
+        (5, 25), # c
+        (0.01, 0.05), # γ
+        (1, 50), # I0
+    ])
+
+    error_min = 1.0e12
+
+    for i = 1:num_runs
+        println(i)
+
+        β_parameter = points[i, 1]
+        c_parameter = points[i, 2]
+        γ_parameter = points[i, 3]
+        I0_parameter = points[i, 4]
+
+        # Reset
+        for i in 1:length(agents)
+            if i <= I0_parameter # I0
+                agents[i] = Infected
+            else
+                agents[i] = Susceptible
+            end
+        end
+        # Моделируем заболеваемость
+        res_vec = run_model_series(agents, nsteps, δt, β_parameter, c_parameter, γ_parameter)
+
+        save(joinpath(@__DIR__, "lhs", "results_$(i).jld"),
+            "result", res_vec,
             "β_parameter", β_parameter,
             "c_parameter", c_parameter,
             "γ_parameter", γ_parameter,
@@ -2426,6 +2585,312 @@ function genetic_algorithm(
     end
 end
 
+function check_bounds(
+    parameters::Vector{Float64},
+)
+    # Ограничения на область значений параметров
+    # [0.02, 0.2]
+    # [5, 25]
+    # [0.01, 0.05]
+    # [1, 50]
+    if parameters[1] < 0.02 || parameters[1] > 0.2
+        parameters[1] = rand(Uniform(0.02, 0.2))
+    end
+    if parameters[2] < 5 || parameters[2] > 25
+        parameters[2] = rand(Uniform(5, 25))
+    end
+    if parameters[3] < 0.01 || parameters[3] > 0.05
+        parameters[3] = rand(Uniform(0.01, 0.05))
+    end
+    if parameters[4] < 1 || parameters[4] > 50
+        parameters[4] = rand(Uniform(1, 50))
+    end
+end
+
+function run_cgo_model(
+    # Число прогонов модели
+    num_cgo_runs::Int,
+    # Агенты
+    agents::Vector{InfectionStatus},
+    nsteps,
+    δt,
+    method_num,
+)
+    num_parameters = 26
+
+    seeds_size = 10
+
+    best_error = 9.0e12
+
+    error_seeds_arr = Array{Float64, 1}(undef, seeds_size)
+    β_parameter_seeds_array = Array{Float64, 1}(undef, seeds_size)
+    c_parameter_seeds_array = Array{Float64, 1}(undef, seeds_size)
+    γ_parameter_seeds_array = Array{Float64, 1}(undef, seeds_size)
+    I0_parameter_seeds_array = Array{Float64, 1}(undef, seeds_size)
+
+    error_offsprings_arr = Array{Float64, 2}(undef, seeds_size, 4)
+    β_parameter_offsprings_array = Array{Float64, 2}(undef, seeds_size, 4)
+    c_parameter_offsprings_array = Array{Float64, 2}(undef, seeds_size, 4)
+    γ_parameter_offsprings_array = Array{Float64, 2}(undef, seeds_size, 4)
+    I0_parameter_offsprings_array = Array{Float64, 2}(undef, seeds_size, 4)
+
+    β_parameter_best = 0.0
+    c_parameter_best = 0.0
+    γ_parameter_best = 0.0
+    I0_parameter_best = 0.0
+
+    β_parameter_mean_group = 0.0
+    c_parameter_mean_group = 0.0
+    γ_parameter_mean_group = 0.0
+    I0_parameter_mean_group = 0.0
+
+    # Латинский гиперкуб
+    latin_hypercube_plan, _ = LHCoptim(seeds_size, 4, 200)
+
+    # Интервалы значений параметров
+    points = scaleLHC(latin_hypercube_plan, [
+        (0.02, 0.2), # β
+        (5, 25), # c
+        (0.01, 0.05), # γ
+        (1, 50), # I0
+    ])
+
+    β_parameter_seeds_array = points[:, 1]
+    c_parameter_seeds_array = points[:, 2]
+    γ_parameter_seeds_array = points[:, 3]
+    I0_parameter_seeds_array = points[:, 4]
+
+    for i = 1:seeds_size
+        # Reset
+        for j in 1:length(agents)
+            if j <= I0_parameter_seeds_array[i] # I0
+                agents[j] = Infected
+            else
+                agents[j] = Susceptible
+            end
+        end
+        error_seeds_arr[i] = run_model(agents, nsteps, δt, β_parameter_seeds_array[i], c_parameter_seeds_array[i], γ_parameter_seeds_array[i])
+
+        if error_seeds_arr[i] < best_error
+            β_parameter_best = β_parameter_seeds_array[i]
+            c_parameter_best = c_parameter_seeds_array[i]
+            γ_parameter_best = γ_parameter_seeds_array[i]
+            I0_parameter_best = I0_parameter_seeds_array[i]
+            best_error = error_seeds_arr[i]
+        end
+
+        save(joinpath(@__DIR__, "cgo$(method_num)", "0", "results_$(i).jld"),
+            "error", error_seeds_arr[i],
+            "β_parameter", β_parameter_seeds_array[i],
+            "c_parameter", c_parameter_seeds_array[i],
+            "γ_parameter", γ_parameter_seeds_array[i],
+            "I0_parameter", I0_parameter_seeds_array[i])
+    end
+
+    for curr_run = 1:num_cgo_runs
+        for seed = 1:seeds_size
+            group_num = rand(1:seeds_size)
+            el_nums = zeros(Int, group_num)
+            for i = 1:group_num
+                rand_num = rand(1:seeds_size)
+                while rand_num in el_nums
+                    rand_num = rand(1:seeds_size)
+                end
+                el_nums[i] = rand_num
+            end
+
+            β_parameter_mean_group = mean(β_parameter_seeds_array[el_nums])
+            c_parameter_mean_group = mean(c_parameter_seeds_array[el_nums])
+            γ_parameter_mean_group = mean(γ_parameter_seeds_array[el_nums])
+            I0_parameter_mean_group = mean(I0_parameter_seeds_array[el_nums])
+
+            # I = rand(0:1, 6)
+            I = rand(1:2, 6)
+            Ir = rand(0:1, 2)
+
+            if I[1] == 0 && I[2] == 0
+                I[rand(1:2)] = 1
+            end
+            if I[3] == 0 && I[4] == 0
+                I[rand(3:4)] = 1
+            end
+            if I[5] == 0 && I[6] == 0
+                I[rand(5:6)] = 1
+            end
+
+            alpha = Array{Vector{Float64}, 1}(undef, 4)
+            # alpha[1] = rand(num_parameters)
+            # alpha[2] = 2 * rand(num_parameters) .- 1
+            # alpha[3] = Ir[1] .* rand(num_parameters) .+ 1
+            # alpha[4] = (Ir[2] .* rand(num_parameters) .+ (1 - Ir[2]))
+            alpha[1] = rand(num_parameters)
+            alpha[2] = 2 * rand(num_parameters)
+            alpha[3] = Ir[1] .* rand(num_parameters) .+ 1
+            alpha[4] = (Ir[2] .* rand(num_parameters) .+ (1 - Ir[2]))
+
+            ii = rand(1:4, 1, 3)
+            selected_alpha = alpha[ii]
+
+            β_parameter_offsprings_array[seed, 1] = β_parameter_seeds_array[seed] + selected_alpha[1][1] * (I[1] * β_parameter_best - I[2] * β_parameter_mean_group)
+            c_parameter_offsprings_array[seed, 1] = c_parameter_seeds_array[seed] + selected_alpha[1][2] * (I[1] * c_parameter_best - I[2] * c_parameter_mean_group)
+            γ_parameter_offsprings_array[seed, 1] = γ_parameter_seeds_array[seed] + selected_alpha[1][3] * (I[1] * γ_parameter_best - I[2] * γ_parameter_mean_group)
+            I0_parameter_offsprings_array[seed, 1] = I0_parameter_seeds_array[seed] + selected_alpha[1][4] * (I[1] * I0_parameter_best - I[2] * I0_parameter_mean_group)
+
+            c1 = [β_parameter_offsprings_array[seed, 1], c_parameter_offsprings_array[seed, 1], γ_parameter_offsprings_array[seed, 1], I0_parameter_offsprings_array[seed, 1]]
+            check_bounds(c1)
+
+            β_parameter_offsprings_array[seed, 1] = c1[1]
+            c_parameter_offsprings_array[seed, 1] = c1[2]
+            γ_parameter_offsprings_array[seed, 1] = c1[3]
+            I0_parameter_offsprings_array[seed, 1] = c1[4]
+
+            # Reset
+            for j in 1:length(agents)
+                if j <= c1[4] # I0
+                    agents[j] = Infected
+                else
+                    agents[j] = Susceptible
+                end
+            end
+            error_offsprings_arr[seed, 1] = run_model(agents, nsteps, δt, c1[1], c1[2], c1[3])
+
+            β_parameter_offsprings_array[seed, 2] = β_parameter_best + selected_alpha[2][1] * (I[3] * β_parameter_mean_group - I[4] * β_parameter_seeds_array[seed])
+            c_parameter_offsprings_array[seed, 2] = c_parameter_best + selected_alpha[2][2] * (I[3] * c_parameter_mean_group - I[4] * c_parameter_seeds_array[seed])
+            γ_parameter_offsprings_array[seed, 2] = γ_parameter_best + selected_alpha[2][3] * (I[3] * γ_parameter_mean_group - I[4] * γ_parameter_seeds_array[seed])
+            I0_parameter_offsprings_array[seed, 2] = I0_parameter_best + selected_alpha[2][4] * (I[3] * I0_parameter_mean_group - I[4] * I0_parameter_seeds_array[seed])
+
+            # β_parameter_offsprings_array[seed, 2] = β_parameter_best + selected_alpha[2][1] * (I[3] * β_parameter_seeds_array[seed] - I[4] * β_parameter_mean_group)
+            # c_parameter_offsprings_array[seed, 2] = c_parameter_best + selected_alpha[2][2] * (I[3] * c_parameter_seeds_array[seed] - I[4] * c_parameter_mean_group)
+            # γ_parameter_offsprings_array[seed, 2] = γ_parameter_best + selected_alpha[2][3] * (I[3] * γ_parameter_seeds_array[seed] - I[4] * γ_parameter_mean_group)
+            # I0_parameter_offsprings_array[seed, 2] = I0_parameter_best + selected_alpha[2][4] * (I[3] * I0_parameter_seeds_array[seed] - I[4] * I0_parameter_mean_group)
+
+            c2 = [β_parameter_offsprings_array[seed, 2], c_parameter_offsprings_array[seed, 2], γ_parameter_offsprings_array[seed, 2], I0_parameter_offsprings_array[seed, 2]]
+            check_bounds(c2)
+
+            β_parameter_offsprings_array[seed, 2] = c2[1]
+            c_parameter_offsprings_array[seed, 2] = c2[2]
+            γ_parameter_offsprings_array[seed, 2] = c2[3]
+            I0_parameter_offsprings_array[seed, 2] = c2[4]
+
+            # Reset
+            for j in 1:length(agents)
+                if j <= c2[4] # I0
+                    agents[j] = Infected
+                else
+                    agents[j] = Susceptible
+                end
+            end
+            error_offsprings_arr[seed, 2] = run_model(agents, nsteps, δt, c2[1], c2[2], c2[3])
+
+            β_parameter_offsprings_array[seed, 3] = β_parameter_mean_group + selected_alpha[3][1] * (I[5] * β_parameter_best - I[6] * β_parameter_seeds_array[seed])
+            c_parameter_offsprings_array[seed, 3] = c_parameter_mean_group + selected_alpha[3][2] * (I[5] * c_parameter_best - I[6] * c_parameter_seeds_array[seed])
+            γ_parameter_offsprings_array[seed, 3] = γ_parameter_mean_group + selected_alpha[3][3] * (I[5] * γ_parameter_best - I[6] * γ_parameter_seeds_array[seed])
+            I0_parameter_offsprings_array[seed, 3] = I0_parameter_mean_group + selected_alpha[3][4] * (I[5] * I0_parameter_best - I[6] * I0_parameter_seeds_array[seed])
+
+            # β_parameter_offsprings_array[seed, 3] = β_parameter_mean_group + selected_alpha[3][1] * (I[5] * β_parameter_seeds_array[seed] - I[6] * β_parameter_best)
+            # c_parameter_offsprings_array[seed, 3] = c_parameter_mean_group + selected_alpha[3][2] * (I[5] * c_parameter_seeds_array[seed] - I[6] * c_parameter_best)
+            # γ_parameter_offsprings_array[seed, 3] = γ_parameter_mean_group + selected_alpha[3][3] * (I[5] * γ_parameter_seeds_array[seed] - I[6] * γ_parameter_best)
+            # I0_parameter_offsprings_array[seed, 3] = I0_parameter_mean_group + selected_alpha[3][4] * (I[5] * I0_parameter_seeds_array[seed] - I[6] * I0_parameter_best)
+
+            c3 = [β_parameter_offsprings_array[seed, 3], c_parameter_offsprings_array[seed, 3], γ_parameter_offsprings_array[seed, 3], I0_parameter_offsprings_array[seed, 3]]
+            check_bounds(c3)
+
+            β_parameter_offsprings_array[seed, 3] = c3[1]
+            c_parameter_offsprings_array[seed, 3] = c3[2]
+            γ_parameter_offsprings_array[seed, 3] = c3[3]
+            I0_parameter_offsprings_array[seed, 3] = c3[4]
+
+            # Reset
+            for j in 1:length(agents)
+                if j <= c3[4] # I0
+                    agents[j] = Infected
+                else
+                    agents[j] = Susceptible
+                end
+            end
+            error_offsprings_arr[seed, 3] = run_model(agents, nsteps, δt, c3[1], c3[2], c3[3])
+
+
+            # if rand() < 1 / 4
+            #     β_parameter_offsprings_array[seed, 4] = rand(Uniform(0.02, 0.2))
+            # end
+            # if rand() < 1 / 4
+            #     c_parameter_offsprings_array[seed, 4] = rand(Uniform(5, 25))
+            # end
+            # if rand() < 1 / 4
+            #     γ_parameter_offsprings_array[seed, 4] = rand(Uniform(0.01, 0.05))
+            # end
+            # if rand() < 1 / 4
+            #     I0_parameter_offsprings_array[seed, 4] = rand(Uniform(1, 50))
+            # end
+
+            β_parameter_offsprings_array[seed, 4] = β_parameter_seeds_array[seed]
+            c_parameter_offsprings_array[seed, 4] = c_parameter_seeds_array[seed]
+            γ_parameter_offsprings_array[seed, 4] = γ_parameter_seeds_array[seed]
+            I0_parameter_offsprings_array[seed, 4] = I0_parameter_seeds_array[seed]
+
+            mutation_params = rand(1:4, rand(1:4))
+            if 1 in mutation_params
+                β_parameter_offsprings_array[seed, 4] = rand(Uniform(0.02, 0.2))
+            end
+            if 2 in mutation_params
+                c_parameter_offsprings_array[seed, 4] = rand(Uniform(5, 25))
+            end
+            if 3 in mutation_params
+                γ_parameter_offsprings_array[seed, 4] = rand(Uniform(0.01, 0.05))
+            end
+            if 4 in mutation_params
+                I0_parameter_offsprings_array[seed, 4] = rand(Uniform(1, 50))
+            end
+
+            # Reset
+            for j in 1:length(agents)
+                if j <= I0_parameter_offsprings_array[seed, 4] # I0
+                    agents[j] = Infected
+                else
+                    agents[j] = Susceptible
+                end
+            end
+            error_offsprings_arr[seed, 4] = run_model(agents, nsteps, δt, β_parameter_offsprings_array[seed, 4], c_parameter_offsprings_array[seed, 4], γ_parameter_offsprings_array[seed, 4])
+        end
+
+        args = [a[1] for a in arg_n_smallest_values(vcat(error_seeds_arr, error_offsprings_arr[:, 1], error_offsprings_arr[:, 2], error_offsprings_arr[:, 3], error_offsprings_arr[:, 4]), seeds_size)]
+
+        β_parameter_concatenated = vcat(β_parameter_seeds_array, β_parameter_offsprings_array[:, 1], β_parameter_offsprings_array[:, 2], β_parameter_offsprings_array[:, 3], β_parameter_offsprings_array[:, 4])
+        c_parameter_concatenated = vcat(c_parameter_seeds_array, c_parameter_offsprings_array[:, 1], c_parameter_offsprings_array[:, 2], c_parameter_offsprings_array[:, 3], c_parameter_offsprings_array[:, 4])
+        γ_parameter_concatenated = vcat(γ_parameter_seeds_array, γ_parameter_offsprings_array[:, 1], γ_parameter_offsprings_array[:, 2], γ_parameter_offsprings_array[:, 3], γ_parameter_offsprings_array[:, 4])
+        I0_parameter_concatenated = vcat(I0_parameter_seeds_array, I0_parameter_offsprings_array[:, 1], I0_parameter_offsprings_array[:, 2], I0_parameter_offsprings_array[:, 3], I0_parameter_offsprings_array[:, 4])
+        error_seeds_concatenated = vcat(error_seeds_arr, error_offsprings_arr[:, 1], error_offsprings_arr[:, 2], error_offsprings_arr[:, 3], error_offsprings_arr[:, 4])
+
+        println("Run = $(curr_run)")
+        for i = 1:seeds_size
+            β_parameter_seeds_array[i] = β_parameter_concatenated[args[i]]
+            c_parameter_seeds_array[i] = c_parameter_concatenated[args[i]]
+            γ_parameter_seeds_array[i] = γ_parameter_concatenated[args[i]]
+            I0_parameter_seeds_array[i] = I0_parameter_concatenated[args[i]]
+            error_seeds_arr[i] = error_seeds_concatenated[args[i]]
+
+            if error_seeds_arr[i] < best_error
+                β_parameter_best = β_parameter_seeds_array[i]
+                c_parameter_best = c_parameter_seeds_array[i]
+                γ_parameter_best = γ_parameter_seeds_array[i]
+                I0_parameter_best = I0_parameter_seeds_array[i]
+                best_error = error_seeds_arr[i]
+            end
+
+            println("Seed = $(i): $(error_seeds_arr[i])")
+
+            save(joinpath(@__DIR__, "cgo$(method_num)", "$(curr_run)", "results_$(i).jld"),
+                "error", error_seeds_arr[i],
+                "β_parameter", β_parameter_seeds_array[i],
+                "c_parameter", c_parameter_seeds_array[i],
+                "γ_parameter", γ_parameter_seeds_array[i],
+                "I0_parameter", I0_parameter_seeds_array[i],
+            )
+        end
+    end
+end
+
 function main()
     # Time domain
     δt = 0.1
@@ -2449,16 +2914,16 @@ function main()
     # I0 = 10
     agents_initial = Array{InfectionStatus}(undef, N)
 
-    # for i in 1:N
-    #     if i <= 25
-    #         s = Infected
-    #     else
-    #         s = Susceptible
-    #     end
-    #     agents_initial[i] = s
-    # end
-    # run_model(agents_initial, nsteps, δt, 0.05, 10.0, 0.02)
-    # return
+    for i in 1:N
+        if i <= 25
+            s = Infected
+        else
+            s = Susceptible
+        end
+        agents_initial[i] = s
+    end
+    run_model(agents_initial, nsteps, δt, 0.05, 10.0, 0.02)
+    return
 
     # for i in 1:N
     #     if i <= 19.143075017374898
@@ -2487,12 +2952,15 @@ function main()
     # lhs_simulations(100,agents_initial,nsteps,δt)
     # 10 sec
     # @time lhs_simulations(10, agents_initial, nsteps, δt, 10)
+    # lhs_simulations_series(10, agents_initial, nsteps, δt, 10)
 
-    @time mcmc_simulations(200, agents_initial, nsteps, δt, 10)
+    # @time mcmc_simulations(200, agents_initial, nsteps, δt, 10)
     # @time mcmc_simulations_lhs(200, agents_initial, nsteps, δt, 1)
     # @time run_surrogate_model(200, agents_initial, nsteps, δt, 9)
     # @time run_swarm_model(20, agents_initial, nsteps, δt, 1)
     # @time genetic_algorithm(20, agents_initial, nsteps, δt, 1)
+    # @time run_cgo_model(5, agents_initial, nsteps, δt, 1)
+
 
     # mcmc_simulations_metropolis(250,agents_initial,nsteps,δt)
     # mcmc_simulations_metropolis_lhs(250,agents_initial,nsteps,δt)

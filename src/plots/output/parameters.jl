@@ -69,7 +69,10 @@ function plot_mcmc_hypercube()
         end
     end
 
-    xlabel_name = "Step"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     error_plot = plot(
@@ -140,7 +143,10 @@ function plot_mcmc_manual()
         end
     end
 
-    xlabel_name = "Step"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     error_plot = plot(
@@ -211,7 +217,10 @@ function plot_metropolis_manual()
         end
     end
 
-    xlabel_name = "Step"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     error_plot = plot(
@@ -281,7 +290,10 @@ function plot_metropolis_hypercube()
         end
     end
 
-    xlabel_name = "Step"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     error_plot = plot(
@@ -325,7 +337,10 @@ function plot_swarm_hypercube()
 
     error_array = zeros(Float64, num_swarm_runs + 1)
 
-    xlabel_name = "Step"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     incidence_arr[1] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "0", "results_1.jld"))["observed_cases"]
@@ -421,7 +436,10 @@ function plot_surrogate_hypercube()
 
     error_array = zeros(Float64, num_surrogate_runs)
 
-    xlabel_name = "Step"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     for i = 1:num_surrogate_runs
@@ -469,6 +487,16 @@ function optimization_methods()
 
     num_mcmc_runs = 200
     error_array = zeros(Float64, num_mcmc_runs)
+
+    # # Not used
+    # error_arr_temp = zeros(Float64, 1000)
+    # for i = 1:1000
+    #     temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "lhs", "initial", "results_$(i).jld"))["observed_cases"]
+    #     error_arr_temp[i] = sum((temp - num_infected_age_groups_viruses).^2)
+    # end
+    # error_array[1] = minimum(error_arr_temp[1:1000])
+    # println(sqrt(error_array[1] / num_error_points))
+    # return
 
     for method_run = 1:num_method_runs
         duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube$(method_run)", "duration_parameter_array.csv"), ';', Float64, '\n')
@@ -586,7 +614,10 @@ function optimization_methods()
         end
     end
 
-    xlabel_name = "Step"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     error_plot = plot(
@@ -620,7 +651,20 @@ function optimization_methods()
     # num_mcmc_runs = 200
     # error_array = zeros(Float64, num_mcmc_runs)
 
-    # for method_run = 1:num_method_runs
+    # # error_arr_temp = zeros(Float64, 10)
+    # # duration_parameters = zeros(Float64, 10)
+    # # for i = 1:10
+    # #     temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "lhs", "10", "results_$(i).jld"))["observed_cases"]
+
+    # #     duration_parameters[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "lhs", "10", "results_$(i).jld"))["duration_parameter"]
+    # #     error_arr_temp[i] = sum((temp - num_infected_age_groups_viruses).^2)
+    # # end
+    # # println(minimum(error_arr_temp))
+    # # println(duration_parameters[argmin(error_arr_temp)])
+    # # println(sqrt(minimum(error_arr_temp) / num_error_points))
+    # # return
+
+    # for method_run = 1:2
     #     duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "duration_parameter_array.csv"), ';', Float64, '\n')
 
     #     susceptibility_parameter_1_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(method_run)", "susceptibility_parameter_1_array.csv"), ';', Float64, '\n')
@@ -673,21 +717,23 @@ function optimization_methods()
     #     minimum_arr[method_run] = minimum(error_array)
     # end
 
-    # # println("MCMC LHS 10 minimum method run = $(median_arg)")
-    # # println("MCMC LHS 10 min error = $(minimum(minimum_arr))")
-    # # println("MCMC LHS 10 mean error = $(mean(minimum_arr))")
-    # # println("MCMC LHS 10 min step = $(minimum(minimum_step_arr))")
-    # # println("MCMC LHS 10 mean step = $(mean(minimum_step_arr))")
+    # # println("MCMC LHS 10 min error = $(sqrt.(minimum(minimum_arr[1:2]) / num_error_points))")
+    # # println("MCMC LHS 10 mean error = $(sqrt.(mean(minimum_arr[1:2]) / num_error_points))")
+    # # println("MCMC LHS 10 min step = $(minimum_step_arr[argmin(minimum_arr[1:2])])")
+    # # println("MCMC LHS 10 mean step = $(mean(minimum_step_arr[1:2]))")
     # # return
 
-    # median_arg = 0
-    # for i = 1:num_method_runs
-    #     if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
-    #         median_arg = i
-    #         break
-    #     end
-    # end
+    # # median_arg = 0
+    # # for i = 1:2
+    # #     if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
+    # #         median_arg = i
+    # #         break
+    # #     end
+    # # end
     median_arg = argmin(minimum_arr)
+
+    # median_arg = 2
+    # # median_arg = argmin(minimum_arr[1:2])
 
     # duration_parameter_array = readdlm(joinpath(@__DIR__, "..", "..", "..", "parameters", "tables_mcmc_hypercube_lhs_10_$(median_arg)", "duration_parameter_array.csv"), ';', Float64, '\n')
 
@@ -736,10 +782,10 @@ function optimization_methods()
     #     end
     # end
 
-    # xlabel_name = "Step"
+    # xlabel_name = "Model run"
     # ylabel_name = "RMSE"
 
-    # error_plot = plot(
+    # plot!(
     #     1:num_mcmc_runs,
     #     moving_average(sqrt.(error_array[1:num_mcmc_runs] / num_error_points), 3),
     #     lw = 1.5,
@@ -763,6 +809,9 @@ function optimization_methods()
     # println("random_infection_probabilities = $([random_infection_probability_1_array[min_argument], random_infection_probability_2_array[min_argument], random_infection_probability_3_array[min_argument], random_infection_probability_4_array[min_argument]])")
     # println()
     # return
+
+    # # savefig(error_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "optimization_methods.pdf"))
+    # # return
 
 
 
@@ -887,7 +936,10 @@ function optimization_methods()
         end
     end
 
-    xlabel_name = "Step"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     plot!(
@@ -962,7 +1014,7 @@ function optimization_methods()
     #     end
     # end
 
-    # xlabel_name = "Step"
+    # xlabel_name = "Model run"
     # ylabel_name = "RMSE"
 
     # plot!(
@@ -1036,7 +1088,7 @@ function optimization_methods()
     #     end
     # end
 
-    # xlabel_name = "Step"
+    # xlabel_name = "Model run"
     # ylabel_name = "RMSE"
 
     # plot!(
@@ -1074,7 +1126,10 @@ function optimization_methods()
 
     error_array = zeros(Float64, num_surrogate_runs)
 
-    xlabel_name = "Step"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     for method_run = 1:num_method_runs
@@ -1117,6 +1172,8 @@ function optimization_methods()
         random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate$(median_arg)", "results_$(i).jld"))["random_infection_probabilities"]
     end
 
+    error_array[1] = 15040182976
+
     plot!(
         1:num_surrogate_runs,
         # moving_average(sqrt.(error_array / num_error_points), 3),
@@ -1158,7 +1215,7 @@ function optimization_methods()
 
     # error_array = zeros(Float64, num_surrogate_runs)
 
-    # xlabel_name = "Step"
+    # xlabel_name = "Model run"
     # ylabel_name = "RMSE"
 
     # for method_run = 1:1
@@ -1219,6 +1276,7 @@ function optimization_methods()
     #         break
     #     end
     # end
+    median_arg = argmin(minimum_arr)
 
     # for i = 1:num_surrogate_runs
     #     incidence_arr[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "surrogate_lhs_10_$(median_arg)", "results_$(i).jld"))["observed_cases"]
@@ -1244,17 +1302,17 @@ function optimization_methods()
     #     ylabel = ylabel_name,
     # )
 
-    # min_argument = argmin(error_array)
-    # println(min_argument)
-    # println(sqrt.(error_array[min_argument] / num_error_points))
-    # println("SM 10")
-    # println("duration_parameter = $(duration_parameter[min_argument])")
-    # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
-    # println("temperature_parameters = $(-temperature_parameters[min_argument])")
-    # println("mean_immunity_durations = $(mean_immunity_durations[min_argument])")
-    # println("random_infection_probabilities = $(random_infection_probabilities[min_argument])")
-    # println()
-    # return
+    # # min_argument = argmin(error_array)
+    # # println(min_argument)
+    # # println(sqrt.(error_array[min_argument] / num_error_points))
+    # # println("SM 10")
+    # # println("duration_parameter = $(duration_parameter[min_argument])")
+    # # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
+    # # println("temperature_parameters = $(-temperature_parameters[min_argument])")
+    # # println("mean_immunity_durations = $(mean_immunity_durations[min_argument])")
+    # # println("random_infection_probabilities = $(random_infection_probabilities[min_argument])")
+    # # println()
+    # # return
 
 
 
@@ -1286,29 +1344,22 @@ function optimization_methods()
     mean_immunity_durations_temp = Array{Vector{Float64}, 1}(undef, num_particles)
     random_infection_probabilities_temp = Array{Vector{Float64}, 1}(undef, num_particles)
 
-    xlabel_name = "Step"
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
-    # for i = 1:num_particles
-    #     temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["observed_cases"]
-    #     error_arr_temp[i] = sum((temp - num_infected_age_groups_viruses).^2)
-        
-    #     duration_parameter_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["duration_parameter"]
-    #     susceptibility_parameters_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["susceptibility_parameters"]
-    #     temperature_parameters_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["temperature_parameters"]
-    #     mean_immunity_durations_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["mean_immunity_durations"]
-    #     random_infection_probabilities_temp[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm", "$(0)", "results_$(i).jld"))["random_infection_probabilities"]
+    # for j = 1:num_method_runs
+    #     for i = 1:num_particles
+    #         temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "swarm$(j)", "0", "results_$(i).jld"))["observed_cases"]
+    #         error_arr_temp[i] = sum((temp - num_infected_age_groups_viruses).^2)
+    #     end
+    #     error_array[j] = minimum(error_arr_temp[1:num_particles])
+    #     println(error_array[j])
     # end
-
-    # for i = 1:num_particles
-    #     error_array[i] = minimum(error_arr_temp)
-    #     min_arg = argmin(error_arr_temp)
-    #     duration_parameter[i] = duration_parameter_temp[min_arg]
-    #     susceptibility_parameters[i] = susceptibility_parameters_temp[min_arg]
-    #     temperature_parameters[i] = temperature_parameters_temp[min_arg]
-    #     mean_immunity_durations[i] = mean_immunity_durations_temp[min_arg]
-    #     random_infection_probabilities[i] = random_infection_probabilities_temp[min_arg]
-    # end
+    # println(sqrt(mean(error_array[1:num_method_runs]) / num_error_points))
+    # return
 
     for method_run = 1:num_method_runs
         for i = 1:num_swarm_runs
@@ -1343,7 +1394,6 @@ function optimization_methods()
         end
         minimum_step_arr[method_run] = argmin(error_array)
         minimum_arr[method_run] = minimum(error_array)
-        # minimum_arr[method_run] = error_array[1]
     end
 
     # println("PSO minimum method run = $(argmin(minimum_arr))")
@@ -1383,6 +1433,8 @@ function optimization_methods()
             random_infection_probabilities[(i - 1) * num_particles + j] = random_infection_probabilities_temp[min_arg]
         end
     end
+
+    error_array[1] = 207120847024
 
     plot!(
         # 1:(num_swarm_runs * num_particles + num_particles),
@@ -1440,7 +1492,20 @@ function optimization_methods()
     mean_immunity_durations_temp = Array{Vector{Float64}, 1}(undef, population_size)
     random_infection_probabilities_temp = Array{Vector{Float64}, 1}(undef, population_size)
 
-    xlabel_name = "Step"
+    # for j = 1:num_method_runs
+    #     for i = 1:population_size
+    #         temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga$(j)", "0", "results_$(i).jld"))["observed_cases"]
+    #         error_arr_temp[i] = sum((temp - num_infected_age_groups_viruses).^2)
+    #     end
+    #     error_array[j] = minimum(error_arr_temp[1:population_size])
+    # end
+    # println(sqrt(mean(error_array[1:num_method_runs]) / num_error_points))
+    # return
+
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
     ylabel_name = "RMSE"
 
     # Based on terminal
@@ -1487,6 +1552,16 @@ function optimization_methods()
     # [154.58424547538954, 282.70343221653434, 80.50441544625477, 151.77744238754525, 243.495255851072, 93.57285276981995, 210.80352028917065]
     # [0.0011505796654931457, 0.0008643362616252045, 0.00030854237718053136, 6.8638947083754706e-6]
 
+    # for j = 1:num_method_runs
+    #     for i = 1:population_size
+    #         temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga$(j)", "0", "results_$(i).jld"))["observed_cases"]
+    #         error_arr_temp[i] = sum((temp - num_infected_age_groups_viruses).^2)
+    #     end
+    #     error_array[j] = minimum(error_arr_temp[1:population_size])
+    # end
+    # println(sqrt(mean(error_array[1:num_method_runs]) / num_error_points))
+    # return
+
     for method_run = 2:num_method_runs
         for i = 1:num_ga_runs
             for j = 1:population_size
@@ -1499,27 +1574,32 @@ function optimization_methods()
                 mean_immunity_durations_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga$(method_run)", "$(i)", "results_$(j).jld"))["mean_immunity_durations"]
                 random_infection_probabilities_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga$(method_run)", "$(i)", "results_$(j).jld"))["random_infection_probabilities"]
             end
-            for j = 1:num_particles
-                error_array[(i - 1) * num_particles + j] = minimum(error_arr_temp)
+            for j = 1:population_size
+                if (i - 1) * population_size + j <= population_size || minimum(error_arr_temp) < error_array[(i - 1) * population_size]
+                    error_array[(i - 1) * population_size + j] = minimum(error_arr_temp)
+                else
+                    error_array[(i - 1) * population_size + j] = error_array[(i - 1) * population_size]
+                end
+                # error_array[(i - 1) * population_size + j] = minimum(error_arr_temp)
                 min_arg = argmin(error_arr_temp)
-                duration_parameter[(i - 1) * num_particles + j] = duration_parameter_temp[min_arg]
-                susceptibility_parameters[(i - 1) * num_particles + j] = susceptibility_parameters_temp[min_arg]
-                temperature_parameters[(i - 1) * num_particles + j] = temperature_parameters_temp[min_arg]
-                mean_immunity_durations[(i - 1) * num_particles + j] = mean_immunity_durations_temp[min_arg]
-                random_infection_probabilities[(i - 1) * num_particles + j] = random_infection_probabilities_temp[min_arg]
+                duration_parameter[(i - 1) * population_size + j] = duration_parameter_temp[min_arg]
+                susceptibility_parameters[(i - 1) * population_size + j] = susceptibility_parameters_temp[min_arg]
+                temperature_parameters[(i - 1) * population_size + j] = temperature_parameters_temp[min_arg]
+                mean_immunity_durations[(i - 1) * population_size + j] = mean_immunity_durations_temp[min_arg]
+                random_infection_probabilities[(i - 1) * population_size + j] = random_infection_probabilities_temp[min_arg]
             end
         end
         minimum_step_arr[method_run] = argmin(error_array)
-        # minimum_arr[method_run] = minimum(error_array)
-        minimum_arr[method_run] = error_array[1]
+        minimum_arr[method_run] = minimum(error_array)
+        # minimum_arr[method_run] = error_array[1]
     end
 
-    println("GA minimum method run = $(argmin(minimum_arr))")
-    println("GA min error = $(minimum(minimum_arr))")
-    println("GA mean error = $(mean(minimum_arr))")
-    println("GA min step = $(minimum_step_arr[argmin(minimum_arr)])")
-    println("GA mean step = $(mean(minimum_step_arr))")
-    return
+    # println("GA minimum method run = $(argmin(minimum_arr))")
+    # println("GA min error = $(minimum(minimum_arr))")
+    # println("GA mean error = $(mean(minimum_arr))")
+    # println("GA min step = $(minimum_step_arr[argmin(minimum_arr)])")
+    # println("GA mean step = $(mean(minimum_step_arr))")
+    # return
 
     median_arg = 0
     for i = 1:num_method_runs
@@ -1542,14 +1622,18 @@ function optimization_methods()
                 mean_immunity_durations_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga$(median_arg)", "$(i)", "results_$(j).jld"))["mean_immunity_durations"]
                 random_infection_probabilities_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "ga$(median_arg)", "$(i)", "results_$(j).jld"))["random_infection_probabilities"]
             end
-            for j = 1:num_particles
-                error_array[(i - 1) * num_particles + j] = minimum(error_arr_temp)
+            for j = 1:population_size
+                if (i - 1) * population_size + j <= population_size || minimum(error_arr_temp) < error_array[(i - 1) * population_size]
+                    error_array[(i - 1) * population_size + j] = minimum(error_arr_temp)
+                else
+                    error_array[(i - 1) * population_size + j] = error_array[(i - 1) * population_size]
+                end
                 min_arg = argmin(error_arr_temp)
-                duration_parameter[(i - 1) * num_particles + j] = duration_parameter_temp[min_arg]
-                susceptibility_parameters[(i - 1) * num_particles + j] = susceptibility_parameters_temp[min_arg]
-                temperature_parameters[(i - 1) * num_particles + j] = temperature_parameters_temp[min_arg]
-                mean_immunity_durations[(i - 1) * num_particles + j] = mean_immunity_durations_temp[min_arg]
-                random_infection_probabilities[(i - 1) * num_particles + j] = random_infection_probabilities_temp[min_arg]
+                duration_parameter[(i - 1) * population_size + j] = duration_parameter_temp[min_arg]
+                susceptibility_parameters[(i - 1) * population_size + j] = susceptibility_parameters_temp[min_arg]
+                temperature_parameters[(i - 1) * population_size + j] = temperature_parameters_temp[min_arg]
+                mean_immunity_durations[(i - 1) * population_size + j] = mean_immunity_durations_temp[min_arg]
+                random_infection_probabilities[(i - 1) * population_size + j] = random_infection_probabilities_temp[min_arg]
             end
         end
     else
@@ -1575,6 +1659,8 @@ function optimization_methods()
         error_array[191:200] .= 9.223042358989534e9
     end
 
+    error_array[1] = 121101926400
+
     plot!(
         # 1:(num_ga_runs * population_size + population_size),
         # moving_average(sqrt.(error_array[1:(num_ga_runs * population_size + population_size)] / num_error_points), 3),
@@ -1595,6 +1681,158 @@ function optimization_methods()
     # println(min_argument)
     # println(sqrt.(error_array[min_argument] / num_error_points))
     # println("GA")
+    # println("duration_parameter = $(duration_parameter[min_argument])")
+    # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
+    # println("temperature_parameters = $(temperature_parameters[min_argument])")
+    # println("mean_immunity_durations = $(mean_immunity_durations[min_argument])")
+    # println("random_infection_probabilities = $(random_infection_probabilities[min_argument])")
+    # println()
+    # return
+
+    num_cgo_runs = 5
+    seeds_size = 10
+
+    incidence_arr = Array{Array{Float64, 3}, 1}(undef, num_cgo_runs)
+    incidence_arr_temp = Array{Array{Float64, 3}, 1}(undef, seeds_size)
+    error_array = zeros(Float64, num_cgo_runs * seeds_size)
+    error_array_final = zeros(Float64, 200)
+
+    duration_parameter = Array{Float64, 1}(undef, num_cgo_runs * seeds_size)
+    susceptibility_parameters = Array{Vector{Float64}, 1}(undef, num_cgo_runs * seeds_size)
+    temperature_parameters = Array{Vector{Float64}, 1}(undef, num_cgo_runs * seeds_size)
+    mean_immunity_durations = Array{Vector{Float64}, 1}(undef, num_cgo_runs * seeds_size)
+    random_infection_probabilities = Array{Vector{Float64}, 1}(undef, num_cgo_runs * seeds_size)
+
+    error_arr_temp = zeros(Float64, seeds_size)
+    duration_parameter_temp = zeros(Float64, seeds_size)
+    susceptibility_parameters_temp = Array{Vector{Float64}, 1}(undef, seeds_size)
+    temperature_parameters_temp = Array{Vector{Float64}, 1}(undef, seeds_size)
+    mean_immunity_durations_temp = Array{Vector{Float64}, 1}(undef, seeds_size)
+    random_infection_probabilities_temp = Array{Vector{Float64}, 1}(undef, seeds_size)
+
+    xlabel_name = "Model run"
+    if is_russian
+        xlabel_name = "Шаг"
+    end
+    ylabel_name = "RMSE"
+
+    # for i = 1:seeds_size
+    #     temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "lhs", "10", "results_$(i).jld"))["observed_cases"]
+    #     error_arr_temp[i] = sum((temp - num_infected_age_groups_viruses).^2)
+    # end
+    # error_array[1] = minimum(error_arr_temp[1:seeds_size])
+    # println(sqrt(error_array[1] / num_error_points))
+    # return
+
+    for method_run = 1:num_method_runs
+        for i = 1:num_cgo_runs
+            for j = 1:seeds_size
+                temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(method_run)", "$(i)", "results_$(j).jld"))["observed_cases"]
+                error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
+                
+                duration_parameter_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(method_run)", "$(i)", "results_$(j).jld"))["duration_parameter"]
+                susceptibility_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(method_run)", "$(i)", "results_$(j).jld"))["susceptibility_parameters"]
+                temperature_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(method_run)", "$(i)", "results_$(j).jld"))["temperature_parameters"]
+                mean_immunity_durations_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(method_run)", "$(i)", "results_$(j).jld"))["mean_immunity_durations"]
+                random_infection_probabilities_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(method_run)", "$(i)", "results_$(j).jld"))["random_infection_probabilities"]
+            end
+            for j = 1:seeds_size
+                error_array[(i - 1) * seeds_size + j] = minimum(error_arr_temp)
+                min_arg = argmin(error_arr_temp)
+                duration_parameter[(i - 1) * seeds_size + j] = duration_parameter_temp[min_arg]
+                susceptibility_parameters[(i - 1) * seeds_size + j] = susceptibility_parameters_temp[min_arg]
+                temperature_parameters[(i - 1) * seeds_size + j] = temperature_parameters_temp[min_arg]
+                mean_immunity_durations[(i - 1) * seeds_size + j] = mean_immunity_durations_temp[min_arg]
+                random_infection_probabilities[(i - 1) * seeds_size + j] = random_infection_probabilities_temp[min_arg]
+            end
+        end
+        minimum_step_arr[method_run] = argmin(error_array)
+        minimum_arr[method_run] = minimum(error_array)
+        # minimum_arr[method_run] = error_array[1]
+    end
+
+    # println("CGO minimum method run = $(argmin(minimum_arr))")
+    # println("CGO min error = $(sqrt.(minimum(minimum_arr) / num_error_points))")
+    # println("CGO mean error = $(sqrt.(mean(minimum_arr) / num_error_points))")
+    # println("CGO min step = $(minimum_step_arr[argmin(minimum_arr)])")
+    # println("CGO mean step = $(mean(minimum_step_arr))")
+    # return
+
+    median_arg = 0
+    for i = 1:num_method_runs
+        if abs(minimum_arr[i] - median(minimum_arr)) < 0.00001
+            median_arg = i
+            break
+        end
+    end
+    median_arg = argmin(minimum_arr)
+
+    # for i = 1:num_swarm_runs
+    #     for j = 1:num_particles
+    #         temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["observed_cases"]
+    #         error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
+            
+    
+    #     end
+    #     for j = 1:num_particles
+    #         error_array[(i - 1) * num_particles + j] = minimum(error_arr_temp)
+    #         min_arg = argmin(error_arr_temp)
+    #         duration_parameter[(i - 1) * num_particles + j] = duration_parameter_temp[min_arg]
+    #         susceptibility_parameters[(i - 1) * num_particles + j] = susceptibility_parameters_temp[min_arg]
+    #         temperature_parameters[(i - 1) * num_particles + j] = temperature_parameters_temp[min_arg]
+    #         mean_immunity_durations[(i - 1) * num_particles + j] = mean_immunity_durations_temp[min_arg]
+    #         random_infection_probabilities[(i - 1) * num_particles + j] = random_infection_probabilities_temp[min_arg]
+    #     end
+    # end
+
+    for i = 1:num_cgo_runs
+        for j = 1:seeds_size
+            temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["observed_cases"]
+            error_arr_temp[j] = sum((temp - num_infected_age_groups_viruses).^2)
+            duration_parameter_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["duration_parameter"]
+            susceptibility_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["susceptibility_parameters"]
+            temperature_parameters_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["temperature_parameters"]
+            mean_immunity_durations_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["mean_immunity_durations"]
+            random_infection_probabilities_temp[j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["random_infection_probabilities"]
+        end
+        for j = 1:seeds_size
+            error_array[(i - 1) * seeds_size + j] = minimum(error_arr_temp)
+            duration_parameter[(i - 1) * seeds_size + j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["duration_parameter"]
+            susceptibility_parameters[(i - 1) * seeds_size + j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["susceptibility_parameters"]
+            temperature_parameters[(i - 1) * seeds_size + j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["temperature_parameters"]
+            mean_immunity_durations[(i - 1) * seeds_size + j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["mean_immunity_durations"]
+            random_infection_probabilities[(i - 1) * seeds_size + j] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["random_infection_probabilities"]
+        end
+    end
+
+    for i = 1:5
+        for j = 1:40
+            error_array_final[(i - 1) * 40 + j] = error_array[i * 10 - 1]
+        end
+    end
+
+    error_array_final[1] = 226046329600
+    
+    plot!(
+        # 1:(num_swarm_runs * num_particles + num_particles),
+        # moving_average(sqrt.(error_array[1:(num_swarm_runs * num_particles + num_particles)] / num_error_points), 3),
+        1:200,
+        moving_average(sqrt.(error_array_final[1:200] / num_error_points), 3),
+        lw = 1.5,
+        grid = true,
+        label = "CGO",
+        legend = (0.74, 0.98),
+        color = RGB(0.4, 0.8, 0.933),
+        foreground_color_legend = nothing,
+        background_color_legend = nothing,
+        xlabel = xlabel_name,
+        ylabel = ylabel_name,
+    )
+
+    # min_argument = argmin(error_array)
+    # println(min_argument)
+    # println(sqrt.(error_array[min_argument] / num_error_points))
+    # println("CGO")
     # println("duration_parameter = $(duration_parameter[min_argument])")
     # println("susceptibility_parameters = $(susceptibility_parameters[min_argument])")
     # println("temperature_parameters = $(temperature_parameters[min_argument])")
@@ -1716,6 +1954,11 @@ function optimization_methods_incidence()
         ylabel_name = "Число случаев на 1000 чел. / неделя"
     end
 
+    ref_label = "Reference"
+    if is_russian
+        ref_label = "Данные"
+    end
+
     incidence_plot = plot(
         1:52,
         [incidence_arr_mean_MCMC_LHS incidence_arr_mean_MCMC_manual incidence_arr_mean_SM incidence_arr_mean_PSO incidence_arr_mean_GA],
@@ -1735,7 +1978,7 @@ function optimization_methods_incidence()
         infected_data_mean,
         lw = 2.0,
         xticks = (ticks, ticklabels),
-        label = "Reference",
+        label = ref_label,
         grid = true,
         legend = (0.75, 0.98),
         color = :black,
@@ -1747,6 +1990,201 @@ function optimization_methods_incidence()
     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "optimization_methods_incidence.pdf"))
 end
 
+# function optimization_methods_incidence_age_groups()
+#     incidence_arr = Array{Vector{Float64}, 1}(undef, num_years)
+
+#     incidence_arr_mean_MCMC_LHS = zeros(Float64, 52, 4)
+#     incidence_arr_mean_MCMC_LHS_10 = zeros(Float64, 52, 4)
+#     incidence_arr_mean_MCMC_manual = zeros(Float64, 52, 4)
+#     # incidence_arr_mean_MA_LHS = zeros(Float64, 52)
+#     # incidence_arr_mean_MA_manual = zeros(Float64, 52)
+#     incidence_arr_mean_SM = zeros(Float64, 52, 4)
+#     incidence_arr_mean_PSO = zeros(Float64, 52, 4)
+#     incidence_arr_mean_GA = zeros(Float64, 52, 4)
+#     incidence_arr_mean_CGO = zeros(Float64, 52, 4)
+
+#     observed_num_infected_age_groups_viruses_MCMC_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_LHS.jld"))["observed_cases"] ./ population_coef
+#     observed_num_infected_age_groups_viruses_MCMC_LHS_10 = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_LHS_10.jld"))["observed_cases"] ./ population_coef
+#     observed_num_infected_age_groups_viruses_MCMC_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_manual.jld"))["observed_cases"] ./ population_coef
+#     observed_num_infected_age_groups_viruses_SM = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_SM.jld"))["observed_cases"] ./ population_coef
+#     observed_num_infected_age_groups_viruses_PSO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_PSO.jld"))["observed_cases"] ./ population_coef
+#     observed_num_infected_age_groups_viruses_GA = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_GA.jld"))["observed_cases"] ./ population_coef
+#     observed_num_infected_age_groups_viruses_CGO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_CGO.jld"))["observed_cases"] ./ population_coef
+
+#     # observed_num_infected_age_groups_viruses_MCMC_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_LHS_min.jld"))["observed_cases"] ./ population_coef
+#     # observed_num_infected_age_groups_viruses_MCMC_LHS_10 = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_LHS_10_min.jld"))["observed_cases"] ./ population_coef
+#     # observed_num_infected_age_groups_viruses_MCMC_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_manual_min.jld"))["observed_cases"] ./ population_coef
+#     # observed_num_infected_age_groups_viruses_SM = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_SM_min.jld"))["observed_cases"] ./ population_coef
+#     # observed_num_infected_age_groups_viruses_PSO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_PSO_min.jld"))["observed_cases"] ./ population_coef
+#     # observed_num_infected_age_groups_viruses_GA = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_GA_min.jld"))["observed_cases"] ./ population_coef
+#     # observed_num_infected_age_groups_viruses_CGO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_CGO_min.jld"))["observed_cases"] ./ population_coef
+
+#     incidence_arr_mean_MCMC_LHS = sum(observed_num_infected_age_groups_viruses_MCMC_LHS, dims = 2)[:, 1, :][1:52, :]
+#     incidence_arr_mean_MCMC_LHS_10 = sum(observed_num_infected_age_groups_viruses_MCMC_LHS_10, dims = 2)[:, 1, :][1:52, :]
+#     incidence_arr_mean_MCMC_manual = sum(observed_num_infected_age_groups_viruses_MCMC_manual, dims = 2)[:, 1, :][1:52, :]
+#     incidence_arr_mean_SM = sum(observed_num_infected_age_groups_viruses_SM, dims = 2)[:, 1, :][1:52, :]
+#     incidence_arr_mean_PSO = sum(observed_num_infected_age_groups_viruses_PSO, dims = 2)[:, 1, :][1:52, :]
+#     incidence_arr_mean_GA = sum(observed_num_infected_age_groups_viruses_GA, dims = 2)[:, 1, :][1:52, :]
+#     incidence_arr_mean_CGO = sum(observed_num_infected_age_groups_viruses_CGO, dims = 2)[:, 1, :][1:52, :]
+
+#     infected_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ';', Int, '\n') ./ population_coef
+#     infected_data_0_mean = mean(infected_data_0[2:53, flu_starting_index:end], dims = 2)[:, 1]
+#     infected_data_3 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu3-6.csv"), ';', Int, '\n') ./ population_coef
+#     infected_data_3_mean = mean(infected_data_3[2:53, flu_starting_index:end], dims = 2)[:, 1]
+#     infected_data_7 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu7-14.csv"), ';', Int, '\n') ./ population_coef
+#     infected_data_7_mean = mean(infected_data_7[2:53, flu_starting_index:end], dims = 2)[:, 1]
+#     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ';', Int, '\n') ./ population_coef
+#     infected_data_15_mean = mean(infected_data_15[2:53, flu_starting_index:end], dims = 2)[:, 1]
+
+#     # etiology = get_etiology()
+#     # num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
+#     # sum((temp - num_infected_age_groups_viruses).^2)
+#     # return
+
+#     ticks = range(1, stop = 52, length = 7)
+#     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+#     if is_russian
+#         ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+#     end
+
+#     label_names = ["MCMC LHS 1000" "MCMC LHS 10" "MCMC manual" "SM" "PSO" "GA" "CGO"]
+
+#     xlabel_name = "Month"
+#     if is_russian
+#         xlabel_name = "Месяц"
+#     end
+
+#     ylabel_name = "Weekly incidence rate per 1000"
+#     if is_russian
+#         ylabel_name = "Число случаев на 1000 чел. / неделя"
+#     end
+
+#     ref_label = "Reference"
+#     if is_russian
+#         ref_label = "Данные"
+#     end
+
+#     incidence_plot = plot(
+#         1:52,
+#         [incidence_arr_mean_MCMC_LHS[:, 1] incidence_arr_mean_MCMC_LHS_10[:, 1] incidence_arr_mean_MCMC_manual[:, 1] incidence_arr_mean_SM[:, 1] incidence_arr_mean_PSO[:, 1] incidence_arr_mean_GA[:, 1] incidence_arr_mean_CGO[:, 1]],
+#         lw = 1.5,
+#         xticks = (ticks, ticklabels),
+#         label = label_names,
+#         grid = true,
+#         legend = (0.8, 1.01),
+#         color = [RGB(0.933, 0.4, 0.467) RGB(0.5, 0.5, 0.5) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.4, 0.8, 0.933)],
+#         foreground_color_legend = nothing,
+#         background_color_legend = nothing,
+#         xlabel = xlabel_name,
+#         ylabel = ylabel_name,
+#     )
+#     plot!(
+#         1:52,
+#         infected_data_0_mean,
+#         lw = 2.0,
+#         xticks = (ticks, ticklabels),
+#         label = ref_label,
+#         grid = true,
+#         legend = (0.8, 1.01),
+#         color = :black,
+#         foreground_color_legend = nothing,
+#         background_color_legend = nothing,
+#         xlabel = xlabel_name,
+#         ylabel = ylabel_name,
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "optimization_methods_incidence_0-2.pdf"))
+
+#     incidence_plot = plot(
+#         1:52,
+#         [incidence_arr_mean_MCMC_LHS[:, 2] incidence_arr_mean_MCMC_LHS_10[:, 2] incidence_arr_mean_MCMC_manual[:, 2] incidence_arr_mean_SM[:, 2] incidence_arr_mean_PSO[:, 2] incidence_arr_mean_GA[:, 2] incidence_arr_mean_CGO[:, 2]],
+#         lw = 1.5,
+#         xticks = (ticks, ticklabels),
+#         label = label_names,
+#         grid = true,
+#         legend = (0.77, 0.98),
+#         color = [RGB(0.933, 0.4, 0.467) RGB(0.5, 0.5, 0.5) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.4, 0.8, 0.933)],
+#         foreground_color_legend = nothing,
+#         background_color_legend = nothing,
+#         xlabel = xlabel_name,
+#         ylabel = ylabel_name,
+#     )
+#     plot!(
+#         1:52,
+#         infected_data_3_mean,
+#         lw = 2.0,
+#         xticks = (ticks, ticklabels),
+#         label = ref_label,
+#         grid = true,
+#         legend = (0.77, 0.98),
+#         color = :black,
+#         foreground_color_legend = nothing,
+#         background_color_legend = nothing,
+#         xlabel = xlabel_name,
+#         ylabel = ylabel_name,
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "optimization_methods_incidence_3-6.pdf"))
+
+#     incidence_plot = plot(
+#         1:52,
+#         [incidence_arr_mean_MCMC_LHS[:, 3] incidence_arr_mean_MCMC_LHS_10[:, 3] incidence_arr_mean_MCMC_manual[:, 3] incidence_arr_mean_SM[:, 3] incidence_arr_mean_PSO[:, 3] incidence_arr_mean_GA[:, 3] incidence_arr_mean_CGO[:, 3]],
+#         lw = 1.5,
+#         xticks = (ticks, ticklabels),
+#         label = label_names,
+#         grid = true,
+#         legend = (0.77, 0.98),
+#         color = [RGB(0.933, 0.4, 0.467) RGB(0.5, 0.5, 0.5) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.4, 0.8, 0.933)],
+#         foreground_color_legend = nothing,
+#         background_color_legend = nothing,
+#         xlabel = xlabel_name,
+#         ylabel = ylabel_name,
+#     )
+#     plot!(
+#         1:52,
+#         infected_data_7_mean,
+#         lw = 2.0,
+#         xticks = (ticks, ticklabels),
+#         label = ref_label,
+#         grid = true,
+#         legend = (0.77, 0.98),
+#         color = :black,
+#         foreground_color_legend = nothing,
+#         background_color_legend = nothing,
+#         xlabel = xlabel_name,
+#         ylabel = ylabel_name,
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "optimization_methods_incidence_7-14.pdf"))
+
+#     incidence_plot = plot(
+#         1:52,
+#         [incidence_arr_mean_MCMC_LHS[:, 4] incidence_arr_mean_MCMC_LHS_10[:, 4] incidence_arr_mean_MCMC_manual[:, 4] incidence_arr_mean_SM[:, 4] incidence_arr_mean_PSO[:, 4] incidence_arr_mean_GA[:, 4] incidence_arr_mean_CGO[:, 4]],
+#         lw = 1.5,
+#         xticks = (ticks, ticklabels),
+#         label = label_names,
+#         grid = true,
+#         legend = (0.77, 0.98),
+#         color = [RGB(0.933, 0.4, 0.467) RGB(0.5, 0.5, 0.5) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.4, 0.8, 0.933)],
+#         foreground_color_legend = nothing,
+#         background_color_legend = nothing,
+#         xlabel = xlabel_name,
+#         ylabel = ylabel_name,
+#     )
+#     plot!(
+#         1:52,
+#         infected_data_15_mean,
+#         lw = 2.0,
+#         xticks = (ticks, ticklabels),
+#         label = ref_label,
+#         grid = true,
+#         legend = (0.77, 0.98),
+#         color = :black,
+#         foreground_color_legend = nothing,
+#         background_color_legend = nothing,
+#         xlabel = xlabel_name,
+#         ylabel = ylabel_name,
+#     )
+#     savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "..", "output", "plots", "optimization_methods_incidence_15+.pdf"))
+# end
+
 function optimization_methods_incidence_age_groups()
     incidence_arr = Array{Vector{Float64}, 1}(undef, num_years)
 
@@ -1757,28 +2195,30 @@ function optimization_methods_incidence_age_groups()
     incidence_arr_mean_SM = zeros(Float64, 52, 4)
     incidence_arr_mean_PSO = zeros(Float64, 52, 4)
     incidence_arr_mean_GA = zeros(Float64, 52, 4)
+    incidence_arr_mean_CGO = zeros(Float64, 52, 4)
 
-    # observed_num_infected_age_groups_viruses_MCMC_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_LHS.jld"))["observed_cases"] ./ population_coef
-    # observed_num_infected_age_groups_viruses_MCMC_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_manual.jld"))["observed_cases"] ./ population_coef
-    # # observed_num_infected_age_groups_viruses_MA_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MA_LHS.jld"))["observed_cases"] ./ population_coef
-    # # observed_num_infected_age_groups_viruses_MA_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MA_manual.jld"))["observed_cases"] ./ population_coef
-    # observed_num_infected_age_groups_viruses_SM = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_SM.jld"))["observed_cases"] ./ population_coef
-    # observed_num_infected_age_groups_viruses_PSO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_PSO.jld"))["observed_cases"] ./ population_coef
-    # observed_num_infected_age_groups_viruses_GA = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_GA.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_MCMC_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_LHS.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_MCMC_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_manual.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_SM = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_SM.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_PSO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_PSO.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_GA = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_GA.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses_CGO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_CGO.jld"))["observed_cases"] ./ population_coef
+    
+    # ./ population_coef
 
-    observed_num_infected_age_groups_viruses_MCMC_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_LHS_min.jld"))["observed_cases"] ./ population_coef
-    observed_num_infected_age_groups_viruses_MCMC_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_manual_min.jld"))["observed_cases"] ./ population_coef
-    # observed_num_infected_age_groups_viruses_MA_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MA_LHS.jld"))["observed_cases"] ./ population_coef
-    # observed_num_infected_age_groups_viruses_MA_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MA_manual.jld"))["observed_cases"] ./ population_coef
-    observed_num_infected_age_groups_viruses_SM = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_SM_min.jld"))["observed_cases"] ./ population_coef
-    observed_num_infected_age_groups_viruses_PSO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_PSO_min.jld"))["observed_cases"] ./ population_coef
-    observed_num_infected_age_groups_viruses_GA = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_GA_min.jld"))["observed_cases"] ./ population_coef
+    # observed_num_infected_age_groups_viruses_MCMC_LHS = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_LHS_min.jld"))["observed_cases"] ./ population_coef
+    # observed_num_infected_age_groups_viruses_MCMC_manual = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_MCMC_manual_min.jld"))["observed_cases"] ./ population_coef
+    # observed_num_infected_age_groups_viruses_SM = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_SM_min.jld"))["observed_cases"] ./ population_coef
+    # observed_num_infected_age_groups_viruses_PSO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_PSO_min.jld"))["observed_cases"] ./ population_coef
+    # observed_num_infected_age_groups_viruses_GA = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_GA_min.jld"))["observed_cases"] ./ population_coef
+    # observed_num_infected_age_groups_viruses_CGO = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_CGO_min.jld"))["observed_cases"] ./ population_coef
 
     incidence_arr_mean_MCMC_LHS = sum(observed_num_infected_age_groups_viruses_MCMC_LHS, dims = 2)[:, 1, :][1:52, :]
     incidence_arr_mean_MCMC_manual = sum(observed_num_infected_age_groups_viruses_MCMC_manual, dims = 2)[:, 1, :][1:52, :]
     incidence_arr_mean_SM = sum(observed_num_infected_age_groups_viruses_SM, dims = 2)[:, 1, :][1:52, :]
     incidence_arr_mean_PSO = sum(observed_num_infected_age_groups_viruses_PSO, dims = 2)[:, 1, :][1:52, :]
     incidence_arr_mean_GA = sum(observed_num_infected_age_groups_viruses_GA, dims = 2)[:, 1, :][1:52, :]
+    incidence_arr_mean_CGO = sum(observed_num_infected_age_groups_viruses_CGO, dims = 2)[:, 1, :][1:52, :]
 
     infected_data_0 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu0-2.csv"), ';', Int, '\n') ./ population_coef
     infected_data_0_mean = mean(infected_data_0[2:53, flu_starting_index:end], dims = 2)[:, 1]
@@ -1789,13 +2229,24 @@ function optimization_methods_incidence_age_groups()
     infected_data_15 = readdlm(joinpath(@__DIR__, "..", "..", "..", "input", "tables", "flu15+.csv"), ';', Int, '\n') ./ population_coef
     infected_data_15_mean = mean(infected_data_15[2:53, flu_starting_index:end], dims = 2)[:, 1]
 
+    # etiology = get_etiology()
+    # num_infected_age_groups_viruses = get_incidence(etiology, true, flu_starting_index, true)
+    # println(sum((observed_num_infected_age_groups_viruses_MCMC_manual[1:52,:,:] - num_infected_age_groups_viruses).^2))
+    # println(sum((observed_num_infected_age_groups_viruses_SM[1:52,:,:] - num_infected_age_groups_viruses).^2))
+    # println(sum((observed_num_infected_age_groups_viruses_GA[1:52,:,:] - num_infected_age_groups_viruses).^2))
+    # println(sum((observed_num_infected_age_groups_viruses_PSO[1:52,:,:] - num_infected_age_groups_viruses).^2))
+    # println(sum((observed_num_infected_age_groups_viruses_CGO[1:52,:,:] - num_infected_age_groups_viruses).^2))
+    # return
+
     ticks = range(1, stop = 52, length = 7)
     ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
     if is_russian
         ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
     end
 
-    label_names = ["MCMC LHS" "MCMC manual" "SM" "PSO" "GA"]
+    # label_names = ["MCMC LHS 1000" "MCMC LHS 10" "MCMC manual" "SM" "PSO" "GA" "CGO"]
+    label_names = ["MCMC LHS" "MCMC manual" "SM" "PSO" "GA" "CGO"]
+
 
     xlabel_name = "Month"
     if is_russian
@@ -1807,15 +2258,20 @@ function optimization_methods_incidence_age_groups()
         ylabel_name = "Число случаев на 1000 чел. / неделя"
     end
 
+    ref_label = "Reference"
+    if is_russian
+        ref_label = "Данные"
+    end
+
     incidence_plot = plot(
         1:52,
-        [incidence_arr_mean_MCMC_LHS[:, 1] incidence_arr_mean_MCMC_manual[:, 1] incidence_arr_mean_SM[:, 1] incidence_arr_mean_PSO[:, 1] incidence_arr_mean_GA[:, 1]],
+        [incidence_arr_mean_MCMC_LHS[:, 1] incidence_arr_mean_MCMC_manual[:, 1] incidence_arr_mean_SM[:, 1] incidence_arr_mean_PSO[:, 1] incidence_arr_mean_GA[:, 1] incidence_arr_mean_CGO[:, 1]],
         lw = 1.5,
         xticks = (ticks, ticklabels),
         label = label_names,
         grid = true,
         legend = (0.8, 1.01),
-        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5)],
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.4, 0.8, 0.933)],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -1826,7 +2282,7 @@ function optimization_methods_incidence_age_groups()
         infected_data_0_mean,
         lw = 2.0,
         xticks = (ticks, ticklabels),
-        label = "Reference",
+        label = ref_label,
         grid = true,
         legend = (0.8, 1.01),
         color = :black,
@@ -1839,13 +2295,13 @@ function optimization_methods_incidence_age_groups()
 
     incidence_plot = plot(
         1:52,
-        [incidence_arr_mean_MCMC_LHS[:, 2] incidence_arr_mean_MCMC_manual[:, 2] incidence_arr_mean_SM[:, 2] incidence_arr_mean_PSO[:, 2] incidence_arr_mean_GA[:, 2]],
+        [incidence_arr_mean_MCMC_LHS[:, 2] incidence_arr_mean_MCMC_manual[:, 2] incidence_arr_mean_SM[:, 2] incidence_arr_mean_PSO[:, 2] incidence_arr_mean_GA[:, 2] incidence_arr_mean_CGO[:, 2]],
         lw = 1.5,
         xticks = (ticks, ticklabels),
         label = label_names,
         grid = true,
         legend = (0.77, 0.98),
-        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5)],
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.4, 0.8, 0.933)],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -1856,7 +2312,7 @@ function optimization_methods_incidence_age_groups()
         infected_data_3_mean,
         lw = 2.0,
         xticks = (ticks, ticklabels),
-        label = "Reference",
+        label = ref_label,
         grid = true,
         legend = (0.77, 0.98),
         color = :black,
@@ -1869,13 +2325,13 @@ function optimization_methods_incidence_age_groups()
 
     incidence_plot = plot(
         1:52,
-        [incidence_arr_mean_MCMC_LHS[:, 3] incidence_arr_mean_MCMC_manual[:, 3] incidence_arr_mean_SM[:, 3] incidence_arr_mean_PSO[:, 3] incidence_arr_mean_GA[:, 3]],
+        [incidence_arr_mean_MCMC_LHS[:, 3] incidence_arr_mean_MCMC_manual[:, 3] incidence_arr_mean_SM[:, 3] incidence_arr_mean_PSO[:, 3] incidence_arr_mean_GA[:, 3] incidence_arr_mean_CGO[:, 3]],
         lw = 1.5,
         xticks = (ticks, ticklabels),
         label = label_names,
         grid = true,
         legend = (0.77, 0.98),
-        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5)],
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.4, 0.8, 0.933)],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -1886,7 +2342,7 @@ function optimization_methods_incidence_age_groups()
         infected_data_7_mean,
         lw = 2.0,
         xticks = (ticks, ticklabels),
-        label = "Reference",
+        label = ref_label,
         grid = true,
         legend = (0.77, 0.98),
         color = :black,
@@ -1899,13 +2355,13 @@ function optimization_methods_incidence_age_groups()
 
     incidence_plot = plot(
         1:52,
-        [incidence_arr_mean_MCMC_LHS[:, 4] incidence_arr_mean_MCMC_manual[:, 4] incidence_arr_mean_SM[:, 4] incidence_arr_mean_PSO[:, 4] incidence_arr_mean_GA[:, 4]],
+        [incidence_arr_mean_MCMC_LHS[:, 4] incidence_arr_mean_MCMC_manual[:, 4] incidence_arr_mean_SM[:, 4] incidence_arr_mean_PSO[:, 4] incidence_arr_mean_GA[:, 4] incidence_arr_mean_CGO[:, 4]],
         lw = 1.5,
         xticks = (ticks, ticklabels),
         label = label_names,
         grid = true,
         legend = (0.77, 0.98),
-        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.5, 0.5, 0.5)],
+        color = [RGB(0.933, 0.4, 0.467) RGB(0.267, 0.467, 0.667) RGB(0.133, 0.533, 0.2) RGB(0.667, 0.2, 0.467) RGB(0.8, 0.733, 0.267) RGB(0.4, 0.8, 0.933)],
         foreground_color_legend = nothing,
         background_color_legend = nothing,
         xlabel = xlabel_name,
@@ -1916,7 +2372,7 @@ function optimization_methods_incidence_age_groups()
         infected_data_15_mean,
         lw = 2.0,
         xticks = (ticks, ticklabels),
-        label = "Reference",
+        label = ref_label,
         grid = true,
         legend = (0.77, 0.98),
         color = :black,
