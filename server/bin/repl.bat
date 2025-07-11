@@ -1,1 +1,0 @@
-"C:\Users\Predator\AppData\Local\Programs\Julia-1.11.3\bin\julia" --threads 4 --color=yes --depwarn=no --project=@. -q -i -- "%~dp0..\bootstrap.jl" %*
