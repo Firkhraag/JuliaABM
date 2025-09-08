@@ -13,6 +13,7 @@ staticfiles("public", "/")
         parse(Int, payload["schoolClassClosurePeriod"]),
         parse(Float64, payload["schoolClassClosureThreshold"]),
         parse(Float64, payload["globalWarmingTemperature"]),
+        false,
     )
 
     # @info "Websocket connection has ended"
