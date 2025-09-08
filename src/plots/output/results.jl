@@ -3,15 +3,15 @@ using Statistics
 using StatsPlots
 using Plots
 using LaTeXStrings
-using JLD
+using JLD2
 using CSV
 using DataFrames
 using Distributions
 
-include("../../../server/lib/util/moving_avg.jl")
-include("../../../server/lib/data/etiology.jl")
-include("../../../server/lib/data/incidence.jl")
-include("../../../server/lib/global/variables.jl")
+include("../../util/moving_avg.jl")
+include("../../data/etiology.jl")
+include("../../data/incidence.jl")
+include("../../global/variables.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 
@@ -35,7 +35,7 @@ function plot_incidence(
     incidence_arr_mean = zeros(Float64, 52)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ population_coef
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld2" : with_global_warming ? "results_warming_$(i).jld2" : "results_$(i).jld2"))["observed_cases"] ./ population_coef
         if type == 2
             isolation_probabilities_day_1 = [0.406, 0.305, 0.204, 0.101]
             isolation_probabilities_day_2 = [0.669, 0.576, 0.499, 0.334]
@@ -132,7 +132,7 @@ function plot_incidence_age_groups(
     incidence_arr_mean = zeros(Float64, 52, 4)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ population_coef
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld2" : with_global_warming ? "results_warming_$(i).jld2" : "results_$(i).jld2"))["observed_cases"] ./ population_coef
         for j = 1:num_years
             incidence_arr[i, j] = sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :][(52 * (j - 1) + 1):(52 * (j - 1) + 52), :]
         end
@@ -237,7 +237,7 @@ function plot_incidence_viruses(
     incidence_arr_mean = zeros(Float64, 52, 7)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ population_coef
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld2" : with_global_warming ? "results_warming_$(i).jld2" : "results_$(i).jld2"))["observed_cases"] ./ population_coef
         for j = 1:num_years
             incidence_arr[i, j] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52), :]
         end
@@ -360,7 +360,7 @@ function plot_incidence_viruses_together(
     incidence_arr_mean = zeros(Float64, 52, 7)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ population_coef
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld2" : with_global_warming ? "results_warming_$(i).jld2" : "results_$(i).jld2"))["observed_cases"] ./ population_coef
         for j = 1:num_years
             incidence_arr[i, j] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52), :]
         end
@@ -430,7 +430,7 @@ function plot_incidence_age_groups_viruses_together(
     incidence_arr_mean = zeros(Float64, 52, 7, 4)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ population_coef
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld2" : with_global_warming ? "results_warming_$(i).jld2" : "results_$(i).jld2"))["observed_cases"] ./ population_coef
         for j = 1:num_years
             incidence_arr[i, j] = observed_num_infected_age_groups_viruses[(52 * (j - 1) + 1):(52 * (j - 1) + 52), :, :]
         end
@@ -507,7 +507,7 @@ function plot_rt(
     rt_arr_mean = zeros(Float64, 365)
 
     for i = 1:num_runs
-        rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["rt"]
+        rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld2" : with_global_warming ? "results_warming_$(i).jld2" : "results_$(i).jld2"))["rt"]
         for j = 1:num_years
             rt_arr[i, j] = moving_average(rt, 20)[(365 * (j - 1) + 1):(365 * (j - 1) + 365)]
         end
@@ -573,7 +573,7 @@ function plot_infection_activities(
     activities_cases_arr_mean = zeros(Float64, 365, num_activities)
 
     for i = 1:num_runs
-        activities_cases = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["activities_cases"]
+        activities_cases = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld2" : with_global_warming ? "results_warming_$(i).jld2" : "results_$(i).jld2"))["activities_cases"]
         for j = 1:num_years
             activities_cases_arr[i, j] = activities_cases[(365 * (j - 1) + 1):(365 * (j - 1) + 365), :]
         end
@@ -647,7 +647,7 @@ function plot_incidence_time_series(
     incidence_arr_mean = zeros(Float64, 52 * num_years)
     
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ population_coef
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld2" : with_global_warming ? "results_warming_$(i).jld2" : "results_$(i).jld2"))["observed_cases"] ./ population_coef
         incidence_arr[i] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
     end
 
@@ -710,7 +710,7 @@ function plot_incidence_age_groups_time_series(
     incidence_arr_mean = zeros(Float64, 52 * num_years, 4)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ population_coef
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld2" : with_global_warming ? "results_warming_$(i).jld2" : "results_$(i).jld2"))["observed_cases"] ./ population_coef
         incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 2)[:, 1, :]
     end
 
@@ -788,7 +788,7 @@ function plot_incidence_viruses_time_series(
     incidence_arr_mean = zeros(Float64, (52 * num_years), 7)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["observed_cases"] ./ population_coef
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld2" : with_global_warming ? "results_warming_$(i).jld2" : "results_$(i).jld2"))["observed_cases"] ./ population_coef
         incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1]
     end
 
@@ -878,7 +878,7 @@ function plot_rt_time_series()
     rt_arr_mean = zeros(Float64, (365 * num_years))
 
     for i = 1:num_runs
-        rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))["rt"]
+        rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld2" : with_global_warming ? "results_warming_$(i).jld2" : "results_$(i).jld2"))["rt"]
         rt_arr[i] = moving_average(rt, 20)
     end
 
@@ -925,13 +925,13 @@ function plot_incidence_quarantine()
     num_runs_quarantine = 3
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs_quarantine + 1, num_years)
 
-    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld2"))["observed_cases"] ./ population_coef
     for j = 1:num_years
         incidence_arr[1, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
     end
 
     for i = 1:num_runs_quarantine
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["observed_cases"] ./ population_coef
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld2"))["observed_cases"] ./ population_coef
         for j = 1:num_years
             incidence_arr[i + 1, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
@@ -1013,13 +1013,13 @@ function plot_incidence_warming()
     num_runs_warming = 4
     incidence_arr = Array{Vector{Float64}, 2}(undef, num_runs_warming + 1, num_years)
 
-    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld2"))["observed_cases"] ./ population_coef
     for j = 1:num_years
         incidence_arr[1, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
     end
 
     for i = 1:num_runs_warming
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_warming_$(i).jld"))["observed_cases"] ./ population_coef
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_warming_$(i).jld2"))["observed_cases"] ./ population_coef
         for j = 1:num_years
             incidence_arr[i + 1, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
@@ -1096,7 +1096,7 @@ function plot_school_closures()
         num_schools_closed[1, i] = zeros(Float64, 365)
     end
     for i = 1:num_runs_quarantine
-        num_schools_closed_temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld"))["num_schools_closed"][1:(365 * num_years)]
+        num_schools_closed_temp = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(i).jld2"))["num_schools_closed"][1:(365 * num_years)]
         for j = 1:num_years
             num_schools_closed[i + 1, j] = num_schools_closed_temp[(365 * (j - 1) + 1):(365 * (j - 1) + 365)]
         end
@@ -1249,7 +1249,7 @@ function print_scenario_statistics(quarantine_index::Int, warming_index::Int)
     incidence_arr_mean = zeros(Float64, 52)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"]
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld2"))["observed_cases"]
         for j = 1:num_years
             incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
@@ -1270,7 +1270,7 @@ function print_scenario_statistics(quarantine_index::Int, warming_index::Int)
 
     incidence_arr_mean = zeros(Float64, 52)
     for i = 1:1
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(quarantine_index).jld"))["observed_cases"]
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_quarantine_$(quarantine_index).jld2"))["observed_cases"]
         for j = 1:num_years
             incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
@@ -1291,7 +1291,7 @@ function print_scenario_statistics(quarantine_index::Int, warming_index::Int)
 
     incidence_arr_mean = zeros(Float64, 52)
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_warming_$(warming_index).jld"))["observed_cases"]
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_warming_$(warming_index).jld2"))["observed_cases"]
         for j = 1:num_years
             incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
@@ -1328,7 +1328,7 @@ function plot_incidence_preferential_attachment(
     incidence_arr_mean = zeros(Float64, 52)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld" : with_global_warming ? "results_warming_$(i).jld" : "results_$(i).jld"))[type] ./ population_coef
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", with_quarantine ? "results_quarantine_$(i).jld2" : with_global_warming ? "results_warming_$(i).jld2" : "results_$(i).jld2"))[type] ./ population_coef
         for j = 1:num_years
             incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
@@ -1352,7 +1352,7 @@ function plot_incidence_preferential_attachment(
     incidence_arr_mean_2 = zeros(Float64, 52)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses_2 = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_0.jld"))[type] ./ population_coef
+        observed_num_infected_age_groups_viruses_2 = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_0.jld2"))[type] ./ population_coef
         for j = 1:num_years
             incidence_arr_2[i, j] = sum(sum(observed_num_infected_age_groups_viruses_2, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end
@@ -1414,10 +1414,10 @@ end
 function plot_incidence_with_without_recovered()
     incidence_arr = Array{Vector{Float64}, 1}(undef, 2)
 
-    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_0.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_0.jld2"))["observed_cases"] ./ population_coef
     incidence_arr[1] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
 
-    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld"))["observed_cases"] ./ population_coef
+    observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_1.jld2"))["observed_cases"] ./ population_coef
     incidence_arr[2] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1]
 
     ticks = range(1, stop = 52, length = 7)

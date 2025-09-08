@@ -3,28 +3,28 @@ using DelimitedFiles
 using Statistics
 using LatinHypercubeSampling
 using CSV
-using JLD
+using JLD2
 using DataFrames
 using Distributions
 
 # Модель на сервере
-include("../server/lib/data/etiology.jl")
-include("../server/lib/data/incidence.jl")
+include("./data/etiology.jl")
+include("./data/incidence.jl")
 
-include("../server/lib/global/variables.jl")
+include("./global/variables.jl")
 
-include("../server/lib/model/virus.jl")
-include("../server/lib/model/agent.jl")
-include("../server/lib/model/household.jl")
-include("../server/lib/model/workplace.jl")
-include("../server/lib/model/school.jl")
-include("../server/lib/model/initialization.jl")
-include("../server/lib/model/connections.jl")
-include("../server/lib/model/contacts.jl")
+include("./model/virus.jl")
+include("./model/agent.jl")
+include("./model/household.jl")
+include("./model/workplace.jl")
+include("./model/school.jl")
+include("./model/initialization.jl")
+include("./model/connections.jl")
+include("./model/contacts.jl")
 
-include("../server/lib/util/moving_avg.jl")
-include("../server/lib/util/stats.jl")
-include("../server/lib/util/reset.jl")
+include("./util/moving_avg.jl")
+include("./util/stats.jl")
+include("./util/reset.jl")
 
 # Локальная модель
 include("model/simulation.jl")
@@ -259,14 +259,14 @@ function run_cgo_model()
     random_infection_probabilities_mean_group = zeros(Float64, 4)
 
     for p = 1:seeds_size
-        incidence_seeds_arr[p] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(p).jld"))["observed_cases"]
+        incidence_seeds_arr[p] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(p).jld2"))["observed_cases"]
         error_seeds[p] = sum((incidence_seeds_arr[p] - num_infected_age_groups_viruses).^2)
 
-        duration_parameter_seeds_array[p] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(p).jld"))["duration_parameter"]
-        susceptibility_parameters_seeds_array[p] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(p).jld"))["susceptibility_parameters"]
-        temperature_parameters_seeds_array[p] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(p).jld"))["temperature_parameters"]
-        mean_immunity_durations_seeds_array[p] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(p).jld"))["mean_immunity_durations"]
-        random_infection_probabilities_seeds_array[p] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(p).jld"))["random_infection_probabilities"]
+        duration_parameter_seeds_array[p] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(p).jld2"))["duration_parameter"]
+        susceptibility_parameters_seeds_array[p] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(p).jld2"))["susceptibility_parameters"]
+        temperature_parameters_seeds_array[p] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(p).jld2"))["temperature_parameters"]
+        mean_immunity_durations_seeds_array[p] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(p).jld2"))["mean_immunity_durations"]
+        random_infection_probabilities_seeds_array[p] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "10", "results_$(p).jld2"))["random_infection_probabilities"]
 
         if error_seeds[p] < best_error
             best_error = error_seeds[p]
@@ -395,7 +395,7 @@ function run_cgo_model()
 
             # Моделируем заболеваемость
             @time incidence_offsprings_arr[seed, 1], _, __, ___ = run_simulation(
-                num_threads, thread_rng, agents, viruses, households, schools, c1[1],
+                nothing, num_threads, thread_rng, agents, viruses, households, schools, c1[1],
                 c1[2:8], c1[9:15], temperature, mean_household_contact_durations, household_contact_duration_sds,
                 other_contact_duration_shapes, other_contact_duration_scales,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
@@ -456,7 +456,7 @@ function run_cgo_model()
 
             # Моделируем заболеваемость
             @time incidence_offsprings_arr[seed, 2], _, __, ___ = run_simulation(
-                num_threads, thread_rng, agents, viruses, households, schools, c2[1],
+                nothing, num_threads, thread_rng, agents, viruses, households, schools, c2[1],
                 c2[2:8], c2[9:15], temperature, mean_household_contact_durations, household_contact_duration_sds,
                 other_contact_duration_shapes, other_contact_duration_scales,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
@@ -517,7 +517,7 @@ function run_cgo_model()
 
             # Моделируем заболеваемость
             @time incidence_offsprings_arr[seed, 3], _, __, ___ = run_simulation(
-                num_threads, thread_rng, agents, viruses, households, schools, c3[1],
+                nothing, num_threads, thread_rng, agents, viruses, households, schools, c3[1],
                 c3[2:8], c3[9:15], temperature, mean_household_contact_durations, household_contact_duration_sds,
                 other_contact_duration_shapes, other_contact_duration_scales,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
@@ -647,7 +647,7 @@ function run_cgo_model()
 
             # Моделируем заболеваемость
             @time incidence_offsprings_arr[seed, 4], _, __, ___ = run_simulation(
-                num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_offsprings_array[seed, 4],
+                nothing, num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_offsprings_array[seed, 4],
                 susceptibility_parameters_offsprings_array[seed, 4], temperature_parameters_offsprings_array[seed, 4], temperature,
                 mean_household_contact_durations, household_contact_duration_sds, other_contact_duration_shapes, other_contact_duration_scales,
                 isolation_probabilities_day_1, isolation_probabilities_day_2,
@@ -699,7 +699,7 @@ function run_cgo_model()
 
             println("Seed = $(i): $(error_seeds[i])")
 
-            save(joinpath(@__DIR__, "..", "output", "tables", "cgo", "$(curr_run)", "results_$(i).jld"),
+            save(joinpath(@__DIR__, "..", "output", "tables", "cgo", "$(curr_run)", "results_$(i).jld2"),
                 "observed_cases", incidence_seeds_arr[i],
                 "duration_parameter", duration_parameter_seeds_array[i],
                 "susceptibility_parameters", susceptibility_parameters_seeds_array[i],

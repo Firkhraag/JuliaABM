@@ -4,7 +4,7 @@ using DataFrames
 using Statistics
 using Distributions
 using LaTeXStrings
-using JLD
+using JLD2
 using CSV
 using Random
 
@@ -141,15 +141,15 @@ function plot_swarm_hypercube()
     end
     ylabel_name = "RMSE"
 
-    error_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["error"]
-    β_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["β_parameter"]
-    c_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["c_parameter"]
-    γ_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld"))["γ_parameter"]
+    error_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld2"))["error"]
+    β_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld2"))["β_parameter"]
+    c_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld2"))["c_parameter"]
+    γ_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_1.jld2"))["γ_parameter"]
     for i = 1:num_swarm_runs
-        error_arr[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld"))["error"]
-        β_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld"))["β_parameter"]
-        c_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld"))["c_parameter"]
-        γ_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld"))["γ_parameter"]
+        error_arr[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld2"))["error"]
+        β_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld2"))["β_parameter"]
+        c_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld2"))["c_parameter"]
+        γ_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "1", "results_$(i).jld2"))["γ_parameter"]
     end
 
     error_plot = plot(
@@ -167,15 +167,15 @@ function plot_swarm_hypercube()
     )
 
     for j = 2:num_particles
-        error_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld"))["error"]
-        β_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld"))["β_parameter"]
-        c_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld"))["c_parameter"]
-        γ_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld"))["γ_parameter"]
+        error_arr[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld2"))["error"]
+        β_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld2"))["β_parameter"]
+        c_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld2"))["c_parameter"]
+        γ_parameter[1] = load(joinpath(@__DIR__, "swarm", "0", "results_$(j).jld2"))["γ_parameter"]
         for i = 1:num_swarm_runs
-            error_arr[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["error"]
-            β_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["β_parameter"]
-            c_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["c_parameter"]
-            γ_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld"))["γ_parameter"]
+            error_arr[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld2"))["error"]
+            β_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld2"))["β_parameter"]
+            c_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld2"))["c_parameter"]
+            γ_parameter[i + 1] = load(joinpath(@__DIR__, "swarm", "$(j)", "results_$(i).jld2"))["γ_parameter"]
         end
 
         plot!(
@@ -211,10 +211,10 @@ function plot_surrogate_hypercube()
     ylabel_name = "RMSE"
 
     for i = 1:num_surrogate_runs
-        error_arr[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["error"]
-        β_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["β_parameter"]
-        c_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["c_parameter"]
-        γ_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld"))["γ_parameter"]
+        error_arr[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld2"))["error"]
+        β_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld2"))["β_parameter"]
+        c_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld2"))["c_parameter"]
+        γ_parameter[i] = load(joinpath(@__DIR__, "surrogate", "results_$(i).jld2"))["γ_parameter"]
     end
 
     error_plot = plot(
@@ -248,10 +248,10 @@ function plot_surrogate_hypercube_NN()
     ylabel_name = "RMSE"
 
     for i = 1:num_surrogate_runs
-        error_arr[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld"))["error"]
-        β_parameter[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld"))["β_parameter"]
-        c_parameter[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld"))["c_parameter"]
-        γ_parameter[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld"))["γ_parameter"]
+        error_arr[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld2"))["error"]
+        β_parameter[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld2"))["β_parameter"]
+        c_parameter[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld2"))["c_parameter"]
+        γ_parameter[i] = load(joinpath(@__DIR__, "surrogate_NN", "results_$(i).jld2"))["γ_parameter"]
     end
 
     open(joinpath(@__DIR__, "..", "..", "..", "parameters", "output_metropolis_manual.txt"),"r") do datafile
@@ -595,11 +595,11 @@ function optimization_methods()
 
     # for method_run = 1:num_method_runs
     #     for i = 1:num_surrogate_runs
-    #         error_arr[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["error"]
-    #         β_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["β_parameter"]
-    #         c_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["c_parameter"]
-    #         γ_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["γ_parameter"]
-    #         I0_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld"))["I0_parameter"]
+    #         error_arr[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld2"))["error"]
+    #         β_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld2"))["β_parameter"]
+    #         c_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld2"))["c_parameter"]
+    #         γ_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld2"))["γ_parameter"]
+    #         I0_parameter[i] = load(joinpath(@__DIR__, "surrogate$(method_run)", "results_$(i).jld2"))["I0_parameter"]
     #     end
     #     minimum_step_arr[method_run] = argmin(error_arr)
     #     minimum_arr[method_run] = minimum(error_arr)
@@ -623,11 +623,11 @@ function optimization_methods()
     # # median_arg = argmin(minimum_arr)
 
     # for i = 1:num_surrogate_runs
-    #     error_arr[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld"))["error"]
-    #     β_parameter[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld"))["β_parameter"]
-    #     c_parameter[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld"))["c_parameter"]
-    #     γ_parameter[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld"))["γ_parameter"]
-    #     I0_parameter[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld"))["I0_parameter"]
+    #     error_arr[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld2"))["error"]
+    #     β_parameter[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld2"))["β_parameter"]
+    #     c_parameter[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld2"))["c_parameter"]
+    #     γ_parameter[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld2"))["γ_parameter"]
+    #     I0_parameter[i] = load(joinpath(@__DIR__, "surrogate$(median_arg)", "results_$(i).jld2"))["I0_parameter"]
     # end
 
     # plot!(
@@ -682,7 +682,7 @@ function optimization_methods()
 
     # # for j = 1:num_method_runs
     # #     for i = 1:num_particles
-    # #         error_arr_temp[i] = load(joinpath(@__DIR__, "swarm$(j)", "0", "results_$(i).jld"))["error"]
+    # #         error_arr_temp[i] = load(joinpath(@__DIR__, "swarm$(j)", "0", "results_$(i).jld2"))["error"]
     # #     end
     # #     error_arr[j] = minimum(error_arr_temp[1:num_particles])
     # # end
@@ -692,11 +692,11 @@ function optimization_methods()
     # for method_run = 1:num_method_runs
     #     for i = 1:num_swarm_runs
     #         for j = 1:num_particles
-    #             error_arr_temp[j] = load(joinpath(@__DIR__, "swarm$(method_run)", "$(j)", "results_$(i).jld"))["error"]
-    #             β_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(method_run)", "$(j)", "results_$(i).jld"))["β_parameter"]
-    #             c_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(method_run)", "$(j)", "results_$(i).jld"))["c_parameter"]
-    #             γ_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(method_run)", "$(j)", "results_$(i).jld"))["γ_parameter"]
-    #             I0_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(method_run)", "$(j)", "results_$(i).jld"))["I0_parameter"]
+    #             error_arr_temp[j] = load(joinpath(@__DIR__, "swarm$(method_run)", "$(j)", "results_$(i).jld2"))["error"]
+    #             β_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(method_run)", "$(j)", "results_$(i).jld2"))["β_parameter"]
+    #             c_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(method_run)", "$(j)", "results_$(i).jld2"))["c_parameter"]
+    #             γ_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(method_run)", "$(j)", "results_$(i).jld2"))["γ_parameter"]
+    #             I0_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(method_run)", "$(j)", "results_$(i).jld2"))["I0_parameter"]
     #         end
     #         for j = 1:num_particles
     #             error_arr[(i - 1) * num_particles + j] = minimum(error_arr_temp)
@@ -729,11 +729,11 @@ function optimization_methods()
 
     # for i = 1:num_swarm_runs
     #     for j = 1:num_particles
-    #         error_arr_temp[j] = load(joinpath(@__DIR__, "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["error"]
-    #         β_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["β_parameter"]
-    #         c_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["c_parameter"]
-    #         γ_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["γ_parameter"]
-    #         I0_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(median_arg)", "$(j)", "results_$(i).jld"))["I0_parameter"]
+    #         error_arr_temp[j] = load(joinpath(@__DIR__, "swarm$(median_arg)", "$(j)", "results_$(i).jld2"))["error"]
+    #         β_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(median_arg)", "$(j)", "results_$(i).jld2"))["β_parameter"]
+    #         c_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(median_arg)", "$(j)", "results_$(i).jld2"))["c_parameter"]
+    #         γ_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(median_arg)", "$(j)", "results_$(i).jld2"))["γ_parameter"]
+    #         I0_parameter_temp[j] = load(joinpath(@__DIR__, "swarm$(median_arg)", "$(j)", "results_$(i).jld2"))["I0_parameter"]
     #     end
     #     for j = 1:num_particles
     #         error_arr[(i - 1) * num_particles + j] = minimum(error_arr_temp)
@@ -803,7 +803,7 @@ function optimization_methods()
 
     # # for j = 1:num_method_runs
     # #     for i = 1:population_size
-    # #         error_arr_temp[i] = load(joinpath(@__DIR__, "ga$(j)", "0", "results_$(i).jld"))["error"]
+    # #         error_arr_temp[i] = load(joinpath(@__DIR__, "ga$(j)", "0", "results_$(i).jld2"))["error"]
     # #     end
     # #     error_arr[j] = minimum(error_arr_temp[1:population_size])
     # # end
@@ -813,11 +813,11 @@ function optimization_methods()
     # for method_run = 1:num_method_runs
     #     for i = 1:num_ga_runs
     #         for j = 1:population_size
-    #             error_arr_temp[j] = load(joinpath(@__DIR__, "ga$(method_run)", "$(i)", "results_$(j).jld"))["error"]
-    #             β_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(method_run)", "$(i)", "results_$(j).jld"))["β_parameter"]
-    #             c_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(method_run)", "$(i)", "results_$(j).jld"))["c_parameter"]
-    #             γ_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(method_run)", "$(i)", "results_$(j).jld"))["γ_parameter"]
-    #             I0_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(method_run)", "$(i)", "results_$(j).jld"))["I0_parameter"]
+    #             error_arr_temp[j] = load(joinpath(@__DIR__, "ga$(method_run)", "$(i)", "results_$(j).jld2"))["error"]
+    #             β_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(method_run)", "$(i)", "results_$(j).jld2"))["β_parameter"]
+    #             c_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(method_run)", "$(i)", "results_$(j).jld2"))["c_parameter"]
+    #             γ_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(method_run)", "$(i)", "results_$(j).jld2"))["γ_parameter"]
+    #             I0_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(method_run)", "$(i)", "results_$(j).jld2"))["I0_parameter"]
     #         end
     #         for j = 1:population_size
     #             error_arr[(i - 1) * population_size + j] = minimum(error_arr_temp)
@@ -850,11 +850,11 @@ function optimization_methods()
 
     # for i = 1:num_ga_runs
     #     for j = 1:population_size
-    #         error_arr_temp[j] = load(joinpath(@__DIR__, "ga$(median_arg)", "$(i)", "results_$(j).jld"))["error"]
-    #         β_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(median_arg)", "$(i)", "results_$(j).jld"))["β_parameter"]
-    #         c_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(median_arg)", "$(i)", "results_$(j).jld"))["c_parameter"]
-    #         γ_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(median_arg)", "$(i)", "results_$(j).jld"))["γ_parameter"]
-    #         I0_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(median_arg)", "$(i)", "results_$(j).jld"))["I0_parameter"]
+    #         error_arr_temp[j] = load(joinpath(@__DIR__, "ga$(median_arg)", "$(i)", "results_$(j).jld2"))["error"]
+    #         β_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(median_arg)", "$(i)", "results_$(j).jld2"))["β_parameter"]
+    #         c_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(median_arg)", "$(i)", "results_$(j).jld2"))["c_parameter"]
+    #         γ_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(median_arg)", "$(i)", "results_$(j).jld2"))["γ_parameter"]
+    #         I0_parameter_temp[j] = load(joinpath(@__DIR__, "ga$(median_arg)", "$(i)", "results_$(j).jld2"))["I0_parameter"]
     #     end
     #     for j = 1:population_size
     #         error_arr[(i - 1) * population_size + j] = minimum(error_arr_temp)
@@ -918,7 +918,7 @@ function optimization_methods()
 
     for j = 1:num_method_runs
         for i = 1:seeds_size
-            error_arr_temp[i] = load(joinpath(@__DIR__, "cgo$(j)", "0", "results_$(i).jld"))["error"]
+            error_arr_temp[i] = load(joinpath(@__DIR__, "cgo$(j)", "0", "results_$(i).jld2"))["error"]
         end
         error_arr[j] = minimum(error_arr_temp[1:seeds_size])
     end
@@ -928,11 +928,11 @@ function optimization_methods()
     for method_run = 1:num_method_runs
         for i = 1:num_cgo_runs
             for j = 1:seeds_size
-                error_arr_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld"))["error"]
-                β_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld"))["β_parameter"]
-                c_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld"))["c_parameter"]
-                γ_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld"))["γ_parameter"]
-                I0_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld"))["I0_parameter"]
+                error_arr_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld2"))["error"]
+                β_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld2"))["β_parameter"]
+                c_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld2"))["c_parameter"]
+                γ_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld2"))["γ_parameter"]
+                I0_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(method_run)", "$(i)", "results_$(j).jld2"))["I0_parameter"]
             end
             for j = 1:seeds_size
                 error_arr[(i - 1) * seeds_size + j] = minimum(error_arr_temp)
@@ -965,11 +965,11 @@ function optimization_methods()
 
     for i = 1:num_cgo_runs
         for j = 1:seeds_size
-            error_arr_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["error"]
-            β_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["β_parameter"]
-            c_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["c_parameter"]
-            γ_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["γ_parameter"]
-            I0_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld"))["I0_parameter"]
+            error_arr_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld2"))["error"]
+            β_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld2"))["β_parameter"]
+            c_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld2"))["c_parameter"]
+            γ_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld2"))["γ_parameter"]
+            I0_parameter_temp[j] = load(joinpath(@__DIR__, "cgo$(median_arg)", "$(i)", "results_$(j).jld2"))["I0_parameter"]
         end
         for j = 1:seeds_size
             error_arr[(i - 1) * seeds_size + j] = minimum(error_arr_temp)

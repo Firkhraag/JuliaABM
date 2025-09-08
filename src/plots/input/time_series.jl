@@ -5,15 +5,15 @@ using StatsPlots
 using LaTeXStrings
 using CategoricalArrays
 using Interpolations
-using JLD
+using JLD2
 using CSV
 using DataFrames
 using Distributions
 
-include("../../../server/lib/global/variables.jl")
-include("../../../server/lib/data/etiology.jl")
-include("../../../server/lib/data/incidence.jl")
-include("../../../server/lib/util/moving_avg.jl")
+include("../../global/variables.jl")
+include("../../data/etiology.jl")
+include("../../data/incidence.jl")
+include("../../util/moving_avg.jl")
 
 default(legendfontsize = 9, guidefont = (12, :black), tickfont = (11, :black))
 

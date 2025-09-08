@@ -5,7 +5,7 @@ using DataFrames
 using CSV
 using XLSX
 
-include("../server/lib/util/haversine.jl")
+include("./util/haversine.jl")
 
 # Предобработка названий районов Москвы
 function process_districts(a::Matrix{String})

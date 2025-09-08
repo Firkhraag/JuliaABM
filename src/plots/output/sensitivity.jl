@@ -3,12 +3,12 @@ using Plots
 using Statistics
 using Distributions
 using LaTeXStrings
-using JLD
+using JLD2
 
-include("../../../server/lib/util/moving_avg.jl")
-include("../../../server/lib/util/regression.jl")
-include("../../../server/lib/data/etiology.jl")
-include("../../../server/lib/global/variables.jl")
+include("../../util/moving_avg.jl")
+include("../../util/regression.jl")
+include("../../data/etiology.jl")
+include("../../global/variables.jl")
 
 default(legendfontsize = 11, guidefont = (12, :black), tickfont = (11, :black))
 
@@ -30,7 +30,7 @@ function plot_work_contacts()
 
     for z = 1:num_connection_variants
         for i = 1:num_runs
-            observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "contacts", "results_w_$(z + minimum_conn_number - 1).jld"))["incidence"] ./ 10072
+            observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "contacts", "results_w_$(z + minimum_conn_number - 1).jld2"))["incidence"] ./ 10072
             for j = 1:num_years
                 incidence_arr[z, i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
             end
@@ -102,7 +102,7 @@ function plot_work_contacts()
 
     for z = 1:num_connection_variants
         for i = 1:num_runs
-            rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "contacts", "results_w_$(z + minimum_conn_number - 1).jld"))["rt"]
+            rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "contacts", "results_w_$(z + minimum_conn_number - 1).jld2"))["rt"]
             for j = 1:num_years
                 rt_arr[z, i, j] = moving_average(rt, 20)[(365 * (j - 1) + 1):(365 * (j - 1) + 365)]
             end
@@ -164,7 +164,7 @@ function plot_school_contacts()
 
     for z = 1:num_connection_variants
         for i = 1:num_runs
-            observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "contacts", "results_s_$(z + minimum_conn_number - 1).jld"))["incidence"] ./ 10072
+            observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "contacts", "results_s_$(z + minimum_conn_number - 1).jld2"))["incidence"] ./ 10072
             for j = 1:num_years
                 incidence_arr[z, i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
             end
@@ -240,7 +240,7 @@ function plot_school_contacts()
 
     for z = 1:num_connection_variants
         for i = 1:num_runs
-            rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "contacts", "results_s_$(z + minimum_conn_number - 1).jld"))["rt"]
+            rt = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "contacts", "results_s_$(z + minimum_conn_number - 1).jld2"))["rt"]
             for j = 1:num_years
                 rt_arr[z, i, j] = moving_average(rt, 20)[(365 * (j - 1) + 1):(365 * (j - 1) + 365)]
             end
@@ -471,179 +471,179 @@ function plot_infection_curves()
 
     for i = 1:num_runs_global_sensitivity
         println("Run: $(i)")
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incidence"] ./ 10072
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incidence"] ./ 10072
         for k = 1:num_years
             incidence_arr[i, k] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[(52 * (k - 1) + 1):(52 * (k - 1) + 52), :, 1], dims = 2)[:, 1]
         end
 
-        isolation_probability_day_1_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["isolation_probabilities_day_1"][1]
-        isolation_probability_day_1_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["isolation_probabilities_day_1"][2]
-        isolation_probability_day_1_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["isolation_probabilities_day_1"][3]
-        isolation_probability_day_1_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["isolation_probabilities_day_1"][4]
+        isolation_probability_day_1_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["isolation_probabilities_day_1"][1]
+        isolation_probability_day_1_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["isolation_probabilities_day_1"][2]
+        isolation_probability_day_1_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["isolation_probabilities_day_1"][3]
+        isolation_probability_day_1_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["isolation_probabilities_day_1"][4]
         
-        isolation_probability_day_2_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["isolation_probabilities_day_2"][1]
-        isolation_probability_day_2_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["isolation_probabilities_day_2"][2]
-        isolation_probability_day_2_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["isolation_probabilities_day_2"][3]
-        isolation_probability_day_2_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["isolation_probabilities_day_2"][4]
+        isolation_probability_day_2_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["isolation_probabilities_day_2"][1]
+        isolation_probability_day_2_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["isolation_probabilities_day_2"][2]
+        isolation_probability_day_2_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["isolation_probabilities_day_2"][3]
+        isolation_probability_day_2_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["isolation_probabilities_day_2"][4]
         
-        isolation_probability_day_3_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["isolation_probabilities_day_3"][1]
-        isolation_probability_day_3_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["isolation_probabilities_day_3"][2]
-        isolation_probability_day_3_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["isolation_probabilities_day_3"][3]
-        isolation_probability_day_3_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["isolation_probabilities_day_3"][4]
+        isolation_probability_day_3_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["isolation_probabilities_day_3"][1]
+        isolation_probability_day_3_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["isolation_probabilities_day_3"][2]
+        isolation_probability_day_3_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["isolation_probabilities_day_3"][3]
+        isolation_probability_day_3_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["isolation_probabilities_day_3"][4]
 
-        recovered_duration_mean[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["recovered_duration_mean"]
-        recovered_duration_sd[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["recovered_duration_sd"]
+        recovered_duration_mean[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["recovered_duration_mean"]
+        recovered_duration_sd[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["recovered_duration_sd"]
         
-        mean_household_contact_duration_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_household_contact_durations"][1]
-        mean_household_contact_duration_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_household_contact_durations"][2]
-        mean_household_contact_duration_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_household_contact_durations"][3]
-        mean_household_contact_duration_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_household_contact_durations"][4]
-        mean_household_contact_duration_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_household_contact_durations"][5]
+        mean_household_contact_duration_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_household_contact_durations"][1]
+        mean_household_contact_duration_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_household_contact_durations"][2]
+        mean_household_contact_duration_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_household_contact_durations"][3]
+        mean_household_contact_duration_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_household_contact_durations"][4]
+        mean_household_contact_duration_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_household_contact_durations"][5]
         
-        household_contact_duration_sd_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["household_contact_duration_sds"][1]
-        household_contact_duration_sd_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["household_contact_duration_sds"][2]
-        household_contact_duration_sd_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["household_contact_duration_sds"][3]
-        household_contact_duration_sd_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["household_contact_duration_sds"][4]
-        household_contact_duration_sd_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["household_contact_duration_sds"][5]
+        household_contact_duration_sd_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["household_contact_duration_sds"][1]
+        household_contact_duration_sd_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["household_contact_duration_sds"][2]
+        household_contact_duration_sd_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["household_contact_duration_sds"][3]
+        household_contact_duration_sd_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["household_contact_duration_sds"][4]
+        household_contact_duration_sd_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["household_contact_duration_sds"][5]
         
-        other_contact_duration_shape_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["other_contact_duration_shapes"][1]
-        other_contact_duration_shape_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["other_contact_duration_shapes"][2]
-        other_contact_duration_shape_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["other_contact_duration_shapes"][3]
-        other_contact_duration_shape_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["other_contact_duration_shapes"][4]
-        other_contact_duration_shape_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["other_contact_duration_shapes"][5]
+        other_contact_duration_shape_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["other_contact_duration_shapes"][1]
+        other_contact_duration_shape_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["other_contact_duration_shapes"][2]
+        other_contact_duration_shape_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["other_contact_duration_shapes"][3]
+        other_contact_duration_shape_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["other_contact_duration_shapes"][4]
+        other_contact_duration_shape_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["other_contact_duration_shapes"][5]
         
-        other_contact_duration_scale_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["other_contact_duration_scales"][1]
-        other_contact_duration_scale_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["other_contact_duration_scales"][2]
-        other_contact_duration_scale_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["other_contact_duration_scales"][3]
-        other_contact_duration_scale_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["other_contact_duration_scales"][4]
-        other_contact_duration_scale_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["other_contact_duration_scales"][5]
+        other_contact_duration_scale_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["other_contact_duration_scales"][1]
+        other_contact_duration_scale_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["other_contact_duration_scales"][2]
+        other_contact_duration_scale_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["other_contact_duration_scales"][3]
+        other_contact_duration_scale_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["other_contact_duration_scales"][4]
+        other_contact_duration_scale_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["other_contact_duration_scales"][5]
         
-        duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["duration_parameter"]
+        duration_parameter[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["duration_parameter"]
         
-        susceptibility_parameter_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["susceptibility_parameters"][1]
-        susceptibility_parameter_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["susceptibility_parameters"][2]
-        susceptibility_parameter_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["susceptibility_parameters"][3]
-        susceptibility_parameter_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["susceptibility_parameters"][4]
-        susceptibility_parameter_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["susceptibility_parameters"][5]
-        susceptibility_parameter_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["susceptibility_parameters"][6]
-        susceptibility_parameter_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["susceptibility_parameters"][7]
+        susceptibility_parameter_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["susceptibility_parameters"][1]
+        susceptibility_parameter_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["susceptibility_parameters"][2]
+        susceptibility_parameter_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["susceptibility_parameters"][3]
+        susceptibility_parameter_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["susceptibility_parameters"][4]
+        susceptibility_parameter_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["susceptibility_parameters"][5]
+        susceptibility_parameter_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["susceptibility_parameters"][6]
+        susceptibility_parameter_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["susceptibility_parameters"][7]
         
-        temperature_parameter_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["temperature_parameters"][1]
-        temperature_parameter_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["temperature_parameters"][2]
-        temperature_parameter_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["temperature_parameters"][3]
-        temperature_parameter_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["temperature_parameters"][4]
-        temperature_parameter_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["temperature_parameters"][5]
-        temperature_parameter_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["temperature_parameters"][6]
-        temperature_parameter_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["temperature_parameters"][7]
+        temperature_parameter_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["temperature_parameters"][1]
+        temperature_parameter_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["temperature_parameters"][2]
+        temperature_parameter_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["temperature_parameters"][3]
+        temperature_parameter_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["temperature_parameters"][4]
+        temperature_parameter_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["temperature_parameters"][5]
+        temperature_parameter_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["temperature_parameters"][6]
+        temperature_parameter_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["temperature_parameters"][7]
         
-        random_infection_probability_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["random_infection_probabilities"][1]
-        random_infection_probability_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["random_infection_probabilities"][2]
-        random_infection_probability_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["random_infection_probabilities"][3]
-        random_infection_probability_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["random_infection_probabilities"][4]
+        random_infection_probability_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["random_infection_probabilities"][1]
+        random_infection_probability_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["random_infection_probabilities"][2]
+        random_infection_probability_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["random_infection_probabilities"][3]
+        random_infection_probability_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["random_infection_probabilities"][4]
         
-        mean_immunity_duration_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_immunity_durations"][1]
-        mean_immunity_duration_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_immunity_durations"][2]
-        mean_immunity_duration_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_immunity_durations"][3]
-        mean_immunity_duration_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_immunity_durations"][4]
-        mean_immunity_duration_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_immunity_durations"][5]
-        mean_immunity_duration_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_immunity_durations"][6]
-        mean_immunity_duration_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_immunity_durations"][7]
+        mean_immunity_duration_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_immunity_durations"][1]
+        mean_immunity_duration_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_immunity_durations"][2]
+        mean_immunity_duration_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_immunity_durations"][3]
+        mean_immunity_duration_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_immunity_durations"][4]
+        mean_immunity_duration_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_immunity_durations"][5]
+        mean_immunity_duration_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_immunity_durations"][6]
+        mean_immunity_duration_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_immunity_durations"][7]
         
-        incubation_period_duration_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_durations"][1]
-        incubation_period_duration_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_durations"][2]
-        incubation_period_duration_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_durations"][3]
-        incubation_period_duration_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_durations"][4]
-        incubation_period_duration_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_durations"][5]
-        incubation_period_duration_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_durations"][6]
-        incubation_period_duration_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_durations"][7]
+        incubation_period_duration_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_durations"][1]
+        incubation_period_duration_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_durations"][2]
+        incubation_period_duration_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_durations"][3]
+        incubation_period_duration_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_durations"][4]
+        incubation_period_duration_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_durations"][5]
+        incubation_period_duration_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_durations"][6]
+        incubation_period_duration_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_durations"][7]
         
-        incubation_period_duration_variance_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_duration_variances"][1]
-        incubation_period_duration_variance_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_duration_variances"][2]
-        incubation_period_duration_variance_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_duration_variances"][3]
-        incubation_period_duration_variance_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_duration_variances"][4]
-        incubation_period_duration_variance_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_duration_variances"][5]
-        incubation_period_duration_variance_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_duration_variances"][6]
-        incubation_period_duration_variance_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incubation_period_duration_variances"][7]
+        incubation_period_duration_variance_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_duration_variances"][1]
+        incubation_period_duration_variance_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_duration_variances"][2]
+        incubation_period_duration_variance_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_duration_variances"][3]
+        incubation_period_duration_variance_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_duration_variances"][4]
+        incubation_period_duration_variance_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_duration_variances"][5]
+        incubation_period_duration_variance_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_duration_variances"][6]
+        incubation_period_duration_variance_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incubation_period_duration_variances"][7]
         
-        infection_period_duration_child_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_child"][1]
-        infection_period_duration_child_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_child"][2]
-        infection_period_duration_child_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_child"][3]
-        infection_period_duration_child_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_child"][4]
-        infection_period_duration_child_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_child"][5]
-        infection_period_duration_child_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_child"][6]
-        infection_period_duration_child_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_child"][7]
+        infection_period_duration_child_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_child"][1]
+        infection_period_duration_child_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_child"][2]
+        infection_period_duration_child_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_child"][3]
+        infection_period_duration_child_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_child"][4]
+        infection_period_duration_child_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_child"][5]
+        infection_period_duration_child_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_child"][6]
+        infection_period_duration_child_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_child"][7]
         
-        infection_period_duration_variance_child_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_child"][1]
-        infection_period_duration_variance_child_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_child"][2]
-        infection_period_duration_variance_child_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_child"][3]
-        infection_period_duration_variance_child_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_child"][4]
-        infection_period_duration_variance_child_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_child"][5]
-        infection_period_duration_variance_child_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_child"][6]
-        infection_period_duration_variance_child_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_child"][7]
+        infection_period_duration_variance_child_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_child"][1]
+        infection_period_duration_variance_child_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_child"][2]
+        infection_period_duration_variance_child_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_child"][3]
+        infection_period_duration_variance_child_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_child"][4]
+        infection_period_duration_variance_child_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_child"][5]
+        infection_period_duration_variance_child_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_child"][6]
+        infection_period_duration_variance_child_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_child"][7]
         
-        infection_period_duration_adult_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_adult"][1]
-        infection_period_duration_adult_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_adult"][2]
-        infection_period_duration_adult_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_adult"][3]
-        infection_period_duration_adult_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_adult"][4]
-        infection_period_duration_adult_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_adult"][5]
-        infection_period_duration_adult_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_adult"][6]
-        infection_period_duration_adult_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_durations_adult"][7]
+        infection_period_duration_adult_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_adult"][1]
+        infection_period_duration_adult_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_adult"][2]
+        infection_period_duration_adult_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_adult"][3]
+        infection_period_duration_adult_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_adult"][4]
+        infection_period_duration_adult_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_adult"][5]
+        infection_period_duration_adult_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_adult"][6]
+        infection_period_duration_adult_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_durations_adult"][7]
         
-        infection_period_duration_variance_adult_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_adult"][1]
-        infection_period_duration_variance_adult_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_adult"][2]
-        infection_period_duration_variance_adult_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_adult"][3]
-        infection_period_duration_variance_adult_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_adult"][4]
-        infection_period_duration_variance_adult_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_adult"][5]
-        infection_period_duration_variance_adult_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_adult"][6]
-        infection_period_duration_variance_adult_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["infection_period_duration_variances_adult"][7]
+        infection_period_duration_variance_adult_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_adult"][1]
+        infection_period_duration_variance_adult_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_adult"][2]
+        infection_period_duration_variance_adult_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_adult"][3]
+        infection_period_duration_variance_adult_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_adult"][4]
+        infection_period_duration_variance_adult_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_adult"][5]
+        infection_period_duration_variance_adult_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_adult"][6]
+        infection_period_duration_variance_adult_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["infection_period_duration_variances_adult"][7]
 
-        symptomatic_probability_child_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_child"][1]
-        symptomatic_probability_child_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_child"][2]
-        symptomatic_probability_child_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_child"][3]
-        symptomatic_probability_child_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_child"][4]
-        symptomatic_probability_child_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_child"][5]
-        symptomatic_probability_child_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_child"][6]
-        symptomatic_probability_child_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_child"][7]
+        symptomatic_probability_child_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_child"][1]
+        symptomatic_probability_child_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_child"][2]
+        symptomatic_probability_child_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_child"][3]
+        symptomatic_probability_child_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_child"][4]
+        symptomatic_probability_child_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_child"][5]
+        symptomatic_probability_child_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_child"][6]
+        symptomatic_probability_child_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_child"][7]
         
-        symptomatic_probability_teenager_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_teenager"][1]
-        symptomatic_probability_teenager_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_teenager"][2]
-        symptomatic_probability_teenager_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_teenager"][3]
-        symptomatic_probability_teenager_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_teenager"][4]
-        symptomatic_probability_teenager_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_teenager"][5]
-        symptomatic_probability_teenager_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_teenager"][6]
-        symptomatic_probability_teenager_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_teenager"][7]
+        symptomatic_probability_teenager_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_teenager"][1]
+        symptomatic_probability_teenager_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_teenager"][2]
+        symptomatic_probability_teenager_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_teenager"][3]
+        symptomatic_probability_teenager_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_teenager"][4]
+        symptomatic_probability_teenager_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_teenager"][5]
+        symptomatic_probability_teenager_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_teenager"][6]
+        symptomatic_probability_teenager_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_teenager"][7]
         
-        symptomatic_probability_adult_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_adult"][1]
-        symptomatic_probability_adult_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_adult"][2]
-        symptomatic_probability_adult_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_adult"][3]
-        symptomatic_probability_adult_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_adult"][4]
-        symptomatic_probability_adult_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_adult"][5]
-        symptomatic_probability_adult_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_adult"][6]
-        symptomatic_probability_adult_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["symptomatic_probabilities_adult"][7]
+        symptomatic_probability_adult_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_adult"][1]
+        symptomatic_probability_adult_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_adult"][2]
+        symptomatic_probability_adult_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_adult"][3]
+        symptomatic_probability_adult_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_adult"][4]
+        symptomatic_probability_adult_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_adult"][5]
+        symptomatic_probability_adult_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_adult"][6]
+        symptomatic_probability_adult_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["symptomatic_probabilities_adult"][7]
         
-        mean_viral_load_infant_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_infant"][1]
-        mean_viral_load_infant_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_infant"][2]
-        mean_viral_load_infant_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_infant"][3]
-        mean_viral_load_infant_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_infant"][4]
-        mean_viral_load_infant_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_infant"][5]
-        mean_viral_load_infant_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_infant"][6]
-        mean_viral_load_infant_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_infant"][7]
+        mean_viral_load_infant_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_infant"][1]
+        mean_viral_load_infant_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_infant"][2]
+        mean_viral_load_infant_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_infant"][3]
+        mean_viral_load_infant_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_infant"][4]
+        mean_viral_load_infant_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_infant"][5]
+        mean_viral_load_infant_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_infant"][6]
+        mean_viral_load_infant_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_infant"][7]
         
-        mean_viral_load_child_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_child"][1]
-        mean_viral_load_child_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_child"][2]
-        mean_viral_load_child_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_child"][3]
-        mean_viral_load_child_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_child"][4]
-        mean_viral_load_child_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_child"][5]
-        mean_viral_load_child_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_child"][6]
-        mean_viral_load_child_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_child"][7]
+        mean_viral_load_child_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_child"][1]
+        mean_viral_load_child_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_child"][2]
+        mean_viral_load_child_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_child"][3]
+        mean_viral_load_child_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_child"][4]
+        mean_viral_load_child_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_child"][5]
+        mean_viral_load_child_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_child"][6]
+        mean_viral_load_child_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_child"][7]
         
-        mean_viral_load_adult_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_adult"][1]
-        mean_viral_load_adult_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_adult"][2]
-        mean_viral_load_adult_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_adult"][3]
-        mean_viral_load_adult_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_adult"][4]
-        mean_viral_load_adult_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_adult"][5]
-        mean_viral_load_adult_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_adult"][6]
-        mean_viral_load_adult_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["mean_viral_loads_adult"][7]
+        mean_viral_load_adult_1[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_adult"][1]
+        mean_viral_load_adult_2[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_adult"][2]
+        mean_viral_load_adult_3[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_adult"][3]
+        mean_viral_load_adult_4[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_adult"][4]
+        mean_viral_load_adult_5[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_adult"][5]
+        mean_viral_load_adult_6[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_adult"][6]
+        mean_viral_load_adult_7[i] = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["mean_viral_loads_adult"][7]
     end
 
     for i = 1:52
@@ -659,7 +659,7 @@ function plot_infection_curves()
     incidence_arr_mean = zeros(Float64, (52 * num_years), 4)
 
     for i = 1:num_runs_global_sensitivity
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld"))["incidence"]
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "sensitivity", "results_$(i).jld2"))["incidence"]
         incidence_arr[i] = sum(observed_num_infected_age_groups_viruses, dims = 2)[1:(52 * num_years), 1, :]
     end
 
@@ -941,7 +941,7 @@ function plot_incidences()
     incidence = zeros(Float64, 52)
 
     for i = 1:num_runs
-        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld"))["observed_cases"] ./ 10072
+        observed_num_infected_age_groups_viruses = load(joinpath(@__DIR__, "..", "..", "..", "output", "tables", "results_$(i).jld2"))["observed_cases"] ./ 10072
         for j = 1:num_years
             incidence_arr[i, j] = sum(sum(observed_num_infected_age_groups_viruses, dims = 3)[:, :, 1], dims = 2)[:, 1][(52 * (j - 1) + 1):(52 * (j - 1) + 52)]
         end

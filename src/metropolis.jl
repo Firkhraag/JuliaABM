@@ -3,28 +3,28 @@ using DelimitedFiles
 using Statistics
 using LatinHypercubeSampling
 using CSV
-using JLD
+using JLD2
 using DataFrames
 using Distributions
 
 # Модель на сервере
-include("../server/lib/data/etiology.jl")
-include("../server/lib/data/incidence.jl")
+include("./data/etiology.jl")
+include("./data/incidence.jl")
 
-include("../server/lib/global/variables.jl")
+include("./global/variables.jl")
 
-include("../server/lib/model/virus.jl")
-include("../server/lib/model/agent.jl")
-include("../server/lib/model/household.jl")
-include("../server/lib/model/workplace.jl")
-include("../server/lib/model/school.jl")
-include("../server/lib/model/initialization.jl")
-include("../server/lib/model/connections.jl")
-include("../server/lib/model/contacts.jl")
+include("./model/virus.jl")
+include("./model/agent.jl")
+include("./model/household.jl")
+include("./model/workplace.jl")
+include("./model/school.jl")
+include("./model/initialization.jl")
+include("./model/connections.jl")
+include("./model/contacts.jl")
 
-include("../server/lib/util/moving_avg.jl")
-include("../server/lib/util/stats.jl")
-include("../server/lib/util/reset.jl")
+include("./util/moving_avg.jl")
+include("./util/stats.jl")
+include("./util/reset.jl")
 
 # Локальная модель
 include("model/simulation.jl")
@@ -270,7 +270,7 @@ function run_metropolis_model()
 
     # Получаем результаты моделирования для начального набора значений параметров
     @time observed_num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
-        num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
+        nothing, num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
         susceptibility_parameters, temperature_parameters, temperature,
         mean_household_contact_durations, household_contact_duration_sds,
         other_contact_duration_shapes, other_contact_duration_scales,
@@ -721,7 +721,7 @@ function run_metropolis_model()
 
         # Моделируем заболеваемость
         @time observed_num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
-            num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
+            nothing, num_threads, thread_rng, agents, viruses, households, schools, duration_parameter,
             susceptibility_parameters, temperature_parameters, temperature,
             mean_household_contact_durations, household_contact_duration_sds,
             other_contact_duration_shapes, other_contact_duration_scales,

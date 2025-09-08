@@ -1,3 +1,13 @@
+using Base.Threads
+using Random
+using Colors
+using Plots
+using HTTP.WebSockets
+using Base64
+using JSON
+
+include("../data/moscow.jl")
+
 # Функция продолжительности контакта
 function get_contact_duration(
     # Если нормальное распределение - средняя продолжительность контакта
@@ -332,46 +342,6 @@ function simulate_contacts(
                     end
                 end
             end
-            # # Для лета увеличиваем вероятность инфицирования от неизвестного источника
-            # if (month == 6) || (month == 7) || (month == 8)
-            #     # Повторное случайное инфицирование
-            #     if agent.age < 3
-            #         if rand(rng, Float64) < random_infection_probabilities[1]
-            #             infect_randomly(agent, rng)
-            #         end
-            #     elseif agent.age < 7
-            #         if rand(rng, Float64) < random_infection_probabilities[2]
-            #             infect_randomly(agent, rng)
-            #         end
-            #     elseif agent.age < 15
-            #         if rand(rng, Float64) < random_infection_probabilities[3]
-            #             infect_randomly(agent, rng)
-            #         end
-            #     else
-            #         if rand(rng, Float64) < random_infection_probabilities[4]
-            #             infect_randomly(agent, rng)
-            #         end
-            #     end
-
-            #     # Повторное случайное инфицирование
-            #     if agent.age < 3
-            #         if rand(rng, Float64) < random_infection_probabilities[1]
-            #             infect_randomly(agent, rng)
-            #         end
-            #     elseif agent.age < 7
-            #         if rand(rng, Float64) < random_infection_probabilities[2]
-            #             infect_randomly(agent, rng)
-            #         end
-            #     elseif agent.age < 15
-            #         if rand(rng, Float64) < random_infection_probabilities[3]
-            #             infect_randomly(agent, rng)
-            #         end
-            #     else
-            #         if rand(rng, Float64) < random_infection_probabilities[4]
-            #             infect_randomly(agent, rng)
-            #         end
-            #     end
-            # end
         end
     end
 end
@@ -615,8 +585,8 @@ end
 
 # Запуск модели
 function run_simulation(
-    # Веб-сокет для связи сервера с клиентом
-    ws::Union{WebSockets.WebSocket, Nothing},
+    # Вебсокет
+    ws::WebSockets.WebSocket,
     # Число потоков
     num_threads::Int,
     # Генератор случайных чисел для потоков
@@ -666,7 +636,12 @@ function run_simulation(
     school_class_closure_threshold::Float64 = 0.0,
     # Сценарий глобального потепления
     global_warming_temperature::Float64 = 0.0,
-)::Tuple{Array{Int, 3}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
+)::Tuple{Array{Int, 4}, Array{Float64, 2}, Vector{Float64}, Vector{Int}}
+    # Размер популяции / 1000
+    population_coef = 10072
+    # Число муниципалитетов
+    num_municipalities = 107
+
     # День месяца
     day = 1
     # Месяц
@@ -675,9 +650,6 @@ function run_simulation(
     week_day = 1
     # Номер недели
     week_num = 1
-
-    # For testing purposes
-    # return zeros(Int, 52, 7, 4) + rand([1000, 2000, 3000, 4000, 50000, 6000, 7000, 8000, 9000, 10000], 52, 7, 4), zeros(Float64, 2, 2), zeros(Float64, 2), zeros(Int, 2)
 
     # Если глобальное потепление
     if abs(global_warming_temperature) > 0.1
@@ -695,18 +667,14 @@ function run_simulation(
 
     # Число шагов
     max_step = num_years * 365
+    # Число недель
+    num_weeks = 52 * num_years
     # Если нас интересует эффективное репродуктивное число
     if is_rt_run
         # Добавляем еще 21 день
         max_step += 21
+        num_weeks += 3
     end
-    # Число недель
-    num_weeks = 52 * num_years
-
-    # Размер популяции / 1000
-    population_coef = 10072
-    # Число муниципалитетов
-    num_municipalities = 107
 
     # Выявленная заболеваемость различными вирусами в разных возрастных группах
     observed_num_infected_age_groups_viruses = zeros(Int, max_step, num_viruses, 4, num_municipalities)
@@ -726,20 +694,14 @@ function run_simulation(
     # observed_num_infected_municipalities_weekly = zeros(Int, num_weeks, num_municipalities)
     observed_num_infected_municipalities = zeros(Int, num_municipalities)
 
-    local xlabel_name
-    local ylabel_name
-    local municipalities
-    if !isnothing(ws)
-        # Для отображения результатов
-        xlabel_name = "Неделя"
-        ylabel_name = "Число случаев на 1000 чел. / неделя"
+    # Для отображения результатов
+    xlabel_name = "Неделя"
+    ylabel_name = "Число случаев на 1000 чел. / неделя"
 
-        # Координаты Москвы
-        municipalities = get_municipalities()
-    end
+    # Координаты Москвы
+    municipalities = get_municipalities()
 
     for current_step = 1:max_step
-        println(current_step)
         # Выходные, праздники
         is_holiday = false
         if week_day == 7
@@ -844,7 +806,7 @@ function run_simulation(
                                 # Число самоизолированных агентов или людей на карантине в параллели
                                 grade_num_isolated = 0
                                 # Проходим по каждому классу
-                                for group_id in eachindex(grade)
+                                for group_id in 1:length(grade)
                                     group = grade[group_id]
                                     # Если класс не на карантине
                                     if school.quarantine_period_groups[grade_id][group_id] == 0
@@ -959,82 +921,96 @@ function run_simulation(
         # День недели
         if week_day == 7
             week_day = 1
+            # ticks = range(1, stop = 52, length = 7)
+            # ticklabels = ["Aug" "Oct" "Dec" "Feb" "Apr" "Jun" "Aug"]
+            # if is_russian
+            #     ticklabels = ["Авг" "Окт" "Дек" "Фев" "Апр" "Июн" "Авг"]
+            # end
 
-            (week_num < (52 * num_years)) && (observed_num_infected_age_groups_viruses_weekly[week_num, :, :, :] = sum(observed_num_infected_age_groups_viruses[(week_num * 7 - 6):(week_num * 7), :, :, :], dims = 1))
-
-            if !isnothing(ws)
-                observed_num_infected_municipalities = sum(sum(observed_num_infected_age_groups_viruses_weekly, dims = 3)[:, :, 1, :], dims = 2)[week_num, 1, :]
-
-                shape = Plots.Shape(
-                    municipalities[1],
-                )
-                moscow_map = plot(
-                    shape,
-                    legend = false,
-                    grid = false,
-                    fc=RGBA(1, 0, 0, observed_num_infected_municipalities[1] / 3000),
-                )
-
-                for i = 2:length(municipalities)
-                    shape = Plots.Shape(
-                        municipalities[i],
-                    )
-                    plot!(
-                        moscow_map,
-                        shape,
-                        fc=RGBA(1, 0, 0, observed_num_infected_municipalities[i] / 3000),
-                    )
-                end
-                savefig(moscow_map, joinpath(@__DIR__, "..", "..", "output", "plots", "moscow_map.png"))
-                bytes_moscow_map = read(joinpath(@__DIR__, "..", "..", "output", "plots", "moscow_map.png"))
-                img_moscow_map = base64encode(bytes_moscow_map)
-
-                incidence_plot = plot(
-                    1:week_num,
-                    sum(sum(sum(observed_num_infected_age_groups_viruses_weekly, dims = 4)[:, :, :, 1], dims = 3)[:, :, 1], dims = 2)[1:week_num, 1] ./ population_coef,
-                    lw = 1.5,
-                    # xticks = (ticks, ticklabels),
-                    grid = true,
-                    legend = false,
-                    color = RGB(0.267, 0.467, 0.667),
-                    foreground_color_legend = nothing,
-                    background_color_legend = nothing,
-                    xlabel = xlabel_name,
-                    ylabel = ylabel_name,
-                )
-                savefig(incidence_plot, joinpath(@__DIR__, "..", "..", "output", "plots", "model_incidence.png"))
-
-                # for age_group = 1:4
-                #     pl = plot(
-                #         1:week_num,
-                #         sum(sum(observed_num_infected_age_groups_viruses_weekly, dims = 4)[:, :, :, 1], dims = 2)[1:week_num, 1, age_group] ./ population_coef,
-                #         lw = 1.5,
-                #         # xticks = (ticks, ticklabels),
-                #         grid = true,
-                #         legend = false,
-                #         color = RGB(0.267, 0.467, 0.667),
-                #         foreground_color_legend = nothing,
-                #         background_color_legend = nothing,
-                #         xlabel = xlabel_name,
-                #         ylabel = ylabel_name,
-                #     )
-                #     savefig(pl, joinpath(@__DIR__, "..", "..",  "output", "plots", "model_incidence_$(age_group).png"))
-                # end
-
-                bytes_main = read(joinpath(@__DIR__, "..", "..",  "output", "plots", "model_incidence.png"))
-                img_main = base64encode(bytes_main)
-
-
-                img_json = JSON.json(Dict(
-                    "moscowMap" => img_moscow_map,
-                    "imgMain" => img_main,
-                    # "img1" => img1,
-                    # "img2" => img2,
-                    # "img3" => img3,
-                    # "img4" => img4,
-                ))
-                WebSockets.send(ws, img_json)
+            for i = 1:week_num
+                observed_num_infected_age_groups_viruses_weekly[i, :, :, :] = sum(observed_num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :, :], dims = 1)
             end
+            observed_num_infected_municipalities = sum(sum(observed_num_infected_age_groups_viruses_weekly, dims = 3)[:, :, 1, :], dims = 2)[week_num, 1, :]
+
+            shape = Plots.Shape(
+                municipalities[1],
+            )
+            moscow_map = plot(
+                shape,
+                legend = false,
+                grid = false,
+                fc=RGBA(1, 0, 0, observed_num_infected_municipalities[1] / 3000),
+            )
+
+            for i = 2:length(municipalities)
+                shape = Plots.Shape(
+                    municipalities[i],
+                )
+                plot!(
+                    moscow_map,
+                    shape,
+                    fc=RGBA(1, 0, 0, observed_num_infected_municipalities[i] / 3000),
+                )
+            end
+            savefig(moscow_map, joinpath(@__DIR__, "..", "output", "plots", "moscow_map.png"))
+            bytes_moscow_map = read(joinpath(@__DIR__, "..", "output", "plots", "moscow_map.png"))
+            img_moscow_map = base64encode(bytes_moscow_map)
+
+            pl = plot(
+                1:week_num,
+                sum(sum(sum(observed_num_infected_age_groups_viruses_weekly, dims = 4)[:, :, :, 1], dims = 3)[:, :, 1], dims = 2)[1:week_num, 1] ./ population_coef,
+                lw = 1.5,
+                # xticks = (ticks, ticklabels),
+                grid = true,
+                legend = false,
+                color = RGB(0.267, 0.467, 0.667),
+                foreground_color_legend = nothing,
+                background_color_legend = nothing,
+                xlabel = xlabel_name,
+                ylabel = ylabel_name,
+            )
+            savefig(pl, joinpath(@__DIR__, "..", "output", "plots", "model_incidence.png"))
+
+            # for age_group = 1:4
+            #     pl = plot(
+            #         1:week_num,
+            #         sum(sum(observed_num_infected_age_groups_viruses_weekly, dims = 4)[:, :, :, 1], dims = 2)[1:week_num, 1, age_group] ./ population_coef,
+            #         lw = 1.5,
+            #         # xticks = (ticks, ticklabels),
+            #         grid = true,
+            #         legend = false,
+            #         color = RGB(0.267, 0.467, 0.667),
+            #         foreground_color_legend = nothing,
+            #         background_color_legend = nothing,
+            #         xlabel = xlabel_name,
+            #         ylabel = ylabel_name,
+            #     )
+            #     savefig(pl, joinpath(@__DIR__, "..", "output", "plots", "model_incidence_$(age_group).png"))
+            # end
+
+            bytes_main = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence.png"))
+            img_main = base64encode(bytes_main)
+            # bytes1 = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence_1.png"))
+            # img1 = base64encode(bytes1)
+            # bytes2 = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence_2.png"))
+            # img2 = base64encode(bytes2)
+            # bytes3 = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence_3.png"))
+            # img3 = base64encode(bytes3)
+            # bytes4 = read(joinpath(@__DIR__, "..", "output", "plots", "model_incidence_4.png"))
+            # img4 = base64encode(bytes4)
+
+            img_json = JSON.json(Dict(
+                "moscowMap" => img_moscow_map,
+                "imgMain" => img_main,
+                # "img1" => img1,
+                # "img2" => img2,
+                # "img3" => img3,
+                # "img4" => img4,
+            ))
+            send(ws, img_json)
+
+            # moscow_map = deepcopy(moscow_map_base)
+
             week_num += 1
         else
             week_day += 1
@@ -1070,5 +1046,5 @@ function run_simulation(
     #     observed_num_infected_age_groups_viruses_weekly[i, :, :, :] = sum(observed_num_infected_age_groups_viruses[(i * 7 - 6):(i * 7), :, :, :], dims = 1)
     # end
 
-    return sum(observed_num_infected_age_groups_viruses_weekly, dims = 4)[:, :, :, 1], sum(activities_infections_threads, dims = 3)[:, :, 1], rt, sum(num_schools_closed_threads, dims = 2)[:, 1]
+    return observed_num_infected_age_groups_viruses_weekly, sum(activities_infections_threads, dims = 3)[:, :, 1], rt, sum(num_schools_closed_threads, dims = 2)[:, 1]
 end

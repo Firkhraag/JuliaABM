@@ -3,29 +3,29 @@ using DelimitedFiles
 using Statistics
 using LatinHypercubeSampling
 using CSV
-using JLD
+using JLD2
 using DataFrames
 using Distributions
 using XGBoost
 
 # Модель на сервере
-include("../server/lib/data/etiology.jl")
-include("../server/lib/data/incidence.jl")
+include("./data/etiology.jl")
+include("./data/incidence.jl")
 
-include("../server/lib/global/variables.jl")
+include("./global/variables.jl")
 
-include("../server/lib/model/virus.jl")
-include("../server/lib/model/agent.jl")
-include("../server/lib/model/household.jl")
-include("../server/lib/model/workplace.jl")
-include("../server/lib/model/school.jl")
-include("../server/lib/model/initialization.jl")
-include("../server/lib/model/connections.jl")
-include("../server/lib/model/contacts.jl")
+include("./model/virus.jl")
+include("./model/agent.jl")
+include("./model/household.jl")
+include("./model/workplace.jl")
+include("./model/school.jl")
+include("./model/initialization.jl")
+include("./model/connections.jl")
+include("./model/contacts.jl")
 
-include("../server/lib/util/moving_avg.jl")
-include("../server/lib/util/stats.jl")
-include("../server/lib/util/reset.jl")
+include("./util/moving_avg.jl")
+include("./util/stats.jl")
+include("./util/reset.jl")
 
 # Локальная модель
 include("model/simulation.jl")
@@ -188,21 +188,21 @@ function run_surrogate_model()
     lhs_subfolder_name = "10"
 
     for i = 1:num_initial_runs
-        incidence_arr[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld"))["observed_cases"]
-        duration_parameter[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld"))["duration_parameter"]
-        susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld"))["susceptibility_parameters"]
-        temperature_parameters[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld"))["temperature_parameters"]
-        mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld"))["mean_immunity_durations"]
-        random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld"))["random_infection_probabilities"]
+        incidence_arr[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld2"))["observed_cases"]
+        duration_parameter[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld2"))["duration_parameter"]
+        susceptibility_parameters[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld2"))["susceptibility_parameters"]
+        temperature_parameters[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld2"))["temperature_parameters"]
+        mean_immunity_durations[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld2"))["mean_immunity_durations"]
+        random_infection_probabilities[i] = load(joinpath(@__DIR__, "..", "output", "tables", "lhs", "$(lhs_subfolder_name)", "results_$(i).jld2"))["random_infection_probabilities"]
     end
 
     for i = 1:num_additional_runs
-        incidence_arr[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld"))["observed_cases"]
-        duration_parameter[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld"))["duration_parameter"]
-        susceptibility_parameters[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld"))["susceptibility_parameters"]
-        temperature_parameters[i + num_initial_runs] = -load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld"))["temperature_parameters"]
-        mean_immunity_durations[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld"))["mean_immunity_durations"]
-        random_infection_probabilities[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld"))["random_infection_probabilities"]
+        incidence_arr[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld2"))["observed_cases"]
+        duration_parameter[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld2"))["duration_parameter"]
+        susceptibility_parameters[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld2"))["susceptibility_parameters"]
+        temperature_parameters[i + num_initial_runs] = -load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld2"))["temperature_parameters"]
+        mean_immunity_durations[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld2"))["mean_immunity_durations"]
+        random_infection_probabilities[i + num_initial_runs] = load(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(i).jld2"))["random_infection_probabilities"]
     end
 
     etiology = get_etiology()
@@ -281,20 +281,20 @@ function run_surrogate_model()
     #             par_vec[k] = 0.0
     #         end
 
-    #         swarm_incidence = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"]
+    #         swarm_incidence = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld2"))["observed_cases"]
     #         swarm_nMAE = zeros(Float64, 52)
     #         for j = 1:52
     #             swarm_nMAE[j] = sum(abs.(swarm_incidence[j, :, :] - num_infected_age_groups_viruses[j, :, :])) / sum(num_infected_age_groups_viruses[j, :, :])
     #         end
 
-    #         par_vec[1] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["duration_parameter"]
-    #         par_vec[2:8] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["susceptibility_parameters"]
-    #         par_vec[9:15] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["temperature_parameters"]
-    #         par_vec[16:22] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["mean_immunity_durations"]
-    #         par_vec[23:26] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["random_infection_probabilities"]
+    #         par_vec[1] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld2"))["duration_parameter"]
+    #         par_vec[2:8] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld2"))["susceptibility_parameters"]
+    #         par_vec[9:15] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld2"))["temperature_parameters"]
+    #         par_vec[16:22] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld2"))["mean_immunity_durations"]
+    #         par_vec[23:26] = load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld2"))["random_infection_probabilities"]
     #         r = reshape(par_vec, 1, :)
 
-    #         # real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
+    #         # real_nMAE = sum(abs.(load(joinpath(@__DIR__, "..", "output", "tables", "swarm", "$(particle_number)", "results_$(i).jld2"))["observed_cases"] - num_infected_age_groups_viruses)) / sum(num_infected_age_groups_viruses)
     #         # error += abs(real_nMAE - nMAE[:][1])
 
     #         nMAE_predicted, _ = Lux.apply(lux_model, r, params, lux_state)
@@ -739,7 +739,7 @@ function run_surrogate_model()
 
         # Моделируем заболеваемость
         @time observed_num_infected_age_groups_viruses, activities_infections, rt, num_schools_closed = run_simulation(
-            num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_min,
+            nothing, num_threads, thread_rng, agents, viruses, households, schools, duration_parameter_min,
             susceptibility_parameters_min, -temperature_parameters_min, temperature,
             mean_household_contact_durations, household_contact_duration_sds,
             other_contact_duration_shapes, other_contact_duration_scales,
@@ -765,7 +765,7 @@ function run_surrogate_model()
             error = sum((observed_num_infected_age_groups_viruses - num_infected_age_groups_viruses).^2)
         end
 
-        save(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(curr_run).jld"),
+        save(joinpath(@__DIR__, "..", "output", "tables", "surrogate", "results_$(curr_run).jld2"),
             "observed_cases", observed_num_infected_age_groups_viruses,
             "duration_parameter", duration_parameter_min,
             "susceptibility_parameters", susceptibility_parameters_min,
